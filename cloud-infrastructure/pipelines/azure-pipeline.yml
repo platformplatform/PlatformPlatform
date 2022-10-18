@@ -1,0 +1,17 @@
+trigger:
+  branches:
+    include:
+    - main
+
+steps:
+- task: CopyFiles@2
+  displayName: 'Copy Terraform files to artifacts'
+  inputs:
+    SourceFolder: cloud-infrastructure/terraform
+    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/terraform'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'
+    ArtifactName: 'drop'
