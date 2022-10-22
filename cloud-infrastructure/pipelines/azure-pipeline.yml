@@ -16,6 +16,12 @@ steps:
     SourceFolder: cloud-infrastructure/release-pipelines
     TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/release-pipelines'
 
+- task: MicrosoftSecurityDevOps@1
+  inputs:
+    break: false
+    publish: true
+    artifactName: 'CodeAnalysisLogs'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish artifacts'
   inputs:
