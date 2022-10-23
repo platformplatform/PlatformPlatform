@@ -1,20 +1,15 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+[![Build Status](https://dev.azure.com/mentum/Mentum/_apis/build/status/Cloud%20Infrastructure?branchName=main)](https://dev.azure.com/mentum/Mentum/_build/latest?definitionId=6&branchName=main) [![Build Status](https://vsrm.dev.azure.com/mentum/_apis/public/Release/badge/990510c9-5563-4c8d-83ce-586716d199c0/3/3)](https://dev.azure.com/mentum/Mentum/_release?view=all&_a=releases&definitionId=3) [![Board Status](https://dev.azure.com/mentum/990510c9-5563-4c8d-83ce-586716d199c0/86f4cdde-611c-4c4b-98e2-bfe0e480ac52/_apis/work/boardbadge/34705eb8-2762-4c3e-9d24-9ef2e101c065)](https://dev.azure.com/mentum/990510c9-5563-4c8d-83ce-586716d199c0/_boards/board/t/86f4cdde-611c-4c4b-98e2-bfe0e480ac52/Stories/)
+
+# Introduction
+This is a Mono Repository. That is - all code from all parts of the system is in this repository.
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Clone the repository using this command:
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+```
+git clone https://mentum@dev.azure.com/mentum/Mentum/_git/Mentum
+```
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+# Learn more
+* Visit [the backlog ](https://dev.azure.com/mentum/Mentum/_backlogs/backlog/) to see what is planned.
+* Visit [the wiki ](https://dev.azure.com/mentum/Mentum/_wiki/wikis) to learn more.
