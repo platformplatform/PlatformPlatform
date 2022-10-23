@@ -20,6 +20,7 @@ steps:
     TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/release-pipelines'
 
 - task: MicrosoftSecurityDevOps@1
+  displayName: 'Run Microsoft Security DevOps scanning'
   inputs:
     break: false
     publish: true
