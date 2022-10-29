@@ -5,6 +5,11 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=3.29.1"
     }
+
+    azapi = {
+      source = "azure/azapi"
+      version = "=1.0.0"
+    }
   }
 
   # Terrafrom storrage account (must be created before running Terrafrom)
@@ -18,3 +23,7 @@ terraform {
 provider "azurerm" {
   features {}
 }
+
+provider "azapi" {
+}
+
