@@ -1,1 +1,1 @@
-global-resource-location = "westeurope"
+global_resource_location = "westeurope"
