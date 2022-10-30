@@ -1,0 +1,1 @@
+global-resource-location = "westeurope"

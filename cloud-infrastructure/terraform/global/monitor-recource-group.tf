@@ -1,7 +1,7 @@
 # Create a resource group
 resource "azurerm_resource_group" "monitor-resource-group" {
   name     = "Monitor"
-  location = "westeurope"
+  location = var.global-resource-location
 }
 
 resource "azurerm_management_lock" "monitor-resource-group-lock" {
