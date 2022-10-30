@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "cluster-resource-group" {
-  name     = "__resourcegroupname__"
-  location = "__location__"
+  name     = var.cluster_resource_group_name
+  location = var.cluster_location
 }
 
 resource "azurerm_management_lock" "cluster-resource-group-lock" {
