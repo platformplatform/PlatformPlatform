@@ -1,4 +1,3 @@
-# Create a resource group
 resource "azurerm_resource_group" "cluster-resource-group" {
   name     = "__resourcegroupname__"
   location = "__location__"

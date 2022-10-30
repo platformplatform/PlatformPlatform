@@ -1,4 +1,3 @@
-# Create a resource group
 resource "azurerm_resource_group" "monitor-resource-group" {
   name     = "Monitor"
   location = var.global_resource_location

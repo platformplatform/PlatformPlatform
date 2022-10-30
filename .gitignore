@@ -363,6 +363,7 @@ FodyWeavers.xsd
 
 # Terrafrom
 .terraform
+*.tfstate
 
-# macOs files
+# macOS files
 .DS_Store

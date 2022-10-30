@@ -1,5 +1,4 @@
 terraform {
-  # Setting the required_ Azure Provider and version
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -7,12 +6,11 @@ terraform {
     }
 
     azapi = {
-      source = "azure/azapi"
+      source  = "azure/azapi"
       version = "=1.0.0"
     }
   }
 
-  # Terrafrom storrage account (must be created before running Terrafrom)
   backend "azurerm" {
     storage_account_name = "__terraformstorageaccount__"
     container_name       = "__terraformcontainer__"
