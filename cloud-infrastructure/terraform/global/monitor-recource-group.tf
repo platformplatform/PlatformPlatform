@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "monitor-resource-group" {
-  name     = "Monitor"
+  name     = "monitor"
   location = var.global_resource_location
 
   lifecycle {
