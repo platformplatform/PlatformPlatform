@@ -13,5 +13,4 @@ resource "azurerm_management_lock" "cluster-resource-group-lock" {
   name       = "cluster-resource-group-lock"
   scope      = azurerm_resource_group.cluster-resource-group.id
   lock_level = "CanNotDelete"
-  tags       = local.tags
 }
