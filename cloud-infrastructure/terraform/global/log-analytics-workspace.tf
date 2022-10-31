@@ -10,4 +10,6 @@ resource "azurerm_log_analytics_workspace" "log-analytics-workspace" {
   lifecycle {
     prevent_destroy = true
   }
+
+  tags = local.tags
 }

@@ -22,4 +22,6 @@ resource "azapi_resource" "container-apps-environment" {
   lifecycle {
     prevent_destroy = true
   }
+
+  tags = local.tags
 }
