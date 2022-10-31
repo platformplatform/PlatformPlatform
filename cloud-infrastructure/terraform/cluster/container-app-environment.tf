@@ -15,7 +15,11 @@ resource "azapi_resource" "container-apps-environment" {
           sharedKey  = data.azurerm_log_analytics_workspace.log-analytics-workspace.primary_shared_key
         }
       },
-      zoneRedundant = false
+      vnetConfiguration = {
+          internal = false,
+          infrastructureSubnetId = azurerm_subnet.subnet.id
+      },      
+      zoneRedundant = true
     }
   })
 
