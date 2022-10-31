@@ -364,7 +364,9 @@ FodyWeavers.xsd
 # Terrafrom
 .terraform
 *.tfstate
-.terraform.lock.hcl
+*.terraform.lock.hcl
+*.tfstate.lock.info
+*.tfstate.backup
 
 # macOS files
 .DS_Store
