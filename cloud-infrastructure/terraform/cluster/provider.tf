@@ -12,9 +12,9 @@ terraform {
   }
 
   backend "azurerm" {
-    storage_account_name = "__terraformstorageaccount__"
-    container_name       = "__terraformcontainer__"
-    key                  = "__terraformstatefile__"
+    storage_account_name = "__terraform-storage-account__"
+    container_name       = "__terraform-container__"
+    key                  = "__terraform-state-file__"
   }
 }
 
