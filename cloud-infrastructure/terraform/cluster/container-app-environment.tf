@@ -16,4 +16,8 @@ resource "azapi_resource" "container-apps-environment" {
       zoneRedundant = false
     }
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

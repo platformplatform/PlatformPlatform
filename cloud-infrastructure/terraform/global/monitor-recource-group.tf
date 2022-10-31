@@ -1,6 +1,10 @@
 resource "azurerm_resource_group" "monitor-resource-group" {
   name     = "Monitor"
   location = var.global_resource_location
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "azurerm_management_lock" "monitor-resource-group-lock" {

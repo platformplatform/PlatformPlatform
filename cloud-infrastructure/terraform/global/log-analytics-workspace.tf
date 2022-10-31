@@ -6,4 +6,8 @@ resource "azurerm_log_analytics_workspace" "log-analytics-workspace" {
   retention_in_days          = "30"
   internet_ingestion_enabled = "true"
   internet_query_enabled     = "true"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
