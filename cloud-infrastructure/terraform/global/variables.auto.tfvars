@@ -1,2 +1,2 @@
-global_resource_location = "westeurope"
+global_resource_location = "__location__"
 environment              = "__environment__"
