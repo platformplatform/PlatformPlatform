@@ -1,3 +1,5 @@
+// Terraform doesn't support creating container apps yet https://github.com/hashicorp/terraform-provider-azurerm/issues/14122
+// So here we are using the Azure AzAPI Provider to create Azure resources uisng Azure ARM templates
 resource "azapi_resource" "container-apps-environment" {
   name      = "container-apps-environment"
   type      = "Microsoft.App/managedEnvironments@2022-03-01"
