@@ -10,6 +10,12 @@ terraform {
       version = "=1.0.0"
     }
   }
+
+  backend "azurerm" {
+    storage_account_name = "__terraformstorageaccount__"
+    container_name       = "__terraformcontainer__"
+    key                  = "__terraformstatefile__"
+  }
 }
 
 provider "azurerm" {
