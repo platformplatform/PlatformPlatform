@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "monitor-resource-group" {
   name     = "monitor"
-  location = var.global_resource_location
+  location = var.monitor_resource_location
 
   lifecycle {
     prevent_destroy = true
