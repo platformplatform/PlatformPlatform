@@ -1,5 +1,5 @@
 
-resource "azurerm_resource_group" "shared-resource-group" {
+resource "azurerm_resource_group" "shared_resource_group" {
   name     = "shared"
   location = var.shared_resource_location
 
@@ -10,8 +10,8 @@ resource "azurerm_resource_group" "shared-resource-group" {
   tags = local.tags
 }
 
-resource "azurerm_management_lock" "shared-resource-group-lock" {
-  name       = "shared-resource-group-lock"
-  scope      = azurerm_resource_group.shared-resource-group.id
+resource "azurerm_management_lock" "shared_resource_group_lock" {
+  name       = "shared_resource_group_lock"
+  scope      = azurerm_resource_group.shared_resource_group.id
   lock_level = "CanNotDelete"
 }

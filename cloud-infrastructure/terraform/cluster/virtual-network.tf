@@ -1,7 +1,7 @@
-resource "azurerm_virtual_network" "virtual-network" {
-  name                = "virtual-network"
+resource "azurerm_virtual_network" "virtual_network" {
+  name                = "virtual_network"
   location            = var.cluster_location
-  resource_group_name = azurerm_resource_group.cluster-resource-group.name
+  resource_group_name = azurerm_resource_group.cluster_resource_group.name
   address_space       = ["10.0.0.0/16"]
 
   lifecycle {
@@ -13,15 +13,15 @@ resource "azurerm_virtual_network" "virtual-network" {
 
 resource "azurerm_subnet" "subnet" {
   name                 = "subnet"
-  resource_group_name  = azurerm_resource_group.cluster-resource-group.name
-  virtual_network_name = azurerm_virtual_network.virtual-network.name
+  resource_group_name  = azurerm_resource_group.cluster_resource_group.name
+  virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = ["10.0.0.0/23"]
 }
 
 resource "azurerm_network_watcher" "network_watcher" {
-  name                = "network-watcher"
+  name                = "network_watcher"
   location            = var.cluster_location
-  resource_group_name = azurerm_resource_group.cluster-resource-group.name
+  resource_group_name = azurerm_resource_group.cluster_resource_group.name
 
   lifecycle {
     prevent_destroy = false
