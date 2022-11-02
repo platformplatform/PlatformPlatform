@@ -10,7 +10,7 @@ resource "azurerm_resource_group" "cluster_resource_group" {
 }
 
 resource "azurerm_management_lock" "cluster_resource_group_lock" {
-  name       = "cluster_resource_group_lock"
+  name       = "cluster-resource-group-lock"
   scope      = azurerm_resource_group.cluster_resource_group.id
   lock_level = "CanNotDelete"
 }
