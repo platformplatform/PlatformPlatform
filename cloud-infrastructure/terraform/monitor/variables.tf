@@ -1,9 +1,9 @@
 variable "monitor_resource_location" {
-  type        = string
   description = "The location of monitor resources."
+  type        = string
 }
 
 variable "environment" {
-  type        = string
   description = "The environment used for billing insighs. E.g. development, staging, production, shared."
+  type        = string
 }
