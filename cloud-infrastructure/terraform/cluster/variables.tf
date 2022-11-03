@@ -12,3 +12,8 @@ variable "environment" {
   description = "The environment used for billing insighs. E.g. development, staging, production, shared."
   type        = string
 }
+
+variable "cluster_unique_name" {
+  description = "Generic name or name prefix for all resources that needs a global unique name."
+  type        = string
+}
