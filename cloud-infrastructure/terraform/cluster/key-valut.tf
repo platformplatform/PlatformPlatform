@@ -1,5 +1,5 @@
 resource "azurerm_key_vault" "key_vault" {
-  name                          = var.cluster_unique_name
+  name                          = replace(var.cluster_unique_name, "-", "")
   location                      = var.cluster_location
   resource_group_name           = azurerm_resource_group.cluster_resource_group.name
   sku_name                      = "standard"
