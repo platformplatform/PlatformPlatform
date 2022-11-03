@@ -1,10 +1,10 @@
-variable "shared_resource_location" {
-  description = "The location of shared resources."
+variable "environment" {
+  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
   type        = string
 }
 
-variable "environment" {
-  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
+variable "shared_resource_location" {
+  description = "The location of shared resources."
   type        = string
 }
 

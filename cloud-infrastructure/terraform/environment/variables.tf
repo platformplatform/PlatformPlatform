@@ -1,9 +1,9 @@
-variable "global_resource_location" {
-  description = "The location of monitor resources."
+variable "environment" {
+  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
   type        = string
 }
 
-variable "environment" {
-  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
+variable "global_resource_location" {
+  description = "The location of monitor resources."
   type        = string
 }
