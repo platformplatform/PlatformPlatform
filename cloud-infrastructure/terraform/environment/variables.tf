@@ -1,4 +1,4 @@
-variable "monitor_resource_location" {
+variable "global_resource_location" {
   description = "The location of monitor resources."
   type        = string
 }

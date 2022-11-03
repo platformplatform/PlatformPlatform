@@ -1,2 +1,2 @@
-monitor_resource_location = "__location__"
+global_resource_location = "__location__"
 environment              = "__environment__"
