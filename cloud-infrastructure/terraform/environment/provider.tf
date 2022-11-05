@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=3.29.1"
     }
+
+    azuread = {
+      version = "=1.6.0"
+    }
   }
 
   backend "azurerm" {
@@ -15,4 +19,8 @@ terraform {
 
 provider "azurerm" {
   features {}
+}
+
+provider "azuread" {
+  use_microsoft_graph = true
 }

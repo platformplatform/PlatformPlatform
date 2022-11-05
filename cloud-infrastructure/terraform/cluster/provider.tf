@@ -5,6 +5,10 @@ terraform {
       version = "=3.29.1"
     }
 
+    azuread = {
+      version = "=1.6.0"
+    }
+
     azapi = {
       source  = "azure/azapi"
       version = "=1.0.0"
@@ -24,6 +28,10 @@ provider "azurerm" {
       purge_soft_delete_on_destroy = true
     }
   }
+}
+
+provider "azuread" {
+  use_microsoft_graph = true
 }
 
 provider "azapi" {
