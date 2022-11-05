@@ -5,5 +5,9 @@ resource "azurerm_container_registry" "container_registry" {
   sku                 = "Basic"
   admin_enabled       = true
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = local.tags
 }

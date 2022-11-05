@@ -26,7 +26,7 @@ resource "azurerm_network_watcher" "network_watcher" {
   resource_group_name = azurerm_resource_group.cluster_resource_group.name
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
   tags = local.tags

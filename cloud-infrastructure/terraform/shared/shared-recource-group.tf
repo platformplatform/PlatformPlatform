@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "shared_resource_group" {
   name     = "shared"
   location = var.shared_resource_location
