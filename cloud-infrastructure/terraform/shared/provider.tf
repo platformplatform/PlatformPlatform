@@ -11,6 +11,7 @@ terraform {
   }
 
   backend "azurerm" {
+    resource_group_name  = "__terraform-resource-group__"
     storage_account_name = "__terraform-storage-account__"
     container_name       = "__terraform-container__"
     key                  = "__terraform-state-file__"
