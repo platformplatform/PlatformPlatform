@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "cluster_resource_group" {
-  name     = "${var.environment}-${var.cluster_resource_group_name}"
+  name     = var.cluster_resource_group_name
   location = var.cluster_location
 
   lifecycle {
