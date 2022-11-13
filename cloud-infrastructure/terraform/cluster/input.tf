@@ -3,13 +3,13 @@ variable "environment" {
   type        = string
 }
 
-variable "cluster_resource_group_name" {
-  description = "The recourece group name contaning custer resources."
+variable "resource_location" {
+  description = "The location of resources."
   type        = string
 }
 
-variable "cluster_location" {
-  description = "The location of the cluster."
+variable "resource_group_name" {
+  description = "The name of the recource group."
   type        = string
 }
 

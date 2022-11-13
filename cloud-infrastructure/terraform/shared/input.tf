@@ -3,12 +3,12 @@ variable "environment" {
   type        = string
 }
 
-variable "shared_resource_location" {
-  description = "The location of shared resources."
+variable "resource_location" {
+  description = "The location of resources."
   type        = string
 }
 
-variable "container_registry" {
-  description = "The shared Azure container registry used across environments."
+variable "container_registry_name" {
+  description = "The global unique Azure Container Registry name."
   type        = string
 }

@@ -3,7 +3,7 @@ variable "environment" {
   type        = string
 }
 
-variable "global_resource_location" {
-  description = "The location of monitor resources."
+variable "resource_location" {
+  description = "The location of resources."
   type        = string
 }

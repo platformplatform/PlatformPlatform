@@ -1,7 +1,9 @@
+data "azurerm_client_config" "current" {}
+
 resource "azurerm_key_vault" "key_vault" {
-  name                          = replace(var.cluster_unique_name, "-", "")
-  location                      = var.cluster_location
-  resource_group_name           = azurerm_resource_group.cluster_resource_group.name
+  name                          = var.unique_name
+  location                      = var.resource_location
+  resource_group_name           = var.resource_group_name
   sku_name                      = "standard"
   tenant_id                     = data.azurerm_client_config.current.tenant_id
   public_network_access_enabled = true
@@ -11,12 +13,12 @@ resource "azurerm_key_vault" "key_vault" {
   network_acls {
     bypass                     = "AzureServices"
     default_action             = "Deny"
-    virtual_network_subnet_ids = [azurerm_subnet.subnet.id]
+    virtual_network_subnet_ids = [var.subnet_id]
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
-  tags = local.tags
+  tags = var.tags
 }
