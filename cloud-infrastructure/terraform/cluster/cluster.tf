@@ -53,3 +53,12 @@ module "container_apps_environment" {
     module.virtual_network
   ]
 }
+
+module "storage_account" {
+  source                   = "../modules/storage-account"
+  tags                     = local.tags
+  resource_location        = var.resource_location
+  resource_group_name      = var.resource_group_name
+  unique_name              = "${var.cluster_unique_name}diagnostic"
+  account_replication_type = "GRS"
+}
