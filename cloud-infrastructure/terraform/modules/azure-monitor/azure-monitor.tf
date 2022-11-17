@@ -1,7 +1,6 @@
 module "monitor_resource_group" {
   source              = "../resource-group"
   tags                = var.tags
-  environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = "${var.environment}-monitor"
 }

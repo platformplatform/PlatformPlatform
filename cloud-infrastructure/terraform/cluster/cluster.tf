@@ -1,7 +1,6 @@
 module "cluster_resource_group" {
   source              = "../modules/resource-group"
   tags                = local.tags
-  environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
 }
@@ -9,7 +8,6 @@ module "cluster_resource_group" {
 module "virtual_network" {
   source              = "../modules/virtual-network"
   tags                = local.tags
-  environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
 
@@ -21,7 +19,6 @@ module "virtual_network" {
 module "key_vault" {
   source              = "../modules/azurerm-key-vault"
   tags                = local.tags
-  environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
   unique_name         = var.cluster_unique_name
@@ -35,7 +32,6 @@ module "key_vault" {
 module "service_bus_namespace" {
   source              = "../modules/service-bus-namespace"
   tags                = local.tags
-  environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
   unique_name         = var.cluster_unique_name
