@@ -17,12 +17,14 @@ module "virtual_network" {
 }
 
 module "key_vault" {
-  source              = "../modules/key-vault"
-  tags                = local.tags
-  resource_location   = var.resource_location
-  resource_group_name = var.resource_group_name
-  unique_name         = var.cluster_unique_name
-  subnet_id           = module.virtual_network.subnet_id_out
+  source                       = "../modules/key-vault"
+  tags                         = local.tags
+  environment                  = var.environment
+  resource_location            = var.resource_location
+  resource_group_name          = var.resource_group_name
+  unique_name                  = var.cluster_unique_name
+  subnet_id                    = module.virtual_network.subnet_id_out
+  dianostic_storage_account_id = module.storage_account.storage_account_id
 
   depends_on = [
     module.virtual_network

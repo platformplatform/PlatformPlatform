@@ -6,6 +6,11 @@ variable "tags" {
   })
 }
 
+variable "environment" {
+  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
+  type        = string
+}
+
 variable "resource_location" {
   description = "The location of resources."
   type        = string
@@ -23,5 +28,10 @@ variable "unique_name" {
 
 variable "subnet_id" {
   description = "Id of the subnet that have access to the Key Vault."
+  type        = string
+}
+
+variable "dianostic_storage_account_id" {
+  description = "Id of the diagnostic Azure Storage account."
   type        = string
 }
