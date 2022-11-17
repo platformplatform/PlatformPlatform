@@ -17,7 +17,7 @@ module "virtual_network" {
 }
 
 module "key_vault" {
-  source              = "../modules/azurerm-key-vault"
+  source              = "../modules/key-vault"
   tags                = local.tags
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
