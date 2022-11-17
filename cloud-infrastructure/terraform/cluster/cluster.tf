@@ -24,7 +24,7 @@ module "key_vault" {
   environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
-  unique_name         = replace(var.cluster_unique_name, "-", "")
+  unique_name         = var.cluster_unique_name
   subnet_id           = module.virtual_network.subnet_id_out
 
   depends_on = [
@@ -38,7 +38,7 @@ module "service_bus_namespace" {
   environment         = var.environment
   resource_location   = var.resource_location
   resource_group_name = var.resource_group_name
-  unique_name         = replace(var.cluster_unique_name, "-", "")
+  unique_name         = var.cluster_unique_name
 
   depends_on = [
     module.cluster_resource_group
