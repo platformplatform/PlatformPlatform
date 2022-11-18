@@ -32,11 +32,13 @@ module "key_vault" {
 }
 
 module "service_bus_namespace" {
-  source              = "../modules/service-bus-namespace"
-  tags                = local.tags
-  resource_location   = var.resource_location
-  resource_group_name = var.resource_group_name
-  unique_name         = var.cluster_unique_name
+  source                       = "../modules/service-bus-namespace"
+  tags                         = local.tags
+  environment                  = var.environment
+  resource_location            = var.resource_location
+  resource_group_name          = var.resource_group_name
+  unique_name                  = var.cluster_unique_name
+  dianostic_storage_account_id = module.storage_account.storage_account_id
 
   depends_on = [
     module.cluster_resource_group

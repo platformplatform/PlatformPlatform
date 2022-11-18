@@ -6,6 +6,11 @@ variable "tags" {
   })
 }
 
+variable "environment" {
+  description = "The environment used for billing insighs. E.g. development, staging, production, shared."
+  type        = string
+}
+
 variable "resource_location" {
   description = "The location of resources."
   type        = string
@@ -18,5 +23,10 @@ variable "resource_group_name" {
 
 variable "unique_name" {
   description = "The global unique name for the Azure Service Bus Namespace."
+  type        = string
+}
+
+variable "dianostic_storage_account_id" {
+  description = "Id of the diagnostic Azure Storage account."
   type        = string
 }
