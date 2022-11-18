@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "virtual_network" {
-  name                = "virtual_network"
+  name                = "virtual-network"
   location            = var.resource_location
   resource_group_name = var.resource_group_name
   address_space       = ["10.0.0.0/16"]
