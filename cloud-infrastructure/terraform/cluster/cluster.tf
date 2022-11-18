@@ -66,3 +66,15 @@ module "storage_account" {
   unique_name              = "${var.cluster_unique_name}diagnostic"
   account_replication_type = "GRS"
 }
+
+module "mssql-server" {
+  source                       = "../modules/mssql-server"
+  tags                         = local.tags
+  resource_location            = var.resource_location
+  resource_group_name          = var.resource_group_name
+  unique_name                  = var.cluster_unique_name
+
+  depends_on = [
+    module.cluster_resource_group
+  ]
+}
