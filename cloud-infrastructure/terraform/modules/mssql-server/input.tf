@@ -16,7 +16,7 @@ variable "resource_group_name" {
   type        = string
 }
 
-variable "unique_name" {
+variable "sql_server_name" {
   description = "The global unique name for the Azure Key Vault."
   type        = string
 }

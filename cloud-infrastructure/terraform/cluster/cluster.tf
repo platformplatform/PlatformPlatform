@@ -65,7 +65,7 @@ module "mssql-server" {
   tags                                    = local.tags
   resource_location                       = var.resource_location
   resource_group_name                     = var.resource_group_name
-  unique_name                             = var.cluster_unique_name
+  sql_server_name                         = var.cluster_unique_name
   subnet_id                               = module.virtual_network.subnet_id_out
   dianostic_storage_account_id            = module.storage_account.storage_account_id
   dianostic_storage_account_blob_endpoint = module.storage_account.primary_blob_endpoint

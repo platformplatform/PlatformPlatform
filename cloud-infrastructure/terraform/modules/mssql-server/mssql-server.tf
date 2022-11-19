@@ -2,7 +2,7 @@ data "azurerm_subscription" "current" {
 }
 
 resource "azurerm_mssql_server" "mssql_server" {
-  name                                 = var.unique_name
+  name                                 = var.sql_server_name
   location                             = var.resource_location
   resource_group_name                  = var.resource_group_name
   version                              = "12.0"
