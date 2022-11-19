@@ -16,6 +16,19 @@ module "virtual_network" {
   ]
 }
 
+module "storage_account" {
+  source                   = "../modules/storage-account"
+  tags                     = local.tags
+  resource_location        = var.resource_location
+  resource_group_name      = var.resource_group_name
+  unique_name              = "${var.cluster_unique_name}diagnostic"
+  account_replication_type = "GRS"
+
+  depends_on = [
+    module.cluster_resource_group
+  ]
+}
+
 module "key_vault" {
   source                       = "../modules/key-vault"
   tags                         = local.tags
@@ -27,7 +40,8 @@ module "key_vault" {
   dianostic_storage_account_id = module.storage_account.storage_account_id
 
   depends_on = [
-    module.virtual_network
+    module.cluster_resource_group,
+    module.storage_account
   ]
 }
 
@@ -41,7 +55,21 @@ module "service_bus_namespace" {
   dianostic_storage_account_id = module.storage_account.storage_account_id
 
   depends_on = [
-    module.cluster_resource_group
+    module.cluster_resource_group,
+    module.storage_account
+  ]
+}
+
+module "mssql-server" {
+  source                       = "../modules/mssql-server"
+  tags                         = local.tags
+  resource_location            = var.resource_location
+  resource_group_name          = var.resource_group_name
+  unique_name                  = var.cluster_unique_name
+
+  depends_on = [
+    module.cluster_resource_group,
+    module.storage_account
   ]
 }
 
@@ -58,23 +86,3 @@ module "container_apps_environment" {
   ]
 }
 
-module "storage_account" {
-  source                   = "../modules/storage-account"
-  tags                     = local.tags
-  resource_location        = var.resource_location
-  resource_group_name      = var.resource_group_name
-  unique_name              = "${var.cluster_unique_name}diagnostic"
-  account_replication_type = "GRS"
-}
-
-module "mssql-server" {
-  source                       = "../modules/mssql-server"
-  tags                         = local.tags
-  resource_location            = var.resource_location
-  resource_group_name          = var.resource_group_name
-  unique_name                  = var.cluster_unique_name
-
-  depends_on = [
-    module.cluster_resource_group
-  ]
-}
