@@ -17,3 +17,8 @@ variable "cluster_unique_name" {
   description = "Generic name or name prefix for all resources that needs a global unique name."
   type        = string
 }
+
+variable "use_mssql_elasticpool" {
+  description = "Indicates if a SQL elastic pool should be used for SQL databases."
+  type        = bool
+}

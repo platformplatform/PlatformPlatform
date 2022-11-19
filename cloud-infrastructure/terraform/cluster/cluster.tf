@@ -76,6 +76,21 @@ module "mssql-server" {
   ]
 }
 
+module "mssql-elasticpool" {
+  source              = "../modules/mssql-elasticpool"
+  count               = var.use_mssql_elasticpool ? 1 : 0
+  tags                = local.tags
+  resource_location   = var.resource_location
+  resource_group_name = var.resource_group_name
+  sql_server_name     = var.cluster_unique_name
+
+  depends_on = [
+    module.mssql-server,
+    module.cluster_resource_group,
+    module.storage_account
+  ]
+}
+
 module "container_apps_environment" {
   source            = "../modules/container-apps-environment"
   tags              = local.tags
