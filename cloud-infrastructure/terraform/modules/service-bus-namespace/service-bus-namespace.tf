@@ -37,6 +37,10 @@ resource "azurerm_monitor_diagnostic_setting" "service_bus_audit_diagnostic_sett
     }
   }
 
+  depends_on = [
+    azurerm_servicebus_namespace.service_bus
+  ]
+
   lifecycle {
     # A bug in Terraform triggers a update everytime. https://github.com/hashicorp/terraform-provider-azurerm/issues/10388
     ignore_changes = [log, metric]
@@ -47,7 +51,7 @@ resource "azurerm_monitor_diagnostic_setting" "service_bus_metric_diagnostic_set
   name                       = "service-bus-metrics"
   target_resource_id         = azurerm_servicebus_namespace.service_bus.id
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_analytics_workspace.id
-  
+
   metric {
     category = "AllMetrics"
     enabled  = true
@@ -58,6 +62,10 @@ resource "azurerm_monitor_diagnostic_setting" "service_bus_metric_diagnostic_set
     }
   }
 
+  depends_on = [
+    azurerm_servicebus_namespace.service_bus
+  ]
+  
   lifecycle {
     # A bug in Terraform triggers a update everytime. https://github.com/hashicorp/terraform-provider-azurerm/issues/10388
     ignore_changes = [log, metric]

@@ -43,6 +43,10 @@ resource "azurerm_monitor_diagnostic_setting" "key_vault_audit_diagnostic_settin
     }
   }
 
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
+
   lifecycle {
     # A bug in Terraform triggers a update everytime. https://github.com/hashicorp/terraform-provider-azurerm/issues/10388
     ignore_changes = [log, metric]
@@ -63,6 +67,10 @@ resource "azurerm_monitor_diagnostic_setting" "key_vault_metric_diagnostic_setti
       enabled = true
     }
   }
+
+  depends_on = [
+    azurerm_key_vault.key_vault
+  ]
 
   lifecycle {
     # A bug in Terraform triggers a update everytime. https://github.com/hashicorp/terraform-provider-azurerm/issues/10388
