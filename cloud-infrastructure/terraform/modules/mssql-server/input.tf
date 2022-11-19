@@ -21,6 +21,11 @@ variable "unique_name" {
   type        = string
 }
 
+variable "subnet_id" {
+  description = "Id of the subnet that have access to the SQL Server."
+  type        = string
+}
+
 variable "sql_admin_name" {
   description = "The name of the Azure AD Admin in the Active Directory."
   default     = "SQL Admin"
@@ -29,4 +34,14 @@ variable "sql_admin_name" {
 variable "sql_admin_object_id" {
   description = "The ObjectId of the Azure AD Admin in the Active Directory"
   default     = "33ff85b8-6b6f-4873-8e27-04ffc252c26c"
+}
+
+variable "dianostic_storage_account_id" {
+  description = "Id of the diagnostic Azure Storage account."
+  type        = string
+}
+
+variable "dianostic_storage_account_blob_endpoint" {
+  description = "The storage blob endpoint of the diagnostic Azure Storage account."
+  type        = string
 }

@@ -20,7 +20,11 @@ resource "azurerm_subnet" "subnet" {
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.virtual_network.name
   address_prefixes     = ["10.0.0.0/23"]
-  service_endpoints    = ["Microsoft.KeyVault"]
+
+  service_endpoints = [
+    "Microsoft.KeyVault",
+    "Microsoft.Sql"
+  ]
 }
 
 resource "azurerm_network_watcher" "network_watcher" {
