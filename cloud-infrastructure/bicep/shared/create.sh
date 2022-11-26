@@ -1,3 +1,4 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
-az deployment sub create --what-if -l "$location" --output table -f ./main.bicep -p containerRegistryName=$containerRegistryName environment=$environment
-az deployment sub create           -l "$location" --output table -f ./main.bicep -p containerRegistryName=$containerRegistryName environment=$environment
+az group create -n $resourceGroupName -l "$location" --output table --tags environment=$environment
+az deployment group create --what-if -g $resourceGroupName --mode complete --output table -f ./main.bicep -p containerRegistryName=$containerRegistryName environment=$environment
+az deployment group create           -g $resourceGroupName --mode complete --output table -f ./main.bicep -p containerRegistryName=$containerRegistryName environment=$environment
