@@ -7,24 +7,20 @@ trigger:
     - cloud-infrastructure
 
 steps:
-- task: CopyFiles@2
-  displayName: 'Copy Terraform files to artifacts'
+- task: AzureCLI@2
+  displayName: "Show planed Bicep changes"
   inputs:
-    SourceFolder: cloud-infrastructure/terraform
-    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/terraform'
+    azureSubscription: 'Azure DevOps Shared'
+    scriptType: 'bash'
+    scriptLocation: 'scriptPath'
+    scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh'
+    arguments: 'what-if'
 
 - task: CopyFiles@2
-  displayName: 'Copy Release Pipelines files to artifacts'
+  displayName: 'Copy Bicep files to artifacts'
   inputs:
-    SourceFolder: cloud-infrastructure/release-pipelines
-    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/release-pipelines'
-
-- task: MicrosoftSecurityDevOps@1
-  displayName: 'Run Microsoft Security DevOps scanning'
-  inputs:
-    break: false
-    publish: true
-    artifactName: 'CodeAnalysisLogs'
+    SourceFolder: cloud-infrastructure/bicep
+    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/bicep'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish artifacts'
