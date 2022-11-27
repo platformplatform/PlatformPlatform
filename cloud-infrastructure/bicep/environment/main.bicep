@@ -20,3 +20,14 @@ module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {
     tags: tags
   }
 }
+
+module applicationInsights '../modules/application-insights.bicep' = {
+  name: '${deployment().name}-application-insights'
+  scope: resourceGroup(monitorResourceGroup.name)
+  params: {
+    name: '${environment}-application-insights'
+    location: location
+    tags: tags
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.workspaceId
+  }
+}
