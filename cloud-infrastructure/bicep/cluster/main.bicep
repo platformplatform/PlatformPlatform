@@ -8,6 +8,11 @@ param clusterUniqueName string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  scope: resourceGroup('${environment}-log-analytics-workspace')
+  name: '${environment}-log-analytics-workspace'
+}
+
 resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: location
@@ -65,5 +70,17 @@ module serviceBus '../modules/service-bus.bicep' = {
     location: location
     name: clusterUniqueName
     tags: tags
+  }
+}
+
+module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+  name: '${deployment().name}-container-apps-environment'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: '${locationPrefix}-container-apps-environment'
+    tags: tags
+    subnetId: virtualNetwork.outputs.subnetId
+    customerId: existingLogAnalyticsWorkspace.properties.customerId
   }
 }
