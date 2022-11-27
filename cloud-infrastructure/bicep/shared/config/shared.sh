@@ -4,4 +4,4 @@ resourceGroupName="shared"
 containerRegistryName="mentum"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-. ../create.sh
+. ../deploy.sh

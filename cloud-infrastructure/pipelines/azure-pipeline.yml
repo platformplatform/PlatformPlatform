@@ -14,7 +14,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
     scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh'
-    arguments: 'what-if'
+    arguments: '--plan'
 
 - task: CopyFiles@2
   displayName: 'Copy Bicep files to artifacts'

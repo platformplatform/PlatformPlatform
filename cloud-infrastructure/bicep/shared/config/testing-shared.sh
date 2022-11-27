@@ -3,4 +3,4 @@ location="West Europe"
 resourceGroupName="shared"
 containerRegistryName="mentumtest"
 
-. ../create.sh
+. ../deploy.sh
