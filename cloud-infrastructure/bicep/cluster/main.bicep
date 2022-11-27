@@ -14,6 +14,16 @@ resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
   tags: tags
 }
 
+module networkWatcher '../modules/network-watcher.bicep' = {
+  name: '${deployment().name}-network-watcher'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: '${locationPrefix}-network-watcher'
+    tags: tags
+  }
+}
+
 module virtualNetwork '../modules/virtual-network.bicep' = {
   name: '${deployment().name}-virtual-network'
   scope: resourceGroup(clusterResourceGroup.name)
@@ -22,6 +32,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     name: '${locationPrefix}-virtual-network'
     tags: tags
   }
+  dependsOn: [ networkWatcher ]
 }
 
 module keyVault '../modules/key-vault.bicep' = {
