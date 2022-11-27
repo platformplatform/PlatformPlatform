@@ -22,6 +22,12 @@ steps:
     SourceFolder: cloud-infrastructure/bicep
     TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/bicep'
 
+- task: CopyFiles@2
+  displayName: 'Copy Release Pipelines files to artifacts'
+  inputs:
+    SourceFolder: cloud-infrastructure/release-pipelines
+    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/release-pipelines'
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish artifacts'
   inputs:
