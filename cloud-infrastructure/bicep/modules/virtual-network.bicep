@@ -19,17 +19,28 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-05-01' = {
       dnsServers: []
     }
     subnets: [
-      {
-        name: 'subnet'
-        properties: {
-          addressPrefix: '10.0.0.0/23'
-          serviceEndpoints: []
-          delegations: []
-          privateEndpointNetworkPolicies: 'Enabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-        }
-        type: 'Microsoft.Network/virtualNetworks/subnets'
-      }
+      subnet
     ]
   }
 }
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-05-01' = {
+  name: 'west-europe-virtual-network/subnet'
+  properties: {
+    addressPrefix: '10.0.0.0/23'
+    serviceEndpoints: [
+      {
+        service: 'Microsoft.KeyVault'
+        locations: [
+          '*'
+        ]
+      }
+    ]
+    delegations: []
+    privateEndpointNetworkPolicies: 'Enabled'
+    privateLinkServiceNetworkPolicies: 'Enabled'
+  }
+}
+
+output virtualNetworkId string = virtualNetwork.id
+output subnetId string = subnet.id

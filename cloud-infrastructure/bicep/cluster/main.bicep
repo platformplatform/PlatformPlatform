@@ -23,3 +23,14 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     tags: tags
   }
 }
+
+module keyVault '../modules/key-vault.bicep' = {
+  name: '${deployment().name}-key-vault'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: clusterUniqueName
+    tags: tags
+    virtualNetworkId: virtualNetwork.outputs.subnetId
+  }
+}
