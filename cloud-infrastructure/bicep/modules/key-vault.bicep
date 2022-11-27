@@ -1,7 +1,8 @@
 param name string
 param location string
 param tags object
-param virtualNetworkId string
+param tenantId string
+param subnetId string
 
 resource mentumtesteuw 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
@@ -12,14 +13,14 @@ resource mentumtesteuw 'Microsoft.KeyVault/vaults@2022-07-01' = {
       family: 'A'
       name: 'standard'
     }
-    tenantId: '8ddc3e17-1f68-4773-98b6-ea1d90659983'
+    tenantId: tenantId
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
       ipRules: []
       virtualNetworkRules: [
         {
-          id: virtualNetworkId
+          id: subnetId
         }
       ]
     }

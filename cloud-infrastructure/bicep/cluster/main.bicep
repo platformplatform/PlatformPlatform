@@ -42,7 +42,8 @@ module keyVault '../modules/key-vault.bicep' = {
     location: location
     name: clusterUniqueName
     tags: tags
-    virtualNetworkId: virtualNetwork.outputs.subnetId
+    tenantId: subscription().tenantId
+    subnetId: virtualNetwork.outputs.subnetId
   }
 }
 
