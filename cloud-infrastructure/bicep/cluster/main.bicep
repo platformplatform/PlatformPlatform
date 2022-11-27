@@ -2,6 +2,7 @@ targetScope = 'subscription'
 
 param environment string
 param location string = deployment().location
+param locationPrefix string
 param resourceGroupName string
 param clusterUniqueName string
 

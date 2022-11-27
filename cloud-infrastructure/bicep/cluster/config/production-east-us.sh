@@ -1,5 +1,6 @@
 environment="production"
 location="East US"
+locationPrefix="east-us"
 resourceGroupName="production-east-us"
 clusterUniqueName="mentumproduse"
 

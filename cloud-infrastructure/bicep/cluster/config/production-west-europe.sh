@@ -1,5 +1,6 @@
 environment="production"
 location="West Europe"
+locationPrefix="west-europe"
 resourceGroupName="production-west-europe"
 clusterUniqueName="mentumprodeuw"
 

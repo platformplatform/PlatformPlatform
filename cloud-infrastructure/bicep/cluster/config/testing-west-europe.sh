@@ -1,5 +1,6 @@
 environment="testing"
 location="West Europe"
+locationPrefix="west-europe"
 resourceGroupName="testing-west-europe"
 clusterUniqueName="mentumtesteuw"
 

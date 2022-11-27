@@ -1,5 +1,6 @@
 environment="staging"
 location="West Europe"
+locationPrefix="west-europe"
 resourceGroupName="staging-west-europe"
 clusterUniqueName="mentumstageeuw"
 
