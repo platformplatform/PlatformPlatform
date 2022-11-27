@@ -13,3 +13,13 @@ resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
   location: location
   tags: tags
 }
+
+module virtualNetwork '../modules/virtual-network.bicep' = {
+  name: '${deployment().name}-virtual-network'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: '${locationPrefix}-virtual-network'
+    tags: tags
+  }
+}
