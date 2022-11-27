@@ -16,6 +16,15 @@ steps:
     scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh'
     arguments: '--plan'
 
+- task: AzureCLI@2
+  displayName: "Show planed Bicep changes for Staging environment"
+  inputs:
+    azureSubscription: 'Azure DevOps Staging'
+    scriptType: 'bash'
+    scriptLocation: 'scriptPath'
+    scriptPath: 'cloud-infrastructure/bicep/environment/config/staging.sh'
+    arguments: '--plan'
+
 - task: CopyFiles@2
   displayName: 'Copy Bicep files to artifacts'
   inputs:
