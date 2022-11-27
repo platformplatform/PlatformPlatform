@@ -34,3 +34,14 @@ module keyVault '../modules/key-vault.bicep' = {
     virtualNetworkId: virtualNetwork.outputs.subnetId
   }
 }
+
+module storageAccount '../modules/storage-account.bicep' = {
+  name: '${deployment().name}-diagnostic-storage-account'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: '${clusterUniqueName}diagnostic'
+    sku: 'Standard_GRS'
+    tags: tags
+  }
+}
