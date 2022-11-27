@@ -23,6 +23,12 @@ steps:
     TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/bicep'
 
 - task: CopyFiles@2
+  displayName: 'Copy Terraform files to artifacts'
+  inputs:
+    SourceFolder: cloud-infrastructure/terraform
+    TargetFolder: '$(build.artifactstagingdirectory)/cloud-infrastructure/terraform'
+
+- task: CopyFiles@2
   displayName: 'Copy Release Pipelines files to artifacts'
   inputs:
     SourceFolder: cloud-infrastructure/release-pipelines
