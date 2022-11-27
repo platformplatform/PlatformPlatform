@@ -8,7 +8,7 @@ trigger:
 
 steps:
 - task: AzureCLI@2
-  displayName: "Show planed Bicep changes"
+  displayName: "Show planed Bicep changes for Shared recources"
   inputs:
     azureSubscription: 'Azure DevOps Shared'
     scriptType: 'bash'
