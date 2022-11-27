@@ -45,3 +45,13 @@ module storageAccount '../modules/storage-account.bicep' = {
     tags: tags
   }
 }
+
+module serviceBus '../modules/service-bus.bicep' = {
+  name: '${deployment().name}-service-bus'
+  scope: resourceGroup(clusterResourceGroup.name)
+  params: {
+    location: location
+    name: clusterUniqueName
+    tags: tags
+  }
+}
