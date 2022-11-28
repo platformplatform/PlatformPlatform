@@ -2,7 +2,6 @@ param name string
 param location string
 param tags object
 param subnetId string
-param customerId string
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-06-01-preview' = {
   name: name
@@ -20,10 +19,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-06-01-
       }
     }
     appLogsConfiguration: {
-      destination: 'log-analytics'
-      logAnalyticsConfiguration: {
-        customerId: customerId
-      }
+      destination: 'azure-monitor'
     }
     zoneRedundant: true
     customDomainConfiguration: {

@@ -10,10 +10,10 @@ var tags = { environment: environment, 'managed-by': 'bicep' }
 var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
-resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-  scope: resourceGroup('${environment}-monitor')
-  name: '${environment}-log-analytics-workspace'
-}
+// resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+//   scope: resourceGroup('${environment}-monitor')
+//   name: '${environment}-log-analytics-workspace'
+// }
 
 resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -83,7 +83,6 @@ module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' =
     name: '${locationPrefix}-container-apps-environment'
     tags: tags
     subnetId: virtualNetwork.outputs.subnetId
-    customerId: existingLogAnalyticsWorkspace.properties.customerId
   }
 }
 
