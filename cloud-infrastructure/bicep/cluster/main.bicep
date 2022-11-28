@@ -7,6 +7,7 @@ param resourceGroupName string
 param clusterUniqueName string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
+var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
@@ -83,5 +84,18 @@ module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' =
     tags: tags
     subnetId: virtualNetwork.outputs.subnetId
     customerId: existingLogAnalyticsWorkspace.properties.customerId
+  }
+}
+
+module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
+  scope: clusterResourceGroup
+  name: '${deployment().name}-microsoft-sql-server'
+  params: {
+    location: location
+    name: clusterUniqueName
+    tags: tags
+    subnetId: virtualNetwork.outputs.subnetId
+    tenantId: subscription().tenantId
+    sqlAdminObjectId: activeDirectoryAdminObjectId
   }
 }
