@@ -99,7 +99,7 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
   }
 }
 
-module diagnosticStorageAccountSqlServerRoleAssignment '../modules/microsoft-sql-server-diagnostic-configuration.bicep' = {
+module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic-configuration.bicep' = {
   scope: clusterResourceGroup
   name: '${deployment().name}-microsoft-sql-server-diagnostic-configuration'
   params: {
@@ -107,6 +107,6 @@ module diagnosticStorageAccountSqlServerRoleAssignment '../modules/microsoft-sql
     microsoftSqlServerName: clusterUniqueName
     principalId: microsoftSqlServer.outputs.principalId
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
-    dianosticStorageAccountSubscriptionId: '18bb261f-4d2d-4a75-8279-365b72b387a1'
+    dianosticStorageAccountSubscriptionId: subscription().subscriptionId
   }
 }
