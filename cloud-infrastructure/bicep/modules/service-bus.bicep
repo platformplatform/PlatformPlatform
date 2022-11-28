@@ -8,7 +8,6 @@ resource mentumtesteuw 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
   tags: tags
   sku: {
     name: 'Basic'
-    tier: 'Basic'
   }
   identity: {
     type: 'SystemAssigned'

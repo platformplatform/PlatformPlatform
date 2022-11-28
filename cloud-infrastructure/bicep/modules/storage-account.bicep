@@ -32,18 +32,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
     supportsHttpsTrafficOnly: true
     encryption: {
       requireInfrastructureEncryption: true
-      services: {
-        file: {
-          keyType: 'Account'
-          enabled: true
-        }
-        blob: {
-          keyType: 'Account'
-          enabled: true
-        }
-      }
       keySource: 'Microsoft.Storage'
     }
     accessTier: 'Hot'
   }
 }
+
+output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
