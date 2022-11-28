@@ -7,9 +7,10 @@ param resourceGroupName string
 param clusterUniqueName string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
+var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-  scope: resourceGroup('${environment}-log-analytics-workspace')
+  scope: resourceGroup('${environment}-monitor')
   name: '${environment}-log-analytics-workspace'
 }
 
@@ -19,9 +20,20 @@ resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
   tags: tags
 }
 
+module diagnosticStorageAccount '../modules/storage-account.bicep' = {
+  scope: clusterResourceGroup
+  name: '${deployment().name}-diagnostic-storage-account'
+  params: {
+    location: location
+    name: diagnosticStorageAccountName
+    sku: 'Standard_GRS'
+    tags: tags
+  }
+}
+
 module networkWatcher '../modules/network-watcher.bicep' = {
+  scope: clusterResourceGroup
   name: '${deployment().name}-network-watcher'
-  scope: resourceGroup(clusterResourceGroup.name)
   params: {
     location: location
     name: '${locationPrefix}-network-watcher'
@@ -30,8 +42,8 @@ module networkWatcher '../modules/network-watcher.bicep' = {
 }
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
+  scope: clusterResourceGroup
   name: '${deployment().name}-virtual-network'
-  scope: resourceGroup(clusterResourceGroup.name)
   params: {
     location: location
     name: '${locationPrefix}-virtual-network'
@@ -41,8 +53,8 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 }
 
 module keyVault '../modules/key-vault.bicep' = {
+  scope: clusterResourceGroup
   name: '${deployment().name}-key-vault'
-  scope: resourceGroup(clusterResourceGroup.name)
   params: {
     location: location
     name: clusterUniqueName
@@ -52,20 +64,9 @@ module keyVault '../modules/key-vault.bicep' = {
   }
 }
 
-module storageAccount '../modules/storage-account.bicep' = {
-  name: '${deployment().name}-diagnostic-storage-account'
-  scope: resourceGroup(clusterResourceGroup.name)
-  params: {
-    location: location
-    name: '${clusterUniqueName}diagnostic'
-    sku: 'Standard_GRS'
-    tags: tags
-  }
-}
-
 module serviceBus '../modules/service-bus.bicep' = {
+  scope: clusterResourceGroup
   name: '${deployment().name}-service-bus'
-  scope: resourceGroup(clusterResourceGroup.name)
   params: {
     location: location
     name: clusterUniqueName
@@ -74,8 +75,8 @@ module serviceBus '../modules/service-bus.bicep' = {
 }
 
 module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+  scope: clusterResourceGroup
   name: '${deployment().name}-container-apps-environment'
-  scope: resourceGroup(clusterResourceGroup.name)
   params: {
     location: location
     name: '${locationPrefix}-container-apps-environment'
