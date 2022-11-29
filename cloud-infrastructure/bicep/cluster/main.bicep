@@ -99,9 +99,9 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
   }
 }
 
-module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic-configuration.bicep' = {
+module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-microsoft-sql-server-diagnostic-configuration'
+  name: '${deployment().name}-microsoft-sql-server-diagnostic'
   params: {
     storageAccountName: diagnosticStorageAccountName
     microsoftSqlServerName: clusterUniqueName
