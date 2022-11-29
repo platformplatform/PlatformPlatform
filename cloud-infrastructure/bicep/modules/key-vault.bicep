@@ -31,7 +31,6 @@ resource mentumtesteuw 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 7
     enableRbacAuthorization: false
-    provisioningState: 'Succeeded'
     publicNetworkAccess: 'Enabled'
   }
 }
