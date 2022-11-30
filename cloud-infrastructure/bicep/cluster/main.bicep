@@ -103,7 +103,7 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
   scope: clusterResourceGroup
   name: '${deployment().name}-microsoft-sql-server-diagnostic'
   params: {
-    storageAccountName: diagnosticStorageAccountName
+    diagnosticStorageAccountName: diagnosticStorageAccountName
     microsoftSqlServerName: clusterUniqueName
     principalId: microsoftSqlServer.outputs.principalId
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint

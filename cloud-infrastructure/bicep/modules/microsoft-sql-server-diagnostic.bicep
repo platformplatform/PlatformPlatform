@@ -1,4 +1,4 @@
-param storageAccountName string
+param diagnosticStorageAccountName string
 param microsoftSqlServerName string
 param principalId string
 param dianosticStorageAccountSubscriptionId string
@@ -6,37 +6,37 @@ param dianosticStorageAccountBlobEndpoint string
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   scope: resourceGroup()
-  name: storageAccountName
+  name: diagnosticStorageAccountName
 }
 
-@description('This is the built-in Contributor role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
-resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' existing = {
+  name: microsoftSqlServerName
+}
+
+@description('This is the built-in Storage Blob Data Contributor role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
+resource existingStorageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
   name: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: storageAccount
-  name: guid(storageAccount.id, principalId, storageBlobDataContributorRoleDefinition.id)
+  name: guid(storageAccount.id, principalId, existingStorageBlobDataContributorRoleDefinition.id)
   properties: {
-    roleDefinitionId: storageBlobDataContributorRoleDefinition.id
+    roleDefinitionId: existingStorageBlobDataContributorRoleDefinition.id
     principalId: principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' existing = {
-  name: microsoftSqlServerName
-}
-
 resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2022-05-01-preview' = {
-  parent: microsoftSqlServer
-  name: storageAccountName
+  parent: existingMicrosoftSqlServer
+  name: replace(replace(dianosticStorageAccountBlobEndpoint, 'https:', ''), '/', '')
   dependsOn: [ roleAssignment ]
 }
 
 resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSettings@2022-05-01-preview' = {
-  parent: microsoftSqlServer
+  parent: existingMicrosoftSqlServer
   name: 'default'
   properties: {
     retentionDays: 90
