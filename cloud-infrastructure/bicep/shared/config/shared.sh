@@ -1,6 +1,5 @@
 environment="production"
-location="West Europe"
-resourceGroupName="shared"
+location="WestEurope"
 containerRegistryName="mentum"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

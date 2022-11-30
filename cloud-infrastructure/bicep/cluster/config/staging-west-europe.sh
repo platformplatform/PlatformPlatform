@@ -1,7 +1,6 @@
 environment="staging"
-location="West Europe"
+location="WestEurope"
 locationPrefix="west-europe"
-resourceGroupName="staging-west-europe"
 clusterUniqueName="mentumstageeuw"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

@@ -1,7 +1,6 @@
 environment="production"
-location="East US"
+location="EastUS"
 locationPrefix="east-us"
-resourceGroupName="production-east-us"
 clusterUniqueName="mentumproduse"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

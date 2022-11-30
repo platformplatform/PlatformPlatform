@@ -1,5 +1,5 @@
 environment="production"
-location="West Europe"
+location="WestEurope"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh

@@ -1,6 +1,5 @@
 environment="testing"
-location="West Europe"
-resourceGroupName="shared"
+location="WestEurope"
 containerRegistryName="mentumtest"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

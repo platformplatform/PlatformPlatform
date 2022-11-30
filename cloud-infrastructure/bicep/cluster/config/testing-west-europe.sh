@@ -1,7 +1,6 @@
 environment="testing"
-location="West Europe"
+location="WestEurope"
 locationPrefix="west-europe"
-resourceGroupName="testing-west-europe"
 clusterUniqueName="mentumtesteuw"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

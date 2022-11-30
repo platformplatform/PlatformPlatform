@@ -1,10 +1,10 @@
 targetScope = 'subscription'
 
 param environment string
-param location string = deployment().location
 param locationPrefix string
 param resourceGroupName string
 param clusterUniqueName string
+param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'

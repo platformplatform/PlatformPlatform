@@ -1,7 +1,6 @@
 environment="production"
-location="West Europe"
+location="WestEurope"
 locationPrefix="west-europe"
-resourceGroupName="production-west-europe"
 clusterUniqueName="mentumprodeuw"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
