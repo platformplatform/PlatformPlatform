@@ -13,7 +13,7 @@ steps:
     azureSubscription: 'Azure DevOps Shared'
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
-    scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh'
+    scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh --plan'
     arguments: '--plan'
 
 - task: AzureCLI@2
@@ -22,7 +22,7 @@ steps:
     azureSubscription: 'Azure DevOps Staging'
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
-    scriptPath: 'cloud-infrastructure/bicep/environment/config/staging.sh'
+    scriptPath: 'cloud-infrastructure/bicep/environment/config/staging.sh --plan'
     arguments: '--plan'
 
 - task: CopyFiles@2
