@@ -24,7 +24,7 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
       tenantId: tenantId
       azureADOnlyAuthentication: true
     }
-    restrictOutboundNetworkAccess: 'Enabled' 
+    restrictOutboundNetworkAccess: 'Enabled'
   }
 }
 
@@ -35,6 +35,18 @@ resource virtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-0
     ignoreMissingVnetServiceEndpoint: true
     virtualNetworkSubnetId: subnetId
   }
+}
+
+resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/securityAlertPolicies@2022-05-01-preview' = {
+  name: '${microsoftSqlServer.name}/Default'
+  properties: {
+    state: 'Enabled'
+    disabledAlerts: []
+    emailAddresses: []
+    emailAccountAdmins: false
+    retentionDays: 0
+  }
+
 }
 
 output principalId string = microsoftSqlServer.identity.principalId
