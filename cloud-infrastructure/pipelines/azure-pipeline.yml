@@ -8,21 +8,30 @@ trigger:
 
 steps:
 - task: AzureCLI@2
-  displayName: "Show planed Bicep changes for Shared recources"
+  displayName: "Show Shared recources changes "
   inputs:
     azureSubscription: 'Azure DevOps Shared'
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
-    scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh --plan'
+    scriptPath: 'cloud-infrastructure/bicep/shared/config/shared.sh'
     arguments: '--plan'
 
 - task: AzureCLI@2
-  displayName: "Show planed Bicep changes for Staging environment"
+  displayName: "Show Staging environment planed changes"
   inputs:
     azureSubscription: 'Azure DevOps Staging'
     scriptType: 'bash'
     scriptLocation: 'scriptPath'
-    scriptPath: 'cloud-infrastructure/bicep/environment/config/staging.sh --plan'
+    scriptPath: 'cloud-infrastructure/bicep/environment/config/staging.sh'
+    arguments: '--plan'
+
+- task: AzureCLI@2
+  displayName: "Show Staging cluster planed changes "
+  inputs:
+    azureSubscription: 'Azure DevOps Staging'
+    scriptType: 'bash'
+    scriptLocation: 'scriptPath'
+    scriptPath: 'cloud-infrastructure/bicep/cluster/config/staging-west-europe.sh'
     arguments: '--plan'
 
 - task: CopyFiles@2
