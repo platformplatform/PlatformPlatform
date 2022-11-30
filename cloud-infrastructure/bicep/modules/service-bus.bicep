@@ -2,7 +2,7 @@ param name string
 param location string
 param tags object
 
-resource mentumtesteuw 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
+resource serviceBus 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
   name: name
   location: location
   tags: tags

@@ -4,7 +4,7 @@ param tags object
 param tenantId string
 param subnetId string
 
-resource mentumtesteuw 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
   location: location
   tags: tags

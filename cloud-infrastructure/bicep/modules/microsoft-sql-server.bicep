@@ -28,8 +28,8 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   }
 }
 
-resource virtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-01-preview' = {
-  name: 'sql-virtual-network-rule'
+resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-01-preview' = {
+  name: 'sql--server-virtual-network-rule'
   parent: microsoftSqlServer
   properties: {
     ignoreMissingVnetServiceEndpoint: true

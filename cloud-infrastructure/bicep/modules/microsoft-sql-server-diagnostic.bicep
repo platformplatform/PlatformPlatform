@@ -4,7 +4,7 @@ param principalId string
 param dianosticStorageAccountSubscriptionId string
 param dianosticStorageAccountBlobEndpoint string
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+resource existingStorageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   scope: resourceGroup()
   name: diagnosticStorageAccountName
 }
@@ -20,8 +20,8 @@ resource existingStorageBlobDataContributorRoleDefinition 'Microsoft.Authorizati
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  scope: storageAccount
-  name: guid(storageAccount.id, principalId, existingStorageBlobDataContributorRoleDefinition.id)
+  scope: existingStorageAccount
+  name: guid(existingStorageAccount.id, principalId, existingStorageBlobDataContributorRoleDefinition.id)
   properties: {
     roleDefinitionId: existingStorageBlobDataContributorRoleDefinition.id
     principalId: principalId
