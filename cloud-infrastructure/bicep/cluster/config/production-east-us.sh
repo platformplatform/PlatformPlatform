@@ -1,7 +1,7 @@
 environment="production"
 location="EastUS"
 locationPrefix="east-us"
-clusterUniqueName="mentumproduse"
+clusterUniqueName="mentumprodeus"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh

@@ -1,7 +1,7 @@
 environment="testing"
 location="NorthEurope"
 locationPrefix="north-europe"
-clusterUniqueName="mentumtesteun"
+clusterUniqueName="mentumtestneu"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
