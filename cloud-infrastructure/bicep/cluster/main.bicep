@@ -4,6 +4,7 @@ param environment string
 param locationPrefix string
 param resourceGroupName string
 param clusterUniqueName string
+param useMssqlElasticPool bool
 param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -114,5 +115,20 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
     principalId: microsoftSqlServer.outputs.principalId
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
     dianosticStorageAccountSubscriptionId: subscription().subscriptionId
+  }
+}
+
+module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-pool.bicep' = if (useMssqlElasticPool) {
+  scope: clusterResourceGroup
+  name: '${deployment().name}-microsoft-sql-server-elastic-pool'
+  params: {
+    location: location
+    name: '${locationPrefix}-microsoft-sql-server-elastic-pool'
+    tags: tags
+    sqlServerName: clusterUniqueName
+    skuName: 'BasicPool'
+    skuTier: 'Basic'
+    skuCapacity: 50
+    maxDatabaseCapacity: 5
   }
 }
