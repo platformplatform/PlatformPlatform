@@ -14,10 +14,10 @@ var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
 var subnetId = '/subscriptions/${subscription().subscriptionId}/resourcegroups/${resourceGroupName}/providers/microsoft.network/virtualnetworks/${locationPrefix}-virtual-network/subnets/subnet'
 
-// resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-//   scope: resourceGroup('${environment}-monitor')
-//   name: '${environment}-log-analytics-workspace'
-// }
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  scope: resourceGroup('${environment}-monitor')
+  name: '${environment}-log-analytics-workspace'
+}
 
 resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -67,6 +67,7 @@ module keyVault '../modules/key-vault.bicep' = {
     tenantId: subscription().tenantId
     subnetId: subnetId
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
+    workspaceId: existingLogAnalyticsWorkspace.id
   }
   dependsOn: [ virtualNetwork ]
 }

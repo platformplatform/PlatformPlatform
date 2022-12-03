@@ -4,6 +4,7 @@ param tags object
 param tenantId string
 param subnetId string
 param storageAccountId string
+param workspaceId string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
@@ -70,5 +71,41 @@ resource keyVaultAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2
       }
     ]
 
+  }
+}
+
+resource keyVaultMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: keyVault
+  name: 'key-vault-metrics'
+  properties: {
+    workspaceId: workspaceId
+    logs: [
+      {
+        category: 'AuditEvent'
+        enabled: false
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+      {
+        category: 'AzurePolicyEvaluationDetails'
+        enabled: false
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+        retentionPolicy: {
+          enabled: true
+          days: 90
+        }
+      }
+    ]
   }
 }
