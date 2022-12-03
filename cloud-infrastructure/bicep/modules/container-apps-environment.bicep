@@ -22,8 +22,9 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-06-01-
       destination: 'azure-monitor'
     }
     zoneRedundant: true
-    customDomainConfiguration: {
-    }
+
+    #disable-next-line BCP037 // useLegionServerlessCompute is not in the API, but without Bicep detects changes
+    useLegionServerlessCompute: false
   }
   sku: {
     name: 'Consumption'

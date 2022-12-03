@@ -13,7 +13,6 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
     type: 'SystemAssigned'
   }
   properties: {
-    version: '12.0'
     minimalTlsVersion: '1.2'
     publicNetworkAccess: 'Enabled'
     administrators: {
@@ -41,8 +40,8 @@ resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/security
   name: '${microsoftSqlServer.name}/Default'
   properties: {
     state: 'Enabled'
-    disabledAlerts: []
-    emailAddresses: []
+    disabledAlerts: [ '' ]
+    emailAddresses: [ '' ]
     emailAccountAdmins: false
     retentionDays: 0
   }
