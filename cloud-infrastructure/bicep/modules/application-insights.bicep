@@ -54,10 +54,11 @@ resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2022
       }
     ]
   }
+  dependsOn: [ applicationInsights ]
 }
 
 resource failureanomaliestestingapplicationinsights 'microsoft.alertsManagement/smartDetectorAlertRules@2021-04-01' = {
-  name: '${name}-failure-anomalies'  
+  name: '${name}-failure-anomalies'
   location: 'global'
   tags: tags
   properties: {
