@@ -66,6 +66,7 @@ module keyVault '../modules/key-vault.bicep' = {
     tags: tags
     tenantId: subscription().tenantId
     subnetId: subnetId
+    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
   }
   dependsOn: [ virtualNetwork ]
 }

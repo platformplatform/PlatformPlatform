@@ -3,6 +3,7 @@ param location string
 param tags object
 param tenantId string
 param subnetId string
+param storageAccountId string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: name
@@ -32,5 +33,42 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     softDeleteRetentionInDays: 7
     enableRbacAuthorization: false
     publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource keyVaultAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  scope: keyVault
+  name: 'key-vault-audit'
+  properties: {
+    storageAccountId: storageAccountId
+    logs: [
+      {
+        categoryGroup: 'audit'
+        enabled: true
+        retentionPolicy: {
+          enabled: true
+          days: 90
+        }
+      }
+      {
+        categoryGroup: 'allLogs'
+        enabled: false
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: false
+        retentionPolicy: {
+          enabled: false
+          days: 0
+        }
+      }
+    ]
+
   }
 }
