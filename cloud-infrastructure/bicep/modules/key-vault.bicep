@@ -70,7 +70,6 @@ resource keyVaultAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2
         }
       }
     ]
-
   }
 }
 

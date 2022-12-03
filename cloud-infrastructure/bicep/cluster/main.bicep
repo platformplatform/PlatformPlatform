@@ -80,6 +80,7 @@ module serviceBus '../modules/service-bus.bicep' = {
     name: clusterUniqueName
     tags: tags
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
+    workspaceId: existingLogAnalyticsWorkspace.id
   }
 }
 
