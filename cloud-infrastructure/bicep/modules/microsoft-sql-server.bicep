@@ -28,7 +28,7 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
 }
 
 resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-01-preview' = {
-  name: 'sql--server-virtual-network-rule'
+  name: 'sql-server-virtual-network-rule'
   parent: microsoftSqlServer
   properties: {
     ignoreMissingVnetServiceEndpoint: true
@@ -45,7 +45,6 @@ resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/security
     emailAccountAdmins: false
     retentionDays: 0
   }
-
 }
 
 output principalId string = microsoftSqlServer.identity.principalId
