@@ -79,6 +79,7 @@ module serviceBus '../modules/service-bus.bicep' = {
     location: location
     name: clusterUniqueName
     tags: tags
+    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
   }
 }
 
