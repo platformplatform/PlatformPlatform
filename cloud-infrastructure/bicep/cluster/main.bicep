@@ -10,6 +10,9 @@ var tags = { environment: environment, 'managed-by': 'bicep' }
 var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
+// Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
+var subnetId = '/subscriptions/${subscription().subscriptionId}/resourcegroups/${resourceGroupName}/providers/microsoft.network/virtualnetworks/${locationPrefix}-virtual-network/subnets/subnet'
+
 // resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
 //   scope: resourceGroup('${environment}-monitor')
 //   name: '${environment}-log-analytics-workspace'
@@ -61,8 +64,9 @@ module keyVault '../modules/key-vault.bicep' = {
     name: clusterUniqueName
     tags: tags
     tenantId: subscription().tenantId
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: subnetId
   }
+  dependsOn: [ virtualNetwork ]
 }
 
 module serviceBus '../modules/service-bus.bicep' = {
@@ -82,8 +86,9 @@ module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' =
     location: location
     name: '${locationPrefix}-container-apps-environment'
     tags: tags
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: subnetId
   }
+  dependsOn: [ virtualNetwork ]
 }
 
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
@@ -93,10 +98,11 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
     location: location
     name: clusterUniqueName
     tags: tags
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: subnetId
     tenantId: subscription().tenantId
     sqlAdminObjectId: activeDirectoryAdminObjectId
   }
+  dependsOn: [ virtualNetwork ]
 }
 
 module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
