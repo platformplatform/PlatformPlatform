@@ -12,7 +12,8 @@ var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
-var subnetId = '/subscriptions/${subscription().subscriptionId}/resourcegroups/${resourceGroupName}/providers/microsoft.network/virtualnetworks/${locationPrefix}-virtual-network/subnets/subnet'
+var virtualNetworkName = '${locationPrefix}-virtual-network'
+var subnetId = resourceId(subscription().subscriptionId, resourceGroupName,'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'subnet')
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   scope: resourceGroup('${environment}-monitor')
@@ -51,7 +52,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   name: '${deployment().name}-virtual-network'
   params: {
     location: location
-    name: '${locationPrefix}-virtual-network'
+    name: virtualNetworkName
     tags: tags
   }
   dependsOn: [ networkWatcher ]
