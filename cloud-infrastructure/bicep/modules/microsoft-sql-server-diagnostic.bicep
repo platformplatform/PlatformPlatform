@@ -53,3 +53,16 @@ resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSetti
   }
   dependsOn: [ microsoftSqlServerOutboundFirewallRules ]
 }
+
+resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulnerabilityAssessments@2018-06-01-preview' = {
+  name: 'default'
+  parent: existingMicrosoftSqlServer
+  properties: {
+    recurringScans: {
+      emails: [ '' ]
+      emailSubscriptionAdmins: true
+      isEnabled: true
+    }
+    storageContainerPath: '${dianosticStorageAccountBlobEndpoint}sql-vulnerability-scans/'
+  }
+}
