@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
 public interface IEntity
