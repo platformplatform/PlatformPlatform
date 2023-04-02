@@ -1,4 +1,3 @@
-using System.Reflection;
 using FluentAssertions;
 using NetArchTest.Rules;
 using PlatformPlatform.Domain;
