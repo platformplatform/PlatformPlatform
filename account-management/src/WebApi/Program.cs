@@ -1,5 +1,5 @@
-using PlatformPlatform.Application;
-using PlatformPlatform.Infrastructure;
+using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

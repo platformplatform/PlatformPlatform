@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.Domain;
+namespace PlatformPlatform.AccountManagement.Domain;
 
 public static class DomainAssembly
 {

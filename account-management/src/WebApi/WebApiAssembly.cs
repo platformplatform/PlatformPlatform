@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.WebApi;
+namespace PlatformPlatform.AccountManagement.WebApi;
 
 public static class WebApiAssembly
 {

@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.Application;
+namespace PlatformPlatform.AccountManagement.Application;
 
 public static class ApplicationAssembly
 {

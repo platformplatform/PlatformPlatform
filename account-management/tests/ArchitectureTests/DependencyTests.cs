@@ -1,11 +1,11 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.Application;
-using PlatformPlatform.Domain;
-using PlatformPlatform.Infrastructure;
-using PlatformPlatform.WebApi;
+using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Domain;
+using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.WebApi;
 
-namespace PlatformPlatform.ArchitectureTests;
+namespace PlatformPlatform.AccountManagement.ArchitectureTests;
 
 public class DependencyTests
 {

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Infrastructure</AssemblyName>
-        <RootNamespace>PlatformPlatform.Infrastructure</RootNamespace>
+        <AssemblyName>PlatformPlatform.AccountManagement.Infrastructure</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.Infrastructure</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

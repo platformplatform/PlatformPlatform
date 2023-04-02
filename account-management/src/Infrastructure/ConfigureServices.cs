@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlatformPlatform.Infrastructure;
+namespace PlatformPlatform.AccountManagement.Infrastructure;
 
 public static class ConfigureServices
 {

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.ArchitectureTests</AssemblyName>
-        <RootNamespace>PlatformPlatform.ArchitectureTests</RootNamespace>
+        <AssemblyName>PlatformPlatform.AccountManagement.ArchitectureTests</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.ArchitectureTests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 

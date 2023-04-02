@@ -1,8 +1,8 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.Domain;
+using PlatformPlatform.AccountManagement.Domain;
 
-namespace PlatformPlatform.ArchitectureTests;
+namespace PlatformPlatform.AccountManagement.ArchitectureTests;
 
 public class PublicClassesTests
 {

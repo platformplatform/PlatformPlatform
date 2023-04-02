@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlatformPlatform.Application;
+namespace PlatformPlatform.AccountManagement.Application;
 
 public static class ConfigureServices
 {

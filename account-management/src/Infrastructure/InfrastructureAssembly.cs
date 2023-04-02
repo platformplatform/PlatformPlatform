@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.Infrastructure;
+namespace PlatformPlatform.AccountManagement.Infrastructure;
 
 public static class InfrastructureAssembly
 {
