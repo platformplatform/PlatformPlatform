@@ -7,10 +7,10 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        var applicationAssembly = typeof(ConfigureServices).Assembly;
+        services.AddMediatR(configuration =>
+            configuration.RegisterServicesFromAssemblies(ApplicationAssembly.Assembly));
 
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
-        services.AddValidatorsFromAssembly(applicationAssembly);
+        services.AddValidatorsFromAssembly(ApplicationAssembly.Assembly);
 
         return services;
     }
