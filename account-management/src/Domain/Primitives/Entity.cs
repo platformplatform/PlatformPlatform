@@ -19,7 +19,7 @@ public abstract class Entity<T> : IEntity, IEquatable<Entity<T>> where T : IComp
         Id = id;
     }
 
-    public required T Id { get; init; }
+    public T Id { get; init; }
 
     public bool Equals(Entity<T>? other)
     {
