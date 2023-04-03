@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.AccountManagement.DomainTests</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.DomainTests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <AssemblyName>PlatformPlatform.AccountManagement.DomainTests</AssemblyName>
-        <RootNamespace>PlatformPlatform.AccountManagement.DomainTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
