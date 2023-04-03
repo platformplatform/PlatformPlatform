@@ -14,6 +14,7 @@ public class PublicClassesTests
             .InAssembly(DomainAssembly.Assembly)
             .That()
             .ArePublic()
+            .And().AreNotAbstract()
             .Should()
             .BeSealed()
             .GetResult();
