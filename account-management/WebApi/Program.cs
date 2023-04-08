@@ -15,4 +15,6 @@ if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 app.MapGet("/", () => "Hello World!");
 
+app.MapTenantEndpoints();
+
 app.Run();
