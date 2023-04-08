@@ -1,20 +1,28 @@
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi;
+using PlatformPlatform.AccountManagement.WebApi.Endpoints;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace PlatformPlatform.AccountManagement.WebApi;
 
-builder.Services
-    .AddApplicationServices()
-    .AddInfrastructureServices(builder.Configuration)
-    .AddWebApiServices();
+public class Program
+{
+    internal static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+        builder.Services
+            .AddApplicationServices()
+            .AddInfrastructureServices(builder.Configuration)
+            .AddWebApiServices();
 
-if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+        var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+        if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-app.MapTenantEndpoints();
+        app.MapGet("/", () => "Hello World!");
 
-app.Run();
+        app.MapTenantEndpoints();
+
+        app.Run();
+    }
+}
