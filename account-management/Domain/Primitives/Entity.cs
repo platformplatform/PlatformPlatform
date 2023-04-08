@@ -1,8 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-public interface IEntity
-{
-}
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
 public abstract class Entity : Entity<long>
@@ -13,7 +10,7 @@ public abstract class Entity : Entity<long>
 }
 
 [DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
-public abstract class Entity<T> : IEntity, IEquatable<Entity<T>> where T : IComparable
+public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable
 {
     protected Entity(T id)
     {
