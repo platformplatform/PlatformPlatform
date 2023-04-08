@@ -17,7 +17,7 @@ public static class InfrastructureConfiguration
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("Default"));
         });
 
-        // Scruter will scan the assembly for all classes that implements the IRepository
+        // Scrutor will scan the assembly for all classes that implements the IRepository
         // and register them as a service in the container.
         services.Scan(scan => scan
             .FromAssemblies(Assembly)
