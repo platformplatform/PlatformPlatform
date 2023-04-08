@@ -29,7 +29,9 @@ public class Program
         {
             app.UseHsts(); // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts.
         }
-        
+
+        app.UseHttpsRedirection();
+
         app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
         app.MapTenantEndpoints();
