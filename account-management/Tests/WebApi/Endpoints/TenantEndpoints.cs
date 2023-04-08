@@ -35,4 +35,42 @@ public class TenantEndpointsTests
 
         _serviceProvider = _webApplicationFactory.Services;
     }
+
+    [Fact]
+    public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
+    {
+        // Arrange
+        using (var serviceScope = _serviceProvider.CreateScope())
+        {
+            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            databaseSeeder.Seed();
+        }
+
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        // Act
+        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id}");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var tenantResponseDto = response.Content.ReadFromJsonAsync<TenantResponseDto>().Result;
+        tenantResponseDto.Should().NotBeNull();
+        tenantResponseDto!.Id.Should().Be(DatabaseSeeder.Tenant1Id);
+        tenantResponseDto.Name.Should().Be(DatabaseSeeder.Tenant1Name);
+    }
+
+    [Fact]
+    public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        long nonExistingTenantId = 999;
+
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        // Act
+        var response = await httpClient.GetAsync($"/tenants/{nonExistingTenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
