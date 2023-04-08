@@ -1,8 +1,9 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public interface IEntity
 {
 }
+namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
 public abstract class Entity : Entity<long>
 {
@@ -19,6 +20,7 @@ public abstract class Entity<T> : IEntity, IEquatable<Entity<T>> where T : IComp
         Id = id;
     }
 
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public T Id { get; init; }
 
     public bool Equals(Entity<T>? other)

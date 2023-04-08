@@ -1,11 +1,8 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed class Tenant : Entity, IAggregateRoot
 {
-    public Tenant(string name)
-    {
-        Name = name;
-    }
-
-    public required string Name { get; set; }
+    [MinLength(1)] [MaxLength(50)] public required string Name { get; set; }
 }
