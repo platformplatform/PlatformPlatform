@@ -20,7 +20,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, ISender sender)
     {
-        var createTenantCommand = new CreateTenantCommand {Name = createTenantRequest.Name};
+        var createTenantCommand = new CreateTenantCommand(createTenantRequest.Name);
         var tenantId = await sender.Send(createTenantCommand);
         return Results.Created($"/tenants/{tenantId}", tenantId);
     }

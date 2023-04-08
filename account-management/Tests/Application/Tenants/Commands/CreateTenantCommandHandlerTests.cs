@@ -14,7 +14,7 @@ public class CreateTenantCommandHandlerTests
 
         var tenantRepository = Substitute.For<ITenantRepository>();
 
-        var command = new CreateTenantCommand {Name = "TestTenant"};
+        var command = new CreateTenantCommand("TestTenant");
         var handler = new CreateTenantCommandHandler(tenantRepository);
 
         // Act

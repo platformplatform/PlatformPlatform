@@ -3,10 +3,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
-public sealed record CreateTenantCommand : IRequest<long>
-{
-    public required string Name { get; init; }
-}
+public sealed record CreateTenantCommand(string Name) : IRequest<long>;
 
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, long>
 {
