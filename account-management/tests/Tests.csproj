@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.AccountManagement.DomainTests</AssemblyName>
-        <RootNamespace>PlatformPlatform.AccountManagement.DomainTests</RootNamespace>
+        <AssemblyName>PlatformPlatform.AccountManagement.Tests</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -14,6 +14,7 @@
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="6.10.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2"/>
+        <PackageReference Include="NetArchTest.Rules" Version="1.3.2"/>
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,7 +27,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Domain\Domain.csproj"/>
+        <ProjectReference Include="..\Domain\Domain.csproj"/>
+        <ProjectReference Include="..\Application\Application.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\WebApi\WebApi.csproj"/>
     </ItemGroup>
 
 </Project>
