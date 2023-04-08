@@ -13,11 +13,11 @@ public class DependencyTests
     {
         // Act
         var result = Types
-            .InAssembly(WebApiAssembly.Assembly)
+            .InAssembly(WebApiConfiguration.Assembly)
             .That()
             .DoNotHaveNameMatching("Program") // The Program class are allowed to register infrastructure services
             .ShouldNot()
-            .HaveDependencyOn(InfrastructureAssembly.Name)
+            .HaveDependencyOn(InfrastructureConfiguration.Assembly.GetName().Name!)
             .GetResult();
 
         // Assert
@@ -30,13 +30,13 @@ public class DependencyTests
         // Arrange
         string[] otherAssemblies =
         {
-            InfrastructureAssembly.Name,
-            WebApiAssembly.Name
+            InfrastructureConfiguration.Assembly.GetName().Name!,
+            WebApiConfiguration.Assembly.GetName().Name!
         };
 
         // Act
         var result = Types
-            .InAssembly(ApplicationAssembly.Assembly)
+            .InAssembly(ApplicationConfiguration.Assembly)
             .ShouldNot()
             .HaveDependencyOnAll(otherAssemblies)
             .GetResult();
@@ -51,14 +51,14 @@ public class DependencyTests
         // Arrange
         var otherAssemblies = new[]
         {
-            ApplicationAssembly.Name,
-            InfrastructureAssembly.Name,
-            WebApiAssembly.Name
+            ApplicationConfiguration.Assembly.GetName().Name!,
+            InfrastructureConfiguration.Assembly.GetName().Name!,
+            WebApiConfiguration.Assembly.GetName().Name!
         };
 
         // Act
         var result = Types
-            .InAssembly(DomainAssembly.Assembly)
+            .InAssembly(DomainConfiguration.Assembly)
             .ShouldNot()
             .HaveDependencyOnAll(otherAssemblies)
             .GetResult();

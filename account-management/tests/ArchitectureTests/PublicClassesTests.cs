@@ -10,7 +10,7 @@ public class PublicClassesTests
     {
         // Act
         var result = Types
-            .InAssembly(DomainAssembly.Assembly)
+            .InAssembly(DomainConfiguration.Assembly)
             .That()
             .ArePublic()
             .And().AreNotAbstract()

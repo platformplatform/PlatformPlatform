@@ -1,11 +1,13 @@
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddApplicationServices()
-    .AddInfrastructureServices();
+    .AddInfrastructureServices()
+    .AddWebApiServices();
 
 var app = builder.Build();
 
