@@ -25,7 +25,11 @@ public class Program
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountManagement API - Unstable")
             );
         }
-
+        else
+        {
+            app.UseHsts(); // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts.
+        }
+        
         app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
         app.MapTenantEndpoints();
