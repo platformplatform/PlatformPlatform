@@ -2,8 +2,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -19,7 +17,13 @@ public static class InfrastructureConfiguration
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("Default"));
         });
 
-        services.AddScoped<ITenantRepository, TenantRepository>();
+        // Scruter will scan the assembly for all classes that implements the IRepository
+        // and register them as a service in the container.
+        services.Scan(scan => scan
+            .FromAssemblies(Assembly)
+            .AddClasses(classes => classes.AssignableTo(typeof(IRepository<,>)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
 
         return services;
     }
