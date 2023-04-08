@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives.Tests;
+namespace PlatformPlatform.AccountManagement.DomainTests;
 
 public static class EntityTests
 {

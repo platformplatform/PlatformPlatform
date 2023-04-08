@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Tests;
+namespace PlatformPlatform.AccountManagement.DomainTests;
 
 public class IdGeneratorTests
 {
