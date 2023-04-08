@@ -17,9 +17,16 @@ public class Program
 
         var app = builder.Build();
 
-        if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger(); //Generate a swagger.json file
+            app.UseSwaggerUI(c =>
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountManagement API - Unstable")
+            );
+        }
 
-        app.MapGet("/", () => "Hello World!");
+        app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
         app.MapTenantEndpoints();
 
