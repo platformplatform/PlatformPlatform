@@ -14,15 +14,8 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(long id, ISender sender)
     {
-        try
-        {
-            var tenant = await mediator.Send(new GetTenantByIdQuery(id));
-            return Results.Ok(tenant);
-        }
-        catch (Exception e) when (e.Message == "TenantNotFound")
-        {
-            return Results.NotFound();
-        }
+        var tenant = await sender.Send(new GetTenantByIdQuery(id));
+        return tenant is null ? Results.NotFound() : Results.Ok(tenant);
     }
 
     private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, ISender sender)

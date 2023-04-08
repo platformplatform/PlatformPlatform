@@ -8,8 +8,9 @@ public record TenantResponseDto
 
     public required string Name { get; init; }
 
-    public static TenantResponseDto CreateFrom(Tenant tenant)
+    public static TenantResponseDto? CreateFrom(Tenant? tenant)
     {
+        if (tenant is null) return null;
         return new TenantResponseDto {Id = tenant.Id, Name = tenant.Name};
     }
 }
