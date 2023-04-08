@@ -37,6 +37,27 @@ public class TenantEndpointsTests
     }
 
     [Fact]
+    public async Task CreateTenant_WhenValid_ShouldCreateTenant()
+    {
+        // Arrange
+        var startId = IdGenerator.NewId(); // NewId will always generate an id that are greater than the previous one
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        // Act
+        var response = await httpClient.PostAsJsonAsync("/tenants", new CreateTenantRequest("TestTenant"));
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var tenantId = await response.Content.ReadFromJsonAsync<long>();
+        tenantId.Should().BeGreaterThan(startId);
+
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId}");
+    }
+
+    [Fact]
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
     {
         // Arrange
