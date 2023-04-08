@@ -12,7 +12,7 @@ public static class TenantEndpoints
         app.MapPost("/tenants", CreateTenant);
     }
 
-    private static async Task<IResult> GetTenant(long id, IMediator mediator)
+    private static async Task<IResult> GetTenant(long id, ISender sender)
     {
         try
         {
@@ -25,10 +25,10 @@ public static class TenantEndpoints
         }
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, IMediator mediator)
+    private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, ISender sender)
     {
         var createTenantCommand = new CreateTenantCommand {Name = createTenantRequest.Name};
-        var tenantId = await mediator.Send(createTenantCommand);
+        var tenantId = await sender.Send(createTenantCommand);
         return Results.Created($"/tenants/{tenantId}", tenantId);
     }
 }
