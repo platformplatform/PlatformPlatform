@@ -16,6 +16,7 @@ public static class WebApiConfiguration
         {
             c.SwaggerDoc("v1", new OpenApiInfo {Title = "Platform Platform API", Version = "v1"});
         });
+
         return services;
     }
 }

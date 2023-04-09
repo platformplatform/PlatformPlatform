@@ -22,6 +22,5 @@ public class TenantRepository : ITenantRepository
     public async Task AddAsync(Tenant tenant, CancellationToken cancellationToken)
     {
         await _tenantDbSet.AddAsync(tenant, cancellationToken);
-        await _applicationDbContext.SaveChangesAsync(cancellationToken);
     }
 }

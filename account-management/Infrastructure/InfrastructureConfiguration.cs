@@ -21,7 +21,7 @@ public static class InfrastructureConfiguration
         // and register them as a service in the container.
         services.Scan(scan => scan
             .FromAssemblies(Assembly)
-            .AddClasses(classes => classes.AssignableTo(typeof(IRepository<,>)))
+            .AddClasses()
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
