@@ -5,7 +5,7 @@ namespace PlatformPlatform.AccountManagement.WebApi;
 
 public static class WebApiConfiguration
 {
-    public static readonly Assembly Assembly = typeof(WebApiConfiguration).Assembly;
+    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
 
     public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {

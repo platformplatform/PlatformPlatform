@@ -7,7 +7,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 
 public static class InfrastructureConfiguration
 {
-    public static readonly Assembly Assembly = typeof(InfrastructureConfiguration).Assembly;
+    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
