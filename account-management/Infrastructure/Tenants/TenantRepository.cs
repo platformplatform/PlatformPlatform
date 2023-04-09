@@ -5,12 +5,10 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
 public class TenantRepository : ITenantRepository
 {
-    private readonly ApplicationDbContext _applicationDbContext;
     private readonly DbSet<Tenant> _tenantDbSet;
 
     public TenantRepository(ApplicationDbContext applicationDbContext)
     {
-        _applicationDbContext = applicationDbContext;
         _tenantDbSet = applicationDbContext.Tenants;
     }
 
