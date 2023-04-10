@@ -1,5 +1,3 @@
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-
 namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;
 
 public static class EntityTests

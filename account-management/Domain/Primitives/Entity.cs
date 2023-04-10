@@ -2,13 +2,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
-public abstract class Entity : Entity<long>
-{
-    protected Entity() : base(IdGenerator.NewId())
-    {
-    }
-}
-
 [DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
 public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 {
