@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
-using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
@@ -51,7 +50,11 @@ public class TenantEndpointsTests
         response.EnsureSuccessStatusCode();
 
         var tenantId = await response.Content.ReadFromJsonAsync<TenantId>();
-        tenantId.Should().BeGreaterThan(startId);
+        tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
+
+        var expectedBody = @"{""value"":TenantId}".Replace("TenantId", tenantId.AsRawString());
+        var responseAsRawString = await response.Content.ReadAsStringAsync();
+        responseAsRawString.Should().Be(expectedBody);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId.AsRawString()}");
@@ -74,10 +77,12 @@ public class TenantEndpointsTests
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var tenantResponseDto = response.Content.ReadFromJsonAsync<TenantResponseDto>().Result;
-        tenantResponseDto.Should().NotBeNull();
-        tenantResponseDto!.Id.Should().Be(DatabaseSeeder.Tenant1Id);
-        tenantResponseDto.Name.Should().Be(DatabaseSeeder.Tenant1Name);
+        var expectedBody = @"{""id"":""TenantID"",""name"":""TenantName""}"
+            .Replace("TenantID", DatabaseSeeder.Tenant1Id.AsRawString())
+            .Replace("TenantName", DatabaseSeeder.Tenant1Name);
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
     }
 
     [Fact]
