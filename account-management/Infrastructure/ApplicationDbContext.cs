@@ -14,12 +14,7 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Tenant>(entity =>
-        {
-            entity
-                .Property(t => t.Id)
-                .HasConversion(v => v.Value, v => new TenantId(v));
-        });
+        modelBuilder.Entity<Tenant>().ConfigureStronglyTypedId<Tenant, TenantId>();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
