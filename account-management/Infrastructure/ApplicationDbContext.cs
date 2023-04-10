@@ -16,12 +16,9 @@ public class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<Tenant>(entity =>
         {
-            entity.HasKey(t => t.Id);
-            entity.Property(t => t.Id)
-                .HasConversion(
-                    v => v.Value,
-                    v => new TenantId(v))
-                .IsRequired();
+            entity
+                .Property(t => t.Id)
+                .HasConversion(v => v.Value, v => new TenantId(v));
         });
     }
 

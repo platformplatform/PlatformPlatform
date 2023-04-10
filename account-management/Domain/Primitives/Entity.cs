@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
@@ -21,6 +22,7 @@ public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
         Id = id;
     }
 
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public T Id { get; init; }
 
