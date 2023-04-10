@@ -1,5 +1,5 @@
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
-public interface IAggregateRoot
+public interface IAggregateRoot : IAuditableEntity
 {
 }

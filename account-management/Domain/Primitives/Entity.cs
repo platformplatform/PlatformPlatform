@@ -2,6 +2,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
+public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : IComparable<T>
+{
+    protected AudibleEntity(T id) : base(id)
+    {
+    }
+
+    public DateTime CreatedAt { get; set; }
+
+    public DateTime? ModifiedAt { get; set; }
+}
+
 [DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
 public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 {
