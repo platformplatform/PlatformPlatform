@@ -2,16 +2,10 @@ namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
 public static class IdGenerator
 {
-    private static readonly object Lock = new();
-    private static long _lastId;
+    private static readonly IdGen.IdGenerator Generator = new(0);
 
     public static long NewId()
     {
-        lock (Lock)
-        {
-            var newId = Math.Max(DateTime.UtcNow.Ticks, _lastId + 1);
-            _lastId = newId;
-            return newId;
-        }
+        return Generator.CreateId();
     }
 }
