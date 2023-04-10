@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.AccountManagement.Infrastructure.Common;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -22,5 +23,10 @@ public class ApplicationDbContext : DbContext
                     v => new TenantId(v))
                 .IsRequired();
         });
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
     }
 }
