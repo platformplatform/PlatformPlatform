@@ -54,8 +54,7 @@ public class TenantEndpointsTests
         tenantId.Should().BeGreaterThan(startId);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId}");
+        response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId.AsRawString()}");
     }
 
     [Fact]
@@ -90,7 +89,7 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{nonExistingTenantId}");
+        var response = await httpClient.GetAsync($"/tenants/{nonExistingTenantId.AsRawString()}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

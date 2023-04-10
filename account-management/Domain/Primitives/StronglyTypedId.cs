@@ -8,6 +8,17 @@ public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>
     public static T NewId()
     {
         var newValue = IdGenerator.NewId();
+        return FormLong(newValue);
+    }
+
+    public static T FromString(string value)
+    {
+        var newValue = Convert.ToInt64(value);
+        return FormLong(newValue);
+    }
+
+    private static T FormLong(long newValue)
+    {
         return (T) Activator.CreateInstance(typeof(T),
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, new object[] {newValue}, null)!;
     }
@@ -27,6 +38,11 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<St
         return other != null && Value.Equals(other.Value);
     }
 
+    public string? AsRawString()
+    {
+        return Value.ToString();
+    }
+
     public override int GetHashCode()
     {
         return Value.GetHashCode();
@@ -40,10 +56,5 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<St
     public static implicit operator StronglyTypedId<TValue, T>(TValue value)
     {
         return (T) Activator.CreateInstance(typeof(T), value)!;
-    }
-
-    public override string? ToString()
-    {
-        return Value.ToString();
     }
 }

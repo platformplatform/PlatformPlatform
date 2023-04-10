@@ -9,13 +9,14 @@ public static class TenantEndpoints
 {
     public static void MapTenantEndpoints(this WebApplication app)
     {
-        app.MapGet("/tenants/{id:long}", GetTenant);
+        app.MapGet("/tenants/{id}", GetTenant);
         app.MapPost("/tenants", CreateTenant);
     }
 
-    private static async Task<IResult> GetTenant(long id, ISender sender)
+    private static async Task<IResult> GetTenant(string id, ISender sender)
     {
-        var tenant = await sender.Send(new GetTenantByIdQuery(new TenantId(id)));
+        var tenantId = TenantId.FromString(id);
+        var tenant = await sender.Send(new GetTenantByIdQuery(tenantId));
         return tenant is null ? Results.NotFound() : Results.Ok(tenant);
     }
 
@@ -23,6 +24,6 @@ public static class TenantEndpoints
     {
         var createTenantCommand = new CreateTenantCommand(createTenantRequest.Name);
         var tenantId = await sender.Send(createTenantCommand);
-        return Results.Created($"/tenants/{tenantId}", tenantId);
+        return Results.Created($"/tenants/{tenantId.AsRawString()}", tenantId);
     }
 }

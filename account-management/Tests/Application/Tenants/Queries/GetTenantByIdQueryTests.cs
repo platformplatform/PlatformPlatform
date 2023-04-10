@@ -25,7 +25,7 @@ public class GetTenantByIdQueryTests
 
         // Assert
         result.Should().NotBeNull();
-        result!.Id.Should().Be(expectedTenantId);
+        result!.Id.Should().Be(expectedTenantId.AsRawString());
         result.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }
