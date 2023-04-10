@@ -21,12 +21,12 @@ public class GetTenantByIdQueryTests
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
-        var result = await handler.Handle(query, default);
+        var tenantResponseDto = await handler.Handle(query, default);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(expectedTenantId.AsRawString());
-        result.Name.Should().Be(expectedTenantName);
+        tenantResponseDto.Should().NotBeNull();
+        tenantResponseDto!.Id.Should().Be(expectedTenantId.AsRawString());
+        tenantResponseDto.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }
 
@@ -43,10 +43,10 @@ public class GetTenantByIdQueryTests
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
-        var result = await handler.Handle(query, default);
+        var tenantResponseDto = await handler.Handle(query, default);
 
         // Assert
-        result.Should().BeNull();
+        tenantResponseDto.Should().BeNull();
         await tenantRepository.Received().GetByIdAsync(nonExistingTenantId, default);
     }
 }
