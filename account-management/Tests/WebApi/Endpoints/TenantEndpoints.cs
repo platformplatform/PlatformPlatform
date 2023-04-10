@@ -51,7 +51,7 @@ public class TenantEndpointsTests
         response.EnsureSuccessStatusCode();
 
         var tenantId = await response.Content.ReadFromJsonAsync<TenantId>();
-        tenantId!.Value.Should().BeGreaterThan(startId.Value);
+        tenantId.Should().BeGreaterThan(startId);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().NotBeNull();
