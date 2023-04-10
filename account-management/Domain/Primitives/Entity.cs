@@ -10,7 +10,7 @@ public abstract class Entity : Entity<long>
 }
 
 [DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
-public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable
+public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 {
     protected Entity(T id)
     {

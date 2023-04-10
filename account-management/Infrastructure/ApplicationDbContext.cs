@@ -10,4 +10,17 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Tenant>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.Property(t => t.Id)
+                .HasConversion(
+                    v => v.Value,
+                    v => new TenantId(v))
+                .IsRequired();
+        });
+    }
 }

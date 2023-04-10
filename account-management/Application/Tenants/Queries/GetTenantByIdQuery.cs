@@ -3,7 +3,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
-public sealed record GetTenantByIdQuery(long Id) : IRequest<TenantResponseDto?>;
+public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantResponseDto?>;
 
 public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, TenantResponseDto?>
 {

@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
 public record TenantResponseDto
 {
-    public required long Id { get; init; }
+    public required TenantId Id { get; init; }
 
     public required string Name { get; init; }
 

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 
@@ -40,7 +41,7 @@ public class TenantEndpointsTests
     public async Task CreateTenant_WhenValid_ShouldCreateTenant()
     {
         // Arrange
-        var startId = IdGenerator.NewId(); // NewId will always generate an id that are greater than the previous one
+        var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
@@ -49,8 +50,8 @@ public class TenantEndpointsTests
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantId = await response.Content.ReadFromJsonAsync<long>();
-        tenantId.Should().BeGreaterThan(startId);
+        var tenantId = await response.Content.ReadFromJsonAsync<TenantId>();
+        tenantId!.Value.Should().BeGreaterThan(startId.Value);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().NotBeNull();
@@ -70,7 +71,7 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id}");
+        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id.Value}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -84,7 +85,7 @@ public class TenantEndpointsTests
     public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
-        long nonExistingTenantId = 999;
+        var nonExistingTenantId = new TenantId(999);
 
         var httpClient = _webApplicationFactory.CreateClient();
 

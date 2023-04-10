@@ -10,7 +10,7 @@ public class CreateTenantCommandHandlerTests
     public async Task CreateTenantCommandHandler_ShouldAddTenantToRepository()
     {
         // Arrange
-        var startId = IdGenerator.NewId(); // NewId will always generate an id that are greater than the previous one
+        var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
 
         var tenantRepository = Substitute.For<ITenantRepository>();
 
@@ -22,7 +22,7 @@ public class CreateTenantCommandHandlerTests
 
         // Assert
         await tenantRepository.Received()
-            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId),
+            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id.Value > startId.Value && t.Id == tenantId),
                 Arg.Any<CancellationToken>());
     }
 }

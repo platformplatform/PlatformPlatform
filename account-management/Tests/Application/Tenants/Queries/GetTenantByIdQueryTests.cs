@@ -10,7 +10,7 @@ public class GetTenantByIdQueryTests
     public async Task GetTenantByIdQuery_WhenTenantFound_ShouldReturnTenantResponseDto()
     {
         // Arrange
-        var expectedTenantId = IdGenerator.NewId();
+        var expectedTenantId = TenantId.NewId();
         var expectedTenantName = "TestTenant";
 
         var tenant = new Tenant {Id = expectedTenantId, Name = expectedTenantName};
@@ -34,7 +34,7 @@ public class GetTenantByIdQueryTests
     public async Task GetTenantByIdQuery_WhenTenantNotFound_ShouldReturnNull()
     {
         // Arrange
-        long nonExistingTenantId = 999;
+        var nonExistingTenantId = new TenantId(999);
 
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(nonExistingTenantId, default).Returns((Tenant?) null);

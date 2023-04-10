@@ -1,6 +1,6 @@
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
-public interface IRepository<T, in TId> where T : IAggregateRoot where TId : IComparable
+public interface IRepository<T, in TId> where T : IAggregateRoot where TId : IComparable<TId>
 {
     Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken);
 

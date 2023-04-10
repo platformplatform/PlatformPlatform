@@ -7,8 +7,8 @@ public class DatabaseSeeder
 {
     public const string Tenant1Name = "Tenant 1";
     public const string Tenant2Name = "Tenant 2";
-    public static readonly long Tenant1Id = IdGenerator.NewId();
-    public static readonly long Tenant2Id = IdGenerator.NewId();
+    public static readonly TenantId Tenant1Id = TenantId.NewId();
+    public static readonly TenantId Tenant2Id = TenantId.NewId();
 
     private static readonly object Lock = new();
     private static bool _databaseIsSeeded;

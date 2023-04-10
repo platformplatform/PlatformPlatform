@@ -12,7 +12,7 @@ public class TenantRepository : ITenantRepository
         _tenantDbSet = applicationDbContext.Tenants;
     }
 
-    public async Task<Tenant?> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Tenant?> GetByIdAsync(TenantId id, CancellationToken cancellationToken)
     {
         return await _tenantDbSet.FindAsync(id, cancellationToken);
     }

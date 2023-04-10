@@ -1,6 +1,7 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;
 
@@ -14,7 +15,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(long id, ISender sender)
     {
-        var tenant = await sender.Send(new GetTenantByIdQuery(id));
+        var tenant = await sender.Send(new GetTenantByIdQuery(new TenantId(id)));
         return tenant is null ? Results.NotFound() : Results.Ok(tenant);
     }
 
