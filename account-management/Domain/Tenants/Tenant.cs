@@ -2,22 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
-public sealed record TenantId(long Value) : IComparable<TenantId>
-{
-    public int CompareTo(TenantId? other)
-    {
-        return other == null ? 1 : Value.CompareTo(other.Value);
-    }
-
-    public static TenantId NewId()
-    {
-        return new TenantId(IdGenerator.NewId());
-    }
-}
+public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value);
 
 public sealed class Tenant : Entity<TenantId>, IAggregateRoot
 {
-    public Tenant() : base(new TenantId(IdGenerator.NewId()))
+    public Tenant() : base(TenantId.NewId())
     {
     }
 
