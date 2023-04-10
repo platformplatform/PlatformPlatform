@@ -52,7 +52,7 @@ public class TenantEndpointsTests
         var tenantId = await response.Content.ReadFromJsonAsync<TenantId>();
         tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
 
-        var expectedBody = @"{""value"":TenantId}".Replace("TenantId", tenantId.AsRawString());
+        var expectedBody = @"{""value"":TenantId}".Replace("TenantId", tenantId!.AsRawString());
         var responseAsRawString = await response.Content.ReadAsStringAsync();
         responseAsRawString.Should().Be(expectedBody);
 
@@ -73,7 +73,7 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id.Value}");
+        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id.AsRawString()}");
 
         // Assert
         response.EnsureSuccessStatusCode();
