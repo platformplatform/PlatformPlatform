@@ -52,9 +52,4 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<St
     {
         return stronglyTypedId.Value;
     }
-
-    public static implicit operator StronglyTypedId<TValue, T>(TValue value)
-    {
-        return (T) Activator.CreateInstance(typeof(T), value)!;
-    }
 }
