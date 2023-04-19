@@ -1,6 +1,7 @@
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.commands;
 

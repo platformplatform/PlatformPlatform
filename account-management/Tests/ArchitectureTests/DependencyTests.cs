@@ -1,8 +1,10 @@
+using FluentAssertions;
 using NetArchTest.Rules;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
+using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;
 

@@ -1,3 +1,7 @@
+using FluentAssertions;
+using PlatformPlatform.AccountManagement.Domain.Primitives;
+using Xunit;
+
 namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;
 
 public static class EntityTests
