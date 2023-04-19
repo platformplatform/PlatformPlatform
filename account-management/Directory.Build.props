@@ -1,6 +1,6 @@
 <Project>
     <ItemGroup>
-        <Using Include="PlatformPlatform.AccountManagement.Domain.Primitives" />
-        <Using Include="System.Diagnostics" />
+        <Using Include="PlatformPlatform.AccountManagement.Domain.Primitives"/>
+        <Using Include="System.Diagnostics"/>
     </ItemGroup>
 </Project>
