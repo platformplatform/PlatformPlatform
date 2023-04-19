@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PlatformPlatform.AccountManagement.Domain.Primitives;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

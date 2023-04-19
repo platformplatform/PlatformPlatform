@@ -1,4 +1,5 @@
 using MediatR;
+using PlatformPlatform.AccountManagement.Domain.Primitives;
 
 namespace PlatformPlatform.AccountManagement.Application.Behaviours;
 

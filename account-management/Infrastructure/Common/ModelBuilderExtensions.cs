@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PlatformPlatform.AccountManagement.Domain.Primitives;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
 

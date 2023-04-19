@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using PlatformPlatform.AccountManagement.Domain.Primitives;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
 

@@ -1,3 +1,5 @@
+using PlatformPlatform.AccountManagement.Domain.Primitives;
+
 namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
 
 public class UnitOfWork : IUnitOfWork
