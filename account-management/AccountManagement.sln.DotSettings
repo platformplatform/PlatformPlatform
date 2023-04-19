@@ -1,5 +1,0 @@
-﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/RunLongAnalysisInSwa/@EntryValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=PlatformPlatform_002EAccountManagement_002EDomain_003B_002A_003BPlatformPlatform_002EAccountManagement_002EDomain_002EPrimitives_002EStronglyTypedId_00602_003Bset_005FValue/@EntryIndexedValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/Environment/Filtering/ExcludeCoverageFilters/=PlatformPlatform_002EAccountManagement_002EInfrastructure_003B_002A_003BPlatformPlatform_002EAccountManagement_002EInfrastructure_002EMigrations_002E_002A_003B_002A/@EntryIndexedValue">True</s:Boolean>
-</wpf:ResourceDictionary>
