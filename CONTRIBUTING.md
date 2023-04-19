@@ -2,20 +2,9 @@
 
 Thank you for your interest in contributing to the PlatformPlatform project! We appreciate your effort and contributions that will help improve the project. This document outlines the guidelines for contributing to the project.
 
-We encourage you to reach out before you start working on a contribution, especially for larger changes or new features. We have high standards and would like to ensure that your time is well spent, so please consider creating an issue to discuss the proposed changes before diving into the implementation. For smaller bug fixes and clear objective improvements, this step may not be necessary. We look forward to collaborating with you in a friendly and constructive manner!
+Before you start working on a contribution, we recommend discussing your ideas with the project maintainers by creating an issue. This ensures that your efforts align with the project's goals and that you won't spend time implementing something that may be rejected later. For small bug fixes and clear objective improvements, this step may not be necessary.
 
-
-## Contributor License Agreement (CLA)
-
-By contributing to this project, you agree to grant PlatformPlatform (the owner of the GitHub organization https://github.com/PlatformPlatform)
-all rights to your contributions, ensuring flexibility in managing the project and its codebase. Although the project is fully open-source under the MIT License, your contributions grant us the freedom to make necessary changes in the future, if required.
-
-As a contributor, you are responsible for ensuring that your contributions are free from any rights and that you have the authority to grant these rights to the project. PlatformPlatform cannot be held accountable for any claims or disputes arising from contributions that violate this requirement.
-
-
-## Setting Up the Development Environment
-
-To set up your development environment, follow the instructions in the `README.md` file located in the root of the repository.
+Please note that all contributions to this project require signing our [Contributor License Agreement (CLA)](https://gist.github.com/platformplatformadmin/dcedb5be10888e216fb2a0c59435e44d). By signing the CLA, you grant PlatformPlatform the rights to your contributions, ensuring that we can continue to develop and distribute the project under the MIT License or potentially other licensing options. The CLA signing process is handled through [CLA Assistant](https://cla-assistant.io/). You will be prompted to sign the CLA when you submit a pull request.
 
 
 ## Contributing Workflow
