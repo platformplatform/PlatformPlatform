@@ -27,7 +27,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
                     throw new InvalidOperationException("CreatedAt must be set before saving");
 
             if (entityEntry.State == EntityState.Modified)
-                entityEntry.Property(a => a.ModifiedAt).CurrentValue = DateTime.UtcNow;
+                entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
         }
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
