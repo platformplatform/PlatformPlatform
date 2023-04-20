@@ -8,6 +8,7 @@ public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : I
 {
     protected AudibleEntity(T id) : base(id)
     {
+        CreatedAt = DateTime.UtcNow;
     }
 
     public DateTime CreatedAt { get; set; }
