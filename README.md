@@ -1,13 +1,10 @@
 # 👋 Welcome to PlatformPlatform 
 
-🚀 The ultimate open-source foundation designed for businesses looking to create multi-tenant SaaS services with ease, speed, and scalability.
+The ultimate open-source foundation designed for startups looking to create multi-tenant cloud SaaS services with ease, speed, scalability and enterprise grade security. Our platform showcases the best practices in building SaaS products, combining a cutting-edge technology stack, robust cloud architecture using Infrastructure as Code, full DevOps pipelines, and powerful tools to transform the way you develop and grow your software solutions. 🚀 
 
-🌐 Our platform showcases the best practices in building SaaS products, combining cutting-edge technology, robust architecture, and powerful tools to transform the way you develop and grow your software solutions. 
+Embrace the power of PlatformPlatform, built using .NET 7.0, C# 11.0, ASP.NET Minimal API, Entity Framework, Azure SQL, MediatR, and Fluent Validation. Elevate your frontend development with React, TypeScript, SCSS, and Jest. Leverage Azure Container Apps, Azure Service Bus, and other Azure PaaS services to create a seamless, reliable infrastructure. The platform is built showcasing Clean Architecture with Domain-Driven Design and CQRS at its core. 🏂
 
-🌟 Embrace the power of PlatformPlatform, built using .NET 7.0, C# 11.0, ASP.NET Minimal API, Entity Framework, Azure SQL, MediatR, and Fluent Validation. Elevate your frontend development with React, TypeScript, SCSS, and Jest. Leverage Azure Container Apps, Azure Service Bus, and other Azure services to create a seamless, reliable infrastructure. Dive into the world of Domain-Driven Design, Event-Driven Architecture, and Clean Architecture with CQRS and DDD at its core.
-
-🎫 PlatformPlatform is your ticket to a smooth, efficient, and collaborative development process - a one-stop solution for building the SaaS products of the future!
-
+Please note that, as of now, PlatformPlatform is still in a very early stage. 🐣 You can follow our [backlog and roadmap](https://github.com/PlatformPlatform/platformplatform/projects) on the Projects tab.
 
 ## 🤝 Code of Conduct 
 
