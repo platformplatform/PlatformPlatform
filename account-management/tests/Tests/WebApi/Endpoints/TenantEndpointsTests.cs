@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
@@ -79,9 +80,11 @@ public class TenantEndpointsTests
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var expectedBody = @"{""id"":""TenantID"",""name"":""TenantName""}"
-            .Replace("TenantID", DatabaseSeeder.Tenant1Id.AsRawString())
-            .Replace("TenantName", DatabaseSeeder.Tenant1Name);
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantName = DatabaseSeeder.Tenant1Name;
+        var createdAt = DateTime.UtcNow.Date.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+        var expectedBody =
+            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
