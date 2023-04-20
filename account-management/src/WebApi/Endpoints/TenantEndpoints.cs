@@ -7,10 +7,11 @@ namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;
 
 public static class TenantEndpoints
 {
-    public static void MapTenantEndpoints(this WebApplication app)
+    public static void MapTenantEndpoints(this IEndpointRouteBuilder routes)
     {
-        app.MapGet("/tenants/{id}", GetTenant);
-        app.MapPost("/tenants", CreateTenant);
+        var group = routes.MapGroup("/tenants");
+        group.MapGet("/{id}", GetTenant);
+        group.MapPost("/", CreateTenant);
     }
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
