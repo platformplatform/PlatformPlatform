@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
@@ -17,6 +18,7 @@ public class TenantEndpointsTests
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
+    private const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK"; // see https://stackoverflow.com/a/17349663
 
     public TenantEndpointsTests()
     {
@@ -52,10 +54,14 @@ public class TenantEndpointsTests
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantId = await response.Content.ReadFromJsonAsync<TenantId>();
+        var tenant = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
+        var tenantId = TenantId.FromString(tenant!.Id);
         tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
 
-        var expectedBody = $@"{{""value"":{tenantId!.AsRawString()}}}";
+        var tenantName = tenant.Name;
+        var createdAt = tenant.CreatedAt.ToString(Iso8601TimeFormat);
+        var expectedBody = $@"{{""id"":""{tenant.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
+
         var responseAsRawString = await response.Content.ReadAsStringAsync();
         responseAsRawString.Should().Be(expectedBody);
 
@@ -82,9 +88,9 @@ public class TenantEndpointsTests
         response.EnsureSuccessStatusCode();
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
         var tenantName = DatabaseSeeder.Tenant1Name;
-        var createdAt = DateTime.UtcNow.Date.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
-        var expectedBody =
-            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
+        var createdAt = DateTime.UtcNow.Date.ToString(Iso8601TimeFormat);
+
+        var expectedBody = $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);

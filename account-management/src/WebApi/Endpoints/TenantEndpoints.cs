@@ -23,7 +23,7 @@ public static class TenantEndpoints
     private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, ISender sender)
     {
         var createTenantCommand = new CreateTenantCommand(createTenantRequest.Name);
-        var tenantId = await sender.Send(createTenantCommand);
-        return Results.Created($"/tenants/{tenantId.AsRawString()}", tenantId);
+        var tenant = await sender.Send(createTenantCommand);
+        return Results.Created($"/tenants/{tenant.Id}", tenant);
     }
 }
