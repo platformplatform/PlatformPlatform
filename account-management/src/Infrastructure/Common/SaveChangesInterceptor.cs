@@ -23,7 +23,8 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
         foreach (var entityEntry in audibleEntities)
         {
             if (entityEntry.State == EntityState.Added)
-                entityEntry.Property(a => a.CreatedAt).CurrentValue = DateTime.UtcNow;
+                if (entityEntry.Property(a => a.CreatedAt).CurrentValue == default)
+                    throw new InvalidOperationException("CreatedAt must be set before saving");
 
             if (entityEntry.State == EntityState.Modified)
                 entityEntry.Property(a => a.ModifiedAt).CurrentValue = DateTime.UtcNow;

@@ -19,9 +19,10 @@ public class CreateTenantCommandHandlerTests
         var handler = new CreateTenantCommandHandler(tenantRepository);
 
         // Act
-        var tenantId = await handler.Handle(command, CancellationToken.None);
+        var tenantResponseDto = await handler.Handle(command, CancellationToken.None);
 
         // Assert
+        var tenantId = TenantId.FromString(tenantResponseDto.Id);
         await tenantRepository.Received()
             .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId),
                 Arg.Any<CancellationToken>());

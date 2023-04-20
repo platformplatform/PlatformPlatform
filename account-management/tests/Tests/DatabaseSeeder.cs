@@ -36,8 +36,8 @@ public class DatabaseSeeder
 
     private void SeedTenants()
     {
-        var tenant1 = new Tenant {Id = Tenant1Id, Name = Tenant1Name};
-        var tenant2 = new Tenant {Id = Tenant2Id, Name = Tenant2Name};
+        var tenant1 = new Tenant {Id = Tenant1Id, CreatedAt = DateTime.UtcNow.Date, Name = Tenant1Name};
+        var tenant2 = new Tenant {Id = Tenant2Id, CreatedAt = DateTime.UtcNow.Date, Name = Tenant2Name};
 
         _applicationDbContext.Tenants.AddRange(tenant1, tenant2);
     }

@@ -1,11 +1,12 @@
 using MediatR;
+using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
-public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantResponseDto?>;
+public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantDto?>;
 
-public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, TenantResponseDto?>
+public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, TenantDto?>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -14,9 +15,9 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<TenantResponseDto?> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
+    public async Task<TenantDto?> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return TenantResponseDto.CreateFrom(tenant);
+        return TenantDto.CreateFrom(tenant);
     }
 }
