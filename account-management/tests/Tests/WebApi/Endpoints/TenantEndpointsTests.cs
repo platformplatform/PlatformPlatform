@@ -88,9 +88,11 @@ public class TenantEndpointsTests
 
         // Assert
         response.EnsureSuccessStatusCode();
+
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
         var tenantName = DatabaseSeeder.Tenant1Name;
-        var createdAt = DateTime.UtcNow.Date.ToString(Iso8601TimeFormat);
+        var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
 
         var expectedBody =
             $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";

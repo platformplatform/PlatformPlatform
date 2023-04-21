@@ -11,14 +11,9 @@ public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : I
         CreatedAt = DateTime.UtcNow;
     }
 
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; }
 
     public DateTime? ModifiedAt { get; private set; }
-
-    void IAuditableEntity.SetCreatedAt(DateTime createdAt)
-    {
-        CreatedAt = createdAt;
-    }
 
     void IAuditableEntity.UpdateModifiedAt(DateTime? modifiedAt)
     {

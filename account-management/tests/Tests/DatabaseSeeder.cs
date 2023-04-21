@@ -1,4 +1,3 @@
-using PlatformPlatform.AccountManagement.Domain.Primitives;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -38,10 +37,8 @@ public class DatabaseSeeder
     private void SeedTenants()
     {
         var tenant1 = new Tenant {Id = Tenant1Id, Name = Tenant1Name};
-        ((IAuditableEntity) tenant1).SetCreatedAt(DateTime.UtcNow.Date);
 
         var tenant2 = new Tenant {Id = Tenant2Id, Name = Tenant2Name};
-        ((IAuditableEntity) tenant2).SetCreatedAt(DateTime.UtcNow.Date);
 
         _applicationDbContext.Tenants.AddRange(tenant1, tenant2);
     }
