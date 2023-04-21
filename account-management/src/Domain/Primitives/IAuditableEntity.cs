@@ -6,7 +6,5 @@ public interface IAuditableEntity
 
     DateTime? ModifiedAt { get; }
 
-    void SetCreatedAt(DateTime createdAt);
-
     void UpdateModifiedAt(DateTime? modifiedAt);
 }
