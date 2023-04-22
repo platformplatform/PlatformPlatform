@@ -5,9 +5,8 @@ using PlatformPlatform.AccountManagement.Domain.Primitives;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
 
 /// <summary>
-///     This SaveChangesInterceptor intercept the saving of changes to the database
-///     It is designed to automatically update the CreatedAt and ModifiedAt properties of entities implementing
-///     the IAuditableEntity interface before they are persisted to the database.
+///     The UpdateAuditableEntitiesInterceptor is a SaveChangesInterceptor that updates the ModifiedAt property
+///     for IAuditableEntity instances when changes are made to the database.
 /// </summary>
 public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
 {

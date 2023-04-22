@@ -6,6 +6,10 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
 public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantDto?>;
 
+/// <summary>
+///     Handles the GetTenantByIdQuery by retrieving a Tenant with the specified TenantId from the repository.
+///     Returns the TenantDto if found, otherwise null.
+/// </summary>
 public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, TenantDto?>
 {
     private readonly ITenantRepository _tenantRepository;

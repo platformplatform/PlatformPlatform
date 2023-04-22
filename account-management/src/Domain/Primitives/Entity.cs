@@ -4,6 +4,10 @@ using System.Diagnostics;
 
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
+/// <summary>
+///     The AudibleEntity class extends Entity and implements IAuditableEntity, which adds
+///     a readonly CreatedAt and private ModifiedAt properties to derived entities.
+/// </summary>
 public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : IComparable<T>
 {
     protected AudibleEntity(T id) : base(id)
@@ -15,12 +19,22 @@ public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : I
 
     public DateTime? ModifiedAt { get; private set; }
 
+    /// <summary>
+    ///     This method is used by the UpdateAuditableEntitiesInterceptor in the Infrastructure layer.
+    ///     It's not intended to be used by the application, which is why it is implemented using an explicit interface.
+    /// </summary>
     void IAuditableEntity.UpdateModifiedAt(DateTime? modifiedAt)
     {
         ModifiedAt = modifiedAt;
     }
 }
 
+/// <summary>
+///     The Entity class is a base class for entities which represents business objects.
+///     Entities are a DDD concept, where an entity is a business object that has a unique identity.
+///     If two entities have the same identity, they are considered to be the same entity.
+///     It is recommended to use a <see cref="StronglyTypedId{T}" /> for the ID to make the domain more meaningful.
+/// </summary>
 [DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
 public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 {
