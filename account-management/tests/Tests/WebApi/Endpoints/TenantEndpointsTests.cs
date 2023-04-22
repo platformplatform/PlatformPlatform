@@ -15,8 +15,8 @@ namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;
 
 public class TenantEndpointsTests
 {
-    private const string
-        Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK"; // see https://stackoverflow.com/a/17349663
+    // see https://stackoverflow.com/a/17349663
+    private const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK";
 
     private readonly IServiceProvider _serviceProvider;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
