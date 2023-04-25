@@ -1,4 +1,4 @@
-name: "Build Account Management and run tests"
+name: "Build Account Management"
 
 on:
   push:
