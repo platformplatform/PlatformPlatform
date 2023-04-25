@@ -18,8 +18,27 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Restore dependencies
-      run: dotnet restore account-management/AccountManagement.sln 
+      run: dotnet restore account-management/AccountManagement.sln
     - name: Build
       run: dotnet build account-management/AccountManagement.sln --no-restore
     - name: Test
       run: dotnet test account-management/AccountManagement.sln --no-build --verbosity normal
+
+  resharper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      run: dotnet restore account-management/AccountManagement.sln
+    - name: Run code inspections
+      uses: muno92/resharper_inspectcode@1.6.13
+      with:
+        solutionPath: account-management/AccountManagement.sln
+        minimumSeverity: warning
+        # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
+        ignoreIssueType: UnusedAutoPropertyAccessor.Global
