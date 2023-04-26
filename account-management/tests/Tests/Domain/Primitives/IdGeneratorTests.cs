@@ -7,7 +7,7 @@ namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;
 public class IdGeneratorTests
 {
     [Fact]
-    public void NewId_GeneratesUniqueIds()
+    public void NewId_ShouldGenerateUniqueIds()
     {
         // Arrange
         var idCount = 1000;
@@ -21,7 +21,7 @@ public class IdGeneratorTests
     }
 
     [Fact]
-    public void NewId_GeneratesIncreasingIds()
+    public void NewId_ShouldGenerateIncreasingIds()
     {
         // Arrange
         var idCount = 1000;

@@ -52,7 +52,7 @@ public static class EntityTests
         }
 
         [Fact]
-        public void GuildEntity_SameIdNotOperator_ShouldBeFalse()
+        public void GuidEntity_SameIdNotOperator_ShouldBeFalse()
         {
             // Arrange
             var guidId = Guid.NewGuid();
