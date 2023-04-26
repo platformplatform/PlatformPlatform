@@ -14,7 +14,10 @@ public class IdGeneratorTests
         var generatedIds = new HashSet<long>();
 
         // Act
-        for (var i = 0; i < idCount; i++) generatedIds.Add(IdGenerator.NewId());
+        for (var i = 0; i < idCount; i++)
+        {
+            generatedIds.Add(IdGenerator.NewId());
+        }
 
         // Assert
         generatedIds.Count.Should().Be(idCount);

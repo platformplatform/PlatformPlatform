@@ -23,7 +23,6 @@ public record TenantDto
     /// </summary>
     public required DateTime? ModifiedAt { get; init; }
 
-
     /// <summary>
     ///     The name of the Tenant.
     /// </summary>
