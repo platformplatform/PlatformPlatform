@@ -56,10 +56,7 @@ public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((Entity<T>) obj);
+        return Equals(obj as Entity<T>);
     }
 
     public override int GetHashCode()
