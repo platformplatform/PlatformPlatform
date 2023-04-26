@@ -1,9 +1,11 @@
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 
 /// <summary>
-///     A shared DTO for the Tenant entity used both in GetTenantByIdQuery and CreateTenant Command.
+///     A shared DTO for used both in <see cref="GetTenantByIdQuery" /> and <see cref="CreateTenantCommand" />.
 ///     This class is returned by the WebAPI, making it a public contract, so it should be changed with care.
 /// </summary>
 public record TenantDto
@@ -28,9 +30,8 @@ public record TenantDto
     /// </summary>
     public required string Name { get; init; }
 
-    public static TenantDto? CreateFrom(Tenant? tenant)
+    public static TenantDto CreateFrom(Tenant tenant)
     {
-        if (tenant is null) return null;
         return new TenantDto
         {
             Id = tenant.Id.AsRawString()!, CreatedAt = tenant.CreatedAt, ModifiedAt = tenant.ModifiedAt,

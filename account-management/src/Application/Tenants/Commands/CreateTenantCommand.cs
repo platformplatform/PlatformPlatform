@@ -25,6 +25,6 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
     {
         var tenant = new Tenant {Name = createTenantCommand.Name};
         await _tenantRepository.AddAsync(tenant, cancellationToken);
-        return TenantDto.CreateFrom(tenant)!;
+        return TenantDto.CreateFrom(tenant);
     }
 }

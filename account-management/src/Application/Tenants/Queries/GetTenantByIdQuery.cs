@@ -23,6 +23,6 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
     public async Task<TenantDto?> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return TenantDto.CreateFrom(tenant);
+        return tenant == null ? null : TenantDto.CreateFrom(tenant);
     }
 }
