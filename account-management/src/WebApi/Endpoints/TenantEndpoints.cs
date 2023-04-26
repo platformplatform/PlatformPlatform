@@ -21,9 +21,8 @@ public static class TenantEndpoints
         return tenantDto is null ? Results.NotFound() : Results.Ok(tenantDto);
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantRequest createTenantRequest, ISender sender)
+    private static async Task<IResult> CreateTenant(CreateTenantCommand createTenantCommand, ISender sender)
     {
-        var createTenantCommand = new CreateTenantCommand(createTenantRequest.Name);
         var tenantDto = await sender.Send(createTenantCommand);
         return Results.Created($"/tenants/{tenantDto.Id}", tenantDto);
     }
