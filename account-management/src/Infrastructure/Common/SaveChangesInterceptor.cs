@@ -21,17 +21,13 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
 
         foreach (var entityEntry in audibleEntities)
         {
-            if (entityEntry.State == EntityState.Added)
+            switch (entityEntry.State)
             {
-                if (entityEntry.Entity.CreatedAt == default)
-                {
+                case EntityState.Added when entityEntry.Entity.CreatedAt == default:
                     throw new InvalidOperationException("CreatedAt must be set before saving");
-                }
-            }
-
-            if (entityEntry.State == EntityState.Modified)
-            {
-                entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
+                case EntityState.Modified:
+                    entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
+                    break;
             }
         }
 
