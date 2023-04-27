@@ -14,14 +14,12 @@ public static class ModelBuilderExtensions
     /// <typeparam name="T">The type of the entity.</typeparam>
     /// <typeparam name="TId">The type of the strongly-typed ID.</typeparam>
     /// <param name="entity">The EntityTypeBuilder to be configured.</param>
-    public static EntityTypeBuilder<T> ConfigureStronglyTypedId<T, TId>(this EntityTypeBuilder<T> entity)
+    public static void ConfigureStronglyTypedId<T, TId>(this EntityTypeBuilder<T> entity)
         where T : Entity<TId>
         where TId : StronglyTypedId<TId>
     {
         entity
             .Property(e => e.Id)
             .HasConversion(v => v.Value, v => (TId) Activator.CreateInstance(typeof(TId), v)!);
-
-        return entity;
     }
 }
