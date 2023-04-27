@@ -13,7 +13,7 @@ public class GetTenantByIdQueryTests
     {
         // Arrange
         var expectedTenantId = TenantId.NewId();
-        var expectedTenantName = "TestTenant";
+        const string expectedTenantName = "TestTenant";
 
         var tenant = new Tenant {Id = expectedTenantId, Name = expectedTenantName};
         var tenantRepository = Substitute.For<ITenantRepository>();

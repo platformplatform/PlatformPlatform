@@ -10,7 +10,7 @@ public class IdGeneratorTests
     public void NewId_ShouldGenerateUniqueIds()
     {
         // Arrange
-        var idCount = 1000;
+        const int idCount = 1000;
         var generatedIds = new HashSet<long>();
 
         // Act
@@ -27,7 +27,7 @@ public class IdGeneratorTests
     public void NewId_ShouldGenerateIncreasingIds()
     {
         // Arrange
-        var idCount = 1000;
+        const int idCount = 1000;
         var previousId = 0L;
 
         // Act & Assert
