@@ -20,12 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Update="appsettings.Development.json">
-            <DependentUpon>appsettings.json</DependentUpon>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
             <PrivateAssets>all</PrivateAssets>
