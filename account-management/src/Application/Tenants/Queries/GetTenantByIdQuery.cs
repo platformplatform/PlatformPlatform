@@ -5,9 +5,8 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
 /// <summary>
-///     The GetTenantByIdQuery will retrieve a Tenant with the specified TenantId from the repository.
-///     The query will be handled by <see cref="GetTenantQueryHandler" />.
-///     Returns the TenantDto if found, otherwise null.
+///     The GetTenantByIdQuery will retrieve a Tenant with the specified TenantId from the repository. The query
+///     will be handled by <see cref="GetTenantQueryHandler" />. Returns the TenantDto if found, otherwise null.
 /// </summary>
 public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantDto?>;
 
