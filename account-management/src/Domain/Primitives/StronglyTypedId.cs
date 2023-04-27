@@ -29,8 +29,10 @@ public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>
 }
 
 /// <summary>
-///     StronglyTypedId is an abstract record type for creating strongly typed IDs with a specified value type.
-///     It makes the code more clear and meaningful in the domain, and the type safety helps prevent bugs.
+///     StronglyTypedId is an abstract record type for creating strongly typed IDs with a specified value type. It makes
+///     the code clearer and more meaningful in the domain, and the type safety helps prevent bugs. E.g., a method like
+///     AddToOrder(CustomerId customerId, OrderId orderId, ProductId productId, int quantity) is clearer and provides
+///     better type safety than AddToOrder(long customerId, long orderId, long productId, int quantity).
 ///     When used with Entity Framework, make sure to register the type in the OnModelCreating method in the DbContext.
 /// </summary>
 public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<StronglyTypedId<TValue, T>>

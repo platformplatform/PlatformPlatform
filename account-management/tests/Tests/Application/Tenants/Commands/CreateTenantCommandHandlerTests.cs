@@ -12,13 +12,11 @@ public class CreateTenantCommandHandlerTests
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
-
         var tenantRepository = Substitute.For<ITenantRepository>();
-
-        var command = new CreateTenantCommand("TestTenant");
         var handler = new CreateTenantCommandHandler(tenantRepository);
 
         // Act
+        var command = new CreateTenantCommand("TestTenant");
         var tenantResponseDto = await handler.Handle(command, CancellationToken.None);
 
         // Assert

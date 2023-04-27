@@ -13,16 +13,15 @@ public class GetTenantByIdQueryTests
     {
         // Arrange
         var expectedTenantId = TenantId.NewId();
-        var expectedTenantName = "TestTenant";
+        const string expectedTenantName = "TestTenant";
 
         var tenant = new Tenant {Id = expectedTenantId, Name = expectedTenantName};
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(expectedTenantId, default).Returns(tenant);
-
-        var query = new GetTenantByIdQuery(expectedTenantId);
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
+        var query = new GetTenantByIdQuery(expectedTenantId);
         var tenantResponseDto = await handler.Handle(query, default);
 
         // Assert
@@ -40,11 +39,10 @@ public class GetTenantByIdQueryTests
 
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(nonExistingTenantId, default).Returns((Tenant?) null);
-
-        var query = new GetTenantByIdQuery(nonExistingTenantId);
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
+        var query = new GetTenantByIdQuery(nonExistingTenantId);
         var tenantResponseDto = await handler.Handle(query, default);
 
         // Assert

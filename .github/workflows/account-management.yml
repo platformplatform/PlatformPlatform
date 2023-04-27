@@ -24,7 +24,7 @@ jobs:
     - name: Test
       run: dotnet test account-management/AccountManagement.sln --no-build --verbosity normal
 
-  resharper:
+  jetbrains-code-inspection:
     runs-on: ubuntu-latest
 
     steps:

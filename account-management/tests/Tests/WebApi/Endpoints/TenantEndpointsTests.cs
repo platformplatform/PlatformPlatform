@@ -50,7 +50,7 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/tenants", new CreateTenantRequest("TestTenant"));
+        var response = await httpClient.PostAsJsonAsync("/tenants", new CreateTenantCommand("TestTenant"));
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -91,7 +91,7 @@ public class TenantEndpointsTests
 
         var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
-        var tenantName = DatabaseSeeder.Tenant1Name;
+        const string tenantName = DatabaseSeeder.Tenant1Name;
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
 
         var expectedBody =

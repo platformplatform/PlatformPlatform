@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NetArchTest.Rules;
+using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain;
 using Xunit;
 
@@ -13,6 +14,23 @@ public class PublicClassesTests
         // Act
         var result = Types
             .InAssembly(DomainConfiguration.Assembly)
+            .That()
+            .ArePublic()
+            .And().AreNotAbstract()
+            .Should()
+            .BeSealed()
+            .GetResult();
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+    }
+
+    [Fact]
+    public void PublicClassesInApplication_Should_BeSealed()
+    {
+        // Act
+        var result = Types
+            .InAssembly(ApplicationConfiguration.Assembly)
             .That()
             .ArePublic()
             .And().AreNotAbstract()

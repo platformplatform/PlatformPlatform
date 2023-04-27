@@ -4,12 +4,12 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
+/// <summary>
+///     The GetTenantByIdQuery will retrieve a Tenant with the specified TenantId from the repository. The query
+///     will be handled by <see cref="GetTenantQueryHandler" />. Returns the TenantDto if found, otherwise null.
+/// </summary>
 public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<TenantDto?>;
 
-/// <summary>
-///     Handles the GetTenantByIdQuery by retrieving a Tenant with the specified TenantId from the repository.
-///     Returns the TenantDto if found, otherwise null.
-/// </summary>
 public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, TenantDto?>
 {
     private readonly ITenantRepository _tenantRepository;
@@ -22,6 +22,6 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
     public async Task<TenantDto?> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return TenantDto.CreateFrom(tenant);
+        return tenant == null ? null : TenantDto.CreateFrom(tenant);
     }
 }

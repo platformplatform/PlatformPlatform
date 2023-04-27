@@ -4,11 +4,13 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
+/// <summary>
+///     The CreateTenantCommand will create a new Tenant and add it to the repository. The command will be handled
+///     by <see cref="CreateTenantCommandHandler" />. The Tenant will not be saved to the database until the
+///     UnitOfWork is committed in the UnitOfWorkBehavior.
+/// </summary>
 public sealed record CreateTenantCommand(string Name) : IRequest<TenantDto>;
 
-/// <summary>
-///     Handles the CreateTenantCommand by creating a new Tenant and adding it to the repository.
-/// </summary>
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, TenantDto>
 {
     private readonly ITenantRepository _tenantRepository;
@@ -23,6 +25,6 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
     {
         var tenant = new Tenant {Name = createTenantCommand.Name};
         await _tenantRepository.AddAsync(tenant, cancellationToken);
-        return TenantDto.CreateFrom(tenant)!;
+        return TenantDto.CreateFrom(tenant);
     }
 }

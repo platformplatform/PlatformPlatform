@@ -7,24 +7,27 @@ namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;
 public class IdGeneratorTests
 {
     [Fact]
-    public void NewId_GeneratesUniqueIds()
+    public void NewId_ShouldGenerateUniqueIds()
     {
         // Arrange
-        var idCount = 1000;
+        const int idCount = 1000;
         var generatedIds = new HashSet<long>();
 
         // Act
-        for (var i = 0; i < idCount; i++) generatedIds.Add(IdGenerator.NewId());
+        for (var i = 0; i < idCount; i++)
+        {
+            generatedIds.Add(IdGenerator.NewId());
+        }
 
         // Assert
         generatedIds.Count.Should().Be(idCount);
     }
 
     [Fact]
-    public void NewId_GeneratesIncreasingIds()
+    public void NewId_ShouldGenerateIncreasingIds()
     {
         // Arrange
-        var idCount = 1000;
+        const int idCount = 1000;
         var previousId = 0L;
 
         // Act & Assert
