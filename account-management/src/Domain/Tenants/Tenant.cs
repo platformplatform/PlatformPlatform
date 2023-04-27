@@ -11,5 +11,7 @@ public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
     {
     }
 
-    [MinLength(1)] [MaxLength(50)] public required string Name { get; set; }
+    [MinLength(1)]
+    [MaxLength(50)]
+    public required string Name { get; set; }
 }
