@@ -12,8 +12,8 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230410200706_Add Audible properties Tenant")]
-    partial class AddAudiblepropertiesTenant
+    [Migration("20230428212421_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,13 +33,31 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subdomain")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 

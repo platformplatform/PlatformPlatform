@@ -33,10 +33,28 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Subdomain")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 
