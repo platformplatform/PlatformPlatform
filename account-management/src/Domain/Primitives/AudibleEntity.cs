@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace PlatformPlatform.AccountManagement.Domain.Primitives;
 
 /// <summary>
@@ -11,7 +13,8 @@ public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : I
         CreatedAt = DateTime.UtcNow;
     }
 
-    public DateTime CreatedAt { get; }
+    [UsedImplicitly]
+    public DateTime CreatedAt { get; private set; }
 
     public DateTime? ModifiedAt { get; private set; }
 
