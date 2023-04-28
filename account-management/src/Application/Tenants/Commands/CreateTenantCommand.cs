@@ -9,7 +9,8 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 ///     by <see cref="CreateTenantCommandHandler" />. The Tenant will not be saved to the database until the
 ///     UnitOfWork is committed in the UnitOfWorkBehavior.
 /// </summary>
-public sealed record CreateTenantCommand(string Name) : IRequest<TenantDto>;
+public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string Phone)
+    : IRequest<TenantDto>;
 
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, TenantDto>
 {
@@ -23,7 +24,13 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
     public async Task<TenantDto> Handle(CreateTenantCommand createTenantCommand,
         CancellationToken cancellationToken)
     {
-        var tenant = new Tenant {Name = createTenantCommand.Name};
+        var tenant = new Tenant
+        {
+            Name = createTenantCommand.Name,
+            Subdomain = createTenantCommand.Subdomain,
+            Email = createTenantCommand.Email,
+            Phone = createTenantCommand.Phone
+        };
         await _tenantRepository.AddAsync(tenant, cancellationToken);
         return TenantDto.CreateFrom(tenant);
     }

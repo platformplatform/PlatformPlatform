@@ -16,7 +16,7 @@ public class CreateTenantCommandHandlerTests
         var handler = new CreateTenantCommandHandler(tenantRepository);
 
         // Act
-        var command = new CreateTenantCommand("TestTenant");
+        var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var tenantResponseDto = await handler.Handle(command, CancellationToken.None);
 
         // Assert

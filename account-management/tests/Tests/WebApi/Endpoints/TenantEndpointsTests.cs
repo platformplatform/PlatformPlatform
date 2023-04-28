@@ -50,7 +50,9 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/tenants", new CreateTenantCommand("TestTenant"));
+        var response = await httpClient.PostAsJsonAsync("/tenants",
+            new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890")
+        );
 
         // Assert
         response.EnsureSuccessStatusCode();
