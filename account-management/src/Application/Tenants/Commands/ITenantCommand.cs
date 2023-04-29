@@ -6,5 +6,5 @@ public interface ITenantCommand
 
     string Email { get; }
 
-    string Phone { get; }
+    string? Phone { get; }
 }

@@ -41,9 +41,9 @@ public sealed record TenantDto
     public required string Email { get; init; }
 
     /// <summary>
-    ///     The phone number of the tenant owner.
+    ///     The phone number of the tenant owner (optional).
     /// </summary>
-    public required string Phone { get; init; }
+    public string? Phone { get; private set; }
 
     public static TenantDto CreateFrom(Tenant tenant)
     {

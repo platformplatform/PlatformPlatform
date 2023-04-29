@@ -52,9 +52,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 

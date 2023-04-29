@@ -15,9 +15,13 @@ public abstract class TenantCommandValidatorBase<T> : AbstractValidator<T> where
             .MaximumLength(TenantValidationConstants.EmailMaxLength)
             .EmailAddress();
 
-        RuleFor(x => x.Phone)
-            .MaximumLength(TenantValidationConstants.PhoneMaxLength)
-            .Must(phone => Regex.IsMatch(phone, @"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$"))
-            .WithMessage("The phone number format is not valid.");
+        When(x => x.Phone != null, () =>
+        {
+            RuleFor(x => x.Phone)
+                .MaximumLength(TenantValidationConstants.PhoneMaxLength)
+                .Must(phone =>
+                    string.IsNullOrEmpty(phone) || Regex.IsMatch(phone, @"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$"))
+                .WithMessage("The phone number format is not valid.");
+        });
     }
 }

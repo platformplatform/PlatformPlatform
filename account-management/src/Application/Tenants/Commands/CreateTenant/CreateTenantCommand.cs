@@ -10,7 +10,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Create
 ///     by <see cref="CreateTenantCommandHandler" />. The Tenant will not be saved to the database until the
 ///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
 /// </summary>
-public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string Phone)
+public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string? Phone)
     : ITenantCommand, IRequest<Result<TenantDto>>;
 
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, Result<TenantDto>>

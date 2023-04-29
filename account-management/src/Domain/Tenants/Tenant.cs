@@ -26,5 +26,5 @@ public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
     public required string Email { get; set; }
 
     [MaxLength(TenantValidationConstants.PhoneMaxLength)]
-    public required string Phone { get; set; }
+    public string? Phone { get; set; }
 }
