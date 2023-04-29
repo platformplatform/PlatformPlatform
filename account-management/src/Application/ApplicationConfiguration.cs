@@ -19,6 +19,7 @@ public static class ApplicationConfiguration
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly));
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
         services.AddValidatorsFromAssembly(Assembly);
 
