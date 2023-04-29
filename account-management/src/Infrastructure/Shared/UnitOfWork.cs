@@ -4,9 +4,9 @@ using PlatformPlatform.AccountManagement.Domain.Shared;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 
 /// <summary>
-///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer.
-///     It is responsible for committing any changes to the ApplicationDbContext and saving them to the database.
-///     This class is called from the <see cref="UnitOfWorkBehavior{TRequest,TResponse}" /> in the Application layer.
+///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer. It is responsible for
+///     committing any changes to the ApplicationDbContext and saving them to the database. The UnitOfWork is called
+///     from the <see cref="UnitOfWorkPipelineBehavior{TRequest,TResponse}" /> in the Application layer.
 /// </summary>
 public class UnitOfWork : IUnitOfWork
 {

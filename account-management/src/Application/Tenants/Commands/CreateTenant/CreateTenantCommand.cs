@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Create
 /// <summary>
 ///     The CreateTenantCommand will create a new Tenant and add it to the repository. The command will be handled
 ///     by <see cref="CreateTenantCommandHandler" />. The Tenant will not be saved to the database until the
-///     UnitOfWork is committed in the UnitOfWorkBehavior.
+///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
 /// </summary>
 public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string Phone)
     : ITenantCommand, IRequest<Result<TenantDto>>;
