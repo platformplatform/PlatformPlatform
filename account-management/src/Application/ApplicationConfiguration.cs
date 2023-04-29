@@ -2,7 +2,8 @@ using System.Reflection;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
+using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
+using PlatformPlatform.AccountManagement.Application.Shared.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application;
 

@@ -1,4 +1,4 @@
-using PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
+using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;

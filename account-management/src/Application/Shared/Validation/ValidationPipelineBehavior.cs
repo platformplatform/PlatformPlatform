@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
+namespace PlatformPlatform.AccountManagement.Application.Shared.Validation;
 
 /// <summary>
 ///     The ValidationPipelineBehavior class is a MediatR pipeline behavior that validates the request using

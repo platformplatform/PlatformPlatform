@@ -1,7 +1,7 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
+namespace PlatformPlatform.AccountManagement.Application.Shared.Persistence;
 
 /// <summary>
 ///     The UnitOfWorkPipelineBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.
