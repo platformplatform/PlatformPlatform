@@ -16,8 +16,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
     {
-        var getTenantByIdQuery = new GetTenantByIdQuery(TenantId.FromString(id));
-        var getTenantByIdQueryResult = await sender.Send(getTenantByIdQuery);
+        var getTenantByIdQueryResult = await sender.Send(new GetTenantByIdQuery(TenantId.FromString(id)));
         return getTenantByIdQueryResult.IsSuccess
             ? Results.Ok(getTenantByIdQueryResult.Value)
             : Results.NotFound(getTenantByIdQueryResult.Errors);
