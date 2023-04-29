@@ -3,7 +3,7 @@ using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 
 /// <summary>
 ///     The CreateTenantCommand will create a new Tenant and add it to the repository. The command will be handled

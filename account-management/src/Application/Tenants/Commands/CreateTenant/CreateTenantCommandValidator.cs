@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using FluentValidation;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 
 public sealed class CreateTenantCommandValidator : TenantCommandValidatorBase<CreateTenantCommand>
 {
