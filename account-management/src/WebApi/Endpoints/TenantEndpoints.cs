@@ -17,13 +17,17 @@ public static class TenantEndpoints
     private static async Task<IResult> GetTenant(string id, ISender sender)
     {
         var getTenantByIdQuery = new GetTenantByIdQuery(TenantId.FromString(id));
-        var tenantDto = await sender.Send(getTenantByIdQuery);
-        return tenantDto is null ? Results.NotFound() : Results.Ok(tenantDto);
+        var getTenantByIdQueryResult = await sender.Send(getTenantByIdQuery);
+        return getTenantByIdQueryResult.IsSuccess
+            ? Results.Ok(getTenantByIdQueryResult.Value)
+            : Results.NotFound(getTenantByIdQueryResult.Errors);
     }
 
     private static async Task<IResult> CreateTenant(CreateTenantCommand createTenantCommand, ISender sender)
     {
-        var tenantDto = await sender.Send(createTenantCommand);
-        return Results.Created($"/tenants/{tenantDto.Id}", tenantDto);
+        var createTenantCommandResult = await sender.Send(createTenantCommand);
+        return createTenantCommandResult.IsSuccess
+            ? Results.Created($"/tenants/{createTenantCommandResult.Value.Id}", createTenantCommandResult.Value)
+            : Results.BadRequest(createTenantCommandResult.Errors);
     }
 }

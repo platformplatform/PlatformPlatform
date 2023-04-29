@@ -27,9 +27,11 @@ public class CreateTenantCommandHandlerTests
 
         // Act
         var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var tenantResponseDto = await handler.Handle(command, CancellationToken.None);
+        var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
+        createTenantCommandResult.IsSuccess.Should().BeTrue();
+        var tenantResponseDto = createTenantCommandResult.Value;
         var tenantId = TenantId.FromString(tenantResponseDto.Id);
         await tenantRepository.Received()
             .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId),
@@ -45,9 +47,11 @@ public class CreateTenantCommandHandlerTests
 
         // Act
         var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var tenantResponseDto = await handler.Handle(command, CancellationToken.None);
+        var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
+        createTenantCommandResult.IsSuccess.Should().BeTrue();
+        var tenantResponseDto = createTenantCommandResult.Value;
         tenantResponseDto.Name.Should().Be(command.Name);
         tenantResponseDto.Email.Should().Be(command.Email);
         tenantResponseDto.Phone.Should().Be(command.Phone);

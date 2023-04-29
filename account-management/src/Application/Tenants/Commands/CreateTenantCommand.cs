@@ -1,4 +1,5 @@
 using MediatR;
+using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
@@ -10,9 +11,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 ///     UnitOfWork is committed in the UnitOfWorkBehavior.
 /// </summary>
 public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string Phone)
-    : ITenantCommand, IRequest<TenantDto>;
+    : ITenantCommand, IRequest<Result<TenantDto>>;
 
-public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, TenantDto>
+public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, Result<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -21,7 +22,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<TenantDto> Handle(CreateTenantCommand createTenantCommand,
+    public async Task<Result<TenantDto>> Handle(CreateTenantCommand createTenantCommand,
         CancellationToken cancellationToken)
     {
         var tenant = new Tenant
@@ -32,6 +33,8 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
             Phone = createTenantCommand.Phone
         };
         await _tenantRepository.AddAsync(tenant, cancellationToken);
-        return TenantDto.CreateFrom(tenant);
+
+        var tenantDto = TenantDto.CreateFrom(tenant);
+        return Result<TenantDto>.Success(tenantDto);
     }
 }
