@@ -1,8 +1,8 @@
 namespace PlatformPlatform.AccountManagement.Application.Shared;
 
-public sealed class Result<T>
+public class Result<T>
 {
-    private Result(bool isSuccess, T value, List<string> errors)
+    private Result(bool isSuccess, T value, string[] errors)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -13,14 +13,14 @@ public sealed class Result<T>
 
     public T Value { get; private set; }
 
-    public List<string> Errors { get; private set; }
+    public string[] Errors { get; private set; }
 
     public static Result<T> Success(T value)
     {
-        return new Result<T>(true, value, new List<string>());
+        return new Result<T>(true, value, Array.Empty<string>());
     }
 
-    public static Result<T> Failure(List<string> errors)
+    public static Result<T> Failure(string[] errors)
     {
         return new Result<T>(false, default!, errors);
     }

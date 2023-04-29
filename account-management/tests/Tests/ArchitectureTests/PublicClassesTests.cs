@@ -1,6 +1,7 @@
 using FluentAssertions;
 using NetArchTest.Rules;
 using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Domain;
 using Xunit;
 
@@ -34,6 +35,7 @@ public class PublicClassesTests
             .That()
             .ArePublic()
             .And().AreNotAbstract()
+            .And().DoNotHaveName(typeof(Result<>).Name)
             .Should()
             .BeSealed()
             .GetResult();

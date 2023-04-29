@@ -74,6 +74,28 @@ public class TenantEndpointsTests
     }
 
     [Fact]
+    public async Task CreateTenant_WhenInValid_ShouldNotCreateTenant()
+    {
+        // Arrange
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        // Act
+        var response = await httpClient.PostAsJsonAsync("/tenants",
+            new CreateTenantCommand("TestTenant", "a", "ab", null)
+        );
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var errors = await response.Content.ReadFromJsonAsync<string[]>();
+        errors!.Length.Should().BeGreaterThan(0);
+        errors.Should().Contain("'Subdomain' must be between 3 and 30 characters. You entered 1 characters.");
+        errors.Should().Contain("'Email' is not a valid email address.");
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
+    }
+
+    [Fact]
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
     {
         // Arrange

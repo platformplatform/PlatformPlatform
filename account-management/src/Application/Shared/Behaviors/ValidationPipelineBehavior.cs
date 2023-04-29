@@ -3,8 +3,8 @@ using MediatR;
 
 namespace PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
 
-public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, Result<TResponse>>
+    where TRequest : IRequest<Result<TResponse>>
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -13,7 +13,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
         _validators = validators;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+    public async Task<Result<TResponse>> Handle(TRequest request, RequestHandlerDelegate<Result<TResponse>> next,
         CancellationToken cancellationToken)
     {
         if (!_validators.Any())
@@ -27,14 +27,15 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
             _validators.Select(v => v.ValidateAsync(context, cancellationToken))
         );
 
-        var failures = validationResults
+        var errors = validationResults
             .SelectMany(r => r.Errors)
             .Where(f => f != null)
-            .ToList();
+            .Select(f => f.ErrorMessage)
+            .ToArray();
 
-        if (failures.Any())
+        if (errors.Any())
         {
-            throw new ValidationException(failures);
+            return Result<TResponse>.Failure(errors);
         }
 
         return await next();
