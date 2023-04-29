@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     The AudibleEntity class extends Entity and implements IAuditableEntity, which adds

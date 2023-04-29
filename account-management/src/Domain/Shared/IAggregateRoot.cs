@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     Interface for aggregate roots, which also implements IAuditableEntity. Aggregate roots are a concept in

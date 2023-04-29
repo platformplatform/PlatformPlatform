@@ -1,7 +1,7 @@
-using PlatformPlatform.AccountManagement.Application.Behaviours;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
+namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 
 /// <summary>
 ///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer.

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

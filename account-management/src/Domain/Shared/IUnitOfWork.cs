@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     IUnitOfWork interface provides a method for committing changes made within the unit of work.

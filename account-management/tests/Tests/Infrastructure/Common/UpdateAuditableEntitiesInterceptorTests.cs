@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.Infrastructure.Common;
+using PlatformPlatform.AccountManagement.Infrastructure.Shared;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Common;

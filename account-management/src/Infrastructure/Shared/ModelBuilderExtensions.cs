@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
+namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 
 public static class ModelBuilderExtensions
 {

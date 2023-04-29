@@ -2,7 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Behaviours;
+using PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
 
 namespace PlatformPlatform.AccountManagement.Application;
 

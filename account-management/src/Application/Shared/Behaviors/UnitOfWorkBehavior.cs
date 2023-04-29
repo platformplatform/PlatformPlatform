@@ -1,7 +1,7 @@
 using MediatR;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Application.Behaviours;
+namespace PlatformPlatform.AccountManagement.Application.Shared.Behaviors;
 
 /// <summary>
 ///     The UnitOfWorkBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.
