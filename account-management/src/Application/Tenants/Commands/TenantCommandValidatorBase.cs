@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using FluentValidation;
+using PlatformPlatform.AccountManagement.Application.Shared.Validation;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
@@ -19,9 +19,7 @@ public abstract class TenantCommandValidatorBase<T> : AbstractValidator<T> where
         {
             RuleFor(x => x.Phone)
                 .MaximumLength(TenantValidationConstants.PhoneMaxLength)
-                .Must(phone =>
-                    string.IsNullOrEmpty(phone) || Regex.IsMatch(phone, @"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$"))
-                .WithMessage("The phone number format is not valid.");
+                .Phone();
         });
     }
 }
