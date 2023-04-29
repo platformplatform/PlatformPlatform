@@ -84,5 +84,6 @@ public class CreateTenantCommandHandlerTests
 
         // Assert
         validationResult.IsValid.Should().Be(expected);
+        validationResult.Errors.Count.Should().Be(expected ? 0 : 1);
     }
 }

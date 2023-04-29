@@ -9,16 +9,13 @@ public abstract class TenantCommandValidatorBase<T> : AbstractValidator<T> where
     protected TenantCommandValidatorBase()
     {
         RuleFor(x => x.Name)
-            .NotEmpty()
             .Length(TenantValidationConstants.NameMinLength, TenantValidationConstants.NameMaxLength);
 
         RuleFor(x => x.Email)
-            .NotEmpty()
             .MaximumLength(TenantValidationConstants.EmailMaxLength)
             .EmailAddress();
 
         RuleFor(x => x.Phone)
-            .NotEmpty()
             .MaximumLength(TenantValidationConstants.PhoneMaxLength)
             .Must(phone => Regex.IsMatch(phone, @"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$"))
             .WithMessage("The phone number format is not valid.");

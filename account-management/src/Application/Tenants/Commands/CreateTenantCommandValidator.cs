@@ -9,7 +9,6 @@ public sealed class CreateTenantCommandValidator : TenantCommandValidatorBase<Cr
     public CreateTenantCommandValidator(ITenantRepository tenantRepository)
     {
         RuleFor(x => x.Subdomain)
-            .NotEmpty()
             .Length(TenantValidationConstants.SubdomainMinLength, TenantValidationConstants.SubdomainMaxLength)
             .Matches(new Regex("^[a-z0-9]*$"))
             .WithMessage("The subdomain must contain only lowercase letters and numbers.")
