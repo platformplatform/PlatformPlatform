@@ -10,7 +10,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 ///     UnitOfWork is committed in the UnitOfWorkBehavior.
 /// </summary>
 public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string Phone)
-    : IRequest<TenantDto>;
+    : ITenantCommand, IRequest<TenantDto>;
 
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, TenantDto>
 {
