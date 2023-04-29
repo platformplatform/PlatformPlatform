@@ -12,22 +12,19 @@ public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
         State = TenantState.Trial;
     }
 
-    [MinLength(1)]
-    [MaxLength(30)]
+    [MinLength(TenantValidationConstants.NameMinLength)]
+    [MaxLength(TenantValidationConstants.NameMaxLength)]
     public required string Name { get; set; }
 
-    [MinLength(3)]
-    [MaxLength(30)]
+    [MinLength(TenantValidationConstants.SubdomainMinLength)]
+    [MaxLength(TenantValidationConstants.SubdomainMaxLength)]
     public required string Subdomain { get; set; }
 
-    [Required]
     public TenantState State { get; private set; }
 
-    [EmailAddress]
-    [MaxLength(100)]
+    [MaxLength(TenantValidationConstants.EmailMaxLength)]
     public required string Email { get; set; }
 
-    [Phone]
-    [MaxLength(20)]
+    [MaxLength(TenantValidationConstants.PhoneMaxLength)]
     public required string Phone { get; set; }
 }
