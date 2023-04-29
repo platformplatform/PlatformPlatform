@@ -2,7 +2,8 @@ using System.Reflection;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Behaviours;
+using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
+using PlatformPlatform.AccountManagement.Application.Shared.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application;
 
@@ -18,7 +19,8 @@ public static class ApplicationConfiguration
     {
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly));
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
         services.AddValidatorsFromAssembly(Assembly);
 

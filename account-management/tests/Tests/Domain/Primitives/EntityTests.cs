@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;

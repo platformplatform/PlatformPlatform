@@ -4,7 +4,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Shared;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -50,7 +51,9 @@ public class TenantEndpointsTests
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/tenants", new CreateTenantCommand("TestTenant"));
+        var response = await httpClient.PostAsJsonAsync("/tenants",
+            new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890")
+        );
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -62,13 +65,37 @@ public class TenantEndpointsTests
         var tenantName = tenantDto.Name;
         var createdAt = tenantDto.CreatedAt.ToString(Iso8601TimeFormat);
         var expectedBody =
-            $@"{{""id"":""{tenantDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
+            $@"{{""id"":""{tenantDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""foo@tenant1.com"",""phone"":""1234567890""}}";
 
         var responseAsRawString = await response.Content.ReadAsStringAsync();
         responseAsRawString.Should().Be(expectedBody);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId.AsRawString()}");
+    }
+
+    [Fact]
+    public async Task CreateTenant_WhenInValid_ShouldNotCreateTenant()
+    {
+        // Arrange
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        // Act
+        var response = await httpClient.PostAsJsonAsync("/tenants",
+            new CreateTenantCommand("TestTenant", "a", "ab", null)
+        );
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var errors = await response.Content.ReadFromJsonAsync<ValidationError[]>();
+        errors!.Length.Should().BeGreaterThan(0);
+        errors.Should().Contain(new ValidationError("Subdomain",
+            "'Subdomain' must be between 3 and 30 characters. You entered 1 characters."));
+        errors.Should().Contain(new ValidationError("Email", "'Email' is not a valid email address."));
+
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -95,7 +122,7 @@ public class TenantEndpointsTests
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
 
         var expectedBody =
-            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}""}}";
+            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""foo@tenant1.com"",""phone"":""1234567890""}}";
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);

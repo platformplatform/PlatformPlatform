@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     IAuditableEntity interface contains properties and methods for maintaining audit information for when

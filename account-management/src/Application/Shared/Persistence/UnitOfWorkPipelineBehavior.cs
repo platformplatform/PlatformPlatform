@@ -1,19 +1,19 @@
 using MediatR;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Application.Behaviours;
+namespace PlatformPlatform.AccountManagement.Application.Shared.Persistence;
 
 /// <summary>
-///     The UnitOfWorkBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.
+///     The UnitOfWorkPipelineBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.
 ///     It is called after the handling of a Command, and ensures that any changes are committed to the database only
 ///     after the command is successfully handled. If an exception occurs the UnitOfWork.Commit will never be called.
 /// </summary>
-public sealed class UnitOfWorkBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UnitOfWorkBehavior(IUnitOfWork unitOfWork)
+    public UnitOfWorkPipelineBehavior(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

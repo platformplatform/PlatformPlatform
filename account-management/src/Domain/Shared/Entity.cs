@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     The Entity class is a base class for entities which represents business objects.

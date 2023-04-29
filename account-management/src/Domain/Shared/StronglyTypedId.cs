@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     This is a special version of <see cref="StronglyTypedId{T}" /> for longs which is the recommended type to use.

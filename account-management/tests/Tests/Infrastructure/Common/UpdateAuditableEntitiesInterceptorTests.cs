@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.Infrastructure.Common;
+using PlatformPlatform.AccountManagement.Infrastructure.Shared;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Common;
@@ -15,7 +15,10 @@ public class UpdateAuditableEntitiesInterceptorTests
         // Arrange
         var options = new DbContextOptionsBuilder<ApplicationDbContext>().Options;
         await using var dbContext = new TestDbContext(options);
-        var newTenant = new Tenant {Name = "TestTenant"};
+        var newTenant = new Tenant
+        {
+            Name = "TestTenant", Subdomain = "tenant1", Email = "foo@tenant1.com", Phone = "1234567890"
+        };
 
         // Act
         dbContext.Tenants.Add(newTenant);
@@ -32,7 +35,10 @@ public class UpdateAuditableEntitiesInterceptorTests
         // Arrange
         var options = new DbContextOptionsBuilder<ApplicationDbContext>().Options;
         await using var dbContext = new TestDbContext(options);
-        var newTenant = new Tenant {Name = "TestTenant"};
+        var newTenant = new Tenant
+        {
+            Name = "TestTenant", Subdomain = "tenant1", Email = "foo@tenant1.com", Phone = "1234567890"
+        };
         dbContext.Tenants.Add(newTenant);
         await dbContext.SaveChangesAsync();
         var initialCreatedAt = newTenant.CreatedAt;

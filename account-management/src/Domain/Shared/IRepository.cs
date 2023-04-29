@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AccountManagement.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
 ///     IRepository is a generic interface for repositories. Repositories are a DDD concept, and are used

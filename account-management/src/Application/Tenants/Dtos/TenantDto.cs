@@ -1,4 +1,4 @@
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
@@ -30,12 +30,32 @@ public sealed record TenantDto
     /// </summary>
     public required string Name { get; init; }
 
+    /// <summary>
+    ///     The state of the Tenant (Trial, Active, Suspended).
+    /// </summary>
+    public TenantState State { get; init; }
+
+    /// <summary>
+    ///     The email of the tenant owner.
+    /// </summary>
+    public required string Email { get; init; }
+
+    /// <summary>
+    ///     The phone number of the tenant owner (optional).
+    /// </summary>
+    public string? Phone { get; private set; }
+
     public static TenantDto CreateFrom(Tenant tenant)
     {
         return new TenantDto
         {
-            Id = tenant.Id.AsRawString()!, CreatedAt = tenant.CreatedAt, ModifiedAt = tenant.ModifiedAt,
-            Name = tenant.Name
+            Id = tenant.Id.AsRawString()!,
+            CreatedAt = tenant.CreatedAt,
+            ModifiedAt = tenant.ModifiedAt,
+            Name = tenant.Name,
+            State = tenant.State,
+            Email = tenant.Email,
+            Phone = tenant.Phone
         };
     }
 }

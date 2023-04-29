@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure.Common;
+using PlatformPlatform.AccountManagement.Infrastructure.Shared;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -19,6 +19,9 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Ensures that all enum properties are stored as strings in the database.
+        modelBuilder.UseStringForEnums();
+
         // Ensures the strongly typed IDs can be saved and read by entity framework as the underlying type.
         modelBuilder.Entity<Tenant>().ConfigureStronglyTypedId<Tenant, TenantId>();
     }

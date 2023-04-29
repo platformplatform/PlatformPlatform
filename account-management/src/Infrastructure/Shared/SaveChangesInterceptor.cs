@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PlatformPlatform.AccountManagement.Domain.Primitives;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 
-namespace PlatformPlatform.AccountManagement.Infrastructure.Common;
+namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 
 /// <summary>
 ///     The UpdateAuditableEntitiesInterceptor is a SaveChangesInterceptor that updates the ModifiedAt property

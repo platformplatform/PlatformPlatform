@@ -15,18 +15,27 @@ public class GetTenantByIdQueryTests
         var expectedTenantId = TenantId.NewId();
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant {Id = expectedTenantId, Name = expectedTenantName};
+        var tenant = new Tenant
+        {
+            Id = expectedTenantId,
+            Name = expectedTenantName,
+            Subdomain = "tenant1",
+            Email = "foo@tenant1.com",
+            Phone = "1234567890"
+        };
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(expectedTenantId, default).Returns(tenant);
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
         var query = new GetTenantByIdQuery(expectedTenantId);
-        var tenantResponseDto = await handler.Handle(query, default);
+        var getTenantByIdQueryResult = await handler.Handle(query, default);
 
         // Assert
+        getTenantByIdQueryResult.IsSuccess.Should().BeTrue();
+        var tenantResponseDto = getTenantByIdQueryResult.Value;
         tenantResponseDto.Should().NotBeNull();
-        tenantResponseDto!.Id.Should().Be(expectedTenantId.AsRawString());
+        tenantResponseDto.Id.Should().Be(expectedTenantId.AsRawString());
         tenantResponseDto.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }
@@ -43,10 +52,10 @@ public class GetTenantByIdQueryTests
 
         // Act
         var query = new GetTenantByIdQuery(nonExistingTenantId);
-        var tenantResponseDto = await handler.Handle(query, default);
+        var getTenantByIdQueryResult = await handler.Handle(query, default);
 
         // Assert
-        tenantResponseDto.Should().BeNull();
+        getTenantByIdQueryResult.IsSuccess.Should().BeFalse();
         await tenantRepository.Received().GetByIdAsync(nonExistingTenantId, default);
     }
 }
