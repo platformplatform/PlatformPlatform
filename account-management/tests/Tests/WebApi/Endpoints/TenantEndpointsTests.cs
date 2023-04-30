@@ -88,11 +88,11 @@ public class TenantEndpointsTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var errors = await response.Content.ReadFromJsonAsync<ValidationError[]>();
+        var errors = await response.Content.ReadFromJsonAsync<PropertyError[]>();
         errors!.Length.Should().BeGreaterThan(0);
-        errors.Should().Contain(new ValidationError("Subdomain",
+        errors.Should().Contain(new PropertyError("Subdomain",
             "'Subdomain' must be between 3 and 30 characters. You entered 1 characters."));
-        errors.Should().Contain(new ValidationError("Email", "'Email' is not a valid email address."));
+        errors.Should().Contain(new PropertyError("Email", "'Email' is not a valid email address."));
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();

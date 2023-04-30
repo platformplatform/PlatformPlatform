@@ -11,9 +11,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Create
 ///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
 /// </summary>
 public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string? Phone)
-    : ITenantCommand, IRequest<Result<TenantDto>>;
+    : ITenantCommand, IRequest<CommandResult<TenantDto>>;
 
-public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, Result<TenantDto>>
+public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, CommandResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -22,7 +22,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<Result<TenantDto>> Handle(CreateTenantCommand createTenantCommand,
+    public async Task<CommandResult<TenantDto>> Handle(CreateTenantCommand createTenantCommand,
         CancellationToken cancellationToken)
     {
         var tenant = new Tenant
@@ -34,7 +34,6 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         };
         await _tenantRepository.AddAsync(tenant, cancellationToken);
 
-        var tenantDto = TenantDto.CreateFrom(tenant);
-        return Result<TenantDto>.Success(tenantDto);
+        return TenantDto.CreateFrom(tenant);
     }
 }

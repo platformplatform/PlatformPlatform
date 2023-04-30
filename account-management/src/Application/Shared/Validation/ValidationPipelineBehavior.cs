@@ -9,7 +9,7 @@ namespace PlatformPlatform.AccountManagement.Application.Shared.Validation;
 ///     handled. If the request is valid, the next pipeline behavior will be called.
 /// </summary>
 public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse> where TResponse : Result
+    where TRequest : IRequest<TResponse> where TResponse : ICommandResult
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -37,7 +37,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
         var validationErrors = validationResults
             .SelectMany(vr => vr.Errors)
             .Where(vf => vf is not null)
-            .Select(vf => new ValidationError(vf.PropertyName, vf.ErrorMessage))
+            .Select(vf => new PropertyError(vf.PropertyName, vf.ErrorMessage))
             .Distinct()
             .ToArray();
 
@@ -53,12 +53,13 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
     ///     Uses reflection to create a new instance of the specified Result type, passing the validation errors to the
     ///     constructor.
     /// </summary>
-    private static TResult CreateValidationResult<TResult>(ValidationError[] validationErrors) where TResult : Result
+    private static TResult CreateValidationResult<TResult>(PropertyError[] validationErrors)
+        where TResult : ICommandResult
     {
-        return (TResult) typeof(Result<>)
+        return (TResult) typeof(CommandResult<>)
             .GetGenericTypeDefinition()
             .MakeGenericType(typeof(TResult).GenericTypeArguments[0])
-            .GetMethod(nameof(Result<object>.Failure))!
+            .GetMethod(nameof(CommandResult<object>.Failure))!
             .Invoke(null, new object?[] {validationErrors})!;
     }
 }
