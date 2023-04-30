@@ -20,6 +20,7 @@ public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
     [MaxLength(TenantValidationConstants.SubdomainMaxLength)]
     public required string Subdomain { get; set; }
 
+    [MaxLength(TenantValidationConstants.StateMaxLength)]
     public TenantState State { get; private set; }
 
     [MaxLength(TenantValidationConstants.EmailMaxLength)]

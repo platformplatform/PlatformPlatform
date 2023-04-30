@@ -16,4 +16,6 @@ public static class TenantValidationConstants
     // The ITU-T Recommendation E.164 limits phone numbers to 15 digits (including country code).
     // We add 5 extra characters to allow for spaces, dashes, parentheses, etc. 
     public const int PhoneMaxLength = 20;
+
+    public const int StateMaxLength = 10;
 }
