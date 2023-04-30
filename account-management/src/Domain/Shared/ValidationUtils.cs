@@ -18,12 +18,6 @@ public static partial class ValidationUtils
         return GetResult(name, isLengthOk && isRegExOk, errorMessage);
     }
 
-    public static Result IsStringValid(string name, string input, string regEx, string errorMessage)
-    {
-        var isSuccess = Regex.IsMatch(input, regEx);
-        return GetResult(name, isSuccess, errorMessage);
-    }
-
     public static Result IsValidPhone(string name, string? input)
     {
         // The ITU-T Recommendation E.164 limits phone numbers to 15 digits (including country code).

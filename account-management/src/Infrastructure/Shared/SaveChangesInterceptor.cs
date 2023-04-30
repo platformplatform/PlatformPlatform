@@ -21,6 +21,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
 
         foreach (var entityEntry in audibleEntities)
         {
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (entityEntry.State)
             {
                 case EntityState.Added when entityEntry.Entity.CreatedAt == default:

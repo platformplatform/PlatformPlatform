@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
@@ -8,6 +10,7 @@ public interface IAuditableEntity
 {
     DateTime CreatedAt { get; }
 
+    [UsedImplicitly]
     DateTime? ModifiedAt { get; }
 
     void UpdateModifiedAt(DateTime? modifiedAt);

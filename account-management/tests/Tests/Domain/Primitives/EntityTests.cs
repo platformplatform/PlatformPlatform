@@ -1,4 +1,5 @@
 using FluentAssertions;
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 using Xunit;
 
@@ -162,6 +163,7 @@ public static class EntityTests
     }
 }
 
+[UsedImplicitly]
 public sealed record StronglyTypedId(long Value) : StronglyTypedId<StronglyTypedId>(Value);
 
 public class StronglyTypedIdEntity : Entity<StronglyTypedId>

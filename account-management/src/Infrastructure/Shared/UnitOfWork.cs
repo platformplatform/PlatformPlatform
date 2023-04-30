@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 
@@ -8,6 +9,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 ///     committing any changes to the ApplicationDbContext and saving them to the database. The UnitOfWork is called
 ///     from the <see cref="UnitOfWorkPipelineBehavior{TRequest,TResponse}" /> in the Application layer.
 /// </summary>
+[UsedImplicitly]
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _applicationDbContext;

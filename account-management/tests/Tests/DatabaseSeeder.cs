@@ -6,9 +6,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 public class DatabaseSeeder
 {
     public const string Tenant1Name = "Tenant 1";
-    public const string Tenant2Name = "Tenant 2";
     public static readonly TenantId Tenant1Id = TenantId.NewId();
-    public static readonly TenantId Tenant2Id = TenantId.NewId();
 
     private static readonly object Lock = new();
     private static bool _databaseIsSeeded;
@@ -40,11 +38,7 @@ public class DatabaseSeeder
         {
             Id = Tenant1Id, Name = Tenant1Name, Subdomain = "tenant1", Email = "foo@tenant1.com", Phone = "1234567890"
         };
-        var tenant2 = new Tenant
-        {
-            Id = Tenant2Id, Name = Tenant2Name, Subdomain = "tenant1", Email = "foo@tenant2.com", Phone = "0987654321"
-        };
 
-        _applicationDbContext.Tenants.AddRange(tenant1, tenant2);
+        _applicationDbContext.Tenants.AddRange(tenant1);
     }
 }
