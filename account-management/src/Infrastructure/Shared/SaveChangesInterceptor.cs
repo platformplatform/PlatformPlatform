@@ -21,10 +21,11 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
 
         foreach (var entityEntry in audibleEntities)
         {
+            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (entityEntry.State)
             {
                 case EntityState.Added when entityEntry.Entity.CreatedAt == default:
-                    throw new InvalidOperationException("CreatedAt must be set before saving");
+                    throw new InvalidOperationException("CreatedAt must be set before saving.");
                 case EntityState.Modified:
                     entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
                     break;

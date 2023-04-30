@@ -1,4 +1,5 @@
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.OpenApi.Models;
 
 namespace PlatformPlatform.AccountManagement.WebApi;
@@ -11,6 +12,7 @@ public static class WebApiConfiguration
 {
     public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
 
+    [UsedImplicitly]
     public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();

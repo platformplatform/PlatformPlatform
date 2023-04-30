@@ -4,9 +4,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
@@ -88,11 +88,12 @@ public class TenantEndpointsTests
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var errors = await response.Content.ReadFromJsonAsync<ValidationError[]>();
+        var errors = await response.Content.ReadFromJsonAsync<PropertyError[]>();
         errors!.Length.Should().BeGreaterThan(0);
-        errors.Should().Contain(new ValidationError("Subdomain",
-            "'Subdomain' must be between 3 and 30 characters. You entered 1 characters."));
-        errors.Should().Contain(new ValidationError("Email", "'Email' is not a valid email address."));
+        errors.Should().Contain(new PropertyError("Subdomain",
+            "Subdomains should be 3 to 30 lowercase alphanumeric characters."));
+        errors.Should().Contain(new PropertyError("Email",
+            "Email must be a valid email address and not exceed 100 characters."));
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();

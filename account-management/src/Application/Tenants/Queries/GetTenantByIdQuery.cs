@@ -9,9 +9,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 ///     The GetTenantByIdQuery will retrieve a Tenant with the specified TenantId from the repository. The query
 ///     will be handled by <see cref="GetTenantQueryHandler" />. Returns the TenantDto if found, otherwise null.
 /// </summary>
-public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<Result<TenantDto>>;
+public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<QueryResult<TenantDto>>;
 
-public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, Result<TenantDto>>
+public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, QueryResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -20,11 +20,11 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<Result<TenantDto>> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
+    public async Task<QueryResult<TenantDto>> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
         return tenant == null
-            ? Result<TenantDto>.SingleFailure("TenantId", $"Tenant with id {request.Id.AsRawString()} not found.")
-            : Result<TenantDto>.Success(TenantDto.CreateFrom(tenant));
+            ? QueryResult<TenantDto>.Failure($"Tenant with id '{request.Id.AsRawString()}' not found.")
+            : TenantDto.CreateFrom(tenant);
     }
 }

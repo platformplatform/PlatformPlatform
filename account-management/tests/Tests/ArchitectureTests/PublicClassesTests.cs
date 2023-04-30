@@ -35,7 +35,8 @@ public class PublicClassesTests
             .That()
             .ArePublic()
             .And().AreNotAbstract()
-            .And().DoNotHaveName(typeof(Result<>).Name)
+            .And().DoNotHaveName(typeof(CommandResult<>).Name)
+            .And().DoNotHaveName(typeof(QueryResult<>).Name)
             .Should()
             .BeSealed()
             .GetResult();
