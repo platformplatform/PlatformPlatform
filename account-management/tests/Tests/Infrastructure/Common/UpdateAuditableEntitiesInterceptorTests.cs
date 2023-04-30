@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.Infrastructure.Shared;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Common;
@@ -60,16 +59,15 @@ public class UpdateAuditableEntitiesInterceptorTests
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
-            optionsBuilder.UseInMemoryDatabase("InMemoryDbForTesting");
-            base.OnConfiguring(optionsBuilder);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Tenant>().ConfigureStronglyTypedId<Tenant, TenantId>();
+            DbContextConfiguration.ConfigureOnModelCreating(modelBuilder);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseInMemoryDatabase("InMemoryDbForTesting");
+            DbContextConfiguration.ConfigureOnConfiguring(optionsBuilder);
         }
     }
 }
