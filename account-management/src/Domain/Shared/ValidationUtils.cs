@@ -2,14 +2,8 @@ using System.Text.RegularExpressions;
 
 namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
-public static class ValidationUtils
+public static partial class ValidationUtils
 {
-    private static readonly Lazy<Regex> PhoneRegex =
-        new(() => new Regex(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$", RegexOptions.Compiled));
-
-    private static readonly Lazy<Regex> EmailRegex =
-        new(() => new Regex(@"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$", RegexOptions.Compiled));
-
     public static Result IsStringValid(string name, string input, int minLength, int maxLength, string errorMessage)
     {
         var isSuccess = input.Length >= minLength && input.Length <= maxLength;
@@ -38,9 +32,12 @@ public static class ValidationUtils
         const string errorMessage = "Phone number must be a valid format and not exceed 20 digits.";
 
         var isLengthOk = input is null || input.Length <= phoneMaxLength;
-        var isRegExOk = string.IsNullOrEmpty(input) || PhoneRegex.Value.IsMatch(input);
+        var isRegExOk = string.IsNullOrEmpty(input) || PhoneRegex().IsMatch(input);
         return GetResult(name, isLengthOk && isRegExOk, errorMessage);
     }
+
+    [GeneratedRegex(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")]
+    private static partial Regex PhoneRegex();
 
     public static Result IsValidEmail(string name, string input)
     {
@@ -49,9 +46,12 @@ public static class ValidationUtils
         const string errorMessage = "Email must be a valid email address and not exceed 100 characters.";
 
         var isLengthOk = input.Length <= emailMaxLength;
-        var isRegExOk = !string.IsNullOrWhiteSpace(input) && EmailRegex.Value.IsMatch(input);
+        var isRegExOk = !string.IsNullOrWhiteSpace(input) && EmailRegex().IsMatch(input);
         return GetResult(name, isLengthOk && isRegExOk, errorMessage);
     }
+
+    [GeneratedRegex(@"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$")]
+    private static partial Regex EmailRegex();
 
     private static Result GetResult(string name, bool success, string errorMessage)
     {
