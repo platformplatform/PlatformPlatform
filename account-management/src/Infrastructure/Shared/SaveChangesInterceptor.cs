@@ -24,7 +24,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
             switch (entityEntry.State)
             {
                 case EntityState.Added when entityEntry.Entity.CreatedAt == default:
-                    throw new InvalidOperationException("CreatedAt must be set before saving");
+                    throw new InvalidOperationException("CreatedAt must be set before saving.");
                 case EntityState.Modified:
                     entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
                     break;

@@ -9,12 +9,10 @@ namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.commands;
 public class CreateTenantCommandHandlerTests
 {
     private readonly ITenantRepository _tenantRepository;
-    private readonly CreateTenantCommandValidator _validator;
 
     public CreateTenantCommandHandlerTests()
     {
         _tenantRepository = Substitute.For<ITenantRepository>();
-        _validator = new CreateTenantCommandValidator(_tenantRepository);
     }
 
     [Fact]
@@ -22,8 +20,9 @@ public class CreateTenantCommandHandlerTests
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
-        var tenantRepository = Substitute.For<ITenantRepository>();
-        var handler = new CreateTenantCommandHandler(tenantRepository);
+        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+        var handler = new CreateTenantCommandHandler(_tenantRepository);
 
         // Act
         var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
@@ -33,7 +32,7 @@ public class CreateTenantCommandHandlerTests
         createTenantCommandResult.IsSuccess.Should().BeTrue();
         var tenantResponseDto = createTenantCommandResult.Value;
         var tenantId = TenantId.FromString(tenantResponseDto.Id);
-        await tenantRepository.Received()
+        await _tenantRepository.Received()
             .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId),
                 Arg.Any<CancellationToken>());
     }
@@ -42,8 +41,9 @@ public class CreateTenantCommandHandlerTests
     public async Task CreateTenantCommandHandler_ShouldReturnTenantDtoWithCorrectValues()
     {
         // Arrange
-        var tenantRepository = Substitute.For<ITenantRepository>();
-        var handler = new CreateTenantCommandHandler(tenantRepository);
+        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+        var handler = new CreateTenantCommandHandler(_tenantRepository);
 
         // Act
         var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
@@ -79,12 +79,13 @@ public class CreateTenantCommandHandlerTests
         // Arrange
         var command = new CreateTenantCommand(name, subdomain, email, phone);
         _tenantRepository.IsSubdomainFreeAsync(subdomain, Arg.Any<CancellationToken>()).Returns(true);
+        var createTenantCommandHandler = new CreateTenantCommandHandler(_tenantRepository);
 
         // Act
-        var validationResult = await _validator.ValidateAsync(command, CancellationToken.None);
+        var commandResult = await createTenantCommandHandler.Handle(command, CancellationToken.None);
 
         // Assert
-        validationResult.IsValid.Should().Be(expected);
-        validationResult.Errors.Count.Should().Be(expected ? 0 : 1);
+        commandResult.IsSuccess.Should().Be(expected);
+        commandResult.Errors.Length.Should().Be(expected ? 0 : 1);
     }
 }

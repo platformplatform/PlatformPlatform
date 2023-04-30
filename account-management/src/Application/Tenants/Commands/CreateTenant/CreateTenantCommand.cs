@@ -1,6 +1,7 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
+using PlatformPlatform.AccountManagement.Domain.Shared;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
@@ -10,8 +11,8 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Create
 ///     by <see cref="CreateTenantCommandHandler" />. The Tenant will not be saved to the database until the
 ///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
 /// </summary>
-public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string? Phone)
-    : ITenantCommand, IRequest<CommandResult<TenantDto>>;
+public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string? Phone) :
+    IRequest<CommandResult<TenantDto>>;
 
 public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, CommandResult<TenantDto>>
 {
@@ -22,18 +23,34 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<CommandResult<TenantDto>> Handle(CreateTenantCommand createTenantCommand,
-        CancellationToken cancellationToken)
+    public async Task<CommandResult<TenantDto>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = new Tenant
+        var isUniqueSubdomain = await IsSubdomainUniqueAsync(command.Subdomain, cancellationToken);
+
+        var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
+            .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
+            .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
+            .Concat(TenantValidation.ValidateSubdomain(command.Subdomain).Errors)
+            .Concat(isUniqueSubdomain.Errors)
+            .ToArray();
+
+        if (propertyErrors.Any())
         {
-            Name = createTenantCommand.Name,
-            Subdomain = createTenantCommand.Subdomain,
-            Email = createTenantCommand.Email,
-            Phone = createTenantCommand.Phone
-        };
+            return CommandResult<TenantDto>.Failure(propertyErrors);
+        }
+
+        var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
+
         await _tenantRepository.AddAsync(tenant, cancellationToken);
 
         return TenantDto.CreateFrom(tenant);
+    }
+
+    private async Task<Result> IsSubdomainUniqueAsync(string subdomain, CancellationToken cancellationToken)
+    {
+        var isSubdomainUnique = await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken);
+        return isSubdomainUnique
+            ? Result.Success()
+            : Result.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
     }
 }

@@ -8,11 +8,11 @@ public sealed record QueryError(string Message);
 /// <summary>
 ///     All queries should return a <see cref="QueryResult{T}" />. This is used to indicate if the query was successful
 ///     or not. If the query was successful, the <see cref="QueryResult{T}" /> will contain the result of the query.
-///     If the query was not successful, the <see cref="QueryResult{T}" /> will contain a <see cref="QueryError" />
+///     If the query was not successful, it will contain a <see cref="QueryError" />
 /// </summary>
 public class QueryResult<T>
 {
-    private QueryResult(bool isSuccess, T value, QueryError? error)
+    private QueryResult(bool isSuccess, T value, QueryError error)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -21,11 +21,9 @@ public class QueryResult<T>
 
     public bool IsSuccess { get; }
 
-    public bool IsFailure => !IsSuccess;
-
     public T Value { get; }
 
-    public QueryError? Error { get; }
+    public QueryError Error { get; }
 
     /// <summary>
     ///     Use this to indicate a error when doing a query.
@@ -42,7 +40,7 @@ public class QueryResult<T>
     [UsedImplicitly]
     public static QueryResult<T> Success(T value)
     {
-        return new QueryResult<T>(true, value, null);
+        return new QueryResult<T>(true, value, default!);
     }
 
     /// <summary>
