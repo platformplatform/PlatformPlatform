@@ -4,9 +4,9 @@ using MediatR;
 namespace PlatformPlatform.AccountManagement.Application.Shared.Validation;
 
 /// <summary>
-///     The ValidationPipelineBehavior class is a MediatR pipeline behavior that validates the request using
-///     FluentValidation. If the request is not valid, the pipeline will be short-circuited and the request will not be
-///     handled. If the request is valid, the next pipeline behavior will be called.
+///     The ValidationPipelineBehavior class is a MediatR pipeline behavior that does input validation on all commands
+///     request using FluentValidation. If the command is not valid, the pipeline will be short-circuited and the
+///     request and the command will not be handled. If the command is valid, the next pipeline behavior will be called.
 /// </summary>
 public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse> where TResponse : ICommandResult
