@@ -8,33 +8,52 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0    
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
     - name: Restore dependencies
-      run: dotnet restore account-management/AccountManagement.sln
+      working-directory: account-management
+      run: dotnet restore AccountManagement.sln
     - name: Build
-      run: dotnet build account-management/AccountManagement.sln --no-restore
-    - name: Test
-      run: dotnet test account-management/AccountManagement.sln --no-build --verbosity normal
+      working-directory: account-management
+      run: dotnet build AccountManagement.sln --no-restore
+
+  test-with-code-coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0    
+    - name: Install dotCover
+      run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+    - name: Install SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Run Test with dotCover and SonarScanner reporting
+      working-directory: account-management
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        export PATH="$HOME/.dotnet/tools:$PATH"
+        mkdir coverage
+        dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html"
+        dotnet dotcover test --dcOutput="coverage/dotCover.html" --dcReportType=HTML -- AccountManagement.sln
+        dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
   jetbrains-code-inspection:
+    needs: build
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.x
-    - name: Restore dependencies
-      run: dotnet restore account-management/AccountManagement.sln
+        fetch-depth: 0    
     - name: Run code inspections
       uses: muno92/resharper_inspectcode@1.6.13
       with:
