@@ -14,7 +14,7 @@ public static partial class ValidationUtils
         string errorMessage)
     {
         var isLengthOk = input.Length >= minLength && input.Length <= maxLength;
-        var isRegExOk = Regex.IsMatch(input, regEx);
+        var isRegExOk = Regex.IsMatch(input, regEx, RegexOptions.NonBacktracking);
         return GetResult(name, isLengthOk && isRegExOk, errorMessage);
     }
 

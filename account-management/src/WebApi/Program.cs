@@ -36,11 +36,11 @@ public class Program
             // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
             // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development.
             app.UseHsts();
+
+            // Adds middleware for redirecting HTTP Requests to HTTPS.
+            app.UseHttpsRedirection();
         }
-
-        // Adds middleware for redirecting HTTP Requests to HTTPS.
-        app.UseHttpsRedirection();
-
+    
         // Add a default "Hello World!" endpoint at the root path.
         app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 
