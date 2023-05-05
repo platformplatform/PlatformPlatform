@@ -9,7 +9,6 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;
