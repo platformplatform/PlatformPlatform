@@ -18,13 +18,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Shared;
 /// </summary>
 public static class IdGenerator
 {
-    private static readonly IdGen.IdGenerator Generator;
-
-    static IdGenerator()
-    {
-        var generatorId = GetUniqueGeneratorIdFromIpAddress();
-        Generator = new IdGen.IdGenerator(generatorId);
-    }
+    private static readonly IdGen.IdGenerator Generator = new(GetUniqueGeneratorIdFromIpAddress());
 
     /// <summary>
     ///     Generates a new unique ID based on the Twitter Snowflake algorithm.
