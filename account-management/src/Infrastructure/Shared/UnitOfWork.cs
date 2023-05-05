@@ -19,7 +19,7 @@ public class UnitOfWork : IUnitOfWork
         _applicationDbContext = applicationDbContext;
     }
 
-    public async Task CommitAsync(CancellationToken cancellationToken = default)
+    public async Task CommitAsync(CancellationToken cancellationToken)
     {
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
     }
