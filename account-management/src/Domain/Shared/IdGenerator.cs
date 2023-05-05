@@ -38,7 +38,7 @@ public static class IdGenerator
 
         if (ipAddress == null)
         {
-            throw new Exception(
+            throw new InvalidOperationException(
                 "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.");
         }
 
