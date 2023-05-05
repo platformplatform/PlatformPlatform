@@ -18,13 +18,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Shared;
 /// </summary>
 public static class IdGenerator
 {
-    private static readonly IdGen.IdGenerator Generator;
-
-    static IdGenerator()
-    {
-        var generatorId = GetUniqueGeneratorIdFromIpAddress();
-        Generator = new IdGen.IdGenerator(generatorId);
-    }
+    private static readonly IdGen.IdGenerator Generator = new(GetUniqueGeneratorIdFromIpAddress());
 
     /// <summary>
     ///     Generates a new unique ID based on the Twitter Snowflake algorithm.
@@ -40,13 +34,9 @@ public static class IdGenerator
     private static int GetUniqueGeneratorIdFromIpAddress()
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());
-        var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-
-        if (ipAddress == null)
-        {
-            throw new Exception(
-                "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.");
-        }
+        var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork) ??
+                        throw new InvalidOperationException(
+                            "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.");
 
         var lastSegment = ipAddress.ToString().Split('.').Last();
         return int.Parse(lastSegment);

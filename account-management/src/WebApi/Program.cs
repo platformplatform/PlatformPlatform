@@ -40,7 +40,7 @@ public class Program
             // Adds middleware for redirecting HTTP Requests to HTTPS.
             app.UseHttpsRedirection();
         }
-    
+
         // Add a default "Hello World!" endpoint at the root path.
         app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 

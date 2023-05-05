@@ -22,11 +22,11 @@ public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public T Id { get; init; }
 
-    public bool Equals(Entity<T>? other)
+    public virtual bool Equals(Entity<T>? other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return EqualityComparer<T>.Default.Equals(Id, other.Id);
+        return !ReferenceEquals(null, other) &&
+               (ReferenceEquals(this, other) ||
+                EqualityComparer<T>.Default.Equals(Id, other.Id));
     }
 
     public override bool Equals(object? obj)
