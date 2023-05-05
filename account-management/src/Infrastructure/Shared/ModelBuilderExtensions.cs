@@ -32,7 +32,7 @@ public static class ModelBuilderExtensions
             foreach (var property in entityType.GetProperties())
             {
                 if (!property.ClrType.IsEnum) continue;
-                
+
                 var converterType = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
                 var converterInstance = (ValueConverter) Activator.CreateInstance(converterType)!;
                 property.SetValueConverter(converterInstance);

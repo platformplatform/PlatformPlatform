@@ -18,7 +18,14 @@ public static class InfrastructureConfiguration
     {
         services.AddDbContext<ApplicationDbContext>((_, optionsBuilder) =>
         {
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("Default"));
+            var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
+                           ?? throw new Exception(
+                               "The 'SQL_DATABASE_PASSWORD' environment variable has not been set. Please refer to the instructions in the 'README.md' file to set it up.");
+
+            var connectionString = configuration.GetConnectionString("Default");
+            connectionString += $";Password={password}";
+
+            optionsBuilder.UseSqlServer(connectionString);
         });
 
         // Scrutor will scan the assembly for all classes that implement the IRepository
