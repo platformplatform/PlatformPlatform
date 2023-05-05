@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.AccountManagement.Domain.Shared;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Domain.Primitives;
+namespace PlatformPlatform.AccountManagement.Tests.Domain.Shared;
 
 public class IdGeneratorTests
 {
