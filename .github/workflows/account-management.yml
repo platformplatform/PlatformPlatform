@@ -2,9 +2,9 @@ name: "Build Account Management"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: main
   pull_request:
-    branches: [ "main" ]
+    branches: main
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0    
+        fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -35,9 +35,15 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0    
+        fetch-depth: 0
     - name: Install dotCover
       run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
     - name: Run Test with dotCover and SonarScanner reporting
