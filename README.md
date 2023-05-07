@@ -1,3 +1,22 @@
+Examples:
+
+[![Build Account Management and run tests](https://github.com/PlatformPlatform/platformplatform/actions/workflows/account-management.yml/badge.svg)](https://github.com/PlatformPlatform/platformplatform/actions/workflows/account-management.yml?query=branch%3Amain)
+[![GitHub issues with bug label](https://img.shields.io/github/issues-raw/PlatformPlatform/platformplatform/bug?label=bugs&logo=github&color=red)](https://github.com/PlatformPlatform/platformplatform/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+[![GitHub issues with enhancement label](https://img.shields.io/github/issues-raw/PlatformPlatform/platformplatform/enhancement?label=enhancements&logo=github&color=%23A2EEEF)](https://github.com/orgs/PlatformPlatform/projects/1/views/3?filterQuery=-status%3A%22%E2%9C%85+Done%22+label%3Aenhancement)
+[![GitHub issues with roadmap label](https://img.shields.io/github/issues-raw/PlatformPlatform/platformplatform/roadmap?label=roadmap&logo=github&color=%23006B75)](https://github.com/orgs/PlatformPlatform/projects/2/views/2?filterQuery=is%3Aopen+label%3Aroadmap)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=coverage)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=coverage)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=alert_status)](https://sonarcloud.io/summary/overall?id=PlatformPlatform_platformplatform)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=security_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Security)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=reliability_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Reliability)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Maintainability)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=code_smells)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=CODE_SMELL)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=vulnerabilities)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=VULNERABILITY)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=bugs)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=BUG)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=sqale_index)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=sqale_index)
+
+
 # 👋 Welcome to PlatformPlatform 
 
 The ultimate open-source foundation designed for startups looking to create multi-tenant cloud SaaS services with ease, speed, scalability and enterprise grade security. Our platform showcases the best practices in building SaaS products, combining a cutting-edge technology stack, robust cloud architecture using Infrastructure as Code, full DevOps pipelines, and powerful tools to transform the way you develop and grow your software solutions. 🚀 
@@ -7,7 +26,7 @@ Embrace the power of PlatformPlatform, built using .NET 7.0, C# 11.0, ASP.NET Mi
 Please note that, as of now, PlatformPlatform is still in a very early stage. 🐣 You can follow our [backlog and roadmap](https://github.com/PlatformPlatform/platformplatform/projects) on the Projects tab.
 
 
-## 🚀 Setting up local debugging for Mac and Windows
+## 🛠️ Setting up local debugging for Mac and Windows
 
 ### Install SQL Server for local debugging
 PlatformPlatform requires a SQL Server instance for debugging locally. You can use Azure SQL Edge in Docker Desktop on both Mac and Windows. On Windows you can also install SQL Server or SQL Server Express locally.
