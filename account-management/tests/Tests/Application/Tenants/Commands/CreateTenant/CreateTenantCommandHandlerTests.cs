@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTena
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.commands;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands.CreateTenant;
 
 public class CreateTenantCommandHandlerTests
 {
@@ -16,7 +16,7 @@ public class CreateTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler_ShouldAddTenantToRepository()
+    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldAddTenantToRepository()
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
@@ -38,7 +38,7 @@ public class CreateTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler_ShouldReturnTenantDtoWithCorrectValues()
+    public async Task CreateTenantCommandHandler__WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
     {
         // Arrange
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -73,7 +73,8 @@ public class CreateTenantCommandHandlerTests
     [InlineData("Subdomain with uppercase", "Tenant1", "foo@tenant1.com", "1234567890", false)]
     [InlineData("Subdomain special characters", "tenant-1", "foo@tenant1.com", "1234567890", false)]
     [InlineData("Subdomain with spaces", "tenant 1", "foo@tenant1.com", "1234567890", false)]
-    public async Task CreateTenantCommandValidator_ShouldValidateCorrectly(string name, string subdomain, string email,
+    public async Task CreateTenantCommandHandler_WhenValidatingCommand_ShouldValidateCorrectly(string name,
+        string subdomain, string email,
         string phone, bool expected)
     {
         // Arrange
