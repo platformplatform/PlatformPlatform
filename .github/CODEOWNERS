@@ -1,0 +1,11 @@
+# Set the Site Reliability Team as the owner of the root files and all folders without an owner
+/* @PlatformPlatform/Site-Reliability-Team
+
+# Set the Site-Reliability-Team as the owner of the .github folder
+/.github/ @PlatformPlatform/Site-Reliability-Team
+
+# Site Reliability Team owns the 'cloud-infrastructure' directory
+/cloud-infrastructure/ @PlatformPlatform/Site-Reliability-Team
+
+# Account Team owns the 'account-management' directory
+/account-management/ @PlatformPlatform/Account-Team
