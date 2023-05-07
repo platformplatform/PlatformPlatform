@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
@@ -12,6 +14,9 @@ public class CreateTenantCommandHandlerTests
 
     public CreateTenantCommandHandlerTests()
     {
+        var services = new ServiceCollection();
+        services.AddApplicationServices();
+
         _tenantRepository = Substitute.For<ITenantRepository>();
     }
 
