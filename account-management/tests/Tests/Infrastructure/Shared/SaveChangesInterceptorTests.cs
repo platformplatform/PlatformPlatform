@@ -4,9 +4,9 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Common;
+namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Shared;
 
-public class UpdateAuditableEntitiesInterceptorTests
+public class SaveChangesInterceptorTests
 {
     [Fact]
     public async Task SavingChangesAsync_WhenEntityIsAdded_ShouldSetCreatedAt()

@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTena
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.commands;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands.CreateTenant;
 
 public class CreateTenantCommandHandlerTests
 {
