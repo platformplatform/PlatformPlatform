@@ -7,7 +7,7 @@ namespace PlatformPlatform.AccountManagement.Tests.Domain.Shared;
 public class IdGeneratorTests
 {
     [Fact]
-    public void NewId_ShouldGenerateUniqueIds()
+    public void NewId_WhenGeneratingIds_IdsShouldBeUnique()
     {
         // Arrange
         const int idCount = 1000;
@@ -24,7 +24,7 @@ public class IdGeneratorTests
     }
 
     [Fact]
-    public void NewId_ShouldGenerateIncreasingIds()
+    public void NewId_WhenGeneratingIds_IdsShouldBeIncreasing()
     {
         // Arrange
         const int idCount = 1000;

@@ -22,7 +22,7 @@ public class TenantRepositoryTests
     }
 
     [Fact]
-    public async Task IsSubdomainFreeAsync_ShouldReturnFalse_WhenSubdomainAlreadyExists()
+    public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange
         var tenant = new Tenant
@@ -44,7 +44,7 @@ public class TenantRepositoryTests
     }
 
     [Fact]
-    public async Task IsSubdomainFreeAsync_ShouldReturnTrue_WhenSubdomainDoesNotExist()
+    public async Task IsSubdomainFreeAsync_WhenSubdomainDoesNotExist_ShouldReturnTrue()
     {
         // Arrange
         var tenant = new Tenant
