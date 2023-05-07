@@ -1,3 +1,4 @@
+using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
@@ -25,6 +26,6 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
         return tenant == null
             ? QueryResult<TenantDto>.Failure($"Tenant with id '{request.Id.AsRawString()}' not found.")
-            : TenantDto.CreateFrom(tenant);
+            : tenant.Adapt<TenantDto>();
     }
 }
