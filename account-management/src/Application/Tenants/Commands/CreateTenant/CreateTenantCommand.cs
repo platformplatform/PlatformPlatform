@@ -1,3 +1,4 @@
+using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
@@ -43,7 +44,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
 
         await _tenantRepository.AddAsync(tenant, cancellationToken);
 
-        return TenantDto.CreateFrom(tenant);
+        return tenant.Adapt<TenantDto>();
     }
 
     private async Task<Result> IsSubdomainUniqueAsync(string subdomain, CancellationToken cancellationToken)

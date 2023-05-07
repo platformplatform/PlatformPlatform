@@ -1,8 +1,11 @@
 using System.Reflection;
 using FluentValidation;
+using Mapster;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
+using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
+using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application;
 
@@ -22,6 +25,17 @@ public static class ApplicationConfiguration
 
         services.AddValidatorsFromAssembly(Assembly);
 
+        ConfigureMappings();
+
         return services;
+    }
+
+    /// <summary>
+    ///     Configures the mappings between domain entities and DTOs.
+    /// </summary>
+    public static void ConfigureMappings()
+    {
+        TypeAdapterConfig<Tenant, TenantDto>.NewConfig()
+            .Map(destination => destination.Id, source => source.Id.AsRawString());
     }
 }
