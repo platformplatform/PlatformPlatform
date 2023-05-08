@@ -1,4 +1,4 @@
-name: "Build Account Management"
+name: "Account Management"
 
 on:
   push:
