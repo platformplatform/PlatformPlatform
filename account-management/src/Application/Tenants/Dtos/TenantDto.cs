@@ -25,6 +25,7 @@ public sealed record TenantDto
     /// <summary>
     ///     The date and time when the Tenant was last modified in UTC format.
     /// </summary>
+    [UsedImplicitly]
     public required DateTime? ModifiedAt { get; init; }
 
     /// <summary>
@@ -35,6 +36,7 @@ public sealed record TenantDto
     /// <summary>
     ///     The state of the Tenant (Trial, Active, Suspended).
     /// </summary>
+    [UsedImplicitly]
     public TenantState State { get; init; }
 
     /// <summary>
