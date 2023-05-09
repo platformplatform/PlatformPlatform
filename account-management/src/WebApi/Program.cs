@@ -2,6 +2,7 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
+using PlatformPlatform.AccountManagement.WebApi.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +14,14 @@ builder.Services
 
 var app = builder.Build();
 
-// Enable the developer exception page and Swagger UI in the development environment.
 if (app.Environment.IsDevelopment())
 {
+    // Enable the developer exception page, which displays detailed information about exceptions that occur.
     app.UseDeveloperExceptionPage();
-    app.UseSwagger(); //Generate a swagger.json file
-    app.UseSwaggerUI(c =>
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountManagement API - Unstable")
-    );
+
+    // Enable Swagger UI in the development environment.
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountManagement API - Unstable"));
 }
 else
 {
@@ -30,6 +31,9 @@ else
 
     // Adds middleware for redirecting HTTP Requests to HTTPS.
     app.UseHttpsRedirection();
+
+    // Configure global exception handling for the production environment.
+    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 }
 
 // Add a default "Hello World!" endpoint at the root path.
