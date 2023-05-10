@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value);
 
-public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
+public sealed class Tenant : AggregateRoot<TenantId>
 {
     internal Tenant() : base(TenantId.NewId())
     {
