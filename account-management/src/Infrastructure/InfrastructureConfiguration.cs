@@ -19,8 +19,7 @@ public static class InfrastructureConfiguration
         services.AddDbContext<ApplicationDbContext>((_, optionsBuilder) =>
         {
             var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                           ?? throw new Exception(
-                               "The 'SQL_DATABASE_PASSWORD' environment variable has not been set. Please refer to the instructions in the 'README.md' file to set it up.");
+                           ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
 
             var connectionString = configuration.GetConnectionString("Default");
             connectionString += $";Password={password}";
