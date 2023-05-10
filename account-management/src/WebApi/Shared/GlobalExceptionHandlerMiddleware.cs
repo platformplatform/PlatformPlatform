@@ -6,15 +6,22 @@ namespace PlatformPlatform.AccountManagement.WebApi.Shared;
 
 public class GlobalExceptionHandlerMiddleware : IMiddleware
 {
+    private readonly ILogger _logger;
+
+    public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger)
+    {
+        _logger = logger;
+    }
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {
             await next(context);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            //TODO: Log exception
+            _logger.LogError(ex, "An error occurred while processing the request");
 
             context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
