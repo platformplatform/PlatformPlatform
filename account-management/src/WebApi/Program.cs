@@ -42,5 +42,8 @@ app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
 // Map tenant-related endpoints.
 app.MapTenantEndpoints();
 
+// Add test-specific endpoints when running tests, such as /throwException.
+app.MapTestEndpoints();
+
 // Run the web application.
 app.Run();
