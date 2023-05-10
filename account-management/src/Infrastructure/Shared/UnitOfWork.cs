@@ -23,4 +23,12 @@ public class UnitOfWork : IUnitOfWork
     {
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents()
+    {
+        return _applicationDbContext.ChangeTracker
+            .Entries<IAggregateRoot>()
+            .Where(e => e.Entity.DomainEvents.Any())
+            .Select(e => e.Entity);
+    }
 }
