@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 /// </summary>
 public static class InfrastructureConfiguration
 {
-    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
+    public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)

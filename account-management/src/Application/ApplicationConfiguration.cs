@@ -14,7 +14,7 @@ namespace PlatformPlatform.AccountManagement.Application;
 /// </summary>
 public static class ApplicationConfiguration
 {
-    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
+    public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {

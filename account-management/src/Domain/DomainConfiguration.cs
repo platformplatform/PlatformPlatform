@@ -8,5 +8,5 @@ namespace PlatformPlatform.AccountManagement.Domain;
 /// </summary>
 public static class DomainConfiguration
 {
-    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
+    public static Assembly Assembly => Assembly.GetExecutingAssembly();
 }
