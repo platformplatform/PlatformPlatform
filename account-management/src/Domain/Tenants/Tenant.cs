@@ -27,6 +27,8 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
         tenant.EnsureTenantInputHasBeenValidated();
 
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, tenant.Name));
+
         return tenant;
     }
 
