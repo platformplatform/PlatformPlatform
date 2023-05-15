@@ -23,25 +23,29 @@ public class PublicClassesTests
             .GetResult();
 
         // Assert
-        result.IsSuccessful.Should().BeTrue();
+        var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
+        result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
     }
 
     [Fact]
     public void PublicClassesInApplication_Should_BeSealed()
     {
         // Act
-        var result = Types
+        var types = Types
             .InAssembly(ApplicationConfiguration.Assembly)
             .That()
             .ArePublic()
             .And().AreNotAbstract()
             .And().DoNotHaveName(typeof(CommandResult<>).Name)
-            .And().DoNotHaveName(typeof(QueryResult<>).Name)
+            .And().DoNotHaveName(typeof(QueryResult<>).Name);
+
+        var result = types
             .Should()
             .BeSealed()
             .GetResult();
 
         // Assert
-        result.IsSuccessful.Should().BeTrue();
+        var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
+        result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
     }
 }

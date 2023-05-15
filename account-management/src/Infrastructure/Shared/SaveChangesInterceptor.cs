@@ -10,10 +10,24 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Shared;
 /// </summary>
 public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
 {
+    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+    {
+        UpdateEntities(eventData);
+
+        return base.SavingChanges(eventData, result);
+    }
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
+    {
+        UpdateEntities(eventData);
+
+        return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    private static void UpdateEntities(DbContextEventData eventData)
     {
         var dbContext = eventData.Context ?? throw new NullReferenceException();
 
@@ -31,7 +45,5 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
                     break;
             }
         }
-
-        return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 }

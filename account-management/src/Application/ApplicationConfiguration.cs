@@ -1,5 +1,4 @@
 using System.Reflection;
-using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Shared.DomainEvents;
@@ -14,7 +13,7 @@ namespace PlatformPlatform.AccountManagement.Application;
 /// </summary>
 public static class ApplicationConfiguration
 {
-    public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
+    public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
@@ -22,8 +21,6 @@ public static class ApplicationConfiguration
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>));
-
-        services.AddValidatorsFromAssembly(Assembly);
 
         ConfigureMappings();
 

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 
 namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
@@ -10,7 +9,6 @@ namespace PlatformPlatform.AccountManagement.Domain.Shared;
 ///     If two entities have the same identity, they are considered to be the same entity.
 ///     It is recommended to use a <see cref="StronglyTypedId{T}" /> for the ID to make the domain more meaningful.
 /// </summary>
-[DebuggerDisplay("Identity = {" + nameof(Id) + "}")]
 public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 {
     protected Entity(T id)

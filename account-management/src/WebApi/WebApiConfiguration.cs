@@ -22,7 +22,7 @@ public static class WebApiConfiguration
 
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo {Title = "Platform Platform API", Version = "v1"});
+            c.SwaggerDoc("v1", new OpenApiInfo {Title = "PlatformPlatform API", Version = "v1"});
         });
 
         return services;
