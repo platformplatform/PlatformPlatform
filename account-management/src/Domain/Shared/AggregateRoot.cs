@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PlatformPlatform.AccountManagement.Domain.Shared;
 
 /// <summary>
@@ -11,4 +13,29 @@ namespace PlatformPlatform.AccountManagement.Domain.Shared;
 /// </summary>
 public interface IAggregateRoot : IAuditableEntity
 {
+    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+
+    void ClearDomainEvents();
+}
+
+public abstract class AggregateRoot<T> : AudibleEntity<T>, IAggregateRoot where T : IComparable<T>
+{
+    private readonly List<IDomainEvent> _domainEvents = new();
+
+    protected AggregateRoot(T id) : base(id)
+    {
+    }
+
+    [NotMapped]
+    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
+
+    protected void AddDomainEvent(IDomainEvent domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
 }

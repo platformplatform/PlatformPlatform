@@ -68,7 +68,5 @@ jobs:
       with:
         solutionPath: account-management/AccountManagement.sln
         minimumSeverity: warning
-        # Add the ignore patterns for the specific warning
-        customArgs: '--properties:IgnorePatterns=SuggestBaseTypeForParameterInConstructor'
         # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
         ignoreIssueType: UnusedAutoPropertyAccessor.Global

@@ -21,6 +21,19 @@ public class UnitOfWork : IUnitOfWork
 
     public async Task CommitAsync(CancellationToken cancellationToken)
     {
+        if (GetAggregatesWithDomainEvents().Any())
+        {
+            throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
+        }
+
         await _applicationDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents()
+    {
+        return _applicationDbContext.ChangeTracker
+            .Entries<IAggregateRoot>()
+            .Where(e => e.Entity.DomainEvents.Any())
+            .Select(e => e.Entity);
     }
 }

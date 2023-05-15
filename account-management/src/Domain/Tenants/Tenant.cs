@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value);
 
-public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
+public sealed class Tenant : AggregateRoot<TenantId>
 {
     internal Tenant() : base(TenantId.NewId())
     {
@@ -26,6 +26,8 @@ public sealed class Tenant : AudibleEntity<TenantId>, IAggregateRoot
         var tenant = new Tenant {Name = tenantName, Subdomain = subdomain, Email = email, Phone = phone};
 
         tenant.EnsureTenantInputHasBeenValidated();
+
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, tenant.Name));
 
         return tenant;
     }

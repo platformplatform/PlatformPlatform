@@ -11,4 +11,6 @@ namespace PlatformPlatform.AccountManagement.Domain.Shared;
 public interface IUnitOfWork
 {
     Task CommitAsync(CancellationToken cancellationToken);
+
+    IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents();
 }

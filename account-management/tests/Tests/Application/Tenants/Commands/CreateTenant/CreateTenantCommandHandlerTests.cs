@@ -43,7 +43,7 @@ public class CreateTenantCommandHandlerTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler__WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
+    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
     {
         // Arrange
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -60,6 +60,22 @@ public class CreateTenantCommandHandlerTests
         tenantResponseDto.Name.Should().Be(command.Name);
         tenantResponseDto.Email.Should().Be(command.Email);
         tenantResponseDto.Phone.Should().Be(command.Phone);
+    }
+
+    [Fact]
+    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
+    {
+        // Arrange
+        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
+        var handler = new CreateTenantCommandHandler(_tenantRepository);
+
+        // Act
+        var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var _ = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent),
+            Arg.Any<CancellationToken>());
     }
 
     [Theory]
