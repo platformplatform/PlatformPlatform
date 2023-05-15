@@ -27,7 +27,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private void UpdateEntities(DbContextEventData eventData)
+    private static void UpdateEntities(DbContextEventData eventData)
     {
         var dbContext = eventData.Context ?? throw new NullReferenceException();
 
