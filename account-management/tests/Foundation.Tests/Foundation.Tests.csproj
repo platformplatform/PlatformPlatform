@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.AccountManagement.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.AccountManagement.Tests</RootNamespace>
+        <AssemblyName>PlatformPlatform.Foundation.Tests</AssemblyName>
+        <RootNamespace>PlatformPlatform.Foundation.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -12,17 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Domain\Domain.csproj"/>
-        <ProjectReference Include="..\..\src\Application\Application.csproj"/>
-        <ProjectReference Include="..\..\src\Infrastructure\Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\src\WebApi\WebApi.csproj"/>
+        <ProjectReference Include="..\..\src\Foundation\Foundation.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="3.1.2">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="FluentAssertions" Version="6.10.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.4"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.4"/>
@@ -31,6 +24,10 @@
         <PackageReference Include="NSubstitute" Version="5.0.0"/>
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector" Version="3.1.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

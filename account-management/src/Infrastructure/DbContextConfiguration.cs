@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure.Shared;
+using PlatformPlatform.Foundation.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 

@@ -1,9 +1,9 @@
 using System.Reflection;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Shared.DomainEvents;
-using PlatformPlatform.AccountManagement.Application.Shared.Persistence;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
+using PlatformPlatform.Foundation.Application.DomainEvents;
+using PlatformPlatform.Foundation.Application.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Application;
 

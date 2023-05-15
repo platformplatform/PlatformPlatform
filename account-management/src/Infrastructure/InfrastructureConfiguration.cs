@@ -2,6 +2,8 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -26,6 +28,8 @@ public static class InfrastructureConfiguration
 
             optionsBuilder.UseSqlServer(connectionString);
         });
+        services.AddScoped<IUnitOfWork, UnitOfWork>(provider =>
+            new UnitOfWork(provider.GetRequiredService<ApplicationDbContext>()));
 
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.

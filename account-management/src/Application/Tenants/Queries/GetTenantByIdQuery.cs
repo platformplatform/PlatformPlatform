@@ -1,8 +1,8 @@
 using Mapster;
 using MediatR;
-using PlatformPlatform.AccountManagement.Application.Shared;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.Foundation.Application;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
