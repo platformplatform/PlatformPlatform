@@ -24,7 +24,7 @@ public class TenantRepositoryTests
     [Fact]
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
-        // Arrange
+        // Arrange  
         var tenant = new Tenant
         {
             Name = "Existing Tenant",

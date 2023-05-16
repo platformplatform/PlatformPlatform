@@ -42,7 +42,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
 
         var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
 
-        await _tenantRepository.AddAsync(tenant, cancellationToken);
+        _tenantRepository.Add(tenant);
 
         return tenant.Adapt<TenantDto>();
     }
