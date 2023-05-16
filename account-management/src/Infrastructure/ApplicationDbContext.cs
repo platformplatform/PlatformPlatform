@@ -1,6 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -8,7 +10,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 ///     The ApplicationDbContext class represents the Entity Framework Core DbContext for managing data access to the
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
-public class ApplicationDbContext : DbContext
+[SuppressMessage("Performance", "CA1822:Mark members as static")]
+public class ApplicationDbContext : FoundationDbContext<ApplicationDbContext>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -18,11 +21,9 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        DbContextConfiguration.ConfigureOnModelCreating(modelBuilder);
-    }
+        base.OnModelCreating(modelBuilder);
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        DbContextConfiguration.ConfigureOnConfiguring(optionsBuilder);
+        // Ensures the strongly typed IDs can be saved and read by entity framework as the underlying type.
+        modelBuilder.Entity<Tenant>().ConfigureStronglyTypedId<Tenant, TenantId>();
     }
 }
