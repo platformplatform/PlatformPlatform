@@ -15,6 +15,7 @@ public abstract class FoundationDbContext<TContext> : DbContext where TContext :
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
         
         base.OnConfiguring(optionsBuilder);
