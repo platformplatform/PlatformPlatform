@@ -1,7 +1,7 @@
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.Foundation;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
@@ -16,24 +16,9 @@ public static class InfrastructureConfiguration
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<ApplicationDbContext>((_, optionsBuilder) =>
-        {
-            var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                           ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
+        services.ConfigureDatabaseContext<ApplicationDbContext>(configuration);
 
-            var connectionString = configuration.GetConnectionString("Default");
-            connectionString += $";Password={password}";
-
-            optionsBuilder.UseSqlServer(connectionString);
-        });
-
-        // Scrutor will scan the assembly for all classes that implement the IRepository
-        // and register them as a service in the container.
-        services.Scan(scan => scan
-            .FromAssemblies(Assembly)
-            .AddClasses()
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        services.RegisterRepositories(Assembly);
 
         return services;
     }

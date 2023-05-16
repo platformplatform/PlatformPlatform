@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Domain.Shared;
+using PlatformPlatform.Foundation.Domain;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
