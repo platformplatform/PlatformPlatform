@@ -22,6 +22,16 @@ public class TenantRepository : ITenantRepository
         await _tenantDbSet.AddAsync(tenant, cancellationToken);
     }
 
+    public void Update(Tenant tenant)
+    {
+        _tenantDbSet.Update(tenant);
+    }
+
+    public void Remove(Tenant tenant)
+    {
+        _tenantDbSet.Remove(tenant);
+    }
+
     public Task<bool> IsSubdomainFreeAsync(string subdomain, CancellationToken cancellationToken)
     {
         return _tenantDbSet.AllAsync(tenant => tenant.Subdomain != subdomain, cancellationToken);
