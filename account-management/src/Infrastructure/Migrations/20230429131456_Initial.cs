@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    [GeneratedCode("Entity Framework", null)]
     public partial class Initial : Migration
     {
         /// <inheritdoc />
