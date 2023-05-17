@@ -1,20 +1,23 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Infrastructure;
 
-public class SaveChangesInterceptorTests
+public sealed class SaveChangesInterceptorTests : IDisposable
 {
+    private readonly SqliteInMemoryDbContextFactory<TestDbContext> _sqliteInMemoryDbContextFactory;
     private readonly TestDbContext _testDbContext;
 
     public SaveChangesInterceptorTests()
     {
-        var options = new DbContextOptionsBuilder<TestDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        _testDbContext = new TestDbContext(options);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>();
+        _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
+    }
+
+    public void Dispose()
+    {
+        _sqliteInMemoryDbContextFactory.Dispose();
     }
 
     [Fact]

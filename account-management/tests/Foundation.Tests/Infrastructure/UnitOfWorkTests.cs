@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.Domain;
 using PlatformPlatform.Foundation.Infrastructure;
 using PlatformPlatform.Foundation.Tests.TestEntities;
@@ -7,18 +6,22 @@ using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Infrastructure;
 
-public class UnitOfWorkTests
+public sealed class UnitOfWorkTests : IDisposable
 {
+    private readonly SqliteInMemoryDbContextFactory<TestDbContext> _sqliteInMemoryDbContextFactory;
     private readonly TestDbContext _testDbContext;
     private readonly IUnitOfWork _unitOfWork;
 
     public UnitOfWorkTests()
     {
-        var options = new DbContextOptionsBuilder<TestDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        _testDbContext = new TestDbContext(options);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>();
+        _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _unitOfWork = new UnitOfWork(_testDbContext);
+    }
+
+    public void Dispose()
+    {
+        _sqliteInMemoryDbContextFactory.Dispose();
     }
 
     [Fact]

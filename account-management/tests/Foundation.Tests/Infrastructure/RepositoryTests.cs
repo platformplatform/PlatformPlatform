@@ -8,22 +8,20 @@ namespace PlatformPlatform.Foundation.Tests.Infrastructure;
 
 public sealed class RepositoryTests : IDisposable
 {
+    private readonly SqliteInMemoryDbContextFactory<TestDbContext> _sqliteInMemoryDbContextFactory;
     private readonly TestAggregateRepository _testAggregateRepository;
     private readonly TestDbContext _testDbContext;
-    private readonly DbContextOptions<TestDbContext> _testDbContextOptions;
 
     public RepositoryTests()
     {
-        _testDbContextOptions = new DbContextOptionsBuilder<TestDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        _testDbContext = new TestDbContext(_testDbContextOptions);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>();
+        _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _testAggregateRepository = new TestAggregateRepository(_testDbContext);
     }
 
     public void Dispose()
     {
-        _testDbContext.Database.EnsureDeleted();
+        _sqliteInMemoryDbContextFactory.Dispose();
     }
 
     [Fact]
@@ -119,7 +117,7 @@ public sealed class RepositoryTests : IDisposable
         await _testDbContext.SaveChangesAsync();
 
         // Simulate another user by creating a new DbContext and repository instance
-        var secondaryDbContext = new TestDbContext(_testDbContextOptions);
+        var secondaryDbContext = new TestDbContext(_sqliteInMemoryDbContextFactory.CreateOptions());
         var secondaryRepository = new TestAggregateRepository(secondaryDbContext);
 
         // Act

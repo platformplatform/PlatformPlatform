@@ -8,12 +8,13 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTena
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Tests.Infrastructure;
 using PlatformPlatform.Foundation.Domain;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;
 
-public class TenantEndpointsTests
+public sealed class TenantEndpointsTests : IDisposable
 {
     // This string represents a custom DateTime format based on the built-in format "o".
     // The format "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK" is used to avoid trailing zeros in the DateTime string.
@@ -22,10 +23,13 @@ public class TenantEndpointsTests
     private const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK";
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly SqliteInMemoryDbContextFactory<ApplicationDbContext> _sqliteInMemoryDbContextFactory;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
     public TenantEndpointsTests()
     {
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
+
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
@@ -34,15 +38,22 @@ public class TenantEndpointsTests
                 var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
                 services.Remove(descriptor);
 
-                // Add ApplicationDbContext using an in-memory database for testing.
-                services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseInMemoryDatabase("InMemoryDbForTesting"));
+                // Add ApplicationDbContext using SqLiteDbContextFactory
+                services.AddScoped(_ => _sqliteInMemoryDbContextFactory.CreateContext());
+
+                // Add DbContextOptions<ApplicationDbContext> to the service collection.
+                services.AddScoped(_ => _sqliteInMemoryDbContextFactory.CreateOptions());
 
                 services.AddTransient<DatabaseSeeder>();
             });
         });
 
         _serviceProvider = _webApplicationFactory.Services;
+    }
+
+    public void Dispose()
+    {
+        _sqliteInMemoryDbContextFactory.Dispose();
     }
 
     [Fact]

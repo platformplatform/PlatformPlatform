@@ -7,18 +7,22 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;
 
-public class TenantRepositoryTests
+public sealed class TenantRepositoryTests : IDisposable
 {
     private readonly ApplicationDbContext _applicationDbContext;
-    private readonly ITenantRepository _tenantRepository;
+    private readonly SqliteInMemoryDbContextFactory<ApplicationDbContext> _dbContextFactory;
+    private readonly TenantRepository _tenantRepository;
 
     public TenantRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("TenantRepositoryTests")
-            .Options;
-        _applicationDbContext = new ApplicationDbContext(options);
+        _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
+        _applicationDbContext = _dbContextFactory.CreateContext();
         _tenantRepository = new TenantRepository(_applicationDbContext);
+    }
+
+    public void Dispose()
+    {
+        _dbContextFactory.Dispose();
     }
 
     [Fact]
