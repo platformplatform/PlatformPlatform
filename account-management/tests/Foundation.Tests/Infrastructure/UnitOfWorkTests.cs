@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.Domain;
 using PlatformPlatform.Foundation.Infrastructure;
 using PlatformPlatform.Foundation.Tests.TestEntities;
@@ -69,5 +70,33 @@ public sealed class UnitOfWorkTests : IDisposable
 
         // Act
         await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.CommitAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task CommitAsync_WhenUpdateCalledOnNonExistingAggregate_ShouldThrowException()
+    {
+        // Arrange
+        var nonExistingTestAggregate = TestAggregate.Create("NonExistingTestAggregate");
+        nonExistingTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+
+        // Act
+        _testDbContext.TestAggregates.Update(nonExistingTestAggregate);
+
+        // Assert
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _unitOfWork.CommitAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task CommitAsync_WhenRemoveCalledOnNonExistingAggregate_ShouldThrowException()
+    {
+        // Arrange
+        var nonExistingTestAggregate = TestAggregate.Create("NonExistingTestAggregate");
+        nonExistingTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+
+        // Act
+        _testDbContext.TestAggregates.Remove(nonExistingTestAggregate);
+
+        // Assert
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _unitOfWork.CommitAsync(CancellationToken.None));
     }
 }
