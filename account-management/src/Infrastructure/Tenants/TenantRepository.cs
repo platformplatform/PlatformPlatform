@@ -17,9 +17,19 @@ public class TenantRepository : ITenantRepository
         return await _tenantDbSet.FindAsync(new object?[] {id, cancellationToken}, cancellationToken);
     }
 
-    public async Task AddAsync(Tenant tenant, CancellationToken cancellationToken)
+    public void Add(Tenant tenant)
     {
-        await _tenantDbSet.AddAsync(tenant, cancellationToken);
+        _tenantDbSet.Add(tenant);
+    }
+
+    public void Update(Tenant tenant)
+    {
+        _tenantDbSet.Update(tenant);
+    }
+
+    public void Remove(Tenant tenant)
+    {
+        _tenantDbSet.Remove(tenant);
     }
 
     public Task<bool> IsSubdomainFreeAsync(string subdomain, CancellationToken cancellationToken)

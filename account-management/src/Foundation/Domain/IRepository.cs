@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace PlatformPlatform.Foundation.Domain;
 
 /// <summary>
@@ -15,5 +17,11 @@ public interface IRepository<T, in TId> where T : IAggregateRoot where TId : ICo
 {
     Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken);
 
-    Task AddAsync(T tenant, CancellationToken cancellationToken);
+    void Add(T aggregate);
+
+    [UsedImplicitly]
+    void Update(T aggregate);
+
+    [UsedImplicitly]
+    void Remove(T aggregate);
 }

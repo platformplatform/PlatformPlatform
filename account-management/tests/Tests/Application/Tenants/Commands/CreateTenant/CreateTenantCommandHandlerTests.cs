@@ -37,9 +37,8 @@ public class CreateTenantCommandHandlerTests
         createTenantCommandResult.IsSuccess.Should().BeTrue();
         var tenantResponseDto = createTenantCommandResult.Value;
         var tenantId = TenantId.FromString(tenantResponseDto.Id);
-        await _tenantRepository.Received()
-            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId),
-                Arg.Any<CancellationToken>());
+        _tenantRepository.Received()
+            .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId));
     }
 
     [Fact]
@@ -74,8 +73,7 @@ public class CreateTenantCommandHandlerTests
         var _ = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent),
-            Arg.Any<CancellationToken>());
+        _tenantRepository.Received().Add(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
     }
 
     [Theory]

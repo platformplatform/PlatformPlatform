@@ -15,12 +15,12 @@ public abstract class FoundationDbContext<TContext> : DbContext where TContext :
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
-        
-        base.OnConfiguring(optionsBuilder);
 
+        base.OnConfiguring(optionsBuilder);
     }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Ensures that all enum properties are stored as strings in the database.

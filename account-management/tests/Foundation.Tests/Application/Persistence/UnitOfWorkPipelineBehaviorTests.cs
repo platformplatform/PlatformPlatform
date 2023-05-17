@@ -2,6 +2,7 @@ using MediatR;
 using NSubstitute;
 using PlatformPlatform.Foundation.Application.Persistence;
 using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Application.Persistence;
@@ -31,5 +32,3 @@ public class UnitOfWorkPipelineBehaviorTests
         });
     }
 }
-
-public record TestCommand : IRequest;
