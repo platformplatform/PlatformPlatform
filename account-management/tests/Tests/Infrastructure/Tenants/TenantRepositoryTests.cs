@@ -22,6 +22,76 @@ public class TenantRepositoryTests
     }
 
     [Fact]
+    public async Task Add_WhenTenantDoesNotExist_ShouldAddTenantToDatabase()
+    {
+        // Arrange
+        var tenant = new Tenant
+        {
+            Name = "New Tenant",
+            Subdomain = "new",
+            Email = "new@test.com",
+            Phone = "1234567890"
+        };
+
+        // Act
+        _tenantRepository.Add(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        // Assert
+        var retrievedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        retrievedTenant.Should().NotBeNull();
+        retrievedTenant!.Id.Should().Be(tenant.Id);
+    }
+
+    [Fact]
+    public async Task Update_WhenTenantExists_ShouldUpdateTenantInDatabase()
+    {
+        // Arrange
+        var tenant = new Tenant
+        {
+            Name = "Existing Tenant",
+            Subdomain = "existing",
+            Email = "existing@test.com",
+            Phone = "1234567890"
+        };
+        await _applicationDbContext.Tenants.AddAsync(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        // Act
+        tenant.Name = "Updated Tenant";
+        _tenantRepository.Update(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        // Assert
+        var updatedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        updatedTenant.Should().NotBeNull();
+        updatedTenant!.Name.Should().Be("Updated Tenant");
+    }
+
+    [Fact]
+    public async Task Remove_WhenTenantExists_ShouldRemoveTenantFromDatabase()
+    {
+        // Arrange
+        var tenant = new Tenant
+        {
+            Name = "Existing Tenant",
+            Subdomain = "existing",
+            Email = "existing@test.com",
+            Phone = "1234567890"
+        };
+        await _applicationDbContext.Tenants.AddAsync(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        // Act
+        _tenantRepository.Remove(tenant);
+        await _applicationDbContext.SaveChangesAsync();
+
+        // Assert
+        var removedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        removedTenant.Should().BeNull();
+    }
+
+    [Fact]
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange  
