@@ -56,4 +56,15 @@ public class UnitOfWorkTests
         newTestAggregate.ModifiedAt.Should().BeAfter(initialCreatedAt);
         newTestAggregate.CreatedAt.Should().Be(initialCreatedAt);
     }
+
+    [Fact]
+    public async Task CommitAsync_WhenAggregateHasUnhandledDomainEvents_ShouldThrowException()
+    {
+        // Arrange
+        var newTestAggregate = TestAggregate.Create("TestAggregate");
+        _testDbContext.TestAggregates.Add(newTestAggregate);
+
+        // Act
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _unitOfWork.CommitAsync(CancellationToken.None));
+    }
 }
