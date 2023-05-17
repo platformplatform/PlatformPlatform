@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
 namespace PlatformPlatform.Foundation.Domain;
@@ -16,6 +17,7 @@ public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : I
     [UsedImplicitly]
     public DateTime CreatedAt { get; private set; }
 
+    [ConcurrencyCheck]
     public DateTime? ModifiedAt { get; private set; }
 
     /// <summary>
