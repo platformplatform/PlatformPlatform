@@ -3,7 +3,7 @@ using MediatR;
 using NSubstitute;
 using PlatformPlatform.Foundation.Application.DomainEvents;
 using PlatformPlatform.Foundation.Domain;
-using PlatformPlatform.Foundation.Tests.Application.Persistence;
+using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Application.DomainEvents;
@@ -22,7 +22,7 @@ public class PublishDomainEventsPipelineBehaviorTests
         var next = Substitute.For<RequestHandlerDelegate<Task>>();
         next.Invoke().Returns(Task.CompletedTask);
 
-        var testAggregate = TestAggregate.Create();
+        var testAggregate = TestAggregate.Create("TestAggregate");
         var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created.
         unitOfWork.GetAggregatesWithDomainEvents().Returns(new[] {testAggregate});
 
@@ -32,22 +32,5 @@ public class PublishDomainEventsPipelineBehaviorTests
         // Assert
         await publisher.Received(1).Publish(domainEvent, cancellationToken);
         testAggregate.DomainEvents.Should().BeEmpty();
-    }
-}
-
-public record TestAggregateCreatedEvent : IDomainEvent;
-
-public sealed class TestAggregate : AggregateRoot<long>
-{
-    private TestAggregate() : base(IdGenerator.NewId())
-    {
-    }
-
-    public static TestAggregate Create()
-    {
-        var testAggregate = new TestAggregate();
-        var testAggregateCreatedEvent = new TestAggregateCreatedEvent();
-        testAggregate.AddDomainEvent(testAggregateCreatedEvent);
-        return testAggregate;
     }
 }
