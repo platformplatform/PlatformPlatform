@@ -9,6 +9,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
+using PlatformPlatform.AccountManagement.WebApi.Endpoints;
 using PlatformPlatform.Foundation.Domain;
 using Xunit;
 
@@ -155,5 +156,109 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task UpdateTenant_WhenValid_ShouldUpdateTenant()
+    {
+        // Arrange
+        using (var serviceScope = _serviceProvider.CreateScope())
+        {
+            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            databaseSeeder.Seed();
+        }
+
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+
+        // Act
+        var response = await httpClient.PutAsJsonAsync($"/tenants/{tenantId}",
+            new UpdateTenantRequest("UpdatedName", "updated@tenant1.com", "0987654321")
+        );
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
+
+        tenantDto!.Name.Should().Be("UpdatedName");
+        tenantDto.Email.Should().Be("updated@tenant1.com");
+        tenantDto.Phone.Should().Be("0987654321");
+    }
+
+    [Fact]
+    public async Task UpdateTenant_WhenInValid_ShouldReturnBadRequest()
+    {
+        // Arrange
+        using (var serviceScope = _serviceProvider.CreateScope())
+        {
+            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            databaseSeeder.Seed();
+        }
+
+        var httpClient = _webApplicationFactory.CreateClient();
+
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+
+        // Act
+        var response = await httpClient.PutAsJsonAsync($"/tenants/{tenantId}",
+            new UpdateTenantRequest("Invalid Email", "@tenant1.com", "0987654321")
+        );
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task UpdateTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
+    {
+        // Arrange
+        var httpClient = _webApplicationFactory.CreateClient();
+        const string nonExistingTenantId = "999";
+
+        // Act
+        var response = await httpClient.PutAsJsonAsync($"/tenants/{nonExistingTenantId}",
+            new UpdateTenantRequest("UpdatedName", "updated@tenant1.com", "0987654321")
+        );
+
+        //Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
+    {
+        // Arrange
+        var httpClient = _webApplicationFactory.CreateClient();
+        const string nonExistingTenantId = "999";
+
+        // Act
+        var response = await httpClient.DeleteAsync($"/tenants/{nonExistingTenantId}");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteTenant_WhenTenantExists_ShouldDeleteTenant()
+    {
+        // Arrange
+        using (var serviceScope = _serviceProvider.CreateScope())
+        {
+            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+            databaseSeeder.Seed();
+        }
+
+        var httpClient = _webApplicationFactory.CreateClient();
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+
+        // Act
+        var response = await httpClient.DeleteAsync($"/tenants/{tenantId}");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        // Verify that is deleted
+        var getResponse = await httpClient.GetAsync($"/tenants/{tenantId}");
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
