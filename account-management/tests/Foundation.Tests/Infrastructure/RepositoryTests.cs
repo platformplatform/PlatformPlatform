@@ -117,7 +117,7 @@ public sealed class RepositoryTests : IDisposable
         await _testDbContext.SaveChangesAsync();
 
         // Simulate another user by creating a new DbContext and repository instance
-        var secondaryDbContext = new TestDbContext(_sqliteInMemoryDbContextFactory.CreateOptions());
+        var secondaryDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         var secondaryRepository = new TestAggregateRepository(secondaryDbContext);
 
         // Act
@@ -132,5 +132,25 @@ public sealed class RepositoryTests : IDisposable
 
         // Assert
         await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _testDbContext.SaveChangesAsync());
+    }
+
+    [Fact]
+    public async Task EntityModification_WhenRepositoryUpdateNotCalled_ShouldNotTrackChanges()
+    {
+        // Arrange
+        var seedingTestAggregate = TestAggregate.Create("TestAggregate");
+        var seedingTestDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
+        seedingTestDbContext.TestAggregates.Add(seedingTestAggregate);
+        await seedingTestDbContext.SaveChangesAsync();
+        var testAggregateId = seedingTestAggregate.Id;
+
+        // Act
+        var testAggregate = (await _testAggregateRepository.GetByIdAsync(testAggregateId, CancellationToken.None))!;
+        testAggregate.Name = "UpdatedTestAggregate";
+
+        // Assert
+        _testDbContext.ChangeTracker.Entries<TestAggregate>().Count().Should().Be(0);
+        var affectedRows = await _testDbContext.SaveChangesAsync();
+        affectedRows.Should().Be(0);
     }
 }
