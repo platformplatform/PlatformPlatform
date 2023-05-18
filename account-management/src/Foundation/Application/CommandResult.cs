@@ -1,3 +1,4 @@
+using System.Net;
 using JetBrains.Annotations;
 using PlatformPlatform.Foundation.Domain;
 
@@ -10,25 +11,28 @@ namespace PlatformPlatform.Foundation.Application;
 /// </summary>
 public sealed class CommandResult<T>
 {
-    private CommandResult(bool isSuccess, T? value, PropertyError[] errors)
+    private CommandResult(bool isSuccess, T? value, PropertyError[] errors, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
         Value = value;
         Errors = errors;
+        StatusCode = statusCode;
     }
 
     public bool IsSuccess { get; }
 
     public T? Value { get; private set; }
 
+    public HttpStatusCode StatusCode { get; private set; }
+
     public PropertyError[] Errors { get; }
 
     /// <summary>
     ///     Use this to indicate a failed command, with a collection of <see cref="PropertyError" />.
     /// </summary>
-    public static CommandResult<T> Failure(PropertyError[] errors)
+    public static CommandResult<T> Failure(PropertyError[] errors, HttpStatusCode statusCode)
     {
-        return new CommandResult<T>(false, default!, errors);
+        return new CommandResult<T>(false, default!, errors, statusCode);
     }
 
     /// <summary>
@@ -36,9 +40,9 @@ public sealed class CommandResult<T>
     ///     <see cref="CommandResult{T}" />, so you can also just return T from a Command handler.
     /// </summary>
     [UsedImplicitly]
-    public static CommandResult<T> Success(T? value)
+    public static CommandResult<T> Success(T? value, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        return new CommandResult<T>(true, value, Array.Empty<PropertyError>());
+        return new CommandResult<T>(true, value, Array.Empty<PropertyError>(), statusCode);
     }
 
     /// <summary>

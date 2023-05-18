@@ -1,3 +1,4 @@
+using System.Net;
 using JetBrains.Annotations;
 using Mapster;
 using MediatR;
@@ -24,9 +25,11 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
     public async Task<CommandResult<TenantDto>> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(command.TenantId, cancellationToken);
+
         if (tenant is null)
         {
-            return CommandResult<TenantDto>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")});
+            return CommandResult<TenantDto>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
+                HttpStatusCode.NotFound);
         }
 
         var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
@@ -36,7 +39,7 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
 
         if (propertyErrors.Any())
         {
-            return CommandResult<TenantDto>.Failure(propertyErrors);
+            return CommandResult<TenantDto>.Failure(propertyErrors, HttpStatusCode.BadRequest);
         }
 
         tenant.Update(command.Name, command.Email, command.Phone);

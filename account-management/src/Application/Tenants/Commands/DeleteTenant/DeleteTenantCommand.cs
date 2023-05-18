@@ -1,3 +1,4 @@
+using System.Net;
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
@@ -24,7 +25,8 @@ public sealed class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCom
         var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null)
         {
-            return CommandResult<TenantDto>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")});
+            return CommandResult<TenantDto>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
+                HttpStatusCode.NotFound);
         }
 
         _tenantRepository.Remove(tenant);
