@@ -1,5 +1,4 @@
 using System.Net;
-using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -10,7 +9,6 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Delete
 
 public sealed record DeleteTenantCommand(TenantId Id) : IRequest<CommandResult<TenantDto>>;
 
-[UsedImplicitly]
 public sealed class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCommand, CommandResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
