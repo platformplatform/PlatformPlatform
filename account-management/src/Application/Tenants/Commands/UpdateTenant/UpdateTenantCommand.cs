@@ -1,5 +1,4 @@
 using System.Net;
-using JetBrains.Annotations;
 using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
@@ -12,7 +11,6 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.Update
 public sealed record UpdateTenantCommand(TenantId TenantId, string Name, string Email, string? Phone)
     : IRequest<CommandResult<TenantDto>>;
 
-[UsedImplicitly]
 public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, CommandResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
