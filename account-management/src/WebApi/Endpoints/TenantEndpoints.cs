@@ -1,5 +1,6 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
@@ -12,6 +13,7 @@ public static class TenantEndpoints
         var group = routes.MapGroup("/tenants");
         group.MapGet("/{id}", GetTenant);
         group.MapPost("/", CreateTenant);
+        group.MapDelete("/{id}", DeleteTenant);
     }
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
@@ -28,5 +30,13 @@ public static class TenantEndpoints
         return createTenantCommandResult.IsSuccess
             ? Results.Created($"/tenants/{createTenantCommandResult.Value.Id}", createTenantCommandResult.Value)
             : Results.BadRequest(createTenantCommandResult.Errors);
+    }
+
+    private static async Task<IResult> DeleteTenant(string id, ISender sender)
+    {
+        var result = await sender.Send(new DeleteTenantCommand(TenantId.FromString(id)));
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : Results.BadRequest(result.Errors);
     }
 }
