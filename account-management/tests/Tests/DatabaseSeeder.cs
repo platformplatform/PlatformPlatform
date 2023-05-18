@@ -8,28 +8,24 @@ public class DatabaseSeeder
     public const string Tenant1Name = "Tenant 1";
     public static readonly TenantId Tenant1Id = TenantId.NewId();
 
-    private static readonly object Lock = new();
-    private static bool _databaseIsSeeded;
-
     private readonly ApplicationDbContext _applicationDbContext;
+    private bool _databaseIsSeeded;
 
     public DatabaseSeeder(ApplicationDbContext applicationDbContext)
     {
         _applicationDbContext = applicationDbContext;
+        Seed();
     }
 
     public void Seed()
     {
-        lock (Lock)
-        {
-            if (_databaseIsSeeded) return;
+        if (_databaseIsSeeded) return;
 
-            SeedTenants();
+        SeedTenants();
 
-            _applicationDbContext.SaveChanges();
+        _applicationDbContext.SaveChanges();
 
-            _databaseIsSeeded = true;
-        }
+        _databaseIsSeeded = true;
     }
 
     private void SeedTenants()
