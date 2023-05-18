@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     /// <inheritdoc />
     [GeneratedCode("Entity Framework", null)]
-    public partial class Initial : Migration
+    public sealed partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

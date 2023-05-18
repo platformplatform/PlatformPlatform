@@ -3,7 +3,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
-public class TenantRepository : ITenantRepository
+public sealed class TenantRepository : ITenantRepository
 {
     private readonly DbSet<Tenant> _tenantDbSet;
 
