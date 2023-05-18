@@ -8,35 +8,31 @@ public class DatabaseSeeder
     public const string Tenant1Name = "Tenant 1";
     public static readonly TenantId Tenant1Id = TenantId.NewId();
 
-    private static readonly object Lock = new();
-    private static bool _databaseIsSeeded;
-
     private readonly ApplicationDbContext _applicationDbContext;
+    private bool _databaseIsSeeded;
 
     public DatabaseSeeder(ApplicationDbContext applicationDbContext)
     {
         _applicationDbContext = applicationDbContext;
+        Seed();
     }
 
     public void Seed()
     {
-        lock (Lock)
-        {
-            if (_databaseIsSeeded) return;
+        if (_databaseIsSeeded) return;
 
-            SeedTenants();
+        SeedTenants();
 
-            _applicationDbContext.SaveChanges();
+        _applicationDbContext.SaveChanges();
 
-            _databaseIsSeeded = true;
-        }
+        _databaseIsSeeded = true;
     }
 
     private void SeedTenants()
     {
-        var tenant1 = new Tenant
+        var tenant1 = new Tenant(Tenant1Name, "foo@tenant1.com", "1234567890")
         {
-            Id = Tenant1Id, Name = Tenant1Name, Subdomain = "tenant1", Email = "foo@tenant1.com", Phone = "1234567890"
+            Id = Tenant1Id, Subdomain = "tenant1"
         };
 
         _applicationDbContext.Tenants.AddRange(tenant1);

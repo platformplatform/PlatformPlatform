@@ -35,7 +35,7 @@ public class CreateTenantCommandHandlerTests
 
         // Assert
         createTenantCommandResult.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = createTenantCommandResult.Value;
+        var tenantResponseDto = createTenantCommandResult.Value!;
         var tenantId = TenantId.FromString(tenantResponseDto.Id);
         _tenantRepository.Received()
             .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId));
@@ -55,7 +55,7 @@ public class CreateTenantCommandHandlerTests
 
         // Assert
         createTenantCommandResult.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = createTenantCommandResult.Value;
+        var tenantResponseDto = createTenantCommandResult.Value!;
         tenantResponseDto.Name.Should().Be(command.Name);
         tenantResponseDto.Email.Should().Be(command.Email);
         tenantResponseDto.Phone.Should().Be(command.Phone);

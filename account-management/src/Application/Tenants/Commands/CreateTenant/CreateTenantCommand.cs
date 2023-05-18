@@ -1,3 +1,4 @@
+using System.Net;
 using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
@@ -37,7 +38,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
 
         if (propertyErrors.Any())
         {
-            return CommandResult<TenantDto>.Failure(propertyErrors);
+            return CommandResult<TenantDto>.Failure(propertyErrors, HttpStatusCode.BadRequest);
         }
 
         var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);

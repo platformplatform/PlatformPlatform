@@ -6,24 +6,27 @@ public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value);
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {
-    internal Tenant() : base(TenantId.NewId())
+    internal Tenant(string name, string email, string? phone) : base(TenantId.NewId())
     {
+        Name = name;
+        Email = email;
+        Phone = phone;
         State = TenantState.Trial;
     }
 
-    public required string Name { get; set; }
+    public string Name { get; private set; }
 
-    public required string Subdomain { get; set; }
+    public required string Subdomain { get; init; }
 
     public TenantState State { get; private set; }
 
-    public required string Email { get; set; }
+    public string Email { get; private set; }
 
-    public string? Phone { get; set; }
+    public string? Phone { get; private set; }
 
     public static Tenant Create(string tenantName, string subdomain, string email, string? phone)
     {
-        var tenant = new Tenant {Name = tenantName, Subdomain = subdomain, Email = email, Phone = phone};
+        var tenant = new Tenant(tenantName, email, phone) {Subdomain = subdomain};
 
         tenant.EnsureTenantInputHasBeenValidated();
 
@@ -43,5 +46,14 @@ public sealed class Tenant : AggregateRoot<TenantId>
         if (allErrors.Length == 0) return;
 
         throw new InvalidOperationException("Ensure that there is logic in place to never create an invalid tenant.");
+    }
+
+    public void Update(string tenantName, string email, string? phone)
+    {
+        Name = tenantName;
+        Email = email;
+        Phone = phone;
+
+        EnsureTenantInputHasBeenValidated();
     }
 }
