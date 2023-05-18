@@ -10,7 +10,7 @@ namespace PlatformPlatform.Foundation.Application;
 /// </summary>
 public sealed class CommandResult<T>
 {
-    private CommandResult(bool isSuccess, T value, PropertyError[] errors)
+    private CommandResult(bool isSuccess, T? value, PropertyError[] errors)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -19,7 +19,7 @@ public sealed class CommandResult<T>
 
     public bool IsSuccess { get; }
 
-    public T Value { get; private set; }
+    public T? Value { get; private set; }
 
     public PropertyError[] Errors { get; }
 
@@ -36,7 +36,7 @@ public sealed class CommandResult<T>
     ///     <see cref="CommandResult{T}" />, so you can also just return T from a Command handler.
     /// </summary>
     [UsedImplicitly]
-    public static CommandResult<T> Success(T value)
+    public static CommandResult<T> Success(T? value)
     {
         return new CommandResult<T>(true, value, Array.Empty<PropertyError>());
     }
