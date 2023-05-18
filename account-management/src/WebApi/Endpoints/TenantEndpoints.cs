@@ -20,18 +20,18 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
     {
-        var getTenantByIdQueryResult = await sender.Send(new GetTenantByIdQuery(TenantId.FromString(id)));
-        return getTenantByIdQueryResult.IsSuccess
-            ? Results.Ok(getTenantByIdQueryResult.Value)
-            : Results.NotFound(getTenantByIdQueryResult.Error);
+        var result = await sender.Send(new GetTenantByIdQuery(TenantId.FromString(id)));
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : Results.NotFound(result.Error);
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantCommand createTenantCommand, ISender sender)
+    private static async Task<IResult> CreateTenant(CreateTenantCommand command, ISender sender)
     {
-        var createTenantCommandResult = await sender.Send(createTenantCommand);
-        return createTenantCommandResult.IsSuccess
-            ? Results.Created($"/tenants/{createTenantCommandResult.Value.Id}", createTenantCommandResult.Value)
-            : Results.BadRequest(createTenantCommandResult.Errors);
+        var result = await sender.Send(command);
+        return result.IsSuccess
+            ? Results.Created($"/tenants/{result.Value!.Id}", result.Value)
+            : Results.BadRequest(result.Errors);
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)
