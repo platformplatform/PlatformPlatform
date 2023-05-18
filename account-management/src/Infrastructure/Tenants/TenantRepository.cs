@@ -14,7 +14,7 @@ public class TenantRepository : ITenantRepository
 
     public async Task<Tenant?> GetByIdAsync(TenantId id, CancellationToken cancellationToken)
     {
-        return await _tenantDbSet.FindAsync(new object?[] {id, cancellationToken}, cancellationToken);
+        return await _tenantDbSet.FindAsync(new object?[] {id}, cancellationToken);
     }
 
     public void Add(Tenant tenant)
