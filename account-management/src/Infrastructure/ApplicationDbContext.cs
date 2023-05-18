@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
-public class ApplicationDbContext : FoundationDbContext<ApplicationDbContext>
+public sealed class ApplicationDbContext : FoundationDbContext<ApplicationDbContext>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {

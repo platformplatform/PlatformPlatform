@@ -8,7 +8,7 @@ namespace PlatformPlatform.Foundation.Application;
 ///     successful or not. If the command was successful, the <see cref="CommandResult{T}" /> will contain the result of
 ///     the command. If the command was not successful, it will contain a collection of <see cref="PropertyError" />.
 /// </summary>
-public class CommandResult<T>
+public sealed class CommandResult<T>
 {
     private CommandResult(bool isSuccess, T value, PropertyError[] errors)
     {

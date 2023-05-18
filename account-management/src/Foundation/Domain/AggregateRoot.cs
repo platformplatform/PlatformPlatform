@@ -13,7 +13,7 @@ namespace PlatformPlatform.Foundation.Domain;
 /// </summary>
 public interface IAggregateRoot : IAuditableEntity
 {
-    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
 
     void ClearDomainEvents();
 }
@@ -27,7 +27,7 @@ public abstract class AggregateRoot<T> : AudibleEntity<T>, IAggregateRoot where 
     }
 
     [NotMapped]
-    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
     public void ClearDomainEvents()
     {

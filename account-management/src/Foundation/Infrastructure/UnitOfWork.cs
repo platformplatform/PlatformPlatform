@@ -11,7 +11,7 @@ namespace PlatformPlatform.Foundation.Infrastructure;
 ///     from the <see cref="UnitOfWorkPipelineBehavior{TRequest,TResponse}" /> in the Application layer.
 /// </summary>
 [UsedImplicitly]
-public class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : IUnitOfWork
 {
     private readonly DbContext _dbContext;
 
