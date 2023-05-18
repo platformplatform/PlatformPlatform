@@ -4,6 +4,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTena
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.Foundation.WebApi;
 
 namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;
 
@@ -29,26 +30,19 @@ public static class TenantEndpoints
     private static async Task<IResult> CreateTenant(CreateTenantCommand command, ISender sender)
     {
         var result = await sender.Send(command);
-        return result.IsSuccess
-            ? Results.Created($"/tenants/{result.Value!.Id}", result.Value)
-            : Results.BadRequest(result.Errors);
+        return result.AsHttpResult($"/tenants/{result.Value?.Id}");
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)
     {
         var command = new UpdateTenantCommand(TenantId.FromString(id), request.Name, request.Email, request.Phone);
-        var result = await sender.Send(command);
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.BadRequest(result.Errors);
+        return (await sender.Send(command)).AsHttpResult();
     }
 
     private static async Task<IResult> DeleteTenant(string id, ISender sender)
     {
-        var result = await sender.Send(new DeleteTenantCommand(TenantId.FromString(id)));
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.BadRequest(result.Errors);
+        var command = new DeleteTenantCommand(TenantId.FromString(id));
+        return (await sender.Send(command)).AsHttpResult();
     }
 }
 
