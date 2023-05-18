@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PlatformPlatform.Foundation.WebApi;
 
-public class GlobalExceptionHandlerMiddleware : IMiddleware
+public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
 {
     private readonly ILogger _logger;
 

@@ -10,7 +10,7 @@ public sealed record QueryError(string Message);
 ///     or not. If the query was successful, the <see cref="QueryResult{T}" /> will contain the result of the query.
 ///     If the query was not successful, it will contain a <see cref="QueryError" />
 /// </summary>
-public class QueryResult<T>
+public sealed class QueryResult<T>
 {
     private QueryResult(bool isSuccess, T value, QueryError error)
     {
