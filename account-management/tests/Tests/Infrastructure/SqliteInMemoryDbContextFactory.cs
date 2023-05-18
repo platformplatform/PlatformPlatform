@@ -20,7 +20,7 @@ public sealed class SqliteInMemoryDbContextFactory<T> : IDisposable where T : Db
 
     public T CreateContext()
     {
-        var options = new DbContextOptionsBuilder<T>().UseSqlite(_sqliteConnection).Options;
+        var options = CreateOptions();
 
         var context = (T) Activator.CreateInstance(typeof(T), options)!;
         context.Database.EnsureCreated();
