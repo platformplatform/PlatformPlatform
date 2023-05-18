@@ -38,9 +38,6 @@ else
     app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 }
 
-// Add a default "Hello World!" endpoint at the root path.
-app.MapGet("/", () => "Hello World!").ExcludeFromDescription();
-
 // Map tenant-related endpoints.
 app.MapTenantEndpoints();
 
