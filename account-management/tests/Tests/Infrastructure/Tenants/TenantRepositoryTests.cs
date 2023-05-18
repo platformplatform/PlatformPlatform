@@ -29,12 +29,9 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Add_WhenTenantDoesNotExist_ShouldAddTenantToDatabase()
     {
         // Arrange
-        var tenant = new Tenant
+        var tenant = new Tenant("New Tenant", "new@test.com", "1234567890")
         {
-            Name = "New Tenant",
-            Subdomain = "new",
-            Email = "new@test.com",
-            Phone = "1234567890"
+            Subdomain = "new"
         };
 
         // Act
@@ -51,18 +48,15 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Update_WhenTenantExists_ShouldUpdateTenantInDatabase()
     {
         // Arrange
-        var tenant = new Tenant
+        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
         {
-            Name = "Existing Tenant",
-            Subdomain = "existing",
-            Email = "existing@test.com",
-            Phone = "1234567890"
+            Subdomain = "existing"
         };
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
         // Act
-        tenant.Name = "Updated Tenant";
+        tenant.Update("Updated Tenant", "existing@test.com", "1234567890");
         _tenantRepository.Update(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
@@ -76,12 +70,9 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Remove_WhenTenantExists_ShouldRemoveTenantFromDatabase()
     {
         // Arrange
-        var tenant = new Tenant
+        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
         {
-            Name = "Existing Tenant",
-            Subdomain = "existing",
-            Email = "existing@test.com",
-            Phone = "1234567890"
+            Subdomain = "existing"
         };
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
@@ -99,12 +90,9 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange  
-        var tenant = new Tenant
+        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
         {
-            Name = "Existing Tenant",
-            Subdomain = "existing",
-            Email = "existing@test.com",
-            Phone = "1234567890"
+            Subdomain = "existing"
         };
 
         await _applicationDbContext.Tenants.AddAsync(tenant);
@@ -121,12 +109,9 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainDoesNotExist_ShouldReturnTrue()
     {
         // Arrange
-        var tenant = new Tenant
+        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
         {
-            Name = "Existing Tenant",
-            Subdomain = "existing",
-            Email = "existing@test.com",
-            Phone = "1234567890"
+            Subdomain = "existing"
         };
 
         await _applicationDbContext.Tenants.AddAsync(tenant);

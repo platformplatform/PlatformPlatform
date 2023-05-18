@@ -34,9 +34,9 @@ public class DatabaseSeeder
 
     private void SeedTenants()
     {
-        var tenant1 = new Tenant
+        var tenant1 = new Tenant(Tenant1Name, "foo@tenant1.com", "1234567890")
         {
-            Id = Tenant1Id, Name = Tenant1Name, Subdomain = "tenant1", Email = "foo@tenant1.com", Phone = "1234567890"
+            Id = Tenant1Id, Subdomain = "tenant1"
         };
 
         _applicationDbContext.Tenants.AddRange(tenant1);

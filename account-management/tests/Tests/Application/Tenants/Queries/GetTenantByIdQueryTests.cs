@@ -23,13 +23,10 @@ public class GetTenantByIdQueryTests
         var expectedTenantId = TenantId.NewId();
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant
+        var tenant = new Tenant(expectedTenantName, "foo@tenant1.com", "1234567890")
         {
             Id = expectedTenantId,
-            Name = expectedTenantName,
-            Subdomain = "tenant1",
-            Email = "foo@tenant1.com",
-            Phone = "1234567890"
+            Subdomain = "tenant1"
         };
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(expectedTenantId, default).Returns(tenant);
