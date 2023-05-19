@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 

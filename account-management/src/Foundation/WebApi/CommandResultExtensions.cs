@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Foundation.DddCqrsFramework.Cqrs;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 
 namespace PlatformPlatform.Foundation.WebApi;
 

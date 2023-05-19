@@ -1,6 +1,6 @@
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
 
-namespace PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
+namespace PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 /// <summary>
 ///     IUnitOfWork interface provides a method for committing changes made within the unit of work.

@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
-using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
+using PlatformPlatform.Foundation.DomainModeling.Behaviors;
+using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 

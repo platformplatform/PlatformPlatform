@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+using PlatformPlatform.Foundation.DomainModeling.Identity;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 

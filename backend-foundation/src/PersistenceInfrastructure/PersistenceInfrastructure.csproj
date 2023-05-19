@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DddCqrsFramework\DddCqrsFramework.csproj"/>
+        <ProjectReference Include="..\DomainModeling\DomainModeling.csproj"/>
     </ItemGroup>
 
 </Project>

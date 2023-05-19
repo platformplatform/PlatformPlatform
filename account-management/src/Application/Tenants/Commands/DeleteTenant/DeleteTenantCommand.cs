@@ -2,8 +2,8 @@ using System.Net;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DddCqrsFramework.Cqrs;
-using PlatformPlatform.Foundation.DddCqrsFramework.Validation;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
 

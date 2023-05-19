@@ -1,4 +1,4 @@
-namespace PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+namespace PlatformPlatform.Foundation.DomainModeling.Identity;
 
 /// <summary>
 ///     StronglyTypedId is an abstract record type for creating strongly typed IDs with a specified value type. It makes

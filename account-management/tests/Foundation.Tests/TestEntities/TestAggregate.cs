@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
-using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Identity;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 

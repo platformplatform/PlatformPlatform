@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+namespace PlatformPlatform.Foundation.DomainModeling.Identity;
 
 /// <summary>
 ///     This is a special version of <see cref="StronglyTypedId{T}" /> for longs which is the recommended type to use.

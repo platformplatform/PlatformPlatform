@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DddCqrsFramework.Validation;
+using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

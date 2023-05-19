@@ -1,8 +1,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
-using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
+using PlatformPlatform.Foundation.DomainModeling.Behaviors;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 

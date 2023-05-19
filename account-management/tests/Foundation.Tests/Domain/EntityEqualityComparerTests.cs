@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Domain;

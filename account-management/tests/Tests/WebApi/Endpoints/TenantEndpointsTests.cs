@@ -10,7 +10,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
-using PlatformPlatform.Foundation.DddCqrsFramework.Validation;
+using PlatformPlatform.Foundation.DomainModeling.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;

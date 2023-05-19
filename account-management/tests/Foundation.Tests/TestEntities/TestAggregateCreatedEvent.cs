@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DddCqrsFramework.DomainEvents;
+using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 

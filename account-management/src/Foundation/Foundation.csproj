@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\backend-foundation\src\DddCqrsFramework\DddCqrsFramework.csproj"/>
+        <ProjectReference Include="..\..\..\backend-foundation\src\DomainModeling\DomainModeling.csproj"/>
         <ProjectReference Include="..\..\..\backend-foundation\src\PersistenceInfrastructure\PersistenceInfrastructure.csproj"/>
     </ItemGroup>
 

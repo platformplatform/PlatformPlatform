@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 

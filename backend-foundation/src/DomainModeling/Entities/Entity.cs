@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+using PlatformPlatform.Foundation.DomainModeling.Identity;
 
-namespace PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+namespace PlatformPlatform.Foundation.DomainModeling.Entities;
 
 /// <summary>
 ///     The Entity class is a base class for entities which represents business objects.

@@ -2,8 +2,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
-using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
+using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.Foundation.DomainModeling.Identity;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
