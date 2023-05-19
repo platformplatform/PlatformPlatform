@@ -48,11 +48,11 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         return tenant.Adapt<TenantDto>();
     }
 
-    private async Task<Result> IsSubdomainUniqueAsync(string subdomain, CancellationToken cancellationToken)
+    private async Task<ValidationResult> IsSubdomainUniqueAsync(string subdomain, CancellationToken cancellationToken)
     {
         var isSubdomainUnique = await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken);
         return isSubdomainUnique
-            ? Result.Success()
-            : Result.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
+            ? ValidationResult.Success()
+            : ValidationResult.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
     }
 }
