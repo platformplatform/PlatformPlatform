@@ -3,13 +3,11 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
 using PlatformPlatform.Foundation.AspNetCoreUtils;
-using PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure services for the Application, Infrastructure, and WebApi layers.
 builder.Services
-    .AddFoundationServices()
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
     .AddWebApiServices();

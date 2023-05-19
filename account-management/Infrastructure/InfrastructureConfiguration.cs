@@ -16,9 +16,9 @@ public static class InfrastructureConfiguration
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.ConfigureDatabaseContext<ApplicationDbContext>(configuration);
-
-        services.RegisterRepositories(Assembly);
+        services
+            .ConfigureDatabaseContext<ApplicationDbContext>(configuration)
+            .RegisterRepositories(Assembly);
 
         return services;
     }

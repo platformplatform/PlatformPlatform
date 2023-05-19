@@ -1,24 +1,17 @@
 using System.Reflection;
-using MediatR;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation.DomainModeling.Behaviors;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
 
 namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
-public static class DependencyInjection
+public static class PersistenceInfrastructureConfiguration
 {
-    public static IServiceCollection AddFoundationServices(this IServiceCollection services)
-    {
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>));
-
-        return services;
-    }
-
-    public static void ConfigureDatabaseContext<T>(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection ConfigureDatabaseContext<T>(this IServiceCollection services,
+        IConfiguration configuration)
         where T : DbContext
     {
         services.AddDbContext<T>((_, optionsBuilder) =>
@@ -33,9 +26,12 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
+
+        return services;
     }
 
-    public static void RegisterRepositories(this IServiceCollection services, Assembly assembly)
+    [UsedImplicitly]
+    public static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.
@@ -44,5 +40,7 @@ public static class DependencyInjection
             .AddClasses()
             .AsImplementedInterfaces()
             .WithScopedLifetime());
+
+        return services;
     }
 }
