@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
-namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
 
 public abstract class RepositoryBase<T, TId> : IRepository<T, TId>
     where T : AggregateRoot<TId>

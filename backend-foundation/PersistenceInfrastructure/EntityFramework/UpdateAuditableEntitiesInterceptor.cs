@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 
-namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure.EntityFramework;
 
 /// <summary>
 ///     The UpdateAuditableEntitiesInterceptor is a SaveChangesInterceptor that updates the ModifiedAt property

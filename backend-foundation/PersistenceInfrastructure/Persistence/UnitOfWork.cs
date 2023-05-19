@@ -4,7 +4,7 @@ using PlatformPlatform.Foundation.DomainModeling.Behaviors;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
-namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
 
 /// <summary>
 ///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer. It is responsible for

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
-using PlatformPlatform.Foundation.PersistenceInfrastructure;
+using PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
