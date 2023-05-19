@@ -4,7 +4,7 @@ using PlatformPlatform.Foundation.DomainModeling.Entities;
 using PlatformPlatform.Foundation.DomainModeling.Identity;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.Domain;
+namespace PlatformPlatform.Foundation.Tests.DomainModeling.Entities;
 
 public static class EntityTests
 {

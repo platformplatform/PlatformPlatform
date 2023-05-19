@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.Infrastructure;
+namespace PlatformPlatform.Foundation.Tests.PersistenceInfrastructure.EntityFramework;
 
 public sealed class SaveChangesInterceptorTests : IDisposable
 {

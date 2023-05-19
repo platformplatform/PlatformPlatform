@@ -4,7 +4,7 @@ using PlatformPlatform.Foundation.DomainModeling.Identity;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.Infrastructure;
+namespace PlatformPlatform.Foundation.Tests.PersistenceInfrastructure.Persistence;
 
 public sealed class RepositoryTests : IDisposable
 {

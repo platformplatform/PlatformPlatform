@@ -5,7 +5,7 @@ using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.Application.Persistence;
+namespace PlatformPlatform.Foundation.Tests.DomainModeling.Behaviors;
 
 public class UnitOfWorkPipelineBehaviorTests
 {

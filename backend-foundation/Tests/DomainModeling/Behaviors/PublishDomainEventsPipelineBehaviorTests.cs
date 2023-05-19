@@ -6,7 +6,7 @@ using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.Application.DomainEvents;
+namespace PlatformPlatform.Foundation.Tests.DomainModeling.Behaviors;
 
 public class PublishDomainEventsPipelineBehaviorTests
 {
