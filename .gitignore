@@ -135,7 +135,7 @@ _ReSharper*/
 *.DotSettings.user
 
 # Rider
-*/.idea
+.idea
 
 # TeamCity is a build add-in
 _TeamCity*

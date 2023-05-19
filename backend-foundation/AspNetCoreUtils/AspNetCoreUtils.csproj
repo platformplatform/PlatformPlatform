@@ -18,8 +18,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\backend-foundation\src\DomainModeling\DomainModeling.csproj"/>
-        <ProjectReference Include="..\..\..\backend-foundation\src\PersistenceInfrastructure\PersistenceInfrastructure.csproj"/>
+        <ProjectReference Include="..\DomainModeling\DomainModeling.csproj"/>
+        <ProjectReference Include="..\PersistenceInfrastructure\PersistenceInfrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
