@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
 using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 
