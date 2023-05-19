@@ -32,7 +32,7 @@
     <ItemGroup>
         <ProjectReference Include="..\AspNetCoreUtils\AspNetCoreUtils.csproj"/>
         <ProjectReference Include="..\DomainModeling\DomainModeling.csproj"/>
-        <ProjectReference Include="..\PersistenceInfrastructure\PersistenceInfrastructure.csproj"/>
+        <ProjectReference Include="..\InfrastructureCore\InfrastructureCore.csproj"/>
     </ItemGroup>
 
 </Project>

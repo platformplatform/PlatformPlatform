@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
+using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 

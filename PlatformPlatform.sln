@@ -4,7 +4,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend-foundation", "backe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModeling", "backend-foundation\DomainModeling\DomainModeling.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceInfrastructure", "backend-foundation\PersistenceInfrastructure\PersistenceInfrastructure.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureCore", "backend-foundation\InfrastructureCore\InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreUtils", "backend-foundation\AspNetCoreUtils\AspNetCoreUtils.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
 EndProject

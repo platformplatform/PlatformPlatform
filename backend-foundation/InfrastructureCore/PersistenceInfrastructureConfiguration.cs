@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
-using PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
+using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
-namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
+namespace PlatformPlatform.Foundation.InfrastructureCore;
 
 public static class PersistenceInfrastructureConfiguration
 {
