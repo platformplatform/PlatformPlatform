@@ -3,8 +3,8 @@ using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DddCore.Cqrs;
-using PlatformPlatform.Foundation.DddCore.Validation;
+using PlatformPlatform.Foundation.DddCqrsFramework.Cqrs;
+using PlatformPlatform.Foundation.DddCqrsFramework.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
 

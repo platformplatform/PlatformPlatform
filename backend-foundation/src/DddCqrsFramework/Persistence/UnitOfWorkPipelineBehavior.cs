@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace PlatformPlatform.Foundation.DddCore.Persistence;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 
 /// <summary>
 ///     The UnitOfWorkPipelineBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.

@@ -1,4 +1,4 @@
-namespace PlatformPlatform.Foundation.DddCore.Entities;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 
 public sealed class EntityEqualityComparer<T> : IEqualityComparer<Entity<T>> where T : IComparable<T>
 {

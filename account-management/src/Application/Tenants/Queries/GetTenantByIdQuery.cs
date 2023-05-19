@@ -2,7 +2,7 @@ using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DddCore.Cqrs;
+using PlatformPlatform.Foundation.DddCqrsFramework.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 

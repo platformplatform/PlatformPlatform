@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>PlatformPlatform.Foundation.DddCore</RootNamespace>
-        <AssemblyName>PlatformPlatform.Foundation.DddCore</AssemblyName>
+        <RootNamespace>PlatformPlatform.Foundation.DddCqrsFramework</RootNamespace>
+        <AssemblyName>PlatformPlatform.Foundation.DddCqrsFramework</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

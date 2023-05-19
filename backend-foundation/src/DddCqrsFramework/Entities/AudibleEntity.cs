@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Foundation.DddCore.Entities;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 
 /// <summary>
 ///     The AudibleEntity class extends Entity and implements IAuditableEntity, which adds

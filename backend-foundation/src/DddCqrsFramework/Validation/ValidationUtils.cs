@@ -1,17 +1,20 @@
 using System.Text.RegularExpressions;
 
-namespace PlatformPlatform.Foundation.DddCore.Validation;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Validation;
 
 /// <summary>
 ///     The ValidationUtils class is a static utility class that provides methods for validating various types of input
 ///     data such as strings, phone numbers, and email addresses. These methods are used for validating the data of
-///     domain entities and commands. The methods return a <see cref="ValidationResult" /> object, which is used to determine if
-///     the input is valid or not. If the input is not valid, the <see cref="ValidationResult" /> object contains an error message
+///     domain entities and commands. The methods return a <see cref="ValidationResult" /> object, which is used to
+///     determine if
+///     the input is valid or not. If the input is not valid, the <see cref="ValidationResult" /> object contains an error
+///     message
 ///     that can be used to inform the user of the error.
 /// </summary>
 public static partial class ValidationUtils
 {
-    public static ValidationResult IsStringValid(string name, string input, int minLength, int maxLength, string errorMessage)
+    public static ValidationResult IsStringValid(string name, string input, int minLength, int maxLength,
+        string errorMessage)
     {
         var isSuccess = input.Length >= minLength && input.Length <= maxLength;
         return GetResult(name, isSuccess, errorMessage);

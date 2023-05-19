@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCore.DomainEvents;
+using PlatformPlatform.Foundation.DddCqrsFramework.DomainEvents;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

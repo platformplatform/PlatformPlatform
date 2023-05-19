@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "tests\Tests\Tests.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Foundation", "Foundation", "{F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DddCore", "..\backend-foundation\src\DddCore\DddCore.csproj", "{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DddCqrsFramework", "..\backend-foundation\src\DddCqrsFramework\DddCqrsFramework.csproj", "{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

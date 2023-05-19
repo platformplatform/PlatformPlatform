@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Foundation.DddCore.Entities;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 
 /// <summary>
 ///     IAuditableEntity interface contains properties and methods for maintaining audit information for when

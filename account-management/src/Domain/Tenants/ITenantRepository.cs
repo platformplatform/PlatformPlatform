@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DddCore.Persistence;
+using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

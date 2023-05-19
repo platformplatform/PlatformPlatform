@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCore.Entities;
+using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 
-namespace PlatformPlatform.Foundation.DddCore.Persistence;
+namespace PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 
 /// <summary>
 ///     IRepository is a generic interface for repositories. Repositories are a DDD concept, and are used

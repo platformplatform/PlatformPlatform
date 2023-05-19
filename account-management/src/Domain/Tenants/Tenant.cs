@@ -1,5 +1,5 @@
-using PlatformPlatform.Foundation.DddCore.Entities;
-using PlatformPlatform.Foundation.DddCore.Identity;
+using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

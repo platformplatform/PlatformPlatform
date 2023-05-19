@@ -1,7 +1,7 @@
 using FluentAssertions;
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCore.Entities;
-using PlatformPlatform.Foundation.DddCore.Identity;
+using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
+using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Domain;
