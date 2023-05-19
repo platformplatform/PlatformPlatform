@@ -20,18 +20,18 @@ public abstract class RepositoryBase<T, TId> : IRepository<T, TId>
         return await DbSet.FindAsync(new object?[] {id}, cancellationToken);
     }
 
-    public void Add(T entity)
+    public void Add(T aggregate)
     {
-        DbSet.Add(entity);
+        DbSet.Add(aggregate);
     }
 
-    public void Update(T entity)
+    public void Update(T aggregate)
     {
-        DbSet.Update(entity);
+        DbSet.Update(aggregate);
     }
 
-    public void Remove(T entity)
+    public void Remove(T aggregate)
     {
-        DbSet.Remove(entity);
+        DbSet.Remove(aggregate);
     }
 }
