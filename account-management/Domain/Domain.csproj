@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.AccountManagement.Domain</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.Domain</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\backend-foundation\DomainModeling\DomainModeling.csproj"/>
+    </ItemGroup>
+
+</Project>
