@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 
-namespace PlatformPlatform.Foundation.WebApi;
+namespace PlatformPlatform.Foundation.AspNetCoreUtils;
 
 public static class CommandResultExtensions
 {

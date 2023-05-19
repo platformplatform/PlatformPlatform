@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace PlatformPlatform.Foundation.WebApi;
+namespace PlatformPlatform.Foundation.AspNetCoreUtils;
 
 public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
 {

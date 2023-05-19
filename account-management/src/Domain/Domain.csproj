@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Foundation\Foundation.csproj"/>
+        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
+        <ProjectReference Include="..\..\..\backend-foundation\src\DomainModeling\DomainModeling.csproj"/>
     </ItemGroup>
 
 </Project>

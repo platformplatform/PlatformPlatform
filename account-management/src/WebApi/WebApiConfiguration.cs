@@ -1,7 +1,7 @@
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.OpenApi.Models;
-using PlatformPlatform.Foundation.WebApi;
+using PlatformPlatform.Foundation.AspNetCoreUtils;
 
 namespace PlatformPlatform.AccountManagement.WebApi;
 
