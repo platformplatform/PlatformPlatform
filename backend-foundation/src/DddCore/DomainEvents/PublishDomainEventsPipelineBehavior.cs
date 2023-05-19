@@ -1,7 +1,7 @@
 using MediatR;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Persistence;
 
-namespace PlatformPlatform.Foundation.Application.DomainEvents;
+namespace PlatformPlatform.Foundation.DddCore.DomainEvents;
 
 /// <summary>
 ///     This method publishes any domain events that were generated during the execution of a command (and added to

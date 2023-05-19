@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Entities;
 using PlatformPlatform.Foundation.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;

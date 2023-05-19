@@ -2,7 +2,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Entities;
+using PlatformPlatform.Foundation.DddCore.Identity;
 
 namespace PlatformPlatform.Foundation.Infrastructure;
 

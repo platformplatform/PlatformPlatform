@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Entities;
+using PlatformPlatform.Foundation.DddCore.Identity;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 

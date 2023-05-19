@@ -1,8 +1,8 @@
 using System.Net;
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Validation;
 
-namespace PlatformPlatform.Foundation.Application;
+namespace PlatformPlatform.Foundation.DddCore.Cqrs;
 
 /// <summary>
 ///     All commands should return a <see cref="CommandResult{T}" />. This is used to indicate if the command was

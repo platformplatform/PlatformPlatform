@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace PlatformPlatform.Foundation.DddCore;
+namespace PlatformPlatform.Foundation.DddCore.DomainEvents;
 
 /// <summary>
 ///     The DomainEvent interface represents a domain event that occurred in the domain. The DomainEvent implements the

@@ -1,8 +1,8 @@
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
-using PlatformPlatform.Foundation.Application.DomainEvents;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.DomainEvents;
+using PlatformPlatform.Foundation.DddCore.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 

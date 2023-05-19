@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Foundation.Application;
+namespace PlatformPlatform.Foundation.DddCore.Cqrs;
 
 [UsedImplicitly]
 public sealed record QueryError(string Message);

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Persistence;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 

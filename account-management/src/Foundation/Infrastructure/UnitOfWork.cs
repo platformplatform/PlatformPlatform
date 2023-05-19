@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.Application.Persistence;
-using PlatformPlatform.Foundation.DddCore;
+using PlatformPlatform.Foundation.DddCore.Entities;
+using PlatformPlatform.Foundation.DddCore.Persistence;
 
 namespace PlatformPlatform.Foundation.Infrastructure;
 

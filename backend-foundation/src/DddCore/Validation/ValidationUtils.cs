@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace PlatformPlatform.Foundation.DddCore;
+namespace PlatformPlatform.Foundation.DddCore.Validation;
 
 /// <summary>
 ///     The ValidationUtils class is a static utility class that provides methods for validating various types of input

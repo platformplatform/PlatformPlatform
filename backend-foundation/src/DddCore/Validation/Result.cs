@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Foundation.DddCore;
+namespace PlatformPlatform.Foundation.DddCore.Validation;
 
 [UsedImplicitly]
 public sealed record PropertyError(string? PropertyName, string Message);
