@@ -1,34 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.Foundation.PersistenceInfrastructure.Persistence;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 
-public class TestAggregateRepository : IRepository<TestAggregate, long>
+public class TestAggregateRepository : RepositoryBase<TestAggregate, long>, ITestAggregateRepository
 {
-    private readonly DbSet<TestAggregate> _testAggregatesDbSet;
-
-    public TestAggregateRepository(TestDbContext testDbContext)
+    // ReSharper disable once SuggestBaseTypeForParameterInConstructor
+    public TestAggregateRepository(TestDbContext testDbContext) : base(testDbContext)
     {
-        _testAggregatesDbSet = testDbContext.TestAggregates;
-    }
-
-    public async Task<TestAggregate?> GetByIdAsync(long id, CancellationToken cancellationToken)
-    {
-        return await _testAggregatesDbSet.FindAsync(new object?[] {id}, cancellationToken);
-    }
-
-    public void Add(TestAggregate aggregate)
-    {
-        _testAggregatesDbSet.Add(aggregate);
-    }
-
-    public void Update(TestAggregate aggregate)
-    {
-        _testAggregatesDbSet.Update(aggregate);
-    }
-
-    public void Remove(TestAggregate aggregate)
-    {
-        _testAggregatesDbSet.Remove(aggregate);
     }
 }
