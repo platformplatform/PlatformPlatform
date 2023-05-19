@@ -1,4 +1,4 @@
-name: "Account Management"
+name: "PlatformPlatform"
 
 on:
   push:
@@ -23,11 +23,9 @@ jobs:
         echo "Generated version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
     - name: Restore dependencies
-      working-directory: account-management
-      run: dotnet restore AccountManagement.sln
+      run: dotnet restore PlatformPlatform.sln
     - name: Build
-      working-directory: account-management
-      run: dotnet build AccountManagement.sln --no-restore --configuration Release /p:Version=$VERSION
+      run: dotnet build PlatformPlatform.sln --no-restore --configuration Release /p:Version=$VERSION
 
   test-with-code-coverage:
     needs: build
@@ -47,13 +45,12 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
     - name: Run Test with dotCover and SonarScanner reporting
-      working-directory: account-management
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html"
-        dotnet dotcover test AccountManagement.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML
+        dotnet dotcover test PlatformPlatform.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML
         dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
   jetbrains-code-inspection:
@@ -66,7 +63,7 @@ jobs:
     - name: Run code inspections
       uses: muno92/resharper_inspectcode@1.6.13
       with:
-        solutionPath: account-management/AccountManagement.sln
+        solutionPath: PlatformPlatform.sln
         minimumSeverity: warning
         # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
         ignoreIssueType: UnusedAutoPropertyAccessor.Global
