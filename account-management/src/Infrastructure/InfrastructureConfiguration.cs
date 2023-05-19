@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation;
+using PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 

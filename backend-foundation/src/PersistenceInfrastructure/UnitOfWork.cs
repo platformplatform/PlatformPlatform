@@ -4,7 +4,7 @@ using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
 using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 
-namespace PlatformPlatform.Foundation.Infrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 /// <summary>
 ///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer. It is responsible for

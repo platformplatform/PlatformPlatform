@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Foundation", "Foundation", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DddCqrsFramework", "..\backend-foundation\src\DddCqrsFramework\DddCqrsFramework.csproj", "{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersistenceInfrastructure", "..\backend-foundation\src\PersistenceInfrastructure\PersistenceInfrastructure.csproj", "{3AD09E47-0F64-4240-80C1-58940B37DCAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD09E47-0F64-4240-80C1-58940B37DCAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD09E47-0F64-4240-80C1-58940B37DCAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD09E47-0F64-4240-80C1-58940B37DCAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD09E47-0F64-4240-80C1-58940B37DCAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{92CECDBD-ADDD-437B-A848-9A663BA56213} = {EEA1463E-71F8-44E6-8055-787DAA5E62D2}
@@ -70,5 +76,6 @@ Global
 		{FACCD4EB-C878-45DA-8CD8-5CCFA2A59205} = {0E389279-C3EB-4F9F-8068-8A12F0D526F2}
 		{B1E9935F-2A8C-41F1-BC72-BB5D062F9CB0} = {0E389279-C3EB-4F9F-8068-8A12F0D526F2}
 		{4D61C57C-33EB-4A9F-BA35-80F4F1AAEAA2} = {F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}
+		{3AD09E47-0F64-4240-80C1-58940B37DCAC} = {F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}
 	EndGlobalSection
 EndGlobal

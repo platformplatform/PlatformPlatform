@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 
-namespace PlatformPlatform.Foundation.Infrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 /// <summary>
 ///     The FoundationDbContext class represents the Entity Framework Core DbContext for managing data access to the

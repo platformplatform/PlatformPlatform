@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlatformPlatform.Foundation.DddCqrsFramework.Entities;
 using PlatformPlatform.Foundation.DddCqrsFramework.Identity;
 
-namespace PlatformPlatform.Foundation.Infrastructure;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 public static class ModelBuilderExtensions
 {

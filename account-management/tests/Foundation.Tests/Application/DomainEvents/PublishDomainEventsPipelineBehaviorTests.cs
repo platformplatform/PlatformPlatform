@@ -2,7 +2,6 @@ using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
-using PlatformPlatform.Foundation.DddCqrsFramework.DomainEvents;
 using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;

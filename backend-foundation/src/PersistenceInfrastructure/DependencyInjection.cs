@@ -4,11 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.DddCqrsFramework.Behaviors;
-using PlatformPlatform.Foundation.DddCqrsFramework.DomainEvents;
 using PlatformPlatform.Foundation.DddCqrsFramework.Persistence;
-using PlatformPlatform.Foundation.Infrastructure;
 
-namespace PlatformPlatform.Foundation;
+namespace PlatformPlatform.Foundation.PersistenceInfrastructure;
 
 public static class DependencyInjection
 {
