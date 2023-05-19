@@ -1,4 +1,4 @@
-namespace PlatformPlatform.Foundation.Domain;
+namespace PlatformPlatform.Foundation.DddCore;
 
 /// <summary>
 ///     IUnitOfWork interface provides a method for committing changes made within the unit of work.

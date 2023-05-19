@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PlatformPlatform.Foundation.Domain;
+namespace PlatformPlatform.Foundation.DddCore;
 
 /// <summary>
 ///     Interface for aggregate roots, which also implements IAuditableEntity. Aggregate roots are a concept in

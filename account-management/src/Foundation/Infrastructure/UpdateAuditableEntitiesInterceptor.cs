@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 
 namespace PlatformPlatform.Foundation.Infrastructure;
 

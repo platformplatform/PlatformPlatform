@@ -3,7 +3,7 @@ using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.Application;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
 

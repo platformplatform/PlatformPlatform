@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.Application.DomainEvents;
 using PlatformPlatform.Foundation.Application.Persistence;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 using PlatformPlatform.Foundation.Infrastructure;
 
 namespace PlatformPlatform.Foundation;

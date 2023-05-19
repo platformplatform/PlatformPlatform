@@ -10,7 +10,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;

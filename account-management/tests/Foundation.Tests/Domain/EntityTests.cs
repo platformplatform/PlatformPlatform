@@ -1,6 +1,6 @@
 using FluentAssertions;
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 using Xunit;
 
 namespace PlatformPlatform.Foundation.Tests.Domain;

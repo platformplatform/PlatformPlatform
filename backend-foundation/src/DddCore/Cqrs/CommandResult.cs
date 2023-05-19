@@ -1,6 +1,6 @@
 using System.Net;
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 
 namespace PlatformPlatform.Foundation.Application;
 

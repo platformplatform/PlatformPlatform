@@ -1,7 +1,7 @@
 using MediatR;
 using NSubstitute;
 using PlatformPlatform.Foundation.Application.Persistence;
-using PlatformPlatform.Foundation.Domain;
+using PlatformPlatform.Foundation.DddCore;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
 
