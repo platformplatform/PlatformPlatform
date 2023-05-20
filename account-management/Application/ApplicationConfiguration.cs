@@ -16,9 +16,8 @@ public static class ApplicationConfiguration
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services
-            .AddDomainModelingServices()
-            .ConfigureMappings()
-            .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly));
+            .AddDomainModelingServices(Assembly)
+            .ConfigureMappings();
 
         return services;
     }
