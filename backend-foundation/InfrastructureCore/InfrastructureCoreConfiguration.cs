@@ -8,9 +8,21 @@ using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.Foundation.InfrastructureCore;
 
-public static class PersistenceInfrastructureConfiguration
+public static class InfrastructureCoreConfiguration
 {
-    public static IServiceCollection ConfigureDatabaseContext<T>(this IServiceCollection services,
+    [UsedImplicitly]
+    public static IServiceCollection ConfigurePersistence<T>(this IServiceCollection services,
+        IConfiguration configuration, Assembly assembly) where T : DbContext
+    {
+        services.ConfigureDatabaseContext<T>(configuration);
+
+        services.RegisterRepositories(assembly);
+
+        return services;
+    }
+
+    [UsedImplicitly]
+    private static IServiceCollection ConfigureDatabaseContext<T>(this IServiceCollection services,
         IConfiguration configuration)
         where T : DbContext
     {
@@ -31,7 +43,7 @@ public static class PersistenceInfrastructureConfiguration
     }
 
     [UsedImplicitly]
-    public static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.
