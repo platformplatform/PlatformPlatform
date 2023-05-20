@@ -19,13 +19,6 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
 
     public async Task<CommandResult<Tenant>> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
-
-        if (tenant is null)
-        {
-            return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.", HttpStatusCode.NotFound);
-        }
-
         var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
             .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
             .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
@@ -34,6 +27,12 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
         if (propertyErrors.Any())
         {
             return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
+        }
+
+        var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
+        if (tenant is null)
+        {
+            return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.", HttpStatusCode.NotFound);
         }
 
         tenant.Update(command.Name, command.Email, command.Phone);
