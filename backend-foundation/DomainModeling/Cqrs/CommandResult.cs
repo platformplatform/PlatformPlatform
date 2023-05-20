@@ -1,5 +1,4 @@
 using System.Net;
-using JetBrains.Annotations;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
@@ -39,7 +38,6 @@ public sealed class CommandResult<T>
     ///     Use this to indicate a successful command. There is a implicit conversion from T to
     ///     <see cref="CommandResult{T}" />, so you can also just return T from a Command handler.
     /// </summary>
-    [UsedImplicitly]
     public static CommandResult<T> Success(T? value, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
         return new CommandResult<T>(true, value, Array.Empty<PropertyError>(), statusCode);

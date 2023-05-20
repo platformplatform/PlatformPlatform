@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Persistence;
@@ -20,9 +19,7 @@ public interface IRepository<T, in TId> where T : IAggregateRoot where TId : ICo
 
     void Add(T aggregate);
 
-    [UsedImplicitly]
     void Update(T aggregate);
 
-    [UsedImplicitly]
     void Remove(T aggregate);
 }

@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 using PlatformPlatform.Foundation.DomainModeling.Identity;
 
@@ -11,7 +10,6 @@ public sealed class TestAggregate : AggregateRoot<long>
         Name = name;
     }
 
-    [UsedImplicitly]
     public string Name { get; set; }
 
     public static TestAggregate Create(string name)
