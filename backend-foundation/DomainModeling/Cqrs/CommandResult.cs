@@ -6,11 +6,11 @@ namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
 /// <summary>
 ///     All commands should return a <see cref="CommandResult{T}" />. This is used to indicate if the command was
 ///     successful or not. If the command was successful, the <see cref="CommandResult{T}" /> will contain the result of
-///     the command. If the command was not successful, it will contain a collection of <see cref="PropertyError" />.
+///     the command. If the command was not successful, it will contain a collection of <see cref="AttributeError" />.
 /// </summary>
 public sealed class CommandResult<T>
 {
-    private CommandResult(bool isSuccess, T? value, PropertyError[] errors, HttpStatusCode statusCode)
+    private CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -18,12 +18,12 @@ public sealed class CommandResult<T>
         Errors = errors;
     }
 
-    private CommandResult(bool isSuccess, QueryError error, HttpStatusCode statusCode)
+    private CommandResult(bool isSuccess, ErrorMessage errorMessage, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
         StatusCode = statusCode;
-        Error = error;
-        Errors = Array.Empty<PropertyError>();
+        ErrorMessage = errorMessage;
+        Errors = Array.Empty<AttributeError>();
     }
 
     public bool IsSuccess { get; }
@@ -32,22 +32,22 @@ public sealed class CommandResult<T>
 
     public HttpStatusCode StatusCode { get; private set; }
 
-    public QueryError? Error { get; }
+    public ErrorMessage? ErrorMessage { get; }
 
-    public PropertyError[] Errors { get; }
+    public AttributeError[] Errors { get; }
 
     /// <summary>
     ///     Use this to indicate a error when doing a query.
     /// </summary>
     public static CommandResult<T> Failure(string message, HttpStatusCode statusCode)
     {
-        return new CommandResult<T>(false, new QueryError(message), statusCode);
+        return new CommandResult<T>(false, new ErrorMessage(message), statusCode);
     }
 
     /// <summary>
-    ///     Use this to indicate a failed command, with a collection of <see cref="PropertyError" />.
+    ///     Use this to indicate a failed command, with a collection of <see cref="AttributeError" />.
     /// </summary>
-    public static CommandResult<T> Failure(PropertyError[] errors, HttpStatusCode statusCode)
+    public static CommandResult<T> Failure(AttributeError[] errors, HttpStatusCode statusCode)
     {
         return new CommandResult<T>(false, default!, errors, statusCode);
     }
@@ -58,7 +58,7 @@ public sealed class CommandResult<T>
     /// </summary>
     public static CommandResult<T> Success(T? value, HttpStatusCode statusCode = HttpStatusCode.OK)
     {
-        return new CommandResult<T>(true, value, Array.Empty<PropertyError>(), statusCode);
+        return new CommandResult<T>(true, value, Array.Empty<AttributeError>(), statusCode);
     }
 
     /// <summary>

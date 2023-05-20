@@ -10,7 +10,7 @@ public static class CommandResultExtensions
     {
         return result.IsSuccess
             ? Results.Ok(result.Value!.Adapt<TDto>())
-            : Results.NotFound(result.Error);
+            : Results.NotFound(result.ErrorMessage);
     }
 
     public static IResult AsHttpResult<T, TDto>(this CommandResult<T> result)
@@ -22,7 +22,7 @@ public static class CommandResultExtensions
 
         return result.Errors.Length > 0
             ? Results.Json(result.Errors, statusCode: (int) result.StatusCode)
-            : Results.Json(result.Error, statusCode: (int) result.StatusCode);
+            : Results.Json(result.ErrorMessage, statusCode: (int) result.StatusCode);
     }
 
     public static IResult AsHttpResult<T, TDto>(this CommandResult<T> result, string uri)

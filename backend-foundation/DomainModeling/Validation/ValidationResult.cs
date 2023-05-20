@@ -1,18 +1,13 @@
-using JetBrains.Annotations;
-
 namespace PlatformPlatform.Foundation.DomainModeling.Validation;
-
-[UsedImplicitly]
-public sealed record PropertyError(string? PropertyName, string Message);
 
 public sealed class ValidationResult
 {
-    private ValidationResult(PropertyError[]? errors)
+    private ValidationResult(AttributeError[]? errors)
     {
-        Errors = errors ?? Array.Empty<PropertyError>();
+        Errors = errors ?? Array.Empty<AttributeError>();
     }
 
-    public PropertyError[] Errors { get; }
+    public AttributeError[] Errors { get; }
 
     public static ValidationResult Success()
     {
@@ -21,6 +16,6 @@ public sealed class ValidationResult
 
     public static ValidationResult Failure(string name, string error)
     {
-        return new ValidationResult(new[] {new PropertyError(name, error)});
+        return new ValidationResult(new[] {new AttributeError(name, error)});
     }
 }

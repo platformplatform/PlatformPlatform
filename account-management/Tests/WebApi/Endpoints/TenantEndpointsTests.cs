@@ -100,11 +100,11 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var errors = await response.Content.ReadFromJsonAsync<PropertyError[]>();
+        var errors = await response.Content.ReadFromJsonAsync<AttributeError[]>();
         errors!.Length.Should().BeGreaterThan(0);
-        errors.Should().Contain(new PropertyError("Subdomain",
+        errors.Should().Contain(new AttributeError("Subdomain",
             "Subdomains should be 3 to 30 lowercase alphanumeric characters."));
-        errors.Should().Contain(new PropertyError("Email",
+        errors.Should().Contain(new AttributeError("Email",
             "Email must be a valid email address and not exceed 100 characters."));
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
@@ -130,7 +130,6 @@ public sealed class TenantEndpointsTests : IDisposable
 
         var expectedBody =
             $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""foo@tenant1.com"",""phone"":""1234567890""}}";
-
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -171,7 +170,6 @@ public sealed class TenantEndpointsTests : IDisposable
         response.EnsureSuccessStatusCode();
 
         var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-
         tenantDto!.Name.Should().Be("UpdatedName");
         tenantDto.Email.Should().Be("updated@tenant1.com");
         tenantDto.Phone.Should().Be("0987654321");
@@ -208,6 +206,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
         const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
@@ -223,6 +222,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Act
         var response = await httpClient.DeleteAsync($"/tenants/{nonExistingTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
         const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
