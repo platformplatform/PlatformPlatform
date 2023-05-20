@@ -1,13 +1,13 @@
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 
 /// <summary>
-///     A shared DTO for used both in <see cref="GetTenantByIdQuery" /> and <see cref="CreateTenantCommand" />.
+///     A shared DTO for used both in <see cref="GetTenantQuery" /> and <see cref="CreateTenantCommand" />.
 ///     This class is returned by the WebAPI, making it a public contract, so it should be changed with care.
 /// </summary>
 [UsedImplicitly]

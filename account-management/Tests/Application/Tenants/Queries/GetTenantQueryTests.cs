@@ -8,16 +8,16 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Queries;
 
-public class GetTenantByIdQueryTests
+public class GetTenantQueryTests
 {
-    public GetTenantByIdQueryTests()
+    public GetTenantQueryTests()
     {
         var services = new ServiceCollection();
         services.AddApplicationServices();
     }
 
     [Fact]
-    public async Task GetTenantByIdQuery_WhenTenantFound_ShouldReturnTenantResponseDto()
+    public async Task GetTenantQuery_WhenTenantFound_ShouldReturnTenantResponseDto()
     {
         // Arrange
         var expectedTenantId = TenantId.NewId();
@@ -33,12 +33,12 @@ public class GetTenantByIdQueryTests
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
-        var query = new GetTenantByIdQuery(expectedTenantId);
-        var getTenantByIdQueryResult = await handler.Handle(query, default);
+        var query = new GetTenantQuery(expectedTenantId);
+        var getTenantQueryResult = await handler.Handle(query, default);
 
         // Assert
-        getTenantByIdQueryResult.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = getTenantByIdQueryResult.Value;
+        getTenantQueryResult.IsSuccess.Should().BeTrue();
+        var tenantResponseDto = getTenantQueryResult.Value;
         tenantResponseDto.Should().NotBeNull();
         tenantResponseDto.Id.Should().Be(expectedTenantId.AsRawString());
         tenantResponseDto.Name.Should().Be(expectedTenantName);
@@ -46,7 +46,7 @@ public class GetTenantByIdQueryTests
     }
 
     [Fact]
-    public async Task GetTenantByIdQuery_WhenTenantNotFound_ShouldReturnNull()
+    public async Task GetTenantQuery_WhenTenantNotFound_ShouldReturnNull()
     {
         // Arrange
         var nonExistingTenantId = new TenantId(999);
@@ -56,11 +56,11 @@ public class GetTenantByIdQueryTests
         var handler = new GetTenantQueryHandler(tenantRepository);
 
         // Act
-        var query = new GetTenantByIdQuery(nonExistingTenantId);
-        var getTenantByIdQueryResult = await handler.Handle(query, default);
+        var query = new GetTenantQuery(nonExistingTenantId);
+        var getTenantQueryResult = await handler.Handle(query, default);
 
         // Assert
-        getTenantByIdQueryResult.IsSuccess.Should().BeFalse();
+        getTenantQueryResult.IsSuccess.Should().BeFalse();
         await tenantRepository.Received().GetByIdAsync(nonExistingTenantId, default);
     }
 }

@@ -6,7 +6,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 /// <summary>
 ///     The CreateTenantCommand will create a new Tenant and add it to the repository. The command will be handled

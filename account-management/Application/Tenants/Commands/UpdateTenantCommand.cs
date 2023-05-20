@@ -6,7 +6,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public sealed record UpdateTenantCommand(TenantId TenantId, string Name, string Email, string? Phone)
     : IRequest<CommandResult<TenantDto>>;

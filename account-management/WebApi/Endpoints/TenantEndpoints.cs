@@ -1,7 +1,5 @@
 using MediatR;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
@@ -21,7 +19,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
     {
-        var result = await sender.Send(new GetTenantByIdQuery(TenantId.FromString(id)));
+        var result = await sender.Send(new GetTenantQuery(TenantId.FromString(id)));
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : Results.NotFound(result.Error);

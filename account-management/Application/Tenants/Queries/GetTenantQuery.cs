@@ -7,12 +7,12 @@ using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
 /// <summary>
-///     The GetTenantByIdQuery will retrieve a Tenant with the specified TenantId from the repository. The query
+///     The GetTenantQuery will retrieve a Tenant with the specified TenantId from the repository. The query
 ///     will be handled by <see cref="GetTenantQueryHandler" />. Returns the TenantDto if found, otherwise null.
 /// </summary>
-public sealed record GetTenantByIdQuery(TenantId Id) : IRequest<QueryResult<TenantDto>>;
+public sealed record GetTenantQuery(TenantId Id) : IRequest<QueryResult<TenantDto>>;
 
-public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, QueryResult<TenantDto>>
+public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantQuery, QueryResult<TenantDto>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -21,7 +21,7 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantByIdQuery, 
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<QueryResult<TenantDto>> Handle(GetTenantByIdQuery request, CancellationToken cancellationToken)
+    public async Task<QueryResult<TenantDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
         return tenant == null

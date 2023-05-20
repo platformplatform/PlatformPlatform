@@ -5,7 +5,7 @@ using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public sealed record DeleteTenantCommand(TenantId Id) : IRequest<CommandResult<TenantDto>>;
 

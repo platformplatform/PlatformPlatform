@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.EventHandlers;
 
 [UsedImplicitly]
 public sealed class TenantCreatedEventHandler : INotificationHandler<TenantCreatedEvent>
