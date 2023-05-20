@@ -1,6 +1,5 @@
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.OpenApi.Models;
 using PlatformPlatform.Foundation.AspNetCoreUtils;
 
 namespace PlatformPlatform.AccountManagement.WebApi;
@@ -16,14 +15,7 @@ public static class WebApiConfiguration
     [UsedImplicitly]
     public static IServiceCollection AddWebApiServices(this IServiceCollection services)
     {
-        services.AddTransient<GlobalExceptionHandlerMiddleware>();
-
-        services.AddEndpointsApiExplorer();
-
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo {Title = "PlatformPlatform API", Version = "v1"});
-        });
+        services.AddCommonServices();
 
         return services;
     }

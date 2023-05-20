@@ -1,4 +1,5 @@
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.Foundation.DomainModeling;
@@ -16,9 +17,8 @@ public static class ApplicationConfiguration
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services
-            .AddDomainModelingServices()
-            .ConfigureMappings()
-            .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(Assembly));
+            .AddDomainModelingServices(Assembly)
+            .ConfigureMappings();
 
         return services;
     }
@@ -28,6 +28,7 @@ public static class ApplicationConfiguration
     ///     convention-based mapping, which means no configuration is needed if properties are named the same in both
     ///     the DTO and the Entity. However, it can be configured to use explicit mappings.
     /// </summary>
+    [UsedImplicitly]
     private static IServiceCollection ConfigureMappings(this IServiceCollection services)
     {
         TenantDto.ConfigureTenantDtoMapping();
