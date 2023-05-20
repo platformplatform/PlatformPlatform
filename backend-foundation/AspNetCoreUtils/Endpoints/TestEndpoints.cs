@@ -1,4 +1,7 @@
-namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+
+namespace PlatformPlatform.Foundation.AspNetCoreUtils.Endpoints;
 
 public static class TestEndpoints
 {

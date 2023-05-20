@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PlatformPlatform.Foundation.AspNetCoreUtils.Endpoints;
 using PlatformPlatform.Foundation.AspNetCoreUtils.Middleware;
 
 namespace PlatformPlatform.Foundation.AspNetCoreUtils;
@@ -48,6 +49,9 @@ public static class AspNetCoreUtilsConfiguration
             // Configure global exception handling for the production environment.
             app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
         }
+
+        // Add test-specific endpoints when running tests, such as /throwException.
+        app.MapTestEndpoints();
 
         return app;
     }
