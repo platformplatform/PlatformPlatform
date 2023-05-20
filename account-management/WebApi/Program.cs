@@ -3,6 +3,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
 using PlatformPlatform.Foundation.AspNetCoreUtils;
+using PlatformPlatform.Foundation.AspNetCoreUtils.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
