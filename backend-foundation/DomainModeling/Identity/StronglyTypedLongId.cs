@@ -15,12 +15,6 @@ public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>
         return FormLong(newValue);
     }
 
-    public static T FromString(string value)
-    {
-        var newValue = Convert.ToInt64(value);
-        return FormLong(newValue);
-    }
-
     private static T FormLong(long newValue)
     {
         return (T) Activator.CreateInstance(typeof(T),

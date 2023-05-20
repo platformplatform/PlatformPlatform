@@ -9,6 +9,11 @@ public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value)
     {
         return Value.ToString();
     }
+
+    public static explicit operator TenantId(string value)
+    {
+        return new TenantId(Convert.ToInt64(value));
+    }
 }
 
 public sealed class Tenant : AggregateRoot<TenantId>

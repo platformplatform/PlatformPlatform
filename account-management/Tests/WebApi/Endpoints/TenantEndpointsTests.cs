@@ -71,7 +71,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.EnsureSuccessStatusCode();
 
         var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        var tenantId = TenantId.FromString(tenantDto!.Id);
+        var tenantId = (TenantId) tenantDto!.Id;
         tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
 
         var tenantName = tenantDto.Name;
