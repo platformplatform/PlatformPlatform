@@ -1,17 +1,15 @@
 using System.Net;
-using Mapster;
 using MediatR;
-using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public sealed record UpdateTenantCommand(TenantId TenantId, string Name, string Email, string? Phone)
-    : IRequest<CommandResult<TenantDto>>;
+    : IRequest<CommandResult<Tenant>>;
 
-public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, CommandResult<TenantDto>>
+public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, CommandResult<Tenant>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -20,13 +18,13 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<CommandResult<TenantDto>> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
+    public async Task<CommandResult<Tenant>> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(command.TenantId, cancellationToken);
 
         if (tenant is null)
         {
-            return CommandResult<TenantDto>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
+            return CommandResult<Tenant>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
                 HttpStatusCode.NotFound);
         }
 
@@ -37,13 +35,13 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
 
         if (propertyErrors.Any())
         {
-            return CommandResult<TenantDto>.Failure(propertyErrors, HttpStatusCode.BadRequest);
+            return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
         }
 
         tenant.Update(command.Name, command.Email, command.Phone);
 
         _tenantRepository.Update(tenant);
 
-        return tenant.Adapt<TenantDto>();
+        return tenant;
     }
 }

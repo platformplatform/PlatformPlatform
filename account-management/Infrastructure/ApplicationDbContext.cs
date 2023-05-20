@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
@@ -10,7 +9,6 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 ///     The ApplicationDbContext class represents the Entity Framework Core DbContext for managing data access to the
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
-[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class ApplicationDbContext : FoundationDbContext<ApplicationDbContext>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

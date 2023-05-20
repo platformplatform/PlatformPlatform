@@ -2,17 +2,17 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTenant;
+using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands.DeleteTenant;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class DeleteTenantCommandHandlerTests
+public class DeleteTenantCommandTests
 {
     private readonly ITenantRepository _tenantRepository;
 
-    public DeleteTenantCommandHandlerTests()
+    public DeleteTenantCommandTests()
     {
         var services = new ServiceCollection();
         services.AddApplicationServices();

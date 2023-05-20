@@ -4,12 +4,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands.CreateTenant;
-using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi.Endpoints;
+using PlatformPlatform.AccountManagement.WebApi.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 using Xunit;
 
@@ -23,7 +21,6 @@ public sealed class TenantEndpointsTests : IDisposable
     // See https://stackoverflow.com/a/17349663
     private const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK";
 
-    private readonly IServiceProvider _serviceProvider;
     private readonly SqliteInMemoryDbContextFactory<ApplicationDbContext> _sqliteInMemoryDbContextFactory;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -49,7 +46,8 @@ public sealed class TenantEndpointsTests : IDisposable
             });
         });
 
-        _serviceProvider = _webApplicationFactory.Services;
+        var serviceScope = _webApplicationFactory.Services.CreateScope();
+        serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     }
 
     public void Dispose()
@@ -66,13 +64,13 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/tenants",
-            new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890")
+            new CreateTenantRequest("TestTenant", "foo", "foo@tenant1.com", "1234567890")
         );
 
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
         var tenantId = TenantId.FromString(tenantDto!.Id);
         tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
 
@@ -96,7 +94,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/tenants",
-            new CreateTenantCommand("TestTenant", "a", "ab", null)
+            new CreateTenantRequest("TestTenant", "a", "ab", null)
         );
 
         // Assert
@@ -117,22 +115,16 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
     {
         // Arrange
-        using (var serviceScope = _serviceProvider.CreateScope())
-        {
-            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            databaseSeeder.Seed();
-        }
-
         var httpClient = _webApplicationFactory.CreateClient();
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id.AsRawString()}");
+        var response = await httpClient.GetAsync($"/tenants/{tenantId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
         const string tenantName = DatabaseSeeder.Tenant1Name;
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
 
@@ -162,12 +154,6 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task UpdateTenant_WhenValid_ShouldUpdateTenant()
     {
         // Arrange
-        using (var serviceScope = _serviceProvider.CreateScope())
-        {
-            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            databaseSeeder.Seed();
-        }
-
         var httpClient = _webApplicationFactory.CreateClient();
 
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
@@ -180,7 +166,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
 
         tenantDto!.Name.Should().Be("UpdatedName");
         tenantDto.Email.Should().Be("updated@tenant1.com");
@@ -191,12 +177,6 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task UpdateTenant_WhenInValid_ShouldReturnBadRequest()
     {
         // Arrange
-        using (var serviceScope = _serviceProvider.CreateScope())
-        {
-            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            databaseSeeder.Seed();
-        }
-
         var httpClient = _webApplicationFactory.CreateClient();
 
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
@@ -242,12 +222,6 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task DeleteTenant_WhenTenantExists_ShouldDeleteTenant()
     {
         // Arrange
-        using (var serviceScope = _serviceProvider.CreateScope())
-        {
-            var databaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-            databaseSeeder.Seed();
-        }
-
         var httpClient = _webApplicationFactory.CreateClient();
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
 
