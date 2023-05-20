@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
 
-namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;
+namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
 
 public static class TenantEndpoints
 {
