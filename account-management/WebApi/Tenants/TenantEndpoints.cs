@@ -1,3 +1,4 @@
+using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
@@ -25,8 +26,9 @@ public static class TenantEndpoints
             : Results.NotFound(result.Error);
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantCommand command, ISender sender)
+    private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender sender)
     {
+        var command = request.Adapt<CreateTenantCommand>();
         var result = await sender.Send(command);
         return result.AsHttpResult($"/tenants/{result.Value?.Id}");
     }
@@ -43,5 +45,3 @@ public static class TenantEndpoints
         return (await sender.Send(command)).AsHttpResult();
     }
 }
-
-public sealed record UpdateTenantRequest(string Name, string Email, string? Phone);
