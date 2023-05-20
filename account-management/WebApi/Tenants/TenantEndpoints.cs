@@ -29,7 +29,7 @@ public static class TenantEndpoints
     {
         var command = request.Adapt<CreateTenantCommand>();
         var result = await sender.Send(command);
-        return result.AsHttpResult<Tenant, TenantResponseDto>($"/tenants/{result.Value?.Id.AsRawString()}");
+        return result.AsHttpResult<Tenant, TenantResponseDto>($"/tenants/{result.Value?.Id}");
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)

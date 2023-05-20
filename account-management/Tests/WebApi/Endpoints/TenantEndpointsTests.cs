@@ -83,7 +83,7 @@ public sealed class TenantEndpointsTests : IDisposable
         responseAsRawString.Should().Be(expectedBody);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId.AsRawString()}");
+        response.Headers.Location!.ToString().Should().Be($"/tenants/{tenantId}");
     }
 
     [Fact]
@@ -116,7 +116,7 @@ public sealed class TenantEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
         var response = await httpClient.GetAsync($"/tenants/{tenantId}");
@@ -144,7 +144,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{nonExistingTenantId.AsRawString()}");
+        var response = await httpClient.GetAsync($"/tenants/{nonExistingTenantId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -156,7 +156,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
 
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/tenants/{tenantId}",
@@ -179,7 +179,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
 
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/tenants/{tenantId}",
@@ -223,7 +223,7 @@ public sealed class TenantEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
         var response = await httpClient.DeleteAsync($"/tenants/{tenantId}");

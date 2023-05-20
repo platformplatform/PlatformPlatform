@@ -22,6 +22,6 @@ public sealed class GetTenantQueryHandler : IRequestHandler<GetTenantQuery, Quer
     public async Task<QueryResult<Tenant>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
         var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return tenant ?? QueryResult<Tenant>.Failure($"Tenant with id '{request.Id.AsRawString()}' not found.");
+        return tenant ?? QueryResult<Tenant>.Failure($"Tenant with id '{request.Id}' not found.");
     }
 }
