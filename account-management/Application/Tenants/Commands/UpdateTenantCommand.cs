@@ -2,11 +2,10 @@ using System.Net;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
-public sealed record UpdateTenantCommand(TenantId TenantId, string Name, string Email, string? Phone)
+public sealed record UpdateTenantCommand(TenantId Id, string Name, string Email, string? Phone)
     : IRequest<CommandResult<Tenant>>;
 
 public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCommand, CommandResult<Tenant>>
@@ -20,12 +19,11 @@ public sealed class UpdateTenantCommandHandler : IRequestHandler<UpdateTenantCom
 
     public async Task<CommandResult<Tenant>> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = await _tenantRepository.GetByIdAsync(command.TenantId, cancellationToken);
+        var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
 
         if (tenant is null)
         {
-            return CommandResult<Tenant>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
-                HttpStatusCode.NotFound);
+            return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.", HttpStatusCode.NotFound);
         }
 
         var propertyErrors = TenantValidation.ValidateName(command.Name).Errors

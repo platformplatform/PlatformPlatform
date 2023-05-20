@@ -1,36 +1,34 @@
 using JetBrains.Annotations;
+using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
-
-[UsedImplicitly]
-public sealed record QueryError(string Message);
 
 /// <summary>
 ///     All queries should return a <see cref="QueryResult{T}" />. This is used to indicate if the query was successful
 ///     or not. If the query was successful, the <see cref="QueryResult{T}" /> will contain the result of the query.
-///     If the query was not successful, it will contain a <see cref="QueryError" />
+///     If the query was not successful, it will contain a <see cref="ErrorMessage" />
 /// </summary>
 public sealed class QueryResult<T>
 {
-    private QueryResult(bool isSuccess, T value, QueryError error)
+    private QueryResult(bool isSuccess, T value, ErrorMessage errorMessage)
     {
         IsSuccess = isSuccess;
         Value = value;
-        Error = error;
+        ErrorMessage = errorMessage;
     }
 
     public bool IsSuccess { get; }
 
     public T Value { get; }
 
-    public QueryError Error { get; }
+    public ErrorMessage ErrorMessage { get; }
 
     /// <summary>
     ///     Use this to indicate a error when doing a query.
     /// </summary>
     public static QueryResult<T> Failure(string message)
     {
-        return new QueryResult<T>(false, default!, new QueryError(message));
+        return new QueryResult<T>(false, default!, new ErrorMessage(message));
     }
 
     /// <summary>
