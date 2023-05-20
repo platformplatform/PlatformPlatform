@@ -21,15 +21,6 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<St
         return other != null && Value.Equals(other.Value);
     }
 
-    /// <summary>
-    ///     This returns the raw string value of the ID, this is different from the ToString() method,
-    ///     which returns the type name and the value.
-    /// </summary>
-    public string? AsRawString()
-    {
-        return Value.ToString();
-    }
-
     public override int GetHashCode()
     {
         return Value.GetHashCode();

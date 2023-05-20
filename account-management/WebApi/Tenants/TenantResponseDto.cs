@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using Mapster;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
 namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
@@ -46,10 +45,4 @@ public sealed record TenantResponseDto
     ///     The phone number of the tenant owner (optional).
     /// </summary>
     public string? Phone { get; init; }
-
-    internal static void ConfigureTenantDtoMapping()
-    {
-        TypeAdapterConfig<Tenant, TenantResponseDto>.NewConfig()
-            .Map(destination => destination.Id, source => source.Id.AsRawString());
-    }
 }
