@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
@@ -71,7 +70,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
         var tenantId = TenantId.FromString(tenantDto!.Id);
         tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
 
@@ -117,15 +116,15 @@ public sealed class TenantEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
+        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
 
         // Act
-        var response = await httpClient.GetAsync($"/tenants/{DatabaseSeeder.Tenant1Id.AsRawString()}");
+        var response = await httpClient.GetAsync($"/tenants/{tenantId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
-        var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
         const string tenantName = DatabaseSeeder.Tenant1Name;
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
 
@@ -167,7 +166,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantDto>();
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
 
         tenantDto!.Name.Should().Be("UpdatedName");
         tenantDto.Email.Should().Be("updated@tenant1.com");
@@ -177,6 +176,7 @@ public sealed class TenantEndpointsTests : IDisposable
     [Fact]
     public async Task UpdateTenant_WhenInValid_ShouldReturnBadRequest()
     {
+        // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
 
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
@@ -221,6 +221,7 @@ public sealed class TenantEndpointsTests : IDisposable
     [Fact]
     public async Task DeleteTenant_WhenTenantExists_ShouldDeleteTenant()
     {
+        // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
         var tenantId = DatabaseSeeder.Tenant1Id.AsRawString();
 

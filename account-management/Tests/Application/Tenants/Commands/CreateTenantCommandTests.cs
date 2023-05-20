@@ -35,10 +35,9 @@ public class CreateTenantCommandTests
 
         // Assert
         createTenantCommandResult.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = createTenantCommandResult.Value!;
-        var tenantId = TenantId.FromString(tenantResponseDto.Id);
+        var tenantResponse = createTenantCommandResult.Value!;
         _tenantRepository.Received()
-            .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantId));
+            .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
     }
 
     [Fact]

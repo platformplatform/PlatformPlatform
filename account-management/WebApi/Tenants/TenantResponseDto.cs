@@ -1,17 +1,14 @@
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
-using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
+namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
 
 /// <summary>
-///     A shared DTO for used both in <see cref="GetTenantQuery" /> and <see cref="CreateTenantCommand" />.
+///     A shared DTO for used as return value for GET, POST and POST in <see cref="TenantEndpoints" />.
 ///     This class is returned by the WebAPI, making it a public contract, so it should be changed with care.
 /// </summary>
-[UsedImplicitly]
-public sealed record TenantDto
+public sealed record TenantResponseDto
 {
     /// <summary>
     ///     The Id of the Tenant.
@@ -52,7 +49,7 @@ public sealed record TenantDto
 
     internal static void ConfigureTenantDtoMapping()
     {
-        TypeAdapterConfig<Tenant, TenantDto>.NewConfig()
+        TypeAdapterConfig<Tenant, TenantResponseDto>.NewConfig()
             .Map(destination => destination.Id, source => source.Id.AsRawString());
     }
 }

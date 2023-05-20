@@ -1,7 +1,5 @@
 using System.Net;
-using Mapster;
 using MediatR;
-using PlatformPlatform.AccountManagement.Application.Tenants.Dtos;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
@@ -14,9 +12,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 ///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
 /// </summary>
 public sealed record CreateTenantCommand(string Name, string Subdomain, string Email, string? Phone) :
-    IRequest<CommandResult<TenantDto>>;
+    IRequest<CommandResult<Tenant>>;
 
-public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, CommandResult<TenantDto>>
+public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, CommandResult<Tenant>>
 {
     private readonly ITenantRepository _tenantRepository;
 
@@ -25,7 +23,7 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
         _tenantRepository = tenantRepository;
     }
 
-    public async Task<CommandResult<TenantDto>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
+    public async Task<CommandResult<Tenant>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
         var isUniqueSubdomain = await IsSubdomainUniqueAsync(command.Subdomain, cancellationToken);
 
@@ -38,14 +36,14 @@ public sealed class CreateTenantCommandHandler : IRequestHandler<CreateTenantCom
 
         if (propertyErrors.Any())
         {
-            return CommandResult<TenantDto>.Failure(propertyErrors, HttpStatusCode.BadRequest);
+            return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
         }
 
         var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
 
         _tenantRepository.Add(tenant);
 
-        return tenant.Adapt<TenantDto>();
+        return tenant;
     }
 
     private async Task<ValidationResult> IsSubdomainUniqueAsync(string subdomain, CancellationToken cancellationToken)
