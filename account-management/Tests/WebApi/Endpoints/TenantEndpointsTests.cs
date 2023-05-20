@@ -148,6 +148,10 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
     }
 
     [Fact]
@@ -204,6 +208,9 @@ public sealed class TenantEndpointsTests : IDisposable
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
     }
 
     [Fact]
@@ -216,6 +223,9 @@ public sealed class TenantEndpointsTests : IDisposable
         // Act
         var response = await httpClient.DeleteAsync($"/tenants/{nonExistingTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
     }
 
     [Fact]

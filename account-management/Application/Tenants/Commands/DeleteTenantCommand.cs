@@ -2,7 +2,6 @@ using System.Net;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
@@ -22,8 +21,7 @@ public sealed class DeleteTenantCommandHandler : IRequestHandler<DeleteTenantCom
         var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null)
         {
-            return CommandResult<Tenant>.Failure(new[] {new PropertyError("TenantId", "Tenant not found.")},
-                HttpStatusCode.NotFound);
+            return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.", HttpStatusCode.NotFound);
         }
 
         _tenantRepository.Remove(tenant);

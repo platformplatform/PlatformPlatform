@@ -14,8 +14,16 @@ public sealed class CommandResult<T>
     {
         IsSuccess = isSuccess;
         Value = value;
-        Errors = errors;
         StatusCode = statusCode;
+        Errors = errors;
+    }
+
+    private CommandResult(bool isSuccess, QueryError error, HttpStatusCode statusCode)
+    {
+        IsSuccess = isSuccess;
+        StatusCode = statusCode;
+        Error = error;
+        Errors = Array.Empty<PropertyError>();
     }
 
     public bool IsSuccess { get; }
@@ -24,7 +32,17 @@ public sealed class CommandResult<T>
 
     public HttpStatusCode StatusCode { get; private set; }
 
+    public QueryError? Error { get; }
+
     public PropertyError[] Errors { get; }
+
+    /// <summary>
+    ///     Use this to indicate a error when doing a query.
+    /// </summary>
+    public static CommandResult<T> Failure(string message, HttpStatusCode statusCode)
+    {
+        return new CommandResult<T>(false, new QueryError(message), statusCode);
+    }
 
     /// <summary>
     ///     Use this to indicate a failed command, with a collection of <see cref="PropertyError" />.
