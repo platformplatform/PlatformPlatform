@@ -4,7 +4,6 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands.DeleteTena
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands.UpdateTenant;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.AspNetCoreUtils;
 using PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
 
 namespace PlatformPlatform.AccountManagement.WebApi.Endpoints;

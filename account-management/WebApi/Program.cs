@@ -3,7 +3,6 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 using PlatformPlatform.AccountManagement.WebApi.Endpoints;
 using PlatformPlatform.Foundation.AspNetCoreUtils;
-using PlatformPlatform.Foundation.AspNetCoreUtils.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,27 +14,8 @@ builder.Services
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    // Enable the developer exception page, which displays detailed information about exceptions that occur.
-    app.UseDeveloperExceptionPage();
-
-    // Enable Swagger UI in the development environment.
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountManagement API - Unstable"));
-}
-else
-{
-    // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
-    // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development.
-    app.UseHsts();
-
-    // Adds middleware for redirecting HTTP Requests to HTTPS.
-    app.UseHttpsRedirection();
-
-    // Configure global exception handling for the production environment.
-    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-}
+// Add configuration common for all web applications like Swagger, HSTS, and UseDeveloperExceptionPage.
+app.AddCommonConfiguration();
 
 // Map tenant-related endpoints.
 app.MapTenantEndpoints();
