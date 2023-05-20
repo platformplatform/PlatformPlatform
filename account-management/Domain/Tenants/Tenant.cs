@@ -31,9 +31,18 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
         tenant.EnsureTenantInputHasBeenValidated();
 
-        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, tenant.Name));
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id));
 
         return tenant;
+    }
+
+    public void Update(string tenantName, string email, string? phone)
+    {
+        Name = tenantName;
+        Email = email;
+        Phone = phone;
+
+        EnsureTenantInputHasBeenValidated();
     }
 
     private void EnsureTenantInputHasBeenValidated()
@@ -47,14 +56,5 @@ public sealed class Tenant : AggregateRoot<TenantId>
         if (allErrors.Length == 0) return;
 
         throw new InvalidOperationException("Ensure that there is logic in place to never create an invalid tenant.");
-    }
-
-    public void Update(string tenantName, string email, string? phone)
-    {
-        Name = tenantName;
-        Email = email;
-        Phone = phone;
-
-        EnsureTenantInputHasBeenValidated();
     }
 }
