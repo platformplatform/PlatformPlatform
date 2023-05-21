@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi.Tenants;
+using PlatformPlatform.AccountManagement.WebApi.Tenants.Contracts;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 using Xunit;
 

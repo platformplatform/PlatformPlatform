@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 
-namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
+namespace PlatformPlatform.AccountManagement.WebApi.Tenants.Contracts;
 
 /// <summary>
 ///     A shared DTO for used as return value for GET, POST and POST in <see cref="TenantEndpoints" />.
