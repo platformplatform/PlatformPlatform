@@ -10,9 +10,11 @@ namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
 
 public static class TenantEndpoints
 {
+    private const string RoutesPrefix = "/tenants";
+
     public static void MapTenantEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/tenants");
+        var group = routes.MapGroup(RoutesPrefix);
         group.MapGet("/{id}", GetTenant);
         group.MapPost("/", CreateTenant);
         group.MapPut("/{id}", UpdateTenant);
@@ -30,7 +32,7 @@ public static class TenantEndpoints
     {
         var command = request.Adapt<CreateTenantCommand>();
         var result = await sender.Send(command);
-        return result.AsHttpResult<Tenant, TenantResponseDto>($"/tenants/{result.Value?.Id}");
+        return result.AsHttpResult<Tenant, TenantResponseDto>($"{RoutesPrefix}/{result.Value?.Id}");
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)
