@@ -8,11 +8,11 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class DeleteTenantCommandTests
+public class DeleteTenantTests
 {
     private readonly ITenantRepository _tenantRepository;
 
-    public DeleteTenantCommandTests()
+    public DeleteTenantTests()
     {
         var services = new ServiceCollection();
         services.AddApplicationServices();
@@ -21,16 +21,16 @@ public class DeleteTenantCommandTests
     }
 
     [Fact]
-    public async Task DeleteTenantCommandHandler_WhenTenantExists_ShouldDeleteTenantFromRepository()
+    public async Task DeleteTenantHandler_WhenTenantExists_ShouldDeleteTenantFromRepository()
     {
         // Arrange
         var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var existingTenantId = existingTenant.Id;
         _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
-        var handler = new DeleteTenantCommandHandler(_tenantRepository);
+        var handler = new DeleteTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new DeleteTenantCommand(existingTenantId);
+        var command = new DeleteTenant.Command(existingTenantId);
         var deleteTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -39,15 +39,15 @@ public class DeleteTenantCommandTests
     }
 
     [Fact]
-    public async Task DeleteTenantCommandHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
+    public async Task DeleteTenantHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
     {
         // Arrange
         var nonExistingTenantId = TenantId.NewId();
         _tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
-        var handler = new DeleteTenantCommandHandler(_tenantRepository);
+        var handler = new DeleteTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new DeleteTenantCommand(nonExistingTenantId);
+        var command = new DeleteTenant.Command(nonExistingTenantId);
         var deleteTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert

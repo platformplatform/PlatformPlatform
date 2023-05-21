@@ -30,21 +30,21 @@ public static class TenantEndpoints
 
     private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender sender)
     {
-        var command = request.Adapt<CreateTenantCommand>();
+        var command = request.Adapt<CreateTenant.Command>();
         var result = await sender.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>($"{RoutesPrefix}/{result.Value?.Id}");
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)
     {
-        var command = new UpdateTenantCommand((TenantId) id, request.Name, request.Email, request.Phone);
+        var command = new UpdateTenant.Command((TenantId) id, request.Name, request.Email, request.Phone);
         var result = await sender.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }
 
     private static async Task<IResult> DeleteTenant(string id, ISender sender)
     {
-        var command = new DeleteTenantCommand((TenantId) id);
+        var command = new DeleteTenant.Command((TenantId) id);
         var result = await sender.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }

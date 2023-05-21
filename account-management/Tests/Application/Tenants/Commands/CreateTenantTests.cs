@@ -8,11 +8,11 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class CreateTenantCommandTests
+public class CreateTenantTests
 {
     private readonly ITenantRepository _tenantRepository;
 
-    public CreateTenantCommandTests()
+    public CreateTenantTests()
     {
         var services = new ServiceCollection();
         services.AddApplicationServices();
@@ -21,16 +21,16 @@ public class CreateTenantCommandTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldAddTenantToRepository()
+    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldAddTenantToRepository()
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(true);
-        var handler = new CreateTenantCommandHandler(_tenantRepository);
+        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -41,15 +41,15 @@ public class CreateTenantCommandTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
+    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
     {
         // Arrange
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(true);
-        var handler = new CreateTenantCommandHandler(_tenantRepository);
+        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -61,14 +61,14 @@ public class CreateTenantCommandTests
     }
 
     [Fact]
-    public async Task CreateTenantCommandHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
+    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
     {
         // Arrange
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
-        var handler = new CreateTenantCommandHandler(_tenantRepository);
+        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new CreateTenantCommand("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var _ = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -91,14 +91,14 @@ public class CreateTenantCommandTests
     [InlineData("Subdomain with uppercase", "Tenant1", "foo@tenant1.com", "1234567890", false)]
     [InlineData("Subdomain special characters", "tenant-1", "foo@tenant1.com", "1234567890", false)]
     [InlineData("Subdomain with spaces", "tenant 1", "foo@tenant1.com", "1234567890", false)]
-    public async Task CreateTenantCommandHandler_WhenValidatingCommand_ShouldValidateCorrectly(string name,
+    public async Task CreateTenantHandler_WhenValidatingCommand_ShouldValidateCorrectly(string name,
         string subdomain, string email,
         string phone, bool expected)
     {
         // Arrange
-        var command = new CreateTenantCommand(name, subdomain, email, phone);
+        var command = new CreateTenant.Command(name, subdomain, email, phone);
         _tenantRepository.IsSubdomainFreeAsync(subdomain, Arg.Any<CancellationToken>()).Returns(true);
-        var createTenantCommandHandler = new CreateTenantCommandHandler(_tenantRepository);
+        var createTenantCommandHandler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
         var commandResult = await createTenantCommandHandler.Handle(command, CancellationToken.None);
