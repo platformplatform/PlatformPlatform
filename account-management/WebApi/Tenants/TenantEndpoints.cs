@@ -23,7 +23,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> GetTenant(string id, ISender sender)
     {
-        var query = new GetTenantQuery((TenantId) id);
+        var query = new GetTenant.Query((TenantId) id);
         var result = await sender.Send(query);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }
