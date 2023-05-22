@@ -23,7 +23,7 @@ public static class DeleteTenant
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
-                return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.",
+                return CommandResult<Tenant>.GenericFailure($"Tenant with id '{command.Id}' not found.",
                     HttpStatusCode.NotFound);
             }
 

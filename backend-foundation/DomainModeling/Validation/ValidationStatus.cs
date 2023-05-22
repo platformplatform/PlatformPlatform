@@ -1,6 +1,6 @@
 namespace PlatformPlatform.Foundation.DomainModeling.Validation;
 
-public sealed class ValidationStatus
+public class ValidationStatus
 {
     private ValidationStatus(AttributeError[]? errors)
     {
@@ -8,6 +8,8 @@ public sealed class ValidationStatus
     }
 
     public AttributeError[] Errors { get; }
+
+    public bool IsValid => !Errors.Any();
 
     public static ValidationStatus Success()
     {

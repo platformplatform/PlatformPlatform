@@ -52,7 +52,7 @@ public class UnitOfWorkPipelineBehaviorTests
         var command = new TestCommand();
         var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<CommandResult<TestAggregate>>>();
-        var successfulCommandResult = CommandResult<TestAggregate>.Failure("Fail", HttpStatusCode.BadRequest);
+        var successfulCommandResult = CommandResult<TestAggregate>.GenericFailure("Fail", HttpStatusCode.BadRequest);
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act

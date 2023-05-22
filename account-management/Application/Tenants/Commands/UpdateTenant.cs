@@ -21,20 +21,20 @@ public static class UpdateTenant
 
         public async Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
+            var attributeErrors = TenantValidation.ValidateName(command.Name).Errors
                 .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
                 .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
                 .ToArray();
 
-            if (propertyErrors.Any())
+            if (attributeErrors.Any())
             {
-                return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
+                return CommandResult<Tenant>.AttributesFailure(attributeErrors, HttpStatusCode.BadRequest);
             }
 
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
-                return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.",
+                return CommandResult<Tenant>.GenericFailure($"Tenant with id '{command.Id}' not found.",
                     HttpStatusCode.NotFound);
             }
 

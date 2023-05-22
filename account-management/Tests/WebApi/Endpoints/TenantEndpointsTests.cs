@@ -103,7 +103,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var errors = await response.Content.ReadFromJsonAsync<AttributeError[]>();
         errors!.Length.Should().BeGreaterThan(0);
         errors.Should().Contain(new AttributeError("Subdomain",
-            "Subdomains should be 3 to 30 lowercase alphanumeric characters."));
+            "Subdomain must be between 3 and 30 lowercase alphanumeric characters."));
         errors.Should().Contain(new AttributeError("Email",
             "Email must be a valid email address and not exceed 100 characters."));
 

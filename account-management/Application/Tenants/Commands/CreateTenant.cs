@@ -1,4 +1,5 @@
-using System.Net;
+using FluentValidation;
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
@@ -13,9 +14,10 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 /// </summary>
 public static class CreateTenant
 {
-    public sealed record Command(string Name, string Subdomain, string Email, string? Phone) :
-        IRequest<CommandResult<Tenant>>;
+    public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
+        : IRequest<CommandResult<Tenant>>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, CommandResult<Tenant>>
     {
         private readonly ITenantRepository _tenantRepository;
@@ -25,36 +27,53 @@ public static class CreateTenant
             _tenantRepository = tenantRepository;
         }
 
-        public async Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
+        public Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var isUniqueSubdomain = await IsSubdomainUniqueAsync(command.Subdomain, cancellationToken);
-
-            var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
-                .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
-                .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
-                .Concat(TenantValidation.ValidateSubdomain(command.Subdomain).Errors)
-                .Concat(isUniqueSubdomain.Errors)
-                .ToArray();
-
-            if (propertyErrors.Any())
-            {
-                return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
-            }
-
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
 
             _tenantRepository.Add(tenant);
 
-            return tenant;
+            return Task.FromResult(CommandResult<Tenant>.Success(tenant));
         }
+    }
 
-        private async Task<ValidationStatus> IsSubdomainUniqueAsync(string subdomain,
-            CancellationToken cancellationToken)
+    [UsedImplicitly]
+    public sealed class Validator : AbstractValidator<Command>
+    {
+        public Validator(ITenantRepository tenantRepository)
         {
-            var isSubdomainUnique = await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken);
-            return isSubdomainUnique
-                ? ValidationStatus.Success()
-                : ValidationStatus.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required.");
+
+            RuleFor(x => x.Name)
+                .Length(TenantValidation.NameMinLength, TenantValidation.NameMaxLength)
+                .WithMessage(TenantValidation.NameLengthErrorMessage)
+                .When(x => !string.IsNullOrEmpty(x.Name));
+
+            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.");
+
+            RuleFor(x => x.Email)
+                .EmailAddress().WithMessage(ValidationUtils.EmailValidationErrorMessage)
+                .MaximumLength(ValidationUtils.EmailMaxLength)
+                .WithMessage(ValidationUtils.EmailValidationErrorMessage)
+                .When(x => !string.IsNullOrEmpty(x.Email));
+
+            RuleFor(x => x.Phone)
+                .MaximumLength(ValidationUtils.PhoneMaxLength)
+                .WithMessage(ValidationUtils.PhoneLengthErrorMessage)
+                .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
+                .WithMessage(ValidationUtils.PhoneLengthErrorMessage)
+                .When(x => !string.IsNullOrEmpty(x.Phone));
+
+            RuleFor(x => x.Subdomain).NotEmpty().WithMessage(TenantValidation.SubdomainRequiredErrorMessage);
+
+            RuleFor(x => x.Subdomain)
+                .Length(TenantValidation.SubdomainMinLength, TenantValidation.SubdomainMaxLength)
+                .WithMessage(TenantValidation.SubdomainLengthErrorMessage)
+                .Matches(@"^[a-z0-9]+$").WithMessage(TenantValidation.SubdomainRuleErrorMessage)
+                .MustAsync(async (subdomain, cancellation) =>
+                    await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation))
+                .WithMessage(TenantValidation.SubdomainUniqueErrorMessage)
+                .When(x => !string.IsNullOrEmpty(x.Subdomain));
         }
     }
 }

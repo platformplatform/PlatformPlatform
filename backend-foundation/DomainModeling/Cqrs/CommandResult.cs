@@ -23,9 +23,10 @@ public interface ICommandResult
     AttributeError[] Errors { get; }
 }
 
-public sealed class CommandResult<T> : ICommandResult
+public class CommandResult<T> : ICommandResult
 {
-    private CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
+    [UsedImplicitly]
+    public CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
         Value = value;
@@ -33,7 +34,7 @@ public sealed class CommandResult<T> : ICommandResult
         Errors = errors;
     }
 
-    private CommandResult(bool isSuccess, ErrorMessage errorMessage, HttpStatusCode statusCode)
+    public CommandResult(bool isSuccess, ErrorMessage errorMessage, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
         StatusCode = statusCode;
@@ -54,7 +55,7 @@ public sealed class CommandResult<T> : ICommandResult
     /// <summary>
     ///     Use this to indicate a error when doing a query.
     /// </summary>
-    public static CommandResult<T> Failure(string message, HttpStatusCode statusCode)
+    public static CommandResult<T> GenericFailure(string message, HttpStatusCode statusCode)
     {
         return new CommandResult<T>(false, new ErrorMessage(message), statusCode);
     }
@@ -62,7 +63,7 @@ public sealed class CommandResult<T> : ICommandResult
     /// <summary>
     ///     Use this to indicate a failed command, with a collection of <see cref="AttributeError" />.
     /// </summary>
-    public static CommandResult<T> Failure(AttributeError[] errors, HttpStatusCode statusCode)
+    public static CommandResult<T> AttributesFailure(AttributeError[] errors, HttpStatusCode statusCode)
     {
         return new CommandResult<T>(false, default!, errors, statusCode);
     }

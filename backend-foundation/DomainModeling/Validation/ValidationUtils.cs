@@ -11,6 +11,19 @@ namespace PlatformPlatform.Foundation.DomainModeling.Validation;
 /// </summary>
 public static partial class ValidationUtils
 {
+    // While emails can be longer, we will limit them to 100 characters which should be enough for most cases
+    public const int EmailMaxLength = 100;
+
+    // The ITU-T Recommendation E.164 limits phone numbers to 15 digits (including country code).
+    // We add 5 extra characters to allow for spaces, dashes, parentheses, etc. 
+    public const int PhoneMaxLength = 20;
+
+    public static string EmailValidationErrorMessage =>
+        $"Email must be a valid email address and not exceed {EmailMaxLength} characters.";
+
+    public static string PhoneLengthErrorMessage =>
+        $"Phone number must be a valid format and not exceed {PhoneMaxLength} digits.";
+
     public static ValidationStatus IsStringValid(string name, string input, int minLength, int maxLength,
         string errorMessage)
     {
@@ -28,14 +41,9 @@ public static partial class ValidationUtils
 
     public static ValidationStatus IsValidPhone(string name, string? input)
     {
-        // The ITU-T Recommendation E.164 limits phone numbers to 15 digits (including country code).
-        // We add 5 extra characters to allow for spaces, dashes, parentheses, etc. 
-        const int phoneMaxLength = 20;
-        const string errorMessage = "Phone number must be a valid format and not exceed 20 digits.";
-
-        var isLengthOk = input is null || input.Length <= phoneMaxLength;
+        var isLengthOk = input is null || input.Length <= PhoneMaxLength;
         var isRegExOk = string.IsNullOrEmpty(input) || PhoneRegex().IsMatch(input);
-        return GetResult(name, isLengthOk && isRegExOk, errorMessage);
+        return GetResult(name, isLengthOk && isRegExOk, PhoneLengthErrorMessage);
     }
 
     [GeneratedRegex(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")]
@@ -43,13 +51,9 @@ public static partial class ValidationUtils
 
     public static ValidationStatus IsValidEmail(string name, string input)
     {
-        // While emails can be longer, we will limit them to 100 characters which should be enough for most cases
-        const int emailMaxLength = 100;
-        const string errorMessage = "Email must be a valid email address and not exceed 100 characters.";
-
-        var isLengthOk = input.Length <= emailMaxLength;
+        var isLengthOk = input.Length <= EmailMaxLength;
         var isRegExOk = !string.IsNullOrWhiteSpace(input) && EmailRegex().IsMatch(input);
-        return GetResult(name, isLengthOk && isRegExOk, errorMessage);
+        return GetResult(name, isLengthOk && isRegExOk, EmailValidationErrorMessage);
     }
 
     [GeneratedRegex(@"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$")]
