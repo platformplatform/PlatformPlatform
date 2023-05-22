@@ -1,4 +1,5 @@
 using System.Net;
+using JetBrains.Annotations;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
@@ -8,7 +9,21 @@ namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
 ///     successful or not. If the command was successful, the <see cref="CommandResult{T}" /> will contain the result of
 ///     the command. If the command was not successful, it will contain a collection of <see cref="AttributeError" />.
 /// </summary>
-public sealed class CommandResult<T>
+public interface ICommandResult
+{
+    bool IsSuccess { get; }
+
+    [UsedImplicitly]
+    HttpStatusCode StatusCode { get; }
+
+    [UsedImplicitly]
+    ErrorMessage? ErrorMessage { get; }
+
+    [UsedImplicitly]
+    AttributeError[] Errors { get; }
+}
+
+public sealed class CommandResult<T> : ICommandResult
 {
     private CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
     {
@@ -26,11 +41,11 @@ public sealed class CommandResult<T>
         Errors = Array.Empty<AttributeError>();
     }
 
-    public bool IsSuccess { get; }
-
     public T? Value { get; private set; }
 
-    public HttpStatusCode StatusCode { get; private set; }
+    public bool IsSuccess { get; }
+
+    public HttpStatusCode StatusCode { get; }
 
     public ErrorMessage? ErrorMessage { get; }
 
