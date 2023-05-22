@@ -1,4 +1,5 @@
 using MediatR;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
@@ -25,7 +26,10 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineB
     {
         var response = await next();
 
-        await _unitOfWork.CommitAsync(cancellationToken);
+        if (response is ICommandResult {IsSuccess: true})
+        {
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
 
         return response;
     }

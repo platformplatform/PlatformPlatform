@@ -8,11 +8,11 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class UpdateTenantCommandTests
+public class UpdateTenantTests
 {
     private readonly ITenantRepository _tenantRepository;
 
-    public UpdateTenantCommandTests()
+    public UpdateTenantTests()
     {
         var services = new ServiceCollection();
         services.AddApplicationServices();
@@ -21,16 +21,17 @@ public class UpdateTenantCommandTests
     }
 
     [Fact]
-    public async Task UpdateTenantCommandHandler_WhenCommandIsValid_ShouldUpdateTenantInRepository()
+    public async Task UpdateTenantHandler_WhenCommandIsValid_ShouldUpdateTenantInRepository()
     {
         // Arrange
         var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "foo@tenant1.com", "1234567890");
         var existingTenantId = existingTenant.Id;
         _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
-        var handler = new UpdateTenantCommandHandler(_tenantRepository);
+        var handler = new UpdateTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new UpdateTenantCommand(existingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
+        var command =
+            new UpdateTenant.Command(existingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -42,15 +43,16 @@ public class UpdateTenantCommandTests
     }
 
     [Fact]
-    public async Task UpdateTenantCommandHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
+    public async Task UpdateTenantHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
     {
         // Arrange
         var nonExistingTenantId = TenantId.NewId();
         _tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
-        var handler = new UpdateTenantCommandHandler(_tenantRepository);
+        var handler = new UpdateTenant.Handler(_tenantRepository);
 
         // Act
-        var command = new UpdateTenantCommand(nonExistingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
+        var command =
+            new UpdateTenant.Command(nonExistingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert

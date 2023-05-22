@@ -4,7 +4,7 @@ using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
-public sealed class TenantRepository : RepositoryBase<Tenant, TenantId>, ITenantRepository
+internal sealed class TenantRepository : RepositoryBase<Tenant, TenantId>, ITenantRepository
 {
     // ReSharper disable once SuggestBaseTypeForParameterInConstructor
     public TenantRepository(ApplicationDbContext applicationDbContext) : base(applicationDbContext)

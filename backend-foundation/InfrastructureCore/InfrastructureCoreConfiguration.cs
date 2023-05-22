@@ -49,7 +49,7 @@ public static class InfrastructureCoreConfiguration
         // and register them as a service in the container.
         services.Scan(scan => scan
             .FromAssemblies(assembly)
-            .AddClasses()
+            .AddClasses(classes => classes.Where(type => type.IsClass && (type.IsNotPublic || type.IsPublic)))
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
