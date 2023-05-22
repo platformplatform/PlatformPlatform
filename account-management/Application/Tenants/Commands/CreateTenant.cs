@@ -48,13 +48,13 @@ public static class CreateTenant
             return tenant;
         }
 
-        private async Task<ValidationResult> IsSubdomainUniqueAsync(string subdomain,
+        private async Task<ValidationStatus> IsSubdomainUniqueAsync(string subdomain,
             CancellationToken cancellationToken)
         {
             var isSubdomainUnique = await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken);
             return isSubdomainUnique
-                ? ValidationResult.Success()
-                : ValidationResult.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
+                ? ValidationStatus.Success()
+                : ValidationStatus.Failure(nameof(Tenant.Subdomain), "The subdomain must be unique.");
         }
     }
 }
