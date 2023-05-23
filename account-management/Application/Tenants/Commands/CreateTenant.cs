@@ -40,40 +40,41 @@ public static class CreateTenant
     [UsedImplicitly]
     public sealed class Validator : AbstractValidator<Command>
     {
+        private readonly ITenantRepository _tenantRepository;
+
         public Validator(ITenantRepository tenantRepository)
         {
-            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required.");
-
+            _tenantRepository = tenantRepository;
+            
+            RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Name)
                 .Length(TenantValidation.NameMinLength, TenantValidation.NameMaxLength)
-                .WithMessage(TenantValidation.NameLengthErrorMessage)
                 .When(x => !string.IsNullOrEmpty(x.Name));
 
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.");
-
+            RuleFor(x => x.Email).NotEmpty();
             RuleFor(x => x.Email)
-                .EmailAddress().WithMessage(ValidationUtils.EmailValidationErrorMessage)
+                .EmailAddress()
                 .MaximumLength(ValidationUtils.EmailMaxLength)
-                .WithMessage(ValidationUtils.EmailValidationErrorMessage)
                 .When(x => !string.IsNullOrEmpty(x.Email));
 
             RuleFor(x => x.Phone)
                 .MaximumLength(ValidationUtils.PhoneMaxLength)
-                .WithMessage(ValidationUtils.PhoneLengthErrorMessage)
                 .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
-                .WithMessage(ValidationUtils.PhoneLengthErrorMessage)
                 .When(x => !string.IsNullOrEmpty(x.Phone));
 
-            RuleFor(x => x.Subdomain).NotEmpty().WithMessage(TenantValidation.SubdomainRequiredErrorMessage);
+            RuleFor(x => x.Subdomain).NotEmpty();
 
             RuleFor(x => x.Subdomain)
                 .Length(TenantValidation.SubdomainMinLength, TenantValidation.SubdomainMaxLength)
-                .WithMessage(TenantValidation.SubdomainLengthErrorMessage)
                 .Matches(@"^[a-z0-9]+$").WithMessage(TenantValidation.SubdomainRuleErrorMessage)
-                .MustAsync(async (subdomain, cancellation) =>
-                    await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation))
+                .MustAsync(MustBeFree)
                 .WithMessage(TenantValidation.SubdomainUniqueErrorMessage)
                 .When(x => !string.IsNullOrEmpty(x.Subdomain));
+        }
+
+        private async Task<bool> MustBeFree(string subdomain, CancellationToken cancellation)
+        {
+            return await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation);
         }
     }
 }
