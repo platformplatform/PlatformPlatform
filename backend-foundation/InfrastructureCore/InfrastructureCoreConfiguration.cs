@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.Foundation.InfrastructureCore.EntityFramework;
 using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.Foundation.InfrastructureCore;
@@ -35,6 +36,9 @@ public static class InfrastructureCoreConfiguration
             connectionString += $";Password={password}";
 
             optionsBuilder.UseSqlServer(connectionString);
+
+            services.AddScoped<EntityValidationSaveChangesInterceptor>(serviceProvider =>
+                new EntityValidationSaveChangesInterceptor(serviceProvider));
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
