@@ -31,9 +31,9 @@ public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
 
             var problemDetails = new ProblemDetails
             {
-                Status = (int) HttpStatusCode.InternalServerError,
                 Type = "Server Error",
                 Title = "Server Error",
+                Status = (int) HttpStatusCode.InternalServerError,
                 Detail = "An error occurred while processing the request."
             };
 
