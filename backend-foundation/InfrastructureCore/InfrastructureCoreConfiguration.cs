@@ -27,7 +27,9 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
-        services.AddDbContext<T>((_, optionsBuilder) =>
+        services.AddScoped<EntityValidationSaveChangesInterceptor>();
+
+        services.AddDbContext<T>((provider, optionsBuilder) =>
         {
             var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
                            ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
@@ -35,10 +37,8 @@ public static class InfrastructureCoreConfiguration
             var connectionString = configuration.GetConnectionString("Default");
             connectionString += $";Password={password}";
 
-            optionsBuilder.UseSqlServer(connectionString);
-
-            services.AddScoped<EntityValidationSaveChangesInterceptor>(serviceProvider =>
-                new EntityValidationSaveChangesInterceptor(serviceProvider));
+            optionsBuilder.UseSqlServer(connectionString)
+                .AddInterceptors(provider.GetRequiredService<EntityValidationSaveChangesInterceptor>());
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));

@@ -1,4 +1,6 @@
 using System.Net;
+using FluentValidation;
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
@@ -21,16 +23,6 @@ public static class UpdateTenant
 
         public async Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var attributeErrors = TenantValidation.ValidateName(command.Name).Errors
-                .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
-                .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
-                .ToArray();
-
-            if (attributeErrors.Any())
-            {
-                return CommandResult<Tenant>.AttributesFailure(attributeErrors, HttpStatusCode.BadRequest);
-            }
-
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
@@ -43,6 +35,17 @@ public static class UpdateTenant
             _tenantRepository.Update(tenant);
 
             return tenant;
+        }
+
+        [UsedImplicitly]
+        public sealed class Validator : AbstractValidator<Command>
+        {
+            public Validator(ITenantRepository tenantRepository)
+            {
+                RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
+                RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
+                RuleFor(x => x.Phone).SetValidator(new TenantPropertyValidation.Phone());
+            }
         }
     }
 }

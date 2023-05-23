@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
@@ -44,28 +43,14 @@ public static class CreateTenant
             public Validator(ITenantRepository tenantRepository)
             {
                 _tenantRepository = tenantRepository;
-                RuleFor(x => x.Name).NotEmpty();
-                RuleFor(x => x.Name)
-                    .Length(TenantValidation.NameMinLength, TenantValidation.NameMaxLength)
-                    .When(x => !string.IsNullOrEmpty(x.Name));
 
-                RuleFor(x => x.Email).NotEmpty();
-                RuleFor(x => x.Email)
-                    .EmailAddress()
-                    .MaximumLength(ValidationUtils.EmailMaxLength)
-                    .When(x => !string.IsNullOrEmpty(x.Email));
-
-                RuleFor(x => x.Phone)
-                    .MaximumLength(ValidationUtils.PhoneMaxLength)
-                    .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
-                    .When(x => !string.IsNullOrEmpty(x.Phone));
-
-                RuleFor(x => x.Subdomain).NotEmpty();
-
+                RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
+                RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
+                RuleFor(x => x.Phone).SetValidator(new TenantPropertyValidation.Phone());
+                RuleFor(x => x.Subdomain).SetValidator(new TenantPropertyValidation.Subdomain());
                 RuleFor(x => x.Subdomain)
-                    .Length(TenantValidation.SubdomainMinLength, TenantValidation.SubdomainMaxLength)
-                    .Matches(@"^[a-z0-9]+$").WithMessage(TenantValidation.SubdomainRuleErrorMessage)
-                    .MustAsync(SubdomainMustBeAvailable).WithMessage(TenantValidation.SubdomainUniqueErrorMessage)
+                    .MustAsync(SubdomainMustBeAvailable)
+                    .WithMessage(TenantPropertyValidation.SubdomainUniqueErrorMessage)
                     .When(x => !string.IsNullOrEmpty(x.Subdomain));
             }
 
