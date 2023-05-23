@@ -32,15 +32,14 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
         var context = new ValidationContext<TRequest>(request);
 
         // Run all validators in parallel and await the results
-        var validationResults = await Task.WhenAll(
-            _validators.Select(v => v.ValidateAsync(context, cancellationToken))
-        );
+        var validationResults =
+            await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
         // Aggregate the results from all validators into a distinct list of attribute errors
         var attributeErrors = validationResults
             .SelectMany(result => result.Errors)
             .Where(failure => failure != null)
-            .Select(failure => new AttributeError(failure.PropertyName, failure.ErrorMessage))
+            .Select(failure => new AttributeError(failure.PropertyName.Split('.').First(), failure.ErrorMessage))
             .ToArray();
 
         if (attributeErrors.Any())
@@ -55,16 +54,10 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
     ///     Uses reflection to create a new instance of the specified Result type, passing the attributeErrors to the
     ///     constructor.
     /// </summary>
-    private static TResult CreateValidationResult<TResult>(AttributeError[] errors)
+    private static TResult CreateValidationResult<TResult>(AttributeError[] attributeErrors)
         where TResult : ICommandResult
     {
-        var resultType = typeof(TResult);
-        if (!typeof(ICommandResult).IsAssignableFrom(resultType))
-        {
-            throw new InvalidOperationException($"Invalid TResult: {resultType}");
-        }
-
-        var value = Activator.CreateInstance(resultType, false, default(object), errors, HttpStatusCode.BadRequest);
-        return (TResult) value!;
+        return (TResult) Activator.CreateInstance(typeof(TResult), false, default(object), attributeErrors,
+            HttpStatusCode.BadRequest)!;
     }
 }
