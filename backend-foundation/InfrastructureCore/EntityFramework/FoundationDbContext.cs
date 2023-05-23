@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.DomainModeling.Entities;
 
 namespace PlatformPlatform.Foundation.InfrastructureCore.EntityFramework;
@@ -17,6 +19,16 @@ public abstract class FoundationDbContext<TContext> : DbContext where TContext :
     {
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
+
+        var serviceProvider = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()?.ApplicationServiceProvider;
+        if (serviceProvider != null)
+        {
+            var entityValidationInterceptor = serviceProvider.GetService<EntityValidationSaveChangesInterceptor>();
+            if (entityValidationInterceptor != null)
+            {
+                optionsBuilder.AddInterceptors(entityValidationInterceptor);
+            }
+        }
 
         base.OnConfiguring(optionsBuilder);
     }

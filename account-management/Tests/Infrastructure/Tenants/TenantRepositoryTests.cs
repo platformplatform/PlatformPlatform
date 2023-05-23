@@ -1,8 +1,13 @@
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
+using PlatformPlatform.Foundation.DomainModeling;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;
@@ -15,8 +20,12 @@ public sealed class TenantRepositoryTests : IDisposable
 
     public TenantRepositoryTests()
     {
+        var services = new ServiceCollection();
+
         _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
         _applicationDbContext = _dbContextFactory.CreateContext();
+        services.AddDomainModelingServices(ApplicationConfiguration.Assembly, DomainConfiguration.Assembly);
+
         _tenantRepository = new TenantRepository(_applicationDbContext);
     }
 
@@ -130,7 +139,7 @@ public sealed class TenantRepositoryTests : IDisposable
         await _applicationDbContext.Tenants.AddAsync(tenant);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<ValidationException>(() =>
         {
             _applicationDbContext.SaveChangesAsync();
 

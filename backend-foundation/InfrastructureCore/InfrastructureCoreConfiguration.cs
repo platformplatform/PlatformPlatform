@@ -37,8 +37,13 @@ public static class InfrastructureCoreConfiguration
             var connectionString = configuration.GetConnectionString("Default");
             connectionString += $";Password={password}";
 
-            optionsBuilder.UseSqlServer(connectionString)
-                .AddInterceptors(provider.GetRequiredService<EntityValidationSaveChangesInterceptor>());
+            var interceptor = provider.GetService<EntityValidationSaveChangesInterceptor>();
+            if (interceptor != null)
+            {
+                optionsBuilder.AddInterceptors(interceptor);
+            }
+
+            optionsBuilder.UseSqlServer(connectionString);
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));

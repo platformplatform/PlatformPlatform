@@ -149,7 +149,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         var expectedBody =
-            @"{""type"":""NotFound"",""title"":""Validation Error"",""status"":404,""detail"":""Tenant with id '999' not found.""}";
+            """{"type":"NotFound","title":"Validation Error","status":404,"detail":"Tenant with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
 
@@ -217,9 +217,8 @@ public sealed class TenantEndpointsTests : IDisposable
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        // const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
         var expectedBody =
-            @"{""type"":""NotFound"",""title"":""Validation Error"",""status"":404,""detail"":""Tenant with id '999' not found.""}";
+            """{"type":"NotFound","title":"Validation Error","status":404,"detail":"Tenant with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
 
