@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,12 +102,9 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var errors = await response.Content.ReadFromJsonAsync<AttributeError[]>();
-        errors!.Length.Should().BeGreaterThan(0);
-        errors.Should().Contain(new AttributeError("Subdomain",
-            "'Subdomain' must be between 3 and 30 characters. You entered 1 characters."));
-        errors.Should().Contain(new AttributeError("Email",
-            "'Email' is not a valid email address."));
+        var expectedBody = """{"type":"BadRequest","title":"Validation Error","status":400,"Errors":[{"propertyName":"Email.Email","message":"'Email' is not a valid email address."},{"propertyName":"Subdomain.Subdomain","message":"'Subdomain' must be between 3 and 30 characters. You entered 1 characters."}]}""";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
 
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();
@@ -132,6 +131,9 @@ public sealed class TenantEndpointsTests : IDisposable
             $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""foo@tenant1.com"",""phone"":""1234567890""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -148,9 +150,12 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        var expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        var expectedBody = $@"{{""type"":""NotFound"",""title"":""Validation Error"",""status"":404,""detail"":""Tenant with id '999' not found.""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -173,6 +178,9 @@ public sealed class TenantEndpointsTests : IDisposable
         tenantDto!.Name.Should().Be("UpdatedName");
         tenantDto.Email.Should().Be("updated@tenant1.com");
         tenantDto.Phone.Should().Be("0987654321");
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -190,6 +198,9 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -207,9 +218,13 @@ public sealed class TenantEndpointsTests : IDisposable
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        // const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        var expectedBody = $@"{{""type"":""NotFound"",""title"":""Validation Error"",""status"":404,""detail"":""Tenant with id '999' not found.""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -223,9 +238,14 @@ public sealed class TenantEndpointsTests : IDisposable
         var response = await httpClient.DeleteAsync($"/tenants/{nonExistingTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        // const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        const string expectedBody = $@"{{""type"":""NotFound"",""title"":""Validation Error"",""status"":404,""detail"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+        
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
+        
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -240,7 +260,10 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
-
+        
+        response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location.Should().BeNull();
+        
         // Verify that is deleted
         var getResponse = await httpClient.GetAsync($"/tenants/{tenantId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
