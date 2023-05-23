@@ -35,46 +35,44 @@ public static class CreateTenant
 
             return Task.FromResult(CommandResult<Tenant>.Success(tenant));
         }
-    }
 
-    [UsedImplicitly]
-    public sealed class Validator : AbstractValidator<Command>
-    {
-        private readonly ITenantRepository _tenantRepository;
-
-        public Validator(ITenantRepository tenantRepository)
+        [UsedImplicitly]
+        public sealed class Validator : AbstractValidator<Command>
         {
-            _tenantRepository = tenantRepository;
-            
-            RuleFor(x => x.Name).NotEmpty();
-            RuleFor(x => x.Name)
-                .Length(TenantValidation.NameMinLength, TenantValidation.NameMaxLength)
-                .When(x => !string.IsNullOrEmpty(x.Name));
+            private readonly ITenantRepository _tenantRepository;
 
-            RuleFor(x => x.Email).NotEmpty();
-            RuleFor(x => x.Email)
-                .EmailAddress()
-                .MaximumLength(ValidationUtils.EmailMaxLength)
-                .When(x => !string.IsNullOrEmpty(x.Email));
+            public Validator(ITenantRepository tenantRepository)
+            {
+                _tenantRepository = tenantRepository;
+                RuleFor(x => x.Name).NotEmpty();
+                RuleFor(x => x.Name)
+                    .Length(TenantValidation.NameMinLength, TenantValidation.NameMaxLength)
+                    .When(x => !string.IsNullOrEmpty(x.Name));
 
-            RuleFor(x => x.Phone)
-                .MaximumLength(ValidationUtils.PhoneMaxLength)
-                .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
-                .When(x => !string.IsNullOrEmpty(x.Phone));
+                RuleFor(x => x.Email).NotEmpty();
+                RuleFor(x => x.Email)
+                    .EmailAddress()
+                    .MaximumLength(ValidationUtils.EmailMaxLength)
+                    .When(x => !string.IsNullOrEmpty(x.Email));
 
-            RuleFor(x => x.Subdomain).NotEmpty();
+                RuleFor(x => x.Phone)
+                    .MaximumLength(ValidationUtils.PhoneMaxLength)
+                    .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
+                    .When(x => !string.IsNullOrEmpty(x.Phone));
 
-            RuleFor(x => x.Subdomain)
-                .Length(TenantValidation.SubdomainMinLength, TenantValidation.SubdomainMaxLength)
-                .Matches(@"^[a-z0-9]+$").WithMessage(TenantValidation.SubdomainRuleErrorMessage)
-                .MustAsync(MustBeFree)
-                .WithMessage(TenantValidation.SubdomainUniqueErrorMessage)
-                .When(x => !string.IsNullOrEmpty(x.Subdomain));
-        }
+                RuleFor(x => x.Subdomain).NotEmpty();
 
-        private async Task<bool> MustBeFree(string subdomain, CancellationToken cancellation)
-        {
-            return await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation);
+                RuleFor(x => x.Subdomain)
+                    .Length(TenantValidation.SubdomainMinLength, TenantValidation.SubdomainMaxLength)
+                    .Matches(@"^[a-z0-9]+$").WithMessage(TenantValidation.SubdomainRuleErrorMessage)
+                    .MustAsync(SubdomainMustBeAvailable).WithMessage(TenantValidation.SubdomainUniqueErrorMessage)
+                    .When(x => !string.IsNullOrEmpty(x.Subdomain));
+            }
+
+            private async Task<bool> SubdomainMustBeAvailable(string subdomain, CancellationToken cancellation)
+            {
+                return await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation);
+            }
         }
     }
 }
