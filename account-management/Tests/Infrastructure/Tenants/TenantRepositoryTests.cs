@@ -29,10 +29,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Add_WhenTenantDoesNotExist_ShouldAddTenantToDatabase()
     {
         // Arrange
-        var tenant = new Tenant("New Tenant", "new@test.com", "1234567890")
-        {
-            Subdomain = "new"
-        };
+        var tenant = Tenant.Create("New Tenant", "new", "new@test.com", "1234567890");
 
         // Act
         _tenantRepository.Add(tenant);
@@ -48,10 +45,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Update_WhenTenantExists_ShouldUpdateTenantInDatabase()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
@@ -70,10 +64,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Remove_WhenTenantExists_ShouldRemoveTenantFromDatabase()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
@@ -90,10 +81,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange  
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
@@ -109,10 +97,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainDoesNotExist_ShouldReturnTrue()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
@@ -122,5 +107,34 @@ public sealed class TenantRepositoryTests : IDisposable
 
         // Assert
         isSubdomainFree.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("To long phone number", "tenant1", "foo@tenant1.com", "0099 (999) 888-77-66-55")]
+    [InlineData("Invalid phone number", "tenant1", "foo@tenant1.com", "N/A")]
+    [InlineData("", "notenantname", "foo@tenant1.com", "1234567890")]
+    [InlineData("Too long tenant name above 30 characters", "tenant1", "foo@tenant1.com", "+55 (21) 99999-9999")]
+    [InlineData("No email", "tenant1", "", "+61 2 1234 5678")]
+    [InlineData("Invalid Email", "tenant1", "@tenant1.com", "1234567890")]
+    [InlineData("No subdomain", "", "foo@tenant1.com", "1234567890")]
+    [InlineData("To short subdomain", "ab", "foo@tenant1.com", "1234567890")]
+    [InlineData("To long subdomain", "1234567890123456789012345678901", "foo@tenant1.com", "1234567890")]
+    [InlineData("Subdomain with uppercase", "Tenant1", "foo@tenant1.com", "1234567890")]
+    [InlineData("Subdomain special characters", "tenant-1", "foo@tenant1.com", "1234567890")]
+    [InlineData("Subdomain with spaces", "tenant 1", "foo@tenant1.com", "1234567890")]
+    public async Task Create_WhenInvalidProperties_ShouldThrowException(string name, string subdomain, string email,
+        string phone)
+    {
+        // Arrange
+        var tenant = Tenant.Create(name, subdomain, email, phone);
+        await _applicationDbContext.Tenants.AddAsync(tenant);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        {
+            _applicationDbContext.SaveChangesAsync();
+
+            return Task.CompletedTask;
+        });
     }
 }

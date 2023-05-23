@@ -55,3 +55,15 @@ public static class TenantPropertyValidation
                 .When(phone => !string.IsNullOrEmpty(phone));
         }
     }
+}
+
+public sealed class TenantValidator : AbstractValidator<Tenant>
+{
+    public TenantValidator()
+    {
+        RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
+        RuleFor(x => x.Subdomain).SetValidator(new TenantPropertyValidation.Subdomain());
+        RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
+        RuleFor(x => x.Phone).SetValidator(new TenantPropertyValidation.Phone());
+    }
+}

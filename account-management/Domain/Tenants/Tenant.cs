@@ -26,8 +26,6 @@ public sealed class Tenant : AggregateRoot<TenantId>
     {
         var tenant = new Tenant(tenantName, email, phone) {Subdomain = subdomain};
 
-        tenant.EnsureTenantInputHasBeenValidated();
-
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id));
 
         return tenant;
@@ -38,20 +36,5 @@ public sealed class Tenant : AggregateRoot<TenantId>
         Name = tenantName;
         Email = email;
         Phone = phone;
-
-        EnsureTenantInputHasBeenValidated();
-    }
-
-    private void EnsureTenantInputHasBeenValidated()
-    {
-        var allErrors = TenantValidation.ValidateName(Name).Errors
-            .Concat(TenantValidation.ValidateSubdomain(Subdomain).Errors)
-            .Concat(TenantValidation.ValidateEmail(Email).Errors)
-            .Concat(TenantValidation.ValidatePhone(Phone).Errors)
-            .ToArray();
-
-        if (allErrors.Length == 0) return;
-
-        throw new InvalidOperationException("Ensure that there is logic in place to never create an invalid tenant.");
     }
 }
