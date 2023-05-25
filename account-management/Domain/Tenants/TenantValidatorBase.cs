@@ -31,39 +31,22 @@ public static class TenantPropertyValidation
         }
     }
 
-    public sealed class Email : AbstractValidator<string>
+    public class Email : AbstractValidator<string>
     {
         public Email()
         {
-            RuleFor(email => email).NotEmpty().WithName("Email");
-            RuleFor(email => email)
-                .EmailAddress()
-                .MaximumLength(ValidationUtils.EmailMaxLength)
-                .WithName(nameof(Email))
-                .When(email => !string.IsNullOrEmpty(email));
+            RuleFor(email => email).NotEmpty().WithName("Email").SetValidator(new SharedValidations.Email());
         }
     }
 
-    public sealed class Phone : AbstractValidator<string?>
+    public sealed class TenantValidator : AbstractValidator<Tenant>
     {
-        public Phone()
+        public TenantValidator()
         {
-            RuleFor(phone => phone)
-                .MaximumLength(ValidationUtils.PhoneMaxLength)
-                .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
-                .WithName(nameof(Phone))
-                .When(phone => !string.IsNullOrEmpty(phone));
+            RuleFor(x => x.Name).SetValidator(new Name());
+            RuleFor(x => x.Subdomain).SetValidator(new Subdomain());
+            RuleFor(x => x.Email).SetValidator(new Email());
+            RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
         }
-    }
-}
-
-public sealed class TenantValidator : AbstractValidator<Tenant>
-{
-    public TenantValidator()
-    {
-        RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
-        RuleFor(x => x.Subdomain).SetValidator(new TenantPropertyValidation.Subdomain());
-        RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
-        RuleFor(x => x.Phone).SetValidator(new TenantPropertyValidation.Phone());
     }
 }

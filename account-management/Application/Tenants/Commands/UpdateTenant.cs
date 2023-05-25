@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
@@ -44,7 +45,7 @@ public static class UpdateTenant
             {
                 RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
                 RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
-                RuleFor(x => x.Phone).SetValidator(new TenantPropertyValidation.Phone());
+                RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
             }
         }
     }
