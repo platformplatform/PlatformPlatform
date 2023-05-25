@@ -1,3 +1,4 @@
+using System.Net;
 using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
@@ -33,7 +34,7 @@ public static class CreateTenant
 
             _tenantRepository.Add(tenant);
 
-            return Task.FromResult(CommandResult<Tenant>.Success(tenant));
+            return Task.FromResult(CommandResult<Tenant>.Success(tenant, HttpStatusCode.Created));
         }
 
         [UsedImplicitly]
