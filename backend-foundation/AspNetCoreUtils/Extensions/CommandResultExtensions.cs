@@ -12,7 +12,7 @@ public static class CommandResultExtensions
     {
         return result.IsSuccess
             ? Results.Ok(result.Value!.Adapt<TDto>())
-            : Results.Json(CreateProblemDetails<T, TDto>("Validation Error", result, HttpStatusCode.NotFound),
+            : Results.Json(CreateProblemDetails("Validation Error", result, HttpStatusCode.NotFound),
                 statusCode: (int) HttpStatusCode.NotFound);
     }
 
@@ -20,7 +20,7 @@ public static class CommandResultExtensions
     {
         return result.IsSuccess
             ? Results.Ok(result.Value!.Adapt<TDto>())
-            : Results.Json(CreateProblemDetails<T, TDto>("Validation Error", result),
+            : Results.Json(CreateProblemDetails("Validation Error", result),
                 statusCode: (int) result.StatusCode);
     }
 
@@ -28,11 +28,11 @@ public static class CommandResultExtensions
     {
         return result.IsSuccess
             ? Results.Created(uri, result.Value!.Adapt<TDto>())
-            : Results.Json(CreateProblemDetails<T, TDto>("Validation Error", result),
+            : Results.Json(CreateProblemDetails("Validation Error", result),
                 statusCode: (int) result.StatusCode);
     }
 
-    private static ProblemDetails CreateProblemDetails<T, TDto>(string title, QueryResult<T> result,
+    private static ProblemDetails CreateProblemDetails<T>(string title, QueryResult<T> result,
         HttpStatusCode httpStatusCode)
     {
         return new ProblemDetails
@@ -44,7 +44,7 @@ public static class CommandResultExtensions
         };
     }
 
-    private static ProblemDetails CreateProblemDetails<T, TDto>(string title, CommandResult<T> result)
+    private static ProblemDetails CreateProblemDetails<T>(string title, CommandResult<T> result)
     {
         if (result.Errors.Any())
         {
