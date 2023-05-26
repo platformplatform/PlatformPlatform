@@ -118,7 +118,7 @@ public sealed class TenantRepositoryTests : IDisposable
         isSubdomainFree.Should().BeTrue();
     }
 
-    [Theory]
+    [Theory(Skip = "For now commands are validating input and there is no validation in the Domain")]
     [InlineData("To long phone number", "tenant1", "foo@tenant1.com", "0099 (999) 888-77-66-55")]
     [InlineData("Invalid phone number", "tenant1", "foo@tenant1.com", "N/A")]
     [InlineData("", "notenantname", "foo@tenant1.com", "1234567890")]
