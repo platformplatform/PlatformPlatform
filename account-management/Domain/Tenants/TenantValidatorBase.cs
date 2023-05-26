@@ -31,7 +31,7 @@ public static class TenantPropertyValidation
         }
     }
 
-    public class Email : AbstractValidator<string>
+    public sealed class Email : AbstractValidator<string>
     {
         public Email()
         {

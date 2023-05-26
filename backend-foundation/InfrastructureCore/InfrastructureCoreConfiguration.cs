@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
-using PlatformPlatform.Foundation.InfrastructureCore.EntityFramework;
 using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.Foundation.InfrastructureCore;
@@ -27,21 +26,13 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
-        services.AddScoped<EntityValidationSaveChangesInterceptor>();
-
-        services.AddDbContext<T>((provider, optionsBuilder) =>
+        services.AddDbContext<T>((_, optionsBuilder) =>
         {
             var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
                            ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
 
             var connectionString = configuration.GetConnectionString("Default");
             connectionString += $";Password={password}";
-
-            var interceptor = provider.GetService<EntityValidationSaveChangesInterceptor>();
-            if (interceptor != null)
-            {
-                optionsBuilder.AddInterceptors(interceptor);
-            }
 
             optionsBuilder.UseSqlServer(connectionString);
         });
