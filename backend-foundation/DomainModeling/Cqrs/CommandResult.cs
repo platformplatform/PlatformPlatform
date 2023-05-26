@@ -52,6 +52,12 @@ public class CommandResult<T> : ICommandResult
 
     public AttributeError[] Errors { get; }
 
+    public static CommandResult<T> NotFound(string message)
+    {
+        return new CommandResult<T>(false, new ErrorMessage(message), HttpStatusCode.NotFound);
+    }
+    
+    
     /// <summary>
     ///     Use this to indicate a error when doing a query.
     /// </summary>

@@ -1,4 +1,3 @@
-using System.Net;
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -25,8 +24,7 @@ public static class UpdateTenant
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
-                return CommandResult<Tenant>.GenericFailure($"Tenant with id '{command.Id}' not found.",
-                    HttpStatusCode.NotFound);
+                return CommandResult<Tenant>.NotFound($"Tenant with id '{command.Id}' not found.");
             }
 
             tenant.Update(command.Name, command.Email, command.Phone);
