@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
@@ -16,7 +15,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 public static class CreateTenant
 {
     public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
-        : IRequest<CommandResult<Tenant>>;
+        : ITenantValidation, IRequest<CommandResult<Tenant>>;
 
     [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, CommandResult<Tenant>>
@@ -38,7 +37,7 @@ public static class CreateTenant
         }
 
         [UsedImplicitly]
-        public sealed class Validator : AbstractValidator<Command>
+        public sealed class Validator : TenantValidatorBase<Command>
         {
             private readonly ITenantRepository _tenantRepository;
 
@@ -46,10 +45,6 @@ public static class CreateTenant
             {
                 _tenantRepository = tenantRepository;
 
-                RuleFor(x => x.Name).NotEmpty();
-                RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));
-                RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-                RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
                 RuleFor(x => x.Subdomain).NotEmpty();
                 RuleFor(x => x.Subdomain)
                     .Length(3, 30)

@@ -1,17 +1,15 @@
 using System.Net;
-using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public static class UpdateTenant
 {
     public sealed record Command(TenantId Id, string Name, string Email, string? Phone)
-        : IRequest<CommandResult<Tenant>>;
+        : ITenantValidation, IRequest<CommandResult<Tenant>>;
 
     public sealed class Handler : IRequestHandler<Command, CommandResult<Tenant>>
     {
@@ -39,15 +37,8 @@ public static class UpdateTenant
         }
 
         [UsedImplicitly]
-        public sealed class Validator : AbstractValidator<Command>
+        public sealed class Validator : TenantValidatorBase<Command>
         {
-            public Validator(ITenantRepository tenantRepository)
-            {
-                RuleFor(x => x.Name).NotEmpty();
-                RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));
-                RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-                RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
-            }
         }
     }
 }

@@ -18,27 +18,22 @@ public static class DomainModelingConfiguration
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>));
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
-        services.AddValidatorsFromAssembly(applicationAssembly);
-        services.AddDomainValidatorsFromAssembly(domainAssembly);
+        services.AddNonGenericValidators(applicationAssembly);
 
         return services;
     }
 
-    private static IServiceCollection AddDomainValidatorsFromAssembly(this IServiceCollection services,
-        Assembly assembly)
+    private static void AddNonGenericValidators(this IServiceCollection services, Assembly assembly)
     {
-        var validatorTypes = assembly.GetTypes()
-            .Where(t => t.GetInterfaces().Any(i =>
-                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IValidator<>)))
-            .ToArray();
+        var validators = assembly.GetTypes()
+            .Where(type => type is {IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false})
+            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new {type, interfaceType})
+            .Where(t => t.interfaceType.IsGenericType &&
+                        t.interfaceType.GetGenericTypeDefinition() == typeof(IValidator<>));
 
-        foreach (var validatorType in validatorTypes)
+        foreach (var validator in validators)
         {
-            var validatorInterface = validatorType.GetInterfaces()
-                .First(i => i.GetGenericTypeDefinition() == typeof(IValidator<>));
-            services.AddTransient(validatorInterface, validatorType);
+            services.AddTransient(validator.interfaceType, validator.type);
         }
-
-        return services;
     }
 }
