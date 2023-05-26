@@ -28,18 +28,25 @@ public static class InfrastructureCoreConfiguration
     {
         services.AddDbContext<T>((_, optionsBuilder) =>
         {
-            var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                           ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
-
-            var connectionString = configuration.GetConnectionString("Default");
-            connectionString += $";Password={password}";
-
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(GetConnectionString(configuration));
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
 
         return services;
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Default")
+                               ?? throw new Exception("Missing GetConnectionString configuration.");
+
+        if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
+        {
+            connectionString += $";Password={password}";
+        }
+
+        return connectionString;
     }
 
     [UsedImplicitly]
