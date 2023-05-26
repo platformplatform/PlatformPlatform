@@ -40,9 +40,6 @@ public static class CreateTenant
         [UsedImplicitly]
         public sealed class Validator : AbstractValidator<Command>
         {
-            private const string SubdomainUniqueErrorMessage = "The subdomain must be unique.";
-            private const string SubdomainRuleErrorMessage = "Subdomain must be alphanumeric and lowercase.";
-
             private readonly ITenantRepository _tenantRepository;
 
             public Validator(ITenantRepository tenantRepository)
@@ -56,9 +53,9 @@ public static class CreateTenant
                 RuleFor(x => x.Subdomain).NotEmpty();
                 RuleFor(x => x.Subdomain)
                     .Length(3, 30)
-                    .Matches(@"^[a-z0-9]+$").WithMessage(SubdomainRuleErrorMessage)
+                    .Matches(@"^[a-z0-9]+$").WithMessage("Subdomain must be alphanumeric and lowercase.")
                     .MustAsync(SubdomainMustBeAvailable)
-                    .WithMessage(SubdomainUniqueErrorMessage)
+                    .WithMessage("The subdomain must be unique.")
                     .When(x => !string.IsNullOrEmpty(x.Subdomain));
             }
 
