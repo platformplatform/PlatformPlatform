@@ -21,31 +21,31 @@ public static class TenantEndpoints
         group.MapDelete("/{id}", DeleteTenant);
     }
 
-    private static async Task<IResult> GetTenant(string id, ISender sender)
+    private static async Task<IResult> GetTenant(string id, ISender mediatr)
     {
         var query = new GetTenant.Query((TenantId) id);
-        var result = await sender.Send(query);
+        var result = await mediatr.Send(query);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender sender)
+    private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender mediatr)
     {
         var command = request.Adapt<CreateTenant.Command>();
-        var result = await sender.Send(command);
+        var result = await mediatr.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>($"{RoutesPrefix}/{result.Value?.Id}");
     }
 
-    private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender sender)
+    private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender mediatr)
     {
         var command = new UpdateTenant.Command((TenantId) id, request.Name, request.Email, request.Phone);
-        var result = await sender.Send(command);
+        var result = await mediatr.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }
 
-    private static async Task<IResult> DeleteTenant(string id, ISender sender)
+    private static async Task<IResult> DeleteTenant(string id, ISender mediatr)
     {
         var command = new DeleteTenant.Command((TenantId) id);
-        var result = await sender.Send(command);
+        var result = await mediatr.Send(command);
         return result.AsHttpResult<Tenant, TenantResponseDto>();
     }
 }
