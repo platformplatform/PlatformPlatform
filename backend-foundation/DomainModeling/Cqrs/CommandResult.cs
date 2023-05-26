@@ -61,14 +61,6 @@ public class CommandResult<T> : ICommandResult
     }
 
     /// <summary>
-    ///     Use this to indicate a failed command, with a collection of <see cref="AttributeError" />.
-    /// </summary>
-    public static CommandResult<T> AttributesFailure(AttributeError[] errors, HttpStatusCode statusCode)
-    {
-        return new CommandResult<T>(false, default!, errors, statusCode);
-    }
-
-    /// <summary>
     ///     Use this to indicate a successful command. There is a implicit conversion from T to
     ///     <see cref="CommandResult{T}" />, so you can also just return T from a Command handler.
     /// </summary>
