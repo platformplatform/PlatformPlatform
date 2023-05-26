@@ -39,24 +39,15 @@ public static class CreateTenant
         [UsedImplicitly]
         public sealed class Validator : TenantValidatorBase<Command>
         {
-            private readonly ITenantRepository _tenantRepository;
-
-            public Validator(ITenantRepository tenantRepository)
+            public Validator(ITenantRepository repository)
             {
-                _tenantRepository = tenantRepository;
-
                 RuleFor(x => x.Subdomain).NotEmpty();
                 RuleFor(x => x.Subdomain)
-                    .Length(3, 30)
-                    .Matches(@"^[a-z0-9]+$").WithMessage("Subdomain must be alphanumeric and lowercase.")
-                    .MustAsync(SubdomainMustBeAvailable)
-                    .WithMessage("The subdomain must be unique.")
+                    .Length(3, 30).Matches(@"^[a-z0-9]+$")
+                    .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+                    .MustAsync(async (subdomain, token) => await repository.IsSubdomainFreeAsync(subdomain, token))
+                    .WithMessage("The subdomain is not available.")
                     .When(x => !string.IsNullOrEmpty(x.Subdomain));
-            }
-
-            private async Task<bool> SubdomainMustBeAvailable(string subdomain, CancellationToken cancellation)
-            {
-                return await _tenantRepository.IsSubdomainFreeAsync(subdomain, cancellation);
             }
         }
     }
