@@ -43,8 +43,9 @@ public static class UpdateTenant
         {
             public Validator(ITenantRepository tenantRepository)
             {
-                RuleFor(x => x.Name).SetValidator(new TenantPropertyValidation.Name());
-                RuleFor(x => x.Email).SetValidator(new TenantPropertyValidation.Email());
+                RuleFor(x => x.Name).NotEmpty();
+                RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));
+                RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
                 RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
             }
         }

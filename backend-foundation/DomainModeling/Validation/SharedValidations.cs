@@ -13,24 +13,24 @@ public static class SharedValidations
 
     public sealed class Email : AbstractValidator<string>
     {
-        public Email()
+        public Email(string emailName = nameof(Email))
         {
             RuleFor(email => email)
                 .EmailAddress()
                 .MaximumLength(EmailMaxLength)
-                .WithName(nameof(Email))
+                .WithName(emailName)
                 .When(email => !string.IsNullOrEmpty(email));
         }
     }
 
     public sealed class Phone : AbstractValidator<string?>
     {
-        public Phone()
+        public Phone(string phoneName = nameof(Phone))
         {
             RuleFor(phone => phone)
                 .MaximumLength(PhoneMaxLength)
                 .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
-                .WithName(nameof(Phone))
+                .WithName(phoneName)
                 .When(phone => !string.IsNullOrEmpty(phone));
         }
     }
