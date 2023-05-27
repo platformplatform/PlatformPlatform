@@ -31,7 +31,7 @@ public sealed class RepositoryTests : IDisposable
         var testAggregate = TestAggregate.Create("TestAggregate");
 
         // Act
-        _testAggregateRepository.Add(testAggregate);
+        _testAggregateRepository.AddAsync(testAggregate);
         await _testDbContext.SaveChangesAsync();
 
         // Assert
@@ -113,7 +113,7 @@ public sealed class RepositoryTests : IDisposable
         // Arrange
         var primaryRepository = new TestAggregateRepository(_testDbContext);
         var originalTestAggregate = TestAggregate.Create("TestAggregate");
-        primaryRepository.Add(originalTestAggregate);
+        primaryRepository.AddAsync(originalTestAggregate);
         await _testDbContext.SaveChangesAsync();
 
         // Simulate another user by creating a new DbContext and repository instance

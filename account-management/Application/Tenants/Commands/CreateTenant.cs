@@ -26,13 +26,13 @@ public static class CreateTenant
             _tenantRepository = tenantRepository;
         }
 
-        public Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
 
-            _tenantRepository.Add(tenant);
+            await _tenantRepository.AddAsync(tenant);
 
-            return Result<Tenant>.Created(tenant);
+            return tenant;
         }
 
         [UsedImplicitly]

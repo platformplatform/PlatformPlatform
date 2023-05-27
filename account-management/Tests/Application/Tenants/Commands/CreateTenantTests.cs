@@ -52,7 +52,7 @@ public class CreateTenantTests : IDisposable
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value!;
         _tenantRepository.Received()
-            .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
+            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class CreateTenantTests : IDisposable
         var _ = await _mediator.Send(command);
 
         // Assert
-        _tenantRepository.Received().Add(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
+        _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
     }
 
     [Theory]

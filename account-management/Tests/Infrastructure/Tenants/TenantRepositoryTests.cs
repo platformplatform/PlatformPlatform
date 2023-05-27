@@ -41,7 +41,7 @@ public sealed class TenantRepositoryTests : IDisposable
         var tenant = Tenant.Create("New Tenant", "new", "new@test.com", "1234567890");
 
         // Act
-        _tenantRepository.Add(tenant);
+        _tenantRepository.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
         // Assert

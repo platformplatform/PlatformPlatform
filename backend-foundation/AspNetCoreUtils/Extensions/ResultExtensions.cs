@@ -36,7 +36,7 @@ public static class ResultExtensions
         {
             return new ProblemDetails
             {
-                Type = $"https://httpstatuses.com/{(int)result.StatusCode}",
+                Type = $"https://httpstatuses.com/{(int) result.StatusCode}",
                 Title = GetHttpStatusCodeTitle(result.StatusCode),
                 Status = (int) result.StatusCode,
                 Detail = result.ErrorMessage?.Message,
@@ -46,7 +46,7 @@ public static class ResultExtensions
 
         return new ProblemDetails
         {
-            Type = $"https://httpstatuses.com/{(int)result.StatusCode}",
+            Type = $"https://httpstatuses.com/{(int) result.StatusCode}",
             Title = GetHttpStatusCodeTitle(result.StatusCode),
             Status = (int) result.StatusCode,
             Detail = result.ErrorMessage?.Message
