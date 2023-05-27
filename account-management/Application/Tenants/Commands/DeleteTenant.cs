@@ -28,7 +28,7 @@ public static class DeleteTenant
 
             _tenantRepository.Remove(tenant);
 
-            return CommandResult<Tenant>.Success(null, HttpStatusCode.NoContent);
+            return CommandResult<Tenant>.NoContent();
         }
     }
 }

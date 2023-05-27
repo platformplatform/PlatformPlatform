@@ -34,6 +34,13 @@ public struct CommandResult<T> : ICommandResult
         Errors = errors;
     }
 
+    public CommandResult(bool isSuccess, AttributeError[] errors, HttpStatusCode statusCode)
+    {
+        IsSuccess = isSuccess;
+        StatusCode = statusCode;
+        Errors = errors;
+    }
+
     public CommandResult(bool isSuccess, ErrorMessage errorMessage, HttpStatusCode statusCode)
     {
         IsSuccess = isSuccess;
@@ -57,7 +64,16 @@ public struct CommandResult<T> : ICommandResult
         return new CommandResult<T>(false, new ErrorMessage(message), HttpStatusCode.NotFound);
     }
     
-    
+    public static CommandResult<T> NoContent()
+    {
+        return new CommandResult<T>(true, Array.Empty<AttributeError>(), HttpStatusCode.NoContent);
+    }
+
+    public static Task<CommandResult<T>> Created(T value, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        return Task.FromResult<CommandResult<T>>(value);
+    }
+
     /// <summary>
     ///     Use this to indicate a error when doing a query.
     /// </summary>

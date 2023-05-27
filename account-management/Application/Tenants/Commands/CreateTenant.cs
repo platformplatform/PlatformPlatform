@@ -33,7 +33,7 @@ public static class CreateTenant
 
             _tenantRepository.Add(tenant);
 
-            return Task.FromResult<CommandResult<Tenant>>(tenant);
+            return CommandResult<Tenant>.Created(tenant);
         }
 
         [UsedImplicitly]
