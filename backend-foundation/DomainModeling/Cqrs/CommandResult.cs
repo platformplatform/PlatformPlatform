@@ -23,7 +23,7 @@ public interface ICommandResult
     AttributeError[] Errors { get; }
 }
 
-public readonly struct CommandResult<T> : ICommandResult
+public struct CommandResult<T> : ICommandResult
 {
     [UsedImplicitly]
     public CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
