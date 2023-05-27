@@ -61,11 +61,6 @@ public class Result<T> : IResult
         return new Result<T>(default!, HttpStatusCode.NoContent);
     }
 
-    public static Task<Result<T>> Created(T value)
-    {
-        return Task.FromResult(new Result<T>(value, HttpStatusCode.Created));
-    }
-
     public static Result<T> BadRequest(string message)
     {
         return new Result<T>(new ErrorMessage(message), Array.Empty<AttributeError>(), HttpStatusCode.BadRequest);
