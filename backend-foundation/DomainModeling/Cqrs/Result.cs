@@ -17,7 +17,7 @@ public interface IResult
     ErrorMessage? ErrorMessage { get; }
 
     [UsedImplicitly]
-    AttributeError[] Errors { get; }
+    AttributeError[]? Errors { get; }
 
     [UsedImplicitly]
     HttpStatusCode StatusCode { get; }
@@ -47,7 +47,7 @@ public class Result<T> : IResult
 
     public ErrorMessage? ErrorMessage { get; }
 
-    public AttributeError[] Errors { get; } = Array.Empty<AttributeError>();
+    public AttributeError[]? Errors { get; }
 
     public HttpStatusCode StatusCode { get; }
 

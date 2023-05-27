@@ -12,27 +12,22 @@ public static class ResultExtensions
 {
     public static IResult AsHttpResult<T, TDto>(this Result<T> result)
     {
-        return result.IsSuccess
-            ? Results.Ok(result.Value!.Adapt<TDto>())
-            : GetProblemDetailsAsJson<T, TDto>(result);
+        return result.IsSuccess ? Results.Ok(result.Value!.Adapt<TDto>()) : GetProblemDetailsAsJson(result);
     }
 
     public static IResult AsHttpResult<T, TDto>(this Result<T> result, string uri)
     {
-        return result.IsSuccess
-            ? Results.Created(uri, result.Value!.Adapt<TDto>())
-            : GetProblemDetailsAsJson<T, TDto>(result);
+        return result.IsSuccess ? Results.Created(uri, result.Value!.Adapt<TDto>()) : GetProblemDetailsAsJson(result);
     }
 
-    private static IResult GetProblemDetailsAsJson<T, TDto>(Result<T> result)
+    private static IResult GetProblemDetailsAsJson<T>(Result<T> result)
     {
-        return Results.Json(CreateProblemDetails(result),
-            statusCode: (int) result.StatusCode);
+        return Results.Json(CreateProblemDetails(result), statusCode: (int) result.StatusCode);
     }
 
     private static ProblemDetails CreateProblemDetails<T>(Result<T> result)
     {
-        if (result.Errors.Any())
+        if (result.Errors?.Length > 0)
         {
             return new ProblemDetails
             {

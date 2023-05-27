@@ -113,6 +113,6 @@ public class CreateTenantTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().Be(expected);
-        result.Errors.Length.Should().Be(expected ? 0 : 1);
+        result.Errors?.Length.Should().Be(expected ? null : 1);
     }
 }
