@@ -14,9 +14,9 @@ public interface ITenantValidation
 }
 
 [UsedImplicitly]
-public abstract class TenantCommandValidator<T> : AbstractValidator<T> where T : ITenantValidation
+public abstract class TenantValidator<T> : AbstractValidator<T> where T : ITenantValidation
 {
-    protected TenantCommandValidator()
+    protected TenantValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));

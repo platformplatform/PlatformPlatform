@@ -36,7 +36,7 @@ public static class CreateTenant
         }
 
         [UsedImplicitly]
-        public sealed class Validator : TenantCommandValidator<Command>
+        public sealed class Validator : TenantValidator<Command>
         {
             public Validator(ITenantRepository repository)
             {
