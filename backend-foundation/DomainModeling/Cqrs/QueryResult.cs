@@ -8,7 +8,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
 ///     or not. If the query was successful, the <see cref="QueryResult{T}" /> will contain the result of the query.
 ///     If the query was not successful, it will contain a <see cref="ErrorMessage" />
 /// </summary>
-public sealed class QueryResult<T>
+public readonly struct QueryResult<T>
 {
     private QueryResult(bool isSuccess, T value, ErrorMessage errorMessage)
     {

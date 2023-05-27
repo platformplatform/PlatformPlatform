@@ -23,7 +23,7 @@ public interface ICommandResult
     AttributeError[] Errors { get; }
 }
 
-public class CommandResult<T> : ICommandResult
+public readonly struct CommandResult<T> : ICommandResult
 {
     [UsedImplicitly]
     public CommandResult(bool isSuccess, T? value, AttributeError[] errors, HttpStatusCode statusCode)
@@ -42,7 +42,7 @@ public class CommandResult<T> : ICommandResult
         Errors = Array.Empty<AttributeError>();
     }
 
-    public T? Value { get; private set; }
+    public T? Value { get; }
 
     public bool IsSuccess { get; }
 
