@@ -1,7 +1,9 @@
+using System.Net;
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
 using PlatformPlatform.Foundation.DomainModeling.Behaviors;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using PlatformPlatform.Foundation.Tests.TestEntities;
 using Xunit;
@@ -16,11 +18,12 @@ public class PublishDomainEventsPipelineBehaviorTests
         // Arrange
         var unitOfWork = Substitute.For<IUnitOfWork>();
         var publisher = Substitute.For<IPublisher>();
-        var behavior = new PublishDomainEventsPipelineBehavior<TestCommand, Task>(unitOfWork, publisher);
+        var behavior =
+            new PublishDomainEventsPipelineBehavior<TestCommand, CommandResult<TestAggregate>>(unitOfWork, publisher);
         var request = new TestCommand();
         var cancellationToken = new CancellationToken();
-        var next = Substitute.For<RequestHandlerDelegate<Task>>();
-        next.Invoke().Returns(Task.CompletedTask);
+        var next = Substitute.For<RequestHandlerDelegate<CommandResult<TestAggregate>>>();
+        next.Invoke().Returns(TestAggregate.Create("Test"));
 
         var testAggregate = TestAggregate.Create("TestAggregate");
         var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created.

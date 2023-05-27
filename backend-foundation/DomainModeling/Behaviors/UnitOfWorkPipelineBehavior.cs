@@ -12,7 +12,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     will be lost.
 /// </summary>
 public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : notnull where TResponse : ICommandResult
 {
     private readonly IUnitOfWork _unitOfWork;
 

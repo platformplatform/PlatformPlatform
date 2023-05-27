@@ -1,4 +1,5 @@
 using MediatR;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
@@ -13,7 +14,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     Events instead.
 /// </summary>
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : notnull where TResponse : ICommandResult
 {
     private readonly IPublisher _publisher;
     private readonly IUnitOfWork _unitOfWork;
