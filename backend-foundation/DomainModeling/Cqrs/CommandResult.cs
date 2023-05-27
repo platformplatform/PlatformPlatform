@@ -63,7 +63,7 @@ public struct CommandResult<T> : ICommandResult
     {
         return new CommandResult<T>(false, new ErrorMessage(message), HttpStatusCode.NotFound);
     }
-    
+
     public static CommandResult<T> NoContent()
     {
         return new CommandResult<T>(true, Array.Empty<AttributeError>(), HttpStatusCode.NoContent);

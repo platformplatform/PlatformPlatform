@@ -1,4 +1,3 @@
-using System.Net;
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
