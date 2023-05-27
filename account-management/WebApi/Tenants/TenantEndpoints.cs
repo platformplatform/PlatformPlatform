@@ -10,7 +10,7 @@ namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
 
 public static class TenantEndpoints
 {
-    private const string RoutesPrefix = "/tenants";
+    private const string RoutesPrefix = "/api/tenants/v1";
 
     public static void MapTenantEndpoints(this IEndpointRouteBuilder routes)
     {
