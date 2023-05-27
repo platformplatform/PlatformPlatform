@@ -28,9 +28,7 @@ public static class UpdateTenant
             }
 
             tenant.Update(command.Name, command.Email, command.Phone);
-
             _tenantRepository.Update(tenant);
-
             return tenant;
         }
 

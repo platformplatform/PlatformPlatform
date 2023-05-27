@@ -51,7 +51,7 @@ public class CustomExceptionHandlingTests
             // In Production we use GlobalExceptionHandlerMiddleware which returns a JSON response.
             var errorResponse = await response.Content.ReadFromJsonAsync<ProblemDetails>();
             errorResponse.Should().NotBeNull();
-            errorResponse!.Type.Should().Be("Server Error");
+            errorResponse!.Type.Should().Be("https://httpstatuses.com/500");
             errorResponse.Title.Should().Be("Server Error");
             errorResponse.Detail.Should().Be("An error occurred while processing the request.");
         }

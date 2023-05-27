@@ -25,9 +25,7 @@ public sealed class Tenant : AggregateRoot<TenantId>
     public static Tenant Create(string tenantName, string subdomain, string email, string? phone)
     {
         var tenant = new Tenant(tenantName, email, phone) {Subdomain = subdomain};
-
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id));
-
         return tenant;
     }
 

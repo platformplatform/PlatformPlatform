@@ -26,7 +26,6 @@ public static class DeleteTenant
             }
 
             _tenantRepository.Remove(tenant);
-
             return Result<Tenant>.NoContent();
         }
     }
