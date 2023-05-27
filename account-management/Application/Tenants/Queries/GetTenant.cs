@@ -10,9 +10,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 /// </summary>
 public static class GetTenant
 {
-    public sealed record Query(TenantId Id) : IRequest<QueryResult<Tenant>>;
+    public sealed record Query(TenantId Id) : IRequest<Result<Tenant>>;
 
-    public sealed class Handler : IRequestHandler<Query, QueryResult<Tenant>>
+    public sealed class Handler : IRequestHandler<Query, Result<Tenant>>
     {
         private readonly ITenantRepository _tenantRepository;
 
@@ -21,10 +21,10 @@ public static class GetTenant
             _tenantRepository = tenantRepository;
         }
 
-        public async Task<QueryResult<Tenant>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<Tenant>> Handle(Query request, CancellationToken cancellationToken)
         {
             var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-            return tenant ?? QueryResult<Tenant>.Failure($"Tenant with id '{request.Id}' not found.");
+            return tenant ?? Result<Tenant>.NotFound($"Tenant with id '{request.Id}' not found.");
         }
     }
 }

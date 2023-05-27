@@ -12,7 +12,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     handled. If the request is valid, the next pipeline behavior will be called.
 /// </summary>
 public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse> where TResponse : ICommandResult
+    where TRequest : IRequest<TResponse> where TResponse : IResult
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -55,9 +55,8 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
     ///     constructor.
     /// </summary>
     private static TResult CreateValidationResult<TResult>(AttributeError[] attributeErrors)
-        where TResult : ICommandResult
+        where TResult : IResult
     {
-        return (TResult) Activator.CreateInstance(typeof(TResult), false, default(object), attributeErrors,
-            HttpStatusCode.BadRequest)!;
+        return (TResult) Activator.CreateInstance(typeof(TResult), null, attributeErrors, HttpStatusCode.BadRequest)!;
     }
 }

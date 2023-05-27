@@ -1,4 +1,3 @@
-using System.Net;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -12,7 +11,7 @@ namespace PlatformPlatform.Foundation.Tests.DomainModeling.Behaviors;
 
 public class UnitOfWorkPipelineBehaviorTests
 {
-    private readonly UnitOfWorkPipelineBehavior<TestCommand, CommandResult<TestAggregate>> _behavior;
+    private readonly UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>> _behavior;
     private readonly IUnitOfWork _unitOfWork;
 
     public UnitOfWorkPipelineBehaviorTests()
@@ -20,7 +19,7 @@ public class UnitOfWorkPipelineBehaviorTests
         var services = new ServiceCollection();
         _unitOfWork = Substitute.For<IUnitOfWork>();
         services.AddSingleton(_unitOfWork);
-        _behavior = new UnitOfWorkPipelineBehavior<TestCommand, CommandResult<TestAggregate>>(_unitOfWork);
+        _behavior = new UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>>(_unitOfWork);
     }
 
     [Fact]
@@ -29,8 +28,8 @@ public class UnitOfWorkPipelineBehaviorTests
         // Arrange
         var command = new TestCommand();
         var cancellationToken = new CancellationToken();
-        var next = Substitute.For<RequestHandlerDelegate<CommandResult<TestAggregate>>>();
-        var successfulCommandResult = CommandResult<TestAggregate>.Success(TestAggregate.Create("Foo"));
+        var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
+        var successfulCommandResult = Result<TestAggregate>.Success(TestAggregate.Create("Foo"));
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act
@@ -51,8 +50,8 @@ public class UnitOfWorkPipelineBehaviorTests
         // Arrange
         var command = new TestCommand();
         var cancellationToken = new CancellationToken();
-        var next = Substitute.For<RequestHandlerDelegate<CommandResult<TestAggregate>>>();
-        var successfulCommandResult = CommandResult<TestAggregate>.GenericFailure("Fail", HttpStatusCode.BadRequest);
+        var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
+        var successfulCommandResult = Result<TestAggregate>.BadRequest("Fail");
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act

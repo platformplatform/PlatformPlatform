@@ -14,7 +14,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     Events instead.
 /// </summary>
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull where TResponse : ICommandResult
+    where TRequest : notnull where TResponse : IResult
 {
     private readonly IPublisher _publisher;
     private readonly IUnitOfWork _unitOfWork;

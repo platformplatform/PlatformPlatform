@@ -40,7 +40,7 @@ public class GetTenantTests
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value;
         tenantResponse.Should().NotBeNull();
-        tenantResponse.Id.Should().Be(expectedTenantId);
+        tenantResponse!.Id.Should().Be(expectedTenantId);
         tenantResponse.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }

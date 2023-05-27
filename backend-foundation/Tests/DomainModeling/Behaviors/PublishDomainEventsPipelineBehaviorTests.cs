@@ -18,10 +18,10 @@ public class PublishDomainEventsPipelineBehaviorTests
         var unitOfWork = Substitute.For<IUnitOfWork>();
         var publisher = Substitute.For<IPublisher>();
         var behavior =
-            new PublishDomainEventsPipelineBehavior<TestCommand, CommandResult<TestAggregate>>(unitOfWork, publisher);
+            new PublishDomainEventsPipelineBehavior<TestCommand, Result<TestAggregate>>(unitOfWork, publisher);
         var request = new TestCommand();
         var cancellationToken = new CancellationToken();
-        var next = Substitute.For<RequestHandlerDelegate<CommandResult<TestAggregate>>>();
+        var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         next.Invoke().Returns(TestAggregate.Create("Test"));
 
         var testAggregate = TestAggregate.Create("TestAggregate");

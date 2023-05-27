@@ -14,10 +14,10 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 public static class CreateTenant
 {
     public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
-        : ITenantValidation, IRequest<CommandResult<Tenant>>;
+        : ITenantValidation, IRequest<Result<Tenant>>;
 
     [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Command, CommandResult<Tenant>>
+    public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
     {
         private readonly ITenantRepository _tenantRepository;
 
@@ -26,13 +26,13 @@ public static class CreateTenant
             _tenantRepository = tenantRepository;
         }
 
-        public Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
+        public Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
 
             _tenantRepository.Add(tenant);
 
-            return CommandResult<Tenant>.Created(tenant);
+            return Result<Tenant>.Created(tenant);
         }
 
         [UsedImplicitly]
