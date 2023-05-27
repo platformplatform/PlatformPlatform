@@ -35,7 +35,7 @@ public static class UpdateTenant
         }
 
         [UsedImplicitly]
-        public sealed class Validator : TenantValidatorBase<Command>
+        public sealed class Validator : TenantCommandValidator<Command>
         {
         }
     }

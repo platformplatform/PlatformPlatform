@@ -2,7 +2,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Foundation.DomainModeling.Validation;
 
-namespace PlatformPlatform.AccountManagement.Domain.Tenants;
+namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public interface ITenantValidation
 {
@@ -14,9 +14,9 @@ public interface ITenantValidation
 }
 
 [UsedImplicitly]
-public abstract class TenantValidatorBase<T> : AbstractValidator<T> where T : ITenantValidation
+public abstract class TenantCommandValidator<T> : AbstractValidator<T> where T : ITenantValidation
 {
-    protected TenantValidatorBase()
+    protected TenantCommandValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));
