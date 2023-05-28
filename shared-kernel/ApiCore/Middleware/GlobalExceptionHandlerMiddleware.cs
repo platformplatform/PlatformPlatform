@@ -10,7 +10,6 @@ public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
 {
     private readonly ILogger _logger;
 
-    // ReSharper disable once SuggestBaseTypeForParameterInConstructor
     public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger)
     {
         _logger = logger;

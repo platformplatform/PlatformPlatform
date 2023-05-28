@@ -24,7 +24,6 @@ public static partial class ResultExtensions
         return Results.Json(CreateProblemDetails(result), statusCode: (int) result.StatusCode);
     }
 
-    // ReSharper disable once SuggestBaseTypeForParameter
     private static ProblemDetails CreateProblemDetails<T>(Result<T> result)
     {
         var statusCode = result.StatusCode;

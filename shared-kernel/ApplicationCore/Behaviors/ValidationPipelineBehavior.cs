@@ -54,7 +54,6 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
     ///     Uses reflection to create a new instance of the specified Result type, passing the attributeErrors to the
     ///     constructor.
     /// </summary>
-    // ReSharper disable once SuggestBaseTypeForParameter
     private static TResult CreateValidationResult<TResult>(AttributeError[] attributeErrors)
         where TResult : IResult
     {
