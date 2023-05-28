@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "account-mana
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "account-management\Infrastructure\Infrastructure.csproj", "{CB9BAD74-4362-4646-B653-3CB5FCAC74BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi", "account-management\WebApi\WebApi.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "account-management\Api\Api.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{92101687-8181-4543-84F9-E702DD874619}"
 EndProject

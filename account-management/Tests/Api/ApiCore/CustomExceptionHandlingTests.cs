@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.WebApi.AspNetCoreUtils;
+namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
 
 public class CustomExceptionHandlingTests
 {

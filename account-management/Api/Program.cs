@@ -1,12 +1,12 @@
+using PlatformPlatform.AccountManagement.Api;
+using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi;
-using PlatformPlatform.AccountManagement.WebApi.Tenants;
 using PlatformPlatform.SharedKernel.ApiCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services for the Application, Infrastructure, and WebApi layers.
+// Configure services for the Application, Infrastructure, and Api layers.
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)

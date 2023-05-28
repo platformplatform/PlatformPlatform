@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.AccountManagement.WebApi</AssemblyName>
-        <RootNamespace>PlatformPlatform.AccountManagement.WebApi</RootNamespace>
+        <AssemblyName>PlatformPlatform.AccountManagement.Api</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.Api</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>

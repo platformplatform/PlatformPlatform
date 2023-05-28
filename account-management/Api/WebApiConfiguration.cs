@@ -2,7 +2,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.ApiCore;
 
-namespace PlatformPlatform.AccountManagement.WebApi;
+namespace PlatformPlatform.AccountManagement.Api;
 
 /// <summary>
 ///     The WebApiConfiguration class is used to register services used by the Web API

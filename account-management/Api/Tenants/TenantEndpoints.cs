@@ -1,12 +1,12 @@
 using Mapster;
 using MediatR;
+using PlatformPlatform.AccountManagement.Api.Tenants.Contracts;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.WebApi.Tenants.Contracts;
 using PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
-namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
+namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
 public static class TenantEndpoints
 {

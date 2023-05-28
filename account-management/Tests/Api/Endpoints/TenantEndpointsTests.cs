@@ -4,13 +4,13 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.AccountManagement.Api.Tenants.Contracts;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
-using PlatformPlatform.AccountManagement.WebApi.Tenants.Contracts;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.WebApi.Endpoints;
+namespace PlatformPlatform.AccountManagement.Tests.Api.Endpoints;
 
 public sealed class TenantEndpointsTests : IDisposable
 {
