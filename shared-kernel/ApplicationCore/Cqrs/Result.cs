@@ -16,7 +16,7 @@ public interface IResult
     ErrorMessage? ErrorMessage { get; }
 
     [UsedImplicitly]
-    AttributeError[]? Errors { get; }
+    ErrorDetail[]? Errors { get; }
 
     [UsedImplicitly]
     HttpStatusCode StatusCode { get; }
@@ -38,7 +38,7 @@ public class Result<T> : IResult
     }
 
     [UsedImplicitly]
-    public Result(ErrorMessage errorMessage, AttributeError[] errors, HttpStatusCode statusCode)
+    public Result(ErrorMessage errorMessage, ErrorDetail[] errors, HttpStatusCode statusCode)
     {
         IsSuccess = false;
         StatusCode = statusCode;
@@ -52,13 +52,13 @@ public class Result<T> : IResult
 
     public ErrorMessage? ErrorMessage { get; }
 
-    public AttributeError[]? Errors { get; }
+    public ErrorDetail[]? Errors { get; }
 
     public HttpStatusCode StatusCode { get; }
 
     public static Result<T> NotFound(string message)
     {
-        return new Result<T>(new ErrorMessage(message), Array.Empty<AttributeError>(), HttpStatusCode.NotFound);
+        return new Result<T>(new ErrorMessage(message), Array.Empty<ErrorDetail>(), HttpStatusCode.NotFound);
     }
 
     public static Result<T> NoContent()
@@ -68,7 +68,7 @@ public class Result<T> : IResult
 
     public static Result<T> BadRequest(string message)
     {
-        return new Result<T>(new ErrorMessage(message), Array.Empty<AttributeError>(), HttpStatusCode.BadRequest);
+        return new Result<T>(new ErrorMessage(message), Array.Empty<ErrorDetail>(), HttpStatusCode.BadRequest);
     }
 
     /// <summary>

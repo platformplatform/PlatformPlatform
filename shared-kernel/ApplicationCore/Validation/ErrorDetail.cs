@@ -3,4 +3,4 @@ using JetBrains.Annotations;
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 [UsedImplicitly]
-public sealed record AttributeError(string? AttributeName, string Message);
+public sealed record ErrorDetail(string? Code, string Message);

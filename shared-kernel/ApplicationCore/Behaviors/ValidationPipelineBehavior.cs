@@ -35,28 +35,28 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
         var validationResults =
             await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
-        // Aggregate the results from all validators into a distinct list of attribute errors
-        var attributeErrors = validationResults
+        // Aggregate the results from all validators into a distinct list of errorDetails
+        var errorDetails = validationResults
             .SelectMany(result => result.Errors)
             .Where(failure => failure != null)
-            .Select(failure => new AttributeError(failure.PropertyName.Split('.').First(), failure.ErrorMessage))
+            .Select(failure => new ErrorDetail(failure.PropertyName.Split('.').First(), failure.ErrorMessage))
             .ToArray();
 
-        if (attributeErrors.Any())
+        if (errorDetails.Any())
         {
-            return CreateValidationResult<TResponse>(attributeErrors);
+            return CreateValidationResult<TResponse>(errorDetails);
         }
 
         return await next();
     }
 
     /// <summary>
-    ///     Uses reflection to create a new instance of the specified Result type, passing the attributeErrors to the
+    ///     Uses reflection to create a new instance of the specified Result type, passing the errorDetails to the
     ///     constructor.
     /// </summary>
-    private static TResult CreateValidationResult<TResult>(AttributeError[] attributeErrors)
+    private static TResult CreateValidationResult<TResult>(ErrorDetail[] errorDetails)
         where TResult : IResult
     {
-        return (TResult) Activator.CreateInstance(typeof(TResult), null, attributeErrors, HttpStatusCode.BadRequest)!;
+        return (TResult) Activator.CreateInstance(typeof(TResult), null, errorDetails, HttpStatusCode.BadRequest)!;
     }
 }
