@@ -173,6 +173,7 @@ public class StronglyTypedIdEntity : Entity<StronglyTypedId>
     {
     }
 
+    [UsedImplicitly]
     public required string Name { get; init; }
 }
 
@@ -182,6 +183,7 @@ public class GuidEntity : Entity<Guid>
     {
     }
 
+    [UsedImplicitly]
     public required string Name { get; init; }
 }
 
@@ -191,5 +193,6 @@ public class StringEntity : Entity<string>
     {
     }
 
+    [UsedImplicitly]
     public required string Name { get; init; }
 }

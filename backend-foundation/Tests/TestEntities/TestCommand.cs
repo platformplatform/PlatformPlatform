@@ -3,4 +3,4 @@ using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 
 namespace PlatformPlatform.Foundation.Tests.TestEntities;
 
-public record TestCommand : IRequest<CommandResult<TestAggregate>>;
+public record TestCommand : ICommand, IRequest<Result<TestAggregate>>;

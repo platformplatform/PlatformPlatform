@@ -1,23 +1,44 @@
 using FluentAssertions;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
+using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class CreateTenantTests
+public sealed class CreateTenantTests : IDisposable
 {
+    private readonly IMediator _mediator;
+    private readonly ServiceProvider _provider;
     private readonly ITenantRepository _tenantRepository;
 
     public CreateTenantTests()
     {
+        _tenantRepository = Substitute.For<ITenantRepository>();
+        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var domainEventCollector = Substitute.For<IDomainEventCollector>();
+
         var services = new ServiceCollection();
         services.AddApplicationServices();
+        services.AddSingleton(_tenantRepository);
+        services.AddSingleton(unitOfWork);
+        services.AddSingleton(domainEventCollector);
 
-        _tenantRepository = Substitute.For<ITenantRepository>();
+        _provider = services.BuildServiceProvider();
+        _mediator = _provider.GetRequiredService<IMediator>();
+    }
+
+    public void Dispose()
+    {
+        _provider.Dispose();
     }
 
     [Fact]
@@ -25,36 +46,30 @@ public class CreateTenantTests
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
-        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
         var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
+        var result = await _mediator.Send(command);
 
         // Assert
-        createTenantCommandResult.IsSuccess.Should().BeTrue();
-        var tenantResponse = createTenantCommandResult.Value!;
-        _tenantRepository.Received()
-            .Add(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
+        result.IsSuccess.Should().BeTrue();
+        var tenantResponse = result.Value!;
+        await _tenantRepository.Received()
+            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
     }
 
     [Fact]
     public async Task CreateTenantHandler_WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
     {
         // Arrange
-        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
         var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var createTenantCommandResult = await handler.Handle(command, CancellationToken.None);
+        var result = await _mediator.Send(command);
 
         // Assert
-        createTenantCommandResult.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = createTenantCommandResult.Value!;
+        result.IsSuccess.Should().BeTrue();
+        var tenantResponseDto = result.Value!;
         tenantResponseDto.Name.Should().Be(command.Name);
         tenantResponseDto.Email.Should().Be(command.Email);
         tenantResponseDto.Phone.Should().Be(command.Phone);
@@ -64,15 +79,13 @@ public class CreateTenantTests
     public async Task CreateTenantHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
     {
         // Arrange
-        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
-        var handler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
         var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var _ = await handler.Handle(command, CancellationToken.None);
+        var _ = await _mediator.Send(command);
 
         // Assert
-        _tenantRepository.Received().Add(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
+        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
     }
 
     [Theory]
@@ -97,14 +110,12 @@ public class CreateTenantTests
     {
         // Arrange
         var command = new CreateTenant.Command(name, subdomain, email, phone);
-        _tenantRepository.IsSubdomainFreeAsync(subdomain, Arg.Any<CancellationToken>()).Returns(true);
-        var createTenantCommandHandler = new CreateTenant.Handler(_tenantRepository);
 
         // Act
-        var commandResult = await createTenantCommandHandler.Handle(command, CancellationToken.None);
+        var result = await _mediator.Send(command);
 
         // Assert
-        commandResult.IsSuccess.Should().Be(expected);
-        commandResult.Errors.Length.Should().Be(expected ? 0 : 1);
+        result.IsSuccess.Should().Be(expected);
+        result.Errors?.Length.Should().Be(expected ? null : 1);
     }
 }

@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
@@ -28,18 +29,27 @@ public static class InfrastructureCoreConfiguration
     {
         services.AddDbContext<T>((_, optionsBuilder) =>
         {
-            var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                           ?? throw new Exception("The 'SQL_DATABASE_PASSWORD' environment variable has not been set.");
-
-            var connectionString = configuration.GetConnectionString("Default");
-            connectionString += $";Password={password}";
-
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(GetConnectionString(configuration));
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
+        services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
+            new DomainEventCollector(provider.GetRequiredService<T>()));
 
         return services;
+    }
+
+    private static string GetConnectionString(IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Default")
+                               ?? throw new Exception("Missing GetConnectionString configuration.");
+
+        if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
+        {
+            connectionString += $";Password={password}";
+        }
+
+        return connectionString;
     }
 
     [UsedImplicitly]

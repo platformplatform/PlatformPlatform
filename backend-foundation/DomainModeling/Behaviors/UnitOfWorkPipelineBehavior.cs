@@ -12,7 +12,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     will be lost.
 /// </summary>
 public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : ICommand where TResponse : IResult
 {
     private readonly IUnitOfWork _unitOfWork;
 
@@ -26,7 +26,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineB
     {
         var response = await next();
 
-        if (response is ICommandResult {IsSuccess: true})
+        if (response is IResult {IsSuccess: true})
         {
             await _unitOfWork.CommitAsync(cancellationToken);
         }

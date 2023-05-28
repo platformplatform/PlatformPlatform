@@ -1,5 +1,3 @@
-using PlatformPlatform.Foundation.DomainModeling.Entities;
-
 namespace PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 /// <summary>
@@ -13,6 +11,4 @@ namespace PlatformPlatform.Foundation.DomainModeling.Persistence;
 public interface IUnitOfWork
 {
     Task CommitAsync(CancellationToken cancellationToken);
-
-    IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents();
 }

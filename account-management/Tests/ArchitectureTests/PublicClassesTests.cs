@@ -37,8 +37,7 @@ public class PublicClassesTests
             .That()
             .ArePublic()
             .And().AreNotAbstract()
-            .And().DoNotHaveName(typeof(CommandResult<>).Name)
-            .And().DoNotHaveName(typeof(QueryResult<>).Name);
+            .And().DoNotHaveName(typeof(Result<>).Name);
 
         var result = types
             .Should()

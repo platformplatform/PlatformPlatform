@@ -40,9 +40,7 @@ public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
 
     public static bool operator ==(Entity<T>? a, Entity<T>? b)
     {
-        if (a is null && b is null) return true;
-        if (a is null || b is null) return false;
-        return a.Equals(b);
+        return a?.Equals(b) == true;
     }
 
     public static bool operator !=(Entity<T>? a, Entity<T>? b)

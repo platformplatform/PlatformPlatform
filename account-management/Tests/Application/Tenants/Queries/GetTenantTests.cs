@@ -23,11 +23,11 @@ public class GetTenantTests
         var expectedTenantId = TenantId.NewId();
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant(expectedTenantName, "foo@tenant1.com", "1234567890")
+        var tenant = new Tenant(expectedTenantName, "tenant1", "foo@tenant1.com", "1234567890")
         {
-            Id = expectedTenantId,
-            Subdomain = "tenant1"
+            Id = expectedTenantId
         };
+
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(expectedTenantId, default).Returns(tenant);
         var handler = new GetTenant.Handler(tenantRepository);
@@ -40,7 +40,7 @@ public class GetTenantTests
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value;
         tenantResponse.Should().NotBeNull();
-        tenantResponse.Id.Should().Be(expectedTenantId);
+        tenantResponse!.Id.Should().Be(expectedTenantId);
         tenantResponse.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }

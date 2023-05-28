@@ -1,6 +1,6 @@
 using MediatR;
+using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 
@@ -13,15 +13,15 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     Events instead.
 /// </summary>
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : ICommand where TResponse : IResult
 {
-    private readonly IPublisher _publisher;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventCollector _domainEventCollector;
+    private readonly IPublisher _mediatr;
 
-    public PublishDomainEventsPipelineBehavior(IUnitOfWork unitOfWork, IPublisher publisher)
+    public PublishDomainEventsPipelineBehavior(IDomainEventCollector domainEventCollector, IPublisher mediatr)
     {
-        _unitOfWork = unitOfWork;
-        _publisher = publisher;
+        _domainEventCollector = domainEventCollector;
+        _mediatr = mediatr;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
@@ -40,7 +40,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : I
             // Publish the domain event to the MediatR pipeline. Any registered event handlers will be invoked. These
             // event handlers can then carry out any necessary actions, such as managing side effects, updating read
             // models, and so forth.
-            await _publisher.Publish(domainEvent, cancellationToken);
+            await _mediatr.Publish(domainEvent, cancellationToken);
 
             // It is possible that a domain event handler creates a new domain event, so we need to check if there are
             // any new domain events that need to be published and handled before continuing.
@@ -55,7 +55,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : I
     /// </summary>
     private void EnqueueAndClearDomainEvents(Queue<IDomainEvent> domainEvents)
     {
-        foreach (var aggregate in _unitOfWork.GetAggregatesWithDomainEvents())
+        foreach (var aggregate in _domainEventCollector.GetAggregatesWithDomainEvents())
         {
             foreach (var domainEvent in aggregate.DomainEvents)
             {

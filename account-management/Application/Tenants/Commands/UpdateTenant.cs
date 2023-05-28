@@ -1,4 +1,4 @@
-using System.Net;
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
@@ -8,9 +8,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 public static class UpdateTenant
 {
     public sealed record Command(TenantId Id, string Name, string Email, string? Phone)
-        : IRequest<CommandResult<Tenant>>;
+        : ICommand, ITenantValidation, IRequest<Result<Tenant>>;
 
-    public sealed class Handler : IRequestHandler<Command, CommandResult<Tenant>>
+    public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
     {
         private readonly ITenantRepository _tenantRepository;
 
@@ -19,30 +19,22 @@ public static class UpdateTenant
             _tenantRepository = tenantRepository;
         }
 
-        public async Task<CommandResult<Tenant>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var propertyErrors = TenantValidation.ValidateName(command.Name).Errors
-                .Concat(TenantValidation.ValidateEmail(command.Email).Errors)
-                .Concat(TenantValidation.ValidatePhone(command.Phone).Errors)
-                .ToArray();
-
-            if (propertyErrors.Any())
-            {
-                return CommandResult<Tenant>.Failure(propertyErrors, HttpStatusCode.BadRequest);
-            }
-
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
-                return CommandResult<Tenant>.Failure($"Tenant with id '{command.Id}' not found.",
-                    HttpStatusCode.NotFound);
+                return Result<Tenant>.NotFound($"Tenant with id '{command.Id}' not found.");
             }
 
             tenant.Update(command.Name, command.Email, command.Phone);
-
             _tenantRepository.Update(tenant);
-
             return tenant;
+        }
+
+        [UsedImplicitly]
+        public sealed class Validator : TenantValidator<Command>
+        {
         }
     }
 }

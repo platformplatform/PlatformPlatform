@@ -1,8 +1,11 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
+using PlatformPlatform.Foundation.DomainModeling;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;
@@ -15,8 +18,12 @@ public sealed class TenantRepositoryTests : IDisposable
 
     public TenantRepositoryTests()
     {
+        var services = new ServiceCollection();
+
         _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
         _applicationDbContext = _dbContextFactory.CreateContext();
+        services.AddDomainModelingServices(ApplicationConfiguration.Assembly);
+
         _tenantRepository = new TenantRepository(_applicationDbContext);
     }
 
@@ -29,13 +36,10 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Add_WhenTenantDoesNotExist_ShouldAddTenantToDatabase()
     {
         // Arrange
-        var tenant = new Tenant("New Tenant", "new@test.com", "1234567890")
-        {
-            Subdomain = "new"
-        };
+        var tenant = Tenant.Create("New Tenant", "new", "new@test.com", "1234567890");
 
         // Act
-        _tenantRepository.Add(tenant);
+        await _tenantRepository.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
         // Assert
@@ -48,10 +52,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Update_WhenTenantExists_ShouldUpdateTenantInDatabase()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
@@ -70,10 +71,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Remove_WhenTenantExists_ShouldRemoveTenantFromDatabase()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
 
@@ -90,10 +88,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange  
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
@@ -109,10 +104,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainDoesNotExist_ShouldReturnTrue()
     {
         // Arrange
-        var tenant = new Tenant("Existing Tenant", "existing@test.com", "1234567890")
-        {
-            Subdomain = "existing"
-        };
+        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
         await _applicationDbContext.Tenants.AddAsync(tenant);
         await _applicationDbContext.SaveChangesAsync();
