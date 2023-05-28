@@ -31,10 +31,10 @@ public static class UpdateTenant
             _tenantRepository.Update(tenant);
             return tenant;
         }
-
-        [UsedImplicitly]
-        public sealed class Validator : TenantValidator<Command>
-        {
-        }
+    }
+    
+    [UsedImplicitly]
+    public sealed class Validator : TenantValidator<Command>
+    {
     }
 }
