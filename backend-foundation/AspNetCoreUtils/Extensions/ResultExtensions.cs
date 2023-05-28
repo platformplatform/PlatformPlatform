@@ -7,7 +7,7 @@ using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
 
-public static class ResultExtensions
+public static partial class ResultExtensions
 {
     public static IResult AsHttpResult<T, TDto>(this Result<T> result)
     {
@@ -44,6 +44,9 @@ public static class ResultExtensions
 
     private static string SplitCamelCaseTitle(string title)
     {
-        return Regex.Replace(title, "(?<=[a-z])([A-Z])", " $1", RegexOptions.Compiled);
+        return SplitCamelCase().Replace(title, " $1");
     }
+
+    [GeneratedRegex("(?<=[a-z])([A-Z])", RegexOptions.Compiled)]
+    private static partial Regex SplitCamelCase();
 }

@@ -99,7 +99,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var expectedBody =
+        const string expectedBody =
             """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"attributeName":"Email","message":"'Email' is not a valid email address."},{"attributeName":"Subdomain","message":"'Subdomain' must be between 3 and 30 characters. You entered 1 characters."}]}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
@@ -148,7 +148,7 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        var expectedBody =
+        const string expectedBody =
             """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
@@ -217,7 +217,7 @@ public sealed class TenantEndpointsTests : IDisposable
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        var expectedBody =
+        const string expectedBody =
             """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);

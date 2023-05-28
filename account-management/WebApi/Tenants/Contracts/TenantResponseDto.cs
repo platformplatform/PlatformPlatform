@@ -12,11 +12,13 @@ public sealed record TenantResponseDto
     /// <summary>
     ///     The Id of the Tenant.
     /// </summary>
+    [UsedImplicitly]
     public required string Id { get; init; }
 
     /// <summary>
     ///     The date and time when the Tenant was created in UTC format.
     /// </summary>
+    [UsedImplicitly]
     public required DateTime CreatedAt { get; init; }
 
     /// <summary>
@@ -28,6 +30,7 @@ public sealed record TenantResponseDto
     /// <summary>
     ///     The name of the Tenant.
     /// </summary>
+    [UsedImplicitly]
     public required string Name { get; init; }
 
     /// <summary>
@@ -39,10 +42,12 @@ public sealed record TenantResponseDto
     /// <summary>
     ///     The email of the tenant owner.
     /// </summary>
+    [UsedImplicitly]
     public required string Email { get; init; }
 
     /// <summary>
     ///     The phone number of the tenant owner (optional).
     /// </summary>
+    [UsedImplicitly]
     public string? Phone { get; init; }
 }

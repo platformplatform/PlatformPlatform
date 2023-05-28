@@ -11,7 +11,7 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
-public class CreateTenantTests : IDisposable
+public sealed class CreateTenantTests : IDisposable
 {
     private readonly IMediator _mediator;
     private readonly ServiceProvider _provider;
