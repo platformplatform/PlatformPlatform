@@ -1,13 +1,13 @@
 using FluentAssertions;
 using MediatR;
 using NSubstitute;
-using PlatformPlatform.Foundation.DomainModeling.Behaviors;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.Tests.TestEntities;
+using PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
+using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.DomainModeling.Behaviors;
+namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.Behaviors;
 
 public class PublishDomainEventsPipelineBehaviorTests
 {

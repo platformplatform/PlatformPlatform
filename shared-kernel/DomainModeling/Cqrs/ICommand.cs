@@ -1,4 +1,4 @@
-namespace PlatformPlatform.Foundation.DomainModeling.Cqrs;
+namespace PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
 
 public interface ICommand
 {

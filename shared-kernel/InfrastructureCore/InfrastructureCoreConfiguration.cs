@@ -3,11 +3,11 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
-using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
-namespace PlatformPlatform.Foundation.InfrastructureCore;
+namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {

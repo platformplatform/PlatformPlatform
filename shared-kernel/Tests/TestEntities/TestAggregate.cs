@@ -1,7 +1,7 @@
-using PlatformPlatform.Foundation.DomainModeling.Entities;
-using PlatformPlatform.Foundation.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Identity;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public sealed class TestAggregate : AggregateRoot<long>
 {

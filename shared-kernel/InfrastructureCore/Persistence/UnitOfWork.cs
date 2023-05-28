@@ -1,10 +1,10 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DomainModeling.Behaviors;
-using PlatformPlatform.Foundation.DomainModeling.Entities;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
 
-namespace PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 /// <summary>
 ///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer. It is responsible for

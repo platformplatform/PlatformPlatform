@@ -1,6 +1,6 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 

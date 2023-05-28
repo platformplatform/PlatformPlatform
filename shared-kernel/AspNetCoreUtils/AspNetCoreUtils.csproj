@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>PlatformPlatform.Foundation.AspNetCoreUtils</AssemblyName>
-        <RootNamespace>PlatformPlatform.Foundation.AspNetCoreUtils</RootNamespace>
+        <AssemblyName>PlatformPlatform.SharedKernel.AspNetCoreUtils</AssemblyName>
+        <RootNamespace>PlatformPlatform.SharedKernel.AspNetCoreUtils</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

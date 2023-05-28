@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PlatformPlatform.Foundation.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainModeling.Identity;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.DomainModeling.Identity;
+namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.Identity;
 
 public class IdGeneratorTests
 {

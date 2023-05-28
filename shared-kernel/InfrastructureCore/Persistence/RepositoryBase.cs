@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DomainModeling.Entities;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
 
-namespace PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 public abstract class RepositoryBase<T, TId> : IRepository<T, TId>
     where T : AggregateRoot<TId>

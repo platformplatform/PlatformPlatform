@@ -5,7 +5,7 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
-using PlatformPlatform.Foundation.DomainModeling;
+using PlatformPlatform.SharedKernel.DomainModeling;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;

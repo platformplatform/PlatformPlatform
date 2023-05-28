@@ -1,6 +1,6 @@
-using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public class TestAggregateRepository : RepositoryBase<TestAggregate, long>, ITestAggregateRepository
 {

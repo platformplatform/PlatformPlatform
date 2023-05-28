@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.DomainModeling.Entities;
+namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.Entities;
 
 public class EntityEqualityComparerTests
 {

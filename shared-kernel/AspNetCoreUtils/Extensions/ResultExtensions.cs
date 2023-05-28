@@ -2,10 +2,10 @@ using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
+namespace PlatformPlatform.SharedKernel.AspNetCoreUtils.Extensions;
 
 public static partial class ResultExtensions
 {

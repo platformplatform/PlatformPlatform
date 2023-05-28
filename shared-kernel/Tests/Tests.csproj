@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Foundation.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.Foundation.Tests</RootNamespace>
+        <AssemblyName>PlatformPlatform.SharedKernel.Tests</AssemblyName>
+        <RootNamespace>PlatformPlatform.SharedKernel.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 

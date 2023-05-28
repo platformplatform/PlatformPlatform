@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>PlatformPlatform.Foundation.InfrastructureCore</RootNamespace>
-        <AssemblyName>PlatformPlatform.Foundation.InfrastructureCore</AssemblyName>
+        <RootNamespace>PlatformPlatform.SharedKernel.InfrastructureCore</RootNamespace>
+        <AssemblyName>PlatformPlatform.SharedKernel.InfrastructureCore</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
-using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
-using PlatformPlatform.Foundation.Tests.TestEntities;
+using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.InfrastructureCore.Persistence;
+namespace PlatformPlatform.SharedKernel.Tests.InfrastructureCore.Persistence;
 
 public sealed class UnitOfWorkTests : IDisposable
 {

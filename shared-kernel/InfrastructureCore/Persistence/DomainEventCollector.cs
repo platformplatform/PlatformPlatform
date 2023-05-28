@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
 
-namespace PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 public sealed class DomainEventCollector : IDomainEventCollector
 {

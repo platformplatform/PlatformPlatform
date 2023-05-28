@@ -1,6 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation.DomainModeling;
+using PlatformPlatform.SharedKernel.DomainModeling;
 
 namespace PlatformPlatform.AccountManagement.Application;
 

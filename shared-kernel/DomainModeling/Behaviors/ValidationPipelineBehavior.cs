@@ -1,10 +1,10 @@
 using System.Net;
 using FluentValidation;
 using MediatR;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
+using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.DomainModeling.Validation;
 
-namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
+namespace PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
 
 /// <summary>
 ///     The ValidationPipelineBehavior class is a MediatR pipeline behavior that validates the request using

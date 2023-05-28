@@ -1,5 +1,5 @@
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public record TestAggregateCreatedEvent(long TestAggregateId, string Name) : IDomainEvent;

@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.WebApi.Tenants.Contracts;
-using PlatformPlatform.Foundation.AspNetCoreUtils.Extensions;
+using PlatformPlatform.SharedKernel.AspNetCoreUtils.Extensions;
 
 namespace PlatformPlatform.AccountManagement.WebApi.Tenants;
 

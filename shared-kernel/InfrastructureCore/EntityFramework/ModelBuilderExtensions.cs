@@ -2,10 +2,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.Foundation.DomainModeling.Entities;
-using PlatformPlatform.Foundation.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Identity;
 
-namespace PlatformPlatform.Foundation.InfrastructureCore.EntityFramework;
+namespace PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
 public static class ModelBuilderExtensions
 {

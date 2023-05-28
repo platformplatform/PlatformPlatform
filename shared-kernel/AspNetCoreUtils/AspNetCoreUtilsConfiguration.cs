@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using PlatformPlatform.Foundation.AspNetCoreUtils.Endpoints;
-using PlatformPlatform.Foundation.AspNetCoreUtils.Middleware;
+using PlatformPlatform.SharedKernel.AspNetCoreUtils.Endpoints;
+using PlatformPlatform.SharedKernel.AspNetCoreUtils.Middleware;
 
-namespace PlatformPlatform.Foundation.AspNetCoreUtils;
+namespace PlatformPlatform.SharedKernel.AspNetCoreUtils;
 
 public static class AspNetCoreUtilsConfiguration
 {

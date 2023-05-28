@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

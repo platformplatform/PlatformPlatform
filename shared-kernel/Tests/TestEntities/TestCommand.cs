@@ -1,6 +1,6 @@
 using MediatR;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public record TestCommand : ICommand, IRequest<Result<TestAggregate>>;

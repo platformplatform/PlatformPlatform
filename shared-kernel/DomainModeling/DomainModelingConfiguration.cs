@@ -3,9 +3,9 @@ using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Foundation.DomainModeling.Behaviors;
+using PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
 
-namespace PlatformPlatform.Foundation.DomainModeling;
+namespace PlatformPlatform.SharedKernel.DomainModeling;
 
 public static class DomainModelingConfiguration
 {

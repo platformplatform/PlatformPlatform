@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainModeling.Identity;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

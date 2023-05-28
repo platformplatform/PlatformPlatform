@@ -1,6 +1,6 @@
-using PlatformPlatform.Foundation.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainModeling.Entities;
 
-namespace PlatformPlatform.Foundation.DomainModeling.DomainEvents;
+namespace PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
 
 public interface IDomainEventCollector
 {

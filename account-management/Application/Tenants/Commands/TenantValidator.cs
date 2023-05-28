@@ -1,6 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Foundation.DomainModeling.Validation;
+using PlatformPlatform.SharedKernel.DomainModeling.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 

@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PlatformPlatform.Foundation.Tests.TestEntities;
+using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.Foundation.Tests.DomainModeling.DomainEvents;
+namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.DomainEvents;
 
 public class DomainEventTests
 {

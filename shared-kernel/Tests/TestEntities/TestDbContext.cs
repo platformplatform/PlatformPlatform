@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Foundation.InfrastructureCore.EntityFramework;
+using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public class TestDbContext : FoundationDbContext<TestDbContext>
 {

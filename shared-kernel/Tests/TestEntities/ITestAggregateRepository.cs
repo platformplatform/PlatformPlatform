@@ -1,6 +1,6 @@
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
 
-namespace PlatformPlatform.Foundation.Tests.TestEntities;
+namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public interface ITestAggregateRepository : IRepository<TestAggregate, long>
 {

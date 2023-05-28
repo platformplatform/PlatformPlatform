@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Foundation.DomainModeling.Validation;
+namespace PlatformPlatform.SharedKernel.DomainModeling.Validation;
 
 [UsedImplicitly]
 public sealed record ErrorMessage(string Message);
