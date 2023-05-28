@@ -13,9 +13,11 @@ public static class DomainModelingConfiguration
     public static IServiceCollection AddDomainModelingServices(this IServiceCollection services,
         Assembly applicationAssembly, Assembly domainAssembly)
     {
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>));
+        // Order is important. First all Pre behaviors run (top to bottom), then the command is handled, then all Post
+        // behaviors run (bottom to top). So Validation -> Command -> PublishDomainEvents -> UnitOfWork.
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddNonGenericValidators(applicationAssembly);
@@ -23,6 +25,10 @@ public static class DomainModelingConfiguration
         return services;
     }
 
+    /// <summary>
+    ///     Registers all non-generic and non-abstract validators in the specified assembly. This is necessary because
+    ///     services.AddValidatorsFromAssembly() includes registration of generic and abstract validators.
+    /// </summary>
     private static void AddNonGenericValidators(this IServiceCollection services, Assembly assembly)
     {
         var validators = assembly.GetTypes()
