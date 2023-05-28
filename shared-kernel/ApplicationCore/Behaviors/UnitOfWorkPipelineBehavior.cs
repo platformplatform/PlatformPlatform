@@ -1,6 +1,6 @@
 using MediatR;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 

@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>PlatformPlatform.SharedKernel.DomainModeling</RootNamespace>
-        <AssemblyName>PlatformPlatform.SharedKernel.DomainModeling</AssemblyName>
+        <RootNamespace>PlatformPlatform.SharedKernel.DomainCore</RootNamespace>
+        <AssemblyName>PlatformPlatform.SharedKernel.DomainCore</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

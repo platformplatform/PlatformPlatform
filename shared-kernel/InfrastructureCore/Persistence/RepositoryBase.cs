@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
-using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 

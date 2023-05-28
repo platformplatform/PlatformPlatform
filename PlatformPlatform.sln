@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared-kernel", "shared-kernel", "{F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModeling", "shared-kernel\DomainModeling\DomainModeling.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainCore", "shared-kernel\DomainCore\DomainCore.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationCore", "shared-kernel\ApplicationCore\ApplicationCore.csproj", "{9F41C6BD-7DF5-46AD-B0E7-4E4CECA2B9BF}"
 EndProject

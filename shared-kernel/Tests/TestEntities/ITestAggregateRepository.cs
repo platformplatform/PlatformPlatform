@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

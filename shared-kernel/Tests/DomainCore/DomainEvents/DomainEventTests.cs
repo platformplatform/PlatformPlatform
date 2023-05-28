@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.DomainEvents;
+namespace PlatformPlatform.SharedKernel.Tests.DomainCore.DomainEvents;
 
 public class DomainEventTests
 {

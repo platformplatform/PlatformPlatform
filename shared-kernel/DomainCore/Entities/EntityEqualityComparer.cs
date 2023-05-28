@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.DomainModeling.Entities;
+namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 
 public sealed class EntityEqualityComparer<T> : IEqualityComparer<Entity<T>> where T : IComparable<T>
 {

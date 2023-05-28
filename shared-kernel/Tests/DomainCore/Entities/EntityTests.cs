@@ -1,10 +1,10 @@
 using FluentAssertions;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
-using PlatformPlatform.SharedKernel.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Identity;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.DomainModeling.Entities;
+namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;
 
 public static class EntityTests
 {

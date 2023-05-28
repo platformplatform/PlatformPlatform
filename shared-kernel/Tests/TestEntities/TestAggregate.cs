@@ -1,5 +1,5 @@
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
-using PlatformPlatform.SharedKernel.DomainModeling.Identity;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

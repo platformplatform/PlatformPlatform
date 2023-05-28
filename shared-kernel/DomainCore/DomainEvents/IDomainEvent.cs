@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+namespace PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 
 /// <summary>
 ///     The DomainEvent interface represents a domain event that occurred in the domain. The DomainEvent implements the

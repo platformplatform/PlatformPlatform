@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 

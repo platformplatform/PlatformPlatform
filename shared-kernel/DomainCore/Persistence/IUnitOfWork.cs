@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+namespace PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 /// <summary>
 ///     IUnitOfWork interface provides a method for committing changes made within the unit of work.

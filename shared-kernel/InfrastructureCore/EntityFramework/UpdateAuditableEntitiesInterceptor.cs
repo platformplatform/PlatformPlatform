@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 

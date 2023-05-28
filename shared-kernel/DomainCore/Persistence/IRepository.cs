@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+namespace PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 /// <summary>
 ///     IRepository is a generic interface for repositories. Repositories are a DDD concept, and are used

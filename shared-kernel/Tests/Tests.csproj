@@ -31,7 +31,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ApiCore\ApiCore.csproj"/>
-        <ProjectReference Include="..\DomainModeling\DomainModeling.csproj"/>
+        <ProjectReference Include="..\DomainCore\DomainCore.csproj"/>
         <ProjectReference Include="..\InfrastructureCore\InfrastructureCore.csproj"/>
     </ItemGroup>
 

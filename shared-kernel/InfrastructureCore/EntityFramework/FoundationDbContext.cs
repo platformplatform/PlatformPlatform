@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.DomainModeling.Entities;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 

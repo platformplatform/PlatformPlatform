@@ -3,8 +3,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
-using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore;

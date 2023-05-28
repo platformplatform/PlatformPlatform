@@ -3,7 +3,7 @@ using MediatR;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 

@@ -1,6 +1,6 @@
 using MediatR;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 
