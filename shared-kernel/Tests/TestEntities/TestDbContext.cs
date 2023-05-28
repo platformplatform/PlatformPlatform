@@ -3,7 +3,7 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
-public class TestDbContext : FoundationDbContext<TestDbContext>
+public class TestDbContext : SharedKernelDbContext<TestDbContext>
 {
     public TestDbContext(DbContextOptions<TestDbContext> options) : base(options)
     {

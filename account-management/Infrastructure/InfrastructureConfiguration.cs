@@ -12,7 +12,7 @@ public static class InfrastructureConfiguration
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.ConfigurePersistence<ApplicationDbContext>(configuration, Assembly);
+        services.ConfigurePersistence<AccountManagementDbContext>(configuration, Assembly);
 
         return services;
     }

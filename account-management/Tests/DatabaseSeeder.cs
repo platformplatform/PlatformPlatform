@@ -7,13 +7,13 @@ public class DatabaseSeeder
 {
     public const string Tenant1Name = "Tenant 1";
     public static readonly TenantId Tenant1Id = TenantId.NewId();
-    private readonly ApplicationDbContext _applicationDbContext;
+    private readonly AccountManagementDbContext _accountManagementDbContext;
 
-    public DatabaseSeeder(ApplicationDbContext applicationDbContext)
+    public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        _applicationDbContext = applicationDbContext;
+        _accountManagementDbContext = accountManagementDbContext;
         SeedTenants();
-        applicationDbContext.SaveChanges();
+        accountManagementDbContext.SaveChanges();
     }
 
     private void SeedTenants()
@@ -23,6 +23,6 @@ public class DatabaseSeeder
             Id = Tenant1Id
         };
 
-        _applicationDbContext.Tenants.AddRange(tenant1);
+        _accountManagementDbContext.Tenants.AddRange(tenant1);
     }
 }

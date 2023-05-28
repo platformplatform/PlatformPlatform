@@ -20,25 +20,26 @@ public sealed class TenantEndpointsTests : IDisposable
     // See https://stackoverflow.com/a/17349663
     private const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK";
 
-    private readonly SqliteInMemoryDbContextFactory<ApplicationDbContext> _sqliteInMemoryDbContextFactory;
+    private readonly SqliteInMemoryDbContextFactory<AccountManagementDbContext> _sqliteInMemoryDbContextFactory;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
     public TenantEndpointsTests()
     {
-        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<AccountManagementDbContext>();
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureServices(services =>
             {
-                // Remove the app's ApplicationDbContext registration.
-                var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+                // Remove the app's AccountManagementDbContext registration.
+                var descriptor = services.Single(d =>
+                    d.ServiceType == typeof(DbContextOptions<AccountManagementDbContext>));
                 services.Remove(descriptor);
 
-                // Add ApplicationDbContext using SqLiteDbContextFactory
+                // Add AccountManagementDbContext using SqLiteDbContextFactory
                 services.AddScoped(_ => _sqliteInMemoryDbContextFactory.CreateContext());
 
-                // Add DbContextOptions<ApplicationDbContext> to the service collection.
+                // Add DbContextOptions<AccountManagementDbContext> to the service collection.
                 services.AddScoped(_ => _sqliteInMemoryDbContextFactory.CreateOptions());
 
                 services.AddTransient<DatabaseSeeder>();

@@ -4,12 +4,12 @@ using PlatformPlatform.SharedKernel.DomainCore.Entities;
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
 /// <summary>
-///     The FoundationDbContext class represents the Entity Framework Core DbContext for managing data access to the
+///     The SharedKernelDbContext class represents the Entity Framework Core DbContext for managing data access to the
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
-public abstract class FoundationDbContext<TContext> : DbContext where TContext : DbContext
+public abstract class SharedKernelDbContext<TContext> : DbContext where TContext : DbContext
 {
-    protected FoundationDbContext(DbContextOptions<TContext> options) : base(options)
+    protected SharedKernelDbContext(DbContextOptions<TContext> options) : base(options)
     {
     }
 

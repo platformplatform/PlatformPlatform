@@ -7,7 +7,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 internal sealed class TenantRepository : RepositoryBase<Tenant, TenantId>, ITenantRepository
 {
     // ReSharper disable once SuggestBaseTypeForParameterInConstructor
-    public TenantRepository(ApplicationDbContext applicationDbContext) : base(applicationDbContext)
+    public TenantRepository(AccountManagementDbContext accountManagementDbContext) : base(accountManagementDbContext)
     {
     }
 

@@ -12,8 +12,8 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     [GeneratedCode("Entity Framework", null)]
-    [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AccountManagementDbContext))]
+    partial class AccountManagementDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

@@ -4,9 +4,9 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
 
-public sealed class ApplicationDbContext : FoundationDbContext<ApplicationDbContext>
+public sealed class AccountManagementDbContext : SharedKernelDbContext<AccountManagementDbContext>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    public AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options) : base(options)
     {
     }
 
