@@ -3,7 +3,7 @@ using NetArchTest.Rules;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;

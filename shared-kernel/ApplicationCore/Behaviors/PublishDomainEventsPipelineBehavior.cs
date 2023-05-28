@@ -1,8 +1,8 @@
 using MediatR;
-using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.DomainModeling.DomainEvents;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
+namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 
 /// <summary>
 ///     This method publishes any domain events that were generated during the execution of a command (and added to

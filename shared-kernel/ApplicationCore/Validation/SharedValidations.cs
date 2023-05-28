@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling.Validation;
+namespace PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 public static class SharedValidations
 {

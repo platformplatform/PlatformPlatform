@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
+using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.DomainModeling.Entities;
 using PlatformPlatform.SharedKernel.DomainModeling.Persistence;
 

@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\shared-kernel\ApplicationCore\ApplicationCore.csproj"/>
         <ProjectReference Include="..\Domain\Domain.csproj"/>
     </ItemGroup>
 

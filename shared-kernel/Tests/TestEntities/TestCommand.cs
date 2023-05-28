@@ -1,5 +1,5 @@
 using MediatR;
-using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

@@ -1,6 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.SharedKernel.DomainModeling;
+using PlatformPlatform.SharedKernel.ApplicationCore;
 
 namespace PlatformPlatform.AccountManagement.Application;
 
@@ -14,7 +14,7 @@ public static class ApplicationConfiguration
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddDomainModelingServices(Assembly);
+        services.AddApplicationServices(Assembly);
 
         return services;
     }

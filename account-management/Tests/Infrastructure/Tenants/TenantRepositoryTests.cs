@@ -5,7 +5,7 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
-using PlatformPlatform.SharedKernel.DomainModeling;
+using PlatformPlatform.SharedKernel.ApplicationCore;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;
@@ -22,7 +22,7 @@ public sealed class TenantRepositoryTests : IDisposable
 
         _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
         _applicationDbContext = _dbContextFactory.CreateContext();
-        services.AddDomainModelingServices(ApplicationConfiguration.Assembly);
+        services.AddApplicationServices(ApplicationConfiguration.Assembly);
 
         _tenantRepository = new TenantRepository(_applicationDbContext);
     }

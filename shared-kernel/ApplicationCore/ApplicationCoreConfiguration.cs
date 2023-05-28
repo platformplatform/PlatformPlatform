@@ -3,14 +3,14 @@ using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.SharedKernel.DomainModeling.Behaviors;
+using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling;
+namespace PlatformPlatform.SharedKernel.ApplicationCore;
 
-public static class DomainModelingConfiguration
+public static class ApplicationCoreConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection AddDomainModelingServices(this IServiceCollection services,
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services,
         Assembly applicationAssembly)
     {
         // Order is important. First all Pre behaviors run (top to bottom), then the command is handled, then all Post

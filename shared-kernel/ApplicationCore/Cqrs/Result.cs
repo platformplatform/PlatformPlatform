@@ -1,8 +1,8 @@
 using System.Net;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.DomainModeling.Validation;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
-namespace PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+namespace PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 /// <summary>
 ///     All commands should return a <see cref="Result{T}" />. This is used to indicate if the command was

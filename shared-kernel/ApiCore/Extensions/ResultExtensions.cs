@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Extensions;
