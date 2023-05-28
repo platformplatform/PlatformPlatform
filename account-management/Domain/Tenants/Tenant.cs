@@ -4,9 +4,10 @@ namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {
-    internal Tenant(string name, string email, string? phone) : base(TenantId.NewId())
+    internal Tenant(string name, string subdomain, string email, string? phone) : base(TenantId.NewId())
     {
         Name = name;
+        Subdomain = subdomain;
         Email = email;
         Phone = phone;
         State = TenantState.Trial;
@@ -14,7 +15,7 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public string Name { get; private set; }
 
-    public required string Subdomain { get; init; }
+    public string Subdomain { get; init; }
 
     public TenantState State { get; private set; }
 
@@ -24,7 +25,7 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public static Tenant Create(string tenantName, string subdomain, string email, string? phone)
     {
-        var tenant = new Tenant(tenantName, email, phone) {Subdomain = subdomain};
+        var tenant = new Tenant(tenantName, subdomain, email, phone);
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id));
         return tenant;
     }
