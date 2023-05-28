@@ -2,7 +2,7 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.WebApi;
 using PlatformPlatform.AccountManagement.WebApi.Tenants;
-using PlatformPlatform.SharedKernel.AspNetCoreUtils;
+using PlatformPlatform.SharedKernel.ApiCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

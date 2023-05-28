@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlatformPlatform.SharedKernel.DomainModeling.Cqrs;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace PlatformPlatform.SharedKernel.AspNetCoreUtils.Extensions;
+namespace PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 public static partial class ResultExtensions
 {

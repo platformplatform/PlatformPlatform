@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AspNetCoreUtils\AspNetCoreUtils.csproj"/>
+        <ProjectReference Include="..\ApiCore\ApiCore.csproj"/>
         <ProjectReference Include="..\DomainModeling\DomainModeling.csproj"/>
         <ProjectReference Include="..\InfrastructureCore\InfrastructureCore.csproj"/>
     </ItemGroup>

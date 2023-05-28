@@ -1,6 +1,6 @@
 using System.Reflection;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.AspNetCoreUtils;
+using PlatformPlatform.SharedKernel.ApiCore;
 
 namespace PlatformPlatform.AccountManagement.WebApi;
 

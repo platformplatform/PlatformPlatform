@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModeling", "shared-ke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureCore", "shared-kernel\InfrastructureCore\InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreUtils", "shared-kernel\AspNetCoreUtils\AspNetCoreUtils.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCore", "shared-kernel\ApiCore\ApiCore.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E2EF0B0-2A92-489B-8910-070C871197B0}"
 EndProject
