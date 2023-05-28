@@ -6,11 +6,6 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
-/// <summary>
-///     The CreateTenantCommand will create a new Tenant and add it to the repository. The command will be handled
-///     by <see cref="CreateTenant.Handler" />. The Tenant will not be saved to the database until the
-///     UnitOfWork is committed in the UnitOfWorkPipelineBehavior.
-/// </summary>
 public static class CreateTenant
 {
     public sealed record Command(string Name, string Subdomain, string Email, string? Phone)

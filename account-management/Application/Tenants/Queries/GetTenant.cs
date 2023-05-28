@@ -4,10 +4,6 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Queries;
 
-/// <summary>
-///     The GetTenantQuery will retrieve a Tenant with the specified TenantId from the repository. The query will
-///     be handled by <see cref="GetTenant.Handler" />. Returns the Tenant if found, otherwise a NotFound result.
-/// </summary>
 public static class GetTenant
 {
     public sealed record Query(TenantId Id) : IRequest<Result<Tenant>>;

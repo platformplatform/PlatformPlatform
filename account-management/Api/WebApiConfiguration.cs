@@ -4,10 +4,6 @@ using PlatformPlatform.SharedKernel.ApiCore;
 
 namespace PlatformPlatform.AccountManagement.Api;
 
-/// <summary>
-///     The WebApiConfiguration class is used to register services used by the Web API
-///     with the dependency injection container.
-/// </summary>
 public static class WebApiConfiguration
 {
     public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();

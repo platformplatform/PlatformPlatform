@@ -6,7 +6,8 @@ using PlatformPlatform.SharedKernel.ApiCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services for the Application, Infrastructure, and Api layers.
+// Configure services for the Application, Infrastructure, and Api layers like Entity Framework, Repositories, MediatR,
+// FluentValidation validators, Pipelines.
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
@@ -17,8 +18,6 @@ var app = builder.Build();
 // Add configuration common for all web applications like Swagger, HSTS, and UseDeveloperExceptionPage.
 app.AddCommonConfiguration();
 
-// Map tenant-related endpoints.
 app.MapTenantEndpoints();
 
-// Run the web application.
 app.Run();
