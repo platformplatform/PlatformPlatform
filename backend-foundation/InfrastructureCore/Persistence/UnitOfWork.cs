@@ -23,19 +23,11 @@ public sealed class UnitOfWork : IUnitOfWork
 
     public async Task CommitAsync(CancellationToken cancellationToken)
     {
-        if (GetAggregatesWithDomainEvents().Any())
+        if (_dbContext.ChangeTracker.Entries<IAggregateRoot>().Any(e => e.Entity.DomainEvents.Any()))
         {
             throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    public IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents()
-    {
-        return _dbContext.ChangeTracker
-            .Entries<IAggregateRoot>()
-            .Where(e => e.Entity.DomainEvents.Any())
-            .Select(e => e.Entity);
     }
 }

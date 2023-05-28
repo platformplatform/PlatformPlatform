@@ -1,7 +1,6 @@
 using MediatR;
 using PlatformPlatform.Foundation.DomainModeling.Cqrs;
 using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
 
 namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 
@@ -16,12 +15,12 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull where TResponse : IResult
 {
+    private readonly IDomainEventCollector _domainEventCollector;
     private readonly IPublisher _mediatr;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public PublishDomainEventsPipelineBehavior(IUnitOfWork unitOfWork, IPublisher mediatr)
+    public PublishDomainEventsPipelineBehavior(IDomainEventCollector domainEventCollector, IPublisher mediatr)
     {
-        _unitOfWork = unitOfWork;
+        _domainEventCollector = domainEventCollector;
         _mediatr = mediatr;
     }
 
@@ -56,7 +55,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : I
     /// </summary>
     private void EnqueueAndClearDomainEvents(Queue<IDomainEvent> domainEvents)
     {
-        foreach (var aggregate in _unitOfWork.GetAggregatesWithDomainEvents())
+        foreach (var aggregate in _domainEventCollector.GetAggregatesWithDomainEvents())
         {
             foreach (var domainEvent in aggregate.DomainEvents)
             {

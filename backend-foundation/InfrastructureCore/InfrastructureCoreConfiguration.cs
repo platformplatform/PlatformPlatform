@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
 
@@ -32,6 +33,8 @@ public static class InfrastructureCoreConfiguration
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
+        services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
+            new DomainEventCollector(provider.GetRequiredService<T>()));
 
         return services;
     }

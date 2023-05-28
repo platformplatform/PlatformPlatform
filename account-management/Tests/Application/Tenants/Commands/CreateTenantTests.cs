@@ -5,6 +5,7 @@ using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
 using PlatformPlatform.Foundation.DomainModeling.Persistence;
 using Xunit;
 
@@ -22,12 +23,14 @@ public class CreateTenantTests : IDisposable
         _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(true);
 
-        var unitOfWork = Substitute.For<IUnitOfWork>(); // Mock IUnitOfWork
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        var domainEventCollector = Substitute.For<IDomainEventCollector>();
 
         var services = new ServiceCollection();
         services.AddApplicationServices();
         services.AddSingleton(_tenantRepository);
-        services.AddSingleton(unitOfWork); // Add your mocked unitOfWork
+        services.AddSingleton(unitOfWork);
+        services.AddSingleton(domainEventCollector);
 
         _provider = services.BuildServiceProvider();
         _mediator = _provider.GetRequiredService<IMediator>();
@@ -51,7 +54,7 @@ public class CreateTenantTests : IDisposable
         // Assert
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value!;
-        _tenantRepository.Received()
+        await _tenantRepository.Received()
             .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
     }
 
@@ -82,7 +85,7 @@ public class CreateTenantTests : IDisposable
         var _ = await _mediator.Send(command);
 
         // Assert
-        _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
+        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
     }
 
     [Theory]
