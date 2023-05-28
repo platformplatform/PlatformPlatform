@@ -11,7 +11,7 @@ public static class DomainModelingConfiguration
 {
     [UsedImplicitly]
     public static IServiceCollection AddDomainModelingServices(this IServiceCollection services,
-        Assembly applicationAssembly, Assembly domainAssembly)
+        Assembly applicationAssembly)
     {
         // Order is important. First all Pre behaviors run (top to bottom), then the command is handled, then all Post
         // behaviors run (bottom to top). So Validation -> Command -> PublishDomainEvents -> UnitOfWork.

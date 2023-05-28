@@ -3,7 +3,6 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
@@ -24,7 +23,7 @@ public sealed class TenantRepositoryTests : IDisposable
 
         _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
         _applicationDbContext = _dbContextFactory.CreateContext();
-        services.AddDomainModelingServices(ApplicationConfiguration.Assembly, DomainConfiguration.Assembly);
+        services.AddDomainModelingServices(ApplicationConfiguration.Assembly);
 
         _tenantRepository = new TenantRepository(_applicationDbContext);
     }
