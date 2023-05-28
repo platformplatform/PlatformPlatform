@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -25,31 +24,26 @@ public static class ResultExtensions
         return Results.Json(CreateProblemDetails(result), statusCode: (int) result.StatusCode);
     }
 
+    // ReSharper disable once SuggestBaseTypeForParameter
     private static ProblemDetails CreateProblemDetails<T>(Result<T> result)
     {
-        if (result.Errors?.Length > 0)
-        {
-            return new ProblemDetails
-            {
-                Type = $"https://httpstatuses.com/{(int) result.StatusCode}",
-                Title = GetHttpStatusCodeTitle(result.StatusCode),
-                Status = (int) result.StatusCode,
-                Detail = result.ErrorMessage?.Message,
-                Extensions = {{nameof(result.Errors), result.Errors}}
-            };
-        }
-
-        return new ProblemDetails
+        var statusCode = result.StatusCode;
+        var problemDetails = new ProblemDetails
         {
             Type = $"https://httpstatuses.com/{(int) result.StatusCode}",
-            Title = GetHttpStatusCodeTitle(result.StatusCode),
-            Status = (int) result.StatusCode,
-            Detail = result.ErrorMessage?.Message
+            Title = SplitCamelCaseTitle(statusCode.ToString()),
+            Status = (int) result.StatusCode
         };
+
+        if (result.ErrorMessage is not null) problemDetails.Detail = result.ErrorMessage.Message;
+
+        if (result.Errors?.Length > 0) problemDetails.Extensions[nameof(result.Errors)] = result.Errors;
+
+        return problemDetails;
     }
 
-    private static string GetHttpStatusCodeTitle(HttpStatusCode statusCode)
+    private static string SplitCamelCaseTitle(string title)
     {
-        return Regex.Replace(statusCode.ToString(), "(?<=[a-z])([A-Z])", " $1", RegexOptions.Compiled);
+        return Regex.Replace(title, "(?<=[a-z])([A-Z])", " $1", RegexOptions.Compiled);
     }
 }
