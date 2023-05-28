@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\backend-foundation\DomainModeling\DomainModeling.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\DomainModeling\DomainModeling.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -1,16 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend-foundation", "backend-foundation", "{F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared-kernel", "shared-kernel", "{F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModeling", "backend-foundation\DomainModeling\DomainModeling.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainModeling", "shared-kernel\DomainModeling\DomainModeling.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureCore", "backend-foundation\InfrastructureCore\InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureCore", "shared-kernel\InfrastructureCore\InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreUtils", "backend-foundation\AspNetCoreUtils\AspNetCoreUtils.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreUtils", "shared-kernel\AspNetCoreUtils\AspNetCoreUtils.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E2EF0B0-2A92-489B-8910-070C871197B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "backend-foundation\Tests\Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "shared-kernel\Tests\Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "account-management", "account-management", "{EEA1463E-71F8-44E6-8055-787DAA5E62D2}"
 EndProject

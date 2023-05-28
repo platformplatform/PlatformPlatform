@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\backend-foundation\AspNetCoreUtils\AspNetCoreUtils.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\AspNetCoreUtils\AspNetCoreUtils.csproj"/>
         <ProjectReference Include="..\Application\Application.csproj"/>
         <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
