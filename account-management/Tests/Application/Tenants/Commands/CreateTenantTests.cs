@@ -5,8 +5,8 @@ using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DomainModeling.DomainEvents;
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;

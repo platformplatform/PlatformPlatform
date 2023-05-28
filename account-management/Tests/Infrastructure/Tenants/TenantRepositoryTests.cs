@@ -5,26 +5,26 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Infrastructure.Tenants;
-using PlatformPlatform.Foundation.DomainModeling;
+using PlatformPlatform.SharedKernel.ApplicationCore;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Infrastructure.Tenants;
 
 public sealed class TenantRepositoryTests : IDisposable
 {
-    private readonly ApplicationDbContext _applicationDbContext;
-    private readonly SqliteInMemoryDbContextFactory<ApplicationDbContext> _dbContextFactory;
+    private readonly AccountManagementDbContext _accountManagementDbContext;
+    private readonly SqliteInMemoryDbContextFactory<AccountManagementDbContext> _dbContextFactory;
     private readonly TenantRepository _tenantRepository;
 
     public TenantRepositoryTests()
     {
         var services = new ServiceCollection();
 
-        _dbContextFactory = new SqliteInMemoryDbContextFactory<ApplicationDbContext>();
-        _applicationDbContext = _dbContextFactory.CreateContext();
-        services.AddDomainModelingServices(ApplicationConfiguration.Assembly);
+        _dbContextFactory = new SqliteInMemoryDbContextFactory<AccountManagementDbContext>();
+        _accountManagementDbContext = _dbContextFactory.CreateContext();
+        services.AddApplicationServices(ApplicationConfiguration.Assembly);
 
-        _tenantRepository = new TenantRepository(_applicationDbContext);
+        _tenantRepository = new TenantRepository(_accountManagementDbContext);
     }
 
     public void Dispose()
@@ -40,10 +40,10 @@ public sealed class TenantRepositoryTests : IDisposable
 
         // Act
         await _tenantRepository.AddAsync(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Assert
-        var retrievedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        var retrievedTenant = await _accountManagementDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
         retrievedTenant.Should().NotBeNull();
         retrievedTenant!.Id.Should().Be(tenant.Id);
     }
@@ -53,16 +53,16 @@ public sealed class TenantRepositoryTests : IDisposable
     {
         // Arrange
         var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
-        await _applicationDbContext.Tenants.AddAsync(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.Tenants.AddAsync(tenant);
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Act
         tenant.Update("Updated Tenant", "existing@test.com", "1234567890");
         _tenantRepository.Update(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Assert
-        var updatedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        var updatedTenant = await _accountManagementDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
         updatedTenant.Should().NotBeNull();
         updatedTenant!.Name.Should().Be("Updated Tenant");
     }
@@ -72,15 +72,15 @@ public sealed class TenantRepositoryTests : IDisposable
     {
         // Arrange
         var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
-        await _applicationDbContext.Tenants.AddAsync(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.Tenants.AddAsync(tenant);
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Act
         _tenantRepository.Remove(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Assert
-        var removedTenant = await _applicationDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        var removedTenant = await _accountManagementDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
         removedTenant.Should().BeNull();
     }
 
@@ -90,8 +90,8 @@ public sealed class TenantRepositoryTests : IDisposable
         // Arrange  
         var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
-        await _applicationDbContext.Tenants.AddAsync(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.Tenants.AddAsync(tenant);
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Act
         var isSubdomainFree = await _tenantRepository.IsSubdomainFreeAsync("existing", CancellationToken.None);
@@ -106,8 +106,8 @@ public sealed class TenantRepositoryTests : IDisposable
         // Arrange
         var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
 
-        await _applicationDbContext.Tenants.AddAsync(tenant);
-        await _applicationDbContext.SaveChangesAsync();
+        await _accountManagementDbContext.Tenants.AddAsync(tenant);
+        await _accountManagementDbContext.SaveChangesAsync();
 
         // Act
         var isSubdomainFree = await _tenantRepository.IsSubdomainFreeAsync("nonexistent", CancellationToken.None);

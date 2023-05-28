@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.DomainModeling.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
@@ -31,10 +31,10 @@ public static class UpdateTenant
             _tenantRepository.Update(tenant);
             return tenant;
         }
+    }
 
-        [UsedImplicitly]
-        public sealed class Validator : TenantValidator<Command>
-        {
-        }
+    [UsedImplicitly]
+    public sealed class Validator : TenantValidator<Command>
+    {
     }
 }

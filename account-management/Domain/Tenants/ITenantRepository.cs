@@ -1,4 +1,4 @@
-using PlatformPlatform.Foundation.DomainModeling.Persistence;
+using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 

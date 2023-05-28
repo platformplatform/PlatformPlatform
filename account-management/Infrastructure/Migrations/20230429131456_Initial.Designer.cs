@@ -11,7 +11,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(AccountManagementDbContext))]
     [Migration("20230429131456_Initial")]
     partial class Initial
     {

@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.Foundation.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
 internal sealed class TenantRepository : RepositoryBase<Tenant, TenantId>, ITenantRepository
 {
-    // ReSharper disable once SuggestBaseTypeForParameterInConstructor
-    public TenantRepository(ApplicationDbContext applicationDbContext) : base(applicationDbContext)
+    public TenantRepository(AccountManagementDbContext accountManagementDbContext) : base(accountManagementDbContext)
     {
     }
 
