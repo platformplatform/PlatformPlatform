@@ -5,9 +5,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 /// <summary>
-///     All commands should return a <see cref="Result{T}" />. This is used to indicate if the command was
-///     successful or not. If the command was successful, the <see cref="Result{T}" /> will contain the result of
-///     the command. If the command was not successful, it will contain a collection of <see cref="AttributeError" />.
+///     All commands and queries returns a <see cref="Result{T}" />. This is used to indicate if the command/query was
+///     successful or not.
 /// </summary>
 public interface IResult
 {
@@ -23,6 +22,12 @@ public interface IResult
     HttpStatusCode StatusCode { get; }
 }
 
+/// <summary>
+///     The Result class is the concrete implementation of <see cref="IResult" />. In the case of the success the result
+///     will contain a Value or a NoContent status. In the case of a failure, the value will be null and contain either
+///     an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />. In both successful and
+///     non-successful cases, the <see cref="Result{T}" /> will contain a status code.
+/// </summary>
 public class Result<T> : IResult
 {
     private Result(T value, HttpStatusCode httpStatusCode)
