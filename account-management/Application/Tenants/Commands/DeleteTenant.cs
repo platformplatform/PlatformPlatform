@@ -6,7 +6,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 
 public static class DeleteTenant
 {
-    public sealed record Command(TenantId Id) : IRequest<Result<Tenant>>;
+    public sealed record Command(TenantId Id) : ICommand, IRequest<Result<Tenant>>;
 
     public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
     {

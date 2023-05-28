@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 public static class UpdateTenant
 {
     public sealed record Command(TenantId Id, string Name, string Email, string? Phone)
-        : ITenantValidation, IRequest<Result<Tenant>>;
+        : ICommand, ITenantValidation, IRequest<Result<Tenant>>;
 
     public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
     {

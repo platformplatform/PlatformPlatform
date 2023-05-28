@@ -12,7 +12,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     handled. If the request is valid, the next pipeline behavior will be called.
 /// </summary>
 public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse> where TResponse : IResult
+    where TRequest : ICommand where TResponse : IResult
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 

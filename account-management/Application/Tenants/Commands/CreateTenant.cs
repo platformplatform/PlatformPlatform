@@ -14,7 +14,7 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 public static class CreateTenant
 {
     public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
-        : ITenantValidation, IRequest<Result<Tenant>>;
+        : ICommand, ITenantValidation, IRequest<Result<Tenant>>;
 
     [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result<Tenant>>

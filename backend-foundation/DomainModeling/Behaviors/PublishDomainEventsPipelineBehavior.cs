@@ -13,7 +13,7 @@ namespace PlatformPlatform.Foundation.DomainModeling.Behaviors;
 ///     Events instead.
 /// </summary>
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull where TResponse : IResult
+    where TRequest : ICommand where TResponse : IResult
 {
     private readonly IDomainEventCollector _domainEventCollector;
     private readonly IPublisher _mediatr;
