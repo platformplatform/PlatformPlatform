@@ -1,43 +1,56 @@
 using FluentAssertions;
 using MediatR;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
 
 public sealed class CreateTenantTests : IDisposable
 {
+    private readonly SqliteConnection _connection;
     private readonly IMediator _mediator;
     private readonly ServiceProvider _provider;
     private readonly ITenantRepository _tenantRepository;
 
     public CreateTenantTests()
     {
-        _tenantRepository = Substitute.For<ITenantRepository>();
-        _tenantRepository.IsSubdomainFreeAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(true);
-
-        var unitOfWork = Substitute.For<IUnitOfWork>();
-        var domainEventCollector = Substitute.For<IDomainEventCollector>();
-
         var services = new ServiceCollection();
-        services.AddApplicationServices();
-        services.AddSingleton(_tenantRepository);
-        services.AddSingleton(unitOfWork);
-        services.AddSingleton(domainEventCollector);
+
+        services.AddLogging();
+
+        // Replace the DbContext with an in-memory SQLite version
+        _connection = new SqliteConnection("DataSource=:memory:");
+        _connection.Open();
+        services.RemoveAll(typeof(AccountManagementDbContext));
+        services.AddDbContext<AccountManagementDbContext>(options => { options.UseSqlite(_connection); });
+        using (var scope = services.BuildServiceProvider().CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<AccountManagementDbContext>().Database.EnsureCreated();
+        }
+
+        var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+        services
+            .AddApplicationServices()
+            .AddInfrastructureServices(configuration);
 
         _provider = services.BuildServiceProvider();
         _mediator = _provider.GetRequiredService<IMediator>();
+        _tenantRepository = _provider.GetRequiredService<ITenantRepository>();
     }
 
     public void Dispose()
     {
+        _connection.Close();
         _provider.Dispose();
     }
 
