@@ -37,13 +37,15 @@ public sealed class TenantRepositoryTests : IDisposable
     {
         // Arrange
         var tenant = Tenant.Create("New Tenant", "new", "new@test.com", "1234567890");
+        var cancellationToken = new CancellationToken();
 
         // Act
-        await _tenantRepository.AddAsync(tenant);
-        await _accountManagementDbContext.SaveChangesAsync();
+        await _tenantRepository.AddAsync(tenant, cancellationToken);
+        await _accountManagementDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
-        var retrievedTenant = await _accountManagementDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id);
+        var retrievedTenant =
+            await _accountManagementDbContext.Tenants.FirstOrDefaultAsync(t => t.Id == tenant.Id, cancellationToken);
         retrievedTenant.Should().NotBeNull();
         retrievedTenant!.Id.Should().Be(tenant.Id);
     }

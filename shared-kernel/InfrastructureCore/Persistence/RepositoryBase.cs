@@ -21,10 +21,10 @@ public abstract class RepositoryBase<T, TId> : IRepository<T, TId>
         return await DbSet.FindAsync(keyValues, cancellationToken);
     }
 
-    public async Task AddAsync(T aggregate)
+    public async Task AddAsync(T aggregate, CancellationToken cancellationToken)
     {
         if (aggregate is null) throw new ArgumentNullException(nameof(aggregate));
-        await DbSet.AddAsync(aggregate);
+        await DbSet.AddAsync(aggregate, cancellationToken);
     }
 
     public void Update(T aggregate)

@@ -29,13 +29,14 @@ public sealed class RepositoryTests : IDisposable
     {
         // Arrange
         var testAggregate = TestAggregate.Create("TestAggregate");
+        var cancellationToken = new CancellationToken();
 
         // Act
-        await _testAggregateRepository.AddAsync(testAggregate);
-        await _testDbContext.SaveChangesAsync();
+        await _testAggregateRepository.AddAsync(testAggregate, cancellationToken);
+        await _testDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
-        var retrievedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregate.Id, CancellationToken.None);
+        var retrievedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregate.Id, cancellationToken);
         retrievedAggregate.Should().NotBeNull();
         retrievedAggregate!.Id.Should().Be(testAggregate.Id);
     }
@@ -113,8 +114,9 @@ public sealed class RepositoryTests : IDisposable
         // Arrange
         var primaryRepository = new TestAggregateRepository(_testDbContext);
         var originalTestAggregate = TestAggregate.Create("TestAggregate");
-        await primaryRepository.AddAsync(originalTestAggregate);
-        await _testDbContext.SaveChangesAsync();
+        var cancellationToken = new CancellationToken();
+        await primaryRepository.AddAsync(originalTestAggregate, cancellationToken);
+        await _testDbContext.SaveChangesAsync(cancellationToken);
 
         // Simulate another user by creating a new DbContext and repository instance
         var secondaryDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
@@ -122,10 +124,10 @@ public sealed class RepositoryTests : IDisposable
 
         // Act
         var concurrentTestAggregate =
-            (await secondaryRepository.GetByIdAsync(originalTestAggregate.Id, CancellationToken.None))!;
+            (await secondaryRepository.GetByIdAsync(originalTestAggregate.Id, cancellationToken))!;
         concurrentTestAggregate.Name = "UpdatedTestAggregateByAnotherUser";
         secondaryRepository.Update(concurrentTestAggregate);
-        await secondaryDbContext.SaveChangesAsync();
+        await secondaryDbContext.SaveChangesAsync(cancellationToken);
 
         originalTestAggregate.Name = "UpdatedTestAggregate";
         primaryRepository.Update(originalTestAggregate);

@@ -46,16 +46,18 @@ public sealed class CreateTenantTests : IDisposable
     {
         // Arrange
         var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
+        var cancellationToken = new CancellationToken();
 
         // Act
         var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value!;
         await _tenantRepository.Received()
-            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id));
+            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id),
+                cancellationToken);
     }
 
     [Fact]
@@ -79,13 +81,15 @@ public sealed class CreateTenantTests : IDisposable
     public async Task CreateTenantHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
     {
         // Arrange
+        var cancellationToken = new CancellationToken();
 
         // Act
         var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var _ = await _mediator.Send(command);
+        var _ = await _mediator.Send(command, cancellationToken);
 
         // Assert
-        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent));
+        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent),
+            cancellationToken);
     }
 
     [Theory]

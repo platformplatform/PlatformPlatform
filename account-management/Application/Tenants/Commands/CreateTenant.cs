@@ -24,7 +24,7 @@ public static class CreateTenant
         public async Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
         {
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
-            await _tenantRepository.AddAsync(tenant);
+            await _tenantRepository.AddAsync(tenant, cancellationToken);
             return tenant;
         }
     }
