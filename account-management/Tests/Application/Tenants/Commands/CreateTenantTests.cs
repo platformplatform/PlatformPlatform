@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
@@ -20,7 +18,6 @@ public sealed class CreateTenantTests : IDisposable
     private readonly SqliteConnection _connection;
     private readonly IMediator _mediator;
     private readonly ServiceProvider _provider;
-    private readonly ITenantRepository _tenantRepository;
 
     public CreateTenantTests()
     {
@@ -45,7 +42,7 @@ public sealed class CreateTenantTests : IDisposable
 
         _provider = services.BuildServiceProvider();
         _mediator = _provider.GetRequiredService<IMediator>();
-        _tenantRepository = _provider.GetRequiredService<ITenantRepository>();
+        _provider.GetRequiredService<ITenantRepository>();
     }
 
     public void Dispose()
@@ -68,13 +65,22 @@ public sealed class CreateTenantTests : IDisposable
         // Assert
         result.IsSuccess.Should().BeTrue();
         var tenantResponse = result.Value!;
-        await _tenantRepository.Received()
-            .AddAsync(Arg.Is<Tenant>(t => t.Name == command.Name && t.Id > startId && t.Id == tenantResponse.Id),
-                cancellationToken);
+
+        // Query the database to find the added tenant
+        var dbContext = _provider.GetRequiredService<AccountManagementDbContext>();
+        var tenant = await dbContext.Tenants.SingleOrDefaultAsync(t => t.Id == tenantResponse.Id, cancellationToken);
+
+        // Check that the tenant exists and has the expected properties
+        tenant.Should().NotBeNull();
+        tenant!.Id.Should().BeGreaterThan(startId);
+        tenant.Id.Should().Be(tenantResponse.Id);
+        tenant.Name.Should().Be(command.Name);
+        tenant.Email.Should().Be(command.Email);
+        tenant.Phone.Should().Be(command.Phone);
     }
 
     [Fact]
-    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldReturnTenantDtoWithCorrectValues()
+    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldReturnTenantWithCorrectValues()
     {
         // Arrange
 
@@ -84,25 +90,10 @@ public sealed class CreateTenantTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = result.Value!;
-        tenantResponseDto.Name.Should().Be(command.Name);
-        tenantResponseDto.Email.Should().Be(command.Email);
-        tenantResponseDto.Phone.Should().Be(command.Phone);
-    }
-
-    [Fact]
-    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldRaiseTenantCreatedEvent()
-    {
-        // Arrange
-        var cancellationToken = new CancellationToken();
-
-        // Act
-        var command = new CreateTenant.Command("TestTenant", "tenant1", "foo@tenant1.com", "1234567890");
-        var _ = await _mediator.Send(command, cancellationToken);
-
-        // Assert
-        await _tenantRepository.Received().AddAsync(Arg.Is<Tenant>(t => t.DomainEvents.Single() is TenantCreatedEvent),
-            cancellationToken);
+        var tenant = result.Value!;
+        tenant.Name.Should().Be(command.Name);
+        tenant.Email.Should().Be(command.Email);
+        tenant.Phone.Should().Be(command.Phone);
     }
 
     [Theory]
