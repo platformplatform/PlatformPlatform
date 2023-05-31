@@ -18,4 +18,10 @@ public sealed class User : AggregateRoot<UserId>
     {
         return new User(email, userRole);
     }
+
+    public void Update(string email, UserRole userRole)
+    {
+        Email = email;
+        UserRole = userRole;
+    }
 }
