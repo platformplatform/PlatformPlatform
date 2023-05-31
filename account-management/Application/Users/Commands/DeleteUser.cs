@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
@@ -8,6 +9,7 @@ public static class DeleteUser
 {
     public sealed record Command(UserId Id) : ICommand, IRequest<Result<User>>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result<User>>
     {
         private readonly IUserRepository _userRepository;

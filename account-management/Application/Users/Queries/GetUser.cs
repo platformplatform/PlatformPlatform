@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
@@ -8,6 +9,7 @@ public static class GetUser
 {
     public sealed record Query(UserId Id) : IRequest<Result<User>>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Query, Result<User>>
     {
         private readonly IUserRepository _userRepository;

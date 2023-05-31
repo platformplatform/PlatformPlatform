@@ -10,6 +10,7 @@ public static class UpdateUser
     public sealed record Command(UserId Id, string Email, UserRole UserRole)
         : ICommand, IUserValidation, IRequest<Result<User>>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result<User>>
     {
         private readonly IUserRepository _userRepository;

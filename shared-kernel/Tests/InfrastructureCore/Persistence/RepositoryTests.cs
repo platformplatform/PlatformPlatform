@@ -133,7 +133,7 @@ public sealed class RepositoryTests : IDisposable
         primaryRepository.Update(originalTestAggregate);
 
         // Assert
-        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _testDbContext.SaveChangesAsync());
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _testDbContext.SaveChangesAsync(cancellationToken));
     }
 
     [Fact]

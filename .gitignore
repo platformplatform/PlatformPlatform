@@ -136,6 +136,7 @@ _ReSharper*/
 
 # Rider
 .idea
+result.xml
 
 # TeamCity is a build add-in
 _TeamCity*
