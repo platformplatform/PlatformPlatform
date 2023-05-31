@@ -1,5 +1,6 @@
 using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.Tenants;
+using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
@@ -19,5 +20,6 @@ var app = builder.Build();
 app.AddCommonConfiguration();
 
 app.MapTenantEndpoints();
+app.MapUserEndpoints();
 
 app.Run();
