@@ -23,7 +23,7 @@ public class GetTenantTests
         var expectedTenantId = TenantId.NewId();
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant(expectedTenantName, "tenant1", "foo@tenant1.com", "1234567890")
+        var tenant = new Tenant(expectedTenantName, "tenant1", "test@test.com", "1234567890")
         {
             Id = expectedTenantId
         };

@@ -24,14 +24,14 @@ public class UpdateTenantTests
     public async Task UpdateTenantHandler_WhenCommandIsValid_ShouldUpdateTenantInRepository()
     {
         // Arrange
-        var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "test@test.com", "1234567890");
         var existingTenantId = existingTenant.Id;
         _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
         var handler = new UpdateTenant.Handler(_tenantRepository);
 
         // Act
         var command =
-            new UpdateTenant.Command(existingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
+            new UpdateTenant.Command(existingTenantId, "UpdatedTenant", "updated@test.com", "0987654321");
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -52,7 +52,7 @@ public class UpdateTenantTests
 
         // Act
         var command =
-            new UpdateTenant.Command(nonExistingTenantId, "UpdatedTenant", "bar@tenant1.com", "0987654321");
+            new UpdateTenant.Command(nonExistingTenantId, "UpdatedTenant", "updated@test.com", "0987654321");
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
