@@ -9,18 +9,15 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants.EventHandlers;
 public sealed class TenantCreatedEventHandler : INotificationHandler<TenantCreatedEvent>
 {
     private readonly ILogger<TenantCreatedEventHandler> _logger;
-    private readonly ITenantRepository _tenantRepository;
 
-    public TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger, ITenantRepository tenantRepository)
+    public TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger)
     {
         _logger = logger;
-        _tenantRepository = tenantRepository;
     }
 
-    public async Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
+    public Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
     {
-        var tenant = (await _tenantRepository.GetByIdAsync(notification.TenantId, cancellationToken))!;
-
-        _logger.LogInformation(@"Raise event to send Welcome mail to {TenantName}", tenant.Name);
+        _logger.LogInformation(@"Raise event to send Welcome mail to tenant");
+        return Task.CompletedTask;
     }
 }
