@@ -10,7 +10,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.Endpoints;
+namespace PlatformPlatform.AccountManagement.Tests.Api.Tenants;
 
 public sealed class TenantEndpointsTests : IDisposable
 {
