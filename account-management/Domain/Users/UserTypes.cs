@@ -19,7 +19,7 @@ public sealed record UserId(long Value) : StronglyTypedId<UserId>(Value)
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public enum UserRole
 {
-    TenantOwner,
-    TenantAdmin,
-    TenantUser
+    TenantUser = 0,
+    TenantAdmin = 1,
+    TenantOwner = 2
 }
