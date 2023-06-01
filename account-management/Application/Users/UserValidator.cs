@@ -1,7 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.AccountManagement.Application.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public interface IUserValidation
 {

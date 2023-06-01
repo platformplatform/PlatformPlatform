@@ -2,7 +2,7 @@ using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public static class DeleteTenant
 {

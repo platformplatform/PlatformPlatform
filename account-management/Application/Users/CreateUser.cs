@@ -4,7 +4,7 @@ using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.AccountManagement.Application.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public static class CreateUser
 {

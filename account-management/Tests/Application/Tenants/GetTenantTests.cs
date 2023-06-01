@@ -2,11 +2,11 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Queries;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
 public class GetTenantTests
 {

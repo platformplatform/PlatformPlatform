@@ -1,12 +1,12 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
-using PlatformPlatform.AccountManagement.Application.Users.Commands;
+using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public static class CreateTenant
 {

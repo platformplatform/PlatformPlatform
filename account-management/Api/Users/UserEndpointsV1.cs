@@ -1,14 +1,12 @@
 using Mapster;
 using MediatR;
-using PlatformPlatform.AccountManagement.Api.Users.Contracts;
-using PlatformPlatform.AccountManagement.Application.Users.Commands;
-using PlatformPlatform.AccountManagement.Application.Users.Queries;
+using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
-public static class UserEndpoints
+public static class UserEndpointsV1
 {
     private const string RoutesPrefix = "/api/users/v1";
 

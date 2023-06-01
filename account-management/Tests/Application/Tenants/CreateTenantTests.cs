@@ -6,12 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
 public sealed class CreateTenantTests : IDisposable
 {
