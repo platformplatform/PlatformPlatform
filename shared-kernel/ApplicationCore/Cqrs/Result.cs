@@ -8,17 +8,15 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 ///     All commands and queries returns a <see cref="Result{T}" />. This is used to indicate if the command/query was
 ///     successful or not.
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public interface IResult
 {
     bool IsSuccess { get; }
 
-    [UsedImplicitly]
     ErrorMessage? ErrorMessage { get; }
 
-    [UsedImplicitly]
     ErrorDetail[]? Errors { get; }
 
-    [UsedImplicitly]
     HttpStatusCode StatusCode { get; }
 }
 

@@ -2,11 +2,11 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Queries;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
 public class GetTenantTests
 {
@@ -23,7 +23,7 @@ public class GetTenantTests
         var expectedTenantId = TenantId.NewId();
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant(expectedTenantName, "tenant1", "foo@tenant1.com", "1234567890")
+        var tenant = new Tenant(expectedTenantName, "tenant1", "test@test.com", "1234567890")
         {
             Id = expectedTenantId
         };

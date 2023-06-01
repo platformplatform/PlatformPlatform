@@ -18,6 +18,7 @@ public static class ApplicationCoreConfiguration
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
+        services.AddScoped<UnitOfWorkPipelineBehaviorConcurrentCounter>();
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddNonGenericValidators(applicationAssembly);

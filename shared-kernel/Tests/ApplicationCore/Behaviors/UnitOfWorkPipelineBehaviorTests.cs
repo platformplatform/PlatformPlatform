@@ -19,7 +19,8 @@ public class UnitOfWorkPipelineBehaviorTests
         var services = new ServiceCollection();
         _unitOfWork = Substitute.For<IUnitOfWork>();
         services.AddSingleton(_unitOfWork);
-        _behavior = new UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>>(_unitOfWork);
+        _behavior = new UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>>(_unitOfWork,
+            new UnitOfWorkPipelineBehaviorConcurrentCounter());
     }
 
     [Fact]

@@ -15,20 +15,29 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineB
     where TRequest : ICommand where TResponse : IResult
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly UnitOfWorkPipelineBehaviorConcurrentCounter _unitOfWorkPipelineBehaviorConcurrentCounter;
 
-    public UnitOfWorkPipelineBehavior(IUnitOfWork unitOfWork)
+    public UnitOfWorkPipelineBehavior(IUnitOfWork unitOfWork,
+        UnitOfWorkPipelineBehaviorConcurrentCounter unitOfWorkPipelineBehaviorConcurrentCounter)
     {
         _unitOfWork = unitOfWork;
+        _unitOfWorkPipelineBehaviorConcurrentCounter = unitOfWorkPipelineBehaviorConcurrentCounter;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
+        _unitOfWorkPipelineBehaviorConcurrentCounter.Increment();
         var response = await next();
 
+        // ReSharper disable once InvertIf
         if (response is IResult {IsSuccess: true})
         {
-            await _unitOfWork.CommitAsync(cancellationToken);
+            _unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
+            if (_unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())
+            {
+                await _unitOfWork.CommitAsync(cancellationToken);
+            }
         }
 
         return response;

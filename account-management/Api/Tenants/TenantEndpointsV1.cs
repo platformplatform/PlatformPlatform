@@ -1,14 +1,12 @@
 using Mapster;
 using MediatR;
-using PlatformPlatform.AccountManagement.Api.Tenants.Contracts;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
-using PlatformPlatform.AccountManagement.Application.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
-public static class TenantEndpoints
+public static class TenantEndpointsV1
 {
     private const string RoutesPrefix = "/api/tenants/v1";
 

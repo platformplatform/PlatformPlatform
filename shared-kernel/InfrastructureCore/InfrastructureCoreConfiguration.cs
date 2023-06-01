@@ -27,10 +27,7 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
-        services.AddDbContext<T>((_, optionsBuilder) =>
-        {
-            optionsBuilder.UseSqlServer(GetConnectionString(configuration));
-        });
+        services.AddDbContext<T>((_, options) => { options.UseSqlServer(GetConnectionString(configuration)); });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>

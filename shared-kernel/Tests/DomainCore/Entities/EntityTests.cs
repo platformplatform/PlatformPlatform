@@ -167,32 +167,32 @@ public static class EntityTests
 [UsedImplicitly]
 public sealed record StronglyTypedId(long Value) : StronglyTypedId<StronglyTypedId>(Value);
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class StronglyTypedIdEntity : Entity<StronglyTypedId>
 {
     public StronglyTypedIdEntity() : base(StronglyTypedId.NewId())
     {
     }
 
-    [UsedImplicitly]
     public required string Name { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class GuidEntity : Entity<Guid>
 {
     public GuidEntity(Guid id) : base(id)
     {
     }
 
-    [UsedImplicitly]
     public required string Name { get; init; }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class StringEntity : Entity<string>
 {
     public StringEntity(string id) : base(id)
     {
     }
 
-    [UsedImplicitly]
     public required string Name { get; init; }
 }

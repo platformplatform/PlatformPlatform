@@ -2,11 +2,11 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
 public class DeleteTenantTests
 {
@@ -24,7 +24,7 @@ public class DeleteTenantTests
     public async Task DeleteTenantHandler_WhenTenantExists_ShouldDeleteTenantFromRepository()
     {
         // Arrange
-        var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "foo@tenant1.com", "1234567890");
+        var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "test@test.com", "1234567890");
         var existingTenantId = existingTenant.Id;
         _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
         var handler = new DeleteTenant.Handler(_tenantRepository);

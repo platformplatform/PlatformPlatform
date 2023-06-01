@@ -16,13 +16,10 @@ public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value)
     }
 }
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public enum TenantState
 {
     Trial,
-
-    [UsedImplicitly]
     Active,
-
-    [UsedImplicitly]
     Suspended
 }
