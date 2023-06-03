@@ -32,7 +32,7 @@ public class DatabaseSeeder
 
     private void SeedUsers()
     {
-        var user1 = new User(User1Email, UserRole.TenantUser)
+        var user1 = new User(Tenant1Id, User1Email, UserRole.TenantUser)
         {
             Id = User1Id
         };

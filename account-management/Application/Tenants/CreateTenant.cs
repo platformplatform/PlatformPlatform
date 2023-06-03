@@ -30,13 +30,14 @@ public static class CreateTenant
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
             await _tenantRepository.AddAsync(tenant, cancellationToken);
 
-            await CreateTenantOwner(command.Email, cancellationToken);
+            await CreateTenantOwner(tenant.Id, command.Email, cancellationToken);
             return tenant;
         }
 
-        private async Task CreateTenantOwner(string tenantOwnerEmail, CancellationToken cancellationToken)
+        private async Task CreateTenantOwner(TenantId tenantId, string tenantOwnerEmail,
+            CancellationToken cancellationToken)
         {
-            var createTenantOwnerUserCommand = new CreateUser.Command(tenantOwnerEmail, UserRole.TenantOwner);
+            var createTenantOwnerUserCommand = new CreateUser.Command(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
             var result = await _mediator.Send(createTenantOwnerUserCommand, cancellationToken);
 
             if (!result.IsSuccess)
@@ -59,11 +60,6 @@ public static class CreateTenant
                 .MustAsync(async (subdomain, token) => await repository.IsSubdomainFreeAsync(subdomain, token))
                 .WithMessage("The subdomain is not available.")
                 .When(x => !string.IsNullOrEmpty(x.Subdomain));
-
-            RuleFor(x => x.Email)
-                .MustAsync(async (email, token) => await userRepository.IsEmailFreeAsync(email, token))
-                .WithMessage(x => $"The email '{x.Email}' is already in use by another user.")
-                .When(x => !string.IsNullOrEmpty(x.Email));
         }
     }
 }

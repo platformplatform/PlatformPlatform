@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Domain.Users;
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
 [UsedImplicitly]
-public sealed record CreateUserRequest(string Email, UserRole UserRole);
+public sealed record CreateUserRequest(string TenantId, string Email, UserRole UserRole);
 
 public sealed record UpdateUserRequest(string Email, UserRole UserRole);
 

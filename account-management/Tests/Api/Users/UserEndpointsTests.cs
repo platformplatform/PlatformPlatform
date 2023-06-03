@@ -64,7 +64,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest("test@test.com", UserRole.TenantUser)
+            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "test@test.com", UserRole.TenantUser)
         );
 
         // Assert
@@ -93,7 +93,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest("a", UserRole.TenantOwner)
+            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "a", UserRole.TenantOwner)
         );
 
         // Assert
