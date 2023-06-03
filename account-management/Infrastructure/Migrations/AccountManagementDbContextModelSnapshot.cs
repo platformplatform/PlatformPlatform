@@ -87,6 +87,14 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 
                     b.ToTable("Users");
                 });
+
+            modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
+                {
+                    b.HasOne("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .IsRequired();
+                });
 #pragma warning restore 612, 618
         }
     }
