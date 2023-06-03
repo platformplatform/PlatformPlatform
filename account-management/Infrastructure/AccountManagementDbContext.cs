@@ -20,7 +20,7 @@ public sealed class AccountManagementDbContext : SharedKernelDbContext<AccountMa
         base.OnModelCreating(modelBuilder);
 
         // Ensures the strongly typed IDs can be saved and read by entity framework as the underlying type.
-        modelBuilder.Entity<Tenant>().ConfigureStronglyTypedId<Tenant, TenantId>();
-        modelBuilder.Entity<User>().ConfigureStronglyTypedId<User, UserId>();
+        modelBuilder.MapStronglyTypedId<Tenant, TenantId>(t => t.Id);
+        modelBuilder.MapStronglyTypedId<User, UserId>(u => u.Id);
     }
 }
