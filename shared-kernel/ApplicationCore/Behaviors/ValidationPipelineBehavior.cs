@@ -57,6 +57,6 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
     private static TResult CreateValidationResult<TResult>(ErrorDetail[] errorDetails)
         where TResult : IResult
     {
-        return (TResult) Activator.CreateInstance(typeof(TResult), null, errorDetails, HttpStatusCode.BadRequest)!;
+        return (TResult) Activator.CreateInstance(typeof(TResult), HttpStatusCode.BadRequest, null, errorDetails)!;
     }
 }
