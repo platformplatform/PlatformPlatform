@@ -30,13 +30,13 @@ public class Result<T> : IResult
 {
     private Result(T value, HttpStatusCode httpStatusCode)
     {
-        IsSuccess = true;
         Value = value;
+        IsSuccess = true;
         StatusCode = httpStatusCode;
     }
 
     [UsedImplicitly]
-    public Result(ErrorMessage errorMessage, ErrorDetail[] errors, HttpStatusCode statusCode)
+    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
     {
         IsSuccess = false;
         StatusCode = statusCode;
@@ -48,25 +48,31 @@ public class Result<T> : IResult
 
     public bool IsSuccess { get; }
 
+    public HttpStatusCode StatusCode { get; }
+
     public ErrorMessage? ErrorMessage { get; }
 
     public ErrorDetail[]? Errors { get; }
 
-    public HttpStatusCode StatusCode { get; }
+    public string GetErrorSummary()
+    {
+        return ErrorMessage?.Message
+               ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
+    }
 
     public static Result<T> NotFound(string message)
     {
-        return new Result<T>(new ErrorMessage(message), Array.Empty<ErrorDetail>(), HttpStatusCode.NotFound);
+        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), Array.Empty<ErrorDetail>());
+    }
+
+    public static Result<T> BadRequest(string message)
+    {
+        return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), Array.Empty<ErrorDetail>());
     }
 
     public static Result<T> NoContent()
     {
         return new Result<T>(default!, HttpStatusCode.NoContent);
-    }
-
-    public static Result<T> BadRequest(string message)
-    {
-        return new Result<T>(new ErrorMessage(message), Array.Empty<ErrorDetail>(), HttpStatusCode.BadRequest);
     }
 
     /// <summary>

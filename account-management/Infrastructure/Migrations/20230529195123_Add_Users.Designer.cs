@@ -27,6 +27,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
                 {
+                    b.Property<long>("TenantId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
@@ -48,6 +51,14 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
+                {
+                    b.HasOne("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

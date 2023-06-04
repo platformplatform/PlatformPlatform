@@ -1,8 +1,7 @@
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
@@ -13,13 +12,13 @@ public static class ModelBuilderExtensions
     ///     This method is used to tell Entity Framework how to map a strongly typed ID to a SQL column using the
     ///     underlying type of the strongly-typed ID.
     /// </summary>
-    public static void ConfigureStronglyTypedId<T, TId>(this EntityTypeBuilder<T> entity)
-        where T : Entity<TId>
-        where TId : StronglyTypedId<TId>
+    public static void MapStronglyTypedId<T, TId>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
+        where T : class where TId : StronglyTypedId<TId>
     {
-        entity
-            .Property(e => e.Id)
-            .HasConversion(v => v.Value, v => (TId) Activator.CreateInstance(typeof(TId), v)!);
+        modelBuilder
+            .Entity<T>()
+            .Property(expression)
+            .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
     /// <summary>

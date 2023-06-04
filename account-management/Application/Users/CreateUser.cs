@@ -1,6 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using MediatR;
+using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
@@ -8,7 +9,7 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public static class CreateUser
 {
-    public sealed record Command(string Email, UserRole UserRole)
+    public sealed record Command(TenantId TenantId, string Email, UserRole UserRole)
         : ICommand, IUserValidation, IRequest<Result<User>>;
 
     [UsedImplicitly]
@@ -23,7 +24,7 @@ public static class CreateUser
 
         public async Task<Result<User>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var user = User.Create(command.Email, command.UserRole);
+            var user = User.Create(command.TenantId, command.Email, command.UserRole);
             await _userRepository.AddAsync(user, cancellationToken);
             return user;
         }
@@ -32,11 +33,18 @@ public static class CreateUser
     [UsedImplicitly]
     public sealed class Validator : UserValidator<Command>
     {
-        public Validator(IUserRepository repository)
+        public Validator(IUserRepository repository, ITenantRepository tenantRepository)
         {
-            RuleFor(x => x.Email)
-                .MustAsync(async (email, token) => await repository.IsEmailFreeAsync(email, token))
-                .WithMessage(x => $"The email '{x.Email}' is already in use by another user.")
+            RuleFor(x => x.TenantId)
+                .MustAsync(async (tenantId, cancellationToken) =>
+                    await tenantRepository.ExistsAsync(tenantId, cancellationToken))
+                .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")
+                .When(x => !string.IsNullOrEmpty(x.Email));
+
+            RuleFor(x => x)
+                .MustAsync(async (x, cancellationToken)
+                    => await repository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+                .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
                 .When(x => !string.IsNullOrEmpty(x.Email));
         }
     }
