@@ -15,6 +15,11 @@ internal sealed class UserRepository : RepositoryBase<User, UserId>, IUserReposi
 
     public async Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken)
     {
-        return await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
+        return !await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
+    }
+
+    public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
     }
 }

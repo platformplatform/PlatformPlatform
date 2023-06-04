@@ -249,11 +249,32 @@ public sealed class TenantEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteTenant_WhenTenantExists_ShouldDeleteTenant()
+    public async Task DeleteTenant_WhenTenantWithUsersExists_ShouldReturnBadRequest()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
         var tenantId = DatabaseSeeder.Tenant1Id;
+
+        // Act
+        var response = await httpClient.DeleteAsync($"/api/tenants/v1/{tenantId}");
+
+        // Assert
+        const string expectedBody =
+            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Id","message":"All users must be deleted before the tenant can be deleted."}]}""";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
+
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DeleteTenant_WhenTenantExistsWithNoUsers_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var httpClient = _webApplicationFactory.CreateClient();
+        var tenantId = DatabaseSeeder.Tenant1Id;
+        var _ = await httpClient.DeleteAsync($"/api/users/v1/{DatabaseSeeder.User1Id}");
 
         // Act
         var response = await httpClient.DeleteAsync($"/api/tenants/v1/{tenantId}");

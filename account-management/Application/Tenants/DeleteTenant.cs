@@ -1,5 +1,8 @@
+using FluentValidation;
+using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
@@ -27,6 +30,17 @@ public static class DeleteTenant
 
             _tenantRepository.Remove(tenant);
             return Result<Tenant>.NoContent();
+        }
+    }
+
+    [UsedImplicitly]
+    public sealed class Validator : AbstractValidator<Command>
+    {
+        public Validator(IUserRepository userRepository)
+        {
+            RuleFor(x => x.Id)
+                .MustAsync(async (tenantId, token) => await userRepository.CountTenantUsersAsync(tenantId, token) == 0)
+                .WithMessage("All users must be deleted before the tenant can be deleted.");
         }
     }
 }
