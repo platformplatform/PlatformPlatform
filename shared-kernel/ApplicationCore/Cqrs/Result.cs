@@ -54,6 +54,12 @@ public class Result<T> : IResult
 
     public HttpStatusCode StatusCode { get; }
 
+    public string GetErrorSummary()
+    {
+        return ErrorMessage?.Message
+               ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
+    }
+
     public static Result<T> NotFound(string message)
     {
         return new Result<T>(new ErrorMessage(message), Array.Empty<ErrorDetail>(), HttpStatusCode.NotFound);

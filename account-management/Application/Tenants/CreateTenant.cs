@@ -30,11 +30,11 @@ public static class CreateTenant
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
             await _tenantRepository.AddAsync(tenant, cancellationToken);
 
-            await CreateTenantOwner(tenant.Id, command.Email, cancellationToken);
+            await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
             return tenant;
         }
 
-        private async Task CreateTenantOwner(TenantId tenantId, string tenantOwnerEmail,
+        private async Task CreateTenantOwnerAsync(TenantId tenantId, string tenantOwnerEmail,
             CancellationToken cancellationToken)
         {
             var createTenantOwnerUserCommand = new CreateUser.Command(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
@@ -43,7 +43,7 @@ public static class CreateTenant
             if (!result.IsSuccess)
             {
                 throw new InvalidOperationException(
-                    $"Failed to create a TenantOwner user for tenant. Reason: {result.ErrorMessage}");
+                    $"Failed to create a TenantOwner user for tenant. Reason: {result.GetErrorSummary()}");
             }
         }
     }

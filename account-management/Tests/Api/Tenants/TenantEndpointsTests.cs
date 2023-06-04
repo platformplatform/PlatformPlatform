@@ -86,7 +86,7 @@ public sealed class TenantEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateTenant_WhenInValid_ShouldNotCreateTenant()
+    public async Task CreateTenant_WhenInvalid_ShouldNotCreateTenant()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
