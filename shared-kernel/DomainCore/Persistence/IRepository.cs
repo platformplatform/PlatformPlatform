@@ -17,6 +17,8 @@ public interface IRepository<T, in TId> where T : IAggregateRoot where TId : ICo
 {
     Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken);
 
+    Task<bool> ExistsAsync(TId id, CancellationToken cancellationToken);
+
     Task AddAsync(T aggregate, CancellationToken cancellationToken);
 
     void Update(T aggregate);

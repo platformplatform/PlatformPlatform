@@ -21,6 +21,11 @@ public abstract class RepositoryBase<T, TId> : IRepository<T, TId>
         return await DbSet.FindAsync(keyValues, cancellationToken);
     }
 
+    public async Task<bool> ExistsAsync(TId id, CancellationToken cancellationToken)
+    {
+        return DbSet.Local.Any(e => e.Id.Equals(id)) || await DbSet.AnyAsync(e => e.Id.Equals(id), cancellationToken);
+    }
+
     public async Task AddAsync(T aggregate, CancellationToken cancellationToken)
     {
         if (aggregate is null) throw new ArgumentNullException(nameof(aggregate));
