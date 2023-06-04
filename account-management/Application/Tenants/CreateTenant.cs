@@ -57,7 +57,8 @@ public static class CreateTenant
             RuleFor(x => x.Subdomain)
                 .Length(3, 30).Matches(@"^[a-z0-9]+$")
                 .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
-                .MustAsync(async (subdomain, token) => await repository.IsSubdomainFreeAsync(subdomain, token))
+                .MustAsync(async (subdomain, cancellationToken) =>
+                    await repository.IsSubdomainFreeAsync(subdomain, cancellationToken))
                 .WithMessage("The subdomain is not available.")
                 .When(x => !string.IsNullOrEmpty(x.Subdomain));
         }

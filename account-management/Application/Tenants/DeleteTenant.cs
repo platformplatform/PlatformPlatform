@@ -39,7 +39,8 @@ public static class DeleteTenant
         public Validator(IUserRepository userRepository)
         {
             RuleFor(x => x.Id)
-                .MustAsync(async (tenantId, token) => await userRepository.CountTenantUsersAsync(tenantId, token) == 0)
+                .MustAsync(async (tenantId, cancellationToken) =>
+                    await userRepository.CountTenantUsersAsync(tenantId, cancellationToken) == 0)
                 .WithMessage("All users must be deleted before the tenant can be deleted.");
         }
     }

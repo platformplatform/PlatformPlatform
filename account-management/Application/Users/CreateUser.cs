@@ -36,7 +36,8 @@ public static class CreateUser
         public Validator(IUserRepository repository)
         {
             RuleFor(x => x)
-                .MustAsync(async (x, token) => await repository.IsEmailFreeAsync(x.TenantId, x.Email, token))
+                .MustAsync(async (x, cancellationToken)
+                    => await repository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
                 .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
                 .When(x => !string.IsNullOrEmpty(x.Email));
         }
