@@ -33,8 +33,14 @@ public static class CreateUser
     [UsedImplicitly]
     public sealed class Validator : UserValidator<Command>
     {
-        public Validator(IUserRepository repository)
+        public Validator(IUserRepository repository, ITenantRepository tenantRepository)
         {
+            RuleFor(x => x.TenantId)
+                .MustAsync(async (tenantId, cancellationToken) =>
+                    await tenantRepository.ExistsAsync(tenantId, cancellationToken))
+                .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")
+                .When(x => !string.IsNullOrEmpty(x.Email));
+
             RuleFor(x => x)
                 .MustAsync(async (x, cancellationToken)
                     => await repository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
