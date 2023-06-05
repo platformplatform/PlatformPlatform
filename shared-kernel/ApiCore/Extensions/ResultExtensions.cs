@@ -3,20 +3,29 @@ using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 public static partial class ResultExtensions
 {
-    public static IResult AsHttpResult<T, TDto>(this Result<T> result)
+    public static IResult AsHttpResult<TEntity, TDto>(this Result<TEntity> result)
+        where TEntity : IIdentity
+        where TDto : class
     {
-        return result.IsSuccess ? Results.Ok(result.Value!.Adapt<TDto>()) : GetProblemDetailsAsJson(result);
+        return result.IsSuccess
+            ? Results.Ok(result.Value!.Adapt<TDto>())
+            : GetProblemDetailsAsJson(result);
     }
 
-    public static IResult AsHttpResult<T, TDto>(this Result<T> result, string uri)
+    public static IResult AsHttpResult<TEntity, TDto>(this Result<TEntity> result, string routePrefix)
+        where TEntity : IIdentity
+        where TDto : class
     {
-        return result.IsSuccess ? Results.Created(uri, result.Value!.Adapt<TDto>()) : GetProblemDetailsAsJson(result);
+        return result.IsSuccess
+            ? Results.Created($"{routePrefix}/{result.Value!.Id}", result.Value!.Adapt<TDto>())
+            : GetProblemDetailsAsJson(result);
     }
 
     private static IResult GetProblemDetailsAsJson<T>(Result<T> result)

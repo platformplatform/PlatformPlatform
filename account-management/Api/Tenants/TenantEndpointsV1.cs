@@ -30,7 +30,7 @@ public static class TenantEndpointsV1
     {
         var command = request.Adapt<CreateTenant.Command>();
         var result = await mediatr.Send(command);
-        return result.AsHttpResult<Tenant, TenantResponseDto>($"{RoutesPrefix}/{result.Value?.Id}");
+        return result.AsHttpResult<Tenant, TenantResponseDto>(RoutesPrefix);
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender mediatr)

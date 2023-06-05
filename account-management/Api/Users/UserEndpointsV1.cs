@@ -30,7 +30,7 @@ public static class UserEndpointsV1
     {
         var command = request.Adapt<CreateUser.Command>();
         var result = await mediatr.Send(command);
-        return result.AsHttpResult<User, UserResponseDto>($"{RoutesPrefix}/{result.Value?.Id}");
+        return result.AsHttpResult<User, UserResponseDto>(RoutesPrefix);
     }
 
     private static async Task<IResult> UpdateUser(string id, UpdateUserRequest request, ISender mediatr)
