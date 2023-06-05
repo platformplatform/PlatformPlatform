@@ -19,12 +19,11 @@ public static partial class ResultExtensions
             : GetProblemDetailsAsJson(result);
     }
 
-    public static IResult AsHttpResult<TEntity, TDto>(this Result<TEntity> result, string routePrefix)
+    public static IResult AsHttpResult<TEntity>(this Result<TEntity> result, string routePrefix)
         where TEntity : IIdentity
-        where TDto : class
     {
         return result.IsSuccess
-            ? Results.Created($"{routePrefix}/{result.Value!.Id}", result.Value!.Adapt<TDto>())
+            ? Results.Created($"{routePrefix}/{result.Value!.Id}", null)
             : GetProblemDetailsAsJson(result);
     }
 

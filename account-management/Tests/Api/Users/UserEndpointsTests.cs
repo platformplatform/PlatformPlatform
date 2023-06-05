@@ -59,7 +59,6 @@ public sealed class UserEndpointsTests : IDisposable
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Arrange
-        var startId = UserId.NewId(); // NewId will always generate an id that are greater than the previous one
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
@@ -70,23 +69,15 @@ public sealed class UserEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        var userId = (UserId) userDto!.Id;
-        userId.Should().BeGreaterThan(startId, "We expect a valid User Id greater than the start Id");
-
-        var createdAt = userDto.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $@"{{""id"":""{userDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""email"":""test@test.com"",""userRole"":0}}";
-
         var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().Be(expectedBody);
+        responseAsRawString.Should().BeEmpty();
 
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location!.ToString().Should().Be($"/api/users/v1/{userId}");
+        response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/v1/{UserId.NewId()}".Length);
     }
 
     [Fact]
-    public async Task CreateUser_WhenInValid_ShouldNotCreateUser()
+    public async Task CreateUser_WhenInvalid_ShouldNotCreateUser()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();

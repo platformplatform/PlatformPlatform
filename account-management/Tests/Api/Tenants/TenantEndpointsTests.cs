@@ -59,7 +59,6 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task CreateTenant_WhenValid_ShouldCreateTenant()
     {
         // Arrange
-        var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
@@ -70,19 +69,11 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        var tenantId = (TenantId) tenantDto!.Id;
-        tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
-
-        var createdAt = tenantDto.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $@"{{""id"":""{tenantDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""TestTenant"",""state"":0,""email"":""test@test.com"",""phone"":""1234567890""}}";
-
         var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().Be(expectedBody);
+        responseAsRawString.Should().BeEmpty();
 
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location!.ToString().Should().Be($"/api/tenants/v1/{tenantId}");
+        response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/tenants/v1/{TenantId.NewId()}".Length);
     }
 
     [Fact]

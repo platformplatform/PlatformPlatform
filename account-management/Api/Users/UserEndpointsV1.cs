@@ -28,7 +28,7 @@ public static class UserEndpointsV1
     private static async Task<IResult> CreateUser(CreateUserRequest request, ISender mediatr)
     {
         return (await mediatr.Send(request.Adapt<CreateUser.Command>()))
-            .AsHttpResult<User, UserResponseDto>(RoutesPrefix);
+            .AsHttpResult(RoutesPrefix);
     }
 
     private static async Task<IResult> UpdateUser(string id, UpdateUserRequest request, ISender mediatr)

@@ -28,7 +28,7 @@ public static class TenantEndpointsV1
     private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender mediatr)
     {
         return (await mediatr.Send(request.Adapt<CreateTenant.Command>()))
-            .AsHttpResult<Tenant, TenantResponseDto>(RoutesPrefix);
+            .AsHttpResult(RoutesPrefix);
     }
 
     private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender mediatr)
