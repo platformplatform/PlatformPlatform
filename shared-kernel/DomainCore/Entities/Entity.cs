@@ -29,7 +29,10 @@ public abstract class Entity<T> : IIdentity, IEquatable<Entity<T>>
                 EqualityComparer<T>.Default.Equals(Id, other.Id));
     }
 
-    object IIdentity.Id => Id;
+    public object GetId()
+    {
+        return Id;
+    }
 
     public override bool Equals(object? obj)
     {

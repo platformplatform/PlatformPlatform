@@ -23,7 +23,7 @@ public static partial class ResultExtensions
         where TEntity : IIdentity
     {
         return result.IsSuccess
-            ? Results.Created($"{routePrefix}/{result.Value!.Id}", null)
+            ? Results.Created($"{routePrefix}/{result.Value!.GetId()}", null)
             : GetProblemDetailsAsJson(result);
     }
 
