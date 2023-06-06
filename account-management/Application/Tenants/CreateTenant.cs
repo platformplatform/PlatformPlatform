@@ -1,5 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
+using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -11,10 +12,10 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants;
 public static class CreateTenant
 {
     public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
-        : ICommand, ITenantValidation, IRequest<Result<Tenant>>;
+        : ICommand, ITenantValidation, IRequest<Result<TenantResponseDto>>;
 
     [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
+    public sealed class Handler : IRequestHandler<Command, Result<TenantResponseDto>>
     {
         private readonly ISender _mediator;
         private readonly ITenantRepository _tenantRepository;
@@ -25,13 +26,13 @@ public static class CreateTenant
             _mediator = mediator;
         }
 
-        public async Task<Result<Tenant>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<TenantResponseDto>> Handle(Command command, CancellationToken cancellationToken)
         {
             var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
             await _tenantRepository.AddAsync(tenant, cancellationToken);
 
             await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
-            return tenant;
+            return tenant.Adapt<TenantResponseDto>();
         }
 
         private async Task CreateTenantOwnerAsync(TenantId tenantId, string tenantOwnerEmail,

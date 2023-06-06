@@ -38,10 +38,10 @@ public class GetTenantTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        var tenantResponse = result.Value;
-        tenantResponse.Should().NotBeNull();
-        tenantResponse!.Id.Should().Be(expectedTenantId);
-        tenantResponse.Name.Should().Be(expectedTenantName);
+        var tenantResponseDto = result.Value;
+        tenantResponseDto.Should().NotBeNull();
+        tenantResponseDto!.Id.Should().Be(expectedTenantId.ToString());
+        tenantResponseDto.Name.Should().Be(expectedTenantName);
         await tenantRepository.Received().GetByIdAsync(expectedTenantId, default);
     }
 

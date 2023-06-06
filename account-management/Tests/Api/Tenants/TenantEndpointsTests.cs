@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -70,10 +69,11 @@ public sealed class TenantEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().BeEmpty();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().BeEmpty();
 
         response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().StartsWith($"/api/tenants/v1/").Should().BeTrue();
         response.Headers.Location!.ToString().Length.Should().Be($"/api/tenants/v1/{TenantId.NewId()}".Length);
     }
 
@@ -175,7 +175,7 @@ public sealed class TenantEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdateTenant_WhenInValid_ShouldReturnBadRequest()
+    public async Task UpdateTenant_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();

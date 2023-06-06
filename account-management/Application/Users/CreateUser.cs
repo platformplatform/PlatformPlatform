@@ -1,5 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
+using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Users;
@@ -10,10 +11,10 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 public static class CreateUser
 {
     public sealed record Command(TenantId TenantId, string Email, UserRole UserRole)
-        : ICommand, IUserValidation, IRequest<Result<User>>;
+        : ICommand, IUserValidation, IRequest<Result<UserResponseDto>>;
 
     [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Command, Result<User>>
+    public sealed class Handler : IRequestHandler<Command, Result<UserResponseDto>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -22,11 +23,11 @@ public static class CreateUser
             _userRepository = userRepository;
         }
 
-        public async Task<Result<User>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<UserResponseDto>> Handle(Command command, CancellationToken cancellationToken)
         {
             var user = User.Create(command.TenantId, command.Email, command.UserRole);
             await _userRepository.AddAsync(user, cancellationToken);
-            return user;
+            return user.Adapt<UserResponseDto>();
         }
     }
 

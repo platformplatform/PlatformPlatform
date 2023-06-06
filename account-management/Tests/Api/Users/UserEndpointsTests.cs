@@ -4,7 +4,6 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -70,10 +69,11 @@ public sealed class UserEndpointsTests : IDisposable
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().BeEmpty();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().BeEmpty();
 
         response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().StartsWith($"/api/users/v1/").Should().BeTrue();
         response.Headers.Location!.ToString().Length.Should().Be($"/api/users/v1/{UserId.NewId()}".Length);
     }
 
@@ -174,7 +174,7 @@ public sealed class UserEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task UpdateUser_WhenInValid_ShouldReturnBadRequest()
+    public async Task UpdateUser_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();

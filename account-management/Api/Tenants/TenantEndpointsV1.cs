@@ -20,7 +20,7 @@ public static class TenantEndpointsV1
 
     private static async Task<IResult> GetTenant(TenantId id, ISender mediatr)
     {
-        return (await mediatr.Send(new GetTenant.Query(id))).AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(new GetTenant.Query(id))).AsHttpResult();
     }
 
     private static async Task<IResult> CreateTenant(CreateTenant.Command command, ISender mediatr)
@@ -30,11 +30,11 @@ public static class TenantEndpointsV1
 
     private static async Task<IResult> UpdateTenant(TenantId id, UpdateTenant.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(command with {Id = id})).AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(command with {Id = id})).AsHttpResult();
     }
 
     private static async Task<IResult> DeleteTenant(TenantId id, ISender mediatr)
     {
-        return (await mediatr.Send(new DeleteTenant.Command(id))).AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(new DeleteTenant.Command(id))).AsHttpResult();
     }
 }

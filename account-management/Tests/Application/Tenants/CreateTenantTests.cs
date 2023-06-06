@@ -64,16 +64,17 @@ public sealed class CreateTenantTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        var tenantResponse = result.Value!;
+        var tenantResponseDto = result.Value!;
 
         // Query the database to find the added tenant
         var dbContext = _provider.GetRequiredService<AccountManagementDbContext>();
-        var tenant = await dbContext.Tenants.SingleOrDefaultAsync(t => t.Id == tenantResponse.Id, cancellationToken);
+        var tenantId = TenantId.Parse(tenantResponseDto.Id);
+        var tenant = await dbContext.Tenants.SingleOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
 
         // Check that the tenant exists and has the expected properties
         tenant.Should().NotBeNull();
         tenant!.Id.Should().BeGreaterThan(startId);
-        tenant.Id.Should().Be(tenantResponse.Id);
+        tenant.Id.Should().Be(tenantId);
         tenant.Name.Should().Be(command.Name);
         tenant.Email.Should().Be(command.Email);
         tenant.Phone.Should().Be(command.Phone);

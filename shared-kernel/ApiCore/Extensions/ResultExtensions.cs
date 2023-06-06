@@ -10,17 +10,16 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 public static partial class ResultExtensions
 {
-    public static IResult AsHttpResult<TEntity, TDto>(this Result<TEntity> result)
-        where TEntity : IIdentity
-        where TDto : class
+    public static IResult AsHttpResult<T>(this Result<T> result)
+        where T : IIdentity
     {
         return result.IsSuccess
-            ? Results.Ok(result.Value!.Adapt<TDto>())
+            ? Results.Ok(result.Value!.Adapt<T>())
             : GetProblemDetailsAsJson(result);
     }
 
-    public static IResult AsHttpResult<TEntity>(this Result<TEntity> result, string routePrefix)
-        where TEntity : IIdentity
+    public static IResult AsHttpResult<T>(this Result<T> result, string routePrefix)
+        where T : IIdentity
     {
         return result.IsSuccess
             ? Results.Created($"{routePrefix}/{result.Value!.GetId()}", null)
