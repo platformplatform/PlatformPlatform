@@ -5,9 +5,9 @@ using PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
-public static class UserEndpointsV1
+public static class UserEndpoints
 {
-    private const string RoutesPrefix = "/api/users/v1";
+    private const string RoutesPrefix = "/api/users";
 
     public static void MapUserEndpoints(this IEndpointRouteBuilder routes)
     {

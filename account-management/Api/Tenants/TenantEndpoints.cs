@@ -5,9 +5,9 @@ using PlatformPlatform.SharedKernel.ApiCore.Extensions;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
-public static class TenantEndpointsV1
+public static class TenantEndpoints
 {
-    private const string RoutesPrefix = "/api/tenants/v1";
+    private const string RoutesPrefix = "/api/tenants";
 
     public static void MapTenantEndpoints(this IEndpointRouteBuilder routes)
     {
