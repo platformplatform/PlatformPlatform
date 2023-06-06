@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Users;
@@ -7,8 +8,15 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public static class UpdateUser
 {
-    public sealed record Command(UserId Id, string Email, UserRole UserRole)
-        : ICommand, IUserValidation, IRequest<Result<User>>;
+    public sealed record Command : ICommand, IUserValidation, IRequest<Result<User>>
+    {
+        [JsonIgnore] // Removes the Id from the API contract
+        public UserId Id { get; init; } = null!;
+
+        public required UserRole UserRole { get; init; }
+
+        public required string Email { get; init; }
+    }
 
     [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result<User>>

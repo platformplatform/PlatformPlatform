@@ -1,4 +1,3 @@
-using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
@@ -24,15 +23,14 @@ public static class UserEndpointsV1
         return (await mediatr.Send(new GetUser.Query((UserId) id))).AsHttpResult<User, UserResponseDto>();
     }
 
-    private static async Task<IResult> CreateUser(CreateUserRequest request, ISender mediatr)
+    private static async Task<IResult> CreateUser(CreateUser.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(request.Adapt<CreateUser.Command>())).AsHttpResult(RoutesPrefix);
+        return (await mediatr.Send(command)).AsHttpResult(RoutesPrefix);
     }
 
-    private static async Task<IResult> UpdateUser(string id, UpdateUserRequest request, ISender mediatr)
+    private static async Task<IResult> UpdateUser(string id, UpdateUser.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(new UpdateUser.Command((UserId) id, request.Email, request.UserRole)))
-            .AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(command with {Id = (UserId) id})).AsHttpResult<User, UserResponseDto>();
     }
 
     private static async Task<IResult> DeleteUser(string id, ISender mediatr)

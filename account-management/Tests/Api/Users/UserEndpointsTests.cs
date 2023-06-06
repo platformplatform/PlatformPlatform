@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Api.Users;
+using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
@@ -63,7 +64,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "test@test.com", UserRole.TenantUser)
+            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "test@test.com", UserRole.TenantUser)
         );
 
         // Assert
@@ -84,7 +85,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "a", UserRole.TenantOwner)
+            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "a", UserRole.TenantOwner)
         );
 
         // Assert
@@ -158,7 +159,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{userId}",
-            new UpdateUserRequest("updated@test.com", UserRole.TenantOwner)
+            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantOwner}
         );
 
         // Assert
@@ -182,7 +183,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{userId}",
-            new UpdateUserRequest("Invalid Email", UserRole.TenantAdmin)
+            new UpdateUser.Command {Email = "Invalid Email", UserRole = UserRole.TenantAdmin}
         );
 
         // Assert
@@ -201,7 +202,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{nonExistingUserId}",
-            new UpdateUserRequest("updated@test.com", UserRole.TenantAdmin)
+            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantAdmin}
         );
 
         //Assert
