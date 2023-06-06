@@ -30,8 +30,8 @@ public class UpdateTenantTests
         var handler = new UpdateTenant.Handler(_tenantRepository);
 
         // Act
-        var command =
-            new UpdateTenant.Command(existingTenantId, "UpdatedTenant", "updated@test.com", "0987654321");
+        var command = new UpdateTenant.Command
+            {Id = existingTenantId, Name = "UpdatedTenant", Email = "updated@test.com", Phone = "0987654321"};
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -51,8 +51,8 @@ public class UpdateTenantTests
         var handler = new UpdateTenant.Handler(_tenantRepository);
 
         // Act
-        var command =
-            new UpdateTenant.Command(nonExistingTenantId, "UpdatedTenant", "updated@test.com", "0987654321");
+        var command = new UpdateTenant.Command
+            {Id = nonExistingTenantId, Name = "UpdatedTenant", Email = "updated@test.com", Phone = "0987654321"};
         var updateTenantCommandResult = await handler.Handle(command, CancellationToken.None);
 
         // Assert

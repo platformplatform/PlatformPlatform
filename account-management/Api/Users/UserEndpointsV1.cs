@@ -21,14 +21,12 @@ public static class UserEndpointsV1
 
     private static async Task<IResult> GetUser(string id, ISender mediatr)
     {
-        return (await mediatr.Send(new GetUser.Query((UserId) id)))
-            .AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(new GetUser.Query((UserId) id))).AsHttpResult<User, UserResponseDto>();
     }
 
     private static async Task<IResult> CreateUser(CreateUserRequest request, ISender mediatr)
     {
-        return (await mediatr.Send(request.Adapt<CreateUser.Command>()))
-            .AsHttpResult(RoutesPrefix);
+        return (await mediatr.Send(request.Adapt<CreateUser.Command>())).AsHttpResult(RoutesPrefix);
     }
 
     private static async Task<IResult> UpdateUser(string id, UpdateUserRequest request, ISender mediatr)
@@ -39,7 +37,6 @@ public static class UserEndpointsV1
 
     private static async Task<IResult> DeleteUser(string id, ISender mediatr)
     {
-        return (await mediatr.Send(new DeleteUser.Command((UserId) id)))
-            .AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(new DeleteUser.Command((UserId) id))).AsHttpResult<User, UserResponseDto>();
     }
 }

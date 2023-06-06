@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Api.Tenants;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
@@ -63,7 +64,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/tenants/v1",
-            new CreateTenantRequest("TestTenant", "foo", "test@test.com", "1234567890")
+            new CreateTenant.Command("TestTenant", "foo", "test@test.com", "1234567890")
         );
 
         // Assert
@@ -84,7 +85,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PostAsJsonAsync("/api/tenants/v1",
-            new CreateTenantRequest("TestTenant", "a", "ab", null)
+            new CreateTenant.Command("TestTenant", "a", "ab", null)
         );
 
         // Assert
@@ -158,7 +159,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{tenantId}",
-            new UpdateTenantRequest("UpdatedName", "updated@test.com", "0987654321")
+            new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"}
         );
 
         // Assert
@@ -183,7 +184,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{tenantId}",
-            new UpdateTenantRequest("Invalid Email", "@test.com", "0987654321")
+            new UpdateTenant.Command {Name = "Invalid Email", Email = "@test.com", Phone = "0987654321"}
         );
 
         // Assert
@@ -202,7 +203,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{nonExistingTenantId}",
-            new UpdateTenantRequest("UpdatedName", "updated@test.com", "0987654321")
+            new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"}
         );
 
         //Assert
@@ -228,9 +229,8 @@ public sealed class TenantEndpointsTests : IDisposable
         var response = await httpClient.DeleteAsync($"/api/tenants/v1/{nonExistingTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        // const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
         const string expectedBody =
-            $@"{{""type"":""https://httpstatuses.com/404"",""title"":""Not Found"",""status"":404,""detail"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);

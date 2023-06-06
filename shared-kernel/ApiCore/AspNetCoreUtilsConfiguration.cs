@@ -20,6 +20,8 @@ public static class AspNetCoreUtilsConfiguration
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo {Title = "PlatformPlatform API", Version = "v1"});
+            // This is needed because commands are nested so CreateTenant.Command becomes CreateTenant+Command 
+            c.CustomSchemaIds(type => type.FullName?.Split(".").Last().Replace("+", ""));
         });
 
         return services;

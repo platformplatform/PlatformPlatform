@@ -1,4 +1,3 @@
-using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -21,25 +20,21 @@ public static class TenantEndpointsV1
 
     private static async Task<IResult> GetTenant(string id, ISender mediatr)
     {
-        return (await mediatr.Send(new GetTenant.Query((TenantId) id)))
-            .AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(new GetTenant.Query((TenantId) id))).AsHttpResult<Tenant, TenantResponseDto>();
     }
 
-    private static async Task<IResult> CreateTenant(CreateTenantRequest request, ISender mediatr)
+    private static async Task<IResult> CreateTenant(CreateTenant.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(request.Adapt<CreateTenant.Command>()))
-            .AsHttpResult(RoutesPrefix);
+        return (await mediatr.Send(command)).AsHttpResult(RoutesPrefix);
     }
 
-    private static async Task<IResult> UpdateTenant(string id, UpdateTenantRequest request, ISender mediatr)
+    private static async Task<IResult> UpdateTenant(string id, UpdateTenant.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(new UpdateTenant.Command((TenantId) id, request.Name, request.Email, request.Phone)))
-            .AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(command with {Id = (TenantId) id})).AsHttpResult<Tenant, TenantResponseDto>();
     }
 
     private static async Task<IResult> DeleteTenant(string id, ISender mediatr)
     {
-        return (await mediatr.Send(new DeleteTenant.Command((TenantId) id)))
-            .AsHttpResult<Tenant, TenantResponseDto>();
+        return (await mediatr.Send(new DeleteTenant.Command((TenantId) id))).AsHttpResult<Tenant, TenantResponseDto>();
     }
 }

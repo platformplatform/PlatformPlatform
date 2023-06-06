@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -7,8 +8,17 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public static class UpdateTenant
 {
-    public sealed record Command(TenantId Id, string Name, string Email, string? Phone)
-        : ICommand, ITenantValidation, IRequest<Result<Tenant>>;
+    public sealed record Command : ICommand, ITenantValidation, IRequest<Result<Tenant>>
+    {
+        [JsonIgnore] // Removes the Id from the API contract
+        public TenantId Id { get; init; } = null!;
+
+        public required string Name { get; init; }
+
+        public required string Email { get; init; }
+
+        public string? Phone { get; init; }
+    }
 
     public sealed class Handler : IRequestHandler<Command, Result<Tenant>>
     {
