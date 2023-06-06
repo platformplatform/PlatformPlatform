@@ -18,9 +18,9 @@ public static class UserEndpointsV1
         group.MapDelete("/{id}", DeleteUser);
     }
 
-    private static async Task<IResult> GetUser(string id, ISender mediatr)
+    private static async Task<IResult> GetUser(UserId id, ISender mediatr)
     {
-        return (await mediatr.Send(new GetUser.Query((UserId) id))).AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(new GetUser.Query(id))).AsHttpResult<User, UserResponseDto>();
     }
 
     private static async Task<IResult> CreateUser(CreateUser.Command command, ISender mediatr)
@@ -28,13 +28,13 @@ public static class UserEndpointsV1
         return (await mediatr.Send(command)).AsHttpResult(RoutesPrefix);
     }
 
-    private static async Task<IResult> UpdateUser(string id, UpdateUser.Command command, ISender mediatr)
+    private static async Task<IResult> UpdateUser(UserId id, UpdateUser.Command command, ISender mediatr)
     {
-        return (await mediatr.Send(command with {Id = (UserId) id})).AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(command with {Id = id})).AsHttpResult<User, UserResponseDto>();
     }
 
-    private static async Task<IResult> DeleteUser(string id, ISender mediatr)
+    private static async Task<IResult> DeleteUser(UserId id, ISender mediatr)
     {
-        return (await mediatr.Send(new DeleteUser.Command((UserId) id))).AsHttpResult<User, UserResponseDto>();
+        return (await mediatr.Send(new DeleteUser.Command(id))).AsHttpResult<User, UserResponseDto>();
     }
 }
