@@ -10,10 +10,10 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 public static class CreateUser
 {
     public sealed record Command(TenantId TenantId, string Email, UserRole UserRole)
-        : ICommand, IUserValidation, IRequest<Result<User>>;
+        : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
     [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Command, Result<User>>
+    public sealed class Handler : IRequestHandler<Command, Result<UserId>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -22,11 +22,11 @@ public static class CreateUser
             _userRepository = userRepository;
         }
 
-        public async Task<Result<User>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result<UserId>> Handle(Command command, CancellationToken cancellationToken)
         {
             var user = User.Create(command.TenantId, command.Email, command.UserRole);
             await _userRepository.AddAsync(user, cancellationToken);
-            return user;
+            return user.Id;
         }
     }
 

@@ -4,7 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Api.Tenants;
+using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
@@ -59,30 +59,22 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task CreateTenant_WhenValid_ShouldCreateTenant()
     {
         // Arrange
-        var startId = TenantId.NewId(); // NewId will always generate an id that are greater than the previous one
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/tenants/v1",
-            new CreateTenantRequest("TestTenant", "foo", "test@test.com", "1234567890")
+        var response = await httpClient.PostAsJsonAsync("/api/tenants",
+            new CreateTenant.Command("TestTenant", "foo", "test@test.com", "1234567890")
         );
 
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        var tenantId = (TenantId) tenantDto!.Id;
-        tenantId.Should().BeGreaterThan(startId, "We expect a valid Tenant Id greater than the start Id");
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().BeEmpty();
 
-        var createdAt = tenantDto.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $@"{{""id"":""{tenantDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""TestTenant"",""state"":0,""email"":""test@test.com"",""phone"":""1234567890""}}";
-
-        var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location!.ToString().Should().Be($"/api/tenants/v1/{tenantId}");
+        response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().StartsWith("/api/tenants/").Should().BeTrue();
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/tenants/{TenantId.NewId()}".Length);
     }
 
     [Fact]
@@ -92,8 +84,8 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/tenants/v1",
-            new CreateTenantRequest("TestTenant", "a", "ab", null)
+        var response = await httpClient.PostAsJsonAsync("/api/tenants",
+            new CreateTenant.Command("TestTenant", "a", "ab", null)
         );
 
         // Assert
@@ -116,7 +108,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var response = await httpClient.GetAsync($"/api/tenants/v1/{tenantId}");
+        var response = await httpClient.GetAsync($"/api/tenants/{tenantId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -143,7 +135,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/api/tenants/v1/{nonExistingTenantId}");
+        var response = await httpClient.GetAsync($"/api/tenants/{nonExistingTenantId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -166,24 +158,18 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{tenantId}",
-            new UpdateTenantRequest("UpdatedName", "updated@test.com", "0987654321")
+        var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}",
+            new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"}
         );
 
         // Assert
         response.EnsureSuccessStatusCode();
-
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        tenantDto!.Name.Should().Be("UpdatedName");
-        tenantDto.Email.Should().Be("updated@test.com");
-        tenantDto.Phone.Should().Be("0987654321");
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
-    public async Task UpdateTenant_WhenInValid_ShouldReturnBadRequest()
+    public async Task UpdateTenant_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
@@ -191,8 +177,8 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{tenantId}",
-            new UpdateTenantRequest("Invalid Email", "@test.com", "0987654321")
+        var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}",
+            new UpdateTenant.Command {Name = "Invalid Email", Email = "@test.com", Phone = "0987654321"}
         );
 
         // Assert
@@ -210,8 +196,8 @@ public sealed class TenantEndpointsTests : IDisposable
         const string nonExistingTenantId = "999";
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/tenants/v1/{nonExistingTenantId}",
-            new UpdateTenantRequest("UpdatedName", "updated@test.com", "0987654321")
+        var response = await httpClient.PutAsJsonAsync($"/api/tenants/{nonExistingTenantId}",
+            new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"}
         );
 
         //Assert
@@ -234,12 +220,11 @@ public sealed class TenantEndpointsTests : IDisposable
         const string nonExistingTenantId = "999";
 
         // Act
-        var response = await httpClient.DeleteAsync($"/api/tenants/v1/{nonExistingTenantId}");
+        var response = await httpClient.DeleteAsync($"/api/tenants/{nonExistingTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        // const string expectedBody = $@"{{""message"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
         const string expectedBody =
-            $@"{{""type"":""https://httpstatuses.com/404"",""title"":""Not Found"",""status"":404,""detail"":""Tenant with id '{nonExistingTenantId}' not found.""}}";
+            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
@@ -256,7 +241,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var response = await httpClient.DeleteAsync($"/api/tenants/v1/{tenantId}");
+        var response = await httpClient.DeleteAsync($"/api/tenants/{tenantId}");
 
         // Assert
         const string expectedBody =
@@ -274,10 +259,10 @@ public sealed class TenantEndpointsTests : IDisposable
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
         var tenantId = DatabaseSeeder.Tenant1Id;
-        var _ = await httpClient.DeleteAsync($"/api/users/v1/{DatabaseSeeder.User1Id}");
+        var _ = await httpClient.DeleteAsync($"/api/users/{DatabaseSeeder.User1Id}");
 
         // Act
-        var response = await httpClient.DeleteAsync($"/api/tenants/v1/{tenantId}");
+        var response = await httpClient.DeleteAsync($"/api/tenants/{tenantId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -286,7 +271,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.Headers.Location.Should().BeNull();
 
         // Verify that is deleted
-        var getResponse = await httpClient.GetAsync($"/api/tenants/v1/{tenantId}");
+        var getResponse = await httpClient.GetAsync($"/api/tenants/{tenantId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

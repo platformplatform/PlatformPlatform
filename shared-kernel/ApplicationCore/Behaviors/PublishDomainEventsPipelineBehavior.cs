@@ -13,7 +13,7 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     Events instead.
 /// </summary>
 public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand where TResponse : IResult
+    where TRequest : ICommand where TResponse : ResultBase
 {
     private readonly IDomainEventCollector _domainEventCollector;
     private readonly IPublisher _mediatr;

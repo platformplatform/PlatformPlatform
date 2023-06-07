@@ -10,7 +10,8 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 ///     If two entities have the same identity, they are considered to be the same entity.
 ///     It is recommended to use a <see cref="StronglyTypedId{T}" /> for the ID to make the domain more meaningful.
 /// </summary>
-public abstract class Entity<T> : IEquatable<Entity<T>> where T : IComparable<T>
+public abstract class Entity<T> : IEquatable<Entity<T>>
+    where T : IComparable<T>
 {
     protected Entity(T id)
     {

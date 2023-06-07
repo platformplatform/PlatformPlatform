@@ -1,4 +1,5 @@
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 
@@ -13,6 +14,20 @@ public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>
     {
         var newValue = IdGenerator.NewId();
         return FormLong(newValue);
+    }
+
+    [UsedImplicitly]
+    public static T Parse(string value)
+    {
+        return FormLong(long.Parse(value));
+    }
+
+    [UsedImplicitly]
+    public static bool TryParse(string? value, out T? result)
+    {
+        var success = long.TryParse(value, out var parsedValue);
+        result = success ? FormLong(parsedValue) : null;
+        return success;
     }
 
     private static T FormLong(long newValue)

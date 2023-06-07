@@ -4,7 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Api.Users;
+using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.AccountManagement.Tests.Infrastructure;
@@ -59,41 +59,33 @@ public sealed class UserEndpointsTests : IDisposable
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Arrange
-        var startId = UserId.NewId(); // NewId will always generate an id that are greater than the previous one
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "test@test.com", UserRole.TenantUser)
+        var response = await httpClient.PostAsJsonAsync("/api/users",
+            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "test@test.com", UserRole.TenantUser)
         );
 
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        var userId = (UserId) userDto!.Id;
-        userId.Should().BeGreaterThan(startId, "We expect a valid User Id greater than the start Id");
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().BeEmpty();
 
-        var createdAt = userDto.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $@"{{""id"":""{userDto.Id}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""email"":""test@test.com"",""userRole"":0}}";
-
-        var responseAsRawString = await response.Content.ReadAsStringAsync();
-        responseAsRawString.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location!.ToString().Should().Be($"/api/users/v1/{userId}");
+        response.Content.Headers.ContentType.Should().BeNull();
+        response.Headers.Location!.ToString().StartsWith("/api/users/").Should().BeTrue();
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
     }
 
     [Fact]
-    public async Task CreateUser_WhenInValid_ShouldNotCreateUser()
+    public async Task CreateUser_WhenInvalid_ShouldNotCreateUser()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/users/v1",
-            new CreateUserRequest(DatabaseSeeder.Tenant1Id.ToString(), "a", UserRole.TenantOwner)
+        var response = await httpClient.PostAsJsonAsync("/api/users",
+            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "a", UserRole.TenantOwner)
         );
 
         // Assert
@@ -116,7 +108,7 @@ public sealed class UserEndpointsTests : IDisposable
         var userId = DatabaseSeeder.User1Id;
 
         // Act
-        var response = await httpClient.GetAsync($"/api/users/v1/{userId}");
+        var response = await httpClient.GetAsync($"/api/users/{userId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -143,7 +135,7 @@ public sealed class UserEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.GetAsync($"/api/users/v1/{nonExistingUserId}");
+        var response = await httpClient.GetAsync($"/api/users/{nonExistingUserId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -166,23 +158,18 @@ public sealed class UserEndpointsTests : IDisposable
         var userId = DatabaseSeeder.User1Id;
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{userId}",
-            new UpdateUserRequest("updated@test.com", UserRole.TenantOwner)
+        var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}",
+            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantOwner}
         );
 
         // Assert
         response.EnsureSuccessStatusCode();
-
-        var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        userDto!.Email.Should().Be("updated@test.com");
-        userDto.UserRole.Should().Be(UserRole.TenantOwner);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
-    public async Task UpdateUser_WhenInValid_ShouldReturnBadRequest()
+    public async Task UpdateUser_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
@@ -190,8 +177,8 @@ public sealed class UserEndpointsTests : IDisposable
         var userId = DatabaseSeeder.User1Id;
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{userId}",
-            new UpdateUserRequest("Invalid Email", UserRole.TenantAdmin)
+        var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}",
+            new UpdateUser.Command {Email = "Invalid Email", UserRole = UserRole.TenantAdmin}
         );
 
         // Assert
@@ -209,8 +196,8 @@ public sealed class UserEndpointsTests : IDisposable
         const string nonExistingUserId = "999";
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/users/v1/{nonExistingUserId}",
-            new UpdateUserRequest("updated@test.com", UserRole.TenantAdmin)
+        var response = await httpClient.PutAsJsonAsync($"/api/users/{nonExistingUserId}",
+            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantAdmin}
         );
 
         //Assert
@@ -233,7 +220,7 @@ public sealed class UserEndpointsTests : IDisposable
         const string nonExistingUserId = "999";
 
         // Act
-        var response = await httpClient.DeleteAsync($"/api/users/v1/{nonExistingUserId}");
+        var response = await httpClient.DeleteAsync($"/api/users/{nonExistingUserId}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         // const string expectedBody = $@"{{""message"":""User with id '{nonExistingUserId}' not found.""}}";
@@ -255,7 +242,7 @@ public sealed class UserEndpointsTests : IDisposable
         var userId = DatabaseSeeder.User1Id;
 
         // Act
-        var response = await httpClient.DeleteAsync($"/api/users/v1/{userId}");
+        var response = await httpClient.DeleteAsync($"/api/users/{userId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -264,7 +251,7 @@ public sealed class UserEndpointsTests : IDisposable
         response.Headers.Location.Should().BeNull();
 
         // Verify that is deleted
-        var getResponse = await httpClient.GetAsync($"/api/users/v1/{userId}");
+        var getResponse = await httpClient.GetAsync($"/api/users/{userId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
