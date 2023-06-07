@@ -9,9 +9,9 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public static class DeleteTenant
 {
-    public sealed record Command(TenantId Id) : ICommand, IRequest<Result<TenantResponseDto>>;
+    public sealed record Command(TenantId Id) : ICommand, IRequest<Result>;
 
-    public sealed class Handler : IRequestHandler<Command, Result<TenantResponseDto>>
+    public sealed class Handler : IRequestHandler<Command, Result>
     {
         private readonly ITenantRepository _tenantRepository;
 
@@ -20,16 +20,16 @@ public static class DeleteTenant
             _tenantRepository = tenantRepository;
         }
 
-        public async Task<Result<TenantResponseDto>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
             if (tenant is null)
             {
-                return Result<TenantResponseDto>.NotFound($"Tenant with id '{command.Id}' not found.");
+                return Result.NotFound($"Tenant with id '{command.Id}' not found.");
             }
 
             _tenantRepository.Remove(tenant);
-            return Result<TenantResponseDto>.NoContent();
+            return Result.NoContent();
         }
     }
 

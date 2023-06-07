@@ -164,13 +164,7 @@ public sealed class TenantEndpointsTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
-
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        tenantDto!.Name.Should().Be("UpdatedName");
-        tenantDto.Email.Should().Be("updated@test.com");
-        tenantDto.Phone.Should().Be("0987654321");
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
     }
 

@@ -23,18 +23,17 @@ public static class UserEndpoints
         return await mediatr.Send(new GetUser.Query(id));
     }
 
-    private static async Task<ApiResult<UserResponseDto>> CreateUser(CreateUser.Command command, ISender mediatr)
+    private static async Task<ApiResult<UserId>> CreateUser(CreateUser.Command command, ISender mediatr)
     {
         return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
     }
 
-    private static async Task<ApiResult<UserResponseDto>> UpdateUser(UserId id, UpdateUser.Command command,
-        ISender mediatr)
+    private static async Task<ApiResult> UpdateUser(UserId id, UpdateUser.Command command, ISender mediatr)
     {
         return await mediatr.Send(command with {Id = id});
     }
 
-    private static async Task<ApiResult<UserResponseDto>> DeleteUser(UserId id, ISender mediatr)
+    private static async Task<ApiResult> DeleteUser(UserId id, ISender mediatr)
     {
         return await mediatr.Send(new DeleteUser.Command(id));
     }

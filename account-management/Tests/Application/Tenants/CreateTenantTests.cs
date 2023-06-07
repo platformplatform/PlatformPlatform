@@ -64,34 +64,17 @@ public sealed class CreateTenantTests : IDisposable
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        var tenantResponseDto = result.Value!;
+        var tenantId = result.Value!;
 
         // Query the database to find the added tenant
         var dbContext = _provider.GetRequiredService<AccountManagementDbContext>();
-        var tenantId = TenantId.Parse(tenantResponseDto.Id);
         var tenant = await dbContext.Tenants.SingleOrDefaultAsync(t => t.Id == tenantId, cancellationToken);
 
         // Check that the tenant exists and has the expected properties
         tenant.Should().NotBeNull();
         tenant!.Id.Should().BeGreaterThan(startId);
         tenant.Id.Should().Be(tenantId);
-        tenant.Name.Should().Be(command.Name);
-        tenant.Email.Should().Be(command.Email);
-        tenant.Phone.Should().Be(command.Phone);
-    }
-
-    [Fact]
-    public async Task CreateTenantHandler_WhenCommandIsValid_ShouldReturnTenantWithCorrectValues()
-    {
-        // Arrange
-
-        // Act
-        var command = new CreateTenant.Command("TestTenant", "tenant1", "test@test.com", "1234567890");
-        var result = await _mediator.Send(command);
-
-        // Assert
-        result.IsSuccess.Should().BeTrue();
-        var tenant = result.Value!;
+        tenant.Subdomain.Should().Be(command.Subdomain);
         tenant.Name.Should().Be(command.Name);
         tenant.Email.Should().Be(command.Email);
         tenant.Phone.Should().Be(command.Phone);

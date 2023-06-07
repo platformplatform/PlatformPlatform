@@ -164,12 +164,7 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
-
-        var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        userDto!.Email.Should().Be("updated@test.com");
-        userDto.UserRole.Should().Be(UserRole.TenantOwner);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
     }
 

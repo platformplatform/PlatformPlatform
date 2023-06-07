@@ -7,10 +7,10 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public static class DeleteUser
 {
-    public sealed record Command(UserId Id) : ICommand, IRequest<Result<UserResponseDto>>;
+    public sealed record Command(UserId Id) : ICommand, IRequest<Result>;
 
     [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Command, Result<UserResponseDto>>
+    public sealed class Handler : IRequestHandler<Command, Result>
     {
         private readonly IUserRepository _userRepository;
 
@@ -19,16 +19,16 @@ public static class DeleteUser
             _userRepository = userRepository;
         }
 
-        public async Task<Result<UserResponseDto>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(Command command, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
             if (user is null)
             {
-                return Result<UserResponseDto>.NotFound($"User with id '{command.Id}' not found.");
+                return Result.NotFound($"User with id '{command.Id}' not found.");
             }
 
             _userRepository.Remove(user);
-            return Result<UserResponseDto>.NoContent();
+            return Result.NoContent();
         }
     }
 }

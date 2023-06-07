@@ -23,18 +23,17 @@ public static class TenantEndpoints
         return await mediatr.Send(new GetTenant.Query(id));
     }
 
-    private static async Task<ApiResult<TenantResponseDto>> CreateTenant(CreateTenant.Command command, ISender mediatr)
+    private static async Task<ApiResult<TenantId>> CreateTenant(CreateTenant.Command command, ISender mediatr)
     {
         return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
     }
 
-    private static async Task<ApiResult<TenantResponseDto>> UpdateTenant(TenantId id, UpdateTenant.Command command,
-        ISender mediatr)
+    private static async Task<ApiResult> UpdateTenant(TenantId id, UpdateTenant.Command command, ISender mediatr)
     {
         return await mediatr.Send(command with {Id = id});
     }
 
-    private static async Task<ApiResult<TenantResponseDto>> DeleteTenant(TenantId id, ISender mediatr)
+    private static async Task<ApiResult> DeleteTenant(TenantId id, ISender mediatr)
     {
         return await mediatr.Send(new DeleteTenant.Command(id));
     }

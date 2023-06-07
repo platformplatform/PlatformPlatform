@@ -36,10 +36,6 @@ public class UpdateTenantTests
 
         // Assert
         updateTenantCommandResult.IsSuccess.Should().BeTrue();
-        var updatedTenant = updateTenantCommandResult.Value!;
-        updatedTenant.Name.Should().Be(command.Name);
-        updatedTenant.Email.Should().Be(command.Email);
-        updatedTenant.Phone.Should().Be(command.Phone);
     }
 
     [Fact]
