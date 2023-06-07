@@ -23,7 +23,7 @@ public static class TenantEndpoints
         return await mediatr.Send(new GetTenant.Query(id));
     }
 
-    private static async Task<ApiResult<TenantId>> CreateTenant(CreateTenant.Command command, ISender mediatr)
+    private static async Task<ApiResult> CreateTenant(CreateTenant.Command command, ISender mediatr)
     {
         return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
     }
