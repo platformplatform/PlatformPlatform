@@ -12,7 +12,7 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     will be lost.
 /// </summary>
 public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand where TResponse : IResult
+    where TRequest : ICommand where TResponse : ResultBase
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly UnitOfWorkPipelineBehaviorConcurrentCounter _unitOfWorkPipelineBehaviorConcurrentCounter;
@@ -31,7 +31,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineB
         var response = await next();
 
         // ReSharper disable once InvertIf
-        if (response is IResult {IsSuccess: true})
+        if (response is ResultBase {IsSuccess: true})
         {
             _unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
             if (_unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())

@@ -16,6 +16,7 @@ public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>
         return FormLong(newValue);
     }
 
+    [UsedImplicitly]
     public static T Parse(string value)
     {
         return FormLong(long.Parse(value));

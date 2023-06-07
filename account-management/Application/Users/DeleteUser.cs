@@ -28,7 +28,7 @@ public static class DeleteUser
             }
 
             _userRepository.Remove(user);
-            return Result.NoContent();
+            return Result.Success();
         }
     }
 }

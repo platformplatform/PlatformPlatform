@@ -4,38 +4,15 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-/// <summary>
-///     All commands and queries returns a <see cref="Result{T}" />. This is used to indicate if the command/query was
-///     successful or not.
-/// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public interface IResult
+public abstract class ResultBase
 {
-    bool IsSuccess { get; }
-
-    ErrorMessage? ErrorMessage { get; }
-
-    ErrorDetail[]? Errors { get; }
-
-    HttpStatusCode StatusCode { get; }
-}
-
-/// <summary>
-///     The Result class is the concrete implementation of <see cref="IResult" />. In the case of the success the result
-///     will contain a Value or a NoContent status. In the case of a failure, the value will be null and contain either
-///     an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />. In both successful and
-///     non-successful cases, the <see cref="Result{T}" /> will contain a status code.
-/// </summary>
-public class Result : IResult
-{
-    protected Result(HttpStatusCode httpStatusCode)
+    protected ResultBase(HttpStatusCode httpStatusCode)
     {
         IsSuccess = true;
         StatusCode = httpStatusCode;
     }
 
-    [UsedImplicitly]
-    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
+    protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
     {
         IsSuccess = false;
         StatusCode = statusCode;
@@ -55,6 +32,24 @@ public class Result : IResult
     {
         return ErrorMessage?.Message
                ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
+    }
+}
+
+/// <summary>
+///     The Result class is used when a successful result is not returning any value (e.g. in the case of an Update or
+///     Delete). On success the HttpStatusCode NoContent will be returned. In the case of a failure, the result will
+///     contain either an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />.
+/// </summary>
+public class Result : ResultBase
+{
+    private Result(HttpStatusCode httpStatusCode) : base(httpStatusCode)
+    {
+    }
+
+    [UsedImplicitly]
+    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
+        : base(statusCode, errorMessage, errors)
+    {
     }
 
     public static Result NotFound(string message)
@@ -62,55 +57,37 @@ public class Result : IResult
         return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), Array.Empty<ErrorDetail>());
     }
 
+    [UsedImplicitly]
     public static Result BadRequest(string message)
     {
         return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), Array.Empty<ErrorDetail>());
     }
 
-    public static Result NoContent()
+    public static Result Success()
     {
         return new Result(HttpStatusCode.NoContent);
     }
-
-    public static Result Success()
-    {
-        return new Result(HttpStatusCode.OK);
-    }
 }
 
-public class Result<T> : IResult
+/// <summary>
+///     The ResultT class is used when a successful command or query is returning value (e.g. in the case of an Get or
+///     Create). On success the HttpStatusCode OK will be returned. In the case of a failure, the result will
+///     contain either an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />.
+/// </summary>
+public class Result<T> : ResultBase
 {
-    private Result(T value, HttpStatusCode httpStatusCode)
+    private Result(T value, HttpStatusCode httpStatusCode) : base(httpStatusCode)
     {
         Value = value;
-        IsSuccess = true;
-        StatusCode = httpStatusCode;
     }
 
     [UsedImplicitly]
     public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
+        : base(statusCode, errorMessage, errors)
     {
-        IsSuccess = false;
-        StatusCode = statusCode;
-        ErrorMessage = errorMessage;
-        Errors = errors;
     }
 
     public T? Value { get; }
-
-    public bool IsSuccess { get; }
-
-    public HttpStatusCode StatusCode { get; }
-
-    public ErrorMessage? ErrorMessage { get; }
-
-    public ErrorDetail[]? Errors { get; }
-
-    public string GetErrorSummary()
-    {
-        return ErrorMessage?.Message
-               ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
-    }
 
     public static Result<T> NotFound(string message)
     {
@@ -120,11 +97,6 @@ public class Result<T> : IResult
     public static Result<T> BadRequest(string message)
     {
         return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), Array.Empty<ErrorDetail>());
-    }
-
-    public static Result<T> NoContent()
-    {
-        return new Result<T>(default!, HttpStatusCode.NoContent);
     }
 
     /// <summary>
