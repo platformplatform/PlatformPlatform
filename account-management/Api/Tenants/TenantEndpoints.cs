@@ -1,7 +1,7 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.SharedKernel.ApiCore.HttpResults;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 

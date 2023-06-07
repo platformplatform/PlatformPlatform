@@ -1,6 +1,6 @@
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.HttpResults;
+namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 public static class ApiResultExtensions
 {
