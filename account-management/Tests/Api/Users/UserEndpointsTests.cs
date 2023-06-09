@@ -62,19 +62,17 @@ public sealed class UserEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/users",
-            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "test@test.com", UserRole.TenantUser)
-        );
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1Id, "test@test.com", UserRole.TenantUser);
+        var response = await httpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-
-        var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().BeEmpty();
-
         response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location!.ToString().StartsWith("/api/users/").Should().BeTrue();
         response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().BeEmpty();
     }
 
     [Fact]
@@ -84,20 +82,18 @@ public sealed class UserEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var response = await httpClient.PostAsJsonAsync("/api/users",
-            new CreateUser.Command(DatabaseSeeder.Tenant1Id, "a", UserRole.TenantOwner)
-        );
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1Id, "a", UserRole.TenantOwner);
+        var response = await httpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
             """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Email","message":"'Email' is not a valid email address."}]}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -112,18 +108,16 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
 
         var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
         const string userEmail = DatabaseSeeder.User1Email;
         var createdAt = userDto?.CreatedAt.ToString(Iso8601TimeFormat);
-
         var expectedBody =
             $@"{{""id"":""{userId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""email"":""{userEmail}"",""userRole"":0}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -131,7 +125,6 @@ public sealed class UserEndpointsTests : IDisposable
     {
         // Arrange
         var nonExistingUserId = new UserId(999);
-
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
@@ -139,14 +132,13 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
             """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -154,13 +146,11 @@ public sealed class UserEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-
         var userId = DatabaseSeeder.User1Id;
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}",
-            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantOwner}
-        );
+        var command = new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantOwner};
+        var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -173,17 +163,16 @@ public sealed class UserEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-
         var userId = DatabaseSeeder.User1Id;
 
         // Act
+        var command = new UpdateUser.Command {Email = "Invalid Email", UserRole = UserRole.TenantAdmin};
         var response = await httpClient.PutAsJsonAsync($"/api/users/{userId}",
-            new UpdateUser.Command {Email = "Invalid Email", UserRole = UserRole.TenantAdmin}
+            command
         );
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();
     }
@@ -196,20 +185,18 @@ public sealed class UserEndpointsTests : IDisposable
         const string nonExistingUserId = "999";
 
         // Act
-        var response = await httpClient.PutAsJsonAsync($"/api/users/{nonExistingUserId}",
-            new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantAdmin}
-        );
+        var command = new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantAdmin};
+        var response = await httpClient.PutAsJsonAsync($"/api/users/{nonExistingUserId}", command);
 
         //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
             """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '999' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
-
-        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
-        response.Headers.Location.Should().BeNull();
     }
 
     [Fact]
@@ -221,17 +208,16 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Act
         var response = await httpClient.DeleteAsync($"/api/users/{nonExistingUserId}");
+
+        //Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        // const string expectedBody = $@"{{""message"":""User with id '{nonExistingUserId}' not found.""}}";
-        const string expectedBody =
-            $@"{{""type"":""https://httpstatuses.com/404"",""title"":""Not Found"",""status"":404,""detail"":""User with id '{nonExistingUserId}' not found.""}}";
-
-        var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().Be(expectedBody);
-
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();
+
+        const string expectedBody =
+            $@"{{""type"":""https://httpstatuses.com/404"",""title"":""Not Found"",""status"":404,""detail"":""User with id '{nonExistingUserId}' not found.""}}";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
     }
 
     [Fact]
@@ -246,11 +232,10 @@ public sealed class UserEndpointsTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
-
         response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
 
-        // Verify that is deleted
+        // Verify that User is deleted
         var getResponse = await httpClient.GetAsync($"/api/users/{userId}");
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
