@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.HttpResults;
+namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 public partial class ApiResult : IResult
 {

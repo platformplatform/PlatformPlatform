@@ -1,7 +1,7 @@
 using MediatR;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
-using PlatformPlatform.SharedKernel.ApiCore.HttpResults;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
@@ -23,7 +23,7 @@ public static class UserEndpoints
         return await mediatr.Send(new GetUser.Query(id));
     }
 
-    private static async Task<ApiResult<UserId>> CreateUser(CreateUser.Command command, ISender mediatr)
+    private static async Task<ApiResult> CreateUser(CreateUser.Command command, ISender mediatr)
     {
         return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
     }
