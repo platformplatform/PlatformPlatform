@@ -33,7 +33,7 @@ public static class CreateUser
     [UsedImplicitly]
     public sealed class Validator : UserValidator<Command>
     {
-        public Validator(IUserRepository repository, ITenantRepository tenantRepository)
+        public Validator(IUserRepository userRepository, ITenantRepository tenantRepository)
         {
             RuleFor(x => x.TenantId)
                 .MustAsync(async (tenantId, cancellationToken) =>
@@ -43,7 +43,7 @@ public static class CreateUser
 
             RuleFor(x => x)
                 .MustAsync(async (x, cancellationToken)
-                    => await repository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+                    => await userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
                 .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
                 .When(x => !string.IsNullOrEmpty(x.Email));
         }
