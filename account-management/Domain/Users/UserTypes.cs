@@ -13,7 +13,7 @@ public sealed record UserId(long Value) : StronglyTypedLongId<UserId>(Value)
     }
 }
 
-public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<UserId>
+public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<long, UserId>
 {
 }
 

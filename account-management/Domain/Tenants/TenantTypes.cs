@@ -13,7 +13,7 @@ public sealed record TenantId(long Value) : StronglyTypedLongId<TenantId>(Value)
     }
 }
 
-public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<TenantId>
+public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<long, TenantId>
 {
 }
 

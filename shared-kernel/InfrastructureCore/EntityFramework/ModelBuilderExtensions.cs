@@ -21,6 +21,18 @@ public static class ModelBuilderExtensions
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
+    public static void MapStronglyTypedId<T, TId, TValue>(this ModelBuilder modelBuilder,
+        Expression<Func<T, TId>> expression)
+        where T : class
+        where TValue : IComparable<TValue>
+        where TId : StronglyTypedId<TValue, TId>
+    {
+        modelBuilder
+            .Entity<T>()
+            .Property(expression)
+            .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+    }
+
     /// <summary>
     ///     This method is used to tell Entity Framework to store all enum properties as strings in the database.
     /// </summary>
