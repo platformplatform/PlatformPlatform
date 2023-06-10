@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.DomainCore.Identity;
 namespace PlatformPlatform.AccountManagement.Domain.Users;
 
 [TypeConverter(typeof(UserIdTypeConverter))]
-public sealed record UserId(long Value) : StronglyTypedId<UserId>(Value)
+public sealed record UserId(long Value) : StronglyTypedLongId<UserId>(Value)
 {
     public override string ToString()
     {

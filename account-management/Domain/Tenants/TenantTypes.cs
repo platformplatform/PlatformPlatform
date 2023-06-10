@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.DomainCore.Identity;
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 [TypeConverter(typeof(TenantIdTypeConverter))]
-public sealed record TenantId(long Value) : StronglyTypedId<TenantId>(Value)
+public sealed record TenantId(long Value) : StronglyTypedLongId<TenantId>(Value)
 {
     public override string ToString()
     {

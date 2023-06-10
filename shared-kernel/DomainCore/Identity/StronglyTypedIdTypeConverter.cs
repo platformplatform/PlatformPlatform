@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 
-public abstract class StronglyTypedIdTypeConverter<T> : TypeConverter where T : StronglyTypedId<T>
+public abstract class StronglyTypedIdTypeConverter<T> : TypeConverter where T : StronglyTypedLongId<T>
 {
     private static readonly MethodInfo? TryParseMethod = typeof(T).GetMethod("TryParse");
 

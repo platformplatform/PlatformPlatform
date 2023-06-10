@@ -13,7 +13,7 @@ public static class ModelBuilderExtensions
     ///     underlying type of the strongly-typed ID.
     /// </summary>
     public static void MapStronglyTypedId<T, TId>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
-        where T : class where TId : StronglyTypedId<TId>
+        where T : class where TId : StronglyTypedLongId<TId>
     {
         modelBuilder
             .Entity<T>()

@@ -165,7 +165,7 @@ public static class EntityTests
 }
 
 [UsedImplicitly]
-public sealed record StronglyTypedId(long Value) : StronglyTypedId<StronglyTypedId>(Value);
+public sealed record StronglyTypedId(long Value) : StronglyTypedLongId<StronglyTypedId>(Value);
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class StronglyTypedIdEntity : Entity<StronglyTypedId>
