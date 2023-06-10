@@ -42,7 +42,7 @@ public class UpdateTenantTests
     public async Task UpdateTenantHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
     {
         // Arrange
-        var nonExistingTenantId = TenantId.NewId();
+        var nonExistingTenantId = new TenantId("unknown");
         _tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
         var handler = new UpdateTenant.Handler(_tenantRepository);
 

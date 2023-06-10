@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {
-    internal Tenant(string name, string subdomain, string email, string? phone) : base(TenantId.NewId())
+    internal Tenant(string name, string subdomain, string email, string? phone) : base(new TenantId(subdomain))
     {
         Name = name;
         Subdomain = subdomain;

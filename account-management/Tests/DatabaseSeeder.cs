@@ -8,7 +8,7 @@ public class DatabaseSeeder
 {
     public const string Tenant1Name = "Tenant 1";
     public const string User1Email = "user1@test.com";
-    public static readonly TenantId Tenant1Id = TenantId.NewId();
+    public static readonly TenantId Tenant1Id = new("tenant1");
     public static readonly UserId User1Id = UserId.NewId();
     private readonly AccountManagementDbContext _accountManagementDbContext;
 
@@ -22,10 +22,7 @@ public class DatabaseSeeder
 
     private void SeedTenants()
     {
-        var tenant1 = new Tenant(Tenant1Name, "tenant1", "test@test.com", "1234567890")
-        {
-            Id = Tenant1Id
-        };
+        var tenant1 = new Tenant(Tenant1Name, Tenant1Id, "test@test.com", "1234567890");
 
         _accountManagementDbContext.Tenants.AddRange(tenant1);
     }
