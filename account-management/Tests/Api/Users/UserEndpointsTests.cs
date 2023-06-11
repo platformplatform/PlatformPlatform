@@ -4,6 +4,7 @@ using FluentAssertions;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Users;
@@ -30,9 +31,11 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Email","message":"'Email' is not a valid email address."}]}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedBody);
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", "'Email' is not a valid email address.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -63,9 +66,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.GetAsync("/api/users/999");
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '999' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "User with id '999' not found.");
     }
 
     [Fact]
@@ -87,9 +88,11 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{DatabaseSeeder.User1Id}", command);
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Email","message":"'Email' is not a valid email address."}]}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedBody);
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", "'Email' is not a valid email address.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -100,9 +103,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.PutAsJsonAsync("/api/users/999", command);
 
         //Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '999' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "User with id '999' not found.");
     }
 
     [Fact]
@@ -112,9 +113,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.DeleteAsync("/api/users/999");
 
         //Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '999' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "User with id '999' not found.");
     }
 
     [Fact]
@@ -128,8 +127,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
 
         // Verify that User is deleted
         response = await TestHttpClient.GetAsync($"/api/users/{DatabaseSeeder.User1Id}");
-        var expectedBody =
-            $$"""{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"User with id '{{DatabaseSeeder.User1Id}}' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        var expectedDetail = $"User with id '{DatabaseSeeder.User1Id}' not found.";
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedDetail);
     }
 }

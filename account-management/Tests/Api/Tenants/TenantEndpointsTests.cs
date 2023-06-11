@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Tenants;
@@ -28,9 +29,12 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Email","message":"'Email' is not a valid email address."},{"code":"Subdomain","message":"'Subdomain' must be between 3 and 30 characters. You entered 1 characters."}]}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedBody);
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", "'Email' is not a valid email address."),
+            new ErrorDetail("Subdomain", "'Subdomain' must be between 3 and 30 characters. You entered 1 characters.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -58,9 +62,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.GetAsync("/api/tenants/unknown");
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
     }
 
     [Fact]
@@ -82,9 +84,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{DatabaseSeeder.Tenant1Id}", command);
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Phone","message":"'Phone' is not in the correct format."}]}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedBody);
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Phone", "'Phone' is not in the correct format.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -95,9 +99,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PutAsJsonAsync("/api/tenants/unknown", command);
 
         //Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
     }
 
     [Fact]
@@ -107,9 +109,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.DeleteAsync("/api/tenants/unknown");
 
         //Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
     }
 
     [Fact]
@@ -119,9 +119,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{DatabaseSeeder.Tenant1Id}");
 
         // Assert
-        const string expectedBody =
-            """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Id","message":"All users must be deleted before the tenant can be deleted."}]}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedBody);
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Id", "All users must be deleted before the tenant can be deleted.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -139,8 +141,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
 
         // Verify that Tenant is deleted
         response = await TestHttpClient.GetAsync($"/api/tenants/{tenantId}");
-        var expectedBody =
-            $$"""{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '{{tenantId}}' not found."}""";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedBody);
+        var expectedDetail = $"Tenant with id '{tenantId}' not found.";
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedDetail);
     }
 }
