@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.AccountManagement.Tests.Infrastructure;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Users;
