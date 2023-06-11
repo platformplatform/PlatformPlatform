@@ -62,7 +62,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var command = new CreateTenant.Command("TestTenant", "tenant2", "test@test.com", "1234567890");
+        var command = new CreateTenant.Command("tenant2", "TestTenant", "1234567890", "test@test.com");
         var response = await httpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
@@ -82,7 +82,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var command = new CreateTenant.Command("TestTenant", "a", "ab", null);
+        var command = new CreateTenant.Command("a", "TestTenant", null, "ab");
         var response = await httpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
@@ -115,7 +115,7 @@ public sealed class TenantEndpointsTests : IDisposable
         const string tenantName = DatabaseSeeder.Tenant1Name;
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
         var expectedBody =
-            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""test@test.com"",""phone"":""1234567890""}}";
+            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""phone"":""1234567890""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -149,7 +149,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}", command);
 
         // Assert
@@ -166,7 +166,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var command = new UpdateTenant.Command {Name = "Invalid Email", Email = "@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "Invalid phone", Phone = "01-800-HOTLINE"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}", command);
 
         // Assert
@@ -183,7 +183,7 @@ public sealed class TenantEndpointsTests : IDisposable
         const string nonExistingTenantId = "unknown";
 
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{nonExistingTenantId}", command);
 
         //Assert

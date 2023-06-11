@@ -23,7 +23,7 @@ public class GetTenantTests
         var expectedTenantId = new TenantId("tenant1");
         const string expectedTenantName = "TestTenant";
 
-        var tenant = new Tenant(expectedTenantId, expectedTenantName, "test@test.com", "1234567890");
+        var tenant = new Tenant(expectedTenantId, expectedTenantName, "1234567890");
 
         var tenantRepository = Substitute.For<ITenantRepository>();
         tenantRepository.GetByIdAsync(expectedTenantId, default).Returns(tenant);

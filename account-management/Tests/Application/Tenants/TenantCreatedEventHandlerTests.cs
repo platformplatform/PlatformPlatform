@@ -57,7 +57,7 @@ public sealed class TenantCreatedEventHandlerTests : IDisposable
     {
         // Arrange
         var cancellationToken = new CancellationToken();
-        var command = new CreateTenant.Command("TestTenant", "tenant1", "test@test.com", "1234567890");
+        var command = new CreateTenant.Command("tenant1", "TestTenant", "1234567890", "test@test.com");
 
         // Act
         var _ = await _mediator.Send(command, cancellationToken);

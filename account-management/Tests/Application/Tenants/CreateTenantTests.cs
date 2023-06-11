@@ -58,7 +58,7 @@ public sealed class CreateTenantTests : IDisposable
         var cancellationToken = new CancellationToken();
 
         // Act
-        var command = new CreateTenant.Command("TestTenant", "tenant1", "test@test.com", "1234567890");
+        var command = new CreateTenant.Command("tenant1", "TestTenant", "1234567890", "test@test.com");
         var result = await _mediator.Send(command, cancellationToken);
 
         // Assert
@@ -73,7 +73,6 @@ public sealed class CreateTenantTests : IDisposable
         tenant.Should().NotBeNull();
         tenant!.Id.Should().Be(tenantId);
         tenant.Name.Should().Be(command.Name);
-        tenant.Email.Should().Be(command.Email);
         tenant.Phone.Should().Be(command.Phone);
     }
 
@@ -98,7 +97,7 @@ public sealed class CreateTenantTests : IDisposable
         string phone, bool expected)
     {
         // Arrange
-        var command = new CreateTenant.Command(name, subdomain, email, phone);
+        var command = new CreateTenant.Command(subdomain, name, phone, email);
 
         // Act
         var result = await _mediator.Send(command);
