@@ -72,7 +72,6 @@ public sealed class CreateTenantTests : IDisposable
         // Check that the tenant exists and has the expected properties
         tenant.Should().NotBeNull();
         tenant!.Id.Should().Be(tenantId);
-        tenant.Subdomain.Should().Be(command.Subdomain);
         tenant.Name.Should().Be(command.Name);
         tenant.Email.Should().Be(command.Email);
         tenant.Phone.Should().Be(command.Phone);

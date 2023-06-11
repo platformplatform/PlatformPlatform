@@ -22,7 +22,7 @@ public class DatabaseSeeder
 
     private void SeedTenants()
     {
-        var tenant1 = new Tenant(Tenant1Name, Tenant1Id, "test@test.com", "1234567890");
+        var tenant1 = new Tenant(Tenant1Id, Tenant1Name, "test@test.com", "1234567890");
 
         _accountManagementDbContext.Tenants.AddRange(tenant1);
     }
