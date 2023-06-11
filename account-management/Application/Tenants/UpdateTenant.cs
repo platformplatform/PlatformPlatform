@@ -15,8 +15,6 @@ public static class UpdateTenant
 
         public required string Name { get; init; }
 
-        public required string Email { get; init; }
-
         public string? Phone { get; init; }
     }
 
@@ -37,7 +35,7 @@ public static class UpdateTenant
                 return Result.NotFound($"Tenant with id '{command.Id}' not found.");
             }
 
-            tenant.Update(command.Name, command.Email, command.Phone);
+            tenant.Update(command.Name, command.Phone);
             _tenantRepository.Update(tenant);
             return Result.Success();
         }

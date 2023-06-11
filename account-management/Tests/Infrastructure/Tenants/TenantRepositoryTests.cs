@@ -36,7 +36,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Add_WhenTenantDoesNotExist_ShouldAddTenantToDatabase()
     {
         // Arrange
-        var tenant = Tenant.Create("New Tenant", "new", "new@test.com", "1234567890");
+        var tenant = Tenant.Create("new", "New Tenant", "1234567890");
         var cancellationToken = new CancellationToken();
 
         // Act
@@ -54,12 +54,12 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Update_WhenTenantExists_ShouldUpdateTenantInDatabase()
     {
         // Arrange
-        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
+        var tenant = Tenant.Create("existing", "Existing Tenant", "1234567890");
         await _accountManagementDbContext.Tenants.AddAsync(tenant);
         await _accountManagementDbContext.SaveChangesAsync();
 
         // Act
-        tenant.Update("Updated Tenant", "existing@test.com", "1234567890");
+        tenant.Update("Updated Tenant", "1234567890");
         _tenantRepository.Update(tenant);
         await _accountManagementDbContext.SaveChangesAsync();
 
@@ -73,7 +73,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task Remove_WhenTenantExists_ShouldRemoveTenantFromDatabase()
     {
         // Arrange
-        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
+        var tenant = Tenant.Create("existing", "Existing Tenant", "1234567890");
         await _accountManagementDbContext.Tenants.AddAsync(tenant);
         await _accountManagementDbContext.SaveChangesAsync();
 
@@ -90,7 +90,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainAlreadyExists_ShouldReturnFalse()
     {
         // Arrange  
-        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
+        var tenant = Tenant.Create("existing", "Existing Tenant", "1234567890");
 
         await _accountManagementDbContext.Tenants.AddAsync(tenant);
         await _accountManagementDbContext.SaveChangesAsync();
@@ -106,7 +106,7 @@ public sealed class TenantRepositoryTests : IDisposable
     public async Task IsSubdomainFreeAsync_WhenSubdomainDoesNotExist_ShouldReturnTrue()
     {
         // Arrange
-        var tenant = Tenant.Create("Existing Tenant", "existing", "existing@test.com", "1234567890");
+        var tenant = Tenant.Create("existing", "Existing Tenant", "1234567890");
 
         await _accountManagementDbContext.Tenants.AddAsync(tenant);
         await _accountManagementDbContext.SaveChangesAsync();

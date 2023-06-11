@@ -62,14 +62,14 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var command = new CreateTenant.Command("TestTenant", "foo", "test@test.com", "1234567890");
+        var command = new CreateTenant.Command("tenant2", "TestTenant", "1234567890", "test@test.com");
         var response = await httpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location!.ToString().StartsWith("/api/tenants/").Should().BeTrue();
-        response.Headers.Location!.ToString().Length.Should().Be($"/api/tenants/{TenantId.NewId()}".Length);
+        response.Headers.Location!.ToString().Length.Should().Be("/api/tenants/tenant2".Length);
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().BeEmpty();
@@ -82,7 +82,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
-        var command = new CreateTenant.Command("TestTenant", "a", "ab", null);
+        var command = new CreateTenant.Command("a", "TestTenant", null, "ab");
         var response = await httpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
@@ -90,7 +90,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();
 
-        const string  expectedBody =
+        const string expectedBody =
             """{"type":"https://httpstatuses.com/400","title":"Bad Request","status":400,"Errors":[{"code":"Email","message":"'Email' is not a valid email address."},{"code":"Subdomain","message":"'Subdomain' must be between 3 and 30 characters. You entered 1 characters."}]}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
@@ -115,7 +115,7 @@ public sealed class TenantEndpointsTests : IDisposable
         const string tenantName = DatabaseSeeder.Tenant1Name;
         var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
         var expectedBody =
-            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""email"":""test@test.com"",""phone"":""1234567890""}}";
+            $@"{{""id"":""{tenantId}"",""createdAt"":""{createdAt}"",""modifiedAt"":null,""name"":""{tenantName}"",""state"":0,""phone"":""1234567890""}}";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -124,7 +124,7 @@ public sealed class TenantEndpointsTests : IDisposable
     public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
-        var nonExistingTenantId = new TenantId(999);
+        var nonExistingTenantId = new TenantId("unknown");
         var httpClient = _webApplicationFactory.CreateClient();
 
         // Act
@@ -136,7 +136,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
+            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -149,7 +149,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}", command);
 
         // Assert
@@ -166,7 +166,7 @@ public sealed class TenantEndpointsTests : IDisposable
         var tenantId = DatabaseSeeder.Tenant1Id;
 
         // Act
-        var command = new UpdateTenant.Command {Name = "Invalid Email", Email = "@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "Invalid phone", Phone = "01-800-HOTLINE"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{tenantId}", command);
 
         // Assert
@@ -180,10 +180,10 @@ public sealed class TenantEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-        const string nonExistingTenantId = "999";
+        const string nonExistingTenantId = "unknown";
 
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Email = "updated@test.com", Phone = "0987654321"};
+        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
         var response = await httpClient.PutAsJsonAsync($"/api/tenants/{nonExistingTenantId}", command);
 
         //Assert
@@ -192,7 +192,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
+            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -202,7 +202,7 @@ public sealed class TenantEndpointsTests : IDisposable
     {
         // Arrange
         var httpClient = _webApplicationFactory.CreateClient();
-        const string nonExistingTenantId = "999";
+        const string nonExistingTenantId = "unknown";
 
         // Act
         var response = await httpClient.DeleteAsync($"/api/tenants/{nonExistingTenantId}");
@@ -213,7 +213,7 @@ public sealed class TenantEndpointsTests : IDisposable
         response.Headers.Location.Should().BeNull();
 
         const string expectedBody =
-            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id '999' not found."}""";
+            """{"type":"https://httpstatuses.com/404","title":"Not Found","status":404,"detail":"Tenant with id 'unknown' not found."}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }

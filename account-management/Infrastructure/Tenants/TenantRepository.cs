@@ -12,6 +12,6 @@ internal sealed class TenantRepository : RepositoryBase<Tenant, TenantId>, ITena
 
     public Task<bool> IsSubdomainFreeAsync(string subdomain, CancellationToken cancellationToken)
     {
-        return DbSet.AllAsync(tenant => tenant.Subdomain != subdomain, cancellationToken);
+        return DbSet.AllAsync(tenant => tenant.Id != subdomain, cancellationToken);
     }
 }

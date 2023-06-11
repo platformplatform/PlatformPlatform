@@ -4,11 +4,11 @@ using JetBrains.Annotations;
 namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 /// <summary>
-///     This is a special version of <see cref="StronglyTypedId{T}" /> for longs which is the recommended type to use.
+///     This is a special version of <see cref="StronglyTypedLongId{T}" /> for longs which is the recommended type to use.
 ///     It uses the <see cref="IdGenerator" />  to create IDs that are chronological and guaranteed to be unique.
 /// </summary>
-public abstract record StronglyTypedId<T>(long Value) : StronglyTypedId<long, T>(Value)
-    where T : StronglyTypedId<T>
+public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long, T>(Value)
+    where T : StronglyTypedLongId<T>
 {
     public static T NewId()
     {

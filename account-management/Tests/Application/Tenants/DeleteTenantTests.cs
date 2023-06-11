@@ -24,7 +24,7 @@ public class DeleteTenantTests
     public async Task DeleteTenantHandler_WhenTenantExists_ShouldDeleteTenantFromRepository()
     {
         // Arrange
-        var existingTenant = Tenant.Create("ExistingTenant", "tenant1", "test@test.com", "1234567890");
+        var existingTenant = Tenant.Create("tenant1", "ExistingTenant", "1234567890");
         var existingTenantId = existingTenant.Id;
         _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
         var handler = new DeleteTenant.Handler(_tenantRepository);
@@ -42,7 +42,7 @@ public class DeleteTenantTests
     public async Task DeleteTenantHandler_WhenTenantDoesNotExist_ShouldReturnFailure()
     {
         // Arrange
-        var nonExistingTenantId = TenantId.NewId();
+        var nonExistingTenantId = new TenantId("unknown");
         _tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
         var handler = new DeleteTenant.Handler(_tenantRepository);
 

@@ -8,8 +8,6 @@ public interface ITenantValidation
 {
     string Name { get; }
 
-    string Email { get; }
-
     string? Phone { get; }
 }
 
@@ -20,7 +18,6 @@ public abstract class TenantValidator<T> : AbstractValidator<T> where T : ITenan
     {
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Name).Length(1, 30).When(x => !string.IsNullOrEmpty(x.Name));
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
         RuleFor(x => x.Phone).SetValidator(new SharedValidations.Phone());
     }
 }

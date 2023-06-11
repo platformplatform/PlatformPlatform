@@ -5,12 +5,13 @@ using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public static class CreateTenant
 {
-    public sealed record Command(string Name, string Subdomain, string Email, string? Phone)
+    public sealed record Command(string Subdomain, string Name, string? Phone, string Email)
         : ICommand, ITenantValidation, IRequest<Result<TenantId>>;
 
     [UsedImplicitly]
@@ -27,7 +28,7 @@ public static class CreateTenant
 
         public async Task<Result<TenantId>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var tenant = Tenant.Create(command.Name, command.Subdomain, command.Email, command.Phone);
+            var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone);
             await _tenantRepository.AddAsync(tenant, cancellationToken);
 
             await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
@@ -53,6 +54,7 @@ public static class CreateTenant
     {
         public Validator(ITenantRepository tenantRepository)
         {
+            RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
             RuleFor(x => x.Subdomain).NotEmpty();
             RuleFor(x => x.Subdomain)
                 .Length(3, 30).Matches(@"^[a-z0-9]+$")
