@@ -139,9 +139,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         EnsureSuccessDeleteRequest(response);
 
-        // Verify that Tenant is deleted
-        response = await TestHttpClient.GetAsync($"/api/tenants/{tenantId}");
-        var expectedDetail = $"Tenant with id '{tenantId}' not found.";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedDetail);
+        // Verify that Tenant is deleted:
+        Connection
+            .ExecuteScalar("SELECT COUNT(*) FROM Tenants WHERE Id = @id", new {id = tenantId.ToString()})
+            .Should().Be(0);
     }
 }
