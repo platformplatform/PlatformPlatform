@@ -1,21 +1,14 @@
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
-public class GetTenantTests
+public class GetTenantTests : BaseTest<AccountManagementDbContext>
 {
-    public GetTenantTests()
-    {
-        var services = new ServiceCollection();
-        services.AddApplicationServices();
-    }
-
     [Fact]
     public async Task GetTenant_WhenTenantFound_ShouldReturnTenantResponseDto()
     {

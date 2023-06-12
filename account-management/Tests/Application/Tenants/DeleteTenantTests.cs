@@ -1,33 +1,24 @@
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
+using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
-public class DeleteTenantTests
+public class DeleteTenantTests : BaseTest<AccountManagementDbContext>
 {
-    private readonly ITenantRepository _tenantRepository;
-
-    public DeleteTenantTests()
-    {
-        var services = new ServiceCollection();
-        services.AddApplicationServices();
-
-        _tenantRepository = Substitute.For<ITenantRepository>();
-    }
-
     [Fact]
     public async Task DeleteTenantHandler_WhenTenantExists_ShouldDeleteTenantFromRepository()
     {
         // Arrange
         var existingTenant = Tenant.Create("tenant1", "ExistingTenant", "1234567890");
         var existingTenantId = existingTenant.Id;
-        _tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
-        var handler = new DeleteTenant.Handler(_tenantRepository);
+
+        var tenantRepository = Substitute.For<ITenantRepository>();
+        tenantRepository.GetByIdAsync(existingTenantId, Arg.Any<CancellationToken>()).Returns(existingTenant);
+        var handler = new DeleteTenant.Handler(tenantRepository);
 
         // Act
         var command = new DeleteTenant.Command(existingTenantId);
@@ -35,7 +26,7 @@ public class DeleteTenantTests
 
         // Assert
         deleteTenantCommandResult.IsSuccess.Should().BeTrue();
-        _tenantRepository.Received().Remove(existingTenant);
+        tenantRepository.Received().Remove(existingTenant);
     }
 
     [Fact]
@@ -43,8 +34,10 @@ public class DeleteTenantTests
     {
         // Arrange
         var nonExistingTenantId = new TenantId("unknown");
-        _tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
-        var handler = new DeleteTenant.Handler(_tenantRepository);
+
+        var tenantRepository = Substitute.For<ITenantRepository>();
+        tenantRepository.GetByIdAsync(nonExistingTenantId, Arg.Any<CancellationToken>()).Returns(null as Tenant);
+        var handler = new DeleteTenant.Handler(tenantRepository);
 
         // Act
         var command = new DeleteTenant.Command(nonExistingTenantId);
