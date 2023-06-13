@@ -12,33 +12,6 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.Users;
 public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext>
 {
     [Fact]
-    public async Task CreateUser_WhenValid_ShouldCreateUser()
-    {
-        // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "test@test.com", UserRole.TenantUser);
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
-        // Assert
-        await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
-        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
-    }
-
-    [Fact]
-    public async Task CreateUser_WhenInvalid_ShouldReturnBadRequest()
-    {
-        // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "a", UserRole.TenantOwner);
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Email", "'Email' is not a valid email address.")
-        };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-    }
-
-    [Fact]
     public async Task GetUser_WhenUserExists_ShouldReturnUserWithValidContract()
     {
         // Act
@@ -63,6 +36,33 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "User with id '999' not found.");
+    }
+
+    [Fact]
+    public async Task CreateUser_WhenValid_ShouldCreateUser()
+    {
+        // Act
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "test@test.com", UserRole.TenantUser);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
+    }
+
+    [Fact]
+    public async Task CreateUser_WhenInvalid_ShouldReturnBadRequest()
+    {
+        // Act
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "a", UserRole.TenantOwner);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", "'Email' is not a valid email address.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]

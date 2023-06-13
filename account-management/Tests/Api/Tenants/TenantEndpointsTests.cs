@@ -11,6 +11,33 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.Tenants;
 public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbContext>
 {
     [Fact]
+    public async Task GetTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()
+    {
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}");
+
+        // Assert
+        EnsureSuccessGetRequest(response);
+
+        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
+        var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
+        var expectedBody =
+            $$"""{"id":"{{DatabaseSeeder.Tenant1.Id}}","createdAt":"{{createdAt}}","modifiedAt":null,"name":"{{DatabaseSeeder.Tenant1.Name}}","state":0,"phone":"1234567890"}""";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be(expectedBody);
+    }
+
+    [Fact]
+    public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
+    {
+        // Act
+        var response = await TestHttpClient.GetAsync("/api/tenants/unknown");
+
+        // Assert
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
+    }
+
+    [Fact]
     public async Task CreateTenant_WhenValid_ShouldCreateTenant()
     {
         // Act
@@ -53,33 +80,6 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
             new ErrorDetail("Subdomain", "The subdomain is not available.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-    }
-
-    [Fact]
-    public async Task GetTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()
-    {
-        // Act
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}");
-
-        // Assert
-        EnsureSuccessGetRequest(response);
-
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $$"""{"id":"{{DatabaseSeeder.Tenant1.Id}}","createdAt":"{{createdAt}}","modifiedAt":null,"name":"{{DatabaseSeeder.Tenant1.Name}}","state":0,"phone":"1234567890"}""";
-        var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().Be(expectedBody);
-    }
-
-    [Fact]
-    public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
-    {
-        // Act
-        var response = await TestHttpClient.GetAsync("/api/tenants/unknown");
-
-        // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
     }
 
     [Fact]
