@@ -56,7 +56,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
+    public async Task GetTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()
     {
         // Act
         var response = await TestHttpClient.GetAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}");

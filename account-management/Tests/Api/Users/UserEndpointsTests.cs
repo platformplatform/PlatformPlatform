@@ -39,7 +39,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
 
     [Fact]
-    public async Task GetUser_WhenUserExists_ShouldReturnUser()
+    public async Task GetUser_WhenUserExists_ShouldReturnUserWithValidContract()
     {
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users/{DatabaseSeeder.User1.Id}");
