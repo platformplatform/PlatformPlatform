@@ -6,34 +6,17 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public class DatabaseSeeder
 {
-    public const string Tenant1Name = "Tenant 1";
-    public const string User1Email = "user1@test.com";
-    public static readonly TenantId Tenant1Id = new("tenant1");
-    public static readonly UserId User1Id = UserId.NewId();
-    private readonly AccountManagementDbContext _accountManagementDbContext;
+    public readonly Tenant Tenant1;
+    public readonly User User1;
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        _accountManagementDbContext = accountManagementDbContext;
-        SeedTenants();
-        SeedUsers();
+        Tenant1 = new Tenant(new TenantId("tenant1"), "Tenant 1", "1234567890");
+        accountManagementDbContext.Tenants.AddRange(Tenant1);
+
+        User1 = new User(Tenant1.Id, "user1@test.com", UserRole.TenantUser);
+        accountManagementDbContext.Users.AddRange(User1);
+
         accountManagementDbContext.SaveChanges();
-    }
-
-    private void SeedTenants()
-    {
-        var tenant1 = new Tenant(Tenant1Id, Tenant1Name, "1234567890");
-
-        _accountManagementDbContext.Tenants.AddRange(tenant1);
-    }
-
-    private void SeedUsers()
-    {
-        var user1 = new User(Tenant1Id, User1Email, UserRole.TenantUser)
-        {
-            Id = User1Id
-        };
-
-        _accountManagementDbContext.Users.AddRange(user1);
     }
 }
