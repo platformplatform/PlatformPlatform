@@ -17,25 +17,27 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services = new ServiceCollection();
 
         Services.AddLogging();
+        Services.AddTransient<DatabaseSeeder>();
 
         // Create connection and add DbContext to the service collection
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        // Make sure database is created
-        using (var scope = Services.BuildServiceProvider().CreateScope())
-        {
-            scope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
-        }
-
         var configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
         Services
             .AddApplicationServices()
             .AddInfrastructureServices(configuration);
+
+        // Make sure database is created
+        using var serviceScope = Services.BuildServiceProvider().CreateScope();
+        serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
+        DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     }
 
     protected SqliteConnection Connection { get; }
+
+    protected DatabaseSeeder DatabaseSeeder { get; }
 
     protected ServiceProvider Provider
     {
