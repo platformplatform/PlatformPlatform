@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Mapster;
 using MediatR;
 using PlatformPlatform.AccountManagement.Domain.Tenants;
@@ -9,6 +10,7 @@ public static class GetTenant
 {
     public sealed record Query(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Query, Result<TenantResponseDto>>
     {
         private readonly ITenantRepository _tenantRepository;
