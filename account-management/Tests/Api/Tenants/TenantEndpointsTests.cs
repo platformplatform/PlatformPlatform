@@ -41,6 +41,21 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     }
 
     [Fact]
+    public async Task CreateTenant_WhenTenantExists_ShouldReturnBadRequest()
+    {
+        // Act
+        var command = new CreateTenant.Command(DatabaseSeeder.Tenant1.Id, "TestTenant", null, "test@test.com");
+        var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Subdomain", "The subdomain is not available.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+    }
+
+    [Fact]
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenant()
     {
         // Act
