@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
@@ -20,6 +21,7 @@ public abstract class Entity<T> : IEquatable<Entity<T>>
 
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [UsedImplicitly]
     public T Id { get; init; }
 
     public virtual bool Equals(Entity<T>? other)

@@ -12,49 +12,18 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.Users;
 public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext>
 {
     [Fact]
-    public async Task CreateUser_WhenValid_ShouldCreateUser()
+    public async Task GetUser_WhenUserExists_ShouldReturnUserWithValidContract()
     {
         // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1Id, "test@test.com", UserRole.TenantUser);
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
-        // Assert
-        await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
-        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
-    }
-
-    [Fact]
-    public async Task CreateUser_WhenInvalid_ShouldReturnBadRequest()
-    {
-        // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1Id, "a", UserRole.TenantOwner);
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Email", "'Email' is not a valid email address.")
-        };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-    }
-
-    [Fact]
-    public async Task GetUser_WhenUserExists_ShouldReturnUser()
-    {
-        // Arrange
-        var userId = DatabaseSeeder.User1Id;
-
-        // Act
-        var response = await TestHttpClient.GetAsync($"/api/users/{userId}");
+        var response = await TestHttpClient.GetAsync($"/api/users/{DatabaseSeeder.User1.Id}");
 
         // Assert
         EnsureSuccessGetRequest(response);
 
         var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        const string userEmail = DatabaseSeeder.User1Email;
         var createdAt = userDto?.CreatedAt.ToString(Iso8601TimeFormat);
         var expectedBody =
-            $$"""{"id":"{{userId}}","createdAt":"{{createdAt}}","modifiedAt":null,"email":"{{userEmail}}","userRole":0}""";
+            $$"""{"id":"{{DatabaseSeeder.User1.Id}}","createdAt":"{{createdAt}}","modifiedAt":null,"email":"{{DatabaseSeeder.User1.Email}}","userRole":0}""";
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be(expectedBody);
     }
@@ -70,11 +39,38 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
 
     [Fact]
+    public async Task CreateUser_WhenValid_ShouldCreateUser()
+    {
+        // Act
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "test@test.com", UserRole.TenantUser);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
+    }
+
+    [Fact]
+    public async Task CreateUser_WhenInvalid_ShouldReturnBadRequest()
+    {
+        // Act
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "a", UserRole.TenantOwner);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", "'Email' is not a valid email address.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+    }
+
+    [Fact]
     public async Task UpdateUser_WhenValid_ShouldUpdateUser()
     {
         // Act
         var command = new UpdateUser.Command {Email = "updated@test.com", UserRole = UserRole.TenantOwner};
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{DatabaseSeeder.User1Id}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{DatabaseSeeder.User1.Id}", command);
 
         // Assert
         EnsureSuccessPutRequest(response);
@@ -85,7 +81,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Act
         var command = new UpdateUser.Command {Email = "Invalid Email", UserRole = UserRole.TenantAdmin};
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{DatabaseSeeder.User1Id}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{DatabaseSeeder.User1.Id}", command);
 
         // Assert
         var expectedErrors = new[]
@@ -120,14 +116,14 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task DeleteUser_WhenUserExists_ShouldDeleteUser()
     {
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/users/{DatabaseSeeder.User1Id}");
+        var response = await TestHttpClient.DeleteAsync($"/api/users/{DatabaseSeeder.User1.Id}");
 
         // Assert
         EnsureSuccessDeleteRequest(response);
 
         // Verify that User is deleted
-        response = await TestHttpClient.GetAsync($"/api/users/{DatabaseSeeder.User1Id}");
-        var expectedDetail = $"User with id '{DatabaseSeeder.User1Id}' not found.";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedDetail);
+        Connection
+            .ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Id = @id", new {id = DatabaseSeeder.User1.Id.ToString()})
+            .Should().Be(0);
     }
 }

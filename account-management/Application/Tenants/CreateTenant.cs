@@ -57,7 +57,9 @@ public static class CreateTenant
             RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
             RuleFor(x => x.Subdomain).NotEmpty();
             RuleFor(x => x.Subdomain)
-                .Length(3, 30).Matches(@"^[a-z0-9]+$")
+                .Length(3, 30)
+                .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+                .Matches(@"^[a-z0-9]+$")
                 .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
                 .MustAsync(async (subdomain, cancellationToken) =>
                     await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken))

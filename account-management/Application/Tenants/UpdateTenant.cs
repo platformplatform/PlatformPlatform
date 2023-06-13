@@ -18,6 +18,7 @@ public static class UpdateTenant
         public string? Phone { get; init; }
     }
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result>
     {
         private readonly ITenantRepository _tenantRepository;

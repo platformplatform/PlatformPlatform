@@ -11,6 +11,7 @@ public static class DeleteTenant
 {
     public sealed record Command(TenantId Id) : ICommand, IRequest<Result>;
 
+    [UsedImplicitly]
     public sealed class Handler : IRequestHandler<Command, Result>
     {
         private readonly ITenantRepository _tenantRepository;
