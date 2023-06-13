@@ -32,7 +32,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var expectedErrors = new[]
         {
             new ErrorDetail("Email", "'Email' is not a valid email address."),
-            new ErrorDetail("Subdomain", "'Subdomain' must be between 3 and 30 characters. You entered 1 characters.")
+            new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
