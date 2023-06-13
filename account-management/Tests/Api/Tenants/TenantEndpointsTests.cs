@@ -19,6 +19,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
 
         // Assert
         await EnsureSuccessPostRequest(response, "/api/tenants/tenant2");
+        Connection.ExecuteScalar(
+                "SELECT COUNT(*) FROM Users WHERE TenantId = 'tenant2' AND UserRole = 'TenantOwner' AND Email = 'test@test.com'")
+            .Should().Be(1);
     }
 
     [Fact]

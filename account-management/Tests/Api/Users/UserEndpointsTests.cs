@@ -122,8 +122,8 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         EnsureSuccessDeleteRequest(response);
 
         // Verify that User is deleted
-        response = await TestHttpClient.GetAsync($"/api/users/{DatabaseSeeder.User1Id}");
-        var expectedDetail = $"User with id '{DatabaseSeeder.User1Id}' not found.";
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, expectedDetail);
+        Connection
+            .ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Id = @id", new {id = DatabaseSeeder.User1.Id.ToString()})
+            .Should().Be(0);
     }
 }
