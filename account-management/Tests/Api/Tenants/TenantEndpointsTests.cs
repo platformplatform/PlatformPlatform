@@ -170,8 +170,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         EnsureSuccessDeleteRequest(response);
 
-        // Verify that Tenant is deleted:
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Tenants WHERE Id = @id", new {id = tenant1Id.ToString()})
-            .Should().Be(0);
+        // Verify that Tenant is deleted
+        Connection.RowExists("Tenants", tenant1Id).Should().BeFalse();
     }
 }

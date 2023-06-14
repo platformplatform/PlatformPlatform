@@ -135,8 +135,6 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         EnsureSuccessDeleteRequest(response);
 
         // Verify that User is deleted
-        Connection
-            .ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Id = @id", new {id = DatabaseSeeder.User1.Id.ToString()})
-            .Should().Be(0);
+        Connection.RowExists("Users", DatabaseSeeder.User1.Id.ToString()).Should().BeFalse();
     }
 }
