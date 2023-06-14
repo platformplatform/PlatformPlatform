@@ -21,8 +21,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
             builder.ConfigureServices(services =>
             {
                 // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
-                var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>));
-                services.Remove(descriptor);
+                services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                 services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
             });
         });
