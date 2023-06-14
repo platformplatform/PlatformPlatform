@@ -12,10 +12,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Domain\Domain.csproj"/>
-        <ProjectReference Include="..\Application\Application.csproj"/>
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
         <ProjectReference Include="..\Api\Api.csproj"/>
+        <ProjectReference Include="..\Application\Application.csproj"/>
+        <ProjectReference Include="..\Domain\Domain.csproj"/>
+        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
