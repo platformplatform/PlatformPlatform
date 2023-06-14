@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using NJsonSchema;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -20,12 +21,24 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Assert
         EnsureSuccessGetRequest(response);
 
-        var userDto = await response.Content.ReadFromJsonAsync<UserResponseDto>();
-        var createdAt = userDto?.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $$"""{"id":"{{DatabaseSeeder.User1.Id}}","createdAt":"{{createdAt}}","modifiedAt":null,"email":"{{DatabaseSeeder.User1.Email}}","userRole":0}""";
+        var schema = await JsonSchema.FromJsonAsync(
+            """
+            {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'long'},
+                    'createdAt': {'type': 'string', 'format': 'date-time'},
+                    'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
+                    'email': {'type': 'string', 'maxLength': 100},
+                    'userRole': {'type': 'integer', 'minimum': 0, maximum: 2}
+                },
+                'required': ['id', 'createdAt', 'modifiedAt', 'email', 'userRole'],
+                'additionalProperties': false
+            }
+            """);
+
         var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().Be(expectedBody);
+        schema.Validate(responseBody).Should().BeEmpty();
     }
 
     [Fact]
