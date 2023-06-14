@@ -16,7 +16,7 @@ public sealed class TenantCreatedEventHandlerTests : BaseTest<AccountManagementD
         // Arrange
         var mockLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
         Services.AddSingleton(mockLogger);
-        var mediator = Provider.GetRequiredService<IMediator>();
+        var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
         var command = new CreateTenant.Command("tenant2", "TestTenant", "1234567890", "test@test.com");
