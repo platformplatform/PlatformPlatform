@@ -64,16 +64,32 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
 
     [Fact]
-    public async Task CreateUser_WhenInvalid_ShouldReturnBadRequest()
+    public async Task CreateUser_WhenInvalidEmail_ShouldReturnBadRequest()
     {
         // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "a", UserRole.TenantOwner);
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "invalid email", UserRole.TenantOwner);
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
         var expectedErrors = new[]
         {
             new ErrorDetail("Email", "'Email' is not a valid email address.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+    }
+
+    [Fact]
+    public async Task CreateUser_WhenUserExists_ShouldReturnBadRequest()
+    {
+        // Act
+        var user1Email = DatabaseSeeder.User1.Email;
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, user1Email, UserRole.TenantOwner);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Email", $"The email '{user1Email}' is already in use by another user on this tenant.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }

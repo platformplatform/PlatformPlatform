@@ -44,6 +44,7 @@ public static class CreateUser
             RuleFor(x => x)
                 .MustAsync(async (x, cancellationToken)
                     => await userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+                .WithName("Email")
                 .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
                 .When(x => !string.IsNullOrEmpty(x.Email));
         }
