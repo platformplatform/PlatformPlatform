@@ -52,6 +52,18 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     }
 
     [Fact]
+    public async Task GetTenant_WhenTenantInvalidTenantId_ShouldReturnBadRequest()
+    {
+        // Act
+        const string tenantId = "ToLongAndThereforeInvalidTenantId";
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{tenantId}");
+
+        // Assert
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
+            $"""Failed to bind parameter "TenantId id" from "{tenantId}".""");
+    }
+
+    [Fact]
     public async Task CreateTenant_WhenValid_ShouldCreateTenant()
     {
         // Act

@@ -52,6 +52,18 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
 
     [Fact]
+    public async Task GetTenant_WhenTenantInvalidTenantId_ShouldReturnBadRequest()
+    {
+        // Act
+        const string userId = "InvalidUserId";
+        var response = await TestHttpClient.GetAsync($"/api/users/{userId}");
+
+        // Assert
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
+            $"""Failed to bind parameter "UserId id" from "{userId}".""");
+    }
+
+    [Fact]
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Act
