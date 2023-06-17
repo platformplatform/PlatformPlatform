@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Application.Users;
+using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -79,7 +80,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task CreateUser_WhenInvalidEmail_ShouldReturnBadRequest()
     {
         // Act
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "invalid email", UserRole.TenantOwner);
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, "invalid email", UserRole.TenantUser);
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
@@ -95,13 +96,28 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Act
         var user1Email = DatabaseSeeder.User1.Email;
-        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, user1Email, UserRole.TenantOwner);
+        var command = new CreateUser.Command(DatabaseSeeder.Tenant1.Id, user1Email, UserRole.TenantUser);
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
 
         // Assert
         var expectedErrors = new[]
         {
             new ErrorDetail("Email", $"The email '{user1Email}' is already in use by another user on this tenant.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+    }
+
+    [Fact]
+    public async Task CreateUser_WhenTenantDoesNotExists_ShouldReturnBadRequest()
+    {
+        // Act
+        var command = new CreateUser.Command(new TenantId("unknown"), "test@example.com", UserRole.TenantUser);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("TenantId", "The tenant 'unknown' does not exist.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
