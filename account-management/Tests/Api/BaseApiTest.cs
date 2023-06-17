@@ -89,6 +89,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
         string? expectedDetail, IEnumerable<ErrorDetail>? expectedErrors = null)
     {
         response.StatusCode.Should().Be(statusCode);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
 
         var problemDetails = await DeserializeProblemDetails(response);
 
