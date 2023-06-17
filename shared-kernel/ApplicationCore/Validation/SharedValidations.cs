@@ -15,10 +15,13 @@ public static class SharedValidations
     {
         public Email(string emailName = nameof(Email))
         {
+            const string errorMessage = "Email must be in a valid format and no longer than 100 characters.";
             RuleFor(email => email)
                 .EmailAddress()
-                .MaximumLength(EmailMaxLength)
                 .WithName(emailName)
+                .WithMessage(errorMessage)
+                .MaximumLength(EmailMaxLength)
+                .WithMessage(errorMessage)
                 .When(email => !string.IsNullOrEmpty(email));
         }
     }
@@ -27,10 +30,13 @@ public static class SharedValidations
     {
         public Phone(string phoneName = nameof(Phone))
         {
+            const string errorMessage = "Phone must be in a valid format and no longer than 20 characters.";
             RuleFor(phone => phone)
                 .MaximumLength(PhoneMaxLength)
-                .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
                 .WithName(phoneName)
+                .WithMessage(errorMessage)
+                .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
+                .WithMessage(errorMessage)
                 .When(phone => !string.IsNullOrEmpty(phone));
         }
     }

@@ -87,7 +87,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "'Email' is not a valid email address."),
+            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters."),
             new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
@@ -129,7 +129,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Phone", "'Phone' is not in the correct format.")
+            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
