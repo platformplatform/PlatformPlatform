@@ -16,12 +16,12 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : I
     where TRequest : ICommand where TResponse : ResultBase
 {
     private readonly IDomainEventCollector _domainEventCollector;
-    private readonly IPublisher _mediatr;
+    private readonly IPublisher _mediator;
 
-    public PublishDomainEventsPipelineBehavior(IDomainEventCollector domainEventCollector, IPublisher mediatr)
+    public PublishDomainEventsPipelineBehavior(IDomainEventCollector domainEventCollector, IPublisher mediator)
     {
         _domainEventCollector = domainEventCollector;
-        _mediatr = mediatr;
+        _mediator = mediator;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
@@ -40,7 +40,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse> : I
             // Publish the domain event to the MediatR pipeline. Any registered event handlers will be invoked. These
             // event handlers can then carry out any necessary actions, such as managing side effects, updating read
             // models, and so forth.
-            await _mediatr.Publish(domainEvent, cancellationToken);
+            await _mediator.Publish(domainEvent, cancellationToken);
 
             // It is possible that a domain event handler creates a new domain event, so we need to check if there are
             // any new domain events that need to be published and handled before continuing.

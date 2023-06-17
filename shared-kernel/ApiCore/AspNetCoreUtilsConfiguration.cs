@@ -14,6 +14,7 @@ public static class AspNetCoreUtilsConfiguration
     public static IServiceCollection AddCommonServices(this IServiceCollection services)
     {
         services.AddTransient<GlobalExceptionHandlerMiddleware>();
+        services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
 
         services.AddEndpointsApiExplorer();
 
@@ -51,6 +52,8 @@ public static class AspNetCoreUtilsConfiguration
             // Configure global exception handling for the production environment.
             app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
         }
+
+        app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
         // Add test-specific endpoints when running tests, such as /throwException.
         app.MapTestEndpoints();

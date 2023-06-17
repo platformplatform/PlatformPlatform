@@ -19,7 +19,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
         // Arrange
         var command = new CreateTenant.Command(subdomain, name, phone, email);
 
-        var mediator = Provider.GetRequiredService<IMediator>();
+        var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
         var result = await mediator.Send(command);
@@ -48,7 +48,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
         // Arrange
         var command = new CreateTenant.Command(subdomain, name, phone, email);
 
-        var mediator = Provider.GetRequiredService<IMediator>();
+        var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
         var result = await mediator.Send(command);

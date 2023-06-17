@@ -1,14 +1,13 @@
 using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
 
-public class CustomExceptionHandlingTests
+public class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -37,11 +36,10 @@ public class CustomExceptionHandlingTests
         var response = await client.GetAsync("/throwException");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-
         if (environment == "Development")
         {
             // In Development we use app.UseDeveloperExceptionPage() which returns a HTML response.
+            response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
             response.Content.Headers.ContentType!.MediaType.Should().Be("text/plain");
             var errorResponse = await response.Content.ReadAsStringAsync();
             errorResponse.Contains("Dummy endpoint for testing.").Should().BeTrue();
@@ -49,11 +47,8 @@ public class CustomExceptionHandlingTests
         else
         {
             // In Production we use GlobalExceptionHandlerMiddleware which returns a JSON response.
-            var errorResponse = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            errorResponse.Should().NotBeNull();
-            errorResponse!.Type.Should().Be("https://httpstatuses.com/500");
-            errorResponse.Title.Should().Be("Internal Server Error");
-            errorResponse.Detail.Should().Be("An error occurred while processing the request.");
+            await EnsureErrorStatusCode(response, HttpStatusCode.InternalServerError,
+                "An error occurred while processing the request.");
         }
     }
 }

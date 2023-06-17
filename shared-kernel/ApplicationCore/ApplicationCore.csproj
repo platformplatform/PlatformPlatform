@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.2"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
-        <PackageReference Include="MediatR" Version="12.0.1"/>
+        <ProjectReference Include="..\DomainCore\DomainCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DomainCore\DomainCore.csproj"/>
+        <PackageReference Include="Mapster" Version="7.3.0"/>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.2"/>
     </ItemGroup>
+
 </Project>

@@ -55,8 +55,4 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Provider.Dispose();
         GC.SuppressFinalize(this);
     }
-
-    protected virtual void ConfigureServices(IServiceCollection services)
-    {
-    }
 }

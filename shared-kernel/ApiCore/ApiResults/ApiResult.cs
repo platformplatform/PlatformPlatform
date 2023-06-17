@@ -35,7 +35,8 @@ public partial class ApiResult : IResult
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(CreateProblemDetails(), statusCode: (int) _result.StatusCode);
+        return Results.Json(CreateProblemDetails(), statusCode: (int) _result.StatusCode,
+            contentType: "application/problem+json");
     }
 
     private ProblemDetails CreateProblemDetails()

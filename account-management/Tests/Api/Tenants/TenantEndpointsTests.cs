@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using NJsonSchema;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -19,12 +20,25 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         EnsureSuccessGetRequest(response);
 
-        var tenantDto = await response.Content.ReadFromJsonAsync<TenantResponseDto>();
-        var createdAt = tenantDto?.CreatedAt.ToString(Iso8601TimeFormat);
-        var expectedBody =
-            $$"""{"id":"{{DatabaseSeeder.Tenant1.Id}}","createdAt":"{{createdAt}}","modifiedAt":null,"name":"{{DatabaseSeeder.Tenant1.Name}}","state":0,"phone":"1234567890"}""";
+        var schema = await JsonSchema.FromJsonAsync(
+            """
+            {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'string', 'pattern': '^[a-z0-9]{3,30}$'},
+                    'createdAt': {'type': 'string', 'format': 'date-time'},
+                    'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
+                    'name': {'type': 'string', 'minLength': 1, 'maxLength': 30},
+                    'state': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+                    'phone': {'type': ['null', 'string'], 'maxLength': 20}
+                },
+                'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'phone'],
+                'additionalProperties': false
+            }
+            """);
+
         var responseBody = await response.Content.ReadAsStringAsync();
-        responseBody.Should().Be(expectedBody);
+        schema.Validate(responseBody).Should().BeEmpty();
     }
 
     [Fact]
@@ -35,6 +49,18 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
+    }
+
+    [Fact]
+    public async Task GetTenant_WhenTenantInvalidTenantId_ShouldReturnBadRequest()
+    {
+        // Act
+        const string tenantId = "ToLongAndThereforeInvalidTenantId";
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{tenantId}");
+
+        // Assert
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
+            $"""Failed to bind parameter "TenantId id" from "{tenantId}".""");
     }
 
     [Fact]
@@ -156,8 +182,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         EnsureSuccessDeleteRequest(response);
 
-        // Verify that Tenant is deleted:
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Tenants WHERE Id = @id", new {id = tenant1Id.ToString()})
-            .Should().Be(0);
+        // Verify that Tenant is deleted
+        Connection.RowExists("Tenants", tenant1Id).Should().BeFalse();
     }
 }

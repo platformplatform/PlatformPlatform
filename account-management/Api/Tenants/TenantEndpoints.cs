@@ -18,23 +18,23 @@ public static class TenantEndpoints
         group.MapDelete("/{id}", DeleteTenant);
     }
 
-    private static async Task<ApiResult<TenantResponseDto>> GetTenant(TenantId id, ISender mediatr)
+    private static async Task<ApiResult<TenantResponseDto>> GetTenant(TenantId id, ISender mediator)
     {
-        return await mediatr.Send(new GetTenant.Query(id));
+        return await mediator.Send(new GetTenant.Query(id));
     }
 
-    private static async Task<ApiResult> CreateTenant(CreateTenant.Command command, ISender mediatr)
+    private static async Task<ApiResult> CreateTenant(CreateTenant.Command command, ISender mediator)
     {
-        return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
+        return (await mediator.Send(command)).AddResourceUri(RoutesPrefix);
     }
 
-    private static async Task<ApiResult> UpdateTenant(TenantId id, UpdateTenant.Command command, ISender mediatr)
+    private static async Task<ApiResult> UpdateTenant(TenantId id, UpdateTenant.Command command, ISender mediator)
     {
-        return await mediatr.Send(command with {Id = id});
+        return await mediator.Send(command with {Id = id});
     }
 
-    private static async Task<ApiResult> DeleteTenant(TenantId id, ISender mediatr)
+    private static async Task<ApiResult> DeleteTenant(TenantId id, ISender mediator)
     {
-        return await mediatr.Send(new DeleteTenant.Command(id));
+        return await mediator.Send(new DeleteTenant.Command(id));
     }
 }

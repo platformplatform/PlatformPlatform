@@ -18,23 +18,23 @@ public static class UserEndpoints
         group.MapDelete("/{id}", DeleteUser);
     }
 
-    private static async Task<ApiResult<UserResponseDto>> GetUser(UserId id, ISender mediatr)
+    private static async Task<ApiResult<UserResponseDto>> GetUser(UserId id, ISender mediator)
     {
-        return await mediatr.Send(new GetUser.Query(id));
+        return await mediator.Send(new GetUser.Query(id));
     }
 
-    private static async Task<ApiResult> CreateUser(CreateUser.Command command, ISender mediatr)
+    private static async Task<ApiResult> CreateUser(CreateUser.Command command, ISender mediator)
     {
-        return (await mediatr.Send(command)).AddResourceUri(RoutesPrefix);
+        return (await mediator.Send(command)).AddResourceUri(RoutesPrefix);
     }
 
-    private static async Task<ApiResult> UpdateUser(UserId id, UpdateUser.Command command, ISender mediatr)
+    private static async Task<ApiResult> UpdateUser(UserId id, UpdateUser.Command command, ISender mediator)
     {
-        return await mediatr.Send(command with {Id = id});
+        return await mediator.Send(command with {Id = id});
     }
 
-    private static async Task<ApiResult> DeleteUser(UserId id, ISender mediatr)
+    private static async Task<ApiResult> DeleteUser(UserId id, ISender mediator)
     {
-        return await mediatr.Send(new DeleteUser.Command(id));
+        return await mediator.Send(new DeleteUser.Command(id));
     }
 }

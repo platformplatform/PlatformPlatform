@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
-        <ProjectReference Include="..\Application\Application.csproj"/>
+        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
+        <ProjectReference Include="..\..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
+        <ProjectReference Include="..\Application\Application.csproj"/>
     </ItemGroup>
 
 </Project>

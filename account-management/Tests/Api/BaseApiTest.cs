@@ -12,12 +12,6 @@ namespace PlatformPlatform.AccountManagement.Tests.Api;
 
 public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisposable where TContext : DbContext
 {
-    // This string represents a custom DateTime format based on the built-in format "o".
-    // The format "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK" is used to avoid trailing zeros in the DateTime string.
-    // The 'F's in the format are upper-case to indicate that trailing zeros should be removed.
-    // See https://stackoverflow.com/a/17349663
-    protected const string Iso8601TimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'FFFFFFFK";
-
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
     protected BaseApiTests()
@@ -27,8 +21,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
             builder.ConfigureServices(services =>
             {
                 // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
-                var descriptor = services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>));
-                services.Remove(descriptor);
+                services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                 services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
             });
         });
@@ -96,6 +89,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
         string? expectedDetail, IEnumerable<ErrorDetail>? expectedErrors = null)
     {
         response.StatusCode.Should().Be(statusCode);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
 
         var problemDetails = await DeserializeProblemDetails(response);
 
