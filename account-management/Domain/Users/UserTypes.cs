@@ -6,15 +6,15 @@ namespace PlatformPlatform.AccountManagement.Domain.Users;
 
 [TypeConverter(typeof(UserIdTypeConverter))]
 [UsedImplicitly]
-public sealed record UserId(long Value) : StronglyTypedLongId<UserId>(Value)
+public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
 {
     public override string ToString()
     {
-        return Value.ToString();
+        return Value;
     }
 }
 
-public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<long, UserId>
+public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, UserId>
 {
 }
 

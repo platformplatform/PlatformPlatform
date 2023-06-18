@@ -1,5 +1,6 @@
 using Bogus;
 using JetBrains.Annotations;
+using NUlid;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Tests;
@@ -31,5 +32,11 @@ public static class FakerExtensions
     public static long RandomId(this Faker faker)
     {
         return IdGenerator.NewId();
+    }
+
+    [UsedImplicitly]
+    public static string RandomUlid(this Faker faker)
+    {
+        return Ulid.NewUlid().ToString();
     }
 }
