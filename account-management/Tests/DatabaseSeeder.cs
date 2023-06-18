@@ -11,10 +11,10 @@ public class DatabaseSeeder
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        Tenant1 = new Tenant(new TenantId("tenant1"), "Tenant 1", "1234567890");
+        Tenant1 = Tenant.Create("tenant1", "Tenant 1", "1234567890");
         accountManagementDbContext.Tenants.AddRange(Tenant1);
 
-        User1 = new User(Tenant1.Id, "user1@test.com", UserRole.TenantUser);
+        User1 = User.Create(Tenant1.Id, "user1@test.com", UserRole.TenantUser);
         accountManagementDbContext.Users.AddRange(User1);
 
         accountManagementDbContext.SaveChanges();

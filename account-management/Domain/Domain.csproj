@@ -9,10 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\..\shared-kernel\DomainCore\DomainCore.csproj"/>
     </ItemGroup>
 
