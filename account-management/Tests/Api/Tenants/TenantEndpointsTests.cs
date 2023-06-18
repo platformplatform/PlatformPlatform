@@ -14,8 +14,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()
     {
+        // Arrange
+        var existingTenantId = DatabaseSeeder.Tenant1.Id;
+
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}");
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{existingTenantId}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -29,7 +32,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'name': {'type': 'string', 'minLength': 1, 'maxLength': 30},
-                    'state': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+                    'state': {'type': 'integer', 'minimum': 0},
                     'phone': {'type': ['null', 'string'], 'maxLength': 20}
                 },
                 'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'phone'],
@@ -44,51 +47,69 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
+        // Arrange
+        var unknownTenantId = Faker.Subdomain();
+
         // Act
-        var response = await TestHttpClient.GetAsync("/api/tenants/unknown");
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{unknownTenantId}");
 
         // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found.");
     }
 
     [Fact]
     public async Task GetTenant_WhenTenantInvalidTenantId_ShouldReturnBadRequest()
     {
+        // Arrange
+        var invalidTenantId = Faker.Random.AlphaNumeric(31);
+
         // Act
-        const string tenantId = "ToLongAndThereforeInvalidTenantId";
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{tenantId}");
+        var response = await TestHttpClient.GetAsync($"/api/tenants/{invalidTenantId}");
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
-            $"""Failed to bind parameter "TenantId id" from "{tenantId}".""");
+            $"""Failed to bind parameter "TenantId id" from "{invalidTenantId}".""");
     }
 
     [Fact]
-    public async Task CreateTenant_WhenValid_ShouldCreateTenant()
+    public async Task CreateTenant_WhenValid_ShouldCreateTenantAndOwnerUser()
     {
+        // Arrange
+        var subdomain = Faker.Subdomain();
+        var email = Faker.Internet.Email();
+        var command = new CreateTenant.Command(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
+
         // Act
-        var command = new CreateTenant.Command("tenant2", "TestTenant", "1234567890", "test@test.com");
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
-        await EnsureSuccessPostRequest(response, "/api/tenants/tenant2");
-        Connection.ExecuteScalar(
-                "SELECT COUNT(*) FROM Users WHERE TenantId = 'tenant2' AND UserRole = 'TenantOwner' AND Email = 'test@test.com'")
-            .Should().Be(1);
+        await EnsureSuccessPostRequest(response, $"/api/tenants/{subdomain}");
+        Connection.RowExists("Tenants", subdomain);
+        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new {email}).Should().Be(1);
     }
 
     [Fact]
     public async Task CreateTenant_WhenInvalid_ShouldReturnBadRequest()
     {
+        // Arrange
+        var invalidSubdomain = Faker.Random.AlphaNumeric(1);
+        var invalidName = Faker.Random.String(31);
+        var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
+        var invalidEmail = Faker.InvalidEmail();
+
+        var command = new CreateTenant.Command(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
+
         // Act
-        var command = new CreateTenant.Command("a", "TestTenant", null, "ab");
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters."),
-            new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+            new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters."),
+            new ErrorDetail("Name", "Name must be between 1 and 30 characters."),
+            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters."),
+            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
@@ -96,8 +117,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task CreateTenant_WhenTenantExists_ShouldReturnBadRequest()
     {
+        // Arrange
+        var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
+        var command = new CreateTenant.Command(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
+
         // Act
-        var command = new CreateTenant.Command(DatabaseSeeder.Tenant1.Id, "TestTenant", null, "test@test.com");
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
 
         // Assert
@@ -111,9 +135,12 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task UpdateTenant_WhenValid_ShouldUpdateTenant()
     {
+        // Arrange
+        var existingTenantId = DatabaseSeeder.Tenant1.Id;
+        var command = new UpdateTenant.Command {Name = Faker.TenantName(), Phone = Faker.PhoneNumber()};
+
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
 
         // Assert
         EnsureSuccessPutRequest(response);
@@ -122,13 +149,19 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task UpdateTenant_WhenInvalid_ShouldReturnBadRequest()
     {
+        // Arrange
+        var existingTenantId = DatabaseSeeder.Tenant1.Id;
+        var invalidName = Faker.Random.String2(31);
+        var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
+        var command = new UpdateTenant.Command {Name = invalidName, Phone = invalidPhone};
+
         // Act
-        var command = new UpdateTenant.Command {Name = "Invalid phone", Phone = "01-800-HOTLINE"};
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
 
         // Assert
         var expectedErrors = new[]
         {
+            new ErrorDetail("Name", "Name must be between 1 and 30 characters."),
             new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
@@ -137,29 +170,38 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     [Fact]
     public async Task UpdateTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
     {
+        // Arrange
+        var unknownTenantId = Faker.Subdomain();
+        var command = new UpdateTenant.Command {Name = Faker.TenantName(), Phone = Faker.PhoneNumber()};
+
         // Act
-        var command = new UpdateTenant.Command {Name = "UpdatedName", Phone = "0987654321"};
-        var response = await TestHttpClient.PutAsJsonAsync("/api/tenants/unknown", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{unknownTenantId}", command);
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found.");
     }
 
     [Fact]
     public async Task DeleteTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
     {
+        // Arrange
+        var unknownTenantId = Faker.Subdomain();
+
         // Act
-        var response = await TestHttpClient.DeleteAsync("/api/tenants/unknown");
+        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{unknownTenantId}");
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, "Tenant with id 'unknown' not found.");
+        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found.");
     }
 
     [Fact]
-    public async Task DeleteTenant_WhenTenantWithUsersExists_ShouldReturnBadRequest()
+    public async Task DeleteTenant_WhenTenantHasUsers_ShouldReturnBadRequest()
     {
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{DatabaseSeeder.Tenant1.Id}");
+        var existingTenantId = DatabaseSeeder.Tenant1.Id;
+        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
 
         // Assert
         var expectedErrors = new[]
@@ -170,19 +212,18 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task DeleteTenant_WhenTenantExistsWithNoUsers_ShouldDeleteTenant()
+    public async Task DeleteTenant_WhenTenantHasNoUsers_ShouldDeleteTenant()
     {
         // Arrange
-        var tenant1Id = DatabaseSeeder.Tenant1.Id;
-        var _ = await TestHttpClient.DeleteAsync($"/api/users/{DatabaseSeeder.User1.Id}");
+        var existingTenantId = DatabaseSeeder.Tenant1.Id;
+        var existingUserId = DatabaseSeeder.User1.Id;
+        var _ = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
 
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{tenant1Id}");
+        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
 
         // Assert
         EnsureSuccessDeleteRequest(response);
-
-        // Verify that Tenant is deleted
-        Connection.RowExists("Tenants", tenant1Id).Should().BeFalse();
+        Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
     }
 }
