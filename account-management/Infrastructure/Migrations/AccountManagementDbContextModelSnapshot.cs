@@ -59,7 +59,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("char(26)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");

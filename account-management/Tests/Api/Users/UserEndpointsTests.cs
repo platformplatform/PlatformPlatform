@@ -49,7 +49,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task GetUser_WhenUserDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
-        var unknownUserId = Faker.RandomId();
+        var unknownUserId = Faker.RandomUlid();
 
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users/{unknownUserId}");
@@ -182,7 +182,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task UpdateUser_WhenUserDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
-        var unknownUserId = Faker.RandomId();
+        var unknownUserId = Faker.RandomUlid();
         var command = new UpdateUser.Command {Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin};
 
         // Act
@@ -196,7 +196,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task DeleteUser_WhenUserDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
-        var unknownUserId = Faker.RandomId();
+        var unknownUserId = Faker.RandomUlid();
 
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/users/{unknownUserId}");

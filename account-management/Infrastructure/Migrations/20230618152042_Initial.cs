@@ -34,7 +34,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 columns: table => new
                 {
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: false),
-                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    Id = table.Column<long>(type: "char(26)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", nullable: false),
