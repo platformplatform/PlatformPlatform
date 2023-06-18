@@ -1,4 +1,6 @@
 using Bogus;
+using JetBrains.Annotations;
+using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -23,5 +25,11 @@ public static class FakerExtensions
     public static string InvalidEmail(this Faker faker)
     {
         return faker.Internet.ExampleEmail(faker.Random.AlphaNumeric(100));
+    }
+
+    [UsedImplicitly]
+    public static long RandomId(this Faker faker)
+    {
+        return IdGenerator.NewId();
     }
 }
