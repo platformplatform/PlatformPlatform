@@ -1,5 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
@@ -13,6 +14,6 @@ public abstract class UserValidator<T> : AbstractValidator<T> where T : IUserVal
 {
     protected UserValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }

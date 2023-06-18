@@ -1,3 +1,4 @@
+using Bogus;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +10,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
+    protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
 

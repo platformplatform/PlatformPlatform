@@ -40,6 +40,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
             .SelectMany(result => result.Errors)
             .Where(failure => failure != null)
             .Select(failure => new ErrorDetail(failure.PropertyName.Split('.').First(), failure.ErrorMessage))
+            .Distinct()
             .ToArray();
 
         if (errorDetails.Any())

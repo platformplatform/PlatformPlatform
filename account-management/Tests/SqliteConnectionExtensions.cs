@@ -5,13 +5,16 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public static class SqliteConnectionExtensions
 {
-    public static long ExecuteScalar(this SqliteConnection connection, string sql, object? parameters = null)
+    public static long ExecuteScalar(this SqliteConnection connection, string sql, params object?[] parameters)
     {
         using var command = new SqliteCommand(sql, connection);
 
-        foreach (var property in parameters?.GetType().GetProperties() ?? Array.Empty<PropertyInfo>())
+        foreach (var parameter in parameters)
         {
-            command.Parameters.AddWithValue(property.Name, property.GetValue(parameters));
+            foreach (var property in parameter?.GetType().GetProperties() ?? Array.Empty<PropertyInfo>())
+            {
+                command.Parameters.AddWithValue(property.Name, property.GetValue(parameter));
+            }
         }
 
         return (long) command.ExecuteScalar()!;
