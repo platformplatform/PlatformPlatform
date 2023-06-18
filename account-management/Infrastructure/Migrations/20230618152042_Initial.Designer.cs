@@ -12,7 +12,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountManagementDbContext))]
-    [Migration("20230611095743_Initial")]
+    [Migration("20230618152042_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -60,7 +60,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("char(26)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
