@@ -12,29 +12,17 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix);
-        group.MapGet("/{id}", GetUser);
-        group.MapPost("/", CreateUser);
-        group.MapPut("/{id}", UpdateUser);
-        group.MapDelete("/{id}", DeleteUser);
-    }
 
-    private static async Task<ApiResult<UserResponseDto>> GetUser(UserId id, ISender mediator)
-    {
-        return await mediator.Send(new GetUser.Query(id));
-    }
+        group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> (UserId id, ISender mediator)
+            => await mediator.Send(new GetUser.Query(id)));
 
-    private static async Task<ApiResult> CreateUser(CreateUser.Command command, ISender mediator)
-    {
-        return (await mediator.Send(command)).AddResourceUri(RoutesPrefix);
-    }
+        group.MapPost("/", async Task<ApiResult> (CreateUser.Command command, ISender mediator)
+            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
 
-    private static async Task<ApiResult> UpdateUser(UserId id, UpdateUser.Command command, ISender mediator)
-    {
-        return await mediator.Send(command with {Id = id});
-    }
+        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUser.Command command, ISender mediator)
+            => await mediator.Send(command with {Id = id}));
 
-    private static async Task<ApiResult> DeleteUser(UserId id, ISender mediator)
-    {
-        return await mediator.Send(new DeleteUser.Command(id));
+        group.MapDelete("/{id}", async Task<ApiResult> (UserId id, ISender mediator)
+            => await mediator.Send(new DeleteUser.Command(id)));
     }
 }
