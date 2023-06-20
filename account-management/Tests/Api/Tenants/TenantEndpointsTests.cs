@@ -32,7 +32,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'name': {'type': 'string', 'minLength': 1, 'maxLength': 30},
-                    'state': {'type': 'integer', 'minimum': 0},
+                    'state': {'type': 'string', 'minLength': 1, 'maxLength':20},
                     'phone': {'type': ['null', 'string'], 'maxLength': 20}
                 },
                 'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'phone'],

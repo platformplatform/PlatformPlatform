@@ -34,7 +34,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'email': {'type': 'string', 'maxLength': 100},
-                    'userRole': {'type': 'integer', 'minimum': 0}
+                    'userRole': {'type': 'string', 'minLength': 1, 'maxLength':20}
                 },
                 'required': ['id', 'createdAt', 'modifiedAt', 'email', 'userRole'],
                 'additionalProperties': false

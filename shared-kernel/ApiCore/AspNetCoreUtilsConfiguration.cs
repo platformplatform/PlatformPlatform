@@ -1,5 +1,7 @@
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
@@ -23,6 +25,12 @@ public static class AspNetCoreUtilsConfiguration
             c.SwaggerDoc("v1", new OpenApiInfo {Title = "PlatformPlatform API", Version = "v1"});
             // This is needed because commands are nested so CreateTenant.Command becomes CreateTenant+Command 
             c.CustomSchemaIds(type => type.FullName?.Split(".").Last().Replace("+", ""));
+        });
+
+        // Ensure that enums are serialized as strings
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
         return services;
