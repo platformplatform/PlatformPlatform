@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
@@ -19,6 +20,7 @@ public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, U
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
     TenantUser = 0,

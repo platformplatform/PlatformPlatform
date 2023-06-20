@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
@@ -31,6 +32,7 @@ public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<string,
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TenantState
 {
     Trial,
