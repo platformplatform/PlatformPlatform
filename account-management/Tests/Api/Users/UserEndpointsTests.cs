@@ -3,8 +3,6 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Application.Users;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;

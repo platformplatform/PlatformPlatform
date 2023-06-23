@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace PlatformPlatform.AccountManagement.Domain;
 
 public static class DomainConfiguration

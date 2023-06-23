@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.Data.Sqlite;
 
 namespace PlatformPlatform.AccountManagement.Tests;

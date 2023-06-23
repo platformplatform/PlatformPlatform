@@ -1,4 +1,3 @@
-using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
 
 namespace PlatformPlatform.AccountManagement.Domain.Users;

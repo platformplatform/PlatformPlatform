@@ -1,5 +1,4 @@
 using System.Net;
-using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;

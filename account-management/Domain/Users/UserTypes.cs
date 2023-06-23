@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using System.Text.Json.Serialization;
-using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Domain.Users;

@@ -1,6 +1,4 @@
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;

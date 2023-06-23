@@ -1,5 +1,4 @@
 using FluentAssertions;
-using MediatR;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;

@@ -1,6 +1,3 @@
-using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 [UsedImplicitly]

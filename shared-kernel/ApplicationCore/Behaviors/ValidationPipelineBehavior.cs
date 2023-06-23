@@ -1,6 +1,5 @@
 using System.Net;
 using FluentValidation;
-using MediatR;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 

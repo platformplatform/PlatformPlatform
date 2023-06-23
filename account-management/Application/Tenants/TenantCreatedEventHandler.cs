@@ -1,8 +1,3 @@
-using JetBrains.Annotations;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 [UsedImplicitly]

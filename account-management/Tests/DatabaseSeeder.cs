@@ -1,5 +1,3 @@
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.AccountManagement.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Tests;

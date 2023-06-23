@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using JetBrains.Annotations;
 
 namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 

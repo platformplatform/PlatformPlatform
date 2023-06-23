@@ -1,5 +1,3 @@
-using MediatR;
-
 namespace PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 
 /// <summary>

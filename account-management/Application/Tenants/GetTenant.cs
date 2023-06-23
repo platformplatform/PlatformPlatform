@@ -1,7 +1,4 @@
-using JetBrains.Annotations;
 using Mapster;
-using MediatR;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
