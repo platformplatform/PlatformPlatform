@@ -1,6 +1,6 @@
 environment="production"
 location="WestEurope"
-containerRegistryName="mentum"
+containerRegistryName="p14m"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh

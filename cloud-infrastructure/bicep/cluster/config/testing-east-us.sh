@@ -1,7 +1,7 @@
 environment="testing"
 location="EastUS"
 locationPrefix="east-us"
-clusterUniqueName="mentumtesteus"
+clusterUniqueName="p14mtesteus"
 useMssqlElasticPool=false
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

@@ -1,7 +1,7 @@
 environment="staging"
 location="WestEurope"
 locationPrefix="west-europe"
-clusterUniqueName="mentumstageweu"
+clusterUniqueName="p14mstageweu"
 useMssqlElasticPool=false
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
