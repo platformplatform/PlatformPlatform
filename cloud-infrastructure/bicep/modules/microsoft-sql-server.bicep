@@ -37,7 +37,8 @@ resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@
 }
 
 resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/securityAlertPolicies@2022-05-01-preview' = {
-  name: '${microsoftSqlServer.name}/Default'
+  parent: microsoftSqlServer
+  name: 'Default'
   properties: {
     state: 'Enabled'
     disabledAlerts: [ '' ]
