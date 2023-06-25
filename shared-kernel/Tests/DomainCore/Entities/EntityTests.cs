@@ -1,5 +1,4 @@
 using FluentAssertions;
-using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 using Xunit;

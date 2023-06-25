@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;

@@ -1,5 +1,4 @@
 using FluentAssertions;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;

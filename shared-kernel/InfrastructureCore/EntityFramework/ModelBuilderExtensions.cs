@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;

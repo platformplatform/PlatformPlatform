@@ -1,4 +1,3 @@
-using MediatR;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 

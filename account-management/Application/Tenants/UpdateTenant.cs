@@ -1,7 +1,3 @@
-using System.Text.Json.Serialization;
-using JetBrains.Annotations;
-using MediatR;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;

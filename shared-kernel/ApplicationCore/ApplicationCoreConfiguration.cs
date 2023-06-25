@@ -1,7 +1,4 @@
-using System.Reflection;
 using FluentValidation;
-using JetBrains.Annotations;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 

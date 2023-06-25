@@ -1,9 +1,5 @@
 using FluentValidation;
-using JetBrains.Annotations;
-using MediatR;
 using PlatformPlatform.AccountManagement.Application.Users;
-using PlatformPlatform.AccountManagement.Domain.Tenants;
-using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 

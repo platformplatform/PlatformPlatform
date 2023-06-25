@@ -1,6 +1,4 @@
-using MediatR;
 using PlatformPlatform.AccountManagement.Application.Users;
-using PlatformPlatform.AccountManagement.Domain.Users;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;

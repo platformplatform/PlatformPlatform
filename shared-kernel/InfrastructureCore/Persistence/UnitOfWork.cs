@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
