@@ -1,0 +1,73 @@
+name: "PlatformPlatform - Build and Test"
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'cloud-infrastructure/**'
+  pull_request:
+    paths-ignore:
+      - 'cloud-infrastructure/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Generate version
+      run: |
+        VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
+        echo "Generated version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+    - name: Restore dependencies
+      run: dotnet restore PlatformPlatform.sln
+    - name: Build
+      run: dotnet build PlatformPlatform.sln --no-restore --configuration Release /p:Version=$VERSION
+
+  test-with-code-coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Install dotCover
+      run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Install SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    - name: Run Test with dotCover and SonarScanner reporting
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html"
+        dotnet dotcover test PlatformPlatform.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML
+        dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+
+  jetbrains-code-inspection:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0    
+    - name: Run code inspections
+      uses: muno92/resharper_inspectcode@1.6.13
+      with:
+        solutionPath: PlatformPlatform.sln
+        minimumSeverity: warning
+        # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
+        ignoreIssueType: UnusedAutoPropertyAccessor.Global
