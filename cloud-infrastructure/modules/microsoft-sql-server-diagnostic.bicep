@@ -65,4 +65,5 @@ resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulner
     }
     storageContainerPath: '${dianosticStorageAccountBlobEndpoint}sql-vulnerability-scans/'
   }
+  dependsOn: [ microsoftSqlServerOutboundFirewallRules ]
 }
