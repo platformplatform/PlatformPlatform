@@ -1,3 +1,5 @@
+set -eo pipefail
+
 if [[ "$*" == *"--plan"* ]]
 then
     echo "Preparing plan..."
