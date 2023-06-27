@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'cloud-infrastructure/**'
+  workflow_dispatch:
 
 jobs:
   shared-plan:
