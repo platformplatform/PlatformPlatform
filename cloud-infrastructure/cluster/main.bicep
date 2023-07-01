@@ -5,6 +5,8 @@ param locationPrefix string
 param resourceGroupName string
 param clusterUniqueName string
 param useMssqlElasticPool bool
+param containerRegistryName string
+param containerRegistryPullAdGroupId string
 param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -136,4 +138,24 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
     skuCapacity: 50
     maxDatabaseCapacity: 5
   }
+}
+
+module accountManagementApi '../modules/container-app.bicep' = {
+  name: '${deployment().name}-account-management-api'
+  scope: clusterResourceGroup
+  params: {
+    name: 'account-management-api'
+    location: location
+    tags: tags
+    customLocationName: '${locationPrefix}-container-apps-environment'
+    adGroupId: containerRegistryPullAdGroupId
+    resourceGroupName: resourceGroupName
+    subscriptionId: subscription().subscriptionId
+    identityName: 'identityName' // replace this with the actual user assigned identity name
+    acrServerUrl: '${containerRegistryName}.azurecr.io'
+    containerImageName: 'account-management-api'
+    containerImageTag: 'latest'
+
+  }
+  dependsOn: [ contaionerAppsEnvironment ]
 }
