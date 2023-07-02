@@ -21,3 +21,5 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-10-01'
     zoneRedundant: true
   }
 }
+
+output environmentId string = containerAppsEnvironment.id

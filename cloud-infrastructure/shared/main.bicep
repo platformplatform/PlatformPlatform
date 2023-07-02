@@ -3,7 +3,6 @@ targetScope = 'subscription'
 param environment string
 param resourceGroupName string
 param containerRegistryName string
-param containerRegistryPullAdGroupId string
 param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -19,7 +18,6 @@ module containerRegistry '../modules/container-registry.bicep' = {
   scope: resourceGroup(sharedResourceGroup.name)
   params: {
     name: containerRegistryName
-    adGroupId: containerRegistryPullAdGroupId
     location: location
     tags: tags
   }

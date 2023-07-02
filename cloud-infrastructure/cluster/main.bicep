@@ -6,7 +6,6 @@ param resourceGroupName string
 param clusterUniqueName string
 param useMssqlElasticPool bool
 param containerRegistryName string
-param containerRegistryPullAdGroupId string
 param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -15,7 +14,7 @@ var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
 var virtualNetworkName = '${locationPrefix}-virtual-network'
-var subnetId = resourceId(subscription().subscriptionId, resourceGroupName,'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'subnet')
+var subnetId = resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'subnet')
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   scope: resourceGroup('${environment}-monitor')
@@ -147,15 +146,12 @@ module accountManagementApi '../modules/container-app.bicep' = {
     name: 'account-management-api'
     location: location
     tags: tags
-    customLocationName: '${locationPrefix}-container-apps-environment'
-    adGroupId: containerRegistryPullAdGroupId
-    resourceGroupName: resourceGroupName
-    subscriptionId: subscription().subscriptionId
-    identityName: 'identityName' // replace this with the actual user assigned identity name
-    acrServerUrl: '${containerRegistryName}.azurecr.io'
-    containerImageName: 'account-management-api'
+    acrSubscriptionId: subscription().subscriptionId
+    acrResourceGroupName: 'shared'
+    acrName: containerRegistryName
+    identityName: 'account-management-api-identity'
+    containerImageName: 'aci-helloworld'
     containerImageTag: 'latest'
-
+    environmentId: contaionerAppsEnvironment.outputs.environmentId
   }
-  dependsOn: [ contaionerAppsEnvironment ]
 }
