@@ -2,7 +2,6 @@ param name string
 param location string
 param tags object
 param acrSubscriptionId string
-param acrResourceGroupName string
 param acrName string
 param containerImageName string
 param containerImageTag string
@@ -15,6 +14,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   tags: tags
 }
 
+var acrResourceGroupName = 'shared'
 module containerRegistryPermission './container-registry-permission.bicep' = {
   name: 'acrModule'
   scope: resourceGroup(acrSubscriptionId, acrResourceGroupName)

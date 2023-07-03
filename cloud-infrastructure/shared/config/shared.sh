@@ -1,6 +1,6 @@
 environment="production"
 location="WestEurope"
-containerRegistryName="platformplatform"
+acrName="platformplatform"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh

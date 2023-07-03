@@ -5,7 +5,8 @@ param locationPrefix string
 param resourceGroupName string
 param clusterUniqueName string
 param useMssqlElasticPool bool
-param containerRegistryName string
+param acrSubscriptionId string
+param acrName string
 param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -146,9 +147,8 @@ module accountManagementApi '../modules/container-app.bicep' = {
     name: 'account-management-api'
     location: location
     tags: tags
-    acrSubscriptionId: subscription().subscriptionId
-    acrResourceGroupName: 'shared'
-    acrName: containerRegistryName
+    acrSubscriptionId: acrSubscriptionId
+    acrName: acrName
     identityName: 'account-management-api-identity'
     containerImageName: 'aci-helloworld'
     containerImageTag: 'latest'

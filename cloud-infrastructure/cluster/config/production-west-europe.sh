@@ -3,7 +3,7 @@ location="WestEurope"
 locationPrefix="west-europe"
 clusterUniqueName="p14mprodweu"
 useMssqlElasticPool=false
-containerRegistryName="platformplatform"
+acrName="platformplatform"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
