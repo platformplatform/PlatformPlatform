@@ -1,8 +1,8 @@
 param name string
 param location string
 param tags object
-param acrSubscriptionId string
-param acrName string
+param containerRegistrySubscriptionId string
+param containerRegistryName string
 param containerImageName string
 param containerImageTag string
 param identityName string
@@ -14,17 +14,17 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   tags: tags
 }
 
-var acrResourceGroupName = 'shared'
+var containerRegistryResourceGroupName = 'shared'
 module containerRegistryPermission './container-registry-permission.bicep' = {
-  name: 'acrModule'
-  scope: resourceGroup(acrSubscriptionId, acrResourceGroupName)
+  name: 'containerRegistryPermission'
+  scope: resourceGroup(containerRegistrySubscriptionId, containerRegistryResourceGroupName)
   params: {
-    acrName: acrName
+    containerRegistryName: containerRegistryName
     identityPrincipalId: userAssignedIdentity.properties.principalId
   }
 }
 
-var acrServerUrl = '${acrName}.azurecr.io'
+var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
 resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
   name: name
   location: location
@@ -41,7 +41,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
       containers: [
         {
           name: 'app'
-          image: '${acrServerUrl}/${containerImageName}:${containerImageTag}'
+          image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
           resources: {
             cpu: '0.5'
             memory: '1Gi'
@@ -52,7 +52,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
     configuration: {
       registries: [
         {
-          server: acrServerUrl
+          server: containerRegistryServerUrl
           identity: userAssignedIdentity.id
         }
       ]

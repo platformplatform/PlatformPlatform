@@ -1,6 +1,6 @@
 environment="testing"
 location="WestEurope"
-acrName="platformplatformtest"
+containerRegistryName="platformplatformtest"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh

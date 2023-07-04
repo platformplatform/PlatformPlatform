@@ -1,19 +1,19 @@
-param acrName string
+param containerRegistryName string
 param identityPrincipalId string
 
-resource acrResource 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
-  name: acrName
+resource containerRegistryResource 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+  name: containerRegistryName
 }
 
-var acrPullDefinitionId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+var containerRegistryPullDefinitionId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: acrPullDefinitionId
+  name: containerRegistryPullDefinitionId
   properties: {
     principalId: identityPrincipalId  
     principalType: 'ServicePrincipal'
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', acrPullDefinitionId)
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', containerRegistryPullDefinitionId)
   }
-  scope: acrResource
+  scope: containerRegistryResource
 }
 
-output loginServer string = acrResource.properties.loginServer
+output loginServer string = containerRegistryResource.properties.loginServer
