@@ -18,7 +18,7 @@ jobs:
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_SHARED }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Shared resources
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
@@ -32,7 +32,7 @@ jobs:
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_STAGING }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Staging resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
@@ -46,7 +46,7 @@ jobs:
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_STAGING }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Staging West Europe cluster
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
@@ -60,7 +60,7 @@ jobs:
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Production resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
@@ -74,7 +74,7 @@ jobs:
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Production West Europe cluster
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
