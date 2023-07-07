@@ -1,7 +1,6 @@
 param name string
 param location string
 param tags object
-param containerRegistrySubscriptionId string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
@@ -17,7 +16,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 var containerRegistryResourceGroupName = 'shared'
 module containerRegistryPermission './container-registry-permission.bicep' = {
   name: 'containerRegistryPermission'
-  scope: resourceGroup(containerRegistrySubscriptionId, containerRegistryResourceGroupName)
+  scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
     identityPrincipalId: userAssignedIdentity.properties.principalId
