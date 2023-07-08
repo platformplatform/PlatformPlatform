@@ -21,6 +21,8 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Shared resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
   shared-deploy:
@@ -37,6 +39,8 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy Shared resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
       run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
 
   staging-plan:
@@ -55,6 +59,9 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
     - name: Plan changes to Staging West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   staging-environment-deploy:
@@ -71,6 +78,9 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy shared Staging resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
@@ -86,6 +96,9 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy Staging West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
   production-plan:
@@ -104,6 +117,9 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
 
     - name: Plan changes to Production West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
 
   production-environment-deploy:
@@ -120,6 +136,9 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy shared Production resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
@@ -135,4 +154,7 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy Production West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply

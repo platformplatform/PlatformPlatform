@@ -1,7 +1,7 @@
 environment="production"
 location="WestEurope"
 locationPrefix="west-europe"
-clusterUniqueName="p14mprodweu"
+clusterUniqueName="${UNIQUE_CLUSTER_PREFIX}prodweu"
 useMssqlElasticPool=false
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
