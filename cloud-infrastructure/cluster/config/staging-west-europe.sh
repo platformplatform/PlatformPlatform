@@ -5,4 +5,4 @@ CLUSTER_UNIQUE_NAME="${UNIQUE_CLUSTER_PREFIX}stageweu"
 USE_MSSQL_ELASTIC_POOL=false   
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-. ../deploy.sh
+. ../deploy-cluster.sh
