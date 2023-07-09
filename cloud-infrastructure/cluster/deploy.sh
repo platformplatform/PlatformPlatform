@@ -1,7 +1,7 @@
-    resourceGroupName="$environment-$locationPrefix"
-    deploymentCommand="az deployment sub create"
+    RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
+    DEPLOYMENT_COMMAND="az deployment sub create"
 
-    deploymentParamters="-l $location -n $resourceGroupName --output table -f ./main.bicep -p environment=$environment locationPrefix=$locationPrefix resourceGroupName=$resourceGroupName clusterUniqueName=$clusterUniqueName useMssqlElasticPool=$useMssqlElasticPool containerRegistryName=$CONTAINER_REGISTRY_NAME"
+    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $RESOURCE_GROUP_NAME --output table -f ./main.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME"
 
     cd "$(dirname "${BASH_SOURCE[0]}")"
     . ../deploy.sh
