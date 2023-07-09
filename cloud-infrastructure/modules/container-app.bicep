@@ -1,11 +1,13 @@
 param name string
 param location string
 param tags object
+param environmentId string
+param identityName string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
-param identityName string
-param environmentId string
+param cpu string = '0.25'
+param memory string = '0.25Gi'
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: identityName
@@ -42,8 +44,8 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
           name: 'app'
           image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
           resources: {
-            cpu: '0.5'
-            memory: '1Gi'
+            cpu: cpu
+            memory: memory
           }
         }
       ]
