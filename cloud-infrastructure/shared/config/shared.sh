@@ -1,6 +1,5 @@
-environment="production"
-location="WestEurope"
-containerRegistryName="platformplatform"
+ENVIRONMENT="production"
+LOCATION="WestEurope"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-. ../deploy.sh
+. ../deploy-shared.sh

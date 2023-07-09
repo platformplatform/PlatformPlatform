@@ -18,9 +18,11 @@ jobs:
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_SHARED }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Shared resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
   staging-enviroment:
@@ -32,9 +34,12 @@ jobs:
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_STAGING }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Staging resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
   staging-west-europe:
@@ -46,9 +51,12 @@ jobs:
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_STAGING }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Staging West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   production-environment:
@@ -60,9 +68,12 @@ jobs:
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Production resources
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
 
   production-west-europe:
@@ -74,7 +85,10 @@ jobs:
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_PRODUCTION }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to Production West Europe cluster
+      env:
+        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan

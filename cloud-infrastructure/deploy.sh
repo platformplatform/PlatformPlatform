@@ -3,17 +3,17 @@ set -eo pipefail
 if [[ "$*" == *"--plan"* ]]
 then
     echo "Preparing plan..."
-    $deploymentCommand -w $deploymentParamters
+    $DEPLOYMENT_COMMAND -w $DEPLOYMENT_PARAMETERS
 fi
 
 if [[ "$*" == *"--apply"* ]]
 then
     echo "Applying changes..."
-    $deploymentCommand $deploymentParamters
+    $DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS
 fi
 
 if [[ "$1" == "" ]]
 then
-    echo "Detecthing changes..."
-   $deploymentCommand -c $deploymentParamters
+    echo "Detecting changes..."
+   $DEPLOYMENT_COMMAND -c $DEPLOYMENT_PARAMETERS
 fi
