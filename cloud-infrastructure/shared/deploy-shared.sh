@@ -10,7 +10,7 @@ if [[ "$1" == "" ]] || [[ "$*" == *"--apply"* ]]
 then
     echo "Uploading dummy hello world container image..."
     az acr login --name $CONTAINER_REGISTRY_NAME
-    docker pull mcr.microsoft.com/azuredocs/aci-helloworld
-    docker tag mcr.microsoft.com/azuredocs/aci-helloworld $CONTAINER_REGISTRY_NAME.azurecr.io/aci-helloworld:latest
-    docker push $CONTAINER_REGISTRY_NAME.azurecr.io/aci-helloworld:latest
+    docker pull hello-world
+    docker tag hello-world $CONTAINER_REGISTRY_NAME.azurecr.io/hello-world:latest
+    docker push $CONTAINER_REGISTRY_NAME.azurecr.io/hello-world:latest
 fi

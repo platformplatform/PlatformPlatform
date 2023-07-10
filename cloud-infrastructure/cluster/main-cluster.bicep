@@ -149,7 +149,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     identityName: 'account-management-api-identity'
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
-    containerImageName: 'aci-helloworld'
+    containerImageName: 'hello-world'
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'
