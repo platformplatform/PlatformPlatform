@@ -146,7 +146,6 @@ module accountManagementApi '../modules/container-app.bicep' = {
     name: 'account-management-api'
     location: location
     tags: tags
-    identityName: 'account-management-api-identity'
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
     containerImageName: 'hello-world'
