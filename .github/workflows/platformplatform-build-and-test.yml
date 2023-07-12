@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'cloud-infrastructure/**'
   pull_request:
     paths-ignore:
       - 'cloud-infrastructure/**'

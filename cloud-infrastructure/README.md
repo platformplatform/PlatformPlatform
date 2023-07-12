@@ -59,10 +59,14 @@ The [`main-shared.bicep`](/cloud-infrastructure/shared/main-shared.bicep), [`mai
 
 The `Testing` scripts can be used for easy testing and debugging of the Bicep and bash scripts from localhost (requires [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)).
 
-1. Set the `CONTAINER_REGISTRY_NAME` to a global unique name and restart terminal afterwards:
+1. Set the `CLUSTER_UNIQUE_NAME` enviroment varible. This will be used as a prefix to resources that requires global unique name (like SQL Server, Blob storage acconts). IMPORTANT, this must be no longer than 6 characters to avoid running in to naming limitations in Azure:
+    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export CLUSTER_UNIQUE_NAME='cnts'`
+    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("CLUSTER_UNIQUE_NAME", "cnts", "User")`
+2. Set the `CONTAINER_REGISTRY_NAME` to a global unique name:
     - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export CONTAINER_REGISTRY_NAME='contosotest'`
     - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "contosotest", "User")`
-2. Login to Azure Run the following scripts from the prompt: `az account set --subscription <SubscriptionId>`
-3. Run [`shared-testing.sh`](/cloud-infrastructure/shared/config/shared-testing.sh)
-4. Run [`testing.sh`](/cloud-infrastructure/environment/config/testing.sh)
-5. Run [`testing-west-europe.sh`](/cloud-infrastructure/cluster/config/testing-west-europe.sh)
+3. Restart the terminal to have the changes take effect
+4. Login to Azure Run the following scripts from the prompt: `az account set --subscription <SubscriptionId>`
+5. Run [`shared-testing.sh`](/cloud-infrastructure/shared/config/shared-testing.sh)
+6. Run [`testing.sh`](/cloud-infrastructure/environment/config/testing.sh)
+7. Run [`testing-west-europe.sh`](/cloud-infrastructure/cluster/config/testing-west-europe.sh)
