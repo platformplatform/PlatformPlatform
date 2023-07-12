@@ -6,9 +6,9 @@ param containerRegistryName string
 param containerImageName string
 param containerImageTag string
 param cpu string = '0.25'
-param memory string = '0.25Gi'
+param memory string = '0.5Gi'
 
-var identityName = '${name}-identity'
+var identityName = '${name}-${resourceGroup().name}'
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: identityName
   location: location
