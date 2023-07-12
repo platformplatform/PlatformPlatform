@@ -38,16 +38,6 @@ module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   }
 }
 
-module networkWatcher '../modules/network-watcher.bicep' = {
-  scope: clusterResourceGroup
-  name: '${deployment().name}-network-watcher'
-  params: {
-    location: location
-    name: '${locationPrefix}-network-watcher'
-    tags: tags
-  }
-}
-
 module virtualNetwork '../modules/virtual-network.bicep' = {
   scope: clusterResourceGroup
   name: '${deployment().name}-virtual-network'
@@ -56,7 +46,6 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     name: virtualNetworkName
     tags: tags
   }
-  dependsOn: [ networkWatcher ]
 }
 
 module keyVault '../modules/key-vault.bicep' = {
@@ -146,10 +135,9 @@ module accountManagementApi '../modules/container-app.bicep' = {
     name: 'account-management-api'
     location: location
     tags: tags
-    identityName: 'account-management-api-identity'
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
-    containerImageName: 'aci-helloworld'
+    containerImageName: 'hello-world'
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'

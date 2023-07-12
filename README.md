@@ -26,11 +26,11 @@ PlatformPlatform is built around Microsoft technologies, which play nicely toget
 
 The backend is built showcasing Clean Architecture with Domain-Driven Design and CQRS at its core. The backend API and services are built the newest version of technologies like .NET 7.0, C# 11.0, ASP.NET Minimal API, MediatR 12, Fluent Validation, and Entity Framework 7. While not feature-complete (e.g., authentication, and multi-tenant not started), the current implementation showcases a best-in-class DDD, CQRS solution, and a very slim API front-end, making it very easy to create business logic without any boiler code.
 
-## Monolith prepared for micro-services
+## Monolith prepared for microservices
 
 While the solution is currently a monolith, the [shared-kernel](/shared-kernel) hosts all the common infrastructure. This includes tactical DDD concepts like Aggregate Roots, Entities, Base Repository, UnitOfWork, DomainEvents, etc. The [shared-kernel](/shared-kernel) contains common classes to create a clean architecture using CQRS, with MediatR behaviours, reusable validation logic. The [shared-kernel](/shared-kernel) also contains other reusable components like Global Exception handler, Entity Framework filters, etc. This makes the development of the actual application logic very clean, and it's very easy to create a second self-contained system.
 
-A self-contained system is a large micro-service (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large Monolith and many small micro-services with a large monolitic frontend. [account-management](/account-management) is an example of a self-containd system.
+A self-contained system is a large microservice (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large Monolith and many small microservices with a large monolitic frontend. [account-management](/account-management) is an example of a self-containd system.
 
 ## Azure Cloud Infrastructure
 
@@ -51,17 +51,17 @@ PlatformPlatform requires a SQL Server instance for debugging locally. You can u
 
        docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=!MySecretPassword1" -p 1433:1433 --name sql_server -d mcr.microsoft.com/azure-sql-edge
 
-3. Add the SQL Server password to an environment variable:
-    * On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export SQL_DATABASE_PASSWORD='!MySecretPassword1'`
-    * On Windows: In PowerShell on Windows run the following command: `Env:DB_PASSWORD="!MySecretPassword1"`
+3. Set the `SQL_DATABASE_PASSWORD` environment variable:
+    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export SQL_DATABASE_PASSWORD='!MySecretPassword1'`
+    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("SQL_DATABASE_PASSWORD", "!MySecretPassword1", "User")`
 
 ## Run and debug
 
 1. Clone the repository: `git clone https://github.com/PlatformPlatform/platformplatform.git`
-2. Navigate to the cloned repository in a terminal and run the following command to restore the dependencies and tools of the project: `dotnet restore`
+2. Navigate to the root of the cloned repository and run the following command to restore the dependencies and tools of the project: `dotnet restore`
 3. Run the following command to build and run the application: `dotnet run --project account-management/Api`
 4. The application should now be running. You can access the API by navigating to `https://localhost:5001` or `http://localhost:5002`.
 5. To run tests run the following command: `dotnet test`
-6. To debug the application, you can use an IDE like JetBrains Rider on both Windows and Mac or Visual Studio with ReSharper on Windows. Open the solution file (`PlatformPlatform.sln`) in your preferred IDE and start debugging using the built-in debugging tools. You can also open the `account-management/AccountManagement.sln` to work with a lightweight, self-contained system (micro-service) in isolation without the [shared-kernel](/shared-kernel).
+6. To debug the application, you can use an IDE like JetBrains Rider on both Windows and Mac or Visual Studio on Windows. Open the solution file (`PlatformPlatform.sln`) in your preferred IDE and start debugging using the built-in debugging tools. You can also open the `account-management/AccountManagement.sln` to work with a lightweight, self-contained system (microservice) in isolation without the [shared-kernel](/shared-kernel).
 
 You should now be able to run and debug your application locally on both Mac and Windows.

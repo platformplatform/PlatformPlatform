@@ -2,13 +2,13 @@ param name string
 param location string
 param tags object
 param environmentId string
-param identityName string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
 param cpu string = '0.25'
 param memory string = '0.25Gi'
 
+var identityName = '${name}-identity'
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
   name: identityName
   location: location
