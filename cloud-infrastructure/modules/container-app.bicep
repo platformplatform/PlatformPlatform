@@ -57,6 +57,19 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
+      ingress: {
+        external: true
+        targetPort: 80
+        exposedPort: 0
+        allowInsecure: false
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
+        stickySessions: null
+      }
     }
   }
   dependsOn: [
