@@ -44,11 +44,14 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
           name: 'app'
           image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
           resources: {
-            cpu: cpu
+            cpu: json(cpu)
             memory: memory
           }
         }
       ]
+      scale: {
+        minReplicas: 0
+      }
     }
     configuration: {
       registries: [
