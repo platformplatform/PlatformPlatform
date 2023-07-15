@@ -137,7 +137,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     tags: tags
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
-    containerImageName: 'hello-world'
+    containerImageName: 'quickstart'
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'
