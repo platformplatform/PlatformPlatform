@@ -10,9 +10,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-05-01' = {
     virtualNetworkPeerings: []
     enableDdosProtection: false
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
+      addressPrefixes: ['10.0.0.0/16']
     }
     dhcpOptions: {
       dnsServers: []

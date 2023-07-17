@@ -54,7 +54,7 @@ resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2023
       }
     ]
   }
-  dependsOn: [ applicationInsights ]
+  dependsOn: [applicationInsights]
 }
 
 resource failureanomaliestestingapplicationinsights 'microsoft.alertsManagement/smartDetectorAlertRules@2021-04-01' = {
@@ -69,13 +69,9 @@ resource failureanomaliestestingapplicationinsights 'microsoft.alertsManagement/
     detector: {
       id: 'FailureAnomaliesDetector'
     }
-    scope: [
-      applicationInsights.id
-    ]
+    scope: [applicationInsights.id]
     actionGroups: {
-      groupIds: [
-        applicationInsightsSmartDetection.id
-      ]
+      groupIds: [applicationInsightsSmartDetection.id]
     }
   }
 }

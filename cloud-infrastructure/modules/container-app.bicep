@@ -75,7 +75,5 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
       }
     }
   }
-  dependsOn: [
-    containerRegistryPermission
-  ]
+  dependsOn: [containerRegistryPermission]
 }

@@ -13,7 +13,9 @@ resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2022-11-01-preview' e
   name: microsoftSqlServerName
 }
 
-@description('This is the built-in Storage Blob Data Contributor role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
+@description(
+  'This is the built-in Storage Blob Data Contributor role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor'
+)
 resource existingStorageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
   scope: subscription()
   name: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
@@ -32,7 +34,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2022-11-01-preview' = {
   parent: existingMicrosoftSqlServer
   name: replace(replace(dianosticStorageAccountBlobEndpoint, 'https:', ''), '/', '')
-  dependsOn: [ roleAssignment ]
+  dependsOn: [roleAssignment]
 }
 
 resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSettings@2022-11-01-preview' = {
@@ -51,7 +53,7 @@ resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSetti
     storageEndpoint: dianosticStorageAccountBlobEndpoint
     storageAccountSubscriptionId: dianosticStorageAccountSubscriptionId
   }
-  dependsOn: [ microsoftSqlServerOutboundFirewallRules ]
+  dependsOn: [microsoftSqlServerOutboundFirewallRules]
 }
 
 resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulnerabilityAssessments@2022-11-01-preview' = {
@@ -59,11 +61,11 @@ resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulner
   parent: existingMicrosoftSqlServer
   properties: {
     recurringScans: {
-      emails: [ '' ]
+      emails: ['']
       emailSubscriptionAdmins: true
       isEnabled: true
     }
     storageContainerPath: '${dianosticStorageAccountBlobEndpoint}sql-vulnerability-scans/'
   }
-  dependsOn: [ microsoftSqlServerOutboundFirewallRules ]
+  dependsOn: [microsoftSqlServerOutboundFirewallRules]
 }
