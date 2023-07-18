@@ -59,9 +59,9 @@ The [`main-shared.bicep`](/cloud-infrastructure/shared/main-shared.bicep), [`mai
 
 The `Testing` scripts can be used for easy testing and debugging of the Bicep and bash scripts from localhost (requires [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)).
 
-1. Set the `CLUSTER_UNIQUE_NAME` enviroment varible. This will be used as a prefix to resources that requires global unique name (like SQL Server, Blob storage acconts). IMPORTANT, this must be no longer than 6 characters to avoid running in to naming limitations in Azure:
-    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export CLUSTER_UNIQUE_NAME='cnts'`
-    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("CLUSTER_UNIQUE_NAME", "cnts", "User")`
+1. Set the `UNIQUE_CLUSTER_PREFIX` enviroment varible. This will be used as a prefix to resources that requires global unique name (like SQL Server, Blob storage acconts). IMPORTANT, this must be no longer than 6 characters to avoid running in to naming limitations in Azure:
+    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export UNIQUE_CLUSTER_PREFIX='cnts'`
+    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("UNIQUE_CLUSTER_PREFIX", "cnts", "User")`
 2. Set the `CONTAINER_REGISTRY_NAME` to a global unique name:
     - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export CONTAINER_REGISTRY_NAME='contosotest'`
     - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "contosotest", "User")`

@@ -41,8 +41,8 @@ resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/security
   name: 'Default'
   properties: {
     state: 'Enabled'
-    disabledAlerts: [ '' ]
-    emailAddresses: [ '' ]
+    disabledAlerts: ['']
+    emailAddresses: ['']
     emailAccountAdmins: false
     retentionDays: 0
   }

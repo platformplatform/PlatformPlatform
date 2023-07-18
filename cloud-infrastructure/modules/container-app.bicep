@@ -9,7 +9,7 @@ param cpu string = '0.25'
 param memory string = '0.5Gi'
 
 var identityName = '${name}-${resourceGroup().name}'
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2022-01-31-preview' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
   location: location
   tags: tags
@@ -26,7 +26,7 @@ module containerRegistryPermission './container-registry-permission.bicep' = {
 }
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
-resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
   name: name
   location: location
   tags: tags
@@ -44,11 +44,14 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
           name: 'app'
           image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
           resources: {
-            cpu: cpu
+            cpu: json(cpu)
             memory: memory
           }
         }
       ]
+      scale: {
+        minReplicas: 0
+      }
     }
     configuration: {
       registries: [
@@ -57,9 +60,20 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
+      ingress: {
+        external: true
+        targetPort: 80
+        exposedPort: 0
+        allowInsecure: false
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
+        stickySessions: null
+      }
     }
   }
-  dependsOn: [
-    containerRegistryPermission
-  ]
+  dependsOn: [containerRegistryPermission]
 }

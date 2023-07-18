@@ -15,6 +15,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
@@ -33,6 +40,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
@@ -49,6 +63,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
 
     - name: Login to the Staging subscription
       uses: azure/login@v1
@@ -72,6 +93,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
@@ -90,6 +118,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
@@ -107,6 +142,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
 
     - name: Login to the Production subscription
       uses: azure/login@v1
@@ -130,6 +172,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
+
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
@@ -147,6 +196,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
 
     - name: Login to the Production subscription
       uses: azure/login@v1

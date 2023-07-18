@@ -9,7 +9,7 @@ var containerRegistryPullDefinitionId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(identityPrincipalId)
   properties: {
-    principalId: identityPrincipalId  
+    principalId: identityPrincipalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', containerRegistryPullDefinitionId)
   }

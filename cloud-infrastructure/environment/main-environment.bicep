@@ -6,7 +6,7 @@ param location string = deployment().location
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
-resource monitorResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource monitorResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: resourceGroupName
   location: location
   tags: tags

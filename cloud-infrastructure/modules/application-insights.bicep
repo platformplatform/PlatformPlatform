@@ -24,7 +24,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   }
 }
 
-resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2022-06-01' = {
+resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2023-01-01' = {
   name: 'Application Insights Smart Detection'
   location: 'Global'
   tags: tags
@@ -54,7 +54,7 @@ resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2022
       }
     ]
   }
-  dependsOn: [ applicationInsights ]
+  dependsOn: [applicationInsights]
 }
 
 resource failureanomaliestestingapplicationinsights 'microsoft.alertsManagement/smartDetectorAlertRules@2021-04-01' = {
@@ -69,13 +69,9 @@ resource failureanomaliestestingapplicationinsights 'microsoft.alertsManagement/
     detector: {
       id: 'FailureAnomaliesDetector'
     }
-    scope: [
-      applicationInsights.id
-    ]
+    scope: [applicationInsights.id]
     actionGroups: {
-      groupIds: [
-        applicationInsightsSmartDetection.id
-      ]
+      groupIds: [applicationInsightsSmartDetection.id]
     }
   }
 }

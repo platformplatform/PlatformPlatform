@@ -14,14 +14,20 @@ var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
 var virtualNetworkName = '${locationPrefix}-virtual-network'
-var subnetId = resourceId(subscription().subscriptionId, resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, 'subnet')
+var subnetId = resourceId(
+  subscription().subscriptionId,
+  resourceGroupName,
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetworkName,
+  'subnet'
+)
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   scope: resourceGroup('${environment}-monitor')
   name: '${environment}-log-analytics-workspace'
 }
 
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: resourceGroupName
   location: location
   tags: tags
@@ -60,7 +66,7 @@ module keyVault '../modules/key-vault.bicep' = {
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
     workspaceId: existingLogAnalyticsWorkspace.id
   }
-  dependsOn: [ virtualNetwork ]
+  dependsOn: [virtualNetwork]
 }
 
 module serviceBus '../modules/service-bus.bicep' = {
@@ -84,7 +90,7 @@ module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' =
     tags: tags
     subnetId: subnetId
   }
-  dependsOn: [ virtualNetwork ]
+  dependsOn: [virtualNetwork]
 }
 
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
@@ -98,7 +104,7 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
     tenantId: subscription().tenantId
     sqlAdminObjectId: activeDirectoryAdminObjectId
   }
-  dependsOn: [ virtualNetwork ]
+  dependsOn: [virtualNetwork]
 }
 
 module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
@@ -113,20 +119,21 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
   }
 }
 
-module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-pool.bicep' = if (useMssqlElasticPool) {
-  scope: clusterResourceGroup
-  name: '${deployment().name}-microsoft-sql-server-elastic-pool'
-  params: {
-    location: location
-    name: '${locationPrefix}-microsoft-sql-server-elastic-pool'
-    tags: tags
-    sqlServerName: clusterUniqueName
-    skuName: 'BasicPool'
-    skuTier: 'Basic'
-    skuCapacity: 50
-    maxDatabaseCapacity: 5
+module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-pool.bicep' =
+  if (useMssqlElasticPool) {
+    scope: clusterResourceGroup
+    name: '${deployment().name}-microsoft-sql-server-elastic-pool'
+    params: {
+      location: location
+      name: '${locationPrefix}-microsoft-sql-server-elastic-pool'
+      tags: tags
+      sqlServerName: clusterUniqueName
+      skuName: 'BasicPool'
+      skuTier: 'Basic'
+      skuCapacity: 50
+      maxDatabaseCapacity: 5
+    }
   }
-}
 
 module accountManagementApi '../modules/container-app.bicep' = {
   name: '${deployment().name}-account-management-api'
@@ -137,7 +144,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     tags: tags
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
-    containerImageName: 'hello-world'
+    containerImageName: 'quickstart'
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'

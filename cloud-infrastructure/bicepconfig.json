@@ -1,0 +1,21 @@
+{
+  "experimentalFeaturesEnabled": {
+    "prettyPrinting": true
+  },
+  "formatting":{
+    "width": 120,
+    "newlineKind": "LF",
+    "indentKind": "Space",
+    "indentationSize": 2,
+    "insertFinalNewline": true
+  },
+  "analyzers": {
+    "core": {
+      "rules": {
+        "no-unused-params": {
+          "level": "warning"
+        }
+      }
+    }
+  }
+}

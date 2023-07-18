@@ -3,7 +3,7 @@ param location string
 param tags object
 param subnetId string
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-04-01-preview' = {
   name: name
   location: location
   tags: tags
@@ -17,6 +17,11 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2022-10-01'
     }
     appLogsConfiguration: {
       destination: 'azure-monitor'
+    }
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
     }
     zoneRedundant: true
   }
