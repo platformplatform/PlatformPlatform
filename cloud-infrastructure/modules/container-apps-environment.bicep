@@ -18,6 +18,11 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-04-01-
     appLogsConfiguration: {
       destination: 'azure-monitor'
     }
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
+    }
     zoneRedundant: true
   }
 }

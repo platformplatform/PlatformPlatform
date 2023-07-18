@@ -27,6 +27,7 @@ resource serviceBusAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings
   name: 'service-bus-audit'
   properties: {
     storageAccountId: storageAccountId
+    logAnalyticsDestinationType: 'AzureDiagnostics'
     logs: [
       {
         categoryGroup: 'audit'
@@ -63,6 +64,7 @@ resource serviceBusMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSetting
   name: 'service-bus-metrics'
   properties: {
     workspaceId: workspaceId
+    logAnalyticsDestinationType: 'AzureDiagnostics'
     logs: [
       {
         category: 'OperationalLogs'
