@@ -2,7 +2,7 @@ param name string
 param location string
 param tags object
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   name: name
   location: location
   tags: tags
@@ -20,6 +20,15 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2022-12-01' =
     zoneRedundancy: 'Disabled'
     encryption: {
       status: 'disabled'
+    }
+    policies: {
+      azureADAuthenticationAsArmPolicy: {
+        status: 'Enabled'
+      }
+      softDeletePolicy: {
+        retentionDays: 7
+        status: 'disabled'
+      }
     }
   }
 }
