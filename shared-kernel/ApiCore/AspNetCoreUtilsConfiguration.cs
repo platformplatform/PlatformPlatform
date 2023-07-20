@@ -42,14 +42,14 @@ public static class AspNetCoreUtilsConfiguration
     [UsedImplicitly]
     public static WebApplication AddCommonConfiguration(this WebApplication app)
     {
+        // Enable Swagger UI
+        app.UseSwagger();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
+
         if (app.Environment.IsDevelopment())
         {
             // Enable the developer exception page, which displays detailed information about exceptions that occur.
             app.UseDeveloperExceptionPage();
-
-            // Enable Swagger UI in the development environment.
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
         }
         else
         {
