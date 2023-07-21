@@ -48,4 +48,5 @@ resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/security
   }
 }
 
+output sqlServerId string = microsoftSqlServer.id
 output principalId string = microsoftSqlServer.identity.principalId

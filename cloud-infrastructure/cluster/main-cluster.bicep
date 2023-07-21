@@ -150,3 +150,15 @@ module accountManagementApi '../modules/container-app.bicep' = {
     memory: '0.5Gi'
   }
 }
+
+module sqlPrivateLink '../modules/private-endpoint-sql-server.bicep' = {
+  name: '${deployment().name}-sql-private-link'
+  scope: clusterResourceGroup
+  params: {
+    name: 'sql-server'
+    location: location
+    tags: tags
+    subnetId: subnetId
+    sqlServerId: microsoftSqlServer.outputs.sqlServerId
+  }
+}
