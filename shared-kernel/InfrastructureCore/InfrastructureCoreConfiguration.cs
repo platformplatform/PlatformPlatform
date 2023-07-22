@@ -60,4 +60,28 @@ public static class InfrastructureCoreConfiguration
 
         return services;
     }
+
+    public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
+    {
+        using var scope = services.CreateScope();
+
+        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger(nameof(InfrastructureCoreConfiguration));
+        try
+        {
+            logger.LogInformation("Start migrating database");
+
+            var dbContext = scope.ServiceProvider.GetService<T>() ?? throw new Exception("Missing DbContext.");
+            dbContext.Database.Migrate();
+
+            logger.LogInformation("Finished migrating database");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while applying migrations");
+
+            // Wait for the logger to flush
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
+    }
 }
