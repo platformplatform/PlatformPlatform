@@ -36,6 +36,20 @@ public static class InfrastructureCoreConfiguration
 
     private static string GetConnectionString(IConfiguration configuration)
     {
+        if (Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") is not null)
+        {
+            // App is running in Azure
+            var serverName = Environment.GetEnvironmentVariable("SQL_SERVER_NAME")
+                             ?? throw new Exception("Missing SQL_SERVER_NAME environment variable.");
+
+            var databaseName = Environment.GetEnvironmentVariable("SQL_DATABASE_NAME")
+                               ?? throw new Exception("Missing SQL_DATABASE_NAME environment variable.");
+
+            return
+                $"Server=tcp:{serverName}.database.windows.net,1433;Database={databaseName};Authentication=Active Directory Managed Identity;TrustServerCertificate=False;Encrypt=True;Connection Timeout=30;";
+        }
+
+        // App is running locally
         var connectionString = configuration.GetConnectionString("Default")
                                ?? throw new Exception("Missing GetConnectionString configuration.");
 
