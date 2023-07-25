@@ -4,13 +4,3 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $RESOURCE_GROUP_NAME --output table -f ./
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
-
-
-if [[ "$1" == "" ]] || [[ "$*" == *"--apply"* ]]
-then
-    echo "Uploading dummy quickstart container image..."
-    az acr login --name $CONTAINER_REGISTRY_NAME
-    docker pull mcr.microsoft.com/k8se/quickstart:latest --platform linux/amd64
-    docker tag mcr.microsoft.com/k8se/quickstart:latest $CONTAINER_REGISTRY_NAME.azurecr.io/quickstart:latest
-    docker push $CONTAINER_REGISTRY_NAME.azurecr.io/quickstart:latest
-fi  
