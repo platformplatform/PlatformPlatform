@@ -148,6 +148,8 @@ module accountManagementApi '../modules/container-app.bicep' = {
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'
+    sqlServerName: clusterUniqueName
+    sqlDatabaseName: 'account-management'
   }
 }
 
