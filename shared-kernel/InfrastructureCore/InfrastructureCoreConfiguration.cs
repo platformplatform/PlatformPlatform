@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore;
@@ -25,7 +26,11 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
-        services.AddDbContext<T>((_, options) => options.UseSqlServer(GetConnectionString(configuration)));
+        services.AddDbContext<T>((_, options) =>
+        {
+            options.UseSqlServer(GetConnectionString(configuration));
+            options.AddInterceptors(new AadAuthenticationDbConnectionInterceptor());
+        });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
@@ -36,26 +41,28 @@ public static class InfrastructureCoreConfiguration
 
     private static string GetConnectionString(IConfiguration configuration)
     {
-        if (Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME") is not null)
+        string connectionString;
+        if (Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME") is { } serverName)
         {
             // App is running in Azure
-            var serverName = Environment.GetEnvironmentVariable("SQL_SERVER_NAME")
-                             ?? throw new Exception("Missing SQL_SERVER_NAME environment variable.");
-
-            var databaseName = Environment.GetEnvironmentVariable("SQL_DATABASE_NAME")
+            var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME")
                                ?? throw new Exception("Missing SQL_DATABASE_NAME environment variable.");
 
-            return
-                $"Server=tcp:{serverName}.database.windows.net,1433;Database={databaseName};Authentication=Active Directory Managed Identity;TrustServerCertificate=False;Encrypt=True;Connection Timeout=30;";
+            var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")
+                                          ?? throw new Exception("Missing MANAGED_IDENTITY_ID environment variable.");
+            connectionString =
+                $"Server=tcp:{serverName}.database.windows.net,1433;Initial Catalog={databaseName};Authentication=Active Directory Default;User Id={managedIdentityClientId};TrustServerCertificate=True;";
         }
-
-        // App is running locally
-        var connectionString = configuration.GetConnectionString("Default")
+        else
+        {
+            // App is running locally
+            connectionString = configuration.GetConnectionString("Default")
                                ?? throw new Exception("Missing GetConnectionString configuration.");
 
-        if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
-        {
-            connectionString += $";Password={password}";
+            if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
+            {
+                connectionString += $";Password={password}";
+            }
         }
 
         return connectionString;
