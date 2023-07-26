@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
-using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore;
@@ -26,11 +25,7 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
-        services.AddDbContext<T>((_, options) =>
-        {
-            options.UseSqlServer(GetConnectionString(configuration));
-            options.AddInterceptors(new AadAuthenticationDbConnectionInterceptor());
-        });
+        services.AddDbContext<T>((_, options) => options.UseSqlServer(GetConnectionString(configuration)));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
@@ -50,8 +45,9 @@ public static class InfrastructureCoreConfiguration
 
             var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")
                                           ?? throw new Exception("Missing MANAGED_IDENTITY_ID environment variable.");
+
             connectionString =
-                $"Server=tcp:{serverName}.database.windows.net,1433;Initial Catalog={databaseName};Authentication=Active Directory Default;User Id={managedIdentityClientId};TrustServerCertificate=True;";
+                $"Server=tcp:{serverName}.database.windows.net,1433;Initial Catalog={databaseName};User Id={managedIdentityClientId};Authentication=Active Directory Default;TrustServerCertificate=True;";
         }
         else
         {
