@@ -58,6 +58,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
                 name: 'AZURE_SQL_DATABASE_NAME'
                 value: sqlDatabaseName
             }
+            {
+              name: 'MANAGED_IDENTITY_CLIENT_ID'
+              value: userAssignedIdentity.properties.clientId
+            }
           ]
         }
       ]
