@@ -123,6 +123,18 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
     }
   }
 
+module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
+  name: 'account-management-database'
+  scope: clusterResourceGroup
+  params: {
+    sqlServerName: clusterUniqueName
+    databaseName: 'account-management'
+    location: location
+    tags: tags
+  }
+  dependsOn: [microsoftSqlServer]
+}
+
 module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
   scope: clusterResourceGroup
   name: 'container-apps-environment'
@@ -163,6 +175,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
   }
+  dependsOn: [accountManagementDatabase]
 }
 
 // module sqlPrivateLink '../modules/private-endpoint-sql-server.bicep' = {
