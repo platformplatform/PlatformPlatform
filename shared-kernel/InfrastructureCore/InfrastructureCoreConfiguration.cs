@@ -36,32 +36,44 @@ public static class InfrastructureCoreConfiguration
 
     private static string GetConnectionString(IConfiguration configuration)
     {
-        string connectionString;
-        if (Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME") is { } serverName)
-        {
-            // App is running in Azure
-            var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME")
-                               ?? throw new Exception("Missing SQL_DATABASE_NAME environment variable.");
+        var serverName = Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME");
+        var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME");
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID");
+        _ = bool.TryParse(Environment.GetEnvironmentVariable("USE_PRIVATE_ENDPOINT"), out var usePrivateEndpoint);
 
-            var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")
-                                          ?? throw new Exception("Missing MANAGED_IDENTITY_ID environment variable.");
+        string serverEndpoint;
+        var userId = "";
 
-            connectionString =
-                $"Server=tcp:{serverName}.database.windows.net,1433;Initial Catalog={databaseName};User Id={managedIdentityClientId};Authentication=Active Directory Default;TrustServerCertificate=True;";
-        }
-        else
+        if (serverName is null || databaseName is null)
         {
             // App is running locally
-            connectionString = configuration.GetConnectionString("Default")
-                               ?? throw new Exception("Missing GetConnectionString configuration.");
+            var connectionString = configuration.GetConnectionString("Default")
+                                   ?? throw new Exception("Missing GetConnectionString configuration.");
 
             if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
             {
                 connectionString += $";Password={password}";
             }
+
+            return connectionString;
         }
 
-        return connectionString;
+        if (usePrivateEndpoint)
+        {
+            serverEndpoint = $"{serverName}.privatelink.database.windows.net";
+        }
+        else
+        {
+            serverEndpoint = $"{serverName}.database.windows.net";
+        }
+
+        if (managedIdentityClientId is not null)
+        {
+            userId = $"User Id={managedIdentityClientId};";
+        }
+
+        return
+            $"Server=tcp:{serverEndpoint},1433;Initial Catalog={databaseName};{userId}Authentication=Active Directory Default;TrustServerCertificate=True;";
     }
 
     [UsedImplicitly]
