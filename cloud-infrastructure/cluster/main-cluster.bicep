@@ -81,18 +81,6 @@ module serviceBus '../modules/service-bus.bicep' = {
   }
 }
 
-module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
-  scope: clusterResourceGroup
-  name: '${deployment().name}-container-apps-environment'
-  params: {
-    location: location
-    name: '${locationPrefix}-container-apps-environment'
-    tags: tags
-    subnetId: subnetId
-  }
-  dependsOn: [virtualNetwork]
-}
-
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
   scope: clusterResourceGroup
   name: '${deployment().name}-microsoft-sql-server'
@@ -135,6 +123,28 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
     }
   }
 
+module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+  scope: clusterResourceGroup
+  name: '${deployment().name}-container-apps-environment'
+  params: {
+    location: location
+    name: '${locationPrefix}-container-apps-environment'
+    tags: tags
+    subnetId: subnetId
+  }
+  dependsOn: [virtualNetwork]
+}
+
+module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: 'account-management-${resourceGroupName}'
+  scope: clusterResourceGroup
+  params: {
+    name: 'account-management-${resourceGroupName}'
+    location: location
+    tags: tags
+  }
+}
+
 module accountManagementApi '../modules/container-app.bicep' = {
   name: '${deployment().name}-account-management-api'
   scope: clusterResourceGroup
@@ -142,6 +152,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     name: 'account-management-api'
     location: location
     tags: tags
+    resourceGroupName: resourceGroupName
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management-api'
@@ -150,6 +161,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     memory: '0.5Gi'
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
+    userAssignedIdentityName: 'account-management-${resourceGroupName}'
   }
 }
 
