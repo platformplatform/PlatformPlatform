@@ -19,7 +19,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 var containerRegistryResourceGroupName = 'shared'
 module containerRegistryPermission './container-registry-permission.bicep' = {
-  name: 'containerRegistryPermission'
+  name: 'container-registry-permission'
   scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName

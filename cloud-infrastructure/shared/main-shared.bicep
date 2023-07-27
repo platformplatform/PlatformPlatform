@@ -14,7 +14,7 @@ resource sharedResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
 }
 
 module containerRegistry '../modules/container-registry.bicep' = {
-  name: '${deployment().name}-container-registry'
+  name: 'container-registry'
   scope: resourceGroup(sharedResourceGroup.name)
   params: {
     name: containerRegistryName
