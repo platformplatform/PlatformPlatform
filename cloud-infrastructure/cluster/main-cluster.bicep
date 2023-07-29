@@ -7,9 +7,9 @@ param clusterUniqueName string
 param useMssqlElasticPool bool
 param containerRegistryName string
 param location string = deployment().location
+param sqlAdminObjectId string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
-var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
@@ -90,7 +90,7 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
     tags: tags
     subnetId: subnetId
     tenantId: subscription().tenantId
-    sqlAdminObjectId: activeDirectoryAdminObjectId
+    sqlAdminObjectId: sqlAdminObjectId
   }
   dependsOn: [virtualNetwork]
 }
