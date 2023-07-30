@@ -6,3 +6,5 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --outp
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
+
+. ./grant-database-permissions.sh 'account-management'
