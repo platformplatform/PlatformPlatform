@@ -98,7 +98,9 @@ public static class InfrastructureCoreConfiguration
         var logger = loggerFactory.CreateLogger(nameof(InfrastructureCoreConfiguration));
         try
         {
-            logger.LogInformation("Start migrating database");
+            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+
+            logger.LogInformation("Start migrating database. Version: {Version}", version);
 
             var dbContext = scope.ServiceProvider.GetService<T>() ?? throw new Exception("Missing DbContext.");
             dbContext.Database.Migrate();
