@@ -26,15 +26,14 @@ jobs:
       run: |
         VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
         echo "Generated version: $VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "version=$VERSION" >> $GITHUB_OUTPUT
     - name: Restore dependencies
       run: dotnet restore PlatformPlatform.sln
     - name: Build
-      run: dotnet build PlatformPlatform.sln --no-restore --configuration Release /p:Version=$VERSION
+      run: dotnet build PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
     - name: Publish
       run: |
-        dotnet publish account-management/Api/Api.csproj --no-restore --no-build --configuration Release /p:Version=$VERSION --output ./publish
+        dotnet publish account-management/Api/Api.csproj --no-restore --no-build --configuration Release /p:Version=${{ steps.generate_version.outputs.version }} --output ./publish
         cp account-management/Api/Dockerfile ./publish
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
@@ -83,9 +82,9 @@ jobs:
         # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
         ignoreIssueType: UnusedAutoPropertyAccessor.Global
 
-  push-to-acr:
+  build-and-push-docker-image-to-azure-container-registry:
     if: github.ref == 'refs/heads/main'
-    needs: [test-with-code-coverage, jetbrains-code-inspection]
+    needs: [build, test-with-code-coverage, jetbrains-code-inspection]
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifacts
