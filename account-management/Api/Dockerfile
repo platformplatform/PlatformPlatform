@@ -12,9 +12,8 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 # Set the working directory in the container
 WORKDIR /app
 
-# Expose ports
-EXPOSE 80
-EXPOSE 443
+# Expose ports (non-root user can't use ports below 1024)
+EXPOSE 8443
 
 # Switch to 'nonroot' user
 USER nonroot

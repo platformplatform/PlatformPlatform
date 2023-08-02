@@ -7,9 +7,9 @@ public static class WebApiConfiguration
     public static readonly Assembly Assembly = Assembly.GetExecutingAssembly();
 
     [UsedImplicitly]
-    public static IServiceCollection AddApiServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        services.AddCommonServices();
+        services.AddCommonServices(builder);
 
         return services;
     }
