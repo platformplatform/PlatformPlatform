@@ -19,19 +19,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Plan changes to Shared resources
       env:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
@@ -45,46 +42,38 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Shared subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Deploy Shared resources
       env:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
       run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
 
   staging-plan:
-    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Plan changes to shared Staging resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
-
     - name: Plan changes to Staging West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -100,19 +89,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Deploy shared Staging resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
@@ -123,19 +109,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Deploy Staging West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -144,27 +127,22 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
   production-plan:
-    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Plan changes to shared Production resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
-
     - name: Plan changes to Production West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -180,19 +158,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Deploy shared Production resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
@@ -203,19 +178,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Install Bicep CLI
       run: |
         curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
         chmod +x ./bicep
         sudo mv ./bicep /usr/local/bin/bicep
         bicep --version
-
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
     - name: Deploy Production West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
