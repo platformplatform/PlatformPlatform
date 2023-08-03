@@ -18,7 +18,7 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
     administrators: {
       administratorType: 'ActiveDirectory'
       principalType: 'Group'
-      login: 'Active Directory Admin'
+      login: 'Azure SQL Server Admins'
       sid: sqlAdminObjectId
       tenantId: tenantId
       azureADOnlyAuthentication: true
@@ -48,4 +48,5 @@ resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/security
   }
 }
 
+output sqlServerId string = microsoftSqlServer.id
 output principalId string = microsoftSqlServer.identity.principalId

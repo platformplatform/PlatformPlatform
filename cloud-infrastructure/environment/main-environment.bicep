@@ -13,7 +13,7 @@ resource monitorResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = 
 }
 
 module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {
-  name: '${deployment().name}-log-analytics-workspace'
+  name: 'log-analytics-workspace'
   scope: resourceGroup(monitorResourceGroup.name)
   params: {
     name: '${environment}-log-analytics-workspace'
@@ -23,7 +23,7 @@ module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {
 }
 
 module applicationInsights '../modules/application-insights.bicep' = {
-  name: '${deployment().name}-application-insights'
+  name: 'application-insights'
   scope: resourceGroup(monitorResourceGroup.name)
   params: {
     name: '${environment}-application-insights'

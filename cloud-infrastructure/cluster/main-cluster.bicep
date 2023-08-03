@@ -7,9 +7,9 @@ param clusterUniqueName string
 param useMssqlElasticPool bool
 param containerRegistryName string
 param location string = deployment().location
+param sqlAdminObjectId string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
-var activeDirectoryAdminObjectId = '33ff85b8-6b6f-4873-8e27-04ffc252c26c'
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
@@ -35,7 +35,7 @@ resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = 
 
 module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-diagnostic-storage-account'
+  name: 'diagnostic-storage-account'
   params: {
     location: location
     name: diagnosticStorageAccountName
@@ -46,7 +46,7 @@ module diagnosticStorageAccount '../modules/storage-account.bicep' = {
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-virtual-network'
+  name: 'virtual-network'
   params: {
     location: location
     name: virtualNetworkName
@@ -56,7 +56,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 
 module keyVault '../modules/key-vault.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-key-vault'
+  name: 'key-vault'
   params: {
     location: location
     name: clusterUniqueName
@@ -71,7 +71,7 @@ module keyVault '../modules/key-vault.bicep' = {
 
 module serviceBus '../modules/service-bus.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-service-bus'
+  name: 'service-bus'
   params: {
     location: location
     name: clusterUniqueName
@@ -81,35 +81,23 @@ module serviceBus '../modules/service-bus.bicep' = {
   }
 }
 
-module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
-  scope: clusterResourceGroup
-  name: '${deployment().name}-container-apps-environment'
-  params: {
-    location: location
-    name: '${locationPrefix}-container-apps-environment'
-    tags: tags
-    subnetId: subnetId
-  }
-  dependsOn: [virtualNetwork]
-}
-
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-microsoft-sql-server'
+  name: 'microsoft-sql-server'
   params: {
     location: location
     name: clusterUniqueName
     tags: tags
     subnetId: subnetId
     tenantId: subscription().tenantId
-    sqlAdminObjectId: activeDirectoryAdminObjectId
+    sqlAdminObjectId: sqlAdminObjectId
   }
   dependsOn: [virtualNetwork]
 }
 
 module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
   scope: clusterResourceGroup
-  name: '${deployment().name}-microsoft-sql-server-diagnostic'
+  name: 'microsoft-sql-server-diagnostic'
   params: {
     diagnosticStorageAccountName: diagnosticStorageAccountName
     microsoftSqlServerName: clusterUniqueName
@@ -122,7 +110,7 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
 module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-pool.bicep' =
   if (useMssqlElasticPool) {
     scope: clusterResourceGroup
-    name: '${deployment().name}-microsoft-sql-server-elastic-pool'
+    name: 'microsoft-sql-server-elastic-pool'
     params: {
       location: location
       name: '${locationPrefix}-microsoft-sql-server-elastic-pool'
@@ -135,18 +123,69 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
     }
   }
 
+module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
+  name: 'account-management-database'
+  scope: clusterResourceGroup
+  params: {
+    sqlServerName: clusterUniqueName
+    databaseName: 'account-management'
+    location: location
+    tags: tags
+  }
+  dependsOn: [microsoftSqlServer]
+}
+
+module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+  scope: clusterResourceGroup
+  name: 'container-apps-environment'
+  params: {
+    location: location
+    name: '${locationPrefix}-container-apps-environment'
+    tags: tags
+    subnetId: subnetId
+  }
+  dependsOn: [virtualNetwork]
+}
+
+module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: 'account-management-managed-identity'
+  scope: clusterResourceGroup
+  params: {
+    name: 'account-management-${resourceGroupName}'
+    location: location
+    tags: tags
+  }
+}
+
 module accountManagementApi '../modules/container-app.bicep' = {
-  name: '${deployment().name}-account-management-api'
+  name: 'account-management-api'
   scope: clusterResourceGroup
   params: {
     name: 'account-management-api'
     location: location
     tags: tags
+    resourceGroupName: resourceGroupName
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
-    containerImageName: 'quickstart'
+    containerImageName: 'account-management-api'
     containerImageTag: 'latest'
     cpu: '0.25'
     memory: '0.5Gi'
+    sqlServerName: clusterUniqueName
+    sqlDatabaseName: 'account-management'
+    userAssignedIdentityName: 'account-management-${resourceGroupName}'
   }
+  dependsOn: [accountManagementDatabase]
 }
+
+// module sqlPrivateLink '../modules/private-endpoint-sql-server.bicep' = {
+//   name: 'sql-private-link'
+//   scope: clusterResourceGroup
+//   params: {
+//     name: 'sql-server-private-link'
+//     location: location
+//     tags: tags
+//     subnetId: subnetId
+//     sqlServerId: microsoftSqlServer.outputs.sqlServerId
+//   }
+// }

@@ -1,23 +1,25 @@
 param name string
 param location string
 param tags object
+param resourceGroupName string
 param environmentId string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
 param cpu string = '0.25'
 param memory string = '0.5Gi'
+param sqlServerName string
+param sqlDatabaseName string
+param userAssignedIdentityName string
 
-var identityName = '${name}-${resourceGroup().name}'
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: identityName
-  location: location
-  tags: tags
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  scope: resourceGroup(resourceGroupName)
+  name: userAssignedIdentityName
 }
 
 var containerRegistryResourceGroupName = 'shared'
 module containerRegistryPermission './container-registry-permission.bicep' = {
-  name: 'containerRegistryPermission'
+  name: 'container-registry-permission'
   scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
@@ -41,12 +43,26 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
     template: {
       containers: [
         {
-          name: 'app'
+          name: name
           image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
           resources: {
             cpu: json(cpu)
             memory: memory
           }
+          env: [
+            {
+              name: 'AZURE_SQL_SERVER_NAME'
+              value: sqlServerName
+            }
+            {
+              name: 'AZURE_SQL_DATABASE_NAME'
+              value: sqlDatabaseName
+            }
+            {
+              name: 'MANAGED_IDENTITY_CLIENT_ID'
+              value: userAssignedIdentity.properties.clientId
+            }
+          ]
         }
       ]
       scale: {
