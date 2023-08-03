@@ -38,7 +38,7 @@ jobs:
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
   shared-deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.shared-plan.result == 'success'
+    if: github.ref == 'refs/heads/main' && needs.shared-plan.result == 'success'
     needs: shared-plan
     runs-on: ubuntu-latest
     environment: 'shared' ## Force a manual approval
@@ -64,7 +64,7 @@ jobs:
       run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
 
   staging-plan:
-    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main' && always() && needs.shared-deploy.result == 'success')
+    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -93,8 +93,8 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   staging-environment-deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.staging-plan-main.result == 'success'
-    needs: staging-plan
+    if: github.ref == 'refs/heads/main' && needs.staging-plan.result == 'success'
+    needs: [shared-deploy, staging-plan]
     runs-on: ubuntu-latest
     environment: 'staging' ## Force a manual approval
     steps:
@@ -117,7 +117,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.staging-environment-deploy == 'success'
     needs: staging-environment-deploy
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +144,7 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
   production-plan:
-    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main' && always() && needs.staging-west-europe-deploy.result == 'success')
+    if: (github.event_name == 'pull_request') || (github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -173,8 +173,8 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
 
   production-environment-deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: production-plan
+    if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy == 'success'
+    needs: [staging-west-europe-deploy, production-plan]
     runs-on: ubuntu-latest
     environment: 'production' ## Force a manual approval
     steps:
@@ -197,7 +197,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.production-environment-deploy == 'success'
     needs: production-environment-deploy
     runs-on: ubuntu-latest
     steps:
