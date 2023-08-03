@@ -21,9 +21,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Shared subscription
       uses: azure/login@v1
@@ -44,9 +44,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Shared subscription
       uses: azure/login@v1
@@ -64,9 +64,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Staging subscription
       uses: azure/login@v1
@@ -91,9 +91,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Staging subscription
       uses: azure/login@v1
@@ -103,7 +103,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
-    if: github.ref == 'refs/heads/main' && needs.staging-environment-deploy == 'success'
+    if: github.ref == 'refs/heads/main' && needs.staging-environment-deploy.result == 'success'
     needs: staging-environment-deploy
     runs-on: ubuntu-latest
     steps:
@@ -111,9 +111,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Staging subscription
       uses: azure/login@v1
@@ -133,9 +133,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Production subscription
       uses: azure/login@v1
@@ -151,7 +151,7 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
 
   production-environment-deploy:
-    if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy == 'success'
+    if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy.result == 'success'
     needs: [staging-west-europe-deploy, production-plan]
     runs-on: ubuntu-latest
     environment: 'production' ## Force a manual approval
@@ -160,9 +160,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Production subscription
       uses: azure/login@v1
@@ -172,7 +172,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
-    if: github.ref == 'refs/heads/main' && needs.production-environment-deploy == 'success'
+    if: github.ref == 'refs/heads/main' && needs.production-environment-deploy.result == 'success'
     needs: production-environment-deploy
     runs-on: ubuntu-latest
     steps:
@@ -180,9 +180,9 @@ jobs:
       uses: actions/checkout@v3
     - name: Install Bicep CLI
       run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x ./bicep
-        sudo mv ./bicep /usr/local/bin/bicep
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+        chmod +x ./bicep &&
+        sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
     - name: Login to the Production subscription
       uses: azure/login@v1
