@@ -87,30 +87,30 @@ jobs:
     needs: [build, test-with-code-coverage, jetbrains-code-inspection]
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: publish
-          path: ./publish
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Login to ACR
-        run: |
-          creds='${{ secrets.AZURE_CREDENTIALS }}'
-          clientId=$(node -pe "JSON.parse(\`${creds}\`).clientId")
-          clientSecret=$(node -pe "JSON.parse(\`${creds}\`).clientSecret")
-          tenantId=$(node -pe "JSON.parse(\`${creds}\`).tenantId")
-          az login --service-principal -u "$clientId" -p "$clientSecret" --tenant "$tenantId"
-          az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
-      - name: Build and push Docker image
-        env:
-          IMAGE_NAME: account-management-api
-        run: |
-          docker buildx create --use
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
-            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-            -f ./publish/Dockerfile \
-            --push .
-          docker buildx rm
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: publish
+        path: ./publish
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to ACR
+      run: |
+        creds='${{ secrets.AZURE_CREDENTIALS }}'
+        clientId=$(node -pe "JSON.parse(\`${creds}\`).clientId")
+        clientSecret=$(node -pe "JSON.parse(\`${creds}\`).clientSecret")
+        tenantId=$(node -pe "JSON.parse(\`${creds}\`).tenantId")
+        az login --service-principal -u "$clientId" -p "$clientSecret" --tenant "$tenantId"
+        az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
+    - name: Build and push Docker image
+      env:
+        IMAGE_NAME: account-management-api
+      run: |
+        docker buildx create --use
+        docker buildx build \
+          --platform linux/amd64,linux/arm64 \
+          -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
+          -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+          -f ./publish/Dockerfile \
+          --push .
+        docker buildx rm
