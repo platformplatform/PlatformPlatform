@@ -51,9 +51,6 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Staging resources
-      env:
-        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
   staging-west-europe:
@@ -76,6 +73,7 @@ jobs:
 
     - name: Plan changes to Staging West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
@@ -99,9 +97,6 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Plan changes to shared Production resources
-      env:
-        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
 
   production-west-europe:
@@ -124,6 +119,7 @@ jobs:
 
     - name: Plan changes to Production West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan

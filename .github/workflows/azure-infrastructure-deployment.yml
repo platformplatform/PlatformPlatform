@@ -81,6 +81,7 @@ jobs:
 
     - name: Plan changes to Staging West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
@@ -106,9 +107,6 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy shared Staging resources
-      env:
-        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
@@ -132,6 +130,7 @@ jobs:
 
     - name: Deploy Staging West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
@@ -160,6 +159,7 @@ jobs:
 
     - name: Plan changes to Production West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
@@ -185,9 +185,6 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Deploy shared Production resources
-      env:
-        CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
@@ -211,6 +208,7 @@ jobs:
 
     - name: Deploy Production West Europe cluster
       env:
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
