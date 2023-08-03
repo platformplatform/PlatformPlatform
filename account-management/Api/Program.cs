@@ -4,6 +4,7 @@ using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
-    .AddApiServices();
+    .AddApiServices(builder);
 
 var app = builder.Build();
 
+app.Services.ApplyMigrations<AccountManagementDbContext>();
 // Add configuration common for all web applications like Swagger, HSTS, and UseDeveloperExceptionPage.
 app.AddCommonConfiguration();
 

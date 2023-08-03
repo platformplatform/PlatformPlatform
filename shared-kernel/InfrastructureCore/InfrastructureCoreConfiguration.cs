@@ -36,15 +36,44 @@ public static class InfrastructureCoreConfiguration
 
     private static string GetConnectionString(IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Default")
-                               ?? throw new Exception("Missing GetConnectionString configuration.");
+        var serverName = Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME");
+        var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME");
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID");
+        _ = bool.TryParse(Environment.GetEnvironmentVariable("USE_PRIVATE_ENDPOINT"), out var usePrivateEndpoint);
 
-        if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
+        string serverEndpoint;
+        var userId = "";
+
+        if (serverName is null || databaseName is null)
         {
-            connectionString += $";Password={password}";
+            // App is running locally
+            var connectionString = configuration.GetConnectionString("Default")
+                                   ?? throw new Exception("Missing GetConnectionString configuration.");
+
+            if (Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD") is { } password)
+            {
+                connectionString += $";Password={password}";
+            }
+
+            return connectionString;
         }
 
-        return connectionString;
+        if (usePrivateEndpoint)
+        {
+            serverEndpoint = $"{serverName}.privatelink.database.windows.net";
+        }
+        else
+        {
+            serverEndpoint = $"{serverName}.database.windows.net";
+        }
+
+        if (managedIdentityClientId is not null)
+        {
+            userId = $"User Id={managedIdentityClientId};";
+        }
+
+        return
+            $"Server=tcp:{serverEndpoint},1433;Initial Catalog={databaseName};{userId}Authentication=Active Directory Default;TrustServerCertificate=True;";
     }
 
     [UsedImplicitly]
@@ -59,5 +88,31 @@ public static class InfrastructureCoreConfiguration
             .WithScopedLifetime());
 
         return services;
+    }
+
+    public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
+    {
+        using var scope = services.CreateScope();
+
+        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var logger = loggerFactory.CreateLogger(nameof(InfrastructureCoreConfiguration));
+        try
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+
+            logger.LogInformation("Start migrating database. Version: {Version}", version);
+
+            var dbContext = scope.ServiceProvider.GetService<T>() ?? throw new Exception("Missing DbContext.");
+            dbContext.Database.Migrate();
+
+            logger.LogInformation("Finished migrating database");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while applying migrations");
+
+            // Wait for the logger to flush
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
     }
 }

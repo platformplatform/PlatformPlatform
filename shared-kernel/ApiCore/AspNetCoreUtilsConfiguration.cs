@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +13,7 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 public static class AspNetCoreUtilsConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection AddCommonServices(this IServiceCollection services)
+    public static IServiceCollection AddCommonServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
         services.AddTransient<GlobalExceptionHandlerMiddleware>();
         services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
@@ -36,20 +37,26 @@ public static class AspNetCoreUtilsConfiguration
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
+        // When running inside a Docker container running as non-root we need to use a port higher than 1024.
+        if (!builder.Environment.IsDevelopment())
+        {
+            builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8443, _ => { }); });
+        }
+
         return services;
     }
 
     [UsedImplicitly]
     public static WebApplication AddCommonConfiguration(this WebApplication app)
     {
+        // Enable Swagger UI
+        app.UseSwagger();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
+
         if (app.Environment.IsDevelopment())
         {
             // Enable the developer exception page, which displays detailed information about exceptions that occur.
             app.UseDeveloperExceptionPage();
-
-            // Enable Swagger UI in the development environment.
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
         }
         else
         {
