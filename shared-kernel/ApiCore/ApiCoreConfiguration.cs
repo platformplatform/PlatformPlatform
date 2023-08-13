@@ -10,10 +10,10 @@ using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
-public static class AspNetCoreUtilsConfiguration
+public static class ApiCoreConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection AddCommonServices(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
         services.AddTransient<GlobalExceptionHandlerMiddleware>();
         services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
@@ -47,7 +47,7 @@ public static class AspNetCoreUtilsConfiguration
     }
 
     [UsedImplicitly]
-    public static WebApplication AddCommonConfiguration(this WebApplication app)
+    public static WebApplication AddApiCoreConfiguration(this WebApplication app)
     {
         // Enable Swagger UI
         app.UseSwagger();

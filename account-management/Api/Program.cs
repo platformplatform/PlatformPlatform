@@ -12,13 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
-    .AddCommonServices(builder);
+    .AddApiCoreServices(builder);
 
 var app = builder.Build();
 
-app.Services.ApplyMigrations<AccountManagementDbContext>();
 // Add configuration common for all web applications like Swagger, HSTS, and UseDeveloperExceptionPage.
-app.AddCommonConfiguration();
+app.AddApiCoreConfiguration();
+
+app.Services.ApplyMigrations<AccountManagementDbContext>();
 
 app.MapTenantEndpoints();
 app.MapUserEndpoints();

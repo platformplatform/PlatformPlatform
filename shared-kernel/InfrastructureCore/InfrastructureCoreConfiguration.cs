@@ -10,7 +10,7 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 public static class InfrastructureCoreConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection ConfigurePersistence<T>(this IServiceCollection services,
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services,
         IConfiguration configuration, Assembly assembly) where T : DbContext
     {
         services.ConfigureDatabaseContext<T>(configuration);
