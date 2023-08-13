@@ -1,4 +1,3 @@
-using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
@@ -13,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
-    .AddApiServices(builder);
+    .AddCommonServices(builder);
 
 var app = builder.Build();
 
