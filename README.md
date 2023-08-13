@@ -60,7 +60,7 @@ PlatformPlatform requires a SQL Server instance for debugging locally. You can u
 1. Clone the repository: `git clone https://github.com/PlatformPlatform/platformplatform.git`
 2. Navigate to the root of the cloned repository and run the following command to restore the dependencies and tools of the project: `dotnet restore`
 3. Run the following command to build and run the application: `dotnet run --project account-management/Api`
-4. The application should now be running. You can access the API by navigating to `https://localhost:5001` or `http://localhost:5002`.
+4. The application should now be running. You can access the API by navigating to `https://localhost:8443`.
 5. To run tests run the following command: `dotnet test`
 6. To debug the application, you can use an IDE like JetBrains Rider on both Windows and Mac or Visual Studio on Windows. Open the solution file (`PlatformPlatform.sln`) in your preferred IDE and start debugging using the built-in debugging tools. You can also open the `account-management/AccountManagement.sln` to work with a lightweight, self-contained system (microservice) in isolation without the [shared-kernel](/shared-kernel).
 
