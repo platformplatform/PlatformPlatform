@@ -115,6 +115,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
+    - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      run: |
+        sudo apt-get remove -y mssql-tools &&
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+        sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+        sudo apt-get update &&
+        sudo apt-get install -y sqlcmd
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
@@ -184,6 +191,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
+    - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      run: |
+        sudo apt-get remove -y mssql-tools &&
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+        sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+        sudo apt-get update &&
+        sudo apt-get install -y sqlcmd
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
