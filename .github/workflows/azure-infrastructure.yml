@@ -10,7 +10,7 @@ on:
     branches:
     - main
     paths:
-    - 'cloud-infrastructure/**'      
+    - 'cloud-infrastructure/**'
   workflow_dispatch:
 
 jobs:
@@ -35,8 +35,8 @@ jobs:
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
   shared-deploy:
-    if: github.ref == 'refs/heads/main' && needs.shared-plan.result == 'success'
-    needs: shared-plan
+    if: github.ref == 'refs/heads/main' && needs.shared-plan.result == 'success' && needs.staging-plan.result == 'success' && needs.production-plan.result == 'success'
+    needs: [shared-plan, staging-plan, production-plan]
     runs-on: ubuntu-latest
     environment: 'shared' ## Force a manual approval
     steps:
@@ -82,8 +82,8 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   staging-environment-deploy:
-    if: github.ref == 'refs/heads/main' && needs.staging-plan.result == 'success'
-    needs: [shared-deploy, staging-plan]
+    if: github.ref == 'refs/heads/main' && needs.shared-deploy.result == 'success'
+    needs: shared-deploy
     runs-on: ubuntu-latest
     environment: 'staging' ## Force a manual approval
     steps:
@@ -159,7 +159,7 @@ jobs:
 
   production-environment-deploy:
     if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy.result == 'success'
-    needs: [staging-west-europe-deploy, production-plan]
+    needs: staging-west-europe-deploy
     runs-on: ubuntu-latest
     environment: 'production' ## Force a manual approval
     steps:
