@@ -29,10 +29,3 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --outp
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
-
-if [[ "$*" != *"--plan"* ]]
-then
-  . ./firewall.sh open
-  . ./grant-database-permissions.sh 'account-management'
-  . ./firewall.sh close
-fi
