@@ -5,6 +5,8 @@ SQL_SERVER="$SQL_SERVER_NAME.database.windows.net"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ./firewall.sh open
+# Ensure that the firewall is closed no matter if other commands fail
+trap '. ./firewall.sh close' EXIT
 
 echo Granting $MANAGED_IDENTITY in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE database
 
@@ -20,11 +22,9 @@ END
 GO
 EOF
 
-# Check the exit status of the sqlcmd command
 if [ $? -eq 0 ]; then
   echo "Permissions granted successfully"
 else
-  echo "Please add the $SQL_SERVER_NAME to the Azure AD built-in \"Directory Readers\" group and try again."
+  echo "::error::Please manually add the $SQL_SERVER_NAME to the Azure AD built-in \"Directory Readers\" group and try again. This is a one-time operation, which cannot be automated. See https://stackoverflow.com/q/76995900/8547"
+  exit 1 
 fi
-
-. ./firewall.sh close
