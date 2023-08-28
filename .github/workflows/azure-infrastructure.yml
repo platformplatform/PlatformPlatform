@@ -10,7 +10,7 @@ on:
     branches:
     - main
     paths:
-    - 'cloud-infrastructure/**'      
+    - 'cloud-infrastructure/**'
   workflow_dispatch:
 
 jobs:
@@ -35,8 +35,8 @@ jobs:
       run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
   shared-deploy:
-    if: github.ref == 'refs/heads/main' && needs.shared-plan.result == 'success'
-    needs: shared-plan
+    if: github.ref == 'refs/heads/main' && needs.shared-plan.result == 'success' && needs.staging-plan.result == 'success' && needs.production-plan.result == 'success'
+    needs: [shared-plan, staging-plan, production-plan]
     runs-on: ubuntu-latest
     environment: 'shared' ## Force a manual approval
     steps:
@@ -82,8 +82,8 @@ jobs:
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   staging-environment-deploy:
-    if: github.ref == 'refs/heads/main' && needs.staging-plan.result == 'success'
-    needs: [shared-deploy, staging-plan]
+    if: github.ref == 'refs/heads/main' && needs.shared-deploy.result == 'success'
+    needs: shared-deploy
     runs-on: ubuntu-latest
     environment: 'staging' ## Force a manual approval
     steps:
@@ -115,6 +115,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
+    - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      run: |
+        sudo apt-get remove -y mssql-tools &&
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+        sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+        sudo apt-get update &&
+        sudo apt-get install -y sqlcmd
     - name: Login to the Staging subscription
       uses: azure/login@v1
       with:
@@ -125,6 +132,13 @@ jobs:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
+    - name: Grant permissions to Managed Identities in SQL Server
+      env:
+        ENVIRONMENT: 'staging'
+        LOCATION_PREFIX: 'west-europe'
+        SQL_SERVER_NAME: '${{ vars.UNIQUE_CLUSTER_PREFIX }}stageweu'
+      run: |
+        bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management'
 
   production-plan:
     runs-on: ubuntu-latest
@@ -152,7 +166,7 @@ jobs:
 
   production-environment-deploy:
     if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy.result == 'success'
-    needs: [staging-west-europe-deploy, production-plan]
+    needs: staging-west-europe-deploy
     runs-on: ubuntu-latest
     environment: 'production' ## Force a manual approval
     steps:
@@ -184,6 +198,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
+    - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      run: |
+        sudo apt-get remove -y mssql-tools &&
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+        sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+        sudo apt-get update &&
+        sudo apt-get install -y sqlcmd
     - name: Login to the Production subscription
       uses: azure/login@v1
       with:
