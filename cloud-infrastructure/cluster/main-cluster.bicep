@@ -178,14 +178,4 @@ module accountManagementApi '../modules/container-app.bicep' = {
   dependsOn: [accountManagementDatabase]
 }
 
-// module sqlPrivateLink '../modules/private-endpoint-sql-server.bicep' = {
-//   name: 'sql-private-link'
-//   scope: clusterResourceGroup
-//   params: {
-//     name: 'sql-server-private-link'
-//     location: location
-//     tags: tags
-//     subnetId: subnetId
-//     sqlServerId: microsoftSqlServer.outputs.sqlServerId
-//   }
-// }
+output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
