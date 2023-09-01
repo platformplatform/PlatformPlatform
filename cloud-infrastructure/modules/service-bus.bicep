@@ -32,28 +32,16 @@ resource serviceBusAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings
       {
         categoryGroup: 'audit'
         enabled: true
-        retentionPolicy: {
-          enabled: true
-          days: 90
-        }
       }
       {
         categoryGroup: 'allLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
     metrics: [
       {
         category: 'AllMetrics'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
   }
@@ -69,44 +57,24 @@ resource serviceBusMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSetting
       {
         category: 'OperationalLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
       {
         category: 'VNetAndIPFilteringLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
       {
         category: 'RuntimeAuditLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
       {
         category: 'ApplicationMetricsLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
     metrics: [
       {
         category: 'AllMetrics'
         enabled: true
-        retentionPolicy: {
-          enabled: true
-          days: 90
-        }
       }
     ]
   }

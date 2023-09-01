@@ -46,28 +46,16 @@ resource keyVaultAuditDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@2
       {
         categoryGroup: 'audit'
         enabled: true
-        retentionPolicy: {
-          enabled: true
-          days: 90
-        }
       }
       {
         categoryGroup: 'allLogs'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
     metrics: [
       {
         category: 'AllMetrics'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
   }
@@ -82,28 +70,16 @@ resource keyVaultMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@
       {
         category: 'AuditEvent'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
       {
         category: 'AzurePolicyEvaluationDetails'
         enabled: false
-        retentionPolicy: {
-          enabled: false
-          days: 0
-        }
       }
     ]
     metrics: [
       {
         category: 'AllMetrics'
         enabled: true
-        retentionPolicy: {
-          enabled: true
-          days: 90
-        }
       }
     ]
   }
