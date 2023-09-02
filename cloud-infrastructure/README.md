@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Cloud Infrastructure folder contains Infrastructure as Code (IaC) for deploying the application to Azure using Bicep and bash scripts.
+The Cloud Infrastructure folder contains Infrastructure as Code (IaC) for deploying the application to Azure using Bicep and Bash scripts.
 
 ## Azure subscription and Environments
 
@@ -18,49 +18,25 @@ The infrastructure scripts are organized on multiple levels:
 
 All Azure resources are tagged with `environment` (e.g., `Testing`, `Staging`, and `Production`) and a `managed-by` tag (e.g., `Bicep` or `Manual`). This is valuable for cost analytics and understanding how a resource was created.
 
-## Grant GitHub Actions access to Azure without secrets
+## Grant GitHub Actions permissions to deploy Azure resources
 
-This guide explains how to set up GitHub Actions to use an Azure Service Principal configured with [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials) to interact with Azure resources without using secrets.
+Run the [`initialize-azure.sh`](/cloud-infrastructure/initialize-azure.sh) Bash script locally (Terminal on Mac, or WSL on Windows) to prepare your Azure Subscription for deployment from GitHub. This script requires the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
 
-The [`azure-infrastructure.yml`](/.github/workflows/azure-infrastructure.yml/) is triggered on pull requests to show affected changes to Azure resources. When changes are merged into the main branch this pipeline is also used to kick off deployment to Azure.
+What the script does:
 
-Please run these commands from a prompt (requires [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)). Replace `<SubscriptionId>`, `<YourGitHubOrg>`, and `<YourGitHubRepo>` with your specific details.
+- Logs in to your Azure account using browser pop-up
+- Prompts you for your Azure subscription ID **
+- Prompts you for the GitHub repository url that hosts the GitHub action used for deployment ***
+- Creates two Service Principals:
+  - "GitHub Workflows - Reader": Used by workflows triggered by Pull Requests to detect pending infrastructure changes in Azure using Bicep
+  - "GitHub Workflows - Writer": Used by workflow trigged by the main branch to deploy resources to Azure
+- Creates a [custom Azure Role](https://learn.microsoft.com/en-us/azure/role-based-access-control/custom-roles-portal) on the subscription with permissions to read the state of the infrastructure (assigned to the "GitHub Workflows - Reader" service principal)
 
-``` bash
-# Login to Azure
-az login
+After successfully running the script, you will be prompted to create 4 GitHub repository secrets. Although these are not truly secrets, it's best practice to keep them private.
 
-# Set Azure Subscription
-az account set --subscription <SubscriptionId>
+** Note: If possible, use an empty Azure subscription. The Service Principals (and hence GitHub) will be granted contributor rights to all resources in the subscription.
 
-# Create Azure AD Application Registration
-appId=$(az ad app create --display-name "GitHub Workflows" --query 'appId' -o tsv)
-
-# Create Federated Credentials for Main Branch
-mainCredential=$(echo -n "{
-  \"name\": \"MainBranch\",
-  \"issuer\": \"https://token.actions.githubusercontent.com\",
-  \"subject\": \"repo:<YourGitHubOrg>/<YourGitHubRepo>:ref:refs/heads/main\",
-  \"audiences\": [\"api://AzureADTokenExchange\"]
-}")
-echo $mainCredential | az ad app federated-credential create --id $appId --parameters @-
-
-# Create Federated Credentials for Pull Requests
-pullRequestCredential=$(echo -n "{
-  \"name\": \"PullRequests\",
-  \"issuer\": \"https://token.actions.githubusercontent.com\",
-  \"subject\": \"repo:<YourGitHubOrg>/<YourGitHubRepo>:pull_request\",
-  \"audiences\": [\"api://AzureADTokenExchange\"]
-}")
-echo $pullRequestCredential | az ad app federated-credential create --id $appId --parameters @-
-
-# Output App ID
-echo "Created federated credentials for App ID: $appId"
-```
-
-Create the following GitHub repository secrets: `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_CLIENT_ID`. Although these are not truly secrets, it's best practice to keep them private.
-
-Finally, grant the new `GitHub Workflows` service principal owner permissions to the Azure subscription to allow it to create and maintain Azure resources.
+*** Deployment to GitHub uses [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials), establishing a trust based on the URL of your GitHub repository. This eliminates the need for secrets to deploy infrastructure.
 
 ## Bicep and Bicep Modules
 
