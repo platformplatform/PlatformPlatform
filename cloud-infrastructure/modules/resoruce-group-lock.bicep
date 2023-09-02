@@ -1,4 +1,4 @@
-resource resourceGroupLock 'Microsoft.Authorization/locks@2017-04-01' = {
+resource resourceGroupLock 'Microsoft.Authorization/locks@2020-05-01' = {
   name: 'resource-group-lock'
   properties: {
     level: 'CanNotDelete'

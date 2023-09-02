@@ -15,7 +15,7 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   }
 }
 
-resource privateDnsZoneA 'Microsoft.Network/privateDnsZones/A@2018-09-01' = {
+resource privateDnsZoneA 'Microsoft.Network/privateDnsZones/A@2020-06-01' = {
   name: '${privateDnsZones_privatelink_database_windows_net_name}/p14mdevweu'
   dependsOn: [privateDnsZone]
   properties: {
@@ -28,7 +28,7 @@ resource privateDnsZoneA 'Microsoft.Network/privateDnsZones/A@2018-09-01' = {
   }
 }
 
-resource privateDnsZoneSOA 'Microsoft.Network/privateDnsZones/SOA@2018-09-01' = {
+resource privateDnsZoneSOA 'Microsoft.Network/privateDnsZones/SOA@2020-06-01' = {
   name: '${privateDnsZones_privatelink_database_windows_net_name}/@'
   dependsOn: [privateDnsZone]
   properties: {
@@ -45,7 +45,7 @@ resource privateDnsZoneSOA 'Microsoft.Network/privateDnsZones/SOA@2018-09-01' = 
   }
 }
 
-resource privateDnsZoneVNetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {
+resource privateDnsZoneVNetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
   name: '${privateDnsZones_privatelink_database_windows_net_name}/nl53a3t4satyu'
   location: 'global'
   dependsOn: [privateDnsZone]

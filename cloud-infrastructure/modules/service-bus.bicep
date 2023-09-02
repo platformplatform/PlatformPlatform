@@ -4,7 +4,7 @@ param tags object
 param storageAccountId string
 param workspaceId string
 
-resource serviceBus 'Microsoft.ServiceBus/namespaces@2022-01-01-preview' = {
+resource serviceBus 'Microsoft.ServiceBus/namespaces@2022-10-01-preview' = {
   name: name
   location: location
   tags: tags

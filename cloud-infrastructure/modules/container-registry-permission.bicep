@@ -1,7 +1,7 @@
 param containerRegistryName string
 param identityPrincipalId string
 
-resource containerRegistryResource 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+resource containerRegistryResource 'Microsoft.ContainerRegistry/registries@2023-06-01-preview' existing = {
   name: containerRegistryName
 }
 
