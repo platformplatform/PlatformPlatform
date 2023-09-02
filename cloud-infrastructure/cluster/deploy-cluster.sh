@@ -25,7 +25,24 @@ RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
 DEPLOYMENT_COMMAND="az deployment sub create"
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
 
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output table -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID"
+DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
+
+if [[ "$*" == *"--plan"* ]]
+then
+    exit 0
+fi
+
+if [[ "$*" == *"--apply"* ]]
+then
+    #Grant permissions to the account management manged identity to the account-management database
+    SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
+
+    trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
+    . ./firewall.sh open
+
+    accountManagementIdentityClientId=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
+    . ./grant-database-permissions.sh 'account-management' $accountManagementIdentityClientId
+fi

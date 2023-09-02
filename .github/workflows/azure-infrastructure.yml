@@ -132,13 +132,6 @@ jobs:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
-    - name: Grant permissions to Managed Identities in SQL Server
-      env:
-        ENVIRONMENT: 'staging'
-        LOCATION_PREFIX: 'west-europe'
-        SQL_SERVER_NAME: '${{ vars.UNIQUE_CLUSTER_PREFIX }}stageweu'
-      run: |
-        bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management'
 
   production-plan:
     runs-on: ubuntu-latest
