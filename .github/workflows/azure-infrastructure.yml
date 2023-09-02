@@ -82,7 +82,7 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Plan changes to shared Staging resources
+    - name: Plan changes to shared Staging environment resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
     - name: Plan changes to Staging West Europe cluster
       env:
@@ -111,7 +111,7 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Deploy shared Staging resources
+    - name: Deploy shared Staging environment resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
@@ -164,7 +164,7 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Plan changes to shared Production resources
+    - name: Plan changes to shared Production environment resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
     - name: Plan changes to Production West Europe cluster
       env:
@@ -193,7 +193,7 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Deploy shared Production resources
+    - name: Deploy shared Production environment resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
