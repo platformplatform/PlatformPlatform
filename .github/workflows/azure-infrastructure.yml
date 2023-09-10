@@ -14,8 +14,8 @@ on:
   workflow_dispatch:
 
 permissions:
-    id-token: write
-    contents: read
+  id-token: write
+  contents: read
 
 jobs:
   shared-plan:
@@ -29,10 +29,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Shared subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_READER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Plan changes to Shared resources
@@ -54,10 +54,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Shared subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_WRITER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Shared resources
@@ -76,10 +76,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_READER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Plan changes to shared Staging environment resources
@@ -105,10 +105,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_WRITER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy shared Staging environment resources
@@ -134,10 +134,10 @@ jobs:
         sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
         sudo apt-get update &&
         sudo apt-get install -y sqlcmd
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_WRITER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Staging West Europe cluster
@@ -158,10 +158,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_READER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Plan changes to shared Production environment resources
@@ -187,10 +187,10 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_WRITER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy shared Production environment resources
@@ -216,10 +216,10 @@ jobs:
         sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
         sudo apt-get update &&
         sudo apt-get install -y sqlcmd
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.AZURE_WRITER_CLIENT_ID }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Production West Europe cluster
