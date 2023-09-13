@@ -9,9 +9,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-11-01-preview' = {
   tags: tags
   sku: {
     name: 'GP_S_Gen5'
-    tier: 'GeneralPurpose'
     family: 'Gen5'
-    capacity: 1
   }
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'

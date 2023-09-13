@@ -13,6 +13,10 @@ on:
     - 'cloud-infrastructure/**'
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   shared-plan:
     runs-on: ubuntu-latest
@@ -25,10 +29,12 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Shared subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Plan changes to Shared resources
       env:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
@@ -48,10 +54,12 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Shared subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Shared resources
       env:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
@@ -68,11 +76,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Plan changes to shared Staging resources
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Plan changes to shared Staging environment resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
     - name: Plan changes to Staging West Europe cluster
       env:
@@ -95,11 +105,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Deploy shared Staging resources
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Deploy shared Staging environment resources
       run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
   staging-west-europe-deploy:
@@ -122,10 +134,12 @@ jobs:
         sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
         sudo apt-get update &&
         sudo apt-get install -y sqlcmd
-    - name: Login to the Staging subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Staging West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -144,11 +158,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Plan changes to shared Production resources
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Plan changes to shared Production environment resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
     - name: Plan changes to Production West Europe cluster
       env:
@@ -171,11 +187,13 @@ jobs:
         chmod +x ./bicep &&
         sudo mv ./bicep /usr/local/bin/bicep &&
         bicep --version
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Deploy shared Production resources
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    - name: Deploy shared Production environment resources
       run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
   production-west-europe-deploy:
@@ -198,10 +216,12 @@ jobs:
         sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
         sudo apt-get update &&
         sudo apt-get install -y sqlcmd
-    - name: Login to the Production subscription
+    - name: Login to Azure subscription
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Production West Europe cluster
       env:
         ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
