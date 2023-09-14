@@ -97,12 +97,32 @@ pullRequestCredential=$(echo -n "{
   \"subject\": \"repo:$gitHubRepositoryPath:pull_request\",
   \"audiences\": [\"api://AzureADTokenExchange\"]
 }")
-
+sharedEnvironmentCredentials=$(echo -n "{
+  \"name\": \"SharedEnvironment\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"repo:$gitHubRepositoryPath:environment:shared\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}")
+stagingEnvironmentCredentials=$(echo -n "{
+  \"name\": \"StagingEnvironment\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"repo:$gitHubRepositoryPath:environment:staging\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}")
+productionEnvironmentCredentials=$(echo -n "{
+  \"name\": \"ProductionEnvironment\",
+  \"issuer\": \"https://token.actions.githubusercontent.com\",
+  \"subject\": \"repo:$gitHubRepositoryPath:environment:production\",
+  \"audiences\": [\"api://AzureADTokenExchange\"]
+}")
 if [ "$userChoiceForReuseServicePrincipalfrastructure" == "y" ]; then
-   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name MainBranch/PullRequests already exists'${NC}"
+   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name xxxx already exists'${NC}"
 fi
 echo $mainCredential | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
 echo $pullRequestCredential | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
+echo $sharedEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
+echo $stagingEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
+echo $productionEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
 
 echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials${NC}"
 
