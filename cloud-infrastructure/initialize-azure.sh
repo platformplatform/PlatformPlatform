@@ -127,10 +127,11 @@ echo $productionEnvironmentCredentials | az ad app federated-credential create -
 echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials${NC}"
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Assigning subscription level 'Contributor' rights to the Service Principals${NC}"
+echo -e "${BOLD}Grant subscription level 'Contributor' and 'User Access Administrator' role to the Infrastructure Service Principal${NC}"
 echo -e "${SEPARATOR}"
 
 az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role Contributor --scope "/subscriptions/$subscriptionId" || exit 1
+az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role "User Access Administrator" --scope "/subscriptions/$subscriptionId" || exit 1
 
 echo -e "${GREEN}Successfully granted the Service Principal $servicePrincipalAppIdInfrastructure 'Contributor' rights to the Azure Subscription $subscriptionId${NC}"
 
