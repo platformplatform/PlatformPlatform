@@ -66,6 +66,15 @@ echo -e "${GREEN}Successfully extracted GitHub Organization and Repository: $git
 
 
 echo -e "\n${SEPARATOR}"
+echo -e "${BOLD}Ensure 'Microsoft.ContainerService' service provider is registered on Azure Subscription${NC}"
+echo -e "${SEPARATOR}"
+
+az provider register --namespace Microsoft.ContainerService
+
+echo -e "${GREEN}Successfully registered the 'Microsoft.ContainerService' on Subscription '$subscriptionId'${NC}"
+
+
+echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Configuring Azure AD Service Principal for Infrastructure${NC}"
 echo -e "${SEPARATOR}"
 
