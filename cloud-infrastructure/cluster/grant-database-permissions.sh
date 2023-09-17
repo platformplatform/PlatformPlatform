@@ -14,7 +14,7 @@ SID=$(awk -v id="$SID" 'BEGIN {
     substr(id,17)
 }') # Reverse the byte order for the first three sections of the GUID and concatenate
 
-echo "Granting $MANAGED_IDENTITY (ID: $SID) in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE database"
+echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY (ID: $SID) in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE database"
 
 # Execute the SQL script using mssql-scripter. Pass the script as a heredoc to sqlcmd to allow for complex SQL.
 sqlcmd -S $SQL_SERVER -d $SQL_DATABASE --authentication-method=ActiveDirectoryDefault --exit-on-error << EOF

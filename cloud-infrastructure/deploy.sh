@@ -8,12 +8,12 @@ fi
 
 if [[ "$*" == *"--plan"* ]]
 then
-    echo "Preparing plan..."
+    echo "$(date +"%Y-%m-%dT%H:%M:%S") Preparing plan..."
     $DEPLOYMENT_COMMAND -w $DEPLOYMENT_PARAMETERS
 fi
 
 if [[ "$*" == *"--apply"* ]]
 then
-    echo "Applying changes..."
+    echo "$(date +"%Y-%m-%dT%H:%M:%S") Applying changes..."
     export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS)
 fi
