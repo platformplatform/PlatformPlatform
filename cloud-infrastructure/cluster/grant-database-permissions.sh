@@ -1,7 +1,12 @@
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
 MANAGED_IDENTITY="$1-$RESOURCE_GROUP_NAME"
 SQL_DATABASE=$1
+SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
 SQL_SERVER="$SQL_SERVER_NAME.database.windows.net"
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
+. ./firewall.sh open
 
 # Convert the ClientId of the Managed Identity to the binary version. The following bash script is equivalent to this PowerShell:
 #   $SID = "0x" + [System.BitConverter]::ToString(([guid]$SID).ToByteArray()).Replace("-", "")

@@ -32,19 +32,7 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --outp
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
-if [[ "$*" == *"--plan"* ]]
-then
-    exit 0
-fi
-
-if [[ "$*" == *"--apply"* ]]
-then
-    #Grant permissions to the account management manged identity to the account-management database
-    SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
-
-    trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
-    . ./firewall.sh open
-
-    accountManagementIdentityClientId=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
-    . ./grant-database-permissions.sh 'account-management' $accountManagementIdentityClientId
+ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
+if [[ -n "$GITHUB_OUTPUT" ]]; then
+    echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
 fi
