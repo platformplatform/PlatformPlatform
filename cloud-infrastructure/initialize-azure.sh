@@ -78,9 +78,10 @@ echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Configuring Azure AD Service Principal for Infrastructure${NC}"
 echo -e "${SEPARATOR}"
 
-servicePrincipalAppIdInfrastructure=$(az ad sp list --display-name "GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName" --query "[].appId" -o tsv) || exit 1
+infrastructureServicePrincipalDisplayName="GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName"
+servicePrincipalAppIdInfrastructure=$(az ad sp list --display-name "$infrastructureServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
 if [ -n "$servicePrincipalAppIdInfrastructure" ]; then
-    echo -e "${YELLOW}The Service Principal (App registration) 'GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName' already exists with App ID: $servicePrincipalAppIdInfrastructure${NC}"
+    echo -e "${YELLOW}The Service Principal (App registration) '$infrastructureServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdInfrastructure${NC}"
 
     echo "Would you like to continue using this Service Principal? (y/n)"
     read userChoiceForReuseServicePrincipalfrastructure
@@ -90,7 +91,7 @@ if [ -n "$servicePrincipalAppIdInfrastructure" ]; then
         exit 1
     fi
 else
-    servicePrincipalAppIdInfrastructure=$(az ad app create --display-name "GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName" --query 'appId' -o tsv) || exit 1
+    servicePrincipalAppIdInfrastructure=$(az ad app create --display-name "$infrastructureServicePrincipalDisplayName" --query 'appId' -o tsv) || exit 1
     az ad sp create --id $servicePrincipalAppIdInfrastructure || exit 1
 fi
 
@@ -142,7 +143,7 @@ echo -e "${SEPARATOR}"
 az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role Contributor --scope "/subscriptions/$subscriptionId" || exit 1
 az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role "User Access Administrator" --scope "/subscriptions/$subscriptionId" || exit 1
 
-echo -e "${GREEN}Successfully granted the Service Principal $servicePrincipalAppIdInfrastructure 'Contributor' rights to the Azure Subscription $subscriptionId${NC}"
+echo -e "${GREEN}Successfully granted the Service Principal '$infrastructureServicePrincipalDisplayName' 'Contributor' rights to the Azure Subscription $subscriptionId${NC}"
 
 
 echo -e "\n${SEPARATOR}"
@@ -166,18 +167,19 @@ else
 fi
 
 servicePrincipalObjectIdInfrastructure=$(az ad sp list --filter "appId eq '$servicePrincipalAppIdInfrastructure'" --query "[].id" -o tsv) || exit 1
-az ad group member add --group $sqlServerAdminsGroupId --member-id $servicePrincipalObjectIdInfrastructure || exit 1
+az ad group member add --group $sqlServerAdminsGroupId --member-id $servicePrincipalObjectIdInfrastructure || echo "member allready exists"
 
-echo -e "${GREEN}Successfully added 'GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName' to '$azureSqlServerAdmins' Security Group${NC}"
+echo -e "${GREEN}Successfully added '$infrastructureServicePrincipalDisplayName' to '$azureSqlServerAdmins' Security Group${NC}"
 
 
 echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Configuring Azure AD Service Principal for Azure Container Registry (ACR)${NC}"
 echo -e "${SEPARATOR}"
 
-servicePrincipalAppIdAcr=$(az ad sp list --display-name "GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName" --query "[].appId" -o tsv) || exit 1
+acrServicePrincipalDisplayName="GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName"
+servicePrincipalAppIdAcr=$(az ad sp list --display-name "$acrServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
 if [ -n "$servicePrincipalAppIdAcr" ]; then
-    echo -e "${YELLOW}The Service Principal (App registration) 'GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName' already exists with App ID: $servicePrincipalAppIdAcr${NC}"
+    echo -e "${YELLOW}The Service Principal (App registration) '$acrServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdAcr${NC}"
 
     echo "Would you like to continue using this Service Principal? (y/n)"
     read userChoiceForReuseServicePrincipalAcr
@@ -187,7 +189,7 @@ if [ -n "$servicePrincipalAppIdAcr" ]; then
         exit 1
     fi
 else
-    servicePrincipalAppIdAcr=$(az ad app create --display-name "GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName" --query 'appId' -o tsv) || exit 1
+    servicePrincipalAppIdAcr=$(az ad app create --display-name "$acrServicePrincipalDisplayName" --query 'appId' -o tsv) || exit 1
     az ad sp create --id $servicePrincipalAppIdAcr || exit 1
 fi
 
@@ -218,7 +220,7 @@ echo -e "${SEPARATOR}"
 
 az role assignment create --assignee $servicePrincipalAppIdAcr --role AcrPush --scope "/subscriptions/$subscriptionId" || exit 1
 
-echo -e "${GREEN}Successfully granted the Service Principal $servicePrincipalAppIdAcr 'AcrPush' rights to the Azure Subscription $subscriptionId${NC}"
+echo -e "${GREEN}Successfully granted the Service Principal '$acrServicePrincipalDisplayName' 'AcrPush' rights to the Azure Subscription $subscriptionId${NC}"
 
 
 echo -e "\n${SEPARATOR}"
