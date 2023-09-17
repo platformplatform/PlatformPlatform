@@ -19,6 +19,8 @@ fi
 if [[ $ENVIRONMENT_VARIABLES_MISSING == true ]]; then
   echo -e "Please follow the instructions in the README.md for setting up the required environment variables and try again."
   exit 1
+else
+    echo "All environment variables are set."
 fi
 
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"

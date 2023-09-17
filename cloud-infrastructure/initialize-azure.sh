@@ -233,6 +233,7 @@ echo "- AZURE_TENANT_ID: $tenantId"
 echo "- AZURE_SUBSCRIPTION_ID: $subscriptionId"
 echo "- AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE: $servicePrincipalAppIdInfrastructure"
 echo "- AZURE_SERVICE_PRINCIPAL_ID_ACR: $servicePrincipalAppIdAcr"
+echo "- ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: $servicePrincipalAppIdInfrastructure"
 
 isGitHubCLIInstalled=$(command -v gh > /dev/null 2>&1 && echo "true" || echo "false")
 if [ "$isGitHubCLIInstalled" == "true" ]; then
@@ -245,6 +246,7 @@ if [ "$isGitHubCLIInstalled" == "true" ]; then
         gh secret set AZURE_SUBSCRIPTION_ID -b"$subscriptionId" --repo=$gitHubRepositoryPath || exit 1
         gh secret set AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE -b"$servicePrincipalAppIdInfrastructure" --repo=$gitHubRepositoryPath || exit 1
         gh secret set AZURE_SERVICE_PRINCIPAL_ID_ACR -b"$servicePrincipalAppIdAcr" --repo=$gitHubRepositoryPath || exit 1
+        gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b"$servicePrincipalAppIdInfrastructure" --repo=$gitHubRepositoryPath || exit 1
         echo -e "${GREEN}Successfully created secrets in GitHub.${NC}"
     fi
 fi

@@ -86,7 +86,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
     - name: Plan changes to Staging West Europe cluster
       env:
-        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
@@ -142,7 +142,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Staging West Europe cluster
       env:
-        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
@@ -168,7 +168,7 @@ jobs:
       run: bash ./cloud-infrastructure/environment/config/production.sh --plan
     - name: Plan changes to Production West Europe cluster
       env:
-        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
@@ -224,7 +224,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Deploy Production West Europe cluster
       env:
-        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ vars.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
+        ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply

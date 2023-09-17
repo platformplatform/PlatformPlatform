@@ -1,5 +1,5 @@
 IP_ADDRESS=$(curl -s https://api.ipify.org)
-FIREWALL_RULE_NAME="Short lived deployment Script"
+FIREWALL_RULE_NAME="GitHub Action Workflows - On active when deploying"
 
 if [[ "$1" == "open" ]]
 then
