@@ -146,6 +146,32 @@ echo -e "${GREEN}Successfully granted the Service Principal $servicePrincipalApp
 
 
 echo -e "\n${SEPARATOR}"
+echo -e "${BOLD}Configuring Azure AD Security Group for Infrastructure operations${NC}"
+echo -e "${SEPARATOR}"
+
+azureSqlServerAdmins="Azure SQL Server Admins"
+sqlServerAdminsGroupId=$(az ad group list --filter "displayname eq '$azureSqlServerAdmins'" --query "[].id" -o tsv) || exit 1
+if [ -n "$sqlServerAdminsGroupId" ]; then
+    echo -e "${YELLOW}The Azure AD Group '$azureSqlServerAdmins' already exists with Group ID: $sqlServerAdminsGroupId${NC}"
+
+    echo "Would you like to continue using this group? (y/n)"
+    read userChoiceForReuseGroup
+
+    if [ "$userChoiceForReuseGroup" != "y" ]; then
+        echo -e "${RED}Please delete the existing group and run this script again${NC}"
+        exit 1
+    fi
+else
+    sqlServerAdminsGroupId=$(az ad group create --display-name "$azureSqlServerAdmins" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv) || exit 1
+fi
+
+servicePrincipalObjectIdInfrastructure=$(az ad sp list --filter "appId eq '$servicePrincipalAppIdInfrastructure'" --query "[].id" -o tsv) || exit 1
+az ad group member add --group $sqlServerAdminsGroupId --member-id $servicePrincipalObjectIdInfrastructure || exit 1
+
+echo -e "${GREEN}Successfully added 'GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName' to '$azureSqlServerAdmins' Security Group${NC}"
+
+
+echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Configuring Azure AD Service Principal for Azure Container Registry (ACR)${NC}"
 echo -e "${SEPARATOR}"
 
