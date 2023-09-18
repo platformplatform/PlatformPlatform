@@ -147,6 +147,12 @@ jobs:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
+    - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Grant Database permissions
       env:
         ENVIRONMENT: 'staging'
@@ -238,6 +244,12 @@ jobs:
         CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
       run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
+    - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     - name: Grant Database permissions
       env:
         ENVIRONMENT: 'production'
