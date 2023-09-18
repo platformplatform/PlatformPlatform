@@ -1,24 +1,26 @@
 # Check if environment variables are set
-ENVIRONMENT_VARIBELS_MISSING=false
+ENVIRONMENT_VARIABLES_MISSING=false
 
 if [[ -z "$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID" ]]; then
   echo "ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID is not set."
-  ENVIRONMENT_VARIBELS_MISSING=true
+  ENVIRONMENT_VARIABLES_MISSING=true
 fi
 
 if [[ -z "$CONTAINER_REGISTRY_NAME" ]]; then
   echo "CONTAINER_REGISTRY_NAME is not set."
-  ENVIRONMENT_VARIBELS_MISSING=true
+  ENVIRONMENT_VARIABLES_MISSING=true
 fi
 
 if [[ -z "$UNIQUE_CLUSTER_PREFIX" ]]; then
   echo "UNIQUE_CLUSTER_PREFIX is not set."
-  ENVIRONMENT_VARIBELS_MISSING=true
+  ENVIRONMENT_VARIABLES_MISSING=true
 fi
 
-if [[ $ENVIRONMENT_VARIBELS_MISSING == true ]]; then
-  echo -e "Please follow the instructions in the README.md for setting up the required environment variables and try again."
+if [[ $ENVIRONMENT_VARIABLES_MISSING == true ]]; then
+  echo "Please follow the instructions in the README.md for setting up the required environment variables and try again."
   exit 1
+else
+    echo "$(date +"%Y-%m-%dT%H:%M:%S") All environment variables are set."
 fi
 
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
@@ -30,19 +32,7 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --outp
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
-if [[ "$*" == *"--plan"* ]]
-then
-    exit 0
-fi
-
-if [[ "$*" == *"--apply"* ]]
-then
-    #Grant permissions to the account management manged identity to the account-management database
-    SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
-
-    trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
-    . ./firewall.sh open
-
-    accountManagementIdentityClientId=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
-    . ./grant-database-permissions.sh 'account-management' $accountManagementIdentityClientId
+ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
+if [[ -n "$GITHUB_OUTPUT" ]]; then
+    echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
 fi

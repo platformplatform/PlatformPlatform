@@ -1,7 +1,12 @@
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
 MANAGED_IDENTITY="$1-$RESOURCE_GROUP_NAME"
 SQL_DATABASE=$1
+SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
 SQL_SERVER="$SQL_SERVER_NAME.database.windows.net"
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
+. ./firewall.sh open
 
 # Convert the ClientId of the Managed Identity to the binary version. The following bash script is equivalent to this PowerShell:
 #   $SID = "0x" + [System.BitConverter]::ToString(([guid]$SID).ToByteArray()).Replace("-", "")
@@ -14,7 +19,7 @@ SID=$(awk -v id="$SID" 'BEGIN {
     substr(id,17)
 }') # Reverse the byte order for the first three sections of the GUID and concatenate
 
-echo "Granting $MANAGED_IDENTITY (ID: $SID) in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE database"
+echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY (ID: $SID) in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE database"
 
 # Execute the SQL script using mssql-scripter. Pass the script as a heredoc to sqlcmd to allow for complex SQL.
 sqlcmd -S $SQL_SERVER -d $SQL_DATABASE --authentication-method=ActiveDirectoryDefault --exit-on-error << EOF

@@ -23,7 +23,7 @@ var subnetId = resourceId(
 )
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-  scope: resourceGroup('${environment}-monitor')
+  scope: resourceGroup('${environment}')
   name: '${environment}-log-analytics-workspace'
 }
 

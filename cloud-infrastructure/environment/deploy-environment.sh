@@ -1,4 +1,4 @@
-RESOURCE_GROUP_NAME="$ENVIRONMENT-monitor"
+RESOURCE_GROUP_NAME="$ENVIRONMENT"
 DEPLOYMENT_COMMAND="az deployment sub create"
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
 

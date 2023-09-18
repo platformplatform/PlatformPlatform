@@ -1,12 +1,12 @@
 # Check if environment variables are set
-ENVIRONMENT_VARIBELS_MISSING=false
+ENVIRONMENT_VARIABLES_MISSING=false
 
 if [[ -z "$CONTAINER_REGISTRY_NAME" ]]; then
   echo "CONTAINER_REGISTRY_NAME is not set."
-  ENVIRONMENT_VARIBELS_MISSING=true
+  ENVIRONMENT_VARIABLES_MISSING=true
 fi
 
-if [[ $ENVIRONMENT_VARIBELS_MISSING == true ]]; then
+if [[ $ENVIRONMENT_VARIABLES_MISSING == true ]]; then
   echo -e "Please follow the instructions in the README.md for setting up the required environment variables and try again."
   exit 1
 fi

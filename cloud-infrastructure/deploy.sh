@@ -8,12 +8,20 @@ fi
 
 if [[ "$*" == *"--plan"* ]]
 then
-    echo "Preparing plan..."
+    echo "$(date +"%Y-%m-%dT%H:%M:%S") Preparing plan..."
     $DEPLOYMENT_COMMAND -w $DEPLOYMENT_PARAMETERS
+    if [[ $? -ne 0 ]]; then
+        echo "::error::Plan preparation failed."
+        exit 1
+    fi
 fi
 
 if [[ "$*" == *"--apply"* ]]
 then
-    echo "Applying changes..."
+    echo "$(date +"%Y-%m-%dT%H:%M:%S") Applying changes..."
     export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS)
+    if [[ $? -ne 0 ]]; then
+        echo "::error::Deployment failed."
+        exit 1
+    fi
 fi
