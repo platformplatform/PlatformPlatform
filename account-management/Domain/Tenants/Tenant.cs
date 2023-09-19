@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {
-    internal Tenant(TenantId id, string name, string? phone) : base(id)
+    private Tenant(TenantId id, string name, string? phone) : base(id)
     {
         Name = name;
         Phone = phone;

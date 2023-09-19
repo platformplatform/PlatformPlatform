@@ -4,7 +4,7 @@ namespace PlatformPlatform.AccountManagement.Domain.Users;
 
 public sealed class User : AggregateRoot<UserId>
 {
-    internal User(TenantId tenantId, string email, UserRole userRole) : base(UserId.NewId())
+    private User(TenantId tenantId, string email, UserRole userRole) : base(UserId.NewId())
     {
         TenantId = tenantId;
         Email = email;
