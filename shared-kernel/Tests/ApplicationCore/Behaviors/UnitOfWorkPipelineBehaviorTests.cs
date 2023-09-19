@@ -33,7 +33,7 @@ public class UnitOfWorkPipelineBehaviorTests
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act
-        var _ = await _behavior.Handle(command, next, cancellationToken);
+        _ = await _behavior.Handle(command, next, cancellationToken);
 
         // Assert
         await _unitOfWork.Received().CommitAsync(cancellationToken);
@@ -55,7 +55,7 @@ public class UnitOfWorkPipelineBehaviorTests
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act
-        var _ = await _behavior.Handle(command, next, cancellationToken);
+        _ = await _behavior.Handle(command, next, cancellationToken);
 
         // Assert
         await _unitOfWork.DidNotReceive().CommitAsync(cancellationToken);

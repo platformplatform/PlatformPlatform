@@ -12,7 +12,7 @@ public sealed class TenantCreatedEventHandler : INotificationHandler<TenantCreat
 
     public Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(@"Raise event to send Welcome mail to tenant");
+        _logger.LogInformation("Raise event to send Welcome mail to tenant");
         return Task.CompletedTask;
     }
 }
