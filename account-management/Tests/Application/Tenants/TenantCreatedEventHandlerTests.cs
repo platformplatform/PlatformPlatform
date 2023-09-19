@@ -18,7 +18,7 @@ public sealed class TenantCreatedEventHandlerTests : BaseTest<AccountManagementD
 
         // Act
         var command = new CreateTenant.Command("tenant2", "TestTenant", "1234567890", "test@test.com");
-        var _ = await mediator.Send(command);
+        _ = await mediator.Send(command);
 
         // Assert
         mockLogger.Received().LogInformation("Raise event to send Welcome mail to tenant");

@@ -9,7 +9,7 @@ public static class ApplicationConfiguration
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddApplicationServices(Assembly);
+        services.AddApplicationCoreServices(Assembly);
 
         return services;
     }

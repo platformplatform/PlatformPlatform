@@ -143,7 +143,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
 
         // Assert
-        EnsureSuccessPutRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
     }
 
     [Fact]
@@ -217,13 +217,13 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserId = DatabaseSeeder.User1.Id;
-        var _ = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
+        _ = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
 
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
 
         // Assert
-        EnsureSuccessDeleteRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
     }
 }

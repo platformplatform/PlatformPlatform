@@ -37,11 +37,7 @@ public static class CreateTenant
             var createTenantOwnerUserCommand = new CreateUser.Command(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
             var result = await _mediator.Send(createTenantOwnerUserCommand, cancellationToken);
 
-            if (!result.IsSuccess)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to create a TenantOwner user for tenant. Reason: {result.GetErrorSummary()}");
-            }
+            if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
         }
     }
 
@@ -53,7 +49,7 @@ public static class CreateTenant
             RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
             RuleFor(x => x.Subdomain).NotEmpty();
             RuleFor(x => x.Subdomain)
-                .Matches(@"^[a-z0-9]{3,30}$")
+                .Matches("^[a-z0-9]{3,30}$")
                 .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
                 .MustAsync(async (subdomain, cancellationToken) =>
                     await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken))

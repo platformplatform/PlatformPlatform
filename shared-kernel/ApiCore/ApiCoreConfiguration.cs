@@ -1,19 +1,21 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
-public static class AspNetCoreUtilsConfiguration
+public static class ApiCoreConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection AddCommonServices(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
         services.AddTransient<GlobalExceptionHandlerMiddleware>();
         services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
@@ -47,7 +49,8 @@ public static class AspNetCoreUtilsConfiguration
     }
 
     [UsedImplicitly]
-    public static WebApplication AddCommonConfiguration(this WebApplication app)
+    public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
+        where TDbContext : DbContext
     {
         // Enable Swagger UI
         app.UseSwagger();
@@ -75,6 +78,8 @@ public static class AspNetCoreUtilsConfiguration
 
         // Add test-specific endpoints when running tests, such as /throwException.
         app.MapTestEndpoints();
+
+        app.Services.ApplyMigrations<TDbContext>();
 
         return app;
     }

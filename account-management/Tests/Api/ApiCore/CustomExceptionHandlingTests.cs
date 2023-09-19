@@ -9,12 +9,7 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
 
 public class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
 {
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
-
-    public CustomExceptionHandlingTests()
-    {
-        _webApplicationFactory = new WebApplicationFactory<Program>();
-    }
+    private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 
     [Theory]
     [InlineData("Development")]

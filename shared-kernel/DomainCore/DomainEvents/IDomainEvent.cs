@@ -3,7 +3,7 @@ namespace PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 /// <summary>
 ///     The DomainEvent interface represents a domain event that occurred in the domain. The DomainEvent implements the
 ///     <see cref="INotification" /> interface from MediatR. To configure an event handler, you need to create a class
-///     that implements the <see cref="INotificationHandler{TNotification}" /> interface. This should be done in the
+///     that implements the INotificationHandler interface (from the MediatR library). This should be done in the
 ///     Application Layer. Any event that occurs in the domain can be handled by one or more domain event handlers.
 ///     Domain events are happening in the context of an aggregate. Events are published by the
 ///     PublishDomainEventsPipelineBehavior in the Application Layer, before the UnitOfWork is committed and the parent

@@ -154,7 +154,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
 
         // Assert
-        EnsureSuccessPutRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
     }
 
     [Fact]
@@ -213,7 +213,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
 
         // Assert
-        EnsureSuccessDeleteRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Users", existingUserId.ToString()).Should().BeFalse();
     }
 }

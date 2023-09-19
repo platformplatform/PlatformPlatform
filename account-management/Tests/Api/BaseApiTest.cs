@@ -4,13 +4,14 @@ using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
-public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisposable where TContext : DbContext
+public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -18,7 +19,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
     {
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.ConfigureServices(services =>
+            builder.ConfigureTestServices(services =>
             {
                 // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
                 services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
@@ -31,11 +32,10 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
 
     protected HttpClient TestHttpClient { get; }
 
-    public new void Dispose()
+    protected override void Dispose(bool disposing)
     {
         _webApplicationFactory.Dispose();
-        base.Dispose();
-        GC.SuppressFinalize(this);
+        base.Dispose(disposing);
     }
 
     protected static void EnsureSuccessGetRequest(HttpResponseMessage response)
@@ -65,14 +65,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
         }
     }
 
-    protected static void EnsureSuccessPutRequest(HttpResponseMessage response)
-    {
-        response.EnsureSuccessStatusCode();
-        response.Content.Headers.ContentType.Should().BeNull();
-        response.Headers.Location.Should().BeNull();
-    }
-
-    protected static void EnsureSuccessDeleteRequest(HttpResponseMessage response)
+    protected static void EnsureSuccessWithEmptyHeaderAndLocation(HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();

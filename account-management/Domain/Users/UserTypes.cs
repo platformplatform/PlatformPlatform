@@ -20,7 +20,7 @@ public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, U
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
-    TenantUser = 0,
-    TenantAdmin = 1,
-    TenantOwner = 2
+    TenantUser,
+    TenantAdmin,
+    TenantOwner
 }
