@@ -82,7 +82,8 @@ public static class InfrastructureCoreConfiguration
 
             logger.LogInformation("Start migrating database. Version: {Version}", version);
 
-            var dbContext = scope.ServiceProvider.GetService<T>() ?? throw new Exception("Missing DbContext.");
+            var dbContext = scope.ServiceProvider.GetService<T>() ??
+                            throw new UnreachableException("Missing DbContext.");
             dbContext.Database.Migrate();
 
             logger.LogInformation("Finished migrating database");
