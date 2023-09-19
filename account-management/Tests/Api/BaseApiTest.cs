@@ -65,14 +65,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
         }
     }
 
-    protected static void EnsureSuccessPutRequest(HttpResponseMessage response)
-    {
-        response.EnsureSuccessStatusCode();
-        response.Content.Headers.ContentType.Should().BeNull();
-        response.Headers.Location.Should().BeNull();
-    }
-
-    protected static void EnsureSuccessDeleteRequest(HttpResponseMessage response)
+    protected static void EnsureSuccessWithEmptyHeaderAndLocation(HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();

@@ -143,7 +143,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
 
         // Assert
-        EnsureSuccessPutRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
     }
 
     [Fact]
@@ -223,7 +223,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
 
         // Assert
-        EnsureSuccessDeleteRequest(response);
+        EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
     }
 }
