@@ -37,11 +37,7 @@ public static class CreateTenant
             var createTenantOwnerUserCommand = new CreateUser.Command(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
             var result = await _mediator.Send(createTenantOwnerUserCommand, cancellationToken);
 
-            if (!result.IsSuccess)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to create a TenantOwner user for tenant. Reason: {result.GetErrorSummary()}");
-            }
+            if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
         }
     }
 
