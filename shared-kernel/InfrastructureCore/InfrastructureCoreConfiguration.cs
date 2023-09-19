@@ -48,10 +48,10 @@ public static class InfrastructureCoreConfiguration
         }
 
         var connectionString = configuration.GetConnectionString("Default")
-                               ?? throw new Exception("Missing GetConnectionString configuration.");
+                               ?? throw new InvalidOperationException("Missing GetConnectionString configuration.");
 
         var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                       ?? throw new Exception("Missing SQL_DATABASE_PASSWORD environment variable.");
+                       ?? throw new InvalidOperationException("Missing SQL_DATABASE_PASSWORD environment variable.");
 
         return connectionString + $";Password={password}";
     }
