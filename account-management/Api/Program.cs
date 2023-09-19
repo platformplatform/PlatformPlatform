@@ -3,7 +3,6 @@ using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +15,8 @@ builder.Services
 
 var app = builder.Build();
 
-// Add configuration common for all web applications like Swagger, HSTS, and UseDeveloperExceptionPage.
-app.AddApiCoreConfiguration();
-
-app.Services.ApplyMigrations<AccountManagementDbContext>();
+// Add common configuration for all APIs like Swagger, HSTS, DeveloperExceptionPage, and run EF database migrations.
+app.AddApiCoreConfiguration<AccountManagementDbContext>();
 
 app.MapTenantEndpoints();
 app.MapUserEndpoints();
