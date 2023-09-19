@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -18,7 +19,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
     {
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
-            builder.ConfigureServices(services =>
+            builder.ConfigureTestServices(services =>
             {
                 // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
                 services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
