@@ -10,7 +10,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
-public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisposable where TContext : DbContext
+public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -31,11 +31,10 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext>, IDisp
 
     protected HttpClient TestHttpClient { get; }
 
-    public new void Dispose()
+    protected override void Dispose(bool disposing)
     {
         _webApplicationFactory.Dispose();
-        base.Dispose();
-        GC.SuppressFinalize(this);
+        base.Dispose(disposing);
     }
 
     protected static void EnsureSuccessGetRequest(HttpResponseMessage response)

@@ -53,8 +53,14 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
     public void Dispose()
     {
-        Connection.Close();
-        Provider.Dispose();
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+        Provider.Dispose();
+        Connection.Close();
     }
 }
