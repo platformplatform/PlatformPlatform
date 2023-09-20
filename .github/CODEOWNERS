@@ -8,4 +8,4 @@
 /cloud-infrastructure/ @PlatformPlatform/Site-Reliability-Team
 
 # Account Team owns the 'account-management' directory
-/account-management/ @PlatformPlatform/Account-Team
+/application/account-management/ @PlatformPlatform/Account-Team
