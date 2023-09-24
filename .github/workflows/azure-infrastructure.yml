@@ -6,11 +6,13 @@ on:
     - main
     paths:
     - 'cloud-infrastructure/**'
+    - '!**.md'
   pull_request:
     branches:
     - main
     paths:
     - 'cloud-infrastructure/**'
+    - '!**.md'
   workflow_dispatch:
 
 permissions:

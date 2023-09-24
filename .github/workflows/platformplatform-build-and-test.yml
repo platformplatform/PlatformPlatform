@@ -6,9 +6,11 @@ on:
       - main
     paths:
       - 'application/**'
+      - '!**.md'
   pull_request:
     paths:
       - 'application/**'
+      - '!**.md'
 
 permissions:
   id-token: write
