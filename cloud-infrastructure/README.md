@@ -1,97 +1,103 @@
-# Cloud Infrastructure
+## Cloud Infrastructure
 
-Refer to the [Set up automatic deployment of Azure infrastructure and code from GitHub](#set-up-automatic-deployment-of-azure-infrastructure-and-code-from-github) section below for instructions on how to set up deployment.
+This folder contains Bash and [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview) scripts used by [GitHub Actions](https://github.com/features/actions) to deploy resources to Azure.
 
-## Enterprise-grade security
+Bicep is an Infrastructure-as-Code (IaC) language specific to Azure. While Bicep is less mature than Terraform, it is a great choice for Azure-only projects. Unlike Terraform which often is many months behind, Bicep is always up to date with the latest Azure features, and as it matures, it will become the better choice for Azure infrastructure. The tooling is already much better than Terraform, and since Bicep is a typed language, you get intellisense and the compiler will catch many errors while writing the code.
 
-The `cloud-infrastructure` folder contains Infrastructure as Code (IaC) for deploying resources to Azure using [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview) and Bash scripts that run in [GitHub Actions](https://github.com/features/actions).
+## Folder structure
 
-The Azure Infrastructure *does not use any secrets*. All communication to Databases, Blob Storage Accounts, Service Bus, etc. is done using [Managed Identities](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview). This follows Azure's best practices. This also means that there are no secrets to rotate and no secrets that can accidentally be exposed or stolen. In fact, the current version of the infrastructure code will create an Azure subscription with a 100% Security Score, which is anything but trivial to accomplish.
+- `cluster`: Scripts to deploy a cluster into clearly named resource groups like `staging-west-europe`, `production-west-europe`, and `production-east-us`. A cluster has its own Azure Container Apps environment (managed Kubernetes), SQL Server, Azure Service Bus, Azure Blob Storage, etc. Tenants (a.k.a. a customer) are created in a dedicated cluster that contains all data belonging to that tenant. This ensures compliance with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc., through geo-isolation. See the [`cluster/main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep).
+- `environment`: Each environment (like `Staging` and `Production`) has resources that are shared between clusters, e.g. Azure Log Analytics workspace and Application Insights. This allows for central tracking and monitoring across clusters. No Personally Identifiable Information (PII) is tracked, which ensures complying with data protection laws. See the [`environment/main-environment.bicep`](/cloud-infrastructure/environment/main-environment.bicep).
+- `shared`: These scripts deploy resources shared between environments such as Azure Container Registry (ACR) within the `Shared` resource group. See the [`shared/main-shared.bicep`](/cloud-infrastructure/shared/main-shared.bicep).
+- `modules`: Each Azure Resource is created by a separate Bicep module file, ensuring a modular, reusable, and manageable infrastructure.
 
-This screenshot shows the Security Recommendations in Azure after PlatformPlatform resources are deployed:
-![PlatformPlatform Azure Security Recommendations](https://media.cleanshot.cloud/media/46539/8ZGcZYrr043z1SXFvNqkilTeTLoRw7rfcqwU3Tr9.jpeg?Expires=1694395264&Signature=Osk3jD~58y9lFk2qFMHCWZN9EK7L3Eidd~pmYPjh0qoz~gRC3lm98QQHdk3kjaqfARjbmfPoMHUCyWg84EcKUd34x1RW0COhEF7BjxuhwNd6RhU~DKaeEqxQPExrQvsbvoRZTrE0A6k7pKbyVg3TV8XTRTK~DaM9oUtbeqTZmbpZJi-VFgOdQWrLTW3YU3UnqjBD70V5MCTDJNFmel3sGU-rr1lRa7VsG8KDFsD1viuCQwhv-XFvpIbPkXLn7NLsE83iSTgjv2LBmpguMCvLImyUZIBIazxSLB5B8xLs1oQAtfaIZaH0HuRH4bhKg-PK7BOsvZi40KTV~2q76jPd7w__&Key-Pair-Id=K269JMAT9ZF4GZ)
+These are the resource groups created when deploying one staging cluster, and two production clusters:
 
-Likewise, the deployment from GitHub to Azure is using [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials), which establishes a trust between the GitHub repository and Azure subscription based on the URL of your GitHub repository. This eliminates the need for secrets to deploy infrastructure, also minimizing the attack surface.
+![PlatformPlatform Resource Groups](https://camo.githubusercontent.com/cfe23aa287e301b2cc4d510a510a8ba6f718de1b295ab6e4c2ecc9ea99ac7978/68747470733a2f2f6d656469612e636c65616e73686f742e636c6f75642f6d656469612f34363533392f7137446d537378583330544e614e61636c6d4148456d4769706b6c644d6f7235583139356e5161322e6a7065673f457870697265733d31363935343932393131265369676e61747572653d473461595775634853706655524169776e66456778646874414a7e38413442713656417a6639427469526746496b5238646a754647577a754f4d70714244477675773435527e75452d7a312d786b30613375614271383835475649756a5064622d397e48636c3046367577734f3169644f486c77586431726f47672d6e616e4a6b4461694d43593056763934797675486a5362774a696a4954754161736e77627867444370376372793258584f626f525978706a4178763346616872576c2d306f63555554747a77706f764b454472564843547638567968746b354f44664344666437454530713943434f6e4678575242396e39736e565676503451495975634c4e4d6d6a774d2d6974495277482d336c614b7e355674347132496e6c75427a74745842666c70613570676f755839543776574a5a4c4b7a7a4c466550367a4e68477171456279705547794f6e7033426b46703250415f5f264b65792d506169722d49643d4b3236394a4d4154395a4634475a)
 
-## Azure subscription and environments
-
-The setup operates with different environments like `Development`, `Staging`, and `Production`. In addition, there is a `Shared` resource group for global resources. Everything is deployed into one Azure Subscription with clearly named resource groups.
-
-## Structure of infrastructure code
-
-The infrastructure scripts are organized on multiple levels:
-
-- `Cluster`: These scripts create separate clusters within an environment. For example, the Production environment might (but it's optional) have clusters in different Azure regions like West Europe, East US, etc. (in resource groups like `staging-west-europe`, `production-west-europe`, and `production-east-us`). Each new customer/tenant is created in a dedicated cluster, where all tenant resources exist. Each cluster will have its own Azure Container Apps environment (managed Kubernetes), Azure Service Bus, Azure Blob Storage, SQL Server, etc. This ensures geo isolation complying with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc. It also supports dedicated scale units. Within a cluster, each self-contained system (aka microservice) will have dedicated resources like a SQL Database and a Blob Storage account.
-- `Environment`: These scripts are designed to handle different environments (`Development`, `Staging`, and `Production`). Each environment has resources that are shared between clusters like Azure Log Analytics workspace and an Application Insights resource. Although it's not currently in place, the environment could also have a service, to keep track of which cluster a tenant is located in.
-- `Shared`: These scripts deploy resources shared between environments such as Azure Container Registry (ACR) within the `Shared` resource group.
-
-All Azure resources are tagged with `environment` (e.g., `development`, `staging`, and `production`) and a `managed-by` tag (e.g., `bicep` or `manual`). This is valuable for cost analytics and understanding how a resource was created.
-
-This screenshot shows how the resource groups look with two production clusters (one in West Europe and one in East US):
-![PlatformPlatform Azure Resource Groups](https://media.cleanshot.cloud/media/46539/ekfChxG0r2WxfaahuhfIio0Vz6oOfu5Wz8YFo4Yt.jpeg?Expires=1694399536&Signature=BGJIM-strpdE~lw-0qHSrs2aKPADHq8~cYfAo4sGNHM6NMt7imTk7aO~X-uzc7jAOhN1-30YK05azFfhXqa-mvm7BmiJvxOfb9JzQAJBNskHV-veAwp33UkTWXKsOO02eau1bDDlvsrNDOqvVXuQRa2AVgWUOpSPgvUDzi1jRJZQs9OjwVqekeGkw72Vurn3Qb~iQffgZRpqbjf-kCMz1wP8LJR31PQjywGDwlh9smWM-LZzOAQJA9f~Q8QJ2GCsMU3S9wrDXEu776NII9~cC6Rghy4matfmhTD1IBm~p~QfvWJkvf0s-W4Acu-eIWqdkFy-cy5OAe2ZYzhdJhnW5g__&Key-Pair-Id=K269JMAT9ZF4GZ)
+All Azure resources are tagged with `environment` (e.g., `staging`, `production`) and `managed-by` (e.g., `bicep`, `manual`) for easier cost tracking and resource management.
 
 ## Set up automatic deployment of Azure infrastructure and code from GitHub
 
 ### Prerequisites
 
-Before setting up PlatformPlatform you need the following:
+Before setting up PlatformPlatform, ensure you have:
 
-- Clone the GitHub repository.
-- An Azure Subscription (preferably an empty subscription since the GitHub workflows will be granted full contributor rights to the Azure Subscription). Sign up for a [free subscription here](https://azure.microsoft.com/en-gb/free).
-- Owner rights of the Azure Subscription.
-- Permissions to Create Service Principals in Azure Active Directory.
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli). Mac: `brew install azure-cli`. Windows: `choco install azure-cli`.
-- Optional: [GitHub CLI](https://cli.github.com/). Mac: `brew install gh`. Windows: `choco install gh`.
-- Permission to create secrets in the GitHub repository.
-- Windows only: [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Not tested.
+- Forked the PlatformPlatform GitHub repository
+- An Azure Subscription (preferably an empty subscription since the GitHub workflows will be granted full contributor rights to the Azure Subscription - sign up for a [free subscription here](https://azure.microsoft.com/en-gb/free))
+- Owner rights of the Azure Subscription
+- Permissions to Create Service Principals in Azure Active Directory
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) - Mac: `brew install azure-cli` - Windows: `choco install azure-cli`
+- Optional: [GitHub CLI](https://cli.github.com/) installed. Mac: `brew install gh`. Windows: `choco install gh`
+- Owner permissions in the GitHub repository
+- Windows only: [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install) (not tested)
 
 ### Run Bash script to create service principals and grant access to GitHub
 
-Run the [initialize-azure.sh](/cloud-infrastructure/initialize-azure.sh) locally using this command: `bash ./cloud-infrastructure/initialize-azure.sh` to prepare your Azure Subscription for deployment from GitHub. Mac: Use the terminal. Windows: Use WSL (Not tested).
+The [initialize-azure.sh](/cloud-infrastructure/initialize-azure.sh) script will automatically prepare your Azure Subscription and GitHub repository to allow running the GitHub action workflows.
 
 *What the script does*:
 
-- Logs into your Azure account using a browser pop-up.
-- Prompts you for your Azure subscription ID.
-- Ensures the `Microsoft.ContainerService` service provider is registered on the Azure Subscription.
-- Prompts you for the GitHub repository URL that hosts the GitHub action used for deployment.
-- Creates a Service Principal called `GitHub Azure Infrastructure - [GitHubOrg] - [GitHubRepo]` using [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials).
-- Grants subscription level 'Contributor' and 'User Access Administrator' role to the Infrastructure Service Principal.
-- Creates `Azure SQL Server Admins` Azure AD security group containing the Infrastructure service principal. This allows GitHub actions to grant Container Apps permissions in SQL databases.
-- Creates a Service Principal called `GitHub Azure Container Registry - [GitHubOrg] - [GitHubRepo]` using [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials).
-- Grants subscription level 'AcrPush' role to the Container Registry Service Principal.
-- Creates GitHub repository secrets. Manual instructions are provided if GitHub CLI is not installed.
+- Logs into your Azure account using a browser pop-up
+- Prompts you for your Azure subscription ID
+- Ensures the `Microsoft.ContainerService` service provider is registered on the Azure Subscription
+- Prompts you for the GitHub repository URL that hosts the GitHub action used for deployment
+- Creates a Service Principal called `GitHub Azure Infrastructure - [GitHubOrg] - [GitHubRepo]` using [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials)
+- Grants subscription-level `Contributor` and `User Access Administrator` role to the Infrastructure Service Principal
+- Creates an `Azure SQL Server Admins` Azure AD security group containing the Infrastructure service principal, allowing GitHub actions to grant Container Apps permissions to SQL databases
+- Creates a Service Principal called `GitHub Azure Container Registry - [GitHubOrg] - [GitHubRepo]` using [federated credentials](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#add-federated-credentials)
+- Grants subscription-level 'AcrPush' role to the Container Registry Service Principal
+- Creates GitHub repository secrets and variables - While not truly secrets the TenantId, SubscriptionId, and Service Principal Ids are stored as GitHub repository secrets as it's best practice to not expose them
+
+To run the script, issue this command (use the terminal on macOS and WSL on Windows):
+
+```bash
+bash ./cloud-infrastructure/initialize-azure.sh
+```
 
 *Manual steps required*:
-Setting up a forked version of PlatformPlatform also requires the configuration of SonarCloud static code analysis. To set this up follow these steps:
 
-- Sign up for a SonarCloud account here: https://sonarcloud.io. Use your GitHub account for authentication.
-- Create a new Project here: https://sonarcloud.io/projects/create. Select your fork of PlatformPlatform.
+Setting up a forked version of PlatformPlatform also requires configuring SonarCloud static code analysis. To set this up follow these steps:
+
+- Sign up for a SonarCloud account here: https://sonarcloud.io using your GitHub account for authentication
+- Create a new Project here: https://sonarcloud.io/projects/create and select your fork of PlatformPlatform
 - Set up the following GitHub repository variables here:
   - `SONAR_ORGANIZATION`. E.g., `platformplatform`
   - `SONAR_PROJECT_KEY`. E.g., `PlatformPlatform_platformplatform`
-- Set up the following GitHub repository secrets here:
+- Set up the following GitHub repository secret here:
   - `SONAR_TOKEN`
 
 Alternatively, delete the `test-with-code-coverage` from the [platformplatform-build-and-test.yml](/.github/workflows/platformplatform-build-and-test.yml) workflow.
 
-## Bicep and Bicep Modules
-
-The [`main-shared.bicep`](/cloud-infrastructure/shared/main-shared.bicep), [`main-environment.bicep`](/cloud-infrastructure/environment/main-environment.bicep), and [`main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep) files act as the top-level Bicep file (entry point) for infrastructure deployments. Each Azure resource type (Azure SQL Server, Azure Storage, Azure Container App, Azure Service Bus, etc.) has its own reusable Bicep module, ensuring a modular and manageable IaC structure.
-
 ## Development and debugging
 
-The `Development` scripts can be used for easy development, testing, and debugging of the Bicep and bash scripts from localhost (requires [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)).
+The development scripts can be used for easy development, testing, and debugging of the Bicep and bash scripts from localhost.
 
-1. Set the `UNIQUE_CLUSTER_PREFIX` environment variable. This will be used as a prefix to resources that require a globally unique name (like SQL Server, Blob storage accounts). IMPORTANT: this must be no longer than 6 characters to avoid running into naming limitations in Azure.
-    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export UNIQUE_CLUSTER_PREFIX='cnts'`
-    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("UNIQUE_CLUSTER_PREFIX", "cnts", "User")`
-2. Set the `CONTAINER_REGISTRY_NAME` to a globally unique name:
-    - On MacOS: Add the following line to your shell's configuration file (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile` depending on your terminal): `export CONTAINER_REGISTRY_NAME='contosotest'`
-    - On Windows: In PowerShell run the following command: `[Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "contosotest", "User")`
-3. Restart the terminal to have the changes take effect.
-4. Login to Azure using `az login` (this will prompt you to login).
-5. Run the following scripts from the prompt: `az account set --subscription <SubscriptionId>`
-6. Run [`shared-development.sh`](/cloud-infrastructure/shared/config/shared-development.sh)
-7. Run [`development.sh`](/cloud-infrastructure/environment/config/development.sh)
-8. Run [`development-west-europe.sh`](/cloud-infrastructure/cluster/config/development-west-europe.sh)
+1. **Set Environment Variables**: Configure the following environment variables according to your operating system:
+    - **`UNIQUE_CLUSTER_PREFIX`**: This prefix is used for resources requiring a globally unique name like SQL Server and Blob storage accounts. Ensure the prefix is no longer than 6 characters to comply with Azure's naming limitations. Examples include `acme`, `mstf`, and `appl`. You can and should use the same prefix as in your production environment.
+    - **`CONTAINER_REGISTRY_NAME`**: Choose a globally unique name for your container registry. Ensure it's different from what you use on production. Examples include `acmedev`, `microsoftdev`, and `appeldev`. The 6-character limit does not apply here.
+
+    - **macOS**:
+
+      ```bash
+      echo "export UNIQUE_CLUSTER_PREFIX='acme'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+      echo "export CONTAINER_REGISTRY_NAME='acmedev'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+      ```
+
+    - **Windows**:
+
+      ```powershell
+      [Environment]::SetEnvironmentVariable("UNIQUE_CLUSTER_PREFIX", "acme", "User")
+      [Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "acmedev", "User")
+      ```
+
+2. **Reload Terminal**: To apply the changes, restart your terminal
+3. Log in to Azure using `az login` (this will prompt you to log in)
+4. Run the following command from the command prompt: `az account set --subscription <SubscriptionId>`
+5. Run [`./shared-development.sh --plan`](/cloud-infrastructure/shared/config/shared-development.sh)
+6. Run [`./development.sh --plan`](/cloud-infrastructure/environment/config/development.sh)
+7. Run [`./development-west-europe.sh --plan`](/cloud-infrastructure/cluster/config/development-west-europe.sh)
+
+When ready to deploy to Azure, replace the `--plan` flag from the commands above with `--apply`.
+
+![Running Bicep plan for shared](https://camo.githubusercontent.com/29de58a8823f48e16dcbaea5dd6732c4d7a5d74cecea8e5eeb4555483d8e1d5f/68747470733a2f2f6d656469612e636c65616e73686f742e636c6f75642f6d656469612f34363533392f32644d38784371304c7a476d4d4e506f35554366507879417344725067413677535253364168324c2e6a7065673f457870697265733d31363935353837303531265369676e61747572653d664c36527e4773587234556d38725835496f5669426a4a424c66543375364563546b492d675a7057694f53725a6b745269484e7277434d44564b6953457750635666557750584d70367a4249445a73304242576e425834347e64464231786c4b6f52336557714d507654655647414542397363587e4a647873626d64466e6b41376f4a597a6a44512d434c375137304b79477a584f6b64424e7e3964465370524f7462424d722d626531536c3642556f67387a53566f4c547061786b782d62786f71686a4444366744624c5243696b446b484a736a434c664e48615a4d7253436c4d4c346832476e6e6b573269564855393250516b7579662d3945794e6972637842476156576c5741616e44394b442d7867576950705368315265654c556c6b306c46594146716a7138704c426a6f6661643236705a6f536b7751766c78714477654551566d716f637a30626672694e7737765a65515f5f264b65792d506169722d49643d4b3236394a4d4154395a4634475a)
