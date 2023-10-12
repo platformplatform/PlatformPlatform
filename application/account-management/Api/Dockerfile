@@ -1,25 +1,31 @@
-# Use the ASP.NET 7.0 Alpine image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
+WORKDIR /src
 
-# Create a group and user 'nonroot'
-RUN addgroup -S nonroot \
-    && adduser -S nonroot -G nonroot
+# Copy all source code to /src
+COPY ./ ./
 
-# Install ICU libraries
+# Set the working directory to the API project
+WORKDIR /src/account-management/Api
+RUN dotnet restore
+RUN dotnet publish -c Release -o /publish
+
+
+# Runtime stage (start with a clean image and copy only published binairies)
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine AS runtime
+WORKDIR /app
+COPY --from=build /publish ./
+
+# Install ICU libraries and other essentials
 RUN apk add --no-cache icu-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-# Set the working directory in the container
-WORKDIR /app
-
-# Expose ports (non-root user can't use ports below 1024)
-EXPOSE 8443
-
-# Switch to 'nonroot' user
+# Create non-root user
+RUN addgroup -S nonroot && adduser -S nonroot -G nonroot
 USER nonroot
 
-# Copy the build app to the container
-COPY ./publish .
+# Expose port 8443 (non-root user can't use ports below 1024)
+EXPOSE 8443
 
-# Configure the entry point
+# Entry point
 ENTRYPOINT ["dotnet", "PlatformPlatform.AccountManagement.Api.dll"]
