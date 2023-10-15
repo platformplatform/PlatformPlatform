@@ -1,5 +1,6 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
+ARG VERSION=1.0.0.0  # Use version 1.0.0.0 as default
 WORKDIR /src
 
 # Copy all source code to /src
@@ -8,7 +9,7 @@ COPY ./ ./
 # Set the working directory to the API project
 WORKDIR /src/account-management/Api
 RUN dotnet restore
-RUN dotnet publish -c Release -o /publish
+RUN dotnet publish -c Release -o /publish /p:Version="$VERSION"
 
 
 # Runtime stage (start with a clean image and copy only published binairies)
