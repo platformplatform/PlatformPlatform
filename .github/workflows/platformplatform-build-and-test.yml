@@ -116,7 +116,7 @@ jobs:
       run: |
         docker buildx create --use
         docker buildx build \
-          --platform linux/amd64,linux/arm64 \
+          --platform linux/amd64 \
           --build-arg VERSION=${{ needs.build.outputs.version }} \
           -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
           -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
