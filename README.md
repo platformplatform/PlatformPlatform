@@ -132,13 +132,94 @@ These are the resource groups created when deploying one staging cluster, and tw
 
 ## Developer environment for both Mac and Windows
 
+### Prerequisites
+
 PlatformPlatform is designed to support development on both Mac and Windows. The only requirements are:
 
 - [.NET](https://dotnet.microsoft.com)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) with [JetBrains ReSharper](https://www.jetbrains.com/resharper)
 
-While [Visual Studio Code](https://code.visualstudio.com/) can be used and ReSharper is not strictly necessary, in both cases, you should either install the free [ReSharper command line tool](https://www.jetbrains.com/help/resharper/ReSharper_Command_Line_Tools.html) to ensure the codebase is formatted correctly, or disable the `jetbrains-code-inspection` job in the GitHub workflow.
+<details>
+
+<summary>Want to use Visual Studio Code?</summary>
+
+While [Visual Studio Code](https://code.visualstudio.com/) can be used and ReSharper is not strictly necessary, in both cases, you should either install the free [ReSharper command line tool](https://www.jetbrains.com/help/resharper/ReSharper_Command_Line_Tools.html) to ensure the codebase is formatted correctly.
+
+To install ReSharper command line tool run this command
+
+```bash
+dotnet tool install -g JetBrains.ReSharper.GlobalTools # Add --arch arm64 for Apple silicon
+```
+
+Having a strong conventions for naming, formatting, code style from the start is saving time and giving high quality code.
+
+To inspect code run this command (Use Solution-Wide Analysis in Rider/ReSharper)
+
+```bash
+jb inspectcode PlatformPlatform.sln --build --output=result.xml
+```
+
+To clean up code this command (equvelent to `Ctrl+E+C` / `Cmd+E+C` in Rider/ReSharper)
+
+```bash
+jb cleanupcode PlatformPlatform.sln
+```
+
+</details>
+
+### Get started
+
+To debug the system locally we run SQL Server using Docker. The SQL Server password used is stored in an environment variable, and added to the connectionstring by .NET (when running in Azure we use Managed Identities instead of passwords).
+
+Likewise, when running .NET self-contained systems on `localhost` we need a valid and trusted certificate, and we need the password when building the Docker image.
+
+Please run the following scripts once to setup your localhost.
+
+- **macOS**:
+
+  ```bash
+  # Generate SQL_SERVER_PASSWORD and add to environment variables
+  SQL_SERVER_PASSWORD=$(curl -s "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new")_
+  echo "export SQL_SERVER_PASSWORD='$SQL_SERVER_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+
+  # Generate CERTIFICATE_PASSWORD and add to environment variables
+  CERTIFICATE_PASSWORD=$(curl -s "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new")_
+  echo "export CERTIFICATE_PASSWORD='$CERTIFICATE_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+
+  # Generate dev certificate
+  dotnet dev-certs https --trust -ep ${HOME}/.aspnet/https/localhost.pfx -p $CERTIFICATE_PASSWORD
+  ```
+
+- **Windows**:
+
+  ```powershell
+  # Generate SQL_SERVER_PASSWORD and add to environment variables
+  $SQL_SERVER_PASSWORD = Invoke-RestMethod -Uri "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" + "_"
+  [Environment]::SetEnvironmentVariable('SQL_SERVER_PASSWORD', $SQL_SERVER_PASSWORD, [System.EnvironmentVariableTarget]::User)
+
+  # Generate CERTIFICATE_PASSWORD and add to environment variables
+  $CERTIFICATE_PASSWORD = Invoke-RestMethod -Uri "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" + "_"
+  [Environment]::SetEnvironmentVariable('CERTIFICATE_PASSWORD', $CERTIFICATE_PASSWORD, [System.EnvironmentVariableTarget]::User)
+
+  # Generate dev certificate
+  dotnet dev-certs https --trust -ep $env:USERPROFILE\.aspnet\https\localhost.pfx -p $env:CERTIFICATE_PASSWORD
+  ```
+
+To test the system you can now run this (the first time the API runs it will create the database and schema):
+
+```bash
+# Run from the application folder
+docker compose up -d
+open https://localhost:8443/swagger
+```
+
+While developing you might want to only run the SQL Server, and compile and debug the source code from Rider or Visual Studio:
+
+```bash
+# Run from the application folder
+docker compose up sql-server -d
+```
 
 ## Automated first-time setup of GitHub and Azure
 

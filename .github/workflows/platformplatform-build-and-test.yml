@@ -95,11 +95,9 @@ jobs:
     needs: [build, test-with-code-coverage, jetbrains-code-inspection]
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v3
       with:
-        name: publish
-        path: ./publish
+        fetch-depth: 0    
     - name: Setup Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Login to Azure subscription
@@ -112,15 +110,16 @@ jobs:
       run: |
         az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
     - name: Build and push Docker image
+      working-directory: application
       env:
         IMAGE_NAME: account-management-api
       run: |
         docker buildx create --use
         docker buildx build \
-          --platform linux/amd64,linux/arm64 \
+          --platform linux/amd64 \
+          --build-arg VERSION=${{ needs.build.outputs.version }} \
           -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
           -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-          -f ./publish/Dockerfile \
+          -f ./account-management/Api/Dockerfile \
           --push .
         docker buildx rm
-

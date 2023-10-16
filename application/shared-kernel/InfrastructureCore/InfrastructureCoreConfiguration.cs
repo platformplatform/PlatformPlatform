@@ -9,6 +9,8 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {
+    private static string? _cachedConnectionString;
+
     [UsedImplicitly]
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services,
         IConfiguration configuration, Assembly assembly) where T : DbContext
@@ -36,6 +38,8 @@ public static class InfrastructureCoreConfiguration
 
     private static string GetConnectionString(IConfiguration configuration)
     {
+        if (_cachedConnectionString is not null) return _cachedConnectionString;
+
         var serverName = Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME");
         var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME");
         var managedIdentityId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID");
@@ -43,17 +47,30 @@ public static class InfrastructureCoreConfiguration
         var isRunningInAzure = serverName is not null && databaseName is not null && managedIdentityId is not null;
         if (isRunningInAzure)
         {
-            return
-                $"Server=tcp:{serverName}.database.windows.net,1433;Initial Catalog={databaseName};User Id={managedIdentityId};Authentication=Active Directory Default;TrustServerCertificate=True;";
+            _cachedConnectionString = $"""
+                                       Server=tcp:{serverName}.database.windows.net,1433;
+                                       Initial Catalog={databaseName};
+                                       User Id={managedIdentityId};
+                                       Authentication=Active Directory Default;TrustServerCertificate=True;
+                                       """;
+        }
+        else
+        {
+            var connectionString = configuration.GetConnectionString("Default")
+                                   ?? throw new InvalidOperationException("Missing ConnectionString configuration.");
+
+            var password = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD")
+                           ?? throw new InvalidOperationException("Missing SQL_SERVER_PASSWORD environment variable.");
+
+            // When running in Docker (on localhost) the SQL Sever name is configured in the docker-compose.yml
+            var sqlServerName = Environment.GetEnvironmentVariable("SQL_SERVER_NAME") ?? "localhost";
+
+            _cachedConnectionString = connectionString
+                .Replace("${SQL_SERVER_NAME}", sqlServerName)
+                .Replace("${SQL_SERVER_PASSWORD}", password);
         }
 
-        var connectionString = configuration.GetConnectionString("Default")
-                               ?? throw new InvalidOperationException("Missing GetConnectionString configuration.");
-
-        var password = Environment.GetEnvironmentVariable("SQL_DATABASE_PASSWORD")
-                       ?? throw new InvalidOperationException("Missing SQL_DATABASE_PASSWORD environment variable.");
-
-        return connectionString + $";Password={password}";
+        return _cachedConnectionString;
     }
 
     [UsedImplicitly]
