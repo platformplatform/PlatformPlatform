@@ -3426,7 +3426,3 @@ resharper_csharp_keep_blank_lines_in_declarations = 1
 indent_style = space
 indent_size = 4
 tab_width = 4
-
-[{*.har,*.jsb2,*.jsb3,*.json,.babelrc,.eslintrc,.stylelintrc,bowerrc,jest.config}]
-indent_style = space
-indent_size = 2

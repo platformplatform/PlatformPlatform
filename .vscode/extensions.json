@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "ms-azuretools.vscode-bicep",
+    "ms-azuretools.vscode-docker",
+    "dbaeumer.vscode-eslint",
+    "github.vscode-github-actions",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint",
+    "editorconfig.editorconfig"
+  ]
+}
