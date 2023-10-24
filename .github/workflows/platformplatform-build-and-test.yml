@@ -1,4 +1,4 @@
-name: "PlatformPlatform - Build and Test"
+name: PlatformPlatform - Build and Test
 
 on:
   push:
@@ -18,18 +18,13 @@ permissions:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Generate version
         id: generate_version
@@ -37,6 +32,11 @@ jobs:
           VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
 
       - name: Restore dependencies
         run: dotnet restore application/PlatformPlatform.sln
@@ -56,12 +56,12 @@ jobs:
           path: ./publish
 
   test-with-code-coverage:
+    name: Test and Code Coverage
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Install dotCover
         run: dotnet tool install --global JetBrains.dotCover.GlobalTool
@@ -86,12 +86,12 @@ jobs:
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
   jetbrains-code-inspection:
+    name: JetBrains Code Inspections
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Run code inspections
         uses: muno92/resharper_inspectcode@1.6.13
@@ -106,9 +106,8 @@ jobs:
     needs: [build, test-with-code-coverage, jetbrains-code-inspection]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
