@@ -1,4 +1,4 @@
-name: PlatformPlatform - Build and Test
+name: Application - Build and Deploy
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Azure Infrastructure - Deployment
+name: Cloud Infrastructure - Deployment
 
 on:
   push:

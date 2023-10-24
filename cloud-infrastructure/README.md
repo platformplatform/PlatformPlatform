@@ -67,7 +67,7 @@ Setting up a forked version of PlatformPlatform also requires configuring SonarC
 - Set up the following GitHub repository secret here:
   - `SONAR_TOKEN`
 
-Alternatively, delete the `test-with-code-coverage` from the [platformplatform-build-and-test.yml](/.github/workflows/platformplatform-build-and-test.yml) workflow.
+Alternatively, delete the `test-with-code-coverage` from the [application.yml](/.github/workflows/application.yml) workflow.
 
 ## Development and debugging
 
