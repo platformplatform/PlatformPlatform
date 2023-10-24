@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'application/**'
-      - '!**.md'
+      - "application/**"
+      - "!**.md"
   pull_request:
     paths:
-      - 'application/**'
-      - '!**.md'
+      - "application/**"
+      - "!**.md"
 
 permissions:
   id-token: write
@@ -22,104 +22,119 @@ jobs:
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 7.0.x
-    - name: Generate version
-      id: generate_version
-      run: |
-        VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
-        echo "Generated version: $VERSION"
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-    - name: Restore dependencies
-      run: dotnet restore application/PlatformPlatform.sln
-    - name: Build
-      run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
-    - name: Publish
-      run: |
-        dotnet publish application/account-management/Api/Api.csproj --no-restore --no-build --configuration Release /p:Version=${{ steps.generate_version.outputs.version }} --output ./publish
-        cp application/account-management/Api/Dockerfile ./publish
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: publish
-        path: ./publish
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Generate version
+        id: generate_version
+        run: |
+          VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore dependencies
+        run: dotnet restore application/PlatformPlatform.sln
+
+      - name: Build
+        run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Publish
+        run: |
+          dotnet publish application/account-management/Api/Api.csproj --no-restore --no-build --configuration Release /p:Version=${{ steps.generate_version.outputs.version }} --output ./publish
+          cp application/account-management/Api/Dockerfile ./publish
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: publish
+          path: ./publish
 
   test-with-code-coverage:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Install dotCover
-      run: dotnet tool install --global JetBrains.dotCover.GlobalTool
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-    - name: Install SonarScanner
-      run: dotnet tool install --global dotnet-sonarscanner
-    - name: Run Test with dotCover and SonarScanner reporting
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="application/coverage/dotCover.html"
-        dotnet dotcover test application/PlatformPlatform.sln --dcOutput="application/coverage/dotCover.html" --dcReportType=HTML
-        dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install dotCover
+        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Run Test with dotCover and SonarScanner reporting
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="application/coverage/dotCover.html"
+          dotnet dotcover test application/PlatformPlatform.sln --dcOutput="application/coverage/dotCover.html" --dcReportType=HTML
+          dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
   jetbrains-code-inspection:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0    
-    - name: Run code inspections
-      uses: muno92/resharper_inspectcode@1.6.13
-      with:
-        solutionPath: application/PlatformPlatform.sln
-        minimumSeverity: warning
-        # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
-        ignoreIssueType: UnusedAutoPropertyAccessor.Global
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Run code inspections
+        uses: muno92/resharper_inspectcode@1.6.13
+        with:
+          solutionPath: application/PlatformPlatform.sln
+          minimumSeverity: warning
+          # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
+          ignoreIssueType: UnusedAutoPropertyAccessor.Global
 
   build-and-push-docker-image-to-azure-container-registry:
     if: github.ref == 'refs/heads/main'
     needs: [build, test-with-code-coverage, jetbrains-code-inspection]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0    
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Login to Azure subscription
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_ACR }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    - name: Login to ACR
-      run: |
-        az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
-    - name: Build and push Docker image
-      working-directory: application
-      env:
-        IMAGE_NAME: account-management-api
-      run: |
-        docker buildx create --use
-        docker buildx build \
-          --platform linux/amd64 \
-          --build-arg VERSION=${{ needs.build.outputs.version }} \
-          -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
-          -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-          -f ./account-management/Api/Dockerfile \
-          --push .
-        docker buildx rm
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Azure subscription
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_ACR }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: |
+          az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
+
+      - name: Build and push Docker image
+        working-directory: application
+        env:
+          IMAGE_NAME: account-management-api
+        run: |
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64 \
+            --build-arg VERSION=${{ needs.build.outputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
+            -f ./account-management/Api/Dockerfile \
+            --push .
+          docker buildx rm
