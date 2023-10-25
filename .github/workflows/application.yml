@@ -6,11 +6,14 @@ on:
       - main
     paths:
       - "application/**"
+      - ".github/workflows/application.yml"
       - "!**.md"
   pull_request:
     paths:
       - "application/**"
+      - ".github/workflows/application.yml"
       - "!**.md"
+  workflow_dispatch:
 
 permissions:
   id-token: write

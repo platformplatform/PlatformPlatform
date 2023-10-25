@@ -6,10 +6,12 @@ on:
       - main
     paths:
       - "cloud-infrastructure/**"
+      - ".github/workflows/cloud-infrastructure.yml"
       - "!**.md"
   pull_request:
     paths:
       - "cloud-infrastructure/**"
+      - ".github/workflows/cloud-infrastructure.yml"
       - "!**.md"
   workflow_dispatch:
 
