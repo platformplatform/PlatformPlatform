@@ -104,39 +104,28 @@ jobs:
           # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
           ignoreIssueType: UnusedAutoPropertyAccessor.Global
 
-  build-and-push-docker-image-to-azure-container-registry:
+  account-management-api-publish:
+    name: Account Management API Publish
+    needs: [build]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      image_name: account-management-api
+      version: ${{ needs.build.outputs.version }}
+      docker_file: ./account-management/Api/Dockerfile
+
+  account-management-api-deploy:
+    name: Account Management API Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [build, test-with-code-coverage, jetbrains-code-inspection]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login to Azure subscription
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_ACR }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Login to ACR
-        run: |
-          az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
-
-      - name: Build and push Docker image
-        working-directory: application
-        env:
-          IMAGE_NAME: account-management-api
-        run: |
-          docker buildx create --use
-          docker buildx build \
-            --platform linux/amd64 \
-            --build-arg VERSION=${{ needs.build.outputs.version }} \
-            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.version }} \
-            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest \
-            -f ./account-management/Api/Dockerfile \
-            --push .
-          docker buildx rm
+    needs:
+      [
+        build,
+        test-with-code-coverage,
+        jetbrains-code-inspection,
+        account-management-api-publish,
+      ]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: account-management-api
+      version: ${{ needs.build.outputs.version }}
