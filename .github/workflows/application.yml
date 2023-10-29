@@ -47,17 +47,6 @@ jobs:
       - name: Build
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish
-        run: |
-          dotnet publish application/account-management/Api/Api.csproj --no-restore --no-build --configuration Release /p:Version=${{ steps.generate_version.outputs.version }} --output ./publish
-          cp application/account-management/Api/Dockerfile ./publish
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: publish
-          path: ./publish
-
   test-with-code-coverage:
     name: Test and Code Coverage
     needs: build
@@ -68,13 +57,6 @@ jobs:
 
       - name: Install dotCover
         run: dotnet tool install --global JetBrains.dotCover.GlobalTool
-
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
 
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
@@ -97,7 +79,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run code inspections
-        uses: muno92/resharper_inspectcode@1.6.13
+        uses: muno92/resharper_inspectcode@1.9.0
         with:
           solutionPath: application/PlatformPlatform.sln
           minimumSeverity: warning
