@@ -1,0 +1,48 @@
+name: "Deploy container"
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+jobs:
+  staging-west-europe-deploy:
+    name: Staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Staging West Europe cluster
+        run: |
+          SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
+          az containerapp update --name ${{ inputs.image_name }} --resource-group staging-west-europe --image "${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+
+  production-west-europe-deploy:
+    name: Production
+    if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy.result == 'success'
+    needs: staging-west-europe-deploy
+    runs-on: ubuntu-latest
+    environment: "production" ## Force a manual approval
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_INFRASTRUCTURE }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Production West Europe cluster
+        run: |
+          SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
+          az containerapp update --name ${{ inputs.image_name }} --resource-group production-west-europe --image "${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX

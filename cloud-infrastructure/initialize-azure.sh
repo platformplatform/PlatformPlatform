@@ -277,7 +277,7 @@ echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Setup completed${NC}"
 echo -e "${SEPARATOR}"
 
-echo -e "\n${YELLOW}Please manually set up SonarCloud to enable static code analysis. Alternativly disable the test-with-code-coverage job in the platformplatform-build-and-test.yml workflow.${NC}"
+echo -e "\n${YELLOW}Please manually set up SonarCloud to enable static code analysis. Alternativly disable the test-with-code-coverage job in the application.yml workflow.${NC}"
 echo -e "- Sign up for a SonarCloud account here: https://sonarcloud.io. Use your GitHub account for authentication."
 echo -e "- Set up the following GitHub repository variables here: $gitHubRepositoryUrl/settings/${BOLD}variables${NO_BOLD}/actions:"
 echo -e "  - SONAR_ORGANIZATION"
@@ -286,8 +286,8 @@ echo -e "- Set up the following GitHub repository secret here: $gitHubRepository
 echo -e "  - SONAR_TOKEN to the token generated in SonarCloud."
 
 echo -e "\n${BOLD}${GREEN}You are now ready to run these GitHub Action workflows from the main branch:${NC}"
-echo -e "${GREEN}- 'Azure Infrastructure - Deployment': azure-infrastructure.yml${NC}"
-echo -e "${GREEN}- 'PlatformPlatform - Build and Test': platformplatform-build-and-test.yml${NC}"
+echo -e "${GREEN}- 'Cloud Infrastructure - Deployment': cloud-infrastructure.yml${NC}"
+echo -e "${GREEN}- 'Application - Build and Deploy': application.yml${NC}"
 
 echo -e "\n${YELLOW}${BOLD}TIP:${NO_BOLD} First run the 'Shared' step of the Infrastructure to deploy the Azure Container Registry (ACR).${NC}"
 echo -e "${YELLOW}Then run the 'Build and Test' to push an image to it, before deploying the rest of the infrastructure.${NC}"

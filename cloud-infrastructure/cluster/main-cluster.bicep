@@ -8,6 +8,7 @@ param useMssqlElasticPool bool
 param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
+param accountManagementApiVersion string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -168,7 +169,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management-api'
-    containerImageTag: 'latest'
+    containerImageTag: accountManagementApiVersion
     cpu: '0.25'
     memory: '0.5Gi'
     sqlServerName: clusterUniqueName

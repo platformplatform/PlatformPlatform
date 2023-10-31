@@ -1,0 +1,113 @@
+name: Application - Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "application/**"
+      - ".github/workflows/application.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "application/**"
+      - ".github/workflows/application.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate version
+        id: generate_version
+        run: |
+          VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore application/PlatformPlatform.sln
+
+      - name: Build
+        run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
+
+  test-with-code-coverage:
+    name: Test and Code Coverage
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dotCover
+        run: dotnet tool install --global JetBrains.dotCover.GlobalTool
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Run Test with dotCover and SonarScanner reporting
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="application/coverage/dotCover.html"
+          dotnet dotcover test application/PlatformPlatform.sln --dcOutput="application/coverage/dotCover.html" --dcReportType=HTML
+          dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+
+  jetbrains-code-inspection:
+    name: JetBrains Code Inspections
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run code inspections
+        uses: muno92/resharper_inspectcode@1.9.0
+        with:
+          solutionPath: application/PlatformPlatform.sln
+          minimumSeverity: warning
+          # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
+          ignoreIssueType: UnusedAutoPropertyAccessor.Global
+
+  account-management-api-publish:
+    name: Account Management API Publish
+    needs: [build]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      image_name: account-management-api
+      version: ${{ needs.build.outputs.version }}
+      docker_file: ./account-management/Api/Dockerfile
+
+  account-management-api-deploy:
+    name: Account Management API Deploy
+    if: github.ref == 'refs/heads/main'
+    needs:
+      [
+        build,
+        test-with-code-coverage,
+        jetbrains-code-inspection,
+        account-management-api-publish,
+      ]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: account-management-api
+      version: ${{ needs.build.outputs.version }}

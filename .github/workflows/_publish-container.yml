@@ -1,0 +1,48 @@
+name: "Publish container"
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      docker_file:
+        required: true
+        type: string
+
+jobs:
+  publish-container-image:
+    name: Publish Container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID_ACR }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push container image
+        working-directory: application
+        run: |
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64 \
+            --build-arg VERSION=${{ inputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:latest \
+            -f ${{ inputs.docker_file }} \
+            --push .
+          docker buildx rm
