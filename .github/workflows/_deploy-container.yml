@@ -30,7 +30,7 @@ jobs:
 
   production-west-europe-deploy:
     name: Production
-    if: github.ref == 'refs/heads/main' && needs.staging-west-europe-deploy.result == 'success'
+    if: github.ref == 'refs/heads/main'
     needs: staging-west-europe-deploy
     runs-on: ubuntu-latest
     environment: "production" ## Force a manual approval

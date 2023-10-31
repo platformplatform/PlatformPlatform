@@ -22,7 +22,7 @@ RUN apk add --no-cache icu-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # Create non-root user
-RUN addgroup -S nonroot && adduser -S nonroot -G nonroot
+RUN adduser -S nonroot
 USER nonroot
 
 # Expose port 8443 (non-root user can't use ports below 1024)
