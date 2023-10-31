@@ -88,6 +88,7 @@ jobs:
 
   account-management-api-publish:
     name: Account Management API Publish
+    if: github.ref == 'refs/heads/main'
     needs: [build]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit

@@ -16,6 +16,7 @@ on:
 jobs:
   publish-container-image:
     name: Publish Container
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
