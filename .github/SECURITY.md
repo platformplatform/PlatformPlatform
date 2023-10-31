@@ -39,4 +39,3 @@ We support responsible disclosure practices and ask that you provide us with a r
 ## Security Pledge
 
 We appreciate your assistance in making our project more secure and will work diligently to address any vulnerabilities identified by our community.
-

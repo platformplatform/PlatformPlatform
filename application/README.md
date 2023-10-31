@@ -2,8 +2,8 @@
 
 The application code for PlatformPlatform is divided into two parts:
 
-- `account-management` - a self-contained system used for managing tenants, users, etc.
-- `shared-kernel` - a foundation with generic functionalities and boilerplate code that are shared between self-contained systems
+-   `account-management` - a self-contained system used for managing tenants, users, etc.
+-   `shared-kernel` - a foundation with generic functionalities and boilerplate code that are shared between self-contained systems
 
 A self-contained system is a large microservice (or a small monolith) that contains the full stack, including frontend, API, background jobs, domain logic, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large monolith and many small microservices. Unlike the popular backend-for-frontend (BFF) style with one shared frontend, this allows teams to work fully independently.
 
@@ -19,9 +19,9 @@ Self-contained systems in PlatformPlatform are divided into four core projects f
 
 1. `Api`: Built with ASP.NET Minimal API, this project implements the REST API. All API endpoints are extremely thin, with only one line of code in each endpoint, delegating the work to the Application layer. Here's an example of an API endpoint that creates a new user:
 
-   ```csharp
-    group.MapPost("/api/users", async Task<ApiResult> (CreateUser.Command command, ISender mediator)
-        => await mediator.Send(command);
+    ```csharp
+     group.MapPost("/api/users", async Task<ApiResult> (CreateUser.Command command, ISender mediator)
+         => await mediator.Send(command);
     ```
 
 2. `Application`: The Application layer consists of the use cases of the system implemented as MediatR commands and queries. Each command and query is a vertical slice of the system, containing all the logic needed to complete a task. This layer is also responsible for validation using FluentValidation. Here's an example showing the CreateUser command, its handler, and its validator. Note that the command, handler, and validator are all in the same file, using a static class. This aligns with the Single Responsibility Principle (SRP), making the code easy to understand and more maintainable.

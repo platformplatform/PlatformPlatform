@@ -36,7 +36,7 @@ Before setting up PlatformPlatform, ensure you have:
 
 The [initialize-azure.sh](/cloud-infrastructure/initialize-azure.sh) script will automatically prepare your Azure Subscription and GitHub repository to allow running the GitHub action workflows.
 
-*What the script does*:
+_What the script does_:
 
 - Logs into your Azure account using a browser pop-up
 - Prompts you for your Azure subscription ID
@@ -55,7 +55,7 @@ To run the script, issue this command (use the terminal on macOS and WSL on Wind
 bash ./cloud-infrastructure/initialize-azure.sh
 ```
 
-*Manual steps required*:
+_Manual steps required_:
 
 Setting up a forked version of PlatformPlatform also requires configuring SonarCloud static code analysis. To set this up follow these steps:
 
@@ -74,22 +74,23 @@ Alternatively, delete the `test-with-code-coverage` from the [application.yml](/
 The development scripts can be used for easy development, testing, and debugging of the Bicep and bash scripts from localhost.
 
 1. **Set Environment Variables**: Configure the following environment variables according to your operating system:
-    - **`UNIQUE_CLUSTER_PREFIX`**: This prefix is used for resources requiring a globally unique name like SQL Server and Blob storage accounts. Ensure the prefix is no longer than 6 characters to comply with Azure's naming limitations. Examples include `acme`, `mstf`, and `appl`. You can and should use the same prefix as in your production environment.
-    - **`CONTAINER_REGISTRY_NAME`**: Choose a globally unique name for your container registry. Ensure it's different from what you use on production. Examples include `acmedev`, `microsoftdev`, and `appeldev`. The 6-character limit does not apply here.
 
-    - **macOS**:
+   - **`UNIQUE_CLUSTER_PREFIX`**: This prefix is used for resources requiring a globally unique name like SQL Server and Blob storage accounts. Ensure the prefix is no longer than 6 characters to comply with Azure's naming limitations. Examples include `acme`, `mstf`, and `appl`. You can and should use the same prefix as in your production environment.
+   - **`CONTAINER_REGISTRY_NAME`**: Choose a globally unique name for your container registry. Ensure it's different from what you use on production. Examples include `acmedev`, `microsoftdev`, and `appeldev`. The 6-character limit does not apply here.
 
-      ```bash
-      echo "export UNIQUE_CLUSTER_PREFIX='acme'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
-      echo "export CONTAINER_REGISTRY_NAME='acmedev'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
-      ```
+   - **macOS**:
 
-    - **Windows**:
+     ```bash
+     echo "export UNIQUE_CLUSTER_PREFIX='acme'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+     echo "export CONTAINER_REGISTRY_NAME='acmedev'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
+     ```
 
-      ```powershell
-      [Environment]::SetEnvironmentVariable("UNIQUE_CLUSTER_PREFIX", "acme", "User")
-      [Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "acmedev", "User")
-      ```
+   - **Windows**:
+
+     ```powershell
+     [Environment]::SetEnvironmentVariable("UNIQUE_CLUSTER_PREFIX", "acme", "User")
+     [Environment]::SetEnvironmentVariable("CONTAINER_REGISTRY_NAME", "acmedev", "User")
+     ```
 
 2. **Reload Terminal**: To apply the changes, restart your terminal
 3. Log in to Azure using `az login` (this will prompt you to log in)
