@@ -40,6 +40,11 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --outp
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
+if [[ $output == "ERROR:"* ]]; then
+  echo -e "${RED}$output"
+  exit 1
+fi
+
 ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
 if [[ -n "$GITHUB_OUTPUT" ]]; then
     echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT

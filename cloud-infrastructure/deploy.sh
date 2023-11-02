@@ -19,9 +19,5 @@ fi
 if [[ "$*" == *"--apply"* ]]
 then
     echo "$(date +"%Y-%m-%dT%H:%M:%S") Applying changes..."
-    export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS)
-    if [[ $? -ne 0 ]]; then
-        echo "::error::Deployment failed."
-        exit 1
-    fi
+    export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS | tee /dev/tty)
 fi
