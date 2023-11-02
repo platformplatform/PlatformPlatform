@@ -31,27 +31,42 @@ module containerRegistryPermission './container-registry-permission.bicep' = {
 }
 
 var certificateName = '${domainName}-certificate'
-module newManagedCertificate './managed-certificate.bicep' = {
-  name: certificateName
-  scope: resourceGroup(resourceGroupName)
-  dependsOn: [containerApp]
-  params: {
+var isCustomDomainSet = domainName != ''
+
+module newManagedCertificate './managed-certificate.bicep' =
+  if (isCustomDomainSet) {
     name: certificateName
-    location: location
-    tags: tags
-    environmentName: environmentName
-    domainName: domainName
+    scope: resourceGroup(resourceGroupName)
+    dependsOn: [containerApp]
+    params: {
+      name: certificateName
+      location: location
+      tags: tags
+      environmentName: environmentName
+      domainName: domainName
+    }
   }
-}
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
-  name: environmentName
-}
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing =
+  if (isCustomDomainSet) {
+    name: environmentName
+  }
 
-resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing = {
-  name: certificateName
-  parent: containerAppsEnvironment
-}
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing =
+  if (isCustomDomainSet) {
+    name: certificateName
+    parent: containerAppsEnvironment
+  }
+
+var customDomainConfiguration = isCustomDomainSet
+  ? [
+      {
+        bindingType: certificateExists ? 'SniEnabled' : 'Disabled'
+        name: domainName
+        certificateId: certificateExists ? existingManagedCertificate.id : null
+      }
+    ]
+  : []
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
 resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
@@ -114,13 +129,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
             weight: 100
           }
         ]
-        customDomains: [
-          {
-            bindingType: certificateExists ? 'SniEnabled' : 'Disabled'
-            name: domainName
-            certificateId: certificateExists ? existingManagedCertificate.id : null
-          }
-        ]
+        customDomains: customDomainConfiguration
         stickySessions: null
       }
     }

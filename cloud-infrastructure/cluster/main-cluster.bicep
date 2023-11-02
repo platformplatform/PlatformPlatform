@@ -178,8 +178,8 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
-    domainName: 'account-management-api.${domainName}'
-    certificateExists: accountManagementApiCertificateExists
+    domainName: domainName == '' ? '' : 'account-management-api.${domainName}'
+    certificateExists: domainName != '' && accountManagementApiCertificateExists
   }
   dependsOn: [accountManagementDatabase]
 }
