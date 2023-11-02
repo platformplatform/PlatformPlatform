@@ -13,6 +13,7 @@ param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
+param certificateExists bool
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -115,9 +116,9 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
         ]
         customDomains: [
           {
-            bindingType: 'SniEnabled'
+            bindingType: certificateExists ? 'SniEnabled' : 'Disabled'
             name: domainName
-            certificateId: existingManagedCertificate.id
+            certificateId: certificateExists ? existingManagedCertificate.id : null
           }
         ]
         stickySessions: null

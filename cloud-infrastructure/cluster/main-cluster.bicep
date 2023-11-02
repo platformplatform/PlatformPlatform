@@ -10,6 +10,7 @@ param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
 param accountManagementApiVersion string
+param accountManagementApiCertificateExists bool
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -178,6 +179,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: 'account-management-api.${domainName}'
+    certificateExists: accountManagementApiCertificateExists
   }
   dependsOn: [accountManagementDatabase]
 }

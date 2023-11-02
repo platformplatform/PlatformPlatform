@@ -33,8 +33,9 @@ get_active_version() {
 }
 
 ACTIVE_ACCOUNT_MANAGEMENT_API=$(get_active_version account-management-api)
+[ "$ACTIVE_ACCOUNT_MANAGEMENT_API" == "latest" ] && ACCOUNT_MANAGEMENT_API_CERTIFICATE_EXISTS=false || ACCOUNT_MANAGEMENT_API_CERTIFICATE_EXISTS=true
 
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API"
+DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API accountManagementApiCertificateExists=$ACCOUNT_MANAGEMENT_API_CERTIFICATE_EXISTS"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
