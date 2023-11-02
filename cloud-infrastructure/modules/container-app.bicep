@@ -30,7 +30,7 @@ module containerRegistryPermission './container-registry-permission.bicep' = {
 }
 
 var certificateName = '${domainName}-certificate'
-module managedCertificate './managed-certificate.bicep' = {
+module newManagedCertificate './managed-certificate.bicep' = {
   name: certificateName
   scope: resourceGroup(resourceGroupName)
   dependsOn: [containerApp]
@@ -41,6 +41,15 @@ module managedCertificate './managed-certificate.bicep' = {
     environmentName: environmentName
     domainName: domainName
   }
+}
+
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
+  name: environmentName
+}
+
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing = {
+  name: certificateName
+  parent: containerAppsEnvironment
 }
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
@@ -106,8 +115,9 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
         ]
         customDomains: [
           {
-            bindingType: 'Disabled'
+            bindingType: 'SniEnabled'
             name: domainName
+            certificateId: existingManagedCertificate.id
           }
         ]
         stickySessions: null
