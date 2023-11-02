@@ -8,6 +8,7 @@ param useMssqlElasticPool bool
 param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
+param domainName string
 param accountManagementApiVersion string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -167,6 +168,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     tags: tags
     resourceGroupName: resourceGroupName
     environmentId: contaionerAppsEnvironment.outputs.environmentId
+    environmentName: contaionerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management-api'
     containerImageTag: accountManagementApiVersion
@@ -175,6 +177,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
+    domainName: 'account-management-api.${domainName}'
   }
   dependsOn: [accountManagementDatabase]
 }

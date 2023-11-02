@@ -28,3 +28,4 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01'
 }
 
 output environmentId string = containerAppsEnvironment.id
+output name string = containerAppsEnvironment.name
