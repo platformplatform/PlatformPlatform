@@ -2,30 +2,30 @@
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+RESET='\033[0m' # Reset formatting
 BOLD='\033[1m'
 NO_BOLD='\033[22m'
-SEPARATOR="${BOLD}---------------------------------------------------------------------------${NC}"
+SEPARATOR="${BOLD}---------------------------------------------------------------------------${RESET}"
 
 if [ -z "$BASH_VERSION" ]; then
   echo ""
-  echo -e "${RED}This script must be run in Bash. Please run ${BOLD}'bash ./initialize-azure.sh'.${NC}"
+  echo -e "${RED}This script must be run in Bash. Please run ${BOLD}'bash ./initialize-azure.sh'.${RESET}"
   return
 fi
 
 echo -e "${SEPARATOR}"
-echo -e "${BOLD}Logging in to Azure${NC}"
+echo -e "${BOLD}Logging in to Azure${RESET}"
 echo -e "${SEPARATOR}"
 
 sleep 1
 az login || exit 1
 tenantId=$(az account show --query 'tenantId' -o tsv) || exit 1
 
-echo -e "${GREEN}Successfully logged in to Azure on Tenant ID: $tenantId.${NC}"
+echo -e "${GREEN}Successfully logged in to Azure on Tenant ID: $tenantId.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Prompting for Azure Subscription${NC}"
+echo -e "${BOLD}Prompting for Azure Subscription${RESET}"
 echo -e "${SEPARATOR}"
 
 echo "Enter your Azure Subscription ID (find it in the list above, look for the 'id' property):"
@@ -34,15 +34,15 @@ az account set --subscription $subscriptionId || exit 1
 az account show --query 'id' -o tsv | grep -q $subscriptionId || exit 1
 
 if [ "$tenantId" != $(az account show --query 'tenantId' -o tsv) ]; then
-  echo -e "${RED}The Azure Subscription ID: '$subscriptionId' is not on the Tenant with ID '$tenantId'. Did you select the 'id' property?.${NC}"
+  echo -e "${RED}The Azure Subscription ID: '$subscriptionId' is not on the Tenant with ID '$tenantId'. Did you select the 'id' property?.${RESET}"
   exit 1
 fi
 
-echo -e "${GREEN}Successfully set subscription to $subscriptionId on Tenant ID: $tenantId.${NC}"
+echo -e "${GREEN}Successfully set subscription to $subscriptionId on Tenant ID: $tenantId.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Prompting GitHub Repository${NC}"
+echo -e "${BOLD}Prompting GitHub Repository${RESET}"
 echo -e "${SEPARATOR}"
 
 echo "Enter your GitHub repository URL (e.g., https://github.com/<Organization>/<Repository>):"
@@ -58,36 +58,36 @@ if [[ $gitHubRepositoryUrl =~ ^https://github\.com/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_
   fi
   gitHubRepositoryPath="$gitHubOrganization/$gitHubRepositoryName"
 else
-  echo -e "${RED}Invalid GitHub URL. Please use the format: https://github.com/<Organization>/<Repository>.${NC}"
+  echo -e "${RED}Invalid GitHub URL. Please use the format: https://github.com/<Organization>/<Repository>.${RESET}"
   exit 1
 fi
 
-echo -e "${GREEN}Successfully extracted GitHub Organization and Repository: $gitHubRepositoryPath.${NC}"
+echo -e "${GREEN}Successfully extracted GitHub Organization and Repository: $gitHubRepositoryPath.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Ensure 'Microsoft.ContainerService' service provider is registered on Azure Subscription${NC}"
+echo -e "${BOLD}Ensure 'Microsoft.ContainerService' service provider is registered on Azure Subscription${RESET}"
 echo -e "${SEPARATOR}"
 
 az provider register --namespace Microsoft.ContainerService
 
-echo -e "${GREEN}Successfully registered the 'Microsoft.ContainerService' on Subscription '$subscriptionId'.${NC}"
+echo -e "${GREEN}Successfully registered the 'Microsoft.ContainerService' on Subscription '$subscriptionId'.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Configuring Azure AD Service Principal for Infrastructure${NC}"
+echo -e "${BOLD}Configuring Azure AD Service Principal for Infrastructure${RESET}"
 echo -e "${SEPARATOR}"
 
 infrastructureServicePrincipalDisplayName="GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName"
 servicePrincipalAppIdInfrastructure=$(az ad sp list --display-name "$infrastructureServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
 if [ -n "$servicePrincipalAppIdInfrastructure" ]; then
-  echo -e "${YELLOW}The Service Principal (App registration) '$infrastructureServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdInfrastructure.${NC}"
+  echo -e "${YELLOW}The Service Principal (App registration) '$infrastructureServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdInfrastructure.${RESET}"
 
   echo "Would you like to continue using this Service Principal? (y/n)"
   read userChoiceForReuseServicePrincipalfrastructure
 
   if [ "$userChoiceForReuseServicePrincipalfrastructure" != "y" ]; then
-    echo -e "${RED}Please delete the existing Service Principal and run this script again.${NC}"
+    echo -e "${RED}Please delete the existing Service Principal and run this script again.${RESET}"
     exit 1
   fi
 else
@@ -126,7 +126,7 @@ productionEnvironmentCredentials=$(echo -n "{
   \"audiences\": [\"api://AzureADTokenExchange\"]
 }")
 if [ "$userChoiceForReuseServicePrincipalfrastructure" == "y" ]; then
-   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name xxxx already exists'.${NC}"
+   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name xxxx already exists'.${RESET}"
 fi
 echo $mainCredential | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
 echo $pullRequestCredential | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
@@ -134,33 +134,33 @@ echo $sharedEnvironmentCredentials | az ad app federated-credential create --id 
 echo $stagingEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
 echo $productionEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
 
-echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials.${NC}"
+echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Grant subscription level 'Contributor' and 'User Access Administrator' role to the Infrastructure Service Principal${NC}"
+echo -e "${BOLD}Grant subscription level 'Contributor' and 'User Access Administrator' role to the Infrastructure Service Principal${RESET}"
 echo -e "${SEPARATOR}"
 
 az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role Contributor --scope "/subscriptions/$subscriptionId" || exit 1
 az role assignment create --assignee $servicePrincipalAppIdInfrastructure --role "User Access Administrator" --scope "/subscriptions/$subscriptionId" || exit 1
 
-echo -e "${GREEN}Successfully granted the Service Principal '$infrastructureServicePrincipalDisplayName' 'Contributor' rights to the Azure Subscription $subscriptionId.${NC}"
+echo -e "${GREEN}Successfully granted the Service Principal '$infrastructureServicePrincipalDisplayName' 'Contributor' rights to the Azure Subscription $subscriptionId.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Configuring Azure AD Security Group for Infrastructure operations${NC}"
+echo -e "${BOLD}Configuring Azure AD Security Group for Infrastructure operations${RESET}"
 echo -e "${SEPARATOR}"
 
 azureSqlServerAdmins="Azure SQL Server Admins"
 sqlServerAdminsGroupId=$(az ad group list --filter "displayname eq '$azureSqlServerAdmins'" --query "[].id" -o tsv) || exit 1
 if [ -n "$sqlServerAdminsGroupId" ]; then
-  echo -e "${YELLOW}The Azure AD Group '$azureSqlServerAdmins' already exists with Group ID: $sqlServerAdminsGroupId.${NC}"
+  echo -e "${YELLOW}The Azure AD Group '$azureSqlServerAdmins' already exists with Group ID: $sqlServerAdminsGroupId.${RESET}"
 
   echo "Would you like to continue using this group? (y/n)"
   read userChoiceForReuseGroup
 
   if [ "$userChoiceForReuseGroup" != "y" ]; then
-    echo -e "${RED}Please delete the existing group and run this script again.${NC}"
+    echo -e "${RED}Please delete the existing group and run this script again.${RESET}"
     exit 1
   fi
 else
@@ -170,23 +170,23 @@ fi
 servicePrincipalObjectIdInfrastructure=$(az ad sp list --filter "appId eq '$servicePrincipalAppIdInfrastructure'" --query "[].id" -o tsv) || exit 1
 az ad group member add --group $sqlServerAdminsGroupId --member-id $servicePrincipalObjectIdInfrastructure ||  echo -e "${YELLOW}Please ignore member already exists error."
 
-echo -e "${GREEN}Successfully added '$infrastructureServicePrincipalDisplayName' to '$azureSqlServerAdmins' Security Group.${NC}"
+echo -e "${GREEN}Successfully added '$infrastructureServicePrincipalDisplayName' to '$azureSqlServerAdmins' Security Group.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Configuring Azure AD Service Principal for Azure Container Registry (ACR)${NC}"
+echo -e "${BOLD}Configuring Azure AD Service Principal for Azure Container Registry (ACR)${RESET}"
 echo -e "${SEPARATOR}"
 
 acrServicePrincipalDisplayName="GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName"
 servicePrincipalAppIdAcr=$(az ad sp list --display-name "$acrServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
 if [ -n "$servicePrincipalAppIdAcr" ]; then
-  echo -e "${YELLOW}The Service Principal (App registration) '$acrServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdAcr.${NC}"
+  echo -e "${YELLOW}The Service Principal (App registration) '$acrServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdAcr.${RESET}"
 
   echo "Would you like to continue using this Service Principal? (y/n)"
   read userChoiceForReuseServicePrincipalAcr
 
   if [ "$userChoiceForReuseServicePrincipalAcr" != "y" ]; then
-    echo -e "${RED}Please delete the existing Service Principal and run this script again.${NC}"
+    echo -e "${RED}Please delete the existing Service Principal and run this script again.${RESET}"
     exit 1
   fi
 else
@@ -208,24 +208,24 @@ pullRequestCredential=$(echo -n "{
 }")
 
 if [ "$userChoiceForReuseServicePrincipalAcr" == "y" ]; then
-   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name MainBranch/PullRequests already exists'.${NC}"
+   echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name MainBranch/PullRequests already exists'.${RESET}"
 fi
 echo $mainCredential | az ad app federated-credential create --id $servicePrincipalAppIdAcr --parameters @-
 echo $pullRequestCredential | az ad app federated-credential create --id $servicePrincipalAppIdAcr --parameters @-
 
-echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials.${NC}"
+echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials.${RESET}"
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Assigning subscription level 'AcrPush' rights to the Service Principals${NC}"
+echo -e "${BOLD}Assigning subscription level 'AcrPush' rights to the Service Principals${RESET}"
 echo -e "${SEPARATOR}"
 
 az role assignment create --assignee $servicePrincipalAppIdAcr --role AcrPush --scope "/subscriptions/$subscriptionId" || exit 1
 
-echo -e "${GREEN}Successfully granted the Service Principal '$acrServicePrincipalDisplayName' 'AcrPush' rights to the Azure Subscription $subscriptionId.${NC}"
+echo -e "${GREEN}Successfully granted the Service Principal '$acrServicePrincipalDisplayName' 'AcrPush' rights to the Azure Subscription $subscriptionId.${RESET}"
 
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Configure GitHub secrets and variables${NC}"
+echo -e "${BOLD}Configure GitHub secrets and variables${RESET}"
 echo -e "${SEPARATOR}"
 
 echo -e "The following GitHub repository ${BOLD}secrets${NO_BOLD} must be created here: $gitHubRepositoryUrl/settings/${BOLD}secrets${NO_BOLD}/actions"
@@ -265,19 +265,19 @@ if [ "$isGitHubCLIInstalled" == "true" ]; then
       gh variable set UNIQUE_CLUSTER_PREFIX -b"$clusterPrefix" --repo=$gitHubRepositoryPath || exit 1
     fi
      
-    echo -e "${GREEN}Successfully created secrets in GitHub.${NC}"
+    echo -e "${GREEN}Successfully created secrets in GitHub.${RESET}"
   else
-    echo -e "\n${YELLOW}Please manually create the secrets and variables.${NC}"
+    echo -e "\n${YELLOW}Please manually create the secrets and variables.${RESET}"
   fi
 else
-  echo -e "\n${YELLOW}GitHub CLI is not installed. Please manually create the secrets and variables.${NC}"
+  echo -e "\n${YELLOW}GitHub CLI is not installed. Please manually create the secrets and variables.${RESET}"
 fi
 
 echo -e "\n${SEPARATOR}"
-echo -e "${BOLD}Setup completed${NC}"
+echo -e "${BOLD}Setup completed${RESET}"
 echo -e "${SEPARATOR}"
 
-echo -e "\n${YELLOW}Please manually set up SonarCloud to enable static code analysis. Alternativly disable the test-with-code-coverage job in the application.yml workflow.${NC}"
+echo -e "\n${YELLOW}Please manually set up SonarCloud to enable static code analysis. Alternativly disable the test-with-code-coverage job in the application.yml workflow.${RESET}"
 echo -e "- Sign up for a SonarCloud account here: https://sonarcloud.io. Use your GitHub account for authentication."
 echo -e "- Set up the following GitHub repository variables here: $gitHubRepositoryUrl/settings/${BOLD}variables${NO_BOLD}/actions:"
 echo -e "  - SONAR_ORGANIZATION"
@@ -285,11 +285,11 @@ echo -e "  - SONAR_PROJECT_KEY"
 echo -e "- Set up the following GitHub repository secret here: $gitHubRepositoryUrl/settings/${BOLD}secrets${NO_BOLD}/actions:"
 echo -e "  - SONAR_TOKEN to the token generated in SonarCloud."
 
-echo -e "\n${BOLD}${GREEN}You are now ready to run these GitHub Action workflows from the main branch:${NC}"
-echo -e "${GREEN}- 'Cloud Infrastructure - Deployment': cloud-infrastructure.yml${NC}"
-echo -e "${GREEN}- 'Application - Build and Deploy': application.yml${NC}"
+echo -e "\n${BOLD}${GREEN}You are now ready to run these GitHub Action workflows from the main branch:${RESET}"
+echo -e "${GREEN}- 'Cloud Infrastructure - Deployment': cloud-infrastructure.yml${RESET}"
+echo -e "${GREEN}- 'Application - Build and Deploy': application.yml${RESET}"
 
-echo -e "\n${YELLOW}${BOLD}TIP:${NO_BOLD} First run the 'Shared' step of the Infrastructure to deploy the Azure Container Registry (ACR).${NC}"
-echo -e "${YELLOW}Then run the 'Build and Test' to push an image to it, before deploying the rest of the infrastructure.${NC}"
+echo -e "\n${YELLOW}${BOLD}TIP:${NO_BOLD} First run the 'Shared' step of the Infrastructure to deploy the Azure Container Registry (ACR).${RESET}"
+echo -e "${YELLOW}Then run the 'Build and Test' to push an image to it, before deploying the rest of the infrastructure.${RESET}"
 
 exit 0
