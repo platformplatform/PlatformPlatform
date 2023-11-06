@@ -7,7 +7,7 @@ BOLD='\033[1m'
 NO_BOLD='\033[22m'
 SEPARATOR="${BOLD}---------------------------------------------------------------------------${RESET}"
 
-if [ -z "$BASH_VERSION" ]; then
+if [[ -z "$BASH_VERSION" ]]; then
   echo ""
   echo -e "${RED}This script must be run in Bash. Please run ${BOLD}'bash ./initialize-azure.sh'.${RESET}"
   return
@@ -33,7 +33,7 @@ read subscriptionId
 az account set --subscription $subscriptionId || exit 1
 az account show --query 'id' -o tsv | grep -q $subscriptionId || exit 1
 
-if [ "$tenantId" != $(az account show --query 'tenantId' -o tsv) ]; then
+if [[ "$tenantId" != $(az account show --query 'tenantId' -o tsv) ]]; then
   echo -e "${RED}The Azure Subscription ID: '$subscriptionId' is not on the Tenant with ID '$tenantId'. Did you select the 'id' property?.${RESET}"
   exit 1
 fi
@@ -80,13 +80,13 @@ echo -e "${SEPARATOR}"
 
 infrastructureServicePrincipalDisplayName="GitHub Azure Infrastructure - $gitHubOrganization - $gitHubRepositoryName"
 servicePrincipalAppIdInfrastructure=$(az ad sp list --display-name "$infrastructureServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
-if [ -n "$servicePrincipalAppIdInfrastructure" ]; then
+if [[ -n "$servicePrincipalAppIdInfrastructure" ]]; then
   echo -e "${YELLOW}The Service Principal (App registration) '$infrastructureServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdInfrastructure.${RESET}"
 
   echo "Would you like to continue using this Service Principal? (y/n)"
   read userChoiceForReuseServicePrincipalfrastructure
 
-  if [ "$userChoiceForReuseServicePrincipalfrastructure" != "y" ]; then
+  if [[ "$userChoiceForReuseServicePrincipalfrastructure" != "y" ]]; then
     echo -e "${RED}Please delete the existing Service Principal and run this script again.${RESET}"
     exit 1
   fi
@@ -125,7 +125,7 @@ productionEnvironmentCredentials=$(echo -n "{
   \"subject\": \"repo:$gitHubRepositoryPath:environment:production\",
   \"audiences\": [\"api://AzureADTokenExchange\"]
 }")
-if [ "$userChoiceForReuseServicePrincipalfrastructure" == "y" ]; then
+if [[ "$userChoiceForReuseServicePrincipalfrastructure" == "y" ]]; then
    echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name xxxx already exists'.${RESET}"
 fi
 echo $mainCredential | az ad app federated-credential create --id $servicePrincipalAppIdInfrastructure --parameters @-
@@ -153,13 +153,13 @@ echo -e "${SEPARATOR}"
 
 azureSqlServerAdmins="Azure SQL Server Admins"
 sqlServerAdminsGroupId=$(az ad group list --filter "displayname eq '$azureSqlServerAdmins'" --query "[].id" -o tsv) || exit 1
-if [ -n "$sqlServerAdminsGroupId" ]; then
+if [[ -n "$sqlServerAdminsGroupId" ]]; then
   echo -e "${YELLOW}The Azure AD Group '$azureSqlServerAdmins' already exists with Group ID: $sqlServerAdminsGroupId.${RESET}"
 
   echo "Would you like to continue using this group? (y/n)"
   read userChoiceForReuseGroup
 
-  if [ "$userChoiceForReuseGroup" != "y" ]; then
+  if [[ "$userChoiceForReuseGroup" != "y" ]]; then
     echo -e "${RED}Please delete the existing group and run this script again.${RESET}"
     exit 1
   fi
@@ -179,13 +179,13 @@ echo -e "${SEPARATOR}"
 
 acrServicePrincipalDisplayName="GitHub Azure Container Registry - $gitHubOrganization - $gitHubRepositoryName"
 servicePrincipalAppIdAcr=$(az ad sp list --display-name "$acrServicePrincipalDisplayName" --query "[].appId" -o tsv) || exit 1
-if [ -n "$servicePrincipalAppIdAcr" ]; then
+if [[ -n "$servicePrincipalAppIdAcr" ]]; then
   echo -e "${YELLOW}The Service Principal (App registration) '$acrServicePrincipalDisplayName' already exists with App ID: $servicePrincipalAppIdAcr.${RESET}"
 
   echo "Would you like to continue using this Service Principal? (y/n)"
   read userChoiceForReuseServicePrincipalAcr
 
-  if [ "$userChoiceForReuseServicePrincipalAcr" != "y" ]; then
+  if [[ "$userChoiceForReuseServicePrincipalAcr" != "y" ]]; then
     echo -e "${RED}Please delete the existing Service Principal and run this script again.${RESET}"
     exit 1
   fi
@@ -207,7 +207,7 @@ pullRequestCredential=$(echo -n "{
   \"audiences\": [\"api://AzureADTokenExchange\"]
 }")
 
-if [ "$userChoiceForReuseServicePrincipalAcr" == "y" ]; then
+if [[ "$userChoiceForReuseServicePrincipalAcr" == "y" ]]; then
    echo -e "${YELLOW}You are reusing the Service Principal. Please ignore the error: 'FederatedIdentityCredential with name MainBranch/PullRequests already exists'.${RESET}"
 fi
 echo $mainCredential | az ad app federated-credential create --id $servicePrincipalAppIdAcr --parameters @-
@@ -240,11 +240,11 @@ echo -e "- CONTAINER_REGISTRY_NAME: <unique name for your Azure Container Regist
 echo -e "- UNIQUE_CLUSTER_PREFIX: <your unique perfix for azure resources. Max 8 alphanumeric characters."
 
 isGitHubCLIInstalled=$(command -v gh > /dev/null 2>&1 && echo "true" || echo "false")
-if [ "$isGitHubCLIInstalled" == "true" ]; then
+if [[ "$isGitHubCLIInstalled" == "true" ]]; then
   echo "Would you like to do this using GitHub CLI? (y/n)"
   read userChoiceForSecretCreation
 
-  if [ "$userChoiceForSecretCreation" == "y" ]; then
+  if [[ "$userChoiceForSecretCreation" == "y" ]]; then
     echo "Enter your Azure Container Registry (ACR) name (leave blank to use exiting value):"
     read acrName
 
@@ -258,10 +258,10 @@ if [ "$isGitHubCLIInstalled" == "true" ]; then
     gh secret set AZURE_SERVICE_PRINCIPAL_ID_ACR -b"$servicePrincipalAppIdAcr" --repo=$gitHubRepositoryPath || exit 1
     gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b"$sqlServerAdminsGroupId" --repo=$gitHubRepositoryPath || exit 1
 
-    if [ -n "$acrName" ]; then
+    if [[ -n "$acrName" ]]; then
       gh variable set CONTAINER_REGISTRY_NAME -b"$acrName" --repo=$gitHubRepositoryPath || exit 1
     fi
-    if [ -n "$clusterPrefix" ]; then
+    if [[ -n "$clusterPrefix" ]]; then
       gh variable set UNIQUE_CLUSTER_PREFIX -b"$clusterPrefix" --repo=$gitHubRepositoryPath || exit 1
     fi
      
