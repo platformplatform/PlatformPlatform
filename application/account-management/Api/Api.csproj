@@ -31,4 +31,8 @@
         </Content>
     </ItemGroup>
 
+    <Target Name="CreateSwaggerJson" AfterTargets="Build" Condition="$(Configuration)=='Debug'">
+        <Exec Command="dotnet swagger tofile --output $(OutputPath)swagger.json $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bunx openapi-typescript $(OutputPath)swagger.json -o ../WebApp/src/lib/api/schema.d.ts" WorkingDirectory="$(ProjectDir)"/>
+    </Target>
 </Project>

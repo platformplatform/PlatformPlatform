@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.74-alpha">
+    <PropertyGroup Condition=" '$(OS)' == 'Unix' ">
+        <FrameworkPathOverride
+        >/usr/local/share/dotnet/shared/Microsoft.NETCore.App/7.0.403/mscorlib.dll
+        </FrameworkPathOverride
+        >
+    </PropertyGroup>
+    <PropertyGroup>
+        <StartupCommand>set BROWSER=none&amp;&amp;bun dev</StartupCommand>
+        <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+        <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
+        <!-- Command to run on project build -->
+        <BuildCommand>bun run build</BuildCommand>
+        <!-- Command to create an optimized build of the project that's ready for publishing -->
+        <ProductionBuildCommand>bun run build</ProductionBuildCommand>
+        <!-- Folder where production build objects will be placed -->
+        <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+    </PropertyGroup>
+    <ItemGroup>
+        <Script Include="tsconfig.json"/>
+    </ItemGroup>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.VisualStudio.JavaScript.Sdk" Version="0.5.74-alpha"/>
+    <Import Project="Sdk.targets" Sdk="Microsoft.VisualStudio.JavaScript.Sdk" Version="0.5.74-alpha"/>
+    <Target Name="DebugEnsureNodeEnv"/> <!-- Redifine the target to do nothing -->
+</Project>

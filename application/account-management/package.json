@@ -1,0 +1,10 @@
+{
+  "name": "account-management-workspace",
+  "private": true,
+  "description": "Account Management npm workspace",
+  "version": "1.0.0",
+  "workspaces": [
+    "WebApp",
+    "Api/ClientTypings"
+  ]
+}
