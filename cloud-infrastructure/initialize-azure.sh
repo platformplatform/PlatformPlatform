@@ -188,6 +188,8 @@ echo -e "\n"
 echo -e "The following GitHub repository ${BOLD}variables${NO_BOLD} must be created:"
 echo -e "- CONTAINER_REGISTRY_NAME: <unique name for your Azure Container Registry (ACR)>"
 echo -e "- UNIQUE_CLUSTER_PREFIX: <your unique perfix for azure resources. Max 8 alphanumeric characters."
+echo -e "- DOMAIN_NAME_STAGING: Optional domain name for your staging environment. If provided domain and SSL cerficate will be created."
+echo -e "- DOMAIN_NAME_PRODUCTION: Optional domain name for your production environment. If provided domain and SSL cerficate will be created."
 
 isGitHubCLIInstalled=$(command -v gh > /dev/null 2>&1 && echo "true" || echo "false")
 if [[ "$isGitHubCLIInstalled" == "true" ]]; then
@@ -213,7 +215,7 @@ if [[ "$isGitHubCLIInstalled" == "true" ]]; then
     if [[ -n "$clusterPrefix" ]]; then
       gh variable set UNIQUE_CLUSTER_PREFIX -b"$clusterPrefix" --repo=$gitHubRepositoryPath || exit 1
     fi
-     
+
     echo -e "${GREEN}Successfully created secrets in GitHub.${RESET}"
   fi
 fi
@@ -232,7 +234,6 @@ fi
 echo -e "\n${YELLOW}To finalize setting configuration of GitHub, please follow these instructions to setup environments:${RESET}"
 echo -e "- Navigate to: $gitHubRepositoryUrl/settings/environments"
 echo -e "- Create three environments named: ${BOLD}production${NO_BOLD}, ${BOLD}staging${NO_BOLD}, and ${BOLD}shared${NO_BOLD}."
-echo -e "- For the ${BOLD}production${NO_BOLD} and ${BOLD}staging${NO_BOLD} environments, optionally create an environment variable named ${BOLD}DOMAIN_NAME${NO_BOLD} to set up a Custom Domain name and SSL Certificate."
 echo -e "- It's also recommended to set up 'Required reviewers' and 'Branch protection rules' for each environment to ensure only code from the main branch are deployed."
 
 
