@@ -15,4 +15,8 @@
     <!-- Folder where production build objects will be placed -->
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.VisualStudio.JavaScript.Sdk" Version="0.5.74-alpha" />
+    <Import Project="Sdk.targets" Sdk="Microsoft.VisualStudio.JavaScript.Sdk" Version="0.5.74-alpha" />
+    <Target Name="DebugEnsureNodeEnv" /> <!-- Redifine the target to do nothing -->
 </Project>
