@@ -104,6 +104,7 @@ jobs:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
           UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          DOMAIN_NAME: ${{ env.DOMAIN_NAME.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
   staging-environment-deploy:
@@ -170,6 +171,7 @@ jobs:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
           UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          DOMAIN_NAME: ${{ env.DOMAIN_NAME.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
       - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
@@ -217,6 +219,7 @@ jobs:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
           UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          DOMAIN_NAME: ${{ env.DOMAIN_NAME.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
 
   production-environment-deploy:
@@ -283,6 +286,7 @@ jobs:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
           UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          DOMAIN_NAME: ${{ env.DOMAIN_NAME.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
 
       - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
