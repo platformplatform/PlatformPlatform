@@ -132,7 +132,7 @@ echo $sharedEnvironmentCredentials | az ad app federated-credential create --id 
 echo $stagingEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppId --parameters @-
 echo $productionEnvironmentCredentials | az ad app federated-credential create --id $servicePrincipalAppId --parameters @-
 if [[ "$reuseServicePrincipal" == "y" ]]; then
-   echo -e "${YELLOW}Please ignore the error: 'FederatedIdentityCredential with name xxxx already exists'.${RESET}"
+   echo -e "${YELLOW}Please ignore the errors: 'FederatedIdentityCredential with name xxxx already exists'.${RESET}"
 fi
 
 echo -e "${GREEN}Successfully configured Service Principal with Federated Credentials.${RESET}"
@@ -179,13 +179,13 @@ echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Configure GitHub secrets and variables${RESET}"
 echo -e "${SEPARATOR}"
 
-echo -e "The following GitHub repository ${BOLD}secrets${NO_BOLD} must be created here: $gitHubRepositoryUrl/settings/${BOLD}secrets${NO_BOLD}/actions"
+echo -e "The following GitHub repository ${BOLD}secrets${NO_BOLD} must be created:"
 echo -e "- AZURE_TENANT_ID: $tenantId"
 echo -e "- AZURE_SUBSCRIPTION_ID: $subscriptionId"
 echo -e "- AZURE_SERVICE_PRINCIPAL_ID: $servicePrincipalAppId"
 echo -e "- ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: $sqlServerAdminsGroupId"
 echo -e "\n"
-echo -e "The following GitHub repository ${BOLD}variables${NO_BOLD} must be created here: $gitHubRepositoryUrl/settings/${BOLD}variables${NO_BOLD}/actions"
+echo -e "The following GitHub repository ${BOLD}variables${NO_BOLD} must be created:"
 echo -e "- CONTAINER_REGISTRY_NAME: <unique name for your Azure Container Registry (ACR)>"
 echo -e "- UNIQUE_CLUSTER_PREFIX: <your unique perfix for azure resources. Max 8 alphanumeric characters."
 
@@ -215,16 +215,26 @@ if [[ "$isGitHubCLIInstalled" == "true" ]]; then
     fi
      
     echo -e "${GREEN}Successfully created secrets in GitHub.${RESET}"
-  else
-    echo -e "\n${YELLOW}Please manually create the secrets and variables.${RESET}"
   fi
-else
-  echo -e "\n${YELLOW}GitHub CLI is not installed. Please manually create the secrets and variables.${RESET}"
 fi
 
 echo -e "\n${SEPARATOR}"
 echo -e "${BOLD}Setup completed${RESET}"
 echo -e "${SEPARATOR}"
+
+
+if [[ "$isGitHubCLIInstalled" != "true" ]] || [[ "$userChoiceForSecretCreation" != "y" ]]; then
+  echo -e "\n${YELLOW}Please manually create the GitHub repository secrets and varibles:${RESET}"
+  echo -e "- Create secrets here: $gitHubRepositoryUrl/settings/${BOLD}secrets${NO_BOLD}/actions"
+  echo -e "- Create varibles here: $gitHubRepositoryUrl/settings/${BOLD}variables${NO_BOLD}/actions"
+fi
+
+echo -e "\n${YELLOW}To finalize setting configuration of GitHub, please follow these instructions to setup environments:${RESET}"
+echo -e "- Navigate to: $gitHubRepositoryUrl/settings/environments"
+echo -e "- Create three environments named: ${BOLD}production${NO_BOLD}, ${BOLD}staging${NO_BOLD}, and ${BOLD}shared${NO_BOLD}."
+echo -e "- For the ${BOLD}production${NO_BOLD} and ${BOLD}staging${NO_BOLD} environments, optionally create an environment variable named ${BOLD}DOMAIN_NAME${NO_BOLD} to set up a Custom Domain name and SSL Certificate."
+echo -e "- It's also recommended to set up 'Required reviewers' and 'Branch protection rules' for each environment to ensure only code from the main branch are deployed."
+
 
 echo -e "\n${YELLOW}Please manually set up SonarCloud to enable static code analysis. Alternativly disable the test-with-code-coverage job in the application.yml workflow.${RESET}"
 echo -e "- Sign up for a SonarCloud account here: https://sonarcloud.io. Use your GitHub account for authentication."
