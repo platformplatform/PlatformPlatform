@@ -20,11 +20,11 @@ permissions:
   contents: read
 
 jobs:
-  shared-plan:
-    name: Plan Shared
+  plan:
+    name: Plan Changes
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install Bicep CLI
@@ -41,65 +41,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Plan changes to Shared resources
+      - name: Plan Changes to Shared Resources
         env:
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
         run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
 
-  shared-deploy:
-    name: Deploy Shared
-    if: github.ref == 'refs/heads/main'
-    needs: [shared-plan, staging-plan, production-plan]
-    runs-on: ubuntu-latest
-    environment: "shared" ## Force a manual approval
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Login to Azure subscription
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Shared resources
-        env:
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
-
-  staging-plan:
-    name: Plan Staging
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Login to Azure subscription
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Plan changes to shared Staging environment resources
+      - name: Plan Changes to Shared Staging Environment Resources
         run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
-      - name: Plan changes to Staging West Europe cluster
+      - name: Plan Changes to Staging West Europe Cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
@@ -107,14 +57,25 @@ jobs:
           DOMAIN_NAME: ${{ env.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
-  staging-environment-deploy:
-    name: Staging Environment
+      - name: Plan Changes to Shared Production Environment Resources
+        run: bash ./cloud-infrastructure/environment/config/production.sh --plan
+
+      - name: Plan Changes to Production West Europe Cluster
+        env:
+          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          DOMAIN_NAME: ${{ env.DOMAIN_NAME }}
+        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
+
+  shared:
+    name: Shared
     if: github.ref == 'refs/heads/main'
-    needs: shared-deploy
+    needs: plan
     runs-on: ubuntu-latest
-    environment: "staging" ## Force a manual approval
+    environment: "shared" ## Force a manual approval
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install Bicep CLI
@@ -124,23 +85,26 @@ jobs:
           sudo mv ./bicep /usr/local/bin/bicep &&
           bicep --version
 
-      - name: Login to Azure subscription
+      - name: Login to Azure Subscription
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy shared Staging environment resources
-        run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
+      - name: Deploy Shared Resources
+        env:
+          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
+        run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
 
-  staging-west-europe-deploy:
-    name: Staging Cluster
+  staging:
+    name: Staging
     if: github.ref == 'refs/heads/main'
-    needs: staging-environment-deploy
+    needs: shared
     runs-on: ubuntu-latest
+    environment: "staging" ## Force a manual approval
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install Bicep CLI
@@ -150,7 +114,7 @@ jobs:
           sudo mv ./bicep /usr/local/bin/bicep &&
           bicep --version
 
-      - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
         run: |
           sudo apt-get remove -y mssql-tools &&
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
@@ -158,14 +122,17 @@ jobs:
           sudo apt-get update &&
           sudo apt-get install -y sqlcmd
 
-      - name: Login to Azure subscription
+      - name: Login to Azure Subscription
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy Staging West Europe cluster
+      - name: Deploy Shared Staging Environment Resources
+        run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
+
+      - name: Deploy Staging West Europe Cluster
         id: deploy_cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -174,14 +141,14 @@ jobs:
           DOMAIN_NAME: ${{ env.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
-      - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
+      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Grant Database permissions
+      - name: Grant Database Permissions
         env:
           ENVIRONMENT: "staging"
           LOCATION_PREFIX: "west-europe"
@@ -190,46 +157,14 @@ jobs:
           ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
 
-  production-plan:
-    name: Plan Production
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Login to Azure subscription
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Plan changes to shared Production environment resources
-        run: bash ./cloud-infrastructure/environment/config/production.sh --plan
-
-      - name: Plan changes to Production West Europe cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
-          DOMAIN_NAME: ${{ env.DOMAIN_NAME }}
-        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
-
-  production-environment-deploy:
-    name: Production Environment
+  production:
+    name: Production
     if: github.ref == 'refs/heads/main'
-    needs: staging-west-europe-deploy
+    needs: staging
     runs-on: ubuntu-latest
     environment: "production" ## Force a manual approval
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Install Bicep CLI
@@ -239,33 +174,7 @@ jobs:
           sudo mv ./bicep /usr/local/bin/bicep &&
           bicep --version
 
-      - name: Login to Azure subscription
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy shared Production environment resources
-        run: bash ./cloud-infrastructure/environment/config/production.sh --apply
-
-  production-west-europe-deploy:
-    name: Production Cluster
-    if: github.ref == 'refs/heads/main'
-    needs: production-environment-deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Replace classic sqlcmd (ODBC) with sqlcmd (GO)
+      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
         run: |
           sudo apt-get remove -y mssql-tools &&
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
@@ -273,14 +182,17 @@ jobs:
           sudo apt-get update &&
           sudo apt-get install -y sqlcmd
 
-      - name: Login to Azure subscription
+      - name: Login to Azure Subscription
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy Production West Europe cluster
+      - name: Deploy Shared Production Environment Resources
+        run: bash ./cloud-infrastructure/environment/config/production.sh --apply
+
+      - name: Deploy Production West Europe Cluster
         id: deploy_cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
@@ -289,14 +201,14 @@ jobs:
           DOMAIN_NAME: ${{ env.DOMAIN_NAME }}
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
 
-      - name: Refresh Azure tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
+      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Grant Database permissions
+      - name: Grant Database Permissions
         env:
           ENVIRONMENT: "production"
           LOCATION_PREFIX: "west-europe"
