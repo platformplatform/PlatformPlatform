@@ -3,6 +3,7 @@ param location string
 param tags object
 param resourceGroupName string
 param environmentId string
+param environmentName string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
@@ -11,6 +12,8 @@ param memory string = '0.5Gi'
 param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
+param domainName string
+param accountManagementDomainConfigured bool
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -26,6 +29,44 @@ module containerRegistryPermission './container-registry-permission.bicep' = {
     identityPrincipalId: userAssignedIdentity.properties.principalId
   }
 }
+
+var certificateName = '${domainName}-certificate'
+var isCustomDomainSet = domainName != ''
+
+module newManagedCertificate './managed-certificate.bicep' =
+  if (isCustomDomainSet) {
+    name: certificateName
+    scope: resourceGroup(resourceGroupName)
+    dependsOn: [containerApp]
+    params: {
+      name: certificateName
+      location: location
+      tags: tags
+      environmentName: environmentName
+      domainName: domainName
+    }
+  }
+
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing =
+  if (isCustomDomainSet) {
+    name: environmentName
+  }
+
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing =
+  if (isCustomDomainSet) {
+    name: certificateName
+    parent: containerAppsEnvironment
+  }
+
+var customDomainConfiguration = isCustomDomainSet
+  ? [
+      {
+        bindingType: accountManagementDomainConfigured ? 'SniEnabled' : 'Disabled'
+        name: domainName
+        certificateId: accountManagementDomainConfigured ? existingManagedCertificate.id : null
+      }
+    ]
+  : []
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
 resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
@@ -65,7 +106,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
           ]
         }
       ]
-      revisionSuffix: replace(containerImageTag, '.', '-')           
+      revisionSuffix: replace(containerImageTag, '.', '-')
       scale: {
         minReplicas: 0
       }
@@ -88,6 +129,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
             weight: 100
           }
         ]
+        customDomains: customDomainConfiguration
         stickySessions: null
       }
     }

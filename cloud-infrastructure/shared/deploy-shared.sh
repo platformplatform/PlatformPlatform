@@ -19,3 +19,8 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n "$CURRENT_DATE-$RESOURCE_GROUP_NAME" --ou
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
+
+if [[ $output == "ERROR:"* ]]; then
+  echo -e "${RED}$output"
+  exit 1
+fi
