@@ -4,18 +4,25 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build"
+    "build": "rspack build",
+    "generate:client": "NODE_TLS_REJECT_UNAUTHORIZED=\"0\" bun openapi-zod-client \"https://localhost:8443/swagger/v1/swagger.json\" -o \"./src/lib/api/client.ts\""
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.36.1",
+    "@zodios/core": "^10.9.6",
+    "@zodios/react": "^10.4.5",
+    "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-aria-components": "^1.0.0-beta.2",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@rspack/cli": "latest",
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
     "autoprefixer": "^10.4.16",
+    "openapi-zod-client": "^1.13.1",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "prettier": "^3.0.3",
