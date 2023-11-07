@@ -1,3 +1,4 @@
+#!/bin/bash
 
 ENVIRONMENT="development"
 LOCATION="WestEurope"
