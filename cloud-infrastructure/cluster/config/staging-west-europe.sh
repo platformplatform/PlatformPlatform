@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ENVIRONMENT="staging"
 LOCATION="WestEurope"
 LOCATION_PREFIX="west-europe"

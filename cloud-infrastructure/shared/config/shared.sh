@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ENVIRONMENT="production"
 LOCATION="WestEurope"
 

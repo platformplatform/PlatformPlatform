@@ -19,5 +19,5 @@ fi
 if [[ "$*" == *"--apply"* ]]
 then
     echo "$(date +"%Y-%m-%dT%H:%M:%S") Applying changes..."
-    export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS | tee /dev/tty)
+    export output=$($DEPLOYMENT_COMMAND $DEPLOYMENT_PARAMETERS 2>&1)
 fi
