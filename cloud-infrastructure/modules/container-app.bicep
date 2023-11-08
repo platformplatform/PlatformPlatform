@@ -9,6 +9,8 @@ param containerImageName string
 param containerImageTag string
 param cpu string = '0.25'
 param memory string = '0.5Gi'
+param minReplicas int = 1
+param maxReplicas int = 3
 param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
@@ -108,7 +110,8 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
       ]
       revisionSuffix: replace(containerImageTag, '.', '-')
       scale: {
-        minReplicas: 0
+        minReplicas: minReplicas
+        maxReplicas: maxReplicas
       }
     }
     configuration: {

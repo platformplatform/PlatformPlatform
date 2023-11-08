@@ -175,6 +175,8 @@ module accountManagementApi '../modules/container-app.bicep' = {
     containerImageTag: accountManagementApiVersion
     cpu: '0.25'
     memory: '0.5Gi'
+    minReplicas: 1
+    maxReplicas: 3
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
