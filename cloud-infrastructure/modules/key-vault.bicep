@@ -6,7 +6,7 @@ param subnetId string
 param storageAccountId string
 param workspaceId string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name
   location: location
   tags: tags

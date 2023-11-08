@@ -3,7 +3,7 @@ param location string
 param tags object
 param subnetId string
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' = {
   name: name
   location: location
   tags: tags

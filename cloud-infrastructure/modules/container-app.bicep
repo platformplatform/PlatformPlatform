@@ -47,12 +47,12 @@ module newManagedCertificate './managed-certificate.bicep' =
     }
   }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing =
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
     name: environmentName
   }
 
-resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing =
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
     name: certificateName
     parent: containerAppsEnvironment
@@ -69,7 +69,7 @@ var customDomainConfiguration = isCustomDomainSet
   : []
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
-resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
   location: location
   tags: tags

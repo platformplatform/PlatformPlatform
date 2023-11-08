@@ -30,7 +30,7 @@ resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces
   name: '${environment}-log-analytics-workspace'
 }
 
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
   location: location
   tags: tags
