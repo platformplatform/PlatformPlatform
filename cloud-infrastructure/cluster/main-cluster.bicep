@@ -181,7 +181,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: domainName == '' ? '' : 'account-management-api.${domainName}'
-    accountManagementDomainConfigured: domainName != '' && accountManagementDomainConfigured
+    domainConfigured: domainName != '' && accountManagementDomainConfigured
   }
   dependsOn: [accountManagementDatabase]
 }

@@ -15,7 +15,7 @@ param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
-param accountManagementDomainConfigured bool
+param domainConfigured bool
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -63,9 +63,9 @@ resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCe
 var customDomainConfiguration = isCustomDomainSet
   ? [
       {
-        bindingType: accountManagementDomainConfigured ? 'SniEnabled' : 'Disabled'
+        bindingType: domainConfigured ? 'SniEnabled' : 'Disabled'
         name: domainName
-        certificateId: accountManagementDomainConfigured ? existingManagedCertificate.id : null
+        certificateId: domainConfigured ? existingManagedCertificate.id : null
       }
     ]
   : []
