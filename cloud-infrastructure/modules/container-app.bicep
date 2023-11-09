@@ -70,6 +70,8 @@ var customDomainConfiguration = isCustomDomainSet
     ]
   : []
 
+var imageTag = containerImageTag != '' ? containerImageTag : 'latest'
+
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
 resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
@@ -87,7 +89,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
       containers: [
         {
           name: name
-          image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
+          image: '${containerRegistryServerUrl}/${containerImageName}:${imageTag}'
           resources: {
             cpu: json(cpu)
             memory: memory
@@ -108,7 +110,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           ]
         }
       ]
-      revisionSuffix: replace(containerImageTag, '.', '-')
+      revisionSuffix: containerImageTag == '' ? 'initial' : null
       scale: {
         minReplicas: minReplicas
         maxReplicas: maxReplicas

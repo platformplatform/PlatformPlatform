@@ -23,9 +23,16 @@ else
   echo "$(date +"%Y-%m-%dT%H:%M:%S") All environment variables are set."
 fi
 
-get_active_version() {
-  local image=$(az containerapp revision list --name $1 --resource-group $RESOURCE_GROUP_NAME --query "[0].properties.template.containers[0].image" --output tsv 2>/dev/null)
-  [ -z "$image" ] && echo "latest" || echo ${image##*:}
+get_active_version()
+{
+   local image=$(az containerapp revision list --name $1 --resource-group $RESOURCE_GROUP_NAME --query "[0].properties.template.containers[0].image" --output tsv 2>/dev/null)
+   local version=${image##*:}
+   
+   if [[ -z "$image" ]]; then
+      echo ""
+   else
+      echo $version
+   fi
 }
 
 function is_domain_configured() {

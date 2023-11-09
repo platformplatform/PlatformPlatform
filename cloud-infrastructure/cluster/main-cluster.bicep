@@ -9,7 +9,7 @@ param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
-param accountManagementApiVersion string
+param accountManagementApiVersion string = ''
 param accountManagementDomainConfigured bool
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
