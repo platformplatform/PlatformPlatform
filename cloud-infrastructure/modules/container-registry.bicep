@@ -2,7 +2,7 @@ param name string
 param location string
 param tags object
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-06-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-08-01-preview' = {
   name: name
   location: location
   tags: tags

@@ -9,7 +9,7 @@ param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
-param accountManagementApiVersion string
+param accountManagementApiVersion string = ''
 param accountManagementDomainConfigured bool
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -30,7 +30,7 @@ resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces
   name: '${environment}-log-analytics-workspace'
 }
 
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: resourceGroupName
   location: location
   tags: tags
@@ -175,11 +175,13 @@ module accountManagementApi '../modules/container-app.bicep' = {
     containerImageTag: accountManagementApiVersion
     cpu: '0.25'
     memory: '0.5Gi'
+    minReplicas: 1
+    maxReplicas: 3
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: domainName == '' ? '' : 'account-management-api.${domainName}'
-    accountManagementDomainConfigured: domainName != '' && accountManagementDomainConfigured
+    domainConfigured: domainName != '' && accountManagementDomainConfigured
   }
   dependsOn: [accountManagementDatabase]
 }

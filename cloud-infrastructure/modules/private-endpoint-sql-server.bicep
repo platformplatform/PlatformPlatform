@@ -4,7 +4,7 @@ param tags object
 param subnetId string
 param sqlServerId string
 
-resource privatelink 'Microsoft.Network/privateEndpoints@2023-04-01' = {
+resource privatelink 'Microsoft.Network/privateEndpoints@2023-05-01' = {
   name: name
   location: location
   tags: tags

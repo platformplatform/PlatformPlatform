@@ -7,7 +7,7 @@ param skuTier string
 param skuCapacity int
 param maxDatabaseCapacity int
 
-resource microsoftSqlServerElasticPool 'Microsoft.Sql/servers/elasticPools@2022-11-01-preview' = {
+resource microsoftSqlServerElasticPool 'Microsoft.Sql/servers/elasticPools@2023-05-01-preview' = {
   name: '${sqlServerName}/${name}'
   tags: tags
   location: location

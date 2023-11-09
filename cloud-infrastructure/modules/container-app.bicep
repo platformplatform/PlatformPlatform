@@ -9,11 +9,13 @@ param containerImageName string
 param containerImageTag string
 param cpu string = '0.25'
 param memory string = '0.5Gi'
+param minReplicas int = 1
+param maxReplicas int = 3
 param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
-param accountManagementDomainConfigured bool
+param domainConfigured bool
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -47,12 +49,12 @@ module newManagedCertificate './managed-certificate.bicep' =
     }
   }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing =
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
     name: environmentName
   }
 
-resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-01' existing =
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
     name: certificateName
     parent: containerAppsEnvironment
@@ -61,15 +63,17 @@ resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCe
 var customDomainConfiguration = isCustomDomainSet
   ? [
       {
-        bindingType: accountManagementDomainConfigured ? 'SniEnabled' : 'Disabled'
+        bindingType: domainConfigured ? 'SniEnabled' : 'Disabled'
         name: domainName
-        certificateId: accountManagementDomainConfigured ? existingManagedCertificate.id : null
+        certificateId: domainConfigured ? existingManagedCertificate.id : null
       }
     ]
   : []
 
+var imageTag = containerImageTag != '' ? containerImageTag : 'latest'
+
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
-resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
   location: location
   tags: tags
@@ -85,7 +89,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
       containers: [
         {
           name: name
-          image: '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
+          image: '${containerRegistryServerUrl}/${containerImageName}:${imageTag}'
           resources: {
             cpu: json(cpu)
             memory: memory
@@ -106,9 +110,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-04-01-preview' = {
           ]
         }
       ]
-      revisionSuffix: replace(containerImageTag, '.', '-')
+      revisionSuffix: containerImageTag == '' ? 'initial' : null
       scale: {
-        minReplicas: 0
+        minReplicas: minReplicas
+        maxReplicas: maxReplicas
       }
     }
     configuration: {

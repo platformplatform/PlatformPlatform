@@ -5,7 +5,7 @@ param subnetId string
 param tenantId string
 param sqlAdminObjectId string
 
-resource microsoftSqlServer 'Microsoft.Sql/servers@2022-11-01-preview' = {
+resource microsoftSqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: name
   location: location
   tags: tags
@@ -27,7 +27,7 @@ resource microsoftSqlServer 'Microsoft.Sql/servers@2022-11-01-preview' = {
   }
 }
 
-resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2022-11-01-preview' = {
+resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@2023-05-01-preview' = {
   name: 'sql-server-virtual-network-rule'
   parent: microsoftSqlServer
   properties: {
@@ -36,7 +36,7 @@ resource sqlServerVirtualNetworkRule 'Microsoft.Sql/servers/virtualNetworkRules@
   }
 }
 
-resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/securityAlertPolicies@2022-11-01-preview' = {
+resource microsoftSqlServerSecurityAlertPolicies 'Microsoft.Sql/servers/securityAlertPolicies@2023-05-01-preview' = {
   parent: microsoftSqlServer
   name: 'Default'
   properties: {
