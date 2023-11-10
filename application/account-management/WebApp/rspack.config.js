@@ -1,4 +1,5 @@
 const path = require("path");
+const rspack = require("@rspack/core");
 
 /**
  * @type {import("@rspack/cli").Configuration}
@@ -10,13 +11,6 @@ module.exports = {
   },
   resolve: {
     tsConfigPath: path.resolve(__dirname, "tsconfig.json"),
-  },
-  builtins: {
-    html: [
-      {
-        template: "./public/index.html",
-      },
-    ],
   },
   module: {
     rules: [
@@ -43,4 +37,9 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new rspack.HtmlRspackPlugin({
+      template: "./public/index.html",
+    }),
+  ],
 };

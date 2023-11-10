@@ -1,29 +1,30 @@
 {
-    "name": "account-management-webapp",
-    "private": true,
-    "version": "1.0.0",
-    "scripts": {
-        "dev": "rspack serve",
-        "build": "rspack build"
-    },
-    "dependencies": {
-        "openapi-fetch": "^0.8.1",
-        "react": "18.3.0-canary-c47c306a7-20231109",
-        "react-aria-components": "^1.0.0-rc.0",
-        "react-dom": "18.3.0-canary-c47c306a7-20231109",
-        "zod": "^3.22.4"
-    },
-    "devDependencies": {
-        "@rspack/cli": "latest",
-        "@types/react": "18.2.36",
-        "@types/react-dom": "18.2.13",
-        "autoprefixer": "^10.4.16",
-        "postcss": "^8.4.31",
-        "postcss-loader": "^7.3.3",
-        "prettier": "^3.0.3",
-        "tailwindcss": "^3.3.5",
-        "tailwindcss-animate": "^1.0.7",
-        "tailwindcss-react-aria-components": "^1.0.0-beta.1",
-        "typescript": "^5.2.2"
-    }
+  "name": "account-management-webapp",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "rspack serve",
+    "build": "rspack build"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.8.1",
+    "react": "18.3.0-canary-c47c306a7-20231109",
+    "react-aria-components": "^1.0.0-rc.0",
+    "react-dom": "18.3.0-canary-c47c306a7-20231109",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@rspack/cli": "^0.3.11",
+    "@rspack/core": "^0.3.11",
+    "@types/react": "18.2.36",
+    "@types/react-dom": "18.2.13",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "postcss-loader": "^7.3.3",
+    "prettier": "^3.0.3",
+    "tailwindcss": "^3.3.5",
+    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-react-aria-components": "^1.0.0-beta.1",
+    "typescript": "^5.2.2"
+  }
 }
