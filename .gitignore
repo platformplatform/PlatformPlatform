@@ -378,3 +378,6 @@ FodyWeavers.xsd
 
 # macOS files
 .DS_Store
+
+# Generated files
+**/*.generated.d.ts
