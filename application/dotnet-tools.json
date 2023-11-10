@@ -2,6 +2,12 @@
   "version": 1,
   "isRoot": true,
   "tools": {
+    "jetbrains.resharper.globaltools": {
+      "version": "2023.2.3",
+      "commands": [
+        "jb"
+      ]
+    },
     "swashbuckle.aspnetcore.cli": {
       "version": "6.5.0",
       "commands": [

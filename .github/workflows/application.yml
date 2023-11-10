@@ -91,13 +91,16 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Run code inspections
-        uses: muno92/resharper_inspectcode@1.9.0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          solutionPath: application/PlatformPlatform.sln
-          minimumSeverity: warning
-          # Ignore cases where property getters are not called directly (e.g., on DTOs that are serialized)
-          ignoreIssueType: UnusedAutoPropertyAccessor.Global
+          dotnet-version: 7.0.x
+
+      - name: Run code inspections
+        working-directory: application
+        run: |
+          dotnet tool restore
+          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=WARNING
 
   account-management-api-publish:
     name: Account Management API Publish
