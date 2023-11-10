@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.88868-alpha">
 
-    <PropertyGroup Condition=" '$(OS)' == 'Unix' ">
-        <FrameworkPathOverride>/usr/local/share/dotnet/shared/Microsoft.NETCore.App/7.0.403/mscorlib.dll</FrameworkPathOverride>
-    </PropertyGroup>
+    <Target Name="EnsureApiBuildsFirst" BeforeTargets="Build">
+        <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
+    </Target>
 
     <PropertyGroup>
         <StartupCommand>set BROWSER=none&amp;&amp;bun dev</StartupCommand>
