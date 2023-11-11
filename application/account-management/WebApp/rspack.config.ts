@@ -43,7 +43,7 @@ const configuration: Configuration = {
     new HtmlRspackPlugin({
       template: "./public/index.html",
       meta: {
-        // Note(raix): For now we hardcode the runtime environment until the server part is done
+        // Note(raix): For now we hardcode the runtime environment until the server part is done <ENCODED_RUNTIME_ENV>
         runtimeEnv: btoa(JSON.stringify({ PUBLIC_URL: "https://localhost:8443", CDN_URL: "https://localhost:8080" })),
       },
     }),
