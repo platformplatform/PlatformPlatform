@@ -27,6 +27,8 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration)
         where T : DbContext
     {
+        if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return services;
+
         services.AddDbContext<T>((_, options) => options.UseSqlServer(GetConnectionString(configuration)));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
@@ -89,6 +91,8 @@ public static class InfrastructureCoreConfiguration
 
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
     {
+        if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return;
+
         using var scope = services.CreateScope();
 
         var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();

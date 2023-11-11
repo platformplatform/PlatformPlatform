@@ -14,6 +14,8 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
+    private const string LocalhostCorsPolicyName = "localhost8080";
+
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
@@ -39,9 +41,24 @@ public static class ApiCoreConfiguration
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        // When running inside a Docker container running as non-root we need to use a port higher than 1024.
-        if (!builder.Environment.IsDevelopment())
+        if (builder.Environment.IsDevelopment())
         {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    LocalhostCorsPolicyName,
+                    policyBuilder =>
+                    {
+                        policyBuilder.WithOrigins("http://localhost:8080")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    }
+                );
+            });
+        }
+        else
+        {
+            // When running inside a Docker container running as non-root we need to use a port higher than 1024.
             builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8443, _ => { }); });
         }
 
@@ -60,6 +77,7 @@ public static class ApiCoreConfiguration
         {
             // Enable the developer exception page, which displays detailed information about exceptions that occur.
             app.UseDeveloperExceptionPage();
+            app.UseCors(LocalhostCorsPolicyName);
         }
         else
         {
