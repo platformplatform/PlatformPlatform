@@ -3,6 +3,7 @@ using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
+using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,5 +21,7 @@ app.AddApiCoreConfiguration<AccountManagementDbContext>();
 
 app.MapTenantEndpoints();
 app.MapUserEndpoints();
+
+app.UseWebApp();
 
 app.Run();
