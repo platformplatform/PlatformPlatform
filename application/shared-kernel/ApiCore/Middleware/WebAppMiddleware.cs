@@ -1,3 +1,4 @@
+using System.Security;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -7,27 +8,35 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public class WebAppMiddleware
 {
+    public const string PublicUrlKey = "PUBLIC_URL";
+    public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
+
     private readonly string _contentSecurityPolicy;
     private readonly string _html;
     private readonly RequestDelegate _next;
-    private readonly string[] _publicAllowedKeys = {"CDN_URL"};
+    private readonly string[] _publicAllowedKeys = {CdnUrlKey};
 
     public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment, string htmlTemplate)
     {
         VerifyRuntimeEnvironment(runtimeEnvironment);
-        var publicUrl = runtimeEnvironment.GetValueOrDefault("PUBLIC_URL", "/");
-        var cdnUrl = runtimeEnvironment.GetValueOrDefault("CDN_URL", publicUrl);
+
         _next = next;
+
+        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey, "/");
+        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey, publicUrl);
         _html = htmlTemplate
             .Replace("<ENCODED_RUNTIME_ENV>", EncodeRuntimeEnvironment(runtimeEnvironment))
             .Replace("<PUBLIC_URL>", publicUrl)
             .Replace("<CDN_URL>", cdnUrl);
-        // todo: Clean up CSP
+
+        // TODO: Clean up CSP. We should also handle for HTTPS?
         _contentSecurityPolicy =
-            $"default-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};" +
-            $"script-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};" +
-            $"connect-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")}/ws;";
+            $"""
+             default-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};
+             script-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};
+             connect-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")}/ws;
+             """;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -47,16 +56,13 @@ public class WebAppMiddleware
     {
         foreach (var variable in environmentVariables)
         {
-            if (variable.Key.StartsWith(PublicKeyPrefix) || _publicAllowedKeys.Contains(variable.Key))
-            {
-                continue;
-            }
+            if (variable.Key.StartsWith(PublicKeyPrefix) || _publicAllowedKeys.Contains(variable.Key)) continue;
 
-            throw new Exception($"Security: Environment variable \"{variable.Key}\" is not allowed to be public");
+            throw new SecurityException($"Environment variable '{variable.Key}' is not allowed to be public.");
         }
     }
 
-    private static string EncodeRuntimeEnvironment(Dictionary<string, string> runtimeEnvironment)
+    private string EncodeRuntimeEnvironment(Dictionary<string, string> runtimeEnvironment)
     {
         return Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(runtimeEnvironment)));
     }
@@ -64,33 +70,34 @@ public class WebAppMiddleware
 
 public static class WebAppMiddlewareExtensions
 {
-    public static IApplicationBuilder UseWebApp(this IApplicationBuilder builder,
+    [UsedImplicitly]
+    public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder,
         Dictionary<string, string?>? publicEnvironmentVariables = null)
     {
-        var runTimeEnv = new Dictionary<string, string?>
+        var runtimeEnvironmentVariables = new Dictionary<string, string?>
         {
-            {"PUBLIC_URL", Environment.GetEnvironmentVariable("PUBLIC_URL")},
-            {"CDN_URL", Environment.GetEnvironmentVariable("CDN_URL")}
+            {WebAppMiddleware.PublicUrlKey, Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)},
+            {WebAppMiddleware.CdnUrlKey, Environment.GetEnvironmentVariable(WebAppMiddleware.CdnUrlKey)}
         };
 
         if (publicEnvironmentVariables != null)
         {
             foreach (var variable in publicEnvironmentVariables)
             {
-                runTimeEnv.Add(variable.Key, variable.Value);
+                runtimeEnvironmentVariables.Add(variable.Key, variable.Value);
             }
         }
 
-        var systemRootPath = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
-        var templateFilePath = Path.Join(systemRootPath, "WebApp", "dist", "index.html");
+        var solutionRootPath = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
+        var templateFilePath = Path.Join(solutionRootPath, "WebApp", "dist", "index.html");
 
         if (Path.Exists(templateFilePath) == false)
         {
-            throw new FileNotFoundException($"Error: Could not find client html template \"{templateFilePath}\"");
+            throw new FileNotFoundException("Could not find the index.html template file.", templateFilePath);
         }
 
         var template = File.ReadAllText(templateFilePath, new UTF8Encoding());
 
-        return builder.UseMiddleware<WebAppMiddleware>(runTimeEnv, template);
+        return builder.UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, template);
     }
 }

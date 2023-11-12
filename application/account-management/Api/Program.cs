@@ -18,10 +18,9 @@ var app = builder.Build();
 
 // Add common configuration for all APIs like Swagger, HSTS, DeveloperExceptionPage, and run EF database migrations.
 app.AddApiCoreConfiguration<AccountManagementDbContext>();
+app.UseWebAppMiddleware();
 
 app.MapTenantEndpoints();
 app.MapUserEndpoints();
-
-app.UseWebApp();
 
 app.Run();
