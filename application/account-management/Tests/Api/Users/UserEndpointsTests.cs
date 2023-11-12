@@ -75,7 +75,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateUser.Command(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser);
+        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -91,7 +91,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new CreateUser.Command(existingTenantId, invalidEmail, UserRole.TenantUser);
+        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.TenantUser);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -110,7 +110,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
-        var command = new CreateUser.Command(existingTenantId, existingUserEmail, UserRole.TenantUser);
+        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.TenantUser);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -130,7 +130,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var unknownTenantId = Faker.Subdomain();
         var command =
-            new CreateUser.Command(new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser);
+            new CreateUserCommand(new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -148,7 +148,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-        var command = new UpdateUser.Command {Email = Faker.Internet.Email(), UserRole = UserRole.TenantOwner};
+        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantOwner };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
@@ -163,7 +163,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new UpdateUser.Command {Email = invalidEmail, UserRole = UserRole.TenantAdmin};
+        var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.TenantAdmin };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
@@ -181,7 +181,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var unknownUserId = Faker.RandomUlid();
-        var command = new UpdateUser.Command {Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin};
+        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{unknownUserId}", command);

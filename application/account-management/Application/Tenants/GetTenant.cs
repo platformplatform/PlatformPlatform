@@ -3,25 +3,22 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-public static class GetTenant
+public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
+
+[UsedImplicitly]
+public sealed class GetTenantHandler : IRequestHandler<GetTenantQuery, Result<TenantResponseDto>>
 {
-    public sealed record Query(TenantId Id) : IRequest<Result<TenantResponseDto>>;
+    private readonly ITenantRepository _tenantRepository;
 
-    [UsedImplicitly]
-    public sealed class Handler : IRequestHandler<Query, Result<TenantResponseDto>>
+    public GetTenantHandler(ITenantRepository tenantRepository)
     {
-        private readonly ITenantRepository _tenantRepository;
+        _tenantRepository = tenantRepository;
+    }
 
-        public Handler(ITenantRepository tenantRepository)
-        {
-            _tenantRepository = tenantRepository;
-        }
-
-        public async Task<Result<TenantResponseDto>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-            return tenant?.Adapt<TenantResponseDto>()
-                   ?? Result<TenantResponseDto>.NotFound($"Tenant with id '{request.Id}' not found.");
-        }
+    public async Task<Result<TenantResponseDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantRepository.GetByIdAsync(request.Id, cancellationToken);
+        return tenant?.Adapt<TenantResponseDto>()
+               ?? Result<TenantResponseDto>.NotFound($"Tenant with id '{request.Id}' not found.");
     }
 }

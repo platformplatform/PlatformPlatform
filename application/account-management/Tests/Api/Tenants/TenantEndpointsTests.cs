@@ -78,7 +78,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var subdomain = Faker.Subdomain();
         var email = Faker.Internet.Email();
-        var command = new CreateTenant.Command(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
+        var command = new CreateTenantCommand(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -86,7 +86,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         await EnsureSuccessPostRequest(response, $"/api/tenants/{subdomain}");
         Connection.RowExists("Tenants", subdomain);
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new {email}).Should().Be(1);
+        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
         var invalidEmail = Faker.InvalidEmail();
 
-        var command = new CreateTenant.Command(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
+        var command = new CreateTenantCommand(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -119,7 +119,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateTenant.Command(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
+        var command = new CreateTenantCommand(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -137,7 +137,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new UpdateTenant.Command {Name = Faker.TenantName(), Phone = Faker.PhoneNumber()};
+        var command = new UpdateTenantCommand { Name = Faker.TenantName(), Phone = Faker.PhoneNumber() };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
@@ -153,7 +153,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidName = Faker.Random.String2(31);
         var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
-        var command = new UpdateTenant.Command {Name = invalidName, Phone = invalidPhone};
+        var command = new UpdateTenantCommand { Name = invalidName, Phone = invalidPhone };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
@@ -172,7 +172,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        var command = new UpdateTenant.Command {Name = Faker.TenantName(), Phone = Faker.PhoneNumber()};
+        var command = new UpdateTenantCommand { Name = Faker.TenantName(), Phone = Faker.PhoneNumber() };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{unknownTenantId}", command);

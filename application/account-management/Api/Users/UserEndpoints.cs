@@ -12,15 +12,15 @@ public static class UserEndpoints
         var group = routes.MapGroup(RoutesPrefix);
 
         group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> (UserId id, ISender mediator)
-            => await mediator.Send(new GetUser.Query(id)));
+            => await mediator.Send(new GetUserQuery(id)));
 
-        group.MapPost("/", async Task<ApiResult> (CreateUser.Command command, ISender mediator)
+        group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
 
-        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUser.Command command, ISender mediator)
-            => await mediator.Send(command with {Id = id}));
+        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUserCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id }));
 
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, ISender mediator)
-            => await mediator.Send(new DeleteUser.Command(id)));
+            => await mediator.Send(new DeleteUserCommand(id)));
     }
 }
