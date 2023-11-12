@@ -19,6 +19,8 @@
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.13",
     "autoprefixer": "^10.4.16",
+    "html-webpack-harddisk-plugin": "^2.0.0",
+    "html-webpack-plugin": "^5.5.3",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "prettier": "^3.0.3",
