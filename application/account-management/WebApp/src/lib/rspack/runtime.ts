@@ -3,11 +3,11 @@
  * This file enables runtime environment configuration of the client.
  *
  * Usage:
- * * import.meta.env (contains both build and runtime environments)
+ * - import.meta.env (contains both build and runtime environments)
  *
  * or split versions
- * * import.meta.build_env
- * * import.meta.runtime_env
+ * - import.meta.build_env
+ * - import.meta.runtime_env
  * */
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
 
