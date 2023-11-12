@@ -56,8 +56,8 @@ const configuration: Configuration = {
     }),
     new DefinePlugin({
       "import.meta.build_env": JSON.stringify(buildEnv),
-      "import.meta.runtime_env": "getPlatformPlatformEnvironment().runtimeEnv",
-      "import.meta.env": "getPlatformPlatformEnvironment().env",
+      "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
+      "import.meta.env": "getApplicationEnvironment().env",
     }),
     new HtmlWebpackHarddiskPlugin({
       outputPath: resolve(__dirname, "dist"),

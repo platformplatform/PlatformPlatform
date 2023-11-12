@@ -24,7 +24,7 @@ try {
   };
 
   // @ts-ignore
-  window.getPlatformPlatformEnvironment = function () {
+  window.getApplicationEnvironment = function () {
     return {
       buildEnv: import.meta.build_env,
       runtimeEnv,
