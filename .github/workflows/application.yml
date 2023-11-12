@@ -68,6 +68,12 @@ jobs:
       - name: Install dotCover
         run: dotnet tool install --global JetBrains.dotCover.GlobalTool
 
+      - name: Setup-java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "microsoft"
+          java-version: "17"
+
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
 
