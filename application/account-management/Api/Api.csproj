@@ -31,9 +31,12 @@
         </Content>
     </ItemGroup>
 
-    <Target Name="CreateSwaggerJson" AfterTargets="Build" Condition="$(Configuration)=='Debug'">
+    <Target Name="InstallDependencies" BeforeTargets="Build">
         <Exec Command="dotnet tool restore"/>
         <Exec Command="bun install" WorkingDirectory="$(ProjectDir)/../WebApp/"/>
+    </Target>
+    
+    <Target Name="CreateSwaggerJson" AfterTargets="Build">
         <Exec Command="SWAGGER_GENERATOR=true dotnet swagger tofile --output $(OutputPath)swagger.json $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="bunx openapi-typescript $(OutputPath)swagger.json -o ../WebApp/src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="bunx prettier ../WebApp/src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>

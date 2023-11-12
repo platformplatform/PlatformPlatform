@@ -1,15 +1,11 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.88868-alpha">
 
-    <Target Name="EnsureApiBuildsFirst" BeforeTargets="Build">
-        <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
-    </Target>
-
     <PropertyGroup>
-        <StartupCommand>set BROWSER=none&amp;&amp;bun dev</StartupCommand>
+        <StartupCommand>set BROWSER=none;bun dev</StartupCommand>
         <JavaScriptTestRoot>src\</JavaScriptTestRoot>
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
         <!-- Command to run on project build -->
-        <BuildCommand>bun run build</BuildCommand>
+        <BuildCommand>bun install;bun run build</BuildCommand>
         <!-- Command to create an optimized build of the project that's ready for publishing -->
         <ProductionBuildCommand>bun run build</ProductionBuildCommand>
         <!-- Folder where production build objects will be placed -->
@@ -17,11 +13,14 @@
 
         <NpmInstallCheck>$(MSBuildProjectDirectory)\bun.lockb</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
-
     </PropertyGroup>
 
     <ItemGroup>
         <Script Include="tsconfig.json"/>
     </ItemGroup>
+
+    <Target Name="EnsureApiBuildsFirst" BeforeTargets="Build">
+        <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
+    </Target>
 
 </Project>
