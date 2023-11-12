@@ -12,15 +12,15 @@ public static class TenantEndpoints
         var group = routes.MapGroup(RoutesPrefix);
 
         group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> (TenantId id, ISender mediator)
-            => await mediator.Send(new GetTenant.Query(id)));
+            => await mediator.Send(new GetTenantQuery(id)));
 
-        group.MapPost("/", async Task<ApiResult> (CreateTenant.Command command, ISender mediator)
+        group.MapPost("/", async Task<ApiResult> (CreateTenantCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
 
-        group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenant.Command command, ISender mediator)
+        group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
             => await mediator.Send(command with {Id = id}));
 
         group.MapDelete("/{id}", async Task<ApiResult> (TenantId id, ISender mediator)
-            => await mediator.Send(new DeleteTenant.Command(id)));
+            => await mediator.Send(new DeleteTenantCommand(id)));
     }
 }
