@@ -2,10 +2,7 @@ export declare global {
   /**
    * Build Environment Variables
    */
-  type BuildEnv = {
-    /* Version of client build */
-    VERSION: string;
-  };
+  type BuildEnv = {};
 
   /**
    * Runtime Environment Variables
@@ -15,6 +12,8 @@ export declare global {
     PUBLIC_URL: string;
     /* CDN url / location of client bundle files */
     CDN_URL: string;
+    /* Application version */
+    APPLICATION_VERSION: string;
   };
 
   /**

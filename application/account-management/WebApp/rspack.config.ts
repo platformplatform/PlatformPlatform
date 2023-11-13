@@ -3,15 +3,12 @@ import { Configuration, DefinePlugin } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
 
-const buildEnv: BuildEnv = {
-  VERSION: process.env.BUILD_VERSION ?? "-.-.-",
-};
+const buildEnv: BuildEnv = {};
 
 const configuration: Configuration = {
   context: __dirname,
   entry: {
-    runtime: "./src/lib/rspack/runtime.ts",
-    main: "./src/main.tsx",
+    main: ["./src/lib/rspack/runtime.ts", "./src/main.tsx"],
   },
   output: {
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
