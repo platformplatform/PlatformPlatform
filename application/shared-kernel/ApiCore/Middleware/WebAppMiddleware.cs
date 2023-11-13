@@ -9,36 +9,73 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public class WebAppMiddleware
 {
+    private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
     public const string ApplicationVersion = "APPLICATION_VERSION";
-    private const string PublicKeyPrefix = "PUBLIC_";
+
+    private readonly string _cdnUrl;
 
     private readonly StringValues _contentSecurityPolicy;
-    private readonly string _html;
-    private readonly RequestDelegate _next;
-    private readonly string[] _publicAllowedKeys = {CdnUrlKey, ApplicationVersion};
 
-    public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment, string htmlTemplate)
+    private readonly string _htmlTemplatePath;
+
+    private readonly bool _isDevelopment =
+        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
+
+    private readonly RequestDelegate _next;
+
+    private readonly string[] _publicAllowedKeys = {CdnUrlKey, ApplicationVersion};
+    private readonly string _publicUrl;
+    private readonly Dictionary<string, string> _runtimeEnvironment;
+    private string? _cachedHtmlTemplate;
+
+    public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment,
+        string htmlTemplatePath)
     {
         VerifyRuntimeEnvironment(runtimeEnvironment);
 
+        _runtimeEnvironment = runtimeEnvironment;
+        _htmlTemplatePath = htmlTemplatePath;
         _next = next;
 
-        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
-        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
-        var applicationVersion = runtimeEnvironment.GetValueOrDefault(ApplicationVersion)!;
-        var devServerWebsocket = cdnUrl.Replace("http", "wss");
-        _html = htmlTemplate
-            .Replace("<ENCODED_RUNTIME_ENV>", EncodeRuntimeEnvironment(runtimeEnvironment))
-            .Replace($"<{PublicUrlKey}>", publicUrl)
-            .Replace($"<{CdnUrlKey}>", cdnUrl)
-            .Replace($"<{ApplicationVersion}>", applicationVersion);
+        _publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
+        _cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
 
-        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
-        var trustedHosts = isDevelopment
-            ? new[] {"'self'", publicUrl, cdnUrl, devServerWebsocket}
-            : new[] {"'self'", publicUrl, cdnUrl};
+        _contentSecurityPolicy = GetContentSecurityPolicy();
+    }
+
+    private string GetHtmlTemplate()
+    {
+        if (_cachedHtmlTemplate != null) return _cachedHtmlTemplate;
+
+        var htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+
+        if (_isDevelopment) return htmlTemplate;
+
+        return _cachedHtmlTemplate ??= htmlTemplate;
+    }
+
+    private string GetHtmlWithEnvironment()
+    {
+        var result = GetHtmlTemplate().Replace("<ENCODED_RUNTIME_ENV>", EncodeRuntimeEnvironment(_runtimeEnvironment));
+
+        foreach (var variable in _runtimeEnvironment)
+        {
+            result = result.Replace("<" + variable.Key + ">", variable.Value);
+        }
+
+        return result;
+    }
+
+    private StringValues GetContentSecurityPolicy()
+    {
+        var devServerWebsocket = _cdnUrl.Replace("http", "wss");
+
+        var trustedHosts = _isDevelopment
+            ? new[] {"'self'", _publicUrl, _cdnUrl, devServerWebsocket}
+            : new[] {"'self'", _publicUrl, _cdnUrl};
+
         var contentSecurityPolicies = new Dictionary<string, string[]>
         {
             {
@@ -52,7 +89,7 @@ public class WebAppMiddleware
             }
         };
 
-        _contentSecurityPolicy = string.Join(" ", contentSecurityPolicies
+        return string.Join(" ", contentSecurityPolicies
             .Select(policy =>
                 $"{policy.Key} {string.Join(" ", policy.Value)};"
             ));
@@ -63,7 +100,7 @@ public class WebAppMiddleware
         if (context.Request.Path.ToString().EndsWith("/"))
         {
             context.Response.Headers.Add("Content-Security-Policy", _contentSecurityPolicy);
-            await context.Response.WriteAsync(_html);
+            await context.Response.WriteAsync(GetHtmlWithEnvironment());
         }
         else
         {
@@ -114,16 +151,8 @@ public static class WebAppMiddlewareExtensions
             }
         }
 
-        var solutionRootPath = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
-        var templateFilePath = Path.Join(solutionRootPath, "WebApp", "dist", "index.html");
+        var templateFilePath = Path.Join(Environment.CurrentDirectory, "dist", "index.html");
 
-        if (Path.Exists(templateFilePath) == false)
-        {
-            throw new FileNotFoundException("Could not find the index.html template file.", templateFilePath);
-        }
-
-        var template = File.ReadAllText(templateFilePath, new UTF8Encoding());
-
-        return builder.UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, template);
+        return builder.UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
     }
 }
