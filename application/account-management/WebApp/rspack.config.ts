@@ -5,12 +5,15 @@ import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
 
 const buildEnv: BuildEnv = {};
 
+const outputPath = resolve(__dirname, "..", "Api", "dist");
+
 const configuration: Configuration = {
   context: __dirname,
   entry: {
     main: ["./src/lib/rspack/runtime.ts", "./src/main.tsx"],
   },
   output: {
+    path: outputPath,
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
   },
   resolve: {
@@ -57,7 +60,7 @@ const configuration: Configuration = {
       "import.meta.env": "getApplicationEnvironment().env",
     }),
     new HtmlWebpackHarddiskPlugin({
-      outputPath: resolve(__dirname, "dist"),
+      outputPath,
     }),
   ],
 };
