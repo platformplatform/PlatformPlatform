@@ -55,26 +55,26 @@ public class WebAppMiddleware
             ));
     }
 
-    public async Task InvokeAsync(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext context)
     {
-        if (httpContext.Request.Path.ToString().EndsWith("/"))
+        if (context.Request.Path.ToString().EndsWith("/"))
         {
-            httpContext.Response.Headers.Add("Content-Security-Policy", _contentSecurityPolicy);
-            await httpContext.Response.WriteAsync(_html);
+            context.Response.Headers.Add("Content-Security-Policy", _contentSecurityPolicy);
+            await context.Response.WriteAsync(_html);
         }
         else
         {
-            await _next(httpContext);
+            await _next(context);
         }
     }
 
     private void VerifyRuntimeEnvironment(Dictionary<string, string> environmentVariables)
     {
-        foreach (var variable in environmentVariables)
+        foreach (var key in environmentVariables.Keys)
         {
-            if (variable.Key.StartsWith(PublicKeyPrefix) || _publicAllowedKeys.Contains(variable.Key)) continue;
+            if (key.StartsWith(PublicKeyPrefix) || _publicAllowedKeys.Contains(key)) continue;
 
-            throw new SecurityException($"Environment variable '{variable.Key}' is not allowed to be public.");
+            throw new SecurityException($"Environment variable '{key}' is not allowed to be public.");
         }
     }
 
