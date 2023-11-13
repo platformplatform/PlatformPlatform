@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
@@ -151,8 +152,14 @@ public static class WebAppMiddlewareExtensions
             }
         }
 
-        var templateFilePath = Path.Join(Environment.CurrentDirectory, "dist", "index.html");
+        var buildPath = Path.Join(Environment.CurrentDirectory, "dist");
+        var templateFilePath = Path.Join(buildPath, "index.html");
 
-        return builder.UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
+        return builder
+            .UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(buildPath)
+            })
+            .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
     }
 }
