@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
@@ -12,7 +13,7 @@ public class WebAppMiddleware
     public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
 
-    private readonly string _contentSecurityPolicy;
+    private readonly StringValues _contentSecurityPolicy;
     private readonly string _html;
     private readonly RequestDelegate _next;
     private readonly string[] _publicAllowedKeys = {CdnUrlKey};
@@ -23,20 +24,35 @@ public class WebAppMiddleware
 
         _next = next;
 
-        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey, "/");
-        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey, publicUrl);
+        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey, "/") ?? "";
+        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey, publicUrl) ?? "";
+        var devServerWebsocket = cdnUrl.Replace("http", "wss");
         _html = htmlTemplate
             .Replace("<ENCODED_RUNTIME_ENV>", EncodeRuntimeEnvironment(runtimeEnvironment))
             .Replace("<PUBLIC_URL>", publicUrl)
             .Replace("<CDN_URL>", cdnUrl);
 
-        // TODO: Clean up CSP. We should also handle for HTTPS?
-        _contentSecurityPolicy =
-            $"""
-             default-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};
-             script-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")};
-             connect-src 'self' {publicUrl} {cdnUrl} {cdnUrl.Replace("http", "wss")}/ws;
-             """;
+        var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
+        var trustedHosts = isDevelopment
+            ? new[] {"'self'", publicUrl, cdnUrl, devServerWebsocket}
+            : new[] {"'self'", publicUrl, cdnUrl};
+        var contentSecurityPolicies = new Dictionary<string, string[]>
+        {
+            {
+                "default-src", trustedHosts
+            },
+            {
+                "connect-src", trustedHosts
+            },
+            {
+                "script-src", trustedHosts
+            }
+        };
+
+        _contentSecurityPolicy = string.Join(" ", contentSecurityPolicies
+            .Select(policy =>
+                $"{policy.Key} {string.Join(" ", policy.Value)};"
+            ));
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -72,7 +88,7 @@ public static class WebAppMiddlewareExtensions
 {
     [UsedImplicitly]
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder,
-        Dictionary<string, string?>? publicEnvironmentVariables = null)
+        Dictionary<string, string>? publicEnvironmentVariables = null)
     {
         var runtimeEnvironmentVariables = new Dictionary<string, string?>
         {
