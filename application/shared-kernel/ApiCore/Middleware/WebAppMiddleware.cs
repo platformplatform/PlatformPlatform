@@ -11,12 +11,13 @@ public class WebAppMiddleware
 {
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
+    public const string ApplicationVersion = "APPLICATION_VERSION";
     private const string PublicKeyPrefix = "PUBLIC_";
 
     private readonly StringValues _contentSecurityPolicy;
     private readonly string _html;
     private readonly RequestDelegate _next;
-    private readonly string[] _publicAllowedKeys = {CdnUrlKey};
+    private readonly string[] _publicAllowedKeys = {CdnUrlKey, ApplicationVersion};
 
     public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment, string htmlTemplate)
     {
@@ -24,13 +25,15 @@ public class WebAppMiddleware
 
         _next = next;
 
-        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey, "/") ?? "";
-        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey, publicUrl) ?? "";
+        var publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
+        var cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
+        var applicationVersion = runtimeEnvironment.GetValueOrDefault(ApplicationVersion)!;
         var devServerWebsocket = cdnUrl.Replace("http", "wss");
         _html = htmlTemplate
             .Replace("<ENCODED_RUNTIME_ENV>", EncodeRuntimeEnvironment(runtimeEnvironment))
-            .Replace("<PUBLIC_URL>", publicUrl)
-            .Replace("<CDN_URL>", cdnUrl);
+            .Replace($"<{PublicUrlKey}>", publicUrl)
+            .Replace($"<{CdnUrlKey}>", cdnUrl)
+            .Replace($"<{ApplicationVersion}>", applicationVersion);
 
         var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
         var trustedHosts = isDevelopment
@@ -90,10 +93,17 @@ public static class WebAppMiddlewareExtensions
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder,
         Dictionary<string, string>? publicEnvironmentVariables = null)
     {
-        var runtimeEnvironmentVariables = new Dictionary<string, string?>
+        if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return builder;
+
+        var publicUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)!;
+        var cdnUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.CdnUrlKey)!;
+        var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
+
+        var runtimeEnvironmentVariables = new Dictionary<string, string>
         {
-            {WebAppMiddleware.PublicUrlKey, Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)},
-            {WebAppMiddleware.CdnUrlKey, Environment.GetEnvironmentVariable(WebAppMiddleware.CdnUrlKey)}
+            {WebAppMiddleware.PublicUrlKey, publicUrl},
+            {WebAppMiddleware.CdnUrlKey, cdnUrl},
+            {WebAppMiddleware.ApplicationVersion, applicationVersion}
         };
 
         if (publicEnvironmentVariables != null)
