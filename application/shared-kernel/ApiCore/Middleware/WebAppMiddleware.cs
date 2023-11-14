@@ -133,8 +133,8 @@ public static class WebAppMiddlewareExtensions
     {
         if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return builder;
 
-        var publicUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)!;
-        var cdnUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.CdnUrlKey)!;
+        var publicUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.PublicUrlKey);
+        var cdnUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.CdnUrlKey);
         var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
 
         var runtimeEnvironmentVariables = new Dictionary<string, string>
@@ -161,5 +161,11 @@ public static class WebAppMiddlewareExtensions
                 FileProvider = new PhysicalFileProvider(buildPath)
             })
             .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
+    }
+
+    private static string GetEnvironmentVariableOrThrow(string variableName)
+    {
+        return Environment.GetEnvironmentVariable(variableName) ??
+               throw new InvalidOperationException($"Required environment variable '{variableName}' is not set.");
     }
 }
