@@ -5,7 +5,7 @@ import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
 
 const buildEnv: BuildEnv = {};
 
-const outputPath = resolve(__dirname, "..", "Api", "dist");
+const outputPath = resolve(__dirname, "dist");
 
 const configuration: Configuration = {
   context: __dirname,

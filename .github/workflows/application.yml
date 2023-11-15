@@ -41,18 +41,28 @@ jobs:
 
       - name: Install Node modules
         working-directory: application/account-management/WebApp
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 7.0.x
 
+      - name: Restore .NET tools
+        working-directory: application
+        run: dotnet tool restore
+
       - name: Restore .NET dependencies
         run: dotnet restore application/PlatformPlatform.sln
 
       - name: Build
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Publish Account Management API build
+        working-directory: application/account-management/Api
+        run: |
+          dotnet publish Api.csproj --no-restore --configuration Release --output ./publish --version-suffix ${{ steps.generate_version.outputs.version }}
+          echo "{name}=${{ steps.generate_version.outputs.version }}" >> $GITHUB_OUTPUT
 
   test-with-code-coverage:
     name: Test and Code Coverage
@@ -64,6 +74,14 @@ jobs:
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
+
+      - name: Restore Node modules
+        working-directory: application/account-management/WebApp
+        run: bun install --frozen-lockfile
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: dotnet tool restore
 
       - name: Install dotCover
         run: dotnet tool install --global JetBrains.dotCover.GlobalTool

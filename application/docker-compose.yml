@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   sql-server:
@@ -29,6 +29,8 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
       ASPNETCORE_Kestrel__Certificates__Default__Password: $CERTIFICATE_PASSWORD
       ASPNETCORE_URLS: "https://+"
+      PUBLIC_URL: "https://localhost:8443"
+      CDN_URL: "https://localhost:8443"
     volumes:
       - ${HOME}/.aspnet/https:/https
 
