@@ -12,7 +12,7 @@ public class EntityEqualityComparerTests
     public void Equals_WithSameEntity_ShouldReturnTrue()
     {
         // Arrange
-        var entity = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
+        var entity = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
 
         // Act
         var isEqual = _comparer.Equals(entity, entity);
@@ -26,8 +26,8 @@ public class EntityEqualityComparerTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var entity1 = new GuidEntity(id) {Name = "Test"};
-        var entity2 = new GuidEntity(id) {Name = "Different"};
+        var entity1 = new GuidEntity(id) { Name = "Test" };
+        var entity2 = new GuidEntity(id) { Name = "Different" };
 
         // Act
         var isEqual = _comparer.Equals(entity1, entity2);
@@ -40,8 +40,8 @@ public class EntityEqualityComparerTests
     public void Equals_WithDifferentIds_ShouldReturnFalse()
     {
         // Arrange
-        var entity1 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
-        var entity2 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
+        var entity1 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
+        var entity2 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
 
         // Act
         var isEqual = _comparer.Equals(entity1, entity2);
@@ -55,8 +55,8 @@ public class EntityEqualityComparerTests
     {
         // Arrange
         var id = Guid.NewGuid();
-        var entity1 = new GuidEntity(id) {Name = "Test"};
-        var entity2 = new GuidEntity(id) {Name = "Different"};
+        var entity1 = new GuidEntity(id) { Name = "Test" };
+        var entity2 = new GuidEntity(id) { Name = "Different" };
 
         // Act
         var hashCode1 = _comparer.GetHashCode(entity1);
@@ -70,8 +70,8 @@ public class EntityEqualityComparerTests
     public void GetHashCode_WithDifferentIds_ShouldReturnDifferentHashCodes()
     {
         // Arrange
-        var entity1 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
-        var entity2 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
+        var entity1 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
+        var entity2 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
 
         // Act
         var hashCode1 = _comparer.GetHashCode(entity1);

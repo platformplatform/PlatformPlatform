@@ -26,7 +26,7 @@ public class PublishDomainEventsPipelineBehaviorTests
 
         var testAggregate = TestAggregate.Create("TestAggregate");
         var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created.
-        domainEventCollector.GetAggregatesWithDomainEvents().Returns(new[] {testAggregate});
+        domainEventCollector.GetAggregatesWithDomainEvents().Returns(new[] { testAggregate });
 
         // Act
         await behavior.Handle(request, next, cancellationToken);

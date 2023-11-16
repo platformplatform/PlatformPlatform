@@ -14,7 +14,7 @@ public class DomainEventTests
 
         // Assert
         testAggregate.DomainEvents.Count.Should().Be(1);
-        var domainEvent = (TestAggregateCreatedEvent) testAggregate.DomainEvents.Single();
+        var domainEvent = (TestAggregateCreatedEvent)testAggregate.DomainEvents.Single();
         domainEvent.TestAggregateId.Should().Be(testAggregate.Id);
         domainEvent.Name.Should().Be("test");
     }

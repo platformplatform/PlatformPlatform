@@ -30,8 +30,8 @@ public static class ApplicationCoreConfiguration
     private static void AddNonGenericValidators(this IServiceCollection services, Assembly assembly)
     {
         var validators = assembly.GetTypes()
-            .Where(type => type is {IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false})
-            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new {type, interfaceType})
+            .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false })
+            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new { type, interfaceType })
             .Where(t => t.interfaceType.IsGenericType &&
                         t.interfaceType.GetGenericTypeDefinition() == typeof(IValidator<>));
 

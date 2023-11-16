@@ -35,7 +35,7 @@ public partial class ApiResult : IResult
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(CreateProblemDetails(), statusCode: (int) _result.StatusCode,
+        return Results.Json(CreateProblemDetails(), statusCode: (int)_result.StatusCode,
             contentType: "application/problem+json");
     }
 
@@ -44,9 +44,9 @@ public partial class ApiResult : IResult
         var statusCode = _result.StatusCode;
         var problemDetails = new ProblemDetails
         {
-            Type = $"https://httpstatuses.com/{(int) _result.StatusCode}",
+            Type = $"https://httpstatuses.com/{(int)_result.StatusCode}",
             Title = SplitCamelCaseTitle(statusCode.ToString()),
-            Status = (int) _result.StatusCode
+            Status = (int)_result.StatusCode
         };
 
         if (_result.ErrorMessage is not null) problemDetails.Detail = _result.ErrorMessage.Message;

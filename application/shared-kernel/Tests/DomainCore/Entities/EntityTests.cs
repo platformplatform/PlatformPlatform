@@ -13,8 +13,8 @@ public static class EntityTests
         public void EqualsOperator_WhenIdIsAreGenerated_ShouldReturnFalse()
         {
             // Arrange
-            var entity1 = new StronglyTypedIdEntity {Name = "Test"};
-            var entity2 = new StronglyTypedIdEntity {Name = "Test"};
+            var entity1 = new StronglyTypedIdEntity { Name = "Test" };
+            var entity2 = new StronglyTypedIdEntity { Name = "Test" };
 
             // Act
             var isEqual = entity1 == entity2;
@@ -28,8 +28,8 @@ public static class EntityTests
         {
             // Arrange
             var guid = Guid.NewGuid();
-            var entity1 = new GuidEntity(guid) {Name = "Test"};
-            var entity2 = new GuidEntity(guid) {Name = "Different"};
+            var entity1 = new GuidEntity(guid) { Name = "Test" };
+            var entity2 = new GuidEntity(guid) { Name = "Different" };
 
             // Act
             var isEqual = entity1 == entity2;
@@ -42,8 +42,8 @@ public static class EntityTests
         public void EqualsOperator_WhenIdsAreDifferent_ShouldReturnFalse()
         {
             // Arrange
-            var entity1 = new StringEntity("id1") {Name = "Test"};
-            var entity2 = new StringEntity("id2") {Name = "Test"};
+            var entity1 = new StringEntity("id1") { Name = "Test" };
+            var entity2 = new StringEntity("id2") { Name = "Test" };
 
             // Act
             var isEqual = entity1 == entity2;
@@ -57,8 +57,8 @@ public static class EntityTests
         {
             // Arrange
             var guidId = Guid.NewGuid();
-            var entity1 = new GuidEntity(guidId) {Name = "Test"};
-            var entity2 = new GuidEntity(guidId) {Name = "Different"};
+            var entity1 = new GuidEntity(guidId) { Name = "Test" };
+            var entity2 = new GuidEntity(guidId) { Name = "Different" };
 
             // Act
             var isNotEqual = entity1 != entity2;
@@ -71,8 +71,8 @@ public static class EntityTests
         public void NotOperator_WhenIdsAreDifferent_ShouldReturnTrue()
         {
             // Arrange
-            var entity1 = new StronglyTypedIdEntity {Name = "Test"};
-            var entity2 = new StronglyTypedIdEntity {Name = "Test"};
+            var entity1 = new StronglyTypedIdEntity { Name = "Test" };
+            var entity2 = new StronglyTypedIdEntity { Name = "Test" };
 
             // Act
             var isNotEqual = entity1 != entity2;
@@ -88,8 +88,8 @@ public static class EntityTests
         public void Equal_WhenIdIsAreGenerated_ShouldReturnFalse()
         {
             // Arrange
-            var entity1 = new StronglyTypedIdEntity {Name = "Test"};
-            var entity2 = new StronglyTypedIdEntity {Name = "Test"};
+            var entity1 = new StronglyTypedIdEntity { Name = "Test" };
+            var entity2 = new StronglyTypedIdEntity { Name = "Test" };
 
             // Act
             var isEqual = entity1.Equals(entity2);
@@ -103,8 +103,8 @@ public static class EntityTests
         {
             // Arrange
             const string stringId = "id1";
-            var entity1 = new StringEntity(stringId) {Name = "Test"};
-            var entity2 = new StringEntity(stringId) {Name = "Different"};
+            var entity1 = new StringEntity(stringId) { Name = "Test" };
+            var entity2 = new StringEntity(stringId) { Name = "Different" };
 
             // Act
             var isEqual = entity1.Equals(entity2);
@@ -117,8 +117,8 @@ public static class EntityTests
         public void Equal_DifferentIds_ShouldReturnFalse()
         {
             // Arrange
-            var entity1 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
-            var entity2 = new GuidEntity(Guid.NewGuid()) {Name = "Test"};
+            var entity1 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
+            var entity2 = new GuidEntity(Guid.NewGuid()) { Name = "Test" };
 
             // Act
             var isEqual = entity1.Equals(entity2);
@@ -134,8 +134,8 @@ public static class EntityTests
         public void GetHashCode_DifferentIdsSameProperties_ShouldHaveDifferentHashCode()
         {
             // Arrange
-            var entity1 = new StronglyTypedIdEntity {Name = "Test"};
-            var entity2 = new StronglyTypedIdEntity {Name = "Test"};
+            var entity1 = new StronglyTypedIdEntity { Name = "Test" };
+            var entity2 = new StronglyTypedIdEntity { Name = "Test" };
 
             // Act
             var hashCode1 = entity1.GetHashCode();
@@ -150,8 +150,8 @@ public static class EntityTests
         {
             // Arrange
             var id = Guid.NewGuid();
-            var entity1 = new GuidEntity(id) {Name = "Test"};
-            var entity2 = new GuidEntity(id) {Name = "Different"};
+            var entity1 = new GuidEntity(id) { Name = "Test" };
+            var entity2 = new GuidEntity(id) { Name = "Different" };
 
             // Act
             var hashCode1 = entity1.GetHashCode();

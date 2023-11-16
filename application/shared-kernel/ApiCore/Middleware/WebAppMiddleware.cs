@@ -20,7 +20,7 @@ public class WebAppMiddleware
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly RequestDelegate _next;
-    private readonly string[] _publicAllowedKeys = {CdnUrlKey, ApplicationVersion};
+    private readonly string[] _publicAllowedKeys = { CdnUrlKey, ApplicationVersion };
     private readonly string _publicUrl;
     private readonly Dictionary<string, string> _runtimeEnvironment;
     private string? _htmlTemplate;
@@ -75,14 +75,14 @@ public class WebAppMiddleware
         var devServerWebsocket = _cdnUrl.Replace("http", "wss");
 
         var trustedHosts = _isDevelopment
-            ? new[] {"'self'", _publicUrl, _cdnUrl, devServerWebsocket}
-            : new[] {"'self'", _publicUrl, _cdnUrl};
+            ? new[] { "'self'", _publicUrl, _cdnUrl, devServerWebsocket }
+            : new[] { "'self'", _publicUrl, _cdnUrl };
 
         var contentSecurityPolicies = new Dictionary<string, string[]>
         {
-            {"default-src", trustedHosts},
-            {"connect-src", trustedHosts},
-            {"script-src", trustedHosts}
+            { "default-src", trustedHosts },
+            { "connect-src", trustedHosts },
+            { "script-src", trustedHosts }
         };
 
         return string.Join(
@@ -120,9 +120,9 @@ public static class WebAppMiddlewareExtensions
 
         var runtimeEnvironmentVariables = new Dictionary<string, string>
         {
-            {WebAppMiddleware.PublicUrlKey, publicUrl},
-            {WebAppMiddleware.CdnUrlKey, cdnUrl},
-            {WebAppMiddleware.ApplicationVersion, applicationVersion}
+            { WebAppMiddleware.PublicUrlKey, publicUrl },
+            { WebAppMiddleware.CdnUrlKey, cdnUrl },
+            { WebAppMiddleware.ApplicationVersion, applicationVersion }
         };
 
         if (publicEnvironmentVariables != null)
@@ -142,7 +142,7 @@ public static class WebAppMiddlewareExtensions
         }
 
         return builder
-            .UseStaticFiles(new StaticFileOptions {FileProvider = new PhysicalFileProvider(buildRootPath)})
+            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(buildRootPath) })
             .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
     }
 

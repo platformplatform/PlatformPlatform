@@ -91,8 +91,8 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
         var problemDetails = await DeserializeProblemDetails(response);
 
         problemDetails.Should().NotBeNull();
-        problemDetails!.Status.Should().Be((int) statusCode);
-        problemDetails.Type.Should().Be($"https://httpstatuses.com/{(int) statusCode}");
+        problemDetails!.Status.Should().Be((int)statusCode);
+        problemDetails.Type.Should().Be($"https://httpstatuses.com/{(int)statusCode}");
         problemDetails.Title.Should().Be(SplitCamelCaseTitle(statusCode.ToString()));
 
         if (expectedDetail is not null)
@@ -102,8 +102,8 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
 
         if (expectedErrors is not null)
         {
-            var actualErrorsJson = (JsonElement) problemDetails.Extensions["Errors"]!;
-            var options = new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase};
+            var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
             var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), options);
 
             actualErrors.Should().BeEquivalentTo(expectedErrors);

@@ -15,14 +15,14 @@ public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
         }
         catch (BadHttpRequestException ex)
         {
-            context.Response.StatusCode = (int) HttpStatusCode.BadRequest;
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Response.ContentType = "application/problem+json";
 
             var problemDetails = new ProblemDetails
             {
-                Type = $"https://httpstatuses.com/{(int) HttpStatusCode.BadRequest}",
+                Type = $"https://httpstatuses.com/{(int)HttpStatusCode.BadRequest}",
                 Title = "Bad Request",
-                Status = (int) HttpStatusCode.BadRequest,
+                Status = (int)HttpStatusCode.BadRequest,
                 Detail = ex.Message
             };
 

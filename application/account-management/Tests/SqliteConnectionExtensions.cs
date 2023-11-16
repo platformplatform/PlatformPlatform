@@ -16,11 +16,11 @@ public static class SqliteConnectionExtensions
             }
         }
 
-        return (long) command.ExecuteScalar()!;
+        return (long)command.ExecuteScalar()!;
     }
 
     public static bool RowExists(this SqliteConnection connection, string tableName, string id)
     {
-        return connection.ExecuteScalar($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", new {id}) == 1;
+        return connection.ExecuteScalar($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", new { id }) == 1;
     }
 }
