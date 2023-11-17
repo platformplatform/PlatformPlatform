@@ -3,6 +3,12 @@ name: "Publish container"
 on:
   workflow_call:
     inputs:
+      artifacts_name:
+        required: true
+        type: string
+      artifacts_path:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -20,6 +26,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifacts_name }}
+          path: ${{ inputs.artifacts_path }}
 
       - name: Login to Azure
         uses: azure/login@v1
