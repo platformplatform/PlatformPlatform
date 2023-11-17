@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
@@ -17,6 +18,9 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
 
     protected BaseApiTests()
     {
+        Environment.SetEnvironmentVariable(WebAppMiddleware.PublicUrlKey, "https://localhost");
+        Environment.SetEnvironmentVariable(WebAppMiddleware.CdnUrlKey, "https://localhost");
+
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>

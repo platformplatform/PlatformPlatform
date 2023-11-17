@@ -3426,3 +3426,12 @@ resharper_csharp_keep_blank_lines_in_declarations = 1
 indent_style = space
 indent_size = 4
 tab_width = 4
+
+[*.{ts,tsx,js,jsx,json,.prettierrc,.eslintrc,yml,Dockerfile}]
+indent_style = space
+indent_size = 2
+tab_width = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+max_line_length = 120
