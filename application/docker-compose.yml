@@ -15,8 +15,8 @@ services:
   account-management-api:
     container_name: account-management-api
     build:
-      context: .
-      dockerfile: ./account-management/Api/Dockerfile
+      context: ./account-management
+      dockerfile: Api/Dockerfile
     image: account-management-api
     depends_on:
       - sql-server

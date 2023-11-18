@@ -15,6 +15,9 @@ on:
       version:
         required: true
         type: string
+      docker_context:
+        required: true
+        type: string
       docker_file:
         required: true
         type: string
@@ -47,7 +50,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and push container image
-        working-directory: application
+        working-directory: ${{ inputs.docker_context }}
         run: |
           docker buildx create --use
           docker buildx build \
