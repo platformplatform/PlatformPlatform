@@ -59,14 +59,14 @@ Although some features like authentication and multi-tenancy are not yet impleme
 
 </details>
 
-## React frontend with TypeScript, Bun, and Ant Design
+## React frontend with TypeScript, Bun, and React Aria Components
 
-The Frontend has not yet been created. The plan is to eventually create a frontend with these technologies:
+The frontend is built with these technologies:
 
 - [React](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [Bun](https://bun.sh)
-- [Ant Design](https://ant.design)
+- [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
 
 ## Azure cloud infrastructure with enterprise-grade security and zero secrets
 
@@ -103,7 +103,7 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 
 </details>
 
-## GitHub SDLC for deploying application and infrastructure in minutes
+## GitHub SDLC for passwordless deploying application and infrastructure in minutes
 
 PlatformPlatform is built on a solid foundation for a modern software development lifecycle (SDLC):
 
@@ -118,17 +118,17 @@ PlatformPlatform is built on a solid foundation for a modern software developmen
 
 ## Screenshots
 
-This is how it looks when GitHub workflows have deployed Azure Infrastructure:
+This is how it looks when GitHub workflows has deployed Azure Infrastructure:
 
-![GitHub Environments](https://camo.githubusercontent.com/9b9c33e6c18939d49c3571c610585713707d7b553095270a78c3fe39dc49f811/68747470733a2f2f6d656469612e636c65616e73686f742e636c6f75642f6d656469612f34363533392f7652617130366a374c314b696d4b4a3247434a4e6d724a776c69754572313752577366486f6b78492e6a7065673f457870697265733d31363935353137323638265369676e61747572653d6c6d5171664e59777a735a71634d707a45634b646c51714b636b796b6a706d376b6c62442d5437395a794d537542704b666332794b417832414a6a4a45674a6543575657736671714836624d4c44323974303049317a726848686e59516c4f314f5859665266586b5a6f46304a4c32506d594b5373466a56583763564c4d643774626a48684c6748497e4565573464544f6f564e3434737573436d4452354335383555424b3075626d423161566b763062534e4d466b4435705438394f78656744694f326f4b763061715037464e57764377516978426146314d3830726f36456857514e506d6d4e42345265684e3066784e346676424b3865376573364a34556c5a6b386543687774363953745132395364697635514a756177714a7e413146556e3443796666625737467a725734684d5755554b6f78734d6468596e7667546b78634b48394e663477542d76336c52414c544130515f5f264b65792d506169722d49643d4b3236394a4d4154395a4634475a)
+![GitHub Environments](https://platformplatformgithub.blob.core.windows.net/GitHubInfrastructureDeployments.png)
 
 These are the resource groups created when deploying one staging cluster, and two production clusters:
 
-![PlatformPlatform Resoruce Groups](https://camo.githubusercontent.com/cfe23aa287e301b2cc4d510a510a8ba6f718de1b295ab6e4c2ecc9ea99ac7978/68747470733a2f2f6d656469612e636c65616e73686f742e636c6f75642f6d656469612f34363533392f7137446d537378583330544e614e61636c6d4148456d4769706b6c644d6f7235583139356e5161322e6a7065673f457870697265733d31363935343932393131265369676e61747572653d473461595775634853706655524169776e66456778646874414a7e38413442713656417a6639427469526746496b5238646a754647577a754f4d70714244477675773435527e75452d7a312d786b30613375614271383835475649756a5064622d397e48636c3046367577734f3169644f486c77586431726f47672d6e616e4a6b4461694d43593056763934797675486a5362774a696a4954754161736e77627867444370376372793258584f626f525978706a4178763346616872576c2d306f63555554747a77706f764b454472564843547638567968746b354f44664344666437454530713943434f6e4678575242396e39736e565676503451495975634c4e4d6d6a774d2d6974495277482d336c614b7e355674347132496e6c75427a74745842666c70613570676f755839543776574a5a4c4b7a7a4c466550367a4e68477171456279705547794f6e7033426b46703250415f5f264b65792d506169722d49643d4b3236394a4d4154395a4634475a)
+![PlatformPlatform Resource Groups](https://platformplatformgithub.blob.core.windows.net/PlatformPlatformResourceGroups.png)
 
 This is the security score after deploying PlatformPlatform resources to Azure. Achieving a 100% security score in Azure Defender for Cloud without exemptions is not trivial.
 
-![Azure Security Recommendations](https://camo.githubusercontent.com/7f4217d4f4f96cd2fa83c0047fe162375a8dffe55d616e66bd4fde4baccad4d5/68747470733a2f2f6d656469612e636c65616e73686f742e636c6f75642f6d656469612f34363533392f385a47635a5972723034337a31535846764e716b696c5465544c6f527737726663717755335472392e6a7065673f457870697265733d31363934333935323634265369676e61747572653d4f736b336a447e353879396c466b3271464d4843575a4e39454b374c33456964647e706d59506a6830716f7a7e675243336c6d3938515148646b336b6a61716641526a626d66506f4d485543795767383445634b556433347831525730434f68454637426a787568774e64365268557e444b6165457178515045787251767362766f525a5472453041366b37704b6279566733545638585452544b7e44614d396f5574626571545a6d62705a4a692d5646674f645157724c545733595533556e716a4244373056354d4354444a4e466d656c337347552d7272316c526137567347384b444673443176697543517768762d584676704962506b584c6e374e4c73453833695354676a76324c426d7067754d43764c496d79555a494249617a78534c42354238784c73316f5141746661495a614830487552483462684b672d504b37424f73765a6934304b54567e327137366a506437775f5f264b65792d506169722d49643d4b3236394a4d4154395a4634475a)
+![Azure Security Recommendations](https://platformplatformgithub.blob.core.windows.net/AzureSecurityRecommendations.png)
 
 ## Developer environment for both Mac and Windows
 
@@ -180,26 +180,26 @@ Please run the following scripts once to setup your localhost.
 
   ```bash
   # Generate SQL_SERVER_PASSWORD and add to environment variables
-  SQL_SERVER_PASSWORD=$(curl -s "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new")_
+  SQL_SERVER_PASSWORD="$(LC_ALL=C tr -dc 'a-zA-Z0-9!_#$&%' < /dev/urandom | head -c 16)"
   echo "export SQL_SERVER_PASSWORD='$SQL_SERVER_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
 
   # Generate CERTIFICATE_PASSWORD and add to environment variables
-  CERTIFICATE_PASSWORD=$(curl -s "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new")_
+  CERTIFICATE_PASSWORD="$(LC_ALL=C tr -dc 'a-zA-Z0-9!_#$&%' < /dev/urandom | head -c 16)"
   echo "export CERTIFICATE_PASSWORD='$CERTIFICATE_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
 
   # Generate dev certificate
   dotnet dev-certs https --trust -ep ${HOME}/.aspnet/https/localhost.pfx -p $CERTIFICATE_PASSWORD
   ```
 
-- **Windows**:
+- **Windows (not tested)**:
 
   ```powershell
-  # Generate SQL_SERVER_PASSWORD and add to environment variables
-  $SQL_SERVER_PASSWORD = Invoke-RestMethod -Uri "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" + "_"
+  # Add SQL_SERVER_PASSWORD and add to environment variables
+  $SQL_SERVER_PASSWORD = "<YourSecretPassword>"
   [Environment]::SetEnvironmentVariable('SQL_SERVER_PASSWORD', $SQL_SERVER_PASSWORD, [System.EnvironmentVariableTarget]::User)
 
-  # Generate CERTIFICATE_PASSWORD and add to environment variables
-  $CERTIFICATE_PASSWORD = Invoke-RestMethod -Uri "https://www.random.org/strings/?num=1&len=13&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" + "_"
+  # Add CERTIFICATE_PASSWORD and add to environment variables
+  $CERTIFICATE_PASSWORD = "<AnotherSecretPassword>"
   [Environment]::SetEnvironmentVariable('CERTIFICATE_PASSWORD', $CERTIFICATE_PASSWORD, [System.EnvironmentVariableTarget]::User)
 
   # Generate dev certificate
@@ -210,14 +210,17 @@ To test the system you can now run this (the first time the API runs it will cre
 
 ```bash
 # Run from the application folder
+cd ./application
+dotnet publish ./account-management/Api/Api.csproj --output ./account-management/Api/publish
 docker compose up -d
-open https://localhost:8443/swagger
+open https://localhost:8443
 ```
 
 While developing you might want to only run the SQL Server, and compile and debug the source code from Rider or Visual Studio:
 
 ```bash
 # Run from the application folder
+cd ./application
 docker compose up sql-server -d
 ```
 
