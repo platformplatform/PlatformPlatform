@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AssemblyName>PlatformPlatform.SharedKernel.Tests</AssemblyName>
         <RootNamespace>PlatformPlatform.SharedKernel.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
