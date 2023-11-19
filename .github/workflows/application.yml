@@ -46,7 +46,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Restore .NET tools
         working-directory: application
@@ -79,6 +79,11 @@ jobs:
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
 
       - name: Restore Node modules
         working-directory: application/account-management/WebApp
@@ -115,7 +120,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Run code inspections
         working-directory: application
