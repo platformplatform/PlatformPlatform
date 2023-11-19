@@ -47,12 +47,12 @@ function is_domain_configured() {
 }
 
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
-ACTIVE_ACCOUNT_MANAGEMENT_API=$(get_active_version account-management-api)
-ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=$(is_domain_configured "account-management-api" "$RESOURCE_GROUP_NAME")
+ACTIVE_ACCOUNT_MANAGEMENT_VERSION=$(get_active_version account-management)
+ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=$(is_domain_configured "account-management" "$RESOURCE_GROUP_NAME")
 
 DEPLOYMENT_COMMAND="az deployment sub create"
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED"
+DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
@@ -77,8 +77,8 @@ then
 
     # Display instructions for setting up DNS entries
     echo -e "${RED}$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries to $DOMAIN_NAME, and then retry:${RESET}"
-    echo -e "${RED}- A TXT record with the name 'asuid.account-management-api' and the value '$custom_domain_verification_id'.${RESET}"
-    echo -e "${RED}- A CNAME record with the Host name 'account-management-api' that points to address 'account-management-api.$default_domain'.${RESET}"
+    echo -e "${RED}- A TXT record with the name 'asuid.account-management' and the value '$custom_domain_verification_id'.${RESET}"
+    echo -e "${RED}- A CNAME record with the Host name 'account-management' that points to address 'account-management.$default_domain'.${RESET}"
     exit 1
   elif [[ $output == "ERROR:"* ]]; then
     echo -e "${RED}$output${RESET}"
@@ -87,9 +87,9 @@ then
 
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
-    echo "Running deployment again to finalize setting up SSL certificate for account-management-api"
+    echo "Running deployment again to finalize setting up SSL certificate for account-management"
     ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=true
-    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED"
+    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED"
 
     . ../deploy.sh
 

@@ -12,12 +12,12 @@ services:
     volumes:
       - sql-server-data:/var/opt/mssql
 
-  account-management-api:
-    container_name: account-management-api
+  account-management:
+    container_name: account-management
     build:
       context: ./account-management
       dockerfile: Api/Dockerfile
-    image: account-management-api
+    image: account-management
     depends_on:
       - sql-server
     ports:
