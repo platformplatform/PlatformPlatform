@@ -9,7 +9,7 @@ param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
-param accountManagementApiVersion string = ''
+param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -160,19 +160,19 @@ module accountManagementIdentity '../modules/user-assigned-managed-identity.bice
   }
 }
 
-module accountManagementApi '../modules/container-app.bicep' = {
-  name: 'account-management-api'
+module accountManagement '../modules/container-app.bicep' = {
+  name: 'account-management'
   scope: clusterResourceGroup
   params: {
-    name: 'account-management-api'
+    name: 'account-management'
     location: location
     tags: tags
     resourceGroupName: resourceGroupName
     environmentId: contaionerAppsEnvironment.outputs.environmentId
     environmentName: contaionerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
-    containerImageName: 'account-management-api'
-    containerImageTag: accountManagementApiVersion
+    containerImageName: 'account-management'
+    containerImageTag: accountManagementVersion
     cpu: '0.25'
     memory: '0.5Gi'
     minReplicas: 1
@@ -180,7 +180,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
-    domainName: domainName == '' ? '' : 'account-management-api.${domainName}'
+    domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
   }
   dependsOn: [accountManagementDatabase]

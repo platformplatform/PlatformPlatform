@@ -58,15 +58,15 @@ jobs:
       - name: Build
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish Account Management API build
+      - name: Publish Account Management build
         working-directory: application/account-management
         run: |
           dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
 
-      - name: Save Account Management API artifacts
+      - name: Save Account Management artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: account-management-api
+          name: account-management
           path: application/account-management/Api/publish/**/*
 
   test-with-code-coverage:
@@ -131,31 +131,31 @@ jobs:
           dotnet tool restore
           dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=WARNING
 
-  account-management-api-publish:
-    name: Account Management API Publish
+  account-management-publish:
+    name: Account Management Publish
     needs: [build]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
     with:
-      artifacts_name: account-management-api
+      artifacts_name: account-management
       artifacts_path: application/account-management/Api/publish
-      image_name: account-management-api
+      image_name: account-management
       version: ${{ needs.build.outputs.version }}
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
 
-  account-management-api-deploy:
-    name: Account Management API Deploy
+  account-management-deploy:
+    name: Account Management Deploy
     if: github.ref == 'refs/heads/main'
     needs:
       [
         build,
         test-with-code-coverage,
         jetbrains-code-inspection,
-        account-management-api-publish,
+        account-management-publish,
       ]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
-      image_name: account-management-api
+      image_name: account-management
       version: ${{ needs.build.outputs.version }}

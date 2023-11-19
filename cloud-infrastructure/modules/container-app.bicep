@@ -70,6 +70,11 @@ var customDomainConfiguration = isCustomDomainSet
     ]
   : []
 
+var publicUrl = isCustomDomainSet
+  ? 'https://${domainName}'
+  : 'https://${name}.${containerAppsEnvironment.properties.defaultDomain}'
+var cdnUrl = publicUrl
+
 var imageTag = containerImageTag != '' ? containerImageTag : 'latest'
 
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
@@ -106,6 +111,14 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             {
               name: 'MANAGED_IDENTITY_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
+            }
+            {
+              name: 'PUBLIC_URL'
+              value: publicUrl
+            }
+            {
+              name: 'CDN_URL'
+              value: cdnUrl
             }
           ]
         }
