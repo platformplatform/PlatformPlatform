@@ -123,6 +123,17 @@ jobs:
           dotnet tool restore &&
           dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=WARNING
 
+      - name: Check for code formatting issues
+        working-directory: application
+        run: |
+          dotnet jb cleanupcode PlatformPlatform.sln --profile=".NET only"
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
+            exit 1
+          }
+
   account-management-publish:
     name: Account Management Publish
     needs: [build]
