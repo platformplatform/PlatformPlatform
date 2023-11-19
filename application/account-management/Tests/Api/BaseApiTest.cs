@@ -113,7 +113,9 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
     private static async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<ProblemDetails>(content);
+
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        return JsonSerializer.Deserialize<ProblemDetails>(content, options);
     }
 
     private static string SplitCamelCaseTitle(string title)
