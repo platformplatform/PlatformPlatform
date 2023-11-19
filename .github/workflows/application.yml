@@ -121,7 +121,14 @@ jobs:
         working-directory: application
         run: |
           dotnet tool restore &&
-          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=WARNING
+          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION --exclude="**/*.csproj" # Exclude .csproj. See https://youtrack.jetbrains.com/issue/RSRP-490866
+
+          # Check if there are any issues. <Issues /> indicates no issues found.
+          if ! grep -q '<Issues />' result.xml; then
+            cat result.xml
+            echo "Code inspection issues found."
+            exit 1
+          fi
 
       - name: Check for code formatting issues
         working-directory: application
