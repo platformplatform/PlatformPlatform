@@ -100,7 +100,7 @@ public class WebAppMiddleware
     {
         if (context.Request.Path.ToString().EndsWith("/"))
         {
-            context.Response.Headers.Add("Content-Security-Policy", _contentSecurityPolicy);
+            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
             await context.Response.WriteAsync(GetHtmlWithEnvironment());
         }
         else
