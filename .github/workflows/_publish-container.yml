@@ -3,10 +3,19 @@ name: "Publish container"
 on:
   workflow_call:
     inputs:
+      artifacts_name:
+        required: true
+        type: string
+      artifacts_path:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
       version:
+        required: true
+        type: string
+      docker_context:
         required: true
         type: string
       docker_file:
@@ -16,11 +25,16 @@ on:
 jobs:
   publish-container-image:
     name: Publish Container
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifacts_name }}
+          path: ${{ inputs.artifacts_path }}
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -36,11 +50,11 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and push container image
-        working-directory: application
+        working-directory: ${{ inputs.docker_context }}
         run: |
           docker buildx create --use
           docker buildx build \
-            --platform linux/amd64 \
+            --platform linux/amd64,linux/arm64 \
             --build-arg VERSION=${{ inputs.version }} \
             -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
             -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:latest \

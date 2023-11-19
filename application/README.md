@@ -123,7 +123,7 @@ The architecture is designed following [screaming architecture](https://blog.cle
 Below is a visual representation of the layers. An important constraint is that inner layers cannot reference outer layers. This means that the Domain layer has no knowledge of other layers, and the Application layer only knows about the Domain layer. Also, the API and Infrastructure layer cannot reference each other. However, to allow dependency injection registration, the startup class [Program.cs](/application/account-management/Api/Program.cs) in API calls the Infrastructure layer.
 
 <p align="center">
-  <img src="https://camo.githubusercontent.com/a1eb8809505b6ff0f3c76861c75df8e48faa1805b5fb7a13aa25cefc9654dce2/68747470733a2f2f6d656e74756d74656d702e626c6f622e636f72652e77696e646f77732e6e65742f7075626c69632f436c65616e4172636869746563747572652e706e67" alt="Clean Architecture">
+  <img src="https://platformplatformgithub.blob.core.windows.net/CleanArchitecture.png" alt="Clean Architecture">
 </p>
 
 Tests for the Account Management system are conducted using xUnit, with SQLite for in-memory database testing. The tests can be run directly in JetBrains Rider, Visual Studio, or with the `dotnet test` command. The tests focus on the behavior of the system, not the implementation details. In fact, over 90% code coverage is achieved by testing only the API.

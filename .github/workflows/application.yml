@@ -59,10 +59,15 @@ jobs:
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Publish Account Management API build
-        working-directory: application/account-management/Api
+        working-directory: application/account-management
         run: |
-          dotnet publish Api.csproj --no-restore --configuration Release --output ./publish --version-suffix ${{ steps.generate_version.outputs.version }}
-          echo "{name}=${{ steps.generate_version.outputs.version }}" >> $GITHUB_OUTPUT
+          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
+
+      - name: Save Account Management API artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: account-management-api
+          path: application/account-management/Api/publish/**/*
 
   test-with-code-coverage:
     name: Test and Code Coverage
@@ -128,14 +133,16 @@ jobs:
 
   account-management-api-publish:
     name: Account Management API Publish
-    if: github.ref == 'refs/heads/main'
     needs: [build]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
     with:
+      artifacts_name: account-management-api
+      artifacts_path: application/account-management/Api/publish
       image_name: account-management-api
       version: ${{ needs.build.outputs.version }}
-      docker_file: ./account-management/Api/Dockerfile
+      docker_context: ./application/account-management
+      docker_file: ./Api/Dockerfile
 
   account-management-api-deploy:
     name: Account Management API Deploy
