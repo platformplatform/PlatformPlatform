@@ -23,7 +23,7 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
 
     private static T FormLong(long newValue)
     {
-        return (T) Activator.CreateInstance(typeof(T),
-            BindingFlags.Instance | BindingFlags.Public, null, new object[] {newValue}, null)!;
+        return (T)Activator.CreateInstance(typeof(T),
+            BindingFlags.Instance | BindingFlags.Public, null, new object[] { newValue }, null)!;
     }
 }

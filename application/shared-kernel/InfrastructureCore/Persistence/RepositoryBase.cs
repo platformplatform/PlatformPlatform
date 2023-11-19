@@ -28,7 +28,7 @@ public abstract class RepositoryBase<T, TId>
 
     public async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken)
     {
-        var keyValues = new object?[] {id};
+        var keyValues = new object?[] { id };
         return await DbSet.FindAsync(keyValues, cancellationToken);
     }
 

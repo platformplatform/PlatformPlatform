@@ -30,7 +30,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineB
         var response = await next();
 
         // ReSharper disable once InvertIf
-        if (response is ResultBase {IsSuccess: true})
+        if (response is ResultBase { IsSuccess: true })
         {
             _unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
             if (_unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())

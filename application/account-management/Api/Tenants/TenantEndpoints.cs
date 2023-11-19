@@ -18,7 +18,7 @@ public static class TenantEndpoints
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
 
         group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
-            => await mediator.Send(command with {Id = id}));
+            => await mediator.Send(command with { Id = id }));
 
         group.MapDelete("/{id}", async Task<ApiResult> (TenantId id, ISender mediator)
             => await mediator.Send(new DeleteTenantCommand(id)));

@@ -24,14 +24,14 @@ public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
         {
             _logger.LogError(ex, "An error occurred while processing the request");
 
-            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/problem+json";
 
             var problemDetails = new ProblemDetails
             {
-                Type = $"https://httpstatuses.com/{(int) HttpStatusCode.InternalServerError}",
+                Type = $"https://httpstatuses.com/{(int)HttpStatusCode.InternalServerError}",
                 Title = "Internal Server Error",
-                Status = (int) HttpStatusCode.InternalServerError,
+                Status = (int)HttpStatusCode.InternalServerError,
                 Detail = "An error occurred while processing the request."
             };
 

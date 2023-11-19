@@ -15,11 +15,11 @@ public abstract class StronglyTypedIdTypeConverter<TValue, T> : TypeConverter
             return base.ConvertFrom(context, culture, value);
         }
 
-        var parameters = new object?[] {valueAsString, null};
+        var parameters = new object?[] { valueAsString, null };
 
-        if ((bool) TryParseMethod.Invoke(null, parameters)!)
+        if ((bool)TryParseMethod.Invoke(null, parameters)!)
         {
-            return (T?) parameters[1];
+            return (T?)parameters[1];
         }
 
         return base.ConvertFrom(context, culture, value);
