@@ -11,6 +11,7 @@ services:
       ACCEPT_EULA: "Y"
     volumes:
       - sql-server-data:/var/opt/mssql
+    stop_grace_period: 1s
 
   account-management:
     container_name: account-management
