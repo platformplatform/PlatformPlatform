@@ -13,22 +13,16 @@ public sealed record UpdateTenantCommand : ICommand, ITenantValidation, IRequest
 }
 
 [UsedImplicitly]
-public sealed class UpdateTenantHandler : IRequestHandler<UpdateTenantCommand, Result>
+public sealed class UpdateTenantHandler(ITenantRepository tenantRepository)
+    : IRequestHandler<UpdateTenantCommand, Result>
 {
-    private readonly ITenantRepository _tenantRepository;
-
-    public UpdateTenantHandler(ITenantRepository tenantRepository)
-    {
-        _tenantRepository = tenantRepository;
-    }
-
     public async Task<Result> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
+        var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
 
         tenant.Update(command.Name, command.Phone);
-        _tenantRepository.Update(tenant);
+        tenantRepository.Update(tenant);
         return Result.Success();
     }
 }

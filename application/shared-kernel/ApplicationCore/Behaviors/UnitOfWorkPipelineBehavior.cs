@@ -10,32 +10,23 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     are successfully handled. If an exception occurs the UnitOfWork.Commit will never be called, and all changes
 ///     will be lost.
 /// </summary>
-public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand where TResponse : ResultBase
+public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>
+    (IUnitOfWork unitOfWork, UnitOfWorkPipelineBehaviorConcurrentCounter unitOfWorkPipelineBehaviorConcurrentCounter)
+    : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly UnitOfWorkPipelineBehaviorConcurrentCounter _unitOfWorkPipelineBehaviorConcurrentCounter;
-
-    public UnitOfWorkPipelineBehavior(IUnitOfWork unitOfWork,
-        UnitOfWorkPipelineBehaviorConcurrentCounter unitOfWorkPipelineBehaviorConcurrentCounter)
-    {
-        _unitOfWork = unitOfWork;
-        _unitOfWorkPipelineBehaviorConcurrentCounter = unitOfWorkPipelineBehaviorConcurrentCounter;
-    }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        _unitOfWorkPipelineBehaviorConcurrentCounter.Increment();
+        unitOfWorkPipelineBehaviorConcurrentCounter.Increment();
         var response = await next();
 
         // ReSharper disable once InvertIf
         if (response is ResultBase { IsSuccess: true })
         {
-            _unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
-            if (_unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())
+            unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
+            if (unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())
             {
-                await _unitOfWork.CommitAsync(cancellationToken);
+                await unitOfWork.CommitAsync(cancellationToken);
             }
         }
 

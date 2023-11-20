@@ -6,21 +6,15 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants;
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]
-public sealed class DeleteTenantHandler : IRequestHandler<DeleteTenantCommand, Result>
+public sealed class DeleteTenantHandler(ITenantRepository tenantRepository)
+    : IRequestHandler<DeleteTenantCommand, Result>
 {
-    private readonly ITenantRepository _tenantRepository;
-
-    public DeleteTenantHandler(ITenantRepository tenantRepository)
-    {
-        _tenantRepository = tenantRepository;
-    }
-
     public async Task<Result> Handle(DeleteTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = await _tenantRepository.GetByIdAsync(command.Id, cancellationToken);
+        var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
 
-        _tenantRepository.Remove(tenant);
+        tenantRepository.Remove(tenant);
         return Result.Success();
     }
 }

@@ -11,22 +11,15 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 ///     called from the <see cref="UnitOfWorkPipelineBehavior{TRequest,TResponse}" /> in the Application layer.
 /// </summary>
 [UsedImplicitly]
-public sealed class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork(DbContext dbContext) : IUnitOfWork
 {
-    private readonly DbContext _dbContext;
-
-    public UnitOfWork(DbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task CommitAsync(CancellationToken cancellationToken)
     {
-        if (_dbContext.ChangeTracker.Entries<IAggregateRoot>().Any(e => e.Entity.DomainEvents.Any()))
+        if (dbContext.ChangeTracker.Entries<IAggregateRoot>().Any(e => e.Entity.DomainEvents.Any()))
         {
             throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
         }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
