@@ -46,7 +46,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Restore .NET tools
         working-directory: application
@@ -80,6 +80,11 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
       - name: Restore Node modules
         working-directory: application/account-management/WebApp
         run: bun install --frozen-lockfile
@@ -101,9 +106,12 @@ jobs:
           dotnet dotcover test PlatformPlatform.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML &&
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
+  # Temporarily disable jetbrains-code-inspection until .NET 8 support is added
+  # See https://youtrack.jetbrains.com/issue/RSRP-494775 and https://youtrack.jetbrains.com/issue/RSRP-494809
   jetbrains-code-inspection:
     name: JetBrains Code Inspections
     needs: build
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -115,7 +123,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Run code inspections
         working-directory: application
@@ -157,11 +165,10 @@ jobs:
   account-management-deploy:
     name: Account Management Deploy
     if: github.ref == 'refs/heads/main'
-    needs:
-      [
+    needs: [
         build,
         test-with-code-coverage,
-        jetbrains-code-inspection,
+        #jetbrains-code-inspection,
         account-management-publish,
       ]
     uses: ./.github/workflows/_deploy-container.yml

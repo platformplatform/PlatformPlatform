@@ -3,7 +3,9 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
@@ -19,6 +21,7 @@ public class WebAppMiddleware
     private readonly StringValues _contentSecurityPolicy;
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly RequestDelegate _next;
     private readonly string[] _publicAllowedKeys = { CdnUrlKey, ApplicationVersion };
     private readonly string _publicUrl;
@@ -26,11 +29,12 @@ public class WebAppMiddleware
     private string? _htmlTemplate;
 
     public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment,
-        string htmlTemplatePath)
+        string htmlTemplatePath, IOptions<JsonOptions> jsonOptions)
     {
         _next = next;
         _runtimeEnvironment = runtimeEnvironment;
         _htmlTemplatePath = htmlTemplatePath;
+        _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
 
         VerifyRuntimeEnvironment(runtimeEnvironment);
 
@@ -58,7 +62,7 @@ public class WebAppMiddleware
         }
 
         var encodeRuntimeEnvironment = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment))
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
         );
         var result = _htmlTemplate.Replace("<ENCODED_RUNTIME_ENV>", encodeRuntimeEnvironment);
 
@@ -96,7 +100,7 @@ public class WebAppMiddleware
     {
         if (context.Request.Path.ToString().EndsWith("/"))
         {
-            context.Response.Headers.Add("Content-Security-Policy", _contentSecurityPolicy);
+            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
             await context.Response.WriteAsync(GetHtmlWithEnvironment());
         }
         else

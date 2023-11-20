@@ -13,7 +13,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     [InlineData("Valid properties - No phone", "tenant2", "Tenant 2", null, "test@test.com")]
     [InlineData("Valid properties - Empty phone", "tenant2", "Tenant 2", "", "test@test.com")]
     public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult(string scenario, string subdomain,
-        string name, string phone, string email)
+        string name, string? phone, string email)
     {
         // Arrange
         var command = new CreateTenantCommand(subdomain, name, phone, email);

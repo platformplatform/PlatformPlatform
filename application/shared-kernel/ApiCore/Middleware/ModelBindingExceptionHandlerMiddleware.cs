@@ -2,11 +2,20 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
 {
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
+
+    public ModelBindingExceptionHandlerMiddleware(IOptions<JsonOptions> jsonOptions)
+    {
+        _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
+    }
+
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
@@ -26,7 +35,7 @@ public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
                 Detail = ex.Message
             };
 
-            var jsonResponse = JsonSerializer.Serialize(problemDetails);
+            var jsonResponse = JsonSerializer.Serialize(problemDetails, _jsonSerializerOptions);
             await context.Response.WriteAsync(jsonResponse);
         }
     }

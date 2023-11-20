@@ -2,16 +2,21 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
 {
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ILogger _logger;
 
-    public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger)
+    public GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger,
+        IOptions<JsonOptions> jsonOptions)
     {
         _logger = logger;
+        _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -35,7 +40,7 @@ public sealed class GlobalExceptionHandlerMiddleware : IMiddleware
                 Detail = "An error occurred while processing the request."
             };
 
-            var jsonResponse = JsonSerializer.Serialize(problemDetails);
+            var jsonResponse = JsonSerializer.Serialize(problemDetails, _jsonSerializerOptions);
             await context.Response.WriteAsync(jsonResponse);
         }
     }
