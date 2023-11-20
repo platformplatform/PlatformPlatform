@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdGen" Version="3.0.3"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-        <PackageReference Include="MediatR.Contracts" Version="2.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-        <PackageReference Include="NUlid" Version="1.7.1"/>
+        <PackageReference Include="IdGen" />
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="MediatR.Contracts" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="NUlid" />
     </ItemGroup>
 
 </Project>
