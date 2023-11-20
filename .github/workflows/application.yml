@@ -53,7 +53,8 @@ jobs:
         run: dotnet tool restore
 
       - name: Restore .NET dependencies
-        run: dotnet restore application/PlatformPlatform.sln
+        working-directory: application
+        run: dotnet restore
 
       - name: Build
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
