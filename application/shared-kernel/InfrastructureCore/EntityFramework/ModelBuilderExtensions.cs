@@ -13,8 +13,7 @@ public static class ModelBuilderExtensions
     /// </summary>
     [UsedImplicitly]
     public static void MapStronglyTypedLongId<T, TId>(this ModelBuilder modelBuilder,
-        Expression<Func<T, TId>> expression)
-        where T : class where TId : StronglyTypedLongId<TId>
+        Expression<Func<T, TId>> expression) where T : class where TId : StronglyTypedLongId<TId>
     {
         modelBuilder
             .Entity<T>()

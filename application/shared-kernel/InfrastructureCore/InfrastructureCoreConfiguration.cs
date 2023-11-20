@@ -24,8 +24,7 @@ public static class InfrastructureCoreConfiguration
 
     [UsedImplicitly]
     private static IServiceCollection ConfigureDatabaseContext<T>(this IServiceCollection services,
-        IConfiguration configuration)
-        where T : DbContext
+        IConfiguration configuration) where T : DbContext
     {
         if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return services;
 

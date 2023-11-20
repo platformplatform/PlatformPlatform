@@ -10,20 +10,13 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     FluentValidation. If the request is not valid, the pipeline will be short-circuited and the request will not be
 ///     handled. If the request is valid, the next pipeline behavior will be called.
 /// </summary>
-public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand where TResponse : ResultBase
+public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
+    : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationPipelineBehavior(IEnumerable<IValidator<TRequest>> validators)
-    {
-        _validators = validators;
-    }
-
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (!_validators.Any())
+        if (!validators.Any())
         {
             return await next();
         }
@@ -32,7 +25,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
 
         // Run all validators in parallel and await the results
         var validationResults =
-            await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            await Task.WhenAll(validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
         // Aggregate the results from all validators into a distinct list of errorDetails
         var errorDetails = validationResults

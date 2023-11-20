@@ -6,52 +6,43 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
-public partial class ApiResult : IResult
+public partial class ApiResult(ResultBase result, string? routePrefix = null) : IResult
 {
-    private readonly ResultBase _result;
-    private readonly string? _routePrefix;
-
-    protected ApiResult(ResultBase result, string? routePrefix = null)
-    {
-        _result = result;
-        _routePrefix = routePrefix;
-    }
-
     public Task ExecuteAsync(HttpContext httpContext)
     {
-        return _routePrefix == null
+        return routePrefix == null
             ? ConvertResult().ExecuteAsync(httpContext)
-            : ConvertResult(_routePrefix).ExecuteAsync(httpContext);
+            : ConvertResult(routePrefix).ExecuteAsync(httpContext);
     }
 
     protected virtual IResult ConvertResult(string? routePrefix = null)
     {
-        if (!_result.IsSuccess) return GetProblemDetailsAsJson();
+        if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
         return routePrefix == null
             ? Results.Ok()
-            : Results.Created($"{routePrefix}/{_result}", null);
+            : Results.Created($"{routePrefix}/{result}", null);
     }
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(CreateProblemDetails(), statusCode: (int)_result.StatusCode,
+        return Results.Json(CreateProblemDetails(), statusCode: (int)result.StatusCode,
             contentType: "application/problem+json");
     }
 
     private ProblemDetails CreateProblemDetails()
     {
-        var statusCode = _result.StatusCode;
+        var statusCode = result.StatusCode;
         var problemDetails = new ProblemDetails
         {
-            Type = $"https://httpstatuses.com/{(int)_result.StatusCode}",
+            Type = $"https://httpstatuses.com/{(int)result.StatusCode}",
             Title = SplitCamelCaseTitle(statusCode.ToString()),
-            Status = (int)_result.StatusCode
+            Status = (int)result.StatusCode
         };
 
-        if (_result.ErrorMessage is not null) problemDetails.Detail = _result.ErrorMessage.Message;
+        if (result.ErrorMessage is not null) problemDetails.Detail = result.ErrorMessage.Message;
 
-        if (_result.Errors?.Length > 0) problemDetails.Extensions[nameof(_result.Errors)] = _result.Errors;
+        if (result.Errors?.Length > 0) problemDetails.Extensions[nameof(result.Errors)] = result.Errors;
 
         return problemDetails;
     }
@@ -70,23 +61,15 @@ public partial class ApiResult : IResult
     }
 }
 
-public class ApiResult<T> : ApiResult
+public class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiResult(result, routePrefix)
 {
-    private readonly Result<T> _result;
-
-    public ApiResult(Result<T> result, string? routePrefix = null)
-        : base(result, routePrefix)
-    {
-        _result = result;
-    }
-
     protected override IResult ConvertResult(string? routePrefix = null)
     {
-        if (!_result.IsSuccess) return GetProblemDetailsAsJson();
+        if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
         return routePrefix == null
-            ? Results.Ok(_result.Value!.Adapt<T>())
-            : Results.Created($"{routePrefix}/{_result.Value}", null);
+            ? Results.Ok(result.Value!.Adapt<T>())
+            : Results.Created($"{routePrefix}/{result.Value}", null);
     }
 
     public static implicit operator ApiResult<T>(Result<T> result)

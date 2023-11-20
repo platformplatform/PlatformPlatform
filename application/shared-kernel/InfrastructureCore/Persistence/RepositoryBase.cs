@@ -15,16 +15,10 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 ///     marked to be added, updated, or deleted, and it's not until the <see cref="IUnitOfWork" /> is committed that the
 ///     changes are actually persisted to the database.
 /// </summary>
-public abstract class RepositoryBase<T, TId>
-    where T : AggregateRoot<TId>
-    where TId : IComparable<TId>
+public abstract class RepositoryBase<T, TId>(DbContext context)
+    where T : AggregateRoot<TId> where TId : IComparable<TId>
 {
-    protected readonly DbSet<T> DbSet;
-
-    protected RepositoryBase(DbContext context)
-    {
-        DbSet = context.Set<T>();
-    }
+    protected readonly DbSet<T> DbSet = context.Set<T>();
 
     public async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken)
     {

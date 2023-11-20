@@ -9,21 +9,13 @@ public sealed record CreateTenantCommand(string Subdomain, string Name, string? 
     : ICommand, ITenantValidation, IRequest<Result<TenantId>>;
 
 [UsedImplicitly]
-public sealed class CreateTenantHandler : IRequestHandler<CreateTenantCommand, Result<TenantId>>
+public sealed class CreateTenantHandler(ITenantRepository tenantRepository, ISender mediator)
+    : IRequestHandler<CreateTenantCommand, Result<TenantId>>
 {
-    private readonly ISender _mediator;
-    private readonly ITenantRepository _tenantRepository;
-
-    public CreateTenantHandler(ITenantRepository tenantRepository, ISender mediator)
-    {
-        _tenantRepository = tenantRepository;
-        _mediator = mediator;
-    }
-
     public async Task<Result<TenantId>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
         var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone);
-        await _tenantRepository.AddAsync(tenant, cancellationToken);
+        await tenantRepository.AddAsync(tenant, cancellationToken);
 
         await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
         return tenant.Id;
@@ -33,7 +25,7 @@ public sealed class CreateTenantHandler : IRequestHandler<CreateTenantCommand, R
         CancellationToken cancellationToken)
     {
         var createTenantOwnerUserCommand = new CreateUserCommand(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
-        var result = await _mediator.Send(createTenantOwnerUserCommand, cancellationToken);
+        var result = await mediator.Send(createTenantOwnerUserCommand, cancellationToken);
 
         if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
     }

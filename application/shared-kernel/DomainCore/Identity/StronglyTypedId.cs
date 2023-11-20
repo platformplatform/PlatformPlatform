@@ -8,8 +8,7 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 ///     When used with Entity Framework, make sure to register the type in the OnModelCreating method in the DbContext.
 /// </summary>
 public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<StronglyTypedId<TValue, T>>
-    where T : StronglyTypedId<TValue, T>
-    where TValue : IComparable<TValue>
+    where T : StronglyTypedId<TValue, T> where TValue : IComparable<TValue>
 {
     public int CompareTo(StronglyTypedId<TValue, T>? other)
     {

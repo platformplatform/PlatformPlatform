@@ -3,8 +3,7 @@ using System.Globalization;
 namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 public abstract class StronglyTypedIdTypeConverter<TValue, T> : TypeConverter
-    where T : StronglyTypedId<TValue, T>
-    where TValue : IComparable<TValue>
+    where T : StronglyTypedId<TValue, T> where TValue : IComparable<TValue>
 {
     private static readonly MethodInfo? TryParseMethod = typeof(T).GetMethod("TryParse");
 

@@ -6,15 +6,10 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 ///     The AudibleEntity class extends Entity and implements IAuditableEntity, which adds
 ///     a readonly CreatedAt and private ModifiedAt properties to derived entities.
 /// </summary>
-public abstract class AudibleEntity<T> : Entity<T>, IAuditableEntity where T : IComparable<T>
+public abstract class AudibleEntity<T>(T id) : Entity<T>(id), IAuditableEntity where T : IComparable<T>
 {
-    protected AudibleEntity(T id) : base(id)
-    {
-        CreatedAt = DateTime.UtcNow;
-    }
-
     [UsedImplicitly]
-    public DateTime CreatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
     [ConcurrencyCheck]
     public DateTime? ModifiedAt { get; private set; }
