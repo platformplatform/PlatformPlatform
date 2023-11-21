@@ -7,7 +7,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "development",
         "PUBLIC_URL": "https://localhost:8443",
-        "CDN_URL": "http://localhost:8080"
+        "CDN_URL": "https://localhost:8080"
       },
       "applicationUrl": "https://localhost:8443"
     }

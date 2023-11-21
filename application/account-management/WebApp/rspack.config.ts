@@ -1,4 +1,5 @@
-import { resolve } from "path";
+import os from "os";
+import { join, resolve } from "path";
 import { Configuration, DefinePlugin } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
@@ -63,6 +64,15 @@ const configuration: Configuration = {
       outputPath,
     }),
   ],
+  devServer: {
+    server: {
+      type: "https",
+      options: {
+        pfx: join(os.homedir(), ".aspnet", "https", "localhost.pfx"),
+        passphrase: process.env.CERTIFICATE_PASSWORD,
+      },
+    },
+  },
 };
 
 export default configuration;

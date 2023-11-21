@@ -76,7 +76,7 @@ public class WebAppMiddleware
 
     private StringValues GetContentSecurityPolicy()
     {
-        var devServerWebsocket = _cdnUrl.Replace("http", "wss");
+        var devServerWebsocket = _cdnUrl.Replace("https", "wss");
 
         var trustedHosts = _isDevelopment
             ? new[] { "'self'", _publicUrl, _cdnUrl, devServerWebsocket }
