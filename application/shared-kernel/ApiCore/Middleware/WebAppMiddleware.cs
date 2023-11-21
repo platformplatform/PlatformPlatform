@@ -22,6 +22,7 @@ public class WebAppMiddleware
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly RequestDelegate _next;
     private readonly string[] _publicAllowedKeys = { CdnUrlKey, ApplicationVersion };
     private readonly string _publicUrl;
     private readonly Dictionary<string, string> _runtimeEnvironment;
@@ -30,6 +31,7 @@ public class WebAppMiddleware
     public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment,
         string htmlTemplatePath, IOptions<JsonOptions> jsonOptions)
     {
+        _next = next;
         _runtimeEnvironment = runtimeEnvironment;
         _htmlTemplatePath = htmlTemplatePath;
         _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
@@ -97,8 +99,15 @@ public class WebAppMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-        await context.Response.WriteAsync(GetHtmlWithEnvironment());
+        if (context.Request.Path.ToString().StartsWith("/api/"))
+        {
+            await _next(context);
+        }
+        else
+        {
+            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
+            await context.Response.WriteAsync(GetHtmlWithEnvironment());
+        }
     }
 }
 
