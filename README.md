@@ -28,11 +28,20 @@ PlatformPlatform aims to showcase an end-to-end solution for building a multi-te
 
 Just getting off the ground, your star can help lift this higher! ⭐ Thanks!
 
-## .NET backend with Clean Architecture, DDD, CQRS, and Minimal API
+## Orchestration using .NET Aspire
+
+The project is using the newly introduced [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) to give a "F5 experience". If you have the [prerequisites](#prerequisites) installed, just open the solution in Rider or Visual Studio code and run the `AppHost project`. This is how it looks:
+
+<p align="center">
+  <img src="https://platformplatformgithub.blob.core.windows.net/$root/DotNetAspire.gif" alt="Using .NET Aspire">
+</p>
+
+## .NET 8 backend with Clean Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
-- [.NET](https://dotnet.microsoft.com) and [C#](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [.NET 8](https://dotnet.microsoft.com) and [C# 12](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [.NET Aspire](https://aka.ms/dotnet-aspire)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
 - [Entity Framework](https://learn.microsoft.com/en-us/ef)
 - [MediatR](https://github.com/jbogard/MediatR)
@@ -137,7 +146,7 @@ This is the security score after deploying PlatformPlatform resources to Azure. 
 PlatformPlatform is designed to support development on both Mac and Windows. The only requirements are:
 
 - [.NET](https://dotnet.microsoft.com)
-- [].NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload install aspire`)
+- [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload install aspire`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) with [JetBrains ReSharper](https://www.jetbrains.com/resharper)
 
