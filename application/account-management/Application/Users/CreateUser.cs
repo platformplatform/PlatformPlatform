@@ -7,19 +7,12 @@ public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole
     : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
 [UsedImplicitly]
-public sealed class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<UserId>>
+public sealed class CreateUserHandler(IUserRepository userRepository) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
-    private readonly IUserRepository _userRepository;
-
-    public CreateUserHandler(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var user = User.Create(command.TenantId, command.Email, command.UserRole);
-        await _userRepository.AddAsync(user, cancellationToken);
+        await userRepository.AddAsync(user, cancellationToken);
         return user.Id;
     }
 }

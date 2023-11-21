@@ -13,22 +13,15 @@ public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Res
 }
 
 [UsedImplicitly]
-public sealed class UpdateUserHandler : IRequestHandler<UpdateUserCommand, Result>
+public sealed class UpdateUserHandler(IUserRepository userRepository) : IRequestHandler<UpdateUserCommand, Result>
 {
-    private readonly IUserRepository _userRepository;
-
-    public UpdateUserHandler(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
     public async Task<Result> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
+        var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
 
         user.Update(command.Email, command.UserRole);
-        _userRepository.Update(user);
+        userRepository.Update(user);
         return Result.Success();
     }
 }
