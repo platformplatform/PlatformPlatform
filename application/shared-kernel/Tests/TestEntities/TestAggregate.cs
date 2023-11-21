@@ -3,14 +3,9 @@ using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
-public sealed class TestAggregate : AggregateRoot<long>
+public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator.NewId())
 {
-    private TestAggregate(string name) : base(IdGenerator.NewId())
-    {
-        Name = name;
-    }
-
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     public static TestAggregate Create(string name)
     {
