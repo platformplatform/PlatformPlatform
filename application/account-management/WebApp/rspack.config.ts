@@ -65,6 +65,10 @@ const configuration: Configuration = {
     }),
   ],
   devServer: {
+    allowedHosts: "all",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
     server: {
       type: "https",
       options: {
