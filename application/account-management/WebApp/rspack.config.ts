@@ -14,6 +14,7 @@ const configuration: Configuration = {
     main: ["./src/lib/rspack/runtime.ts", "./src/main.tsx"],
   },
   output: {
+    publicPath: "auto",
     path: outputPath,
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
   },
@@ -23,8 +24,33 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
-        test: /\.svg$/,
+        test: /\.svg$/i,
         type: "asset",
+        resourceQuery: /url/, // *.svg?url
+      },
+      {
+        test: /\.svg$/i,
+        issuer: /\.tsx?$/,
+        resourceQuery: "", // exclude react component if *.svg?url
+        use: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: "preset-default",
+                    params: {
+                      overrides: {
+                        removeViewBox: false,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.css$/,
