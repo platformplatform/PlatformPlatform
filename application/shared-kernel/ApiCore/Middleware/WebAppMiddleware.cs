@@ -86,7 +86,8 @@ public class WebAppMiddleware
         {
             { "default-src", trustedHosts },
             { "connect-src", trustedHosts },
-            { "script-src", trustedHosts }
+            { "script-src", trustedHosts },
+            { "img-src", trustedHosts.Append("data:").ToArray() }
         };
 
         return string.Join(
