@@ -1,7 +1,9 @@
-import { CreateTenantForm } from "@/ui/tenant/CreateTenantForm.tsx";
-
 function App() {
-  return <CreateTenantForm />;
+  return (
+    <div className="App">
+      <h1>Account Management</h1>
+    </div>
+  );
 }
 
 export default App;
