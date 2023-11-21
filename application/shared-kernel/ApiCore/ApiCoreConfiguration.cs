@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
@@ -43,6 +44,8 @@ public static class ApiCoreConfiguration
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 
+        builder.AddServiceDefaults();
+
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options =>
@@ -71,6 +74,8 @@ public static class ApiCoreConfiguration
     public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
         where TDbContext : DbContext
     {
+        app.MapDefaultEndpoints();
+
         // Enable Swagger UI
         app.UseSwagger();
         app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));

@@ -137,6 +137,7 @@ This is the security score after deploying PlatformPlatform resources to Azure. 
 PlatformPlatform is designed to support development on both Mac and Windows. The only requirements are:
 
 - [.NET](https://dotnet.microsoft.com)
+- [].NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload install aspire`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) with [JetBrains ReSharper](https://www.jetbrains.com/resharper)
 

@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Account Management" type="CompoundRunConfigurationType">
-    <toRun name="Api: WebApi" type="LaunchSettings" />
-    <toRun name="SQL Server" type="docker-deploy" />
-    <toRun name="WebApp" type="js.build_tools.npm" />
-    <method v="2" />
-  </configuration>
-</component>
