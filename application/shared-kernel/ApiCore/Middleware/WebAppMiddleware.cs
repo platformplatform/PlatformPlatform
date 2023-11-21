@@ -98,15 +98,8 @@ public class WebAppMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.ToString().EndsWith("/"))
-        {
-            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-            await context.Response.WriteAsync(GetHtmlWithEnvironment());
-        }
-        else
-        {
-            await _next(context);
-        }
+        context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
+        await context.Response.WriteAsync(GetHtmlWithEnvironment());
     }
 }
 
