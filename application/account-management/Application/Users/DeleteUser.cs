@@ -5,21 +5,14 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]
-public sealed class DeleteUserHandler : IRequestHandler<DeleteUserCommand, Result>
+public sealed class DeleteUserHandler(IUserRepository userRepository) : IRequestHandler<DeleteUserCommand, Result>
 {
-    private readonly IUserRepository _userRepository;
-
-    public DeleteUserHandler(IUserRepository userRepository)
-    {
-        _userRepository = userRepository;
-    }
-
     public async Task<Result> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
+        var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
 
-        _userRepository.Remove(user);
+        userRepository.Remove(user);
         return Result.Success();
     }
 }

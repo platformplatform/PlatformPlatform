@@ -7,14 +7,9 @@ using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
+public sealed class ModelBindingExceptionHandlerMiddleware(IOptions<JsonOptions> jsonOptions) : IMiddleware
 {
-    private readonly JsonSerializerOptions _jsonSerializerOptions;
-
-    public ModelBindingExceptionHandlerMiddleware(IOptions<JsonOptions> jsonOptions)
-    {
-        _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
-    }
+    private readonly JsonSerializerOptions _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
