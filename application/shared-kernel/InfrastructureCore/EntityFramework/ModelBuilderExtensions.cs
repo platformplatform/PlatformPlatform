@@ -12,8 +12,10 @@ public static class ModelBuilderExtensions
     ///     underlying type of the strongly-typed ID.
     /// </summary>
     [UsedImplicitly]
-    public static void MapStronglyTypedLongId<T, TId>(this ModelBuilder modelBuilder,
-        Expression<Func<T, TId>> expression) where T : class where TId : StronglyTypedLongId<TId>
+    public static void MapStronglyTypedLongId<T, TId>(
+        this ModelBuilder modelBuilder,
+        Expression<Func<T, TId>> expression
+    ) where T : class where TId : StronglyTypedLongId<TId>
     {
         modelBuilder
             .Entity<T>()
@@ -30,8 +32,10 @@ public static class ModelBuilderExtensions
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
-    public static void MapStronglyTypedId<T, TId, TValue>(this ModelBuilder modelBuilder,
-        Expression<Func<T, TId>> expression)
+    public static void MapStronglyTypedId<T, TId, TValue>(
+        this ModelBuilder modelBuilder,
+        Expression<Func<T, TId>> expression
+    )
         where T : class
         where TValue : IComparable<TValue>
         where TId : StronglyTypedId<TValue, TId>

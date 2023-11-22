@@ -16,9 +16,10 @@ public class PublishDomainEventsPipelineBehaviorTests
         // Arrange
         var domainEventCollector = Substitute.For<IDomainEventCollector>();
         var publisher = Substitute.For<IPublisher>();
-        var behavior =
-            new PublishDomainEventsPipelineBehavior<TestCommand, Result<TestAggregate>>(domainEventCollector,
-                publisher);
+        var behavior = new PublishDomainEventsPipelineBehavior<TestCommand, Result<TestAggregate>>(
+            domainEventCollector,
+            publisher
+        );
         var request = new TestCommand();
         var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();

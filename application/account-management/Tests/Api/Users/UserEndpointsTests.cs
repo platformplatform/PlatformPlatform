@@ -118,8 +118,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email",
-                $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
+            new ErrorDetail(
+                "Email",
+                $"The email '{existingUserEmail}' is already in use by another user on this tenant."
+            )
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }

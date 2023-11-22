@@ -26,8 +26,11 @@ public partial class ApiResult(ResultBase result, string? routePrefix = null) : 
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(CreateProblemDetails(), statusCode: (int)result.StatusCode,
-            contentType: "application/problem+json");
+        return Results.Json(
+            CreateProblemDetails(),
+            statusCode: (int)result.StatusCode,
+            contentType: "application/problem+json"
+        );
     }
 
     private ProblemDetails CreateProblemDetails()

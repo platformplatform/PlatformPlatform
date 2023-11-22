@@ -7,8 +7,10 @@ using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public sealed class GlobalExceptionHandlerMiddleware(ILogger<GlobalExceptionHandlerMiddleware> logger,
-    IOptions<JsonOptions> jsonOptions) : IMiddleware
+public sealed class GlobalExceptionHandlerMiddleware(
+    ILogger<GlobalExceptionHandlerMiddleware> logger,
+    IOptions<JsonOptions> jsonOptions
+) : IMiddleware
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
     private readonly ILogger _logger = logger;

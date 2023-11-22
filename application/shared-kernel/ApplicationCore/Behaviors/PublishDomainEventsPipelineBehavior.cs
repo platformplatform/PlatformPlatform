@@ -11,12 +11,16 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     services (e.g., send emails) that are not part of the same database transaction. For such tasks, use Integration
 ///     Events instead.
 /// </summary>
-public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>
-    (IDomainEventCollector domainEventCollector, IPublisher mediator) : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : ICommand where TResponse : ResultBase
+public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
+    IDomainEventCollector domainEventCollector,
+    IPublisher mediator
+) : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken
+    )
     {
         var response = await next();
 

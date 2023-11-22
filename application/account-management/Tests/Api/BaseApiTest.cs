@@ -49,8 +49,11 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
         response.Headers.Location.Should().BeNull();
     }
 
-    protected static async Task EnsureSuccessPostRequest(HttpResponseMessage response, string? exact = null,
-        string? startsWith = null)
+    protected static async Task EnsureSuccessPostRequest(
+        HttpResponseMessage response,
+        string? exact = null,
+        string? startsWith = null
+    )
     {
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().BeEmpty();
@@ -77,14 +80,21 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
     }
 
     [UsedImplicitly]
-    protected Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode,
-        IEnumerable<ErrorDetail> expectedErrors)
+    protected Task EnsureErrorStatusCode(
+        HttpResponseMessage response,
+        HttpStatusCode statusCode,
+        IEnumerable<ErrorDetail> expectedErrors
+    )
     {
         return EnsureErrorStatusCode(response, statusCode, null, expectedErrors);
     }
 
-    protected async Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode,
-        string? expectedDetail, IEnumerable<ErrorDetail>? expectedErrors = null)
+    protected async Task EnsureErrorStatusCode(
+        HttpResponseMessage response,
+        HttpStatusCode statusCode,
+        string? expectedDetail,
+        IEnumerable<ErrorDetail>? expectedErrors = null
+    )
     {
         response.StatusCode.Should().Be(statusCode);
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");

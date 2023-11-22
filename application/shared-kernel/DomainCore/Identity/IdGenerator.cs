@@ -34,9 +34,10 @@ public static class IdGenerator
     private static int GetUniqueGeneratorIdFromIpAddress()
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());
-        var ipAddress = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork) ??
-                        throw new InvalidOperationException(
-                            "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.");
+        const string noNetworkAdapters =
+            "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.";
+        var ipAddress = host.AddressList.FirstOrDefault(ip =>
+            ip.AddressFamily == AddressFamily.InterNetwork) ?? throw new InvalidOperationException(noNetworkAdapters);
 
         var lastSegment = ipAddress.ToString().Split('.').Last();
         return int.Parse(lastSegment);

@@ -21,8 +21,11 @@ public sealed class CreateTenantHandler(ITenantRepository tenantRepository, ISen
         return tenant.Id;
     }
 
-    private async Task CreateTenantOwnerAsync(TenantId tenantId, string tenantOwnerEmail,
-        CancellationToken cancellationToken)
+    private async Task CreateTenantOwnerAsync(
+        TenantId tenantId,
+        string tenantOwnerEmail,
+        CancellationToken cancellationToken
+    )
     {
         var createTenantOwnerUserCommand = new CreateUserCommand(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
         var result = await mediator.Send(createTenantOwnerUserCommand, cancellationToken);

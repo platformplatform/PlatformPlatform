@@ -12,8 +12,11 @@ public static class InfrastructureCoreConfiguration
     private static string? _cachedConnectionString;
 
     [UsedImplicitly]
-    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services,
-        IConfiguration configuration, Assembly assembly) where T : DbContext
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        Assembly assembly
+    ) where T : DbContext
     {
         services.ConfigureDatabaseContext<T>(configuration);
 
@@ -23,8 +26,10 @@ public static class InfrastructureCoreConfiguration
     }
 
     [UsedImplicitly]
-    private static IServiceCollection ConfigureDatabaseContext<T>(this IServiceCollection services,
-        IConfiguration configuration) where T : DbContext
+    private static IServiceCollection ConfigureDatabaseContext<T>(
+        this IServiceCollection services,
+        IConfiguration configuration
+    ) where T : DbContext
     {
         if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return services;
 

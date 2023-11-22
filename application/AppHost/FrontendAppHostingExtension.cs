@@ -32,8 +32,12 @@ internal class FrontendAppAddPortLifecycleHook : IDistributedApplicationLifecycl
 
 internal static class FrontendAppHostingExtension
 {
-    public static IResourceBuilder<FrontendAppResource> AddBunApp(this IDistributedApplicationBuilder builder,
-        string name, string workingDirectory, string bunCommand)
+    public static IResourceBuilder<FrontendAppResource> AddBunApp(
+        this IDistributedApplicationBuilder builder,
+        string name,
+        string workingDirectory,
+        string bunCommand
+    )
     {
         var resource = new FrontendAppResource(name, "bun", workingDirectory, new[] { "run", bunCommand });
 

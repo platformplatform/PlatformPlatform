@@ -8,8 +8,10 @@ public static class InfrastructureConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.ConfigureInfrastructureCoreServices<AccountManagementDbContext>(configuration, Assembly);
 

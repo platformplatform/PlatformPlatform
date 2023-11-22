@@ -54,8 +54,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.GetAsync($"/api/tenants/{unknownTenantId}");
 
         // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
-            $"Tenant with id '{unknownTenantId}' not found.");
+        await EnsureErrorStatusCode(
+            response,
+            HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found."
+        );
     }
 
     [Fact]
@@ -68,8 +71,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.GetAsync($"/api/tenants/{invalidTenantId}");
 
         // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
-            $"""Failed to bind parameter "TenantId id" from "{invalidTenantId}".""");
+        await EnsureErrorStatusCode(
+            response,
+            HttpStatusCode.BadRequest,
+            $"""Failed to bind parameter "TenantId id" from "{invalidTenantId}"."""
+        );
     }
 
     [Fact]
@@ -178,8 +184,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{unknownTenantId}", command);
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
-            $"Tenant with id '{unknownTenantId}' not found.");
+        await EnsureErrorStatusCode(
+            response,
+            HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found."
+        );
     }
 
     [Fact]
@@ -192,8 +201,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{unknownTenantId}");
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound,
-            $"Tenant with id '{unknownTenantId}' not found.");
+        await EnsureErrorStatusCode(
+            response,
+            HttpStatusCode.NotFound,
+            $"Tenant with id '{unknownTenantId}' not found."
+        );
     }
 
     [Fact]

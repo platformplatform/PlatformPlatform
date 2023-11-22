@@ -28,8 +28,12 @@ public class WebAppMiddleware
     private readonly Dictionary<string, string> _runtimeEnvironment;
     private string? _htmlTemplate;
 
-    public WebAppMiddleware(RequestDelegate next, Dictionary<string, string> runtimeEnvironment,
-        string htmlTemplatePath, IOptions<JsonOptions> jsonOptions)
+    public WebAppMiddleware(
+        RequestDelegate next,
+        Dictionary<string, string> runtimeEnvironment,
+        string htmlTemplatePath,
+        IOptions<JsonOptions> jsonOptions
+    )
     {
         _next = next;
         _runtimeEnvironment = runtimeEnvironment;
@@ -92,8 +96,7 @@ public class WebAppMiddleware
 
         return string.Join(
             " ",
-            contentSecurityPolicies.Select(policy => $"{policy.Key} {string.Join(" ", policy.Value)};"
-            )
+            contentSecurityPolicies.Select(policy => $"{policy.Key} {string.Join(" ", policy.Value)};")
         );
     }
 
@@ -109,8 +112,11 @@ public class WebAppMiddleware
 public static class WebAppMiddlewareExtensions
 {
     [UsedImplicitly]
-    public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder,
-        string webAppProjectName = "WebApp", Dictionary<string, string>? publicEnvironmentVariables = null)
+    public static IApplicationBuilder UseWebAppMiddleware(
+        this IApplicationBuilder builder,
+        string webAppProjectName = "WebApp",
+        Dictionary<string, string>? publicEnvironmentVariables = null
+    )
     {
         if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return builder;
 
@@ -157,8 +163,10 @@ public static class WebAppMiddlewareExtensions
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
         var directoryInfo = new DirectoryInfo(assemblyPath);
-        while (directoryInfo is not null && !directoryInfo.GetDirectories(webAppProjectName).Any() &&
-               !Path.Exists(Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName)))
+        while (directoryInfo is not null &&
+               directoryInfo.GetDirectories(webAppProjectName).Length == 0 &&
+               !Path.Exists(Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName))
+              )
         {
             directoryInfo = directoryInfo.Parent;
         }
