@@ -33,19 +33,19 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
 
     public async Task AddAsync(T aggregate, CancellationToken cancellationToken)
     {
-        if (aggregate is null) throw new ArgumentNullException(nameof(aggregate));
+        ArgumentNullException.ThrowIfNull(aggregate);
         await DbSet.AddAsync(aggregate, cancellationToken);
     }
 
     public void Update(T aggregate)
     {
-        if (aggregate is null) throw new ArgumentNullException(nameof(aggregate));
+        ArgumentNullException.ThrowIfNull(aggregate);
         DbSet.Update(aggregate);
     }
 
     public void Remove(T aggregate)
     {
-        if (aggregate is null) throw new ArgumentNullException(nameof(aggregate));
+        ArgumentNullException.ThrowIfNull(aggregate);
         DbSet.Remove(aggregate);
     }
 }

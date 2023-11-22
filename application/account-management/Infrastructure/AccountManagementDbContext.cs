@@ -20,7 +20,10 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
         // User
         modelBuilder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
         modelBuilder.MapStronglyTypedId<User, TenantId, string>(u => u.TenantId);
-        modelBuilder.Entity<User>().HasOne<Tenant>().WithMany().HasForeignKey(u => u.TenantId)
+        modelBuilder.Entity<User>()
+            .HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(u => u.TenantId)
             .HasPrincipalKey(t => t.Id);
     }
 }

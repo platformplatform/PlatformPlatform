@@ -21,8 +21,11 @@ public sealed class CreateTenantHandler(ITenantRepository tenantRepository, ISen
         return tenant.Id;
     }
 
-    private async Task CreateTenantOwnerAsync(TenantId tenantId, string tenantOwnerEmail,
-        CancellationToken cancellationToken)
+    private async Task CreateTenantOwnerAsync(
+        TenantId tenantId,
+        string tenantOwnerEmail,
+        CancellationToken cancellationToken
+    )
     {
         var createTenantOwnerUserCommand = new CreateUserCommand(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
         var result = await mediator.Send(createTenantOwnerUserCommand, cancellationToken);
@@ -41,8 +44,7 @@ public sealed class CreateTenantValidator : TenantValidator<CreateTenantCommand>
         RuleFor(x => x.Subdomain)
             .Matches("^[a-z0-9]{3,30}$")
             .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
-            .MustAsync(async (subdomain, cancellationToken) =>
-                await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken))
+            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
             .WithMessage("The subdomain is not available.")
             .When(x => !string.IsNullOrEmpty(x.Subdomain));
     }

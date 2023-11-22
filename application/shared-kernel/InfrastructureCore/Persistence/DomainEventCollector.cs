@@ -10,7 +10,7 @@ public sealed class DomainEventCollector(DbContext dbContext) : IDomainEventColl
     {
         return dbContext.ChangeTracker
             .Entries<IAggregateRoot>()
-            .Where(e => e.Entity.DomainEvents.Any())
+            .Where(e => e.Entity.DomainEvents.Count != 0)
             .Select(e => e.Entity);
     }
 }

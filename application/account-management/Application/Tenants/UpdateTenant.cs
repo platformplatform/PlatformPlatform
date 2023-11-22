@@ -28,6 +28,4 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository)
 }
 
 [UsedImplicitly]
-public sealed class UpdateTenantValidator : TenantValidator<UpdateTenantCommand>
-{
-}
+public sealed class UpdateTenantValidator : TenantValidator<UpdateTenantCommand>;

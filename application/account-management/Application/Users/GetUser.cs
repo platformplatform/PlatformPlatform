@@ -6,7 +6,8 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
 [UsedImplicitly]
-public sealed class GetUserHandler(IUserRepository userRepository) : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
+public sealed class GetUserHandler(IUserRepository userRepository)
+    : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
 {
     public async Task<Result<UserResponseDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {

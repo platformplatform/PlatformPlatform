@@ -12,8 +12,13 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     [InlineData("Valid properties", "tenant2", "Tenant 2", "+44 (0)20 7946 0123", "test@test.com")]
     [InlineData("Valid properties - No phone", "tenant2", "Tenant 2", null, "test@test.com")]
     [InlineData("Valid properties - Empty phone", "tenant2", "Tenant 2", "", "test@test.com")]
-    public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult(string scenario, string subdomain,
-        string name, string? phone, string email)
+    public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult(
+        string scenario,
+        string subdomain,
+        string name,
+        string? phone,
+        string email
+    )
     {
         // Arrange
         var command = new CreateTenantCommand(subdomain, name, phone, email);
@@ -40,8 +45,13 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     [InlineData("Subdomain with uppercase", "Tenant2", "Tenant 2", "1234567890", "test@test.com")]
     [InlineData("Subdomain special characters", "tenant-2", "Tenant 2", "1234567890", "test@test.com")]
     [InlineData("Subdomain with spaces", "tenant 2", "Tenant 2", "1234567890", "test@test.com")]
-    public async Task CreateTenant_WhenInvalidCommand_ShouldReturnUnsuccessfulResultWithOneError(string scenario,
-        string subdomain, string name, string phone, string email)
+    public async Task CreateTenant_WhenInvalidCommand_ShouldReturnUnsuccessfulResultWithOneError(
+        string scenario,
+        string subdomain,
+        string name,
+        string phone,
+        string email
+    )
     {
         // Arrange
         var command = new CreateTenantCommand(subdomain, name, phone, email);

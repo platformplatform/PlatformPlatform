@@ -12,9 +12,7 @@ public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
     }
 }
 
-public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, UserId>
-{
-}
+public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, UserId>;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 [JsonConverter(typeof(JsonStringEnumConverter))]

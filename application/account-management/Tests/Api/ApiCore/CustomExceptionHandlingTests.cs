@@ -42,8 +42,11 @@ public class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbCont
         else
         {
             // In Production we use GlobalExceptionHandlerMiddleware which returns a JSON response.
-            await EnsureErrorStatusCode(response, HttpStatusCode.InternalServerError,
-                "An error occurred while processing the request.");
+            await EnsureErrorStatusCode(
+                response,
+                HttpStatusCode.InternalServerError,
+                "An error occurred while processing the request."
+            );
         }
     }
 }

@@ -4,12 +4,9 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Users;
 
 [UsedImplicitly]
-internal sealed class UserRepository : RepositoryBase<User, UserId>, IUserRepository
+internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
+    : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
-    public UserRepository(AccountManagementDbContext accountManagementDbContext) : base(accountManagementDbContext)
-    {
-    }
-
     public async Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken)
     {
         return !await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);

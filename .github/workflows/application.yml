@@ -114,12 +114,9 @@ jobs:
           dotnet dotcover test PlatformPlatform.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML &&
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
-  # Temporarily disable jetbrains-code-inspection until .NET 8 support is added
-  # See https://youtrack.jetbrains.com/issue/RSRP-494775 and https://youtrack.jetbrains.com/issue/RSRP-494809
   jetbrains-code-inspection:
     name: JetBrains Code Inspections
     needs: build
-    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -139,10 +136,14 @@ jobs:
           dotnet tool restore &&
           dotnet workload install aspire
 
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
       - name: Run code inspections
         working-directory: application
         run: |
-          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION --exclude="**/*.csproj" # Exclude .csproj. See https://youtrack.jetbrains.com/issue/RSRP-490866
+          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION
 
           # Check if there are any issues. <Issues /> indicates no issues found.
           if ! grep -q '<Issues />' result.xml; then
@@ -178,10 +179,11 @@ jobs:
   account-management-deploy:
     name: Account Management Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [
+    needs:
+      [
         build,
         test-with-code-coverage,
-        #jetbrains-code-inspection,
+        jetbrains-code-inspection,
         account-management-publish,
       ]
     uses: ./.github/workflows/_deploy-container.yml

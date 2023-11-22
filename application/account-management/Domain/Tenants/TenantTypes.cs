@@ -24,9 +24,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
     }
 }
 
-public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<string, TenantId>
-{
-}
+public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<string, TenantId>;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 [JsonConverter(typeof(JsonStringEnumConverter))]

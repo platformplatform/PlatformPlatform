@@ -15,7 +15,7 @@ public sealed class UnitOfWork(DbContext dbContext) : IUnitOfWork
 {
     public async Task CommitAsync(CancellationToken cancellationToken)
     {
-        if (dbContext.ChangeTracker.Entries<IAggregateRoot>().Any(e => e.Entity.DomainEvents.Any()))
+        if (dbContext.ChangeTracker.Entries<IAggregateRoot>().Any(e => e.Entity.DomainEvents.Count != 0))
         {
             throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
         }

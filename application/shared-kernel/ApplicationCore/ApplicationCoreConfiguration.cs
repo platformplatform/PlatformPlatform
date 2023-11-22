@@ -7,8 +7,10 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore;
 public static class ApplicationCoreConfiguration
 {
     [UsedImplicitly]
-    public static IServiceCollection AddApplicationCoreServices(this IServiceCollection services,
-        Assembly applicationAssembly)
+    public static IServiceCollection AddApplicationCoreServices(
+        this IServiceCollection services,
+        Assembly applicationAssembly
+    )
     {
         // Order is important. First all Pre behaviors run (top to bottom), then the command is handled, then all Post
         // behaviors run (bottom to top). So Validation -> Command -> PublishDomainEvents -> UnitOfWork.

@@ -8,26 +8,29 @@ namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 public partial class ApiResult(ResultBase result, string? routePrefix = null) : IResult
 {
+    protected string? RoutePrefix { get; } = routePrefix;
+
     public Task ExecuteAsync(HttpContext httpContext)
     {
-        return routePrefix == null
-            ? ConvertResult().ExecuteAsync(httpContext)
-            : ConvertResult(routePrefix).ExecuteAsync(httpContext);
+        return ConvertResult().ExecuteAsync(httpContext);
     }
 
-    protected virtual IResult ConvertResult(string? routePrefix = null)
+    protected virtual IResult ConvertResult()
     {
         if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
-        return routePrefix == null
+        return RoutePrefix == null
             ? Results.Ok()
-            : Results.Created($"{routePrefix}/{result}", null);
+            : Results.Created($"{RoutePrefix}/{result}", null);
     }
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(CreateProblemDetails(), statusCode: (int)result.StatusCode,
-            contentType: "application/problem+json");
+        return Results.Json(
+            CreateProblemDetails(),
+            statusCode: (int)result.StatusCode,
+            contentType: "application/problem+json"
+        );
     }
 
     private ProblemDetails CreateProblemDetails()
@@ -63,13 +66,13 @@ public partial class ApiResult(ResultBase result, string? routePrefix = null) : 
 
 public class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiResult(result, routePrefix)
 {
-    protected override IResult ConvertResult(string? routePrefix = null)
+    protected override IResult ConvertResult()
     {
         if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
-        return routePrefix == null
+        return RoutePrefix == null
             ? Results.Ok(result.Value!.Adapt<T>())
-            : Results.Created($"{routePrefix}/{result.Value}", null);
+            : Results.Created($"{RoutePrefix}/{result.Value}", null);
     }
 
     public static implicit operator ApiResult<T>(Result<T> result)
