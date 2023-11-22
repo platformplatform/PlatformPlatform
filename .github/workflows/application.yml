@@ -136,6 +136,10 @@ jobs:
           dotnet tool restore &&
           dotnet workload install aspire
 
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
       - name: Run code inspections
         working-directory: application
         run: |
