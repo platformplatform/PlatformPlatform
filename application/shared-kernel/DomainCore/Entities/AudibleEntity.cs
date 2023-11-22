@@ -9,7 +9,7 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 public abstract class AudibleEntity<T>(T id) : Entity<T>(id), IAuditableEntity where T : IComparable<T>
 {
     [UsedImplicitly]
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     [ConcurrencyCheck]
     public DateTime? ModifiedAt { get; private set; }
