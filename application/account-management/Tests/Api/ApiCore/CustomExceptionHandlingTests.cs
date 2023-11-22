@@ -22,13 +22,13 @@ public class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbCont
             builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
             builder.ConfigureAppConfiguration((_, _) =>
             {
-                // Set the environment variable to enable the test-specific /throwException endpoint.
+                // Set the environment variable to enable the test-specific /api/throwException endpoint.
                 Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
             });
         }).CreateClient();
 
         // Act
-        var response = await client.GetAsync("/throwException");
+        var response = await client.GetAsync("/api/throwException");
 
         // Assert
         if (environment == "Development")

@@ -11,11 +11,14 @@
     "react": "18.3.0-canary-c47c306a7-20231109",
     "react-aria-components": "^1.0.0-rc.0",
     "react-dom": "18.3.0-canary-c47c306a7-20231109",
+    "react-dom-confetti": "^0.2.0",
+    "react-router-dom": "^6.19.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@rspack/cli": "^0.3.11",
     "@rspack/core": "^0.3.11",
+    "@svgr/webpack": "^8.1.0",
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.13",
     "autoprefixer": "^10.4.16",

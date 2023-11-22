@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { accountManagementApi } from "@/lib/api/client.ts";
 import { getApiError, getFieldErrors } from "@/lib/apiErrorListSchema.ts";
+import { router } from "@/router";
 
 export type State = {
   errors?: {
@@ -46,6 +47,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     if (result.response.ok) {
       // invalidate cache
       // redirect
+      router.navigate("/tenant/create/success");
       return {};
     }
 

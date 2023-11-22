@@ -10,9 +10,9 @@ export function CreateTenantForm() {
     <Form
       action={formAction}
       validationErrors={state.errors}
-      className="w-screen h-screen bg-slate-900 flex flex-col p-2 justify-center items-center"
+      className="w-full h-full flex flex-col p-2 justify-center items-center border-border border"
     >
-      <div className="flex flex-col w-fit bg-slate-300 rounded-sm p-4 gap-2">
+      <div className="flex flex-col w-fit bg-gray-200 rounded p-4 gap-2 shadow-sm">
         <h1 className="text-xl font-bold">Create a tenant</h1>
         <TextField name={"subdomain"} autoFocus className={"flex flex-col"} isRequired>
           <Label>Subdomain</Label>
@@ -31,10 +31,9 @@ export function CreateTenantForm() {
           <Input className="p-2 rounded-md border border-black" placeholder="email" />
           <FieldError />
         </TextField>
-
         <Button
           type="submit"
-          className="bg-slate-500 p-2 rounded-md text-white text-sm border border-black hover:bg-slate-400 w-fit"
+          className="bg-blue-600 p-2 rounded-md text-white text-sm border border-border shadow-lg hover:bg-slate-400 w-fit"
         >
           Create tenant!
         </Button>

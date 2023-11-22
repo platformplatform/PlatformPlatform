@@ -1,4 +1,5 @@
-import { resolve } from "path";
+import os from "os";
+import { join, resolve } from "path";
 import { Configuration, DefinePlugin } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
@@ -13,6 +14,7 @@ const configuration: Configuration = {
     main: ["./src/lib/rspack/runtime.ts", "./src/main.tsx"],
   },
   output: {
+    publicPath: "auto",
     path: outputPath,
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
   },
@@ -22,8 +24,33 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
-        test: /\.svg$/,
+        test: /\.svg$/i,
         type: "asset",
+        resourceQuery: /url/, // *.svg?url
+      },
+      {
+        test: /\.svg$/i,
+        issuer: /\.tsx?$/,
+        resourceQuery: "", // exclude react component if *.svg?url
+        use: [
+          {
+            loader: "@svgr/webpack",
+            options: {
+              svgoConfig: {
+                plugins: [
+                  {
+                    name: "preset-default",
+                    params: {
+                      overrides: {
+                        removeViewBox: false,
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.css$/,
@@ -63,6 +90,19 @@ const configuration: Configuration = {
       outputPath,
     }),
   ],
+  devServer: {
+    allowedHosts: "all",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+    server: {
+      type: "https",
+      options: {
+        pfx: join(os.homedir(), ".aspnet", "https", "localhost.pfx"),
+        passphrase: process.env.CERTIFICATE_PASSWORD,
+      },
+    },
+  },
 };
 
 export default configuration;

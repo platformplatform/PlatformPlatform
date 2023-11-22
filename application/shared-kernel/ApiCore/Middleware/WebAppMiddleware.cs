@@ -76,7 +76,7 @@ public class WebAppMiddleware
 
     private StringValues GetContentSecurityPolicy()
     {
-        var devServerWebsocket = _cdnUrl.Replace("http", "wss");
+        var devServerWebsocket = _cdnUrl.Replace("https", "wss");
 
         var trustedHosts = _isDevelopment
             ? new[] { "'self'", _publicUrl, _cdnUrl, devServerWebsocket }
@@ -86,7 +86,8 @@ public class WebAppMiddleware
         {
             { "default-src", trustedHosts },
             { "connect-src", trustedHosts },
-            { "script-src", trustedHosts }
+            { "script-src", trustedHosts },
+            { "img-src", trustedHosts.Append("data:").ToArray() }
         };
 
         return string.Join(
@@ -98,14 +99,14 @@ public class WebAppMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.ToString().EndsWith("/"))
+        if (context.Request.Path.ToString().StartsWith("/api/"))
         {
-            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-            await context.Response.WriteAsync(GetHtmlWithEnvironment());
+            await _next(context);
         }
         else
         {
-            await _next(context);
+            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
+            await context.Response.WriteAsync(GetHtmlWithEnvironment());
         }
     }
 }

@@ -101,7 +101,7 @@ public static class ApiCoreConfiguration
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
-        // Add test-specific endpoints when running tests, such as /throwException.
+        // Add test-specific endpoints when running tests, such as /api/throwException.
         app.MapTestEndpoints();
 
         app.Services.ApplyMigrations<TDbContext>();
