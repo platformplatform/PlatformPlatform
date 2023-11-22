@@ -41,8 +41,7 @@ public sealed class CreateTenantValidator : TenantValidator<CreateTenantCommand>
         RuleFor(x => x.Subdomain)
             .Matches("^[a-z0-9]{3,30}$")
             .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
-            .MustAsync(async (subdomain, cancellationToken) =>
-                await tenantRepository.IsSubdomainFreeAsync(subdomain, cancellationToken))
+            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
             .WithMessage("The subdomain is not available.")
             .When(x => !string.IsNullOrEmpty(x.Subdomain));
     }

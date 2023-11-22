@@ -97,17 +97,12 @@ public class WebAppMiddleware
         );
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public Task InvokeAsync(HttpContext context)
     {
-        if (context.Request.Path.ToString().StartsWith("/api/"))
-        {
-            await _next(context);
-        }
-        else
-        {
-            context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-            await context.Response.WriteAsync(GetHtmlWithEnvironment());
-        }
+        if (context.Request.Path.ToString().StartsWith("/api/")) return _next(context);
+
+        context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
+        return context.Response.WriteAsync(GetHtmlWithEnvironment());
     }
 }
 

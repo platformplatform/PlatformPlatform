@@ -76,10 +76,10 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
         response.Headers.Location.Should().BeNull();
     }
 
-    protected async Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode,
+    protected Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode,
         IEnumerable<ErrorDetail> expectedErrors)
     {
-        await EnsureErrorStatusCode(response, statusCode, null, expectedErrors);
+        return EnsureErrorStatusCode(response, statusCode, null, expectedErrors);
     }
 
     protected async Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode,

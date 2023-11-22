@@ -7,7 +7,8 @@ public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole
     : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
 [UsedImplicitly]
-public sealed class CreateUserHandler(IUserRepository userRepository) : IRequestHandler<CreateUserCommand, Result<UserId>>
+public sealed class CreateUserHandler(IUserRepository userRepository)
+    : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
@@ -23,14 +24,13 @@ public sealed class CreateUserValidator : UserValidator<CreateUserCommand>
     public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
     {
         RuleFor(x => x.TenantId)
-            .MustAsync(async (tenantId, cancellationToken) =>
-                await tenantRepository.ExistsAsync(tenantId, cancellationToken))
+            .MustAsync(tenantRepository.ExistsAsync)
             .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")
             .When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x)
-            .MustAsync(async (x, cancellationToken)
-                => await userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+            .MustAsync((x, cancellationToken)
+                => userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
             .WithName("Email")
             .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
             .When(x => !string.IsNullOrEmpty(x.Email));
