@@ -27,6 +27,4 @@ public sealed class UpdateUserHandler(IUserRepository userRepository) : IRequest
 }
 
 [UsedImplicitly]
-public sealed class UpdateUserValidator : UserValidator<UpdateUserCommand>
-{
-}
+public sealed class UpdateUserValidator : UserValidator<UpdateUserCommand>;

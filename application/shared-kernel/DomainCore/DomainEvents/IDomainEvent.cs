@@ -14,6 +14,4 @@ namespace PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 ///     be used to invoke other services (e.g., send emails) that are not part of the same database transaction. For
 ///     such tasks, use Integration Events instead.
 /// </summary>
-public interface IDomainEvent : INotification
-{
-}
+public interface IDomainEvent : INotification;
