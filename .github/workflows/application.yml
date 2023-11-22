@@ -20,8 +20,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
@@ -61,43 +61,6 @@ jobs:
       - name: Build
         run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish Account Management build
-        working-directory: application/account-management
-        run: |
-          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
-
-      - name: Save Account Management artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: account-management
-          path: application/account-management/Api/publish/**/*
-
-  test-with-code-coverage:
-    name: Test and Code Coverage
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Restore Node modules
-        working-directory: application/account-management/WebApp
-        run: bun install --frozen-lockfile
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore .NET tools
-        working-directory: application
-        run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
-
       - name: Setup-java
         uses: actions/setup-java@v3
         with:
@@ -114,9 +77,19 @@ jobs:
           dotnet dotcover test PlatformPlatform.sln --dcOutput="coverage/dotCover.html" --dcReportType=HTML &&
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
+      - name: Publish Account Management build
+        working-directory: application/account-management
+        run: |
+          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
+
+      - name: Save Account Management artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: account-management
+          path: application/account-management/Api/publish/**/*
+
   jetbrains-code-inspection:
     name: JetBrains Code Inspections
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -165,29 +138,23 @@ jobs:
 
   account-management-publish:
     name: Account Management Publish
-    needs: [build]
+    needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
     with:
       artifacts_name: account-management
       artifacts_path: application/account-management/Api/publish
       image_name: account-management
-      version: ${{ needs.build.outputs.version }}
+      version: ${{ needs.build-and-test.outputs.version }}
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
 
   account-management-deploy:
     name: Account Management Deploy
     if: github.ref == 'refs/heads/main'
-    needs:
-      [
-        build,
-        test-with-code-coverage,
-        jetbrains-code-inspection,
-        account-management-publish,
-      ]
+    needs: [build-and-test, account-management-publish]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
       image_name: account-management
-      version: ${{ needs.build.outputs.version }}
+      version: ${{ needs.build-and-test.outputs.version }}
