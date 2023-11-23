@@ -16,7 +16,8 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
-    private const string LocalhostCorsPolicyName = "localhost8080";
+    private const string LocalhostCorsPolicyName = "localhost8443";
+    private const string LocalhostUrl = "https://localhost:8443";
 
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
@@ -45,18 +46,10 @@ public static class ApiCoreConfiguration
 
         if (builder.Environment.IsDevelopment())
         {
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    LocalhostCorsPolicyName,
-                    policyBuilder =>
-                    {
-                        policyBuilder.WithOrigins("http://localhost:8080")
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    }
-                );
-            });
+            builder.Services.AddCors(options => options.AddPolicy(
+                LocalhostCorsPolicyName,
+                policyBuilder => { policyBuilder.WithOrigins(LocalhostUrl).AllowAnyMethod().AllowAnyHeader(); }
+            ));
         }
         else
         {
