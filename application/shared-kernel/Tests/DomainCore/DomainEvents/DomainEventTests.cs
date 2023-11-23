@@ -4,7 +4,7 @@ using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.DomainCore.DomainEvents;
 
-public class DomainEventTests
+public sealed class DomainEventTests
 {
     [Fact]
     public void DomainEvent_WhenCreatingDomainEvents_ShouldTrackEventWithCorrectOccurrence()

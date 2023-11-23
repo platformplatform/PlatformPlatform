@@ -8,7 +8,7 @@ using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.ApplicationCore.Behaviors;
 
-public class UnitOfWorkPipelineBehaviorTests
+public sealed class UnitOfWorkPipelineBehaviorTests
 {
     private readonly UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>> _behavior;
     private readonly IUnitOfWork _unitOfWork;

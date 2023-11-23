@@ -8,7 +8,7 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;
 
-public class PublicClassesTests
+public sealed class PublicClassesTests
 {
     [Fact]
     public void PublicClassesInDomain_Should_BeSealed()

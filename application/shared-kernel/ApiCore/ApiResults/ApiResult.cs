@@ -62,7 +62,7 @@ public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
     }
 }
 
-public class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiResult(result, routePrefix)
+public sealed class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiResult(result, routePrefix)
 {
     protected override IResult ConvertResult()
     {

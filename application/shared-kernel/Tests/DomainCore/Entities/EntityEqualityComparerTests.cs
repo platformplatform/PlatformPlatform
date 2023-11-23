@@ -4,7 +4,7 @@ using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;
 
-public class EntityEqualityComparerTests
+public sealed class EntityEqualityComparerTests
 {
     private readonly EntityEqualityComparer<Guid> _comparer = new();
 

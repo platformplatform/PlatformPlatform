@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public class WebAppMiddleware
+public sealed class WebAppMiddleware
 {
     private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
