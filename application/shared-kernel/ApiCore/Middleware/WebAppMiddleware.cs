@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public class WebAppMiddleware
+public sealed class WebAppMiddleware
 {
     private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
@@ -58,26 +58,6 @@ public class WebAppMiddleware
         }
     }
 
-    private string GetHtmlWithEnvironment()
-    {
-        if (_htmlTemplate == null || _isDevelopment)
-        {
-            _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
-        }
-
-        var encodeRuntimeEnvironment = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
-        );
-        var result = _htmlTemplate.Replace("<ENCODED_RUNTIME_ENV>", encodeRuntimeEnvironment);
-
-        foreach (var variable in _runtimeEnvironment)
-        {
-            result = result.Replace($"<{variable.Key}>", variable.Value);
-        }
-
-        return result;
-    }
-
     private StringValues GetContentSecurityPolicy()
     {
         var devServerWebsocket = _cdnUrl.Replace("https", "wss");
@@ -106,6 +86,26 @@ public class WebAppMiddleware
 
         context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
         return context.Response.WriteAsync(GetHtmlWithEnvironment());
+    }
+
+    private string GetHtmlWithEnvironment()
+    {
+        if (_htmlTemplate is null || _isDevelopment)
+        {
+            _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+        }
+
+        var encodeRuntimeEnvironment = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
+        );
+        var result = _htmlTemplate.Replace("<ENCODED_RUNTIME_ENV>", encodeRuntimeEnvironment);
+
+        foreach (var variable in _runtimeEnvironment)
+        {
+            result = result.Replace($"<{variable.Key}>", variable.Value);
+        }
+
+        return result;
     }
 }
 

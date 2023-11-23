@@ -9,7 +9,7 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Filters;
 ///     values.
 /// </summary>
 [UsedImplicitly]
-public class XEnumNamesSchemaFilter : ISchemaFilter
+public sealed class XEnumNamesSchemaFilter : ISchemaFilter
 {
     private const string Name = "x-enumNames";
 

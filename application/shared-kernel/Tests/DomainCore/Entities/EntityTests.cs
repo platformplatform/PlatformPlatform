@@ -7,7 +7,7 @@ namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;
 
 public static class EntityTests
 {
-    public class OperatorOverloadTests
+    public sealed class OperatorOverloadTests
     {
         [Fact]
         public void EqualsOperator_WhenIdIsAreGenerated_ShouldReturnFalse()
@@ -82,7 +82,7 @@ public static class EntityTests
         }
     }
 
-    public class EqualMethodTests
+    public sealed class EqualMethodTests
     {
         [Fact]
         public void Equal_WhenIdIsAreGenerated_ShouldReturnFalse()
@@ -128,7 +128,7 @@ public static class EntityTests
         }
     }
 
-    public class GetHashCodeTests
+    public sealed class GetHashCodeTests
     {
         [Fact]
         public void GetHashCode_DifferentIdsSameProperties_ShouldHaveDifferentHashCode()
@@ -167,19 +167,19 @@ public static class EntityTests
 public sealed record StronglyTypedId(long Value) : StronglyTypedLongId<StronglyTypedId>(Value);
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class StronglyTypedIdEntity() : Entity<StronglyTypedId>(StronglyTypedId.NewId())
+public sealed class StronglyTypedIdEntity() : Entity<StronglyTypedId>(StronglyTypedId.NewId())
 {
     public required string Name { get; init; }
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class GuidEntity(Guid id) : Entity<Guid>(id)
+public sealed class GuidEntity(Guid id) : Entity<Guid>(id)
 {
     public required string Name { get; init; }
 }
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class StringEntity(string id) : Entity<string>(id)
+public sealed class StringEntity(string id) : Entity<string>(id)
 {
     public required string Name { get; init; }
 }

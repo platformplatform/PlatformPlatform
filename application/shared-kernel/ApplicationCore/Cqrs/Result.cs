@@ -39,7 +39,7 @@ public abstract class ResultBase
 ///     Delete). On success the HttpStatusCode NoContent will be returned. In the case of a failure, the result will
 ///     contain either an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />.
 /// </summary>
-public class Result : ResultBase
+public sealed class Result : ResultBase
 {
     private Result(HttpStatusCode httpStatusCode) : base(httpStatusCode)
     {
@@ -73,7 +73,7 @@ public class Result : ResultBase
 ///     Create). On success the HttpStatusCode OK will be returned. In the case of a failure, the result will
 ///     contain either an <see cref="ErrorMessage" /> or a collection of a <see cref="ErrorMessage" />.
 /// </summary>
-public class Result<T> : ResultBase
+public sealed class Result<T> : ResultBase
 {
     private Result(T value, HttpStatusCode httpStatusCode) : base(httpStatusCode)
     {

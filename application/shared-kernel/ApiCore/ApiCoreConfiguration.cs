@@ -16,7 +16,8 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
-    private const string LocalhostCorsPolicyName = "localhost8080";
+    private const string LocalhostCorsPolicyName = "localhost8443";
+    private const string LocalhostUrl = "https://localhost:8443";
 
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
@@ -29,9 +30,6 @@ public static class ApiCoreConfiguration
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" });
-
-            // This is needed because commands are nested so CreateTenant.Command becomes CreateTenant+Command 
-            c.CustomSchemaIds(type => type.FullName?.Split(".").Last().Replace("+", ""));
 
             // Ensure that enums are shown as strings in the Swagger UI
             c.SchemaFilter<XEnumNamesSchemaFilter>();
@@ -48,23 +46,15 @@ public static class ApiCoreConfiguration
 
         if (builder.Environment.IsDevelopment())
         {
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(
-                    LocalhostCorsPolicyName,
-                    policyBuilder =>
-                    {
-                        policyBuilder.WithOrigins("http://localhost:8080")
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    }
-                );
-            });
+            builder.Services.AddCors(options => options.AddPolicy(
+                LocalhostCorsPolicyName,
+                policyBuilder => { policyBuilder.WithOrigins(LocalhostUrl).AllowAnyMethod().AllowAnyHeader(); }
+            ));
         }
         else
         {
             // When running inside a Docker container running as non-root we need to use a port higher than 1024.
-            builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8443, _ => { }); });
+            builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(8443, _ => { }));
         }
 
         return services;

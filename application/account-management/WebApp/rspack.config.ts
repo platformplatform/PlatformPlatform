@@ -95,6 +95,7 @@ const configuration: Configuration = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
+    port: 8444,
     server: {
       type: "https",
       options: {

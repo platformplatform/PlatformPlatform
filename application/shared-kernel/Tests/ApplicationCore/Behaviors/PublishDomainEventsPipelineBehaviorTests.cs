@@ -8,7 +8,7 @@ using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.ApplicationCore.Behaviors;
 
-public class PublishDomainEventsPipelineBehaviorTests
+public sealed class PublishDomainEventsPipelineBehaviorTests
 {
     [Fact]
     public async Task Handle_WhenCalled_ShouldPublishDomainEvents()

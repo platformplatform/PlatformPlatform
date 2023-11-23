@@ -9,7 +9,7 @@ public abstract class StronglyTypedIdTypeConverter<TValue, T> : TypeConverter
 
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
-        if (value is not string valueAsString || TryParseMethod == null)
+        if (value is not string valueAsString || TryParseMethod is null)
         {
             return base.ConvertFrom(context, culture, value);
         }

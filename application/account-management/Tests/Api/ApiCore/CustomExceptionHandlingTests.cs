@@ -7,7 +7,7 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
 
-public class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
+public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 

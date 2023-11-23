@@ -58,9 +58,6 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build application/PlatformPlatform.sln --no-restore --configuration Release /p:Version=${{ steps.generate_version.outputs.version }}
-
       - name: Setup-java
         uses: actions/setup-java@v3
         with:
@@ -90,6 +87,7 @@ jobs:
 
   jetbrains-code-inspection:
     name: JetBrains Code Inspections
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

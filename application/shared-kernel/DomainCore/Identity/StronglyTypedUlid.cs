@@ -25,7 +25,8 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
 
     private static T FormUlid(Ulid newValue)
     {
-        return (T)Activator.CreateInstance(typeof(T),
+        return (T)Activator.CreateInstance(
+            typeof(T),
             BindingFlags.Instance | BindingFlags.Public,
             null,
             new object[] { newValue.ToString() },

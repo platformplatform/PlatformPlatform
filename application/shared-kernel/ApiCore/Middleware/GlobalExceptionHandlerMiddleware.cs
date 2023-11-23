@@ -23,7 +23,7 @@ public sealed class GlobalExceptionHandlerMiddleware(
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while processing the request");
+            _logger.LogError(ex, "An error occurred while processing the request.");
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/problem+json";

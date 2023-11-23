@@ -1,13 +1,13 @@
 {
   "profiles": {
-    "WebApi": {
+    "Api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "development",
         "PUBLIC_URL": "https://localhost:8443",
-        "CDN_URL": "https://localhost:8080"
+        "CDN_URL": "https://localhost:8444"
       },
       "applicationUrl": "https://localhost:8443"
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.88868-alpha">
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.151394-alpha">
 
     <PropertyGroup>
         <StartupCommand>set BROWSER=none;bun dev</StartupCommand>

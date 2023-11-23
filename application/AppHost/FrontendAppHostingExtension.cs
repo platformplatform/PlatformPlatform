@@ -41,8 +41,9 @@ internal static class FrontendAppHostingExtension
     {
         var resource = new FrontendAppResource(name, "bun", workingDirectory, new[] { "run", bunCommand });
 
-        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IDistributedApplicationLifecycleHook,
-            FrontendAppAddPortLifecycleHook>());
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IDistributedApplicationLifecycleHook, FrontendAppAddPortLifecycleHook>()
+        );
 
         return builder.AddResource(resource)
             .WithOtlpExporter()

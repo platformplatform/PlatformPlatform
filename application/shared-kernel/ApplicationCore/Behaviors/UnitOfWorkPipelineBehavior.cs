@@ -24,7 +24,6 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(
         unitOfWorkPipelineBehaviorConcurrentCounter.Increment();
         var response = await next();
 
-        // ReSharper disable once InvertIf
         if (response is ResultBase { IsSuccess: true })
         {
             unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();

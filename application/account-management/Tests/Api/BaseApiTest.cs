@@ -1,25 +1,25 @@
 using System.Net;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
-public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
+public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
     protected BaseApiTests()
     {
-        Environment.SetEnvironmentVariable(WebAppMiddleware.PublicUrlKey, "https://localhost");
-        Environment.SetEnvironmentVariable(WebAppMiddleware.CdnUrlKey, "https://localhost");
+        Environment.SetEnvironmentVariable(WebAppMiddleware.PublicUrlKey, "https://localhost:8444");
+        Environment.SetEnvironmentVariable(WebAppMiddleware.CdnUrlKey, "https://localhost:8444");
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
@@ -104,7 +104,7 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
         problemDetails.Should().NotBeNull();
         problemDetails!.Status.Should().Be((int)statusCode);
         problemDetails.Type.Should().Be($"https://httpstatuses.com/{(int)statusCode}");
-        problemDetails.Title.Should().Be(SplitCamelCaseTitle(statusCode.ToString()));
+        problemDetails.Title.Should().Be(ApiResult.GetHttpStatusDisplayName(statusCode));
 
         if (expectedDetail is not null)
         {
@@ -128,12 +128,4 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         return JsonSerializer.Deserialize<ProblemDetails>(content, options);
     }
-
-    private static string SplitCamelCaseTitle(string title)
-    {
-        return SplitCamelCase().Replace(title, " $1");
-    }
-
-    [GeneratedRegex("(?<=[a-z])([A-Z])", RegexOptions.Compiled)]
-    private static partial Regex SplitCamelCase();
 }

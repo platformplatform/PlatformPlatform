@@ -12,7 +12,7 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value) : IComparable<St
 {
     public int CompareTo(StronglyTypedId<TValue, T>? other)
     {
-        return other == null ? 1 : Value.CompareTo(other.Value);
+        return other is null ? 1 : Value.CompareTo(other.Value);
     }
 
     public virtual bool Equals(StronglyTypedId<TValue, T>? other)

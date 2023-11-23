@@ -2,7 +2,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
-public class DatabaseSeeder
+public sealed class DatabaseSeeder
 {
     public readonly Tenant Tenant1;
     public readonly User User1;

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Identity;
 
-public class IdGeneratorTests
+public sealed class IdGeneratorTests
 {
     [Fact]
     public void NewId_WhenGeneratingIds_IdsShouldBeUnique()
