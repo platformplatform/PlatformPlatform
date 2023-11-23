@@ -14,19 +14,19 @@ export function CreateTenantForm() {
     >
       <div className="flex flex-col w-fit bg-gray-200 rounded p-4 gap-2 shadow-sm">
         <h1 className="text-xl font-bold">Create a tenant</h1>
-        <TextField name={"subdomain"} autoFocus className={"flex flex-col"} isRequired>
+        <TextField name="subdomain" autoFocus className="flex flex-col" isRequired>
           <Label>Subdomain</Label>
           <Input className="p-2 rounded-md border border-black" placeholder="subdomain" />
           <FieldError />
         </TextField>
 
-        <TextField name={"name"} type={"username"} className={"flex flex-col"} isRequired>
+        <TextField name="name" type="username" className="flex flex-col" isRequired>
           <Label>Name</Label>
           <Input className="p-2 rounded-md border border-black" placeholder="name" />
           <FieldError />
         </TextField>
 
-        <TextField name={"email"} type={"email"} className={"flex flex-col"} isRequired>
+        <TextField name="email" type="email" className="flex flex-col" isRequired>
           <Label>Email</Label>
           <Input className="p-2 rounded-md border border-black" placeholder="email" />
           <FieldError />
