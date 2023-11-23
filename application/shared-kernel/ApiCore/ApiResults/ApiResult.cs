@@ -20,7 +20,7 @@ public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
     {
         if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
-        return RoutePrefix == null
+        return RoutePrefix is null
             ? Results.Ok()
             : Results.Created($"{RoutePrefix}/{result}", null);
     }
@@ -68,7 +68,7 @@ public class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiRes
     {
         if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
-        return RoutePrefix == null
+        return RoutePrefix is null
             ? Results.Ok(result.Value!.Adapt<T>())
             : Results.Created($"{RoutePrefix}/{result.Value}", null);
     }
