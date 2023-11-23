@@ -12,7 +12,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
-public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
+public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -131,9 +131,6 @@ public abstract partial class BaseApiTests<TContext> : BaseTest<TContext> where 
 
     private static string SplitCamelCaseTitle(string title)
     {
-        return SplitCamelCase().Replace(title, " $1");
+        return Regex.Replace(title, "(?<=[a-z])([A-Z])", " $1");
     }
-
-    [GeneratedRegex("(?<=[a-z])([A-Z])", RegexOptions.Compiled)]
-    private static partial Regex SplitCamelCase();
 }
