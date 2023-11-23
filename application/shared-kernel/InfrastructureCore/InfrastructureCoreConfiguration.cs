@@ -111,11 +111,11 @@ public static class InfrastructureCoreConfiguration
                             throw new UnreachableException("Missing DbContext.");
             dbContext.Database.Migrate();
 
-            logger.LogInformation("Finished migrating database");
+            logger.LogInformation("Finished migrating database.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while applying migrations");
+            logger.LogError(ex, "An error occurred while applying migrations.");
 
             // Wait for the logger to flush
             Thread.Sleep(TimeSpan.FromSeconds(1));
