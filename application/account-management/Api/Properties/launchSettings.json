@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "WebApi": {
+    "Api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "",
