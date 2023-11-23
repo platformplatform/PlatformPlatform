@@ -1,12 +1,12 @@
 using System.Net;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
@@ -104,7 +104,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         problemDetails.Should().NotBeNull();
         problemDetails!.Status.Should().Be((int)statusCode);
         problemDetails.Type.Should().Be($"https://httpstatuses.com/{(int)statusCode}");
-        problemDetails.Title.Should().Be(SplitCamelCaseTitle(statusCode.ToString()));
+        problemDetails.Title.Should().Be(ApiResult.GetHttpStatusDisplayName(statusCode));
 
         if (expectedDetail is not null)
         {
@@ -127,10 +127,5 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         return JsonSerializer.Deserialize<ProblemDetails>(content, options);
-    }
-
-    private static string SplitCamelCaseTitle(string title)
-    {
-        return Regex.Replace(title, "(?<=[a-z])([A-Z])", " $1");
     }
 }

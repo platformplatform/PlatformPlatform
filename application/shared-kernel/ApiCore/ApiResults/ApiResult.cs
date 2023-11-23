@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -6,7 +7,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
-public partial class ApiResult(ResultBase result, string? routePrefix = null) : IResult
+public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
 {
     protected string? RoutePrefix { get; } = routePrefix;
 
@@ -39,7 +40,7 @@ public partial class ApiResult(ResultBase result, string? routePrefix = null) : 
         var problemDetails = new ProblemDetails
         {
             Type = $"https://httpstatuses.com/{(int)result.StatusCode}",
-            Title = SplitCamelCaseTitle(statusCode.ToString()),
+            Title = GetHttpStatusDisplayName(statusCode),
             Status = (int)result.StatusCode
         };
 
@@ -50,13 +51,10 @@ public partial class ApiResult(ResultBase result, string? routePrefix = null) : 
         return problemDetails;
     }
 
-    private static string SplitCamelCaseTitle(string title)
+    public static string GetHttpStatusDisplayName(HttpStatusCode statusCode)
     {
-        return SplitCamelCase().Replace(title, " $1");
+        return Regex.Replace(statusCode.ToString(), "(?<=[a-z])([A-Z])", " $1");
     }
-
-    [GeneratedRegex("(?<=[a-z])([A-Z])", RegexOptions.Compiled)]
-    private static partial Regex SplitCamelCase();
 
     public static implicit operator ApiResult(Result result)
     {
