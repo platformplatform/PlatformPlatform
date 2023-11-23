@@ -30,9 +30,6 @@ public static class ApiCoreConfiguration
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" });
 
-            // This is needed because commands are nested so CreateTenant.Command becomes CreateTenant+Command 
-            c.CustomSchemaIds(type => type.FullName?.Split(".").Last().Replace("+", ""));
-
             // Ensure that enums are shown as strings in the Swagger UI
             c.SchemaFilter<XEnumNamesSchemaFilter>();
         });
