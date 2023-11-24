@@ -30,7 +30,7 @@ jobs:
 
   production-west-europe-deploy:
     name: Production
-    if: github.ref == 'refs/heads/main'
+    if: false && github.ref == 'refs/heads/main' ## Disable production for now
     needs: staging-west-europe-deploy
     runs-on: ubuntu-latest
     environment: "production" ## Force a manual approval
