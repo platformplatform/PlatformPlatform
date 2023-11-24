@@ -2,7 +2,7 @@ import { Button, FieldError, Form, Input, Label, TextField } from "react-aria-co
 import { useFormState } from "react-dom";
 import { createTenant, State } from "./actions";
 
-export function CreateTenantForm() {
+export default function CreateTenantForm() {
   const initialState: State = { message: null, errors: {} };
   const [state, formAction] = useFormState(createTenant, initialState);
 

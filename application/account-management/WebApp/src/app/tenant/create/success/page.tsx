@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button } from "react-aria-components";
 import Confetti, { type ConfettiConfig } from "react-dom-confetti";
 
 const config: ConfettiConfig = {
@@ -16,13 +15,18 @@ const config: ConfettiConfig = {
   colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"],
 };
 
-export function CreatedTenantSuccess() {
+type PageProps = {
+  params: Record<string, string>;
+};
+
+export default function CreatedTenantSuccessPage({ params }: PageProps) {
   const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
     setConfetti(true);
   }, []);
 
+  console.log(params);
   return (
     <div className="items-center flex flex-col justify-center h-full">
       <div className="p-8 bg-gray-800 text-white rounded-xl shadow-md text-center gap-4 flex flex-col">

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { accountManagementApi } from "@/lib/api/client.ts";
-import { getApiError, getFieldErrors } from "@/lib/apiErrorListSchema.ts";
-import { router } from "@/router";
+import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
+import { router } from "@/lib/router/router";
 
 export type State = {
   errors?: {
