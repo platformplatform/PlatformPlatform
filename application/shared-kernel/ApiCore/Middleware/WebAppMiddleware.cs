@@ -144,7 +144,18 @@ public static class WebAppMiddlewareExtensions
 
         if (!File.Exists(templateFilePath))
         {
-            throw new FileNotFoundException("index.html does not exist.", templateFilePath);
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development")
+            {
+                while (!File.Exists(templateFilePath))
+                {
+                    Console.WriteLine("Waiting for index.html to be built...");
+                    Thread.Sleep(1000);
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException("index.html does not exist.", templateFilePath);
+            }
         }
 
         return builder
