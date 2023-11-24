@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build"
+    "build": "rspack build",
+    "generate:router": "./src/shared/router/generate.tsx",
+    "prepare": "bun run generate:router"
   },
   "dependencies": {
     "openapi-fetch": "^0.8.1",

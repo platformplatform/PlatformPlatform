@@ -380,6 +380,7 @@ FodyWeavers.xsd
 
 # Generated files
 **/*.generated.d.ts
+**/*.generated.ts
 
 # Frontend builds
 dist/
