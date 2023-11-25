@@ -58,9 +58,11 @@ jobs:
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
       - name: Plan Changes to Shared Production Environment Resources
+        if: false ## Disable production for now
         run: bash ./cloud-infrastructure/environment/config/production.sh --plan
 
       - name: Plan Changes to Production West Europe Cluster
+        if: false ## Disable production for now
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
           CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
@@ -159,7 +161,7 @@ jobs:
 
   production:
     name: Production
-    if: github.ref == 'refs/heads/main'
+    if: false && github.ref == 'refs/heads/main' ## Disable production for now
     needs: staging
     runs-on: ubuntu-latest
     environment: "production" ## Force a manual approval
