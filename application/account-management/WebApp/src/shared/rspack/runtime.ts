@@ -12,7 +12,7 @@
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
 
 if (runtimeEnvElement == null) {
-  throw new Error("Error: Runtime environment is not configured.");
+  throw new Error("Runtime environment is not configured.");
 }
 
 try {
@@ -32,5 +32,5 @@ try {
     };
   };
 } catch (e) {
-  throw new Error("Error: Could not read runtime environment.");
+  throw new Error("Could not read runtime environment.");
 }

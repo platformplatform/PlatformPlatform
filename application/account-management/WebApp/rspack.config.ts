@@ -11,9 +11,10 @@ const outputPath = resolve(__dirname, "dist");
 const configuration: Configuration = {
   context: __dirname,
   entry: {
-    main: ["./src/lib/rspack/runtime.ts", "./src/main.tsx"],
+    main: ["./src/shared/rspack/runtime.ts", "./src/main.tsx"],
   },
   output: {
+    clean: true,
     publicPath: "auto",
     path: outputPath,
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
