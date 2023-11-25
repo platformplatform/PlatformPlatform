@@ -142,8 +142,18 @@ public static class WebAppMiddlewareExtensions
         var buildRootPath = GetWebAppDistRoot(webAppProjectName, "dist");
         var templateFilePath = Path.Combine(buildRootPath, "index.html");
 
-        if (!File.Exists(templateFilePath) &&
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "development")
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development")
+        {
+            var tryUntil = DateTime.UtcNow.AddSeconds(10);
+            while (!File.Exists(templateFilePath))
+            {
+                if (DateTime.UtcNow > tryUntil) break;
+                Debug.WriteLine($"Waiting for {webAppProjectName} build to be ready...");
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+        }
+
+        if (!File.Exists(templateFilePath))
         {
             throw new FileNotFoundException("index.html does not exist.", templateFilePath);
         }
