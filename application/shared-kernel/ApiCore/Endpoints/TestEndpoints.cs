@@ -9,7 +9,8 @@ public static class TestEndpoints
     {
         if (!bool.TryParse(Environment.GetEnvironmentVariable("TestEndpointsEnabled"), out _)) return;
 
-        // Add a dummy endpoint that throws an InvalidOperationException for testing purposes.
-        routes.MapGet("/api/throwException", _ => throw new InvalidOperationException("Dummy endpoint for testing."));
+        // Add dummy endpoints to simulate exception throwing for testing
+        routes.MapGet("/api/throwException", _ => throw new InvalidOperationException("Simulate an exception."));
+        routes.MapGet("/api/throwTimeoutException", _ => throw new TimeoutException("Simulating a timeout exception."));
     }
 }
