@@ -22,7 +22,7 @@ public static class ApiCoreConfiguration
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        services.AddTransient<GlobalExceptionHandlerMiddleware>();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
 
         services.AddEndpointsApiExplorer();
@@ -86,7 +86,7 @@ public static class ApiCoreConfiguration
             app.UseHttpsRedirection();
 
             // Configure global exception handling for the production environment.
-            app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+            app.UseExceptionHandler(_ => { });
         }
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();

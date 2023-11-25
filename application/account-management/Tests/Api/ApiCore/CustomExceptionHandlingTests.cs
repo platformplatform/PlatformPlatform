@@ -41,7 +41,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         }
         else
         {
-            // In Production we use GlobalExceptionHandlerMiddleware which returns a JSON response.
+            // In Production we use GlobalExceptionHandler which returns a JSON response.
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.InternalServerError,
