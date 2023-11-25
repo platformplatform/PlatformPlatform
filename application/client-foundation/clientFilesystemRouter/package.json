@@ -1,0 +1,15 @@
+{
+  "name": "@platformplatform/client-filesystem-router",
+  "description": "A filesystem convention based router for the client",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "@rspack/core": "^0.4.0",
+    "typescript": "^5.0.0"
+  }
+}

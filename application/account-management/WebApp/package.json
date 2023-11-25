@@ -20,6 +20,7 @@
   "devDependencies": {
     "@rspack/cli": "^0.3.11",
     "@rspack/core": "^0.3.11",
+    "@platformplatform/client-filesystem-router": "*",
     "@svgr/webpack": "^8.1.0",
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.13",
