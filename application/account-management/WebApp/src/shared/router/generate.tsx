@@ -21,7 +21,7 @@ const appPath = path.join(sourceRoot, "app");
 const importPrefix = "@";
 
 if (!fs.existsSync(appPath)) {
-  throw new Error(`Could not find app directory at ${appPath}`);
+  throw new Error(`Could not find app directory at "${appPath}".`);
 }
 
 type TemplateObject = Record<string, string>;
@@ -72,7 +72,7 @@ function generateReactRouterCode(routeItem: RouteType): string {
       .join(",\n");
   }
 
-  throw new Error(`Unhandled route type ${routeItem.type}`);
+  throw new Error(`Unhandled route type "${routeItem.type}".`);
 }
 
 const route = getRouteDetails([""], { appPath, importPrefix });
@@ -89,7 +89,7 @@ try {
   console.log("Routes generated successfully!");
 } catch (error) {
   console.error(error);
-  console.log(code);
+  console.info(code);
   process.exit(1);
 }
 
