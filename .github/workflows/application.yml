@@ -87,7 +87,7 @@ jobs:
 
   jetbrains-code-inspection:
     name: JetBrains Code Inspections
-    if: github.ref == 'refs/heads/main'
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
