@@ -144,10 +144,9 @@ public static class WebAppMiddlewareExtensions
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development")
         {
-            var tryUntil = DateTime.UtcNow.AddSeconds(10);
-            while (!File.Exists(templateFilePath))
+            for (var i = 0; i < 10; i++)
             {
-                if (DateTime.UtcNow > tryUntil) break;
+                if (File.Exists(templateFilePath)) break;
                 Debug.WriteLine($"Waiting for {webAppProjectName} build to be ready...");
                 Thread.Sleep(TimeSpan.FromSeconds(1));
             }
