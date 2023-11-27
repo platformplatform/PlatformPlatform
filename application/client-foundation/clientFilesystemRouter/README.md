@@ -4,11 +4,11 @@ A Client Filesystem Router is a tool that allows you to define routes in your ap
 
 Build plugins are available for the following build tools:
 
--   `rspack`
+- `rspack`
 
 Filesystem routing styles / conventions supported:
 
--   `nextjs/app` - NextJS app routing style (atm. partial support)
+- `nextjs/app` - NextJS app routing style (atm. partial support)
 
 ## Usage
 
@@ -40,12 +40,12 @@ import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesyste
 // ...
 
 const configuration: Configuration = {
-    plugins: [
-        // ...
-        new ClientFilesystemRouterPlugin({
-            dir: "src/app", // The directory to scan for filesystem routes
-        }),
-    ],
+  plugins: [
+    // ...
+    new ClientFilesystemRouterPlugin({
+      dir: "src/app", // The directory to scan for filesystem routes
+    }),
+  ],
 };
 ```
 

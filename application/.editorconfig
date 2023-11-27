@@ -7,7 +7,7 @@ indent_style = space
 indent_size = 4
 tab_width = 4
 
-[*.{ts,tsx,js,jsx,json,.prettierrc,.eslintrc,yml,Dockerfile}]
+[*.{ts,tsx,js,jsx,json,md,mdx,.prettierrc,.eslintrc,yml,Dockerfile}]
 indent_size = 2
 tab_width = 2
 insert_final_newline = true
