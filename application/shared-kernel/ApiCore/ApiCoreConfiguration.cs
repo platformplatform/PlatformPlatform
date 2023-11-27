@@ -22,11 +22,12 @@ public static class ApiCoreConfiguration
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
     {
-        builder.Services.AddExceptionHandler<TimeoutExceptionHandler>();
-        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-        services.AddTransient<ModelBindingExceptionHandlerMiddleware>();
-
-        services.AddEndpointsApiExplorer();
+        services
+            .AddExceptionHandler<TimeoutExceptionHandler>()
+            .AddExceptionHandler<GlobalExceptionHandler>()
+            .AddTransient<ModelBindingExceptionHandlerMiddleware>()
+            .AddProblemDetails()
+            .AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(c =>
         {

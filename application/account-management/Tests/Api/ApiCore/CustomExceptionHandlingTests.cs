@@ -35,7 +35,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         {
             // In Development we use app.UseDeveloperExceptionPage() which returns a HTML response.
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            response.Content.Headers.ContentType!.MediaType.Should().Be("text/plain");
+            response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
             var errorResponse = await response.Content.ReadAsStringAsync();
             errorResponse.Contains("Simulate an exception.").Should().BeTrue();
         }
@@ -45,7 +45,8 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.InternalServerError,
-                "An error occurred while processing the request."
+                "An error occurred while processing the request.",
+                hasTraceId: true
             );
         }
     }
@@ -76,7 +77,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         {
             // In Development we use app.UseDeveloperExceptionPage() which returns a HTML response.
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-            response.Content.Headers.ContentType!.MediaType.Should().Be("text/plain");
+            response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
             var errorResponse = await response.Content.ReadAsStringAsync();
             errorResponse.Contains("Simulating a timeout exception.").Should().BeTrue();
         }
@@ -86,7 +87,8 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.RequestTimeout,
-                "GET /api/throwTimeoutException"
+                "GET /api/throwTimeoutException",
+                hasTraceId: true
             );
         }
     }

@@ -1,42 +1,30 @@
 using System.Net;
-using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public sealed class GlobalExceptionHandler(
-    ILogger<GlobalExceptionHandler> logger,
-    IOptions<JsonOptions> jsonOptions
-) : IExceptionHandler
+public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-    private readonly JsonSerializerOptions _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
-    private readonly ILogger _logger = logger;
-
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
         CancellationToken cancellationToken
     )
     {
-        _logger.LogError(exception, "An error occurred while processing the request.");
+        var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
 
-        httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        httpContext.Response.ContentType = "application/problem+json";
+        logger.LogError(
+            exception, "An error occurred while processing the request. TraceId: {TraceId}.",
+            traceId
+        );
 
-        var problemDetails = new ProblemDetails
-        {
-            Type = $"https://httpstatuses.com/{(int)HttpStatusCode.InternalServerError}",
-            Title = "Internal Server Error",
-            Status = (int)HttpStatusCode.InternalServerError,
-            Detail = "An error occurred while processing the request."
-        };
-
-        var jsonResponse = JsonSerializer.Serialize(problemDetails, _jsonSerializerOptions);
-        await httpContext.Response.WriteAsync(jsonResponse, cancellationToken);
+        await Results.Problem(
+            title: "Internal Server Error",
+            detail: "An error occurred while processing the request.",
+            statusCode: (int)HttpStatusCode.InternalServerError,
+            extensions: new Dictionary<string, object?> { { "traceId", traceId } }
+        ).ExecuteAsync(httpContext);
 
         // Return true to signal that this exception is handled
         return true;
