@@ -103,7 +103,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
         problemDetails.Should().NotBeNull();
         problemDetails!.Status.Should().Be((int)statusCode);
-        problemDetails.Type.Should().Be($"https://httpstatuses.com/{(int)statusCode}");
+        problemDetails.Type.Should().StartWith("https://tools.ietf.org/html/rfc9110#section-15.");
         problemDetails.Title.Should().Be(ApiResult.GetHttpStatusDisplayName(statusCode));
 
         if (expectedDetail is not null)

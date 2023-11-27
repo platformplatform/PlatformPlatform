@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
@@ -27,28 +26,14 @@ public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
 
     protected IResult GetProblemDetailsAsJson()
     {
-        return Results.Json(
-            CreateProblemDetails(),
+        return Results.Problem(
+            title: GetHttpStatusDisplayName(result.StatusCode),
             statusCode: (int)result.StatusCode,
-            contentType: "application/problem+json"
+            detail: result.ErrorMessage?.Message,
+            extensions: result.Errors?.Length > 0
+                ? new Dictionary<string, object?> { { nameof(result.Errors), result.Errors } }
+                : null
         );
-    }
-
-    private ProblemDetails CreateProblemDetails()
-    {
-        var statusCode = result.StatusCode;
-        var problemDetails = new ProblemDetails
-        {
-            Type = $"https://httpstatuses.com/{(int)result.StatusCode}",
-            Title = GetHttpStatusDisplayName(statusCode),
-            Status = (int)result.StatusCode
-        };
-
-        if (result.ErrorMessage is not null) problemDetails.Detail = result.ErrorMessage.Message;
-
-        if (result.Errors?.Length > 0) problemDetails.Extensions[nameof(result.Errors)] = result.Errors;
-
-        return problemDetails;
     }
 
     public static string GetHttpStatusDisplayName(HttpStatusCode statusCode)
