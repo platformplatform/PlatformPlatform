@@ -93,7 +93,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         HttpResponseMessage response,
         HttpStatusCode statusCode,
         string? expectedDetail,
-        IEnumerable<ErrorDetail>? expectedErrors = null
+        IEnumerable<ErrorDetail>? expectedErrors = null,
+        bool hasTraceId = false
     )
     {
         response.StatusCode.Should().Be(statusCode);
@@ -118,6 +119,11 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
             var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), options);
 
             actualErrors.Should().BeEquivalentTo(expectedErrors);
+        }
+
+        if (hasTraceId)
+        {
+            problemDetails.Extensions["traceId"]!.ToString().Should().NotBeEmpty();
         }
     }
 

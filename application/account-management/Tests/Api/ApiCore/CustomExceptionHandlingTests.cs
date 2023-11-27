@@ -45,7 +45,8 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.InternalServerError,
-                "An error occurred while processing the request."
+                "An error occurred while processing the request.",
+                hasTraceId: true
             );
         }
     }
@@ -86,7 +87,8 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.RequestTimeout,
-                "GET /api/throwTimeoutException"
+                "GET /api/throwTimeoutException",
+                hasTraceId: true
             );
         }
     }
