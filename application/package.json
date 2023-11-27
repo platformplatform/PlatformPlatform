@@ -1,0 +1,10 @@
+{
+  "name": "application",
+  "version": "1.0.0",
+  "description": "Application",
+  "private": true,
+  "workspaces": [
+    "account-management/WebApp",
+    "client-foundation/*"
+  ]
+}

@@ -3,6 +3,7 @@ import { join, resolve } from "path";
 import { Configuration, DefinePlugin } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
+import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesystem-router/rspack-plugin";
 
 const buildEnv: BuildEnv = {};
 
@@ -89,6 +90,9 @@ const configuration: Configuration = {
     }),
     new HtmlWebpackHarddiskPlugin({
       outputPath,
+    }),
+    new ClientFilesystemRouterPlugin({
+      dir: "src/app",
     }),
   ],
   devServer: {

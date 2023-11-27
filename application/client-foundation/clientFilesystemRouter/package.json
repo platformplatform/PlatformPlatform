@@ -1,0 +1,17 @@
+{
+  "name": "@platformplatform/client-filesystem-router",
+  "description": "A filesystem convention based router for the client",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "react-router-dom": "^6.20.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "@rspack/core": "^0.3.x",
+    "typescript": "^5.0.0"
+  }
+}

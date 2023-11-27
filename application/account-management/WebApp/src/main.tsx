@@ -1,11 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
 import "./main.css";
-import { router } from "@/lib/router/router";
+import { ReactFilesystemRouter } from "@platformplatform/client-filesystem-router/react";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ReactFilesystemRouter />
   </React.StrictMode>
 );
