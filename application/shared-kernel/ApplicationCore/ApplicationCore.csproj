@@ -13,9 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
         <PackageReference Include="Mapster"/>
         <PackageReference Include="MediatR" />
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+        <PackageReference Include="Microsoft.ApplicationInsights" />
     </ItemGroup>
 
 </Project>

@@ -27,7 +27,8 @@ public static class ApiCoreConfiguration
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
-            .AddEndpointsApiExplorer();
+            .AddEndpointsApiExplorer()
+            .AddApplicationInsightsTelemetry();
 
         services.AddSwaggerGen(c =>
         {
