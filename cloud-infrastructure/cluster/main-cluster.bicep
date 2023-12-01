@@ -138,7 +138,7 @@ module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   dependsOn: [microsoftSqlServer]
 }
 
-module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+module containerAppsEnvironment '../modules/container-apps-environment.bicep' = {
   scope: clusterResourceGroup
   name: 'container-apps-environment'
   params: {
@@ -168,8 +168,8 @@ module accountManagement '../modules/container-app.bicep' = {
     location: location
     tags: tags
     resourceGroupName: resourceGroupName
-    environmentId: contaionerAppsEnvironment.outputs.environmentId
-    environmentName: contaionerAppsEnvironment.outputs.name
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management'
     containerImageTag: accountManagementVersion
