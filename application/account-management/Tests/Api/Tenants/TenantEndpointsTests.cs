@@ -93,6 +93,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         await EnsureSuccessPostRequest(response, $"/api/tenants/{subdomain}");
         Connection.RowExists("Tenants", subdomain);
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
+
+        AnalyticEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
+        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
+        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
