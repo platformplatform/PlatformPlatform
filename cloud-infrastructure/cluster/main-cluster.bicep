@@ -11,6 +11,7 @@ param sqlAdminObjectId string
 param domainName string
 param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
+param applicationInsightsConnectionString string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -182,6 +183,7 @@ module accountManagement '../modules/container-app.bicep' = {
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
+    applicationInsightsConnectionString: applicationInsightsConnectionString
   }
   dependsOn: [accountManagementDatabase]
 }

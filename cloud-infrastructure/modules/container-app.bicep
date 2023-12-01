@@ -16,6 +16,7 @@ param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
+param applicationInsightsConnectionString string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -111,6 +112,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             {
               name: 'MANAGED_IDENTITY_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
+            }
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: applicationInsightsConnectionString
             }
             {
               name: 'PUBLIC_URL'
