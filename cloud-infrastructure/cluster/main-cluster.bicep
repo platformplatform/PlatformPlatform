@@ -11,6 +11,7 @@ param sqlAdminObjectId string
 param domainName string
 param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
+param applicationInsightsConnectionString string
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -138,7 +139,7 @@ module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   dependsOn: [microsoftSqlServer]
 }
 
-module contaionerAppsEnvironment '../modules/container-apps-environment.bicep' = {
+module containerAppsEnvironment '../modules/container-apps-environment.bicep' = {
   scope: clusterResourceGroup
   name: 'container-apps-environment'
   params: {
@@ -168,8 +169,8 @@ module accountManagement '../modules/container-app.bicep' = {
     location: location
     tags: tags
     resourceGroupName: resourceGroupName
-    environmentId: contaionerAppsEnvironment.outputs.environmentId
-    environmentName: contaionerAppsEnvironment.outputs.name
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management'
     containerImageTag: accountManagementVersion
@@ -182,6 +183,7 @@ module accountManagement '../modules/container-app.bicep' = {
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
+    applicationInsightsConnectionString: applicationInsightsConnectionString
   }
   dependsOn: [accountManagementDatabase]
 }

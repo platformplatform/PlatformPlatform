@@ -2,8 +2,8 @@ param name string
 param location string
 param tags object
 param resourceGroupName string
-param environmentId string
-param environmentName string
+param containerAppsEnvironmentId string
+param containerAppsEnvironmentName string
 param containerRegistryName string
 param containerImageName string
 param containerImageTag string
@@ -16,6 +16,7 @@ param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
+param applicationInsightsConnectionString string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -44,14 +45,14 @@ module newManagedCertificate './managed-certificate.bicep' =
       name: certificateName
       location: location
       tags: tags
-      environmentName: environmentName
+      containerAppsEnvironmentName: containerAppsEnvironmentName
       domainName: domainName
     }
   }
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
-    name: environmentName
+    name: containerAppsEnvironmentName
   }
 
 resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
@@ -89,7 +90,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
     }
   }
   properties: {
-    environmentId: environmentId
+    environmentId: containerAppsEnvironmentId
     template: {
       containers: [
         {
@@ -111,6 +112,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             {
               name: 'MANAGED_IDENTITY_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
+            }
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              value: applicationInsightsConnectionString
             }
             {
               name: 'PUBLIC_URL'

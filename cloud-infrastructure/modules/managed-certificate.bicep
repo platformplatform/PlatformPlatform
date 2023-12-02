@@ -1,11 +1,11 @@
 param name string
 param location string
 param tags object
-param environmentName string
+param containerAppsEnvironmentName string
 param domainName string
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing = {
-  name: environmentName
+  name: containerAppsEnvironmentName
 }
 
 resource managedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' = {
