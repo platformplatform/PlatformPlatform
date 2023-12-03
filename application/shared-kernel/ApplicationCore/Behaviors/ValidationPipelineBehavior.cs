@@ -19,28 +19,26 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
         CancellationToken cancellationToken
     )
     {
-        if (!validators.Any())
+        if (validators.Any())
         {
-            return await next();
-        }
+            var context = new ValidationContext<TRequest>(request);
 
-        var context = new ValidationContext<TRequest>(request);
+            // Run all validators in parallel and await the results
+            var validationResults =
+                await Task.WhenAll(validators.Select(v => v.ValidateAsync(context, cancellationToken)));
 
-        // Run all validators in parallel and await the results
-        var validationResults =
-            await Task.WhenAll(validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+            // Aggregate the results from all validators into a distinct list of errorDetails
+            var errorDetails = validationResults
+                .SelectMany(result => result.Errors)
+                .Where(failure => failure != null)
+                .Select(failure => new ErrorDetail(failure.PropertyName.Split('.')[0], failure.ErrorMessage))
+                .Distinct()
+                .ToArray();
 
-        // Aggregate the results from all validators into a distinct list of errorDetails
-        var errorDetails = validationResults
-            .SelectMany(result => result.Errors)
-            .Where(failure => failure != null)
-            .Select(failure => new ErrorDetail(failure.PropertyName.Split('.').First(), failure.ErrorMessage))
-            .Distinct()
-            .ToArray();
-
-        if (errorDetails.Any())
-        {
-            return CreateValidationResult<TResponse>(errorDetails);
+            if (errorDetails.Any())
+            {
+                return CreateValidationResult<TResponse>(errorDetails);
+            }
         }
 
         return await next();
