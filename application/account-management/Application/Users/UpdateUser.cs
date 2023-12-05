@@ -1,4 +1,5 @@
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
@@ -13,7 +14,10 @@ public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Res
 }
 
 [UsedImplicitly]
-public sealed class UpdateUserHandler(IUserRepository userRepository) : IRequestHandler<UpdateUserCommand, Result>
+public sealed class UpdateUserHandler(
+    IUserRepository userRepository,
+    IAnalyticEventsCollector analyticEventsCollector
+) : IRequestHandler<UpdateUserCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
     {
@@ -22,6 +26,8 @@ public sealed class UpdateUserHandler(IUserRepository userRepository) : IRequest
 
         user.Update(command.Email, command.UserRole);
         userRepository.Update(user);
+
+        analyticEventsCollector.CollectEvent("UserUpdated");
         return Result.Success();
     }
 }
