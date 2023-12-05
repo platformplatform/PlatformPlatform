@@ -32,7 +32,7 @@ jobs:
       - name: Generate version
         id: generate_version
         run: |
-          VERSION=$(date +"%Y.%m.%d").$GITHUB_RUN_NUMBER
+          VERSION=$(date +"%Y.%-m.%-d.%-H%M")
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
