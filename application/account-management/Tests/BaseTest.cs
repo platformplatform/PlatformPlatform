@@ -1,10 +1,16 @@
 using Bogus;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Channel;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.Tests.ApplicationCore.Tracking;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -13,9 +19,15 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
+    protected AnalyticEventsCollectorSpy AnalyticEventsCollectorSpy;
 
     protected BaseTest()
     {
+        Environment.SetEnvironmentVariable(
+            "APPLICATIONINSIGHTS_CONNECTION_STRING",
+            "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost"
+        );
+
         Services = new ServiceCollection();
 
         Services.AddLogging();
@@ -30,6 +42,12 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services
             .AddApplicationServices()
             .AddInfrastructureServices(configuration);
+
+        AnalyticEventsCollectorSpy = new AnalyticEventsCollectorSpy(new AnalyticEventsCollector());
+        Services.AddScoped<IAnalyticEventsCollector>(_ => AnalyticEventsCollectorSpy);
+
+        var telemetryChannel = Substitute.For<ITelemetryChannel>();
+        Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
 
         // Make sure database is created
         using var serviceScope = Services.BuildServiceProvider().CreateScope();

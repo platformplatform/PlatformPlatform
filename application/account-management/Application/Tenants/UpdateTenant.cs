@@ -1,4 +1,5 @@
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
@@ -13,7 +14,10 @@ public sealed record UpdateTenantCommand : ICommand, ITenantValidation, IRequest
 }
 
 [UsedImplicitly]
-public sealed class UpdateTenantHandler(ITenantRepository tenantRepository)
+public sealed class UpdateTenantHandler(
+    ITenantRepository tenantRepository,
+    IAnalyticEventsCollector analyticEventsCollector
+)
     : IRequestHandler<UpdateTenantCommand, Result>
 {
     public async Task<Result> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
@@ -23,6 +27,12 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository)
 
         tenant.Update(command.Name, command.Phone);
         tenantRepository.Update(tenant);
+
+        analyticEventsCollector.CollectEvent(
+            "TenantUpdated",
+            new Dictionary<string, string> { { "Tenant_Id", command.Id.ToString() } }
+        );
+
         return Result.Success();
     }
 }

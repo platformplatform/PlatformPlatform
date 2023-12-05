@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
+using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore;
 
@@ -12,11 +13,13 @@ public static class ApplicationCoreConfiguration
         Assembly applicationAssembly
     )
     {
-        // Order is important. First all Pre behaviors run (top to bottom), then the command is handled, then all Post
-        // behaviors run (bottom to top). So Validation -> Command -> PublishDomainEvents -> UnitOfWork.
+        // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.
+        // So Validation -> Command -> PublishDomainEvents -> UnitOfWork -> PublishAnalyticEvents.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishAnalyticEventsPipelineBehavior<,>)); // Post
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
+        services.AddScoped<IAnalyticEventsCollector, AnalyticEventsCollector>();
         services.AddScoped<UnitOfWorkPipelineBehaviorConcurrentCounter>();
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));

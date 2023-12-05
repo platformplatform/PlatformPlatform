@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
@@ -28,6 +29,15 @@ public static class ApiCoreConfiguration
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer();
+
+        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+        {
+            EnableRequestTrackingTelemetryModule = false,
+            EnableDependencyTrackingTelemetryModule = false,
+            RequestCollectionOptions = { TrackExceptions = false }
+        };
+
+        services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
 
         services.AddSwaggerGen(c =>
         {
