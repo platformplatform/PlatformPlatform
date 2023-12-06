@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
@@ -31,8 +31,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
                 services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                 services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-                AnalyticEventsCollectorSpy = new AnalyticEventsCollectorSpy(new AnalyticEventsCollector());
-                services.AddScoped<IAnalyticEventsCollector>(_ => AnalyticEventsCollectorSpy);
+                TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
+                services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
             });
         });
 

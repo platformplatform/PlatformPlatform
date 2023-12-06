@@ -9,8 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -19,7 +19,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
-    protected AnalyticEventsCollectorSpy AnalyticEventsCollectorSpy;
+    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
 
     protected BaseTest()
     {
@@ -43,8 +43,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
             .AddApplicationServices()
             .AddInfrastructureServices(configuration);
 
-        AnalyticEventsCollectorSpy = new AnalyticEventsCollectorSpy(new AnalyticEventsCollector());
-        Services.AddScoped<IAnalyticEventsCollector>(_ => AnalyticEventsCollectorSpy);
+        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
+        Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));

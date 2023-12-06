@@ -31,15 +31,15 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
         result.IsSuccess.Should().BeTrue(scenario);
         result.Errors.Should().BeNull(scenario);
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e =>
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "TenantCreated" &&
             e.Properties!["Tenant_Id"] == subdomain &&
             e.Properties["Event_TenantState"] == "Trial"
         ).Should().Be(1);
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e =>
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "UserCreated" &&
             e.Properties!["Tenant_Id"] == subdomain
         ).Should().Be(1);

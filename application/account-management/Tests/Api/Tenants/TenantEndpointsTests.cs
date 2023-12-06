@@ -94,10 +94,10 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         Connection.RowExists("Tenants", subdomain);
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -160,9 +160,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantUpdated").Should().Be(1);
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantUpdated").Should().Be(1);
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
@@ -185,7 +185,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
             $"Tenant with id '{unknownTenantId}' not found."
         );
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -224,7 +224,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
             $"Tenant with id '{unknownTenantId}' not found."
         );
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -233,7 +233,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Act
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
-        AnalyticEventsCollectorSpy.Reset();
+        TelemetryEventsCollectorSpy.Reset();
 
         // Assert
         var expectedErrors = new[]
@@ -242,7 +242,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserId = DatabaseSeeder.User1.Id;
         _ = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
-        AnalyticEventsCollectorSpy.Reset();
+        TelemetryEventsCollectorSpy.Reset();
 
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
@@ -261,8 +261,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
 
-        AnalyticEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        AnalyticEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantDeleted").Should().Be(1);
-        AnalyticEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantDeleted").Should().Be(1);
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 }

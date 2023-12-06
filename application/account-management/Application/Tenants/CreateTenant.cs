@@ -1,7 +1,7 @@
 using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
@@ -12,16 +12,15 @@ public sealed record CreateTenantCommand(string Subdomain, string Name, string? 
 [UsedImplicitly]
 public sealed class CreateTenantHandler(
     ITenantRepository tenantRepository,
-    IAnalyticEventsCollector analyticEventsCollector,
+    ITelemetryEventsCollector events,
     ISender mediator
-)
-    : IRequestHandler<CreateTenantCommand, Result<TenantId>>
+) : IRequestHandler<CreateTenantCommand, Result<TenantId>>
 {
     public async Task<Result<TenantId>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
         var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone);
         await tenantRepository.AddAsync(tenant, cancellationToken);
-        analyticEventsCollector.CollectEvent(
+        events.CollectEvent(
             "TenantCreated",
             new Dictionary<string, string>
             {

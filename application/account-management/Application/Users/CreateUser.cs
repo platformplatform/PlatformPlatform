@@ -1,6 +1,6 @@
 using FluentValidation;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
@@ -8,7 +8,7 @@ public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole
     : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
 [UsedImplicitly]
-public sealed class CreateUserHandler(IUserRepository userRepository, IAnalyticEventsCollector analyticEventsCollector)
+public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
@@ -16,7 +16,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, IAnalyticE
         var user = User.Create(command.TenantId, command.Email, command.UserRole);
         await userRepository.AddAsync(user, cancellationToken);
 
-        analyticEventsCollector.CollectEvent(
+        events.CollectEvent(
             "UserCreated",
             new Dictionary<string, string> { { "Tenant_Id", command.TenantId.ToString() } }
         );
