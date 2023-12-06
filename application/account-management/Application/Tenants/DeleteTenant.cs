@@ -1,16 +1,14 @@
 using FluentValidation;
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]
-public sealed class DeleteTenantHandler(
-    ITenantRepository tenantRepository,
-    IAnalyticEventsCollector analyticEventsCollector
-)
+public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteTenantCommand, Result>
 {
     public async Task<Result> Handle(DeleteTenantCommand command, CancellationToken cancellationToken)
@@ -20,14 +18,7 @@ public sealed class DeleteTenantHandler(
 
         tenantRepository.Remove(tenant);
 
-        analyticEventsCollector.CollectEvent(
-            "TenantDeleted",
-            new Dictionary<string, string>
-            {
-                { "Tenant_Id", tenant.Id.ToString() },
-                { "Event_TenantState", tenant.State.ToString() }
-            }
-        );
+        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
 
         return Result.Success();
     }

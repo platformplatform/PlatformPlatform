@@ -20,7 +20,7 @@ public sealed class UnitOfWorkPipelineBehaviorTests
         services.AddSingleton(_unitOfWork);
         _behavior = new UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>>(
             _unitOfWork,
-            new UnitOfWorkPipelineBehaviorConcurrentCounter()
+            new ConcurrentCommandCounter()
         );
     }
 

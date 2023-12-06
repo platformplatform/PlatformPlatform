@@ -1,5 +1,6 @@
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
@@ -14,10 +15,7 @@ public sealed record UpdateTenantCommand : ICommand, ITenantValidation, IRequest
 }
 
 [UsedImplicitly]
-public sealed class UpdateTenantHandler(
-    ITenantRepository tenantRepository,
-    IAnalyticEventsCollector analyticEventsCollector
-)
+public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateTenantCommand, Result>
 {
     public async Task<Result> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
@@ -28,10 +26,7 @@ public sealed class UpdateTenantHandler(
         tenant.Update(command.Name, command.Phone);
         tenantRepository.Update(tenant);
 
-        analyticEventsCollector.CollectEvent(
-            "TenantUpdated",
-            new Dictionary<string, string> { { "Tenant_Id", command.Id.ToString() } }
-        );
+        events.CollectEvent(new TenantUpdated(tenant.Id));
 
         return Result.Success();
     }

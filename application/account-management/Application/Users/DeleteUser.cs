@@ -1,15 +1,14 @@
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Tracking;
+using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]
-public sealed class DeleteUserHandler(
-    IUserRepository userRepository,
-    IAnalyticEventsCollector analyticEventsCollector
-) : IRequestHandler<DeleteUserCommand, Result>
+public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+    : IRequestHandler<DeleteUserCommand, Result>
 {
     public async Task<Result> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
     {
@@ -18,7 +17,8 @@ public sealed class DeleteUserHandler(
 
         userRepository.Remove(user);
 
-        analyticEventsCollector.CollectEvent("UserDeleted");
+        events.CollectEvent(new UserDeleted());
+
         return Result.Success();
     }
 }

@@ -12,7 +12,7 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 /// </summary>
 public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(
     IUnitOfWork unitOfWork,
-    UnitOfWorkPipelineBehaviorConcurrentCounter unitOfWorkPipelineBehaviorConcurrentCounter
+    ConcurrentCommandCounter concurrentCommandCounter
 ) : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
     public async Task<TResponse> Handle(
@@ -21,13 +21,13 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(
         CancellationToken cancellationToken
     )
     {
-        unitOfWorkPipelineBehaviorConcurrentCounter.Increment();
+        concurrentCommandCounter.Increment();
         var response = await next();
 
         if (response is ResultBase { IsSuccess: true })
         {
-            unitOfWorkPipelineBehaviorConcurrentCounter.Decrement();
-            if (unitOfWorkPipelineBehaviorConcurrentCounter.IsZero())
+            concurrentCommandCounter.Decrement();
+            if (concurrentCommandCounter.IsZero())
             {
                 await unitOfWork.CommitAsync(cancellationToken);
             }
