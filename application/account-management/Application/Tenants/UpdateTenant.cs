@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -25,10 +26,7 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
         tenant.Update(command.Name, command.Phone);
         tenantRepository.Update(tenant);
 
-        events.CollectEvent(
-            "TenantUpdated",
-            new Dictionary<string, string> { { "Tenant_Id", command.Id.ToString() } }
-        );
+        events.CollectEvent(new TenantUpdated(tenant.Id));
 
         return Result.Success();
     }

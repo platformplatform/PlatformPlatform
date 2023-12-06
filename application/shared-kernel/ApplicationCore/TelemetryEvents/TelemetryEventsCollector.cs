@@ -4,7 +4,7 @@ public interface ITelemetryEventsCollector
 {
     bool HasEvents { get; }
 
-    void CollectEvent(string name, Dictionary<string, string>? properties = null);
+    void CollectEvent(TelemetryEvent telemetryEvent);
 
     TelemetryEvent Dequeue();
 }
@@ -15,9 +15,8 @@ public class TelemetryEventsCollector : ITelemetryEventsCollector
 
     public bool HasEvents => _events.Count > 0;
 
-    public void CollectEvent(string name, Dictionary<string, string>? properties = null)
+    public void CollectEvent(TelemetryEvent telemetryEvent)
     {
-        var telemetryEvent = new TelemetryEvent(name, properties);
         _events.Enqueue(telemetryEvent);
     }
 
@@ -27,9 +26,10 @@ public class TelemetryEventsCollector : ITelemetryEventsCollector
     }
 }
 
-public class TelemetryEvent(string name, Dictionary<string, string>? properties = null)
+public abstract class TelemetryEvent(string name, params (string Key, string Value)[] properties)
 {
     public string Name { get; } = name;
 
-    public Dictionary<string, string>? Properties { get; } = properties;
+    public Dictionary<string, string> Properties { get; } =
+        properties.ToDictionary(p => $"Event_{p.Key}", p => p.Value);
 }

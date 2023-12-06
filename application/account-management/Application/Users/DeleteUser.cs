@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -16,7 +17,8 @@ public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetry
 
         userRepository.Remove(user);
 
-        events.CollectEvent("UserDeleted");
+        events.CollectEvent(new UserDeleted());
+
         return Result.Success();
     }
 }

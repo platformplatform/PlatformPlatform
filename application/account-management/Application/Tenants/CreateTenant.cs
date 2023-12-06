@@ -1,4 +1,5 @@
 using FluentValidation;
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
@@ -20,14 +21,8 @@ public sealed class CreateTenantHandler(
     {
         var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone);
         await tenantRepository.AddAsync(tenant, cancellationToken);
-        events.CollectEvent(
-            "TenantCreated",
-            new Dictionary<string, string>
-            {
-                { "Tenant_Id", tenant.Id.ToString() },
-                { "Event_TenantState", tenant.State.ToString() }
-            }
-        );
+
+        events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
 
         await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
 

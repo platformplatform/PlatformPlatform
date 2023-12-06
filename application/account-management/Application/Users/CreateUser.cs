@@ -1,4 +1,5 @@
 using FluentValidation;
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -16,10 +17,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
         var user = User.Create(command.TenantId, command.Email, command.UserRole);
         await userRepository.AddAsync(user, cancellationToken);
 
-        events.CollectEvent(
-            "UserCreated",
-            new Dictionary<string, string> { { "Tenant_Id", command.TenantId.ToString() } }
-        );
+        events.CollectEvent(new UserCreated(command.TenantId));
 
         return user.Id;
     }

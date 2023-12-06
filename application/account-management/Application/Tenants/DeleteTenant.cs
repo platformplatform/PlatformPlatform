@@ -1,4 +1,5 @@
 using FluentValidation;
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -17,14 +18,7 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITel
 
         tenantRepository.Remove(tenant);
 
-        events.CollectEvent(
-            "TenantDeleted",
-            new Dictionary<string, string>
-            {
-                { "Tenant_Id", tenant.Id.ToString() },
-                { "Event_TenantState", tenant.State.ToString() }
-            }
-        );
+        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
 
         return Result.Success();
     }

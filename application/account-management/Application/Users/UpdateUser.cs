@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -25,7 +26,8 @@ public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetry
         user.Update(command.Email, command.UserRole);
         userRepository.Update(user);
 
-        events.CollectEvent("UserUpdated");
+        events.CollectEvent(new UserUpdated());
+
         return Result.Success();
     }
 }

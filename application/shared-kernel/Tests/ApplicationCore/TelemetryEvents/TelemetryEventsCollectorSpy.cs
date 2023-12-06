@@ -11,12 +11,6 @@ public class TelemetryEventsCollectorSpy(ITelemetryEventsCollector realTelemetry
 
     public bool AreAllEventsDispatched { get; private set; }
 
-    public void CollectEvent(string name, Dictionary<string, string>? properties = null)
-    {
-        realTelemetryEventsCollector.CollectEvent(name, properties);
-        _collectedEvents.Add(new TelemetryEvent(name, properties));
-    }
-
     public bool HasEvents => realTelemetryEventsCollector.HasEvents;
 
     public TelemetryEvent Dequeue()
@@ -24,6 +18,12 @@ public class TelemetryEventsCollectorSpy(ITelemetryEventsCollector realTelemetry
         var telemetryEvent = realTelemetryEventsCollector.Dequeue();
         AreAllEventsDispatched = !realTelemetryEventsCollector.HasEvents;
         return telemetryEvent;
+    }
+
+    public void CollectEvent(TelemetryEvent telemetryEvent)
+    {
+        realTelemetryEventsCollector.CollectEvent(telemetryEvent);
+        _collectedEvents.Add(telemetryEvent);
     }
 
     public void Reset()

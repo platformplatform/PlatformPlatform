@@ -35,13 +35,13 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "TenantCreated" &&
-            e.Properties!["Tenant_Id"] == subdomain &&
+            e.Properties["Event_TenantId"] == subdomain &&
             e.Properties["Event_TenantState"] == "Trial"
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "UserCreated" &&
-            e.Properties!["Tenant_Id"] == subdomain
+            e.Properties["Event_TenantId"] == subdomain
         ).Should().Be(1);
     }
 
