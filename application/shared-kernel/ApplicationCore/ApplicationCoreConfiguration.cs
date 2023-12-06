@@ -20,7 +20,7 @@ public static class ApplicationCoreConfiguration
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
         services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
-        services.AddScoped<UnitOfWorkPipelineBehaviorConcurrentCounter>();
+        services.AddScoped<ConcurrentCommandCounter>();
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddNonGenericValidators(applicationAssembly);

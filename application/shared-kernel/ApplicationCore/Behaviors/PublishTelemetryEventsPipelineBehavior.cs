@@ -6,7 +6,8 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 
 public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
     ITelemetryEventsCollector telemetryEventsCollector,
-    TelemetryClient telemetryClient
+    TelemetryClient telemetryClient,
+    ConcurrentCommandCounter concurrentCommandCounter
 ) : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
     public async Task<TResponse> Handle(
@@ -17,10 +18,13 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
     {
         var result = await next();
 
-        while (telemetryEventsCollector.HasEvents)
+        if (concurrentCommandCounter.IsZero())
         {
-            var telemetryEvent = telemetryEventsCollector.Dequeue();
-            telemetryClient.TrackEvent(telemetryEvent.Name, telemetryEvent.Properties);
+            while (telemetryEventsCollector.HasEvents)
+            {
+                var telemetryEvent = telemetryEventsCollector.Dequeue();
+                telemetryClient.TrackEvent(telemetryEvent.Name, telemetryEvent.Properties);
+            }
         }
 
         return result;
