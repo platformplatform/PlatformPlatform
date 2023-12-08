@@ -1,3 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using PlatformPlatform.DeveloperCli;
 
-Console.WriteLine("Hello, World!");
+ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
+
+Console.WriteLine($"Run command with arguments: {string.Join(", ", args)}");
