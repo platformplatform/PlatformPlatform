@@ -5,6 +5,34 @@ namespace PlatformPlatform.DeveloperCli;
 
 public static class Installation
 {
+    private const string Intro =
+        """
+        To get the full benefit of PlatformPlatform, you can register a command-line alias for this CLI tool.
+        This will allow you to run PlatformPlatform commands from anywhere on your machine.
+        The alias defaults to [bold][grey]pp[/][/], but if you have multiple projects, you can customize it to something else.
+
+        [green]The CLI can be used to:[/]
+        * Set up secure passwordless continuous deployments between GitHub and Azure
+        * Test deploy your application to Azure from your local machine
+        * Run static code analysis on your codebase to ensure it does not fail when running in GitHub Workflows
+        * Much more is coming soon!
+
+        [green]Best of all, you can easily create your own commands to automate your own workflows![/]
+        The CLI will automatically detect any changes and recompile itself whenever your team does a [bold][grey]git pull[/][/].
+        This ensures that you always have the correct version of the CLI that works with the current version of your codebase.
+
+        [green]Is this secure?[/]
+        Like any code you copy from the internet, you should always review it before you run it.
+        Just open the project in your IDE and review the code.
+        But yes, it is secure, and apart from the alias, it does not make any changes to your machine.
+
+        [green]How does it work?[/]
+        The Alias is just a shortcut to the CLI tool, in your shell's config file (e.g., .zshrc or .bashrc).
+        Each command is just a C# class that can be customized to automate your own workflows.
+        To remove the alias, just remove the line from your shell config file.
+
+        """;
+
     public static readonly string SolutionFolder =
         new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
 
@@ -14,6 +42,25 @@ public static class Installation
     internal static void EnsureAliasIsRegistered()
     {
         if (IsAliasRegistered()) return;
+
+        var figletText = new FigletText("PlatformPlatform")
+            .Color(Color.Green)
+            .Centered();
+
+        AnsiConsole.Write(new Panel(figletText)
+            .Expand()
+            .SquareBorder()
+            .BorderColor(Color.Green)
+            .Padding(1, 1, 1, 1)
+            .Header("[bold green] Welcome to... [/]")
+        );
+
+        AnsiConsole.Write(new Panel(new Markup(Intro).Centered())
+            .Expand()
+            .SquareBorder()
+            .BorderColor(Color.Green)
+            .Padding(1, 1, 1, 1)
+        );
 
         var aliasName = AnsiConsole.Prompt(
             new TextPrompt<string>("Enter the command line alias you want to use for calling this CLI tool:")
