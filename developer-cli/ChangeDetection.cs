@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
+using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli;
 
@@ -22,7 +23,7 @@ public static class ChangeDetection
 
         if (!runningDebugBuild)
         {
-            Console.WriteLine("Changes detected, rebuilding the CLI.");
+            AnsiConsole.MarkupLine("[green]Changes detected, rebuilding the CLI.[/]");
         }
 
         PublishDeveloperCli();
