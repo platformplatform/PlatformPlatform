@@ -6,17 +6,11 @@ namespace PlatformPlatform.DeveloperCli;
 
 public static class ChangeDetection
 {
-    private static readonly string SolutionFolder =
-        new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
-
-    private static readonly string PublishFolder =
-        Path.Combine(SolutionFolder, "artifacts", "publish", "DeveloperCli", "release");
-
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
         var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("/debug/");
 
-        var hashFile = Path.Combine(PublishFolder, "source-file-hash.md5");
+        var hashFile = Path.Combine(Installation.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
@@ -38,7 +32,7 @@ public static class ChangeDetection
         {
             FileName = Environment.ProcessPath,
             Arguments = string.Join(" ", args),
-            WorkingDirectory = SolutionFolder
+            WorkingDirectory = Installation.SolutionFolder
         });
 
         // Kill the current process 
@@ -47,7 +41,7 @@ public static class ChangeDetection
 
     private static string CalculateMd5HashForSolution()
     {
-        var solutionFiles = Directory.GetFiles(SolutionFolder, "*", SearchOption.AllDirectories)
+        var solutionFiles = Directory.GetFiles(Installation.SolutionFolder, "*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("/artifacts/"));
 
         using var sha256 = SHA256.Create();
@@ -71,7 +65,7 @@ public static class ChangeDetection
         {
             FileName = "dotnet",
             Arguments = "publish --configuration RELEASE",
-            WorkingDirectory = SolutionFolder,
+            WorkingDirectory = Installation.SolutionFolder,
             RedirectStandardOutput = true
         })!.WaitForExit();
     }
