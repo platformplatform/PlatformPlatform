@@ -3,6 +3,7 @@ using Spectre.Console;
 
 ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
 AliasRegistration.EnsureAliasIsRegistered();
+PrerequisitesChecker.EnsurePrerequisitesAreMet();
 
 var command = args.FirstOrDefault();
 
