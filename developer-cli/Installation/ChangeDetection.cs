@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli;
+namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class ChangeDetection
 {
@@ -10,7 +10,7 @@ public static class ChangeDetection
     {
         var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("/debug/");
 
-        var hashFile = Path.Combine(Installation.PublishFolder, "source-file-hash.md5");
+        var hashFile = Path.Combine(AliasRegistration.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
@@ -32,7 +32,7 @@ public static class ChangeDetection
         {
             FileName = Environment.ProcessPath,
             Arguments = string.Join(" ", args),
-            WorkingDirectory = Installation.SolutionFolder
+            WorkingDirectory = AliasRegistration.SolutionFolder
         });
 
         // Kill the current process 
@@ -41,7 +41,7 @@ public static class ChangeDetection
 
     private static string CalculateMd5HashForSolution()
     {
-        var solutionFiles = Directory.GetFiles(Installation.SolutionFolder, "*", SearchOption.AllDirectories)
+        var solutionFiles = Directory.GetFiles(AliasRegistration.SolutionFolder, "*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("/artifacts/"));
 
         using var sha256 = SHA256.Create();
@@ -65,7 +65,7 @@ public static class ChangeDetection
         {
             FileName = "dotnet",
             Arguments = "publish --configuration RELEASE",
-            WorkingDirectory = Installation.SolutionFolder,
+            WorkingDirectory = AliasRegistration.SolutionFolder,
             RedirectStandardOutput = true
         })!.WaitForExit();
     }

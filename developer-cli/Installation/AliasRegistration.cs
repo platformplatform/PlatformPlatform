@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli;
+namespace PlatformPlatform.DeveloperCli.Installation;
 
-public static class Installation
+public static class AliasRegistration
 {
     private const string Intro =
         """
