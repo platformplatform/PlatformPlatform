@@ -3,7 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.DeveloperCli</AssemblyName>
+        <AssemblyName>pp</AssemblyName>
         <RootNamespace>PlatformPlatform.DeveloperCli</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>

@@ -7,9 +7,9 @@ public static class AliasRegistration
 {
     private const string Intro =
         """
-        To get the full benefit of PlatformPlatform, you can register a command-line alias for this CLI tool.
-        This will allow you to run PlatformPlatform commands from anywhere on your machine.
-        The alias defaults to [bold][grey]pp[/][/], but if you have multiple projects, you can customize it to something else.
+        [green]Welcome to:[/]
+        To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
+        This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]pp[/].
 
         [green]The CLI can be used to:[/]
         * Set up secure passwordless continuous deployments between GitHub and Azure
@@ -43,38 +43,18 @@ public static class AliasRegistration
     {
         if (IsAliasRegistered()) return;
 
-        var figletText = new FigletText("PlatformPlatform")
-            .Color(Color.Green)
-            .Centered();
+        var figletText = new FigletText("PlatformPlatform").Color(Color.Green);
+        AnsiConsole.Write(figletText);
+        AnsiConsole.Write(new Markup(Intro));
+        AnsiConsole.WriteLine();
+        if (AnsiConsole.Confirm("This will register the alias [green]pp[/], so it will be available everywhere."))
+        {
+            AnsiConsole.WriteLine();
 
-        AnsiConsole.Write(new Panel(figletText)
-            .Expand()
-            .SquareBorder()
-            .BorderColor(Color.Green)
-            .Padding(1, 1, 1, 1)
-            .Header("[bold green] Welcome to... [/]")
-        );
+            RegisterAlias("pp");
+        }
 
-        AnsiConsole.Write(new Panel(new Markup(Intro).Centered())
-            .Expand()
-            .SquareBorder()
-            .BorderColor(Color.Green)
-            .Padding(1, 1, 1, 1)
-        );
-
-        var aliasName = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the command line alias you want to use for calling this CLI tool:")
-                .PromptStyle("green")
-                .DefaultValue("pp")
-                .Validate(result => result.Length >= 2 && result.All(char.IsLetter)
-                    ? ValidationResult.Success()
-                    : ValidationResult.Error("The alias must be at least two characters and only contain letters."))
-                .AllowEmpty()
-        );
-
-        RegisterAlias(aliasName);
-
-        // Kill the current process 
+        // Kill the current process
         Environment.Exit(0);
     }
 
@@ -89,10 +69,12 @@ public static class AliasRegistration
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             AnsiConsole.MarkupLine("[red]Windows is not supported yet[/]");
+            Environment.Exit(0);
             return false;
         }
 
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
+        Environment.Exit(0);
         return false;
     }
 
@@ -143,15 +125,6 @@ public static class AliasRegistration
                 return;
             }
 
-            var lines = File.ReadAllLines(shellInfo.ProfilePath);
-            if (lines.Any(line => line.Contains($"alias {aliasName}=")))
-            {
-                AnsiConsole.MarkupLine(
-                    $"Alias [red]{aliasName}[/] already exist in [red]{shellInfo.ProfileName}[/].");
-                return;
-            }
-
-            AnsiConsole.MarkupLine($"Registering alias [green]{aliasName}[/] in [green]{shellInfo.ProfileName}[/].");
             File.AppendAllText(shellInfo.ProfilePath, $"alias {aliasName}='{cliExecutable}'{Environment.NewLine}");
             AnsiConsole.MarkupLine($"Please restart your terminal or run [green]source ~/{shellInfo.ProfileName}[/]");
         }
