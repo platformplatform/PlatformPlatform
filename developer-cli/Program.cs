@@ -1,36 +1,22 @@
-﻿using PlatformPlatform.DeveloperCli.Installation;
-using Spectre.Console;
+﻿using System.CommandLine;
+using System.Reflection;
+using PlatformPlatform.DeveloperCli.Installation;
 
 ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
 AliasRegistration.EnsureAliasIsRegistered();
 PrerequisitesChecker.EnsurePrerequisitesAreMet();
 
-var command = args.FirstOrDefault();
-
-switch (command)
+var rootCommand = new RootCommand
 {
-    case null:
-    case "--help":
-    case "-h":
-        AnsiConsole.MarkupLine(
-            """
-            [green]Welcome to the PlatformPlatform CLI:[/]
+    Description = "Welcome to the PlatformPlatform Developer CLI!"
+};
 
-            Here are the base commands:
-            
-               [yellow]No commands implemented yet![/]
+var allCommands = Assembly.GetExecutingAssembly().GetTypes()
+    .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(Command)))
+    .Select(Activator.CreateInstance)
+    .Cast<Command>()
+    .ToList();
 
-            Use `--version` to display the current version.
-            """);
-        break;
+allCommands.ForEach(rootCommand.AddCommand);
 
-    default:
-        AnsiConsole.MarkupLine(
-            $"""
-             [red]'{command}' is misspelled or an unknown command[/].
-
-             Please use [green]-help[/] to see the list of available commands.
-             """);
-        Environment.ExitCode = 1;
-        break;
-}
+await rootCommand.InvokeAsync(args);
