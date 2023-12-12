@@ -15,7 +15,7 @@ public static class PrerequisitesChecker
         }
 
         var checkAzureCli = CheckCommandLineTool("az", successMessage: "Your CLI is up-to-date.");
-        var checkBun = CheckCommandLineTool("bun", new Version(1, 0), null);
+        var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
 
         if (checkAzureCli == false || checkBun == false)
         {
@@ -54,9 +54,9 @@ public static class PrerequisitesChecker
             UseShellExecute = false,
             CreateNoWindow = true
         });
-        
+
         var output = process!.StandardOutput.ReadToEnd();
-        
+
         // Check if the version is greater than the minimum required version
         if (minVersion is not null)
         {
@@ -67,7 +67,7 @@ public static class PrerequisitesChecker
                 return false;
             }
         }
-        
+
         // Some tools don't have the version easily readable in the output, so we check for a special success message
         if (successMessage is not null && !output.Contains(successMessage))
         {
