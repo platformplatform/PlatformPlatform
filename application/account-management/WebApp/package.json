@@ -4,17 +4,30 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build"
+    "build": "rspack build",
+    "lingui:extract": "lingui extract",
+    "lingui:compile": "lingui compile --typescript",
+    "postinstall": "bun run lingui:extract && bun run lingui:compile"
   },
   "dependencies": {
+    "@lingui/core": "^4.6.0",
+    "@lingui/macro": "^4.6.0",
+    "@lingui/react": "^4.6.0",
+    "lucide-react": "^0.294.0",
     "openapi-fetch": "^0.8.1",
     "react": "18.3.0-canary-c47c306a7-20231109",
     "react-aria-components": "^1.0.0-rc.0",
     "react-dom": "18.3.0-canary-c47c306a7-20231109",
     "react-dom-confetti": "^0.2.0",
+    "tailwind-merge": "^2.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.6",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@lingui/cli": "^4.6.0",
+    "@lingui/format-po": "^4.6.0",
     "@rspack/cli": "^0.3.11",
     "@rspack/core": "^0.3.11",
     "@platformplatform/client-filesystem-router": "workspace:*",
@@ -22,6 +35,8 @@
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.13",
     "autoprefixer": "^10.4.16",
+    "babel-loader": "^9.1.3",
+    "babel-plugin-macros": "^3.1.0",
     "html-webpack-harddisk-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.5.3",
     "postcss": "^8.4.31",

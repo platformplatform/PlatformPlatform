@@ -14,6 +14,8 @@ export declare global {
     CDN_URL: string;
     /* Application version */
     APPLICATION_VERSION: string;
+    /* User locale */
+    LOCALE: string;
   };
 
   /**

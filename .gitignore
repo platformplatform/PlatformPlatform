@@ -385,3 +385,4 @@ FodyWeavers.xsd
 
 # Frontend builds
 dist/
+**/translations/locale/*.ts

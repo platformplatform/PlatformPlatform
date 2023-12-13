@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import AcmeLogo from "@/ui/acme-logo.svg";
 import { Button } from "react-aria-components";
+import { LocaleSwitcher } from "@/ui/LocaleSwitcher";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ export default function Root({ children, params }: LayoutProps) {
             </li>
           </ul>
         </nav>
+        <LocaleSwitcher />
       </div>
       <div className="flex flex-col w-full h-full bg-background">{children}</div>
     </div>

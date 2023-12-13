@@ -26,6 +26,22 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
+        /**
+         * For now RSPack does not support plugins in the SWC loader.
+         * This is a workaround to allow the use of macros for translations - can be removed once SWC supports plugins.
+         * (Note: babel-loader is used instead of swc-loader because babel-loader supports plugins)
+         */
+        test: /\.tsx$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-typescript", ["@babel/preset-react", { runtime: "automatic" }]],
+            plugins: ["macros"],
+          },
+        },
+      },
+      {
         test: /\.svg$/i,
         type: "asset",
         resourceQuery: /url/, // *.svg?url
