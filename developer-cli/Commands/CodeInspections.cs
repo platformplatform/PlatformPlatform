@@ -1,15 +1,17 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class JetBrainsCodeInspections : Command
+[UsedImplicitly]
+public class CodeInspections : Command
 {
-    public JetBrainsCodeInspections() :
-        base("jetbrains-code-inspections", "Run JetBrains Code Inspections")
+    public CodeInspections() :
+        base("code-inspections", "Run JetBrains Code Inspections")
     {
         Handler = CommandHandler.Create(new Func<int>(Execute));
     }
@@ -19,8 +21,11 @@ public class JetBrainsCodeInspections : Command
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
         ProcessHelper.StartProcess("dotnet", "tool restore", workingDirectory);
-        ProcessHelper.StartProcess("dotnet",
-            "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION", workingDirectory);
+        ProcessHelper.StartProcess(
+            "dotnet",
+            "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
+            workingDirectory
+        );
 
         var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.xml"));
         if (resultXml.Contains("<Issues />"))
