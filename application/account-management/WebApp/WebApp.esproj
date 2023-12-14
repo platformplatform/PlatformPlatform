@@ -23,4 +23,17 @@
         <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
     </Target>
 
+    <Target Name="BuildFrontend" AfterTargets="Build">
+        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bunx openapi-typescript@latest $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bunx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bun run build" WorkingDirectory="$(ProjectDir)"/>
+
+        <ItemGroup>
+            <WebAppSourceFiles Include="$(ProjectDir)dist/**/*.*"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(WebAppSourceFiles)" DestinationFolder="$(ProjectDir)../Api/publish/WebApp/dist/%(RecursiveDir)"/>
+    </Target>
+
 </Project>
