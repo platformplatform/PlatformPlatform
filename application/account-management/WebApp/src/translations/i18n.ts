@@ -46,6 +46,5 @@ export async function loadCatalog(locale: string) {
 
 export async function dynamicActivate(i18n: I18n, locale: string) {
   const messages = await loadCatalog(locale);
-  i18n.load(locale, messages);
-  i18n.activate(locale);
+  i18n.loadAndActivate({ locale, messages });
 }

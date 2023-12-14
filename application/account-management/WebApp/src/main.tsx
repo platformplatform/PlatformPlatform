@@ -1,14 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
+import { I18nProvider } from "@lingui/react";
+import { i18n } from "@lingui/core";
 import "./main.css";
 import { ReactFilesystemRouter } from "@platformplatform/client-filesystem-router/react";
-import { TranslationProvider } from "./translations/TranslationProvider";
+import { dynamicActivate, getInitialLocale } from "./translations/i18n";
+
+await dynamicActivate(i18n, getInitialLocale());
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <TranslationProvider>
+    <I18nProvider i18n={i18n}>
       <ReactFilesystemRouter />
-    </TranslationProvider>
+    </I18nProvider>
   </React.StrictMode>
 );
