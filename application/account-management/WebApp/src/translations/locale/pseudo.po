@@ -13,5 +13,49 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Tenant."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Tenant."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "name"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "email"
+msgstr ""
+
+msgid "Account Management"
+msgstr ""
+
+msgid "Create a tenant"
+msgstr ""
+
+msgid "Create Tenant"
+msgstr ""
+
+msgid "Create tenant!"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
 msgid "Overview"
+msgstr ""
+
+msgid "Subdomain"
+msgstr ""
+
+msgid "User Management"
 msgstr ""

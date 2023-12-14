@@ -2,6 +2,7 @@ import { z } from "zod";
 import { accountManagementApi } from "@/lib/api/client.ts";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { navigate } from "@platformplatform/client-filesystem-router/react";
+import { i18n } from "@lingui/core";
 
 export type State = {
   errors?: {
@@ -29,7 +30,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Missing Fields. Failed to Create Tenant.",
+      message: i18n.t("Missing Fields. Failed to Create Tenant."),
     };
   }
 
@@ -59,7 +60,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     };
   } catch (e) {
     return {
-      message: "Server error: Failed to Create Tenant.",
+      message: i18n.t("Server error: Failed to Create Tenant."),
     };
   }
 }

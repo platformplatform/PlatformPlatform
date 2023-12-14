@@ -13,5 +13,49 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Tenant."
+msgstr "Felter mangler. Kunne ikke oprette tenant."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Tenant."
+msgstr "Serverfejl: Kunne ikke oprette tenant."
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr "subdomæne"
+
+#. js-lingui-explicit-id
+msgid "name"
+msgstr "navn"
+
+#. js-lingui-explicit-id
+msgid "email"
+msgstr "email"
+
+msgid "Account Management"
+msgstr "Kontostyring"
+
+msgid "Create a tenant"
+msgstr "Opret en tenant"
+
+msgid "Create Tenant"
+msgstr "Opret tenant"
+
+msgid "Create tenant!"
+msgstr "Opret tenant!"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Name"
+msgstr "Navn"
+
 msgid "Overview"
 msgstr "Oversigt"
+
+msgid "Subdomain"
+msgstr "Subdomæne"
+
+msgid "User Management"
+msgstr "Brugerstyring"

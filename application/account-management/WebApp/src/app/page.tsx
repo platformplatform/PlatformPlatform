@@ -1,5 +1,4 @@
-import { Trans, t } from "@lingui/macro";
-import { LocaleSwitcher } from "@/ui/LocaleSwitcher";
+import { Trans } from "@lingui/macro";
 
 export default function Page() {
   return (
