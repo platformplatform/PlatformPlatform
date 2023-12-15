@@ -170,7 +170,7 @@ public static class WebAppMiddlewareExtensions
 
         return builder
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(buildRootPath) })
-            .UseRequestLocalization(["en-US", "da-DK"])
+            .UseRequestLocalization("en-US", "da-DK")
             .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
     }
 
