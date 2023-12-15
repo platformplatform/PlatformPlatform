@@ -30,7 +30,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to Create Tenant."),
+      message: i18n.t("Missing Fields. Failed to Create Account."),
     };
   }
 
@@ -60,7 +60,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     };
   } catch (e) {
     return {
-      message: i18n.t("Server error: Failed to Create Tenant."),
+      message: i18n.t("Server error: Failed to Create Account."),
     };
   }
 }

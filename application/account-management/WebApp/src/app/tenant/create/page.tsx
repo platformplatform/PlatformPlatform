@@ -17,7 +17,7 @@ export default function CreateTenantForm() {
     >
       <div className="flex flex-col w-fit bg-gray-200 rounded p-4 gap-2 shadow-sm">
         <h1 className="text-xl font-bold">
-          <Trans>Create a tenant</Trans>
+          <Trans>Create a account</Trans>
         </h1>
         <TextField name="subdomain" autoFocus className="flex flex-col" isRequired>
           <Label>
@@ -46,7 +46,7 @@ export default function CreateTenantForm() {
           type="submit"
           className="bg-blue-600 p-2 rounded-md text-white text-sm border border-border shadow-lg hover:bg-slate-400 w-fit"
         >
-          <Trans>Create tenant!</Trans>
+          <Trans>Create account!</Trans>
         </Button>
       </div>
     </Form>

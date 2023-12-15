@@ -24,7 +24,7 @@ export default function Root({ children, params }: LayoutProps) {
         </h1>
         <div className="justify-start flex flex-row border-b border-border py-4">
           <Button className="bg-blue-600 text-white py-2 px-4 rounded-full" onPress={handleCreateTenant}>
-            <Trans>Create Tenant</Trans>
+            <Trans>Create Account</Trans>
           </Button>
         </div>
         <nav className="grow">
