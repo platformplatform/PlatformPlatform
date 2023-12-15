@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -15,6 +16,7 @@ public sealed class WebAppMiddleware
     private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
+    public const string Locale = "LOCALE";
     public const string ApplicationVersion = "APPLICATION_VERSION";
 
     private readonly string _cdnUrl;
@@ -84,23 +86,32 @@ public sealed class WebAppMiddleware
     {
         if (context.Request.Path.ToString().StartsWith("/api/")) return _next(context);
 
+        var cultureFeature = context.Features.Get<IRequestCultureFeature>();
+        var userCulture = cultureFeature?.RequestCulture.Culture;
+
+        var sessionEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
+
         context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-        return context.Response.WriteAsync(GetHtmlWithEnvironment());
+        return context.Response.WriteAsync(GetHtmlWithEnvironment(sessionEnvironmentVariables));
     }
 
-    private string GetHtmlWithEnvironment()
+    private string GetHtmlWithEnvironment(Dictionary<string, string>? sessionEnvironmentVariables = null)
     {
         if (_htmlTemplate is null || _isDevelopment)
         {
             _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
         }
 
+        var clientRuntimeEnvironment = sessionEnvironmentVariables is null
+            ? _runtimeEnvironment
+            : _runtimeEnvironment.Concat(sessionEnvironmentVariables).ToDictionary();
+
         var encodeRuntimeEnvironment = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(clientRuntimeEnvironment, _jsonSerializerOptions))
         );
         var result = _htmlTemplate.Replace("%ENCODED_RUNTIME_ENV%", encodeRuntimeEnvironment);
 
-        foreach (var variable in _runtimeEnvironment)
+        foreach (var variable in clientRuntimeEnvironment)
         {
             result = result.Replace($"%{variable.Key}%", variable.Value);
         }
@@ -159,6 +170,7 @@ public static class WebAppMiddlewareExtensions
 
         return builder
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(buildRootPath) })
+            .UseRequestLocalization(["en-US", "da-DK"])
             .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
     }
 
