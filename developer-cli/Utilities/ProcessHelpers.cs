@@ -15,19 +15,12 @@ public static class ProcessHelpers
                 FileName = command,
                 Arguments = arguments,
                 WorkingDirectory = workingDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = false
             }
         };
 
-        process.OutputDataReceived += (_, e) => { Console.WriteLine(e.Data); };
-        process.ErrorDataReceived += (_, e) => { Console.WriteLine(e.Data); };
-
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
         process.WaitForExit();
     }
 }
