@@ -107,10 +107,10 @@ const configuration: Configuration = {
     new HtmlWebpackPlugin({
       template: "./public/index.html",
       meta: {
-        runtimeEnv: "<ENCODED_RUNTIME_ENV>",
+        runtimeEnv: "%ENCODED_RUNTIME_ENV%",
       },
       alwaysWriteToDisk: true,
-      publicPath: "<CDN_URL>",
+      publicPath: "%CDN_URL%",
     }),
     new DefinePlugin({
       "import.meta.build_env": JSON.stringify(buildEnv),

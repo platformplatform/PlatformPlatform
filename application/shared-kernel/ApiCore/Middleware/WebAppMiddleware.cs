@@ -98,11 +98,11 @@ public sealed class WebAppMiddleware
         var encodeRuntimeEnvironment = Convert.ToBase64String(
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
         );
-        var result = _htmlTemplate.Replace("<ENCODED_RUNTIME_ENV>", encodeRuntimeEnvironment);
+        var result = _htmlTemplate.Replace("%ENCODED_RUNTIME_ENV%", encodeRuntimeEnvironment);
 
         foreach (var variable in _runtimeEnvironment)
         {
-            result = result.Replace($"<{variable.Key}>", variable.Value);
+            result = result.Replace($"%{variable.Key}%", variable.Value);
         }
 
         return result;
