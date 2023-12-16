@@ -18,12 +18,11 @@
         <Script Include="tsconfig.json"/>
     </ItemGroup>
 
-    <Target Name="ApiBuild" BeforeTargets="BeforeBuild">
-        <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
+    <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
+        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 
-    <Target Name="EnsureNpmIsInstalled" BeforeTargets="BeforeBuild" DependsOnTargets="ApiBuild">
-        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
+    <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
         <Exec Command="bunx openapi-typescript@latest $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="bunx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
     </Target>

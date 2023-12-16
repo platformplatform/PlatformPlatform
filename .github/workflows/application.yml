@@ -73,7 +73,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-          dotnet dotcover test PlatformPlatform.sln --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+          dotnet build PlatformPlatform.sln --no-restore
+          dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput="coverage/dotCover.html" --dcReportType=HTML &&
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
       - name: Publish Account Management build
@@ -98,6 +99,10 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
 
+      - name: Install Node modules
+        working-directory: application/account-management/WebApp
+        run: bun install --frozen-lockfile
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -113,14 +118,14 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Build Account Management WebApp
-        working-directory: application/account-management/WebApp
-        run: dotnet build
+      - name: Build solution
+        working-directory: application
+        run: dotnet build PlatformPlatform.sln --no-restore
 
       - name: Run code inspections
         working-directory: application
         run: |
-          dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION
+          dotnet jb inspectcode PlatformPlatform.sln --no-build --output=result.xml --severity=SUGGESTION
 
           # Check if there are any issues. <Issues /> indicates no issues found.
           if ! grep -q '<Issues />' result.xml; then
@@ -132,7 +137,7 @@ jobs:
       - name: Check for code formatting issues
         working-directory: application
         run: |
-          dotnet jb cleanupcode PlatformPlatform.sln --profile=".NET only"
+          dotnet jb cleanupcode PlatformPlatform.sln --no-build --profile=".NET only"
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {

@@ -12,6 +12,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.esproj", "{7E781B90-C407-4FB2-BC20-10A457E08D7F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE} = {4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
