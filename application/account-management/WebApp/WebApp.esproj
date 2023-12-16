@@ -8,22 +8,27 @@
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
         <NpmInstallCheck>$(MSBuildProjectDirectory)\bun.lockb</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+        <!-- Command to run on project build -->
+         <BuildCommand>bun run build</BuildCommand>
+         <!-- Command to create an optimized build of the project that's ready for publishing -->
+         <ProductionBuildCommand>bun run build</ProductionBuildCommand>
     </PropertyGroup>
 
     <ItemGroup>
         <Script Include="tsconfig.json"/>
     </ItemGroup>
 
-    <Target Name="EnsureApiBuildsFirst" BeforeTargets="Build">
+    <Target Name="ApiBuild" BeforeTargets="BeforeBuild">
         <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
     </Target>
 
-    <Target Name="BuildFrontend" AfterTargets="Build">
+    <Target Name="EnsureNpmIsInstalled" BeforeTargets="BeforeBuild" DependsOnTargets="ApiBuild">
         <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="bunx openapi-typescript@latest $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="bunx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="bun run build" WorkingDirectory="$(ProjectDir)"/>
+    </Target>
 
+    <Target Name="BuildFrontend" AfterTargets="Build">
         <ItemGroup>
             <WebAppSourceFiles Include="$(ProjectDir)dist/**/*.*"/>
         </ItemGroup>
