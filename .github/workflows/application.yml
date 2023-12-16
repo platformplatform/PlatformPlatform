@@ -113,6 +113,10 @@ jobs:
         working-directory: application
         run: dotnet restore
 
+      - name: Build Account Management WebApp
+        working-directory: application/account-management/WebApp
+        run: dotnet build
+
       - name: Run code inspections
         working-directory: application
         run: |
