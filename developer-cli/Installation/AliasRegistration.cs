@@ -97,11 +97,11 @@ public static class AliasRegistration
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
     }
 
-    private static class MacOs
+    public static class MacOs
     {
         internal static bool IsAliasRegistered(string processName)
         {
-            var shellInfo = GetMacOsShellInfo();
+            var shellInfo = GetShellInfo();
             if (!File.Exists(shellInfo.ProfilePath))
             {
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{shellInfo.ShellName}[/] is not supported.[/]");
@@ -118,7 +118,7 @@ public static class AliasRegistration
 
         internal static void RegisterAlias(string aliasName, string cliExecutable)
         {
-            var shellInfo = GetMacOsShellInfo();
+            var shellInfo = GetShellInfo();
             if (shellInfo.ProfileName == string.Empty)
             {
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{shellInfo.ShellName}[/] is not supported.[/]");
@@ -129,7 +129,7 @@ public static class AliasRegistration
             AnsiConsole.MarkupLine($"Please restart your terminal or run [green]source ~/{shellInfo.ProfileName}[/]");
         }
 
-        private static (string ShellName, string ProfileName, string ProfilePath) GetMacOsShellInfo()
+        public static (string ShellName, string ProfileName, string ProfilePath, string UserFolder) GetShellInfo()
         {
             var shellName = Environment.GetEnvironmentVariable("SHELL")!;
             var profileName = string.Empty;
@@ -147,7 +147,8 @@ public static class AliasRegistration
                 ? string.Empty
                 : Path.Combine(Environment.GetEnvironmentVariable("HOME")!, profileName);
 
-            return (shellName, profileName, profilePath);
+            var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            return (shellName, profileName, profilePath, userFolder);
         }
     }
 }
