@@ -8,7 +8,7 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("/debug/");
+        var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
 
         var hashFile = Path.Combine(AliasRegistration.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
@@ -42,7 +42,7 @@ public static class ChangeDetection
     private static string CalculateMd5HashForSolution()
     {
         var solutionFiles = Directory.GetFiles(AliasRegistration.SolutionFolder, "*", SearchOption.AllDirectories)
-            .Where(f => !f.Contains("/artifacts/"));
+            .Where(f => !f.Contains("artifacts"));
 
         using var sha256 = SHA256.Create();
         using var combinedStream = new MemoryStream();

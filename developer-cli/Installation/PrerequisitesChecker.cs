@@ -1,12 +1,14 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using PlatformPlatform.DeveloperCli.Commands;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class PrerequisitesChecker
 {
-    public static void EnsurePrerequisitesAreMet()
+    public static void EnsurePrerequisitesAreMeet()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -14,16 +16,32 @@ public static class PrerequisitesChecker
             Environment.Exit(1);
         }
 
-        var checkAzureCli = CheckCommandLineTool("az", successMessage: "Your CLI is up-to-date.");
+        var checkAzureCli = CheckCommandLineTool("az", new Version(2, 55));
         var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
+        var docker = CheckCommandLineTool("docker", new Version(24, 0));
 
-        if (checkAzureCli == false || checkBun == false)
+        if (!checkAzureCli || !checkBun || !docker)
         {
             Environment.Exit(1);
         }
+
+        var sqlPasswordConfigured = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
+        if (!sqlPasswordConfigured)
+        {
+            AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
+        }
+
+        var isValidDeveloperCertificateConfigured =
+            ConfigureDeveloperEnvironment.IsValidDeveloperCertificateConfigured();
+
+        if (!sqlPasswordConfigured || !isValidDeveloperCertificateConfigured)
+        {
+            AnsiConsole.MarkupLine(
+                "[yellow]Please run ´pp configure-developer-environment´ to configure your environment.[/]");
+        }
     }
 
-    private static bool CheckCommandLineTool(string command, Version? minVersion = null, string? successMessage = null)
+    private static bool CheckCommandLineTool(string command, Version minVersion)
     {
         // Check if the command line tool is installed
         var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -48,8 +66,10 @@ public static class PrerequisitesChecker
         // Get the version of the command line tool
         var process = Process.Start(new ProcessStartInfo
         {
-            FileName = command,
-            Arguments = "--version",
+            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "/bin/bash",
+            Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? $"/c {command} --version"
+                : $"-c \"{command} --version\"",
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
@@ -57,24 +77,21 @@ public static class PrerequisitesChecker
 
         var output = process!.StandardOutput.ReadToEnd();
 
-        // Check if the version is greater than the minimum required version
-        if (minVersion is not null)
-        {
-            var versionString = output.Split('\n')[0]; // Assuming the version is on the first line
-            if (!Version.TryParse(versionString, out var installedVersion) || installedVersion < minVersion)
-            {
-                AnsiConsole.MarkupLine($"[red]´{command}´ version is less than {minVersion}. Please update.[/]");
-                return false;
-            }
-        }
+        var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
+        var match = versionRegex.Match(output);
 
-        // Some tools don't have the version easily readable in the output, so we check for a special success message
-        if (successMessage is not null && !output.Contains(successMessage))
+        if (match.Success)
         {
-            AnsiConsole.MarkupLine($"[red]´{command}´ is not up-to-date. Please update to the latest version.[/]");
+            var version = Version.Parse(match.Value);
+            if (version >= minVersion) return true;
+            AnsiConsole.MarkupLine(
+                $"[red]Please update ´{command}´ from version {minVersion} to {version} or later.[/]");
             return false;
         }
 
-        return true;
+        // If the version could not be determined please change the logic here to check for the correct version
+        AnsiConsole.MarkupLine(
+            $"[red]Command ´{command}´ is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
+        return false;
     }
 }

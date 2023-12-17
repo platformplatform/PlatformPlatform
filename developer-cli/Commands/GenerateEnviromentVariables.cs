@@ -1,11 +1,13 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
+[UsedImplicitly]
 public class ConfigureDeveloperEnvironment : Command
 {
     private static readonly (string ShellName, string ProfileName, string ProfilePath, string UserFolder) ShellInfo =
@@ -50,6 +52,12 @@ public class ConfigureDeveloperEnvironment : Command
         AddEnvironmentVariable("SQL_SERVER_PASSWORD", password);
         AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable created.[/]");
         return true;
+    }
+
+    public static bool IsValidDeveloperCertificateConfigured()
+    {
+        var password = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        return IsDeveloperCertificateAlreadyConfigured() && IsCertificatePasswordValid(password);
     }
 
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
@@ -106,7 +114,6 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (output.Contains("A valid certificate was found"))
         {
-            AnsiConsole.MarkupLine("[green]A valid certificate was found.[/]");
             return true;
         }
 
@@ -137,7 +144,6 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
         {
-            AnsiConsole.MarkupLine("[green]The password for the certificate is valid.[/]");
             return true;
         }
 

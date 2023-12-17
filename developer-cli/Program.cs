@@ -4,7 +4,7 @@ using PlatformPlatform.DeveloperCli.Installation;
 
 ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
 AliasRegistration.EnsureAliasIsRegistered();
-PrerequisitesChecker.EnsurePrerequisitesAreMet();
+PrerequisitesChecker.EnsurePrerequisitesAreMeet();
 
 var rootCommand = new RootCommand
 {
