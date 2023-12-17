@@ -10,6 +10,7 @@
   
   <ItemGroup>
     <ProjectReference Include="../account-management/Api/Api.csproj"/>
+      <ProjectReference Include="../account-management/WebApp/WebApp.esproj"/>
   </ItemGroup>
   
   <ItemGroup>

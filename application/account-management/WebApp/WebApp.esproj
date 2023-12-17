@@ -15,6 +15,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Api\Api.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <Script Include="tsconfig.json"/>
     </ItemGroup>
 
