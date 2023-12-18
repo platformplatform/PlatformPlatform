@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
@@ -10,11 +11,10 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 [UsedImplicitly]
 public class ConfigureDeveloperEnvironment : Command
 {
-    private static readonly (string ShellName, string ProfileName, string ProfilePath, string UserFolder) ShellInfo =
-        AliasRegistration.MacOs.GetShellInfo();
+    public const string CommandName = "configure-developer-environment";
 
     public ConfigureDeveloperEnvironment() : base(
-        "configure-developer-environment",
+        CommandName,
         "Generates SQL_SERVER_PASSWORD and CERTIFICATE_PASSWORD, adds them to environment variables, and generates a dev certificate."
     )
     {
@@ -28,7 +28,8 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (passwordCreated || certificateCreated)
         {
-            AnsiConsole.MarkupLine($"Please restart your terminal or run [green]source ~/{ShellInfo.ProfileName}[/]");
+            AnsiConsole.MarkupLine(
+                $"Please restart your terminal or run [green]source ~/{MacOs.ShellInfo.ProfileName}[/]");
         }
         else
         {
@@ -56,7 +57,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     public static bool IsValidDeveloperCertificateConfigured()
     {
-        if (IsDeveloperCertificateAlreadyConfigured())
+        if (!IsDeveloperCertificateAlreadyConfigured())
         {
             AnsiConsole.MarkupLine("[yellow]Developer certificate is not configured.[/]");
             return false;
@@ -71,7 +72,7 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (!IsCertificatePasswordValid(password))
         {
-            AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD is not valid.[/]");
+            AnsiConsole.MarkupLine("[yellow]A valid certificate password is not configured.[/]");
             return false;
         }
 
@@ -130,27 +131,23 @@ public class ConfigureDeveloperEnvironment : Command
         var output = isDeveloperCertificateAlreadyConfiguredProcess.StandardOutput.ReadToEnd();
         isDeveloperCertificateAlreadyConfiguredProcess.WaitForExit();
 
-        if (output.Contains("A valid certificate was found"))
-        {
-            return true;
-        }
-
-        AnsiConsole.MarkupLine("[yellow]A valid certificate was not found.[/]");
-        return false;
+        return output.Contains("A valid certificate was found");
     }
 
     private static bool IsCertificatePasswordValid(string? password)
     {
         if (string.IsNullOrWhiteSpace(password)) return false;
-        var shellInfo = ShellInfo;
+        if (!File.Exists(MacOs.LocalhostPfx))
+        {
+            return false;
+        }
 
         var certificateValidationProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "openssl",
-                Arguments =
-                    $"pkcs12 -in {shellInfo.UserFolder}/.aspnet/https/localhost.pfx -passin pass:{password} -nokeys",
+                Arguments = $"pkcs12 -in {MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
@@ -171,6 +168,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CleanExistingCertificate()
     {
+        File.Delete(MacOs.LocalhostPfx);
         var deleteCertificateProcess = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -183,18 +181,13 @@ public class ConfigureDeveloperEnvironment : Command
             }
         };
         deleteCertificateProcess.Start();
-        while (!deleteCertificateProcess.StandardOutput.EndOfStream)
-        {
-            var line = deleteCertificateProcess.StandardOutput.ReadLine();
-            Console.WriteLine(line);
-        }
 
         deleteCertificateProcess.WaitForExit();
     }
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
-        var userFolder = ShellInfo.UserFolder;
+        var userFolder = MacOs.ShellInfo.UserFolder;
 
         var createCertificateProcess = new Process
         {
@@ -240,12 +233,32 @@ public class ConfigureDeveloperEnvironment : Command
             throw new ArgumentException($"Environment variable {variableName} already exists.");
         }
 
-        var fileContent = File.ReadAllText(ShellInfo.ProfilePath);
-        if (!fileContent.EndsWith(Environment.NewLine))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            File.AppendAllText(ShellInfo.ProfilePath, Environment.NewLine);
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c setx {variableName} {variableValue}",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            process.WaitForExit();
         }
+        else
+        {
+            var fileContent = File.ReadAllText(MacOs.ShellInfo.ProfilePath);
+            if (!fileContent.EndsWith(Environment.NewLine))
+            {
+                File.AppendAllText(MacOs.ShellInfo.ProfilePath, Environment.NewLine);
+            }
 
-        File.AppendAllText(ShellInfo.ProfilePath, $"export {variableName}='{variableValue}'{Environment.NewLine}");
+            File.AppendAllText(MacOs.ShellInfo.ProfilePath,
+                $"export {variableName}='{variableValue}'{Environment.NewLine}");
+        }
     }
 }

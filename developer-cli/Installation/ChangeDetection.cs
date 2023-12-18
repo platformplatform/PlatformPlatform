@@ -13,26 +13,25 @@ public static class ChangeDetection
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
+            // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
+            // We delete the previous executable the next time the process is started
             File.Delete(processPath.Replace(".exe", ".previous.exe"));
         }
-
-        var runningDebugBuild = new FileInfo(processPath).FullName.Contains("debug");
 
         var hashFile = Path.Combine(AliasRegistration.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
 
-        if (!runningDebugBuild)
-        {
-            AnsiConsole.MarkupLine("[green]Changes detected, rebuilding the CLI.[/]");
-        }
+        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding the CLI.[/]");
 
         PublishDeveloperCli();
 
         // Update the hash file to avoid restarting the process again
         File.WriteAllText(hashFile, currentHash);
 
+        // When running in debug mode, we want to disable automatic change detection but still publish the CLI
+        var runningDebugBuild = new FileInfo(processPath).FullName.Contains("debug");
         if (runningDebugBuild) return;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Spectre.Console;
 
@@ -64,12 +63,12 @@ public static class AliasRegistration
         var processName = new FileInfo(Environment.ProcessPath!).Name;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            return MacOs.IsAliasRegistered(processName);
+            return MacOs.IsAliasRegisteredMacOs(processName);
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return Windows.IsAliasRegistered(PublishFolder);
+            return Windows.IsAliasRegisteredWindows(PublishFolder);
         }
 
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
@@ -83,94 +82,16 @@ public static class AliasRegistration
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            MacOs.RegisterAlias(aliasName, cliExecutable);
+            MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
             return;
         }
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            Windows.RegisterAlias(PublishFolder);
+            Windows.RegisterAliasWindows(PublishFolder);
             return;
         }
 
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
-    }
-
-    private static class Windows
-    {
-        internal static bool IsAliasRegistered(string publishFolder)
-        {
-            var path = Environment.GetEnvironmentVariable("PATH")!;
-            var paths = path.Split(';');
-            return paths.Contains(publishFolder);
-        }
-
-        public static void RegisterAlias(string publishFolder)
-        {
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c setx PATH \"%PATH%;{publishFolder}\"",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            })!;
-            process.WaitForExit();
-        }
-    }
-
-    public static class MacOs
-    {
-        internal static bool IsAliasRegistered(string processName)
-        {
-            var shellInfo = GetShellInfo();
-            if (!File.Exists(shellInfo.ProfilePath))
-            {
-                AnsiConsole.MarkupLine($"[red]Your shell [bold]{shellInfo.ShellName}[/] is not supported.[/]");
-                return false;
-            }
-
-            var isAliasRegistered = File.ReadAllLines(shellInfo.ProfilePath).Any(line =>
-                line.StartsWith("alias ") &&
-                line.Contains(SolutionFolder) &&
-                line.Contains(processName)
-            );
-            return isAliasRegistered;
-        }
-
-        internal static void RegisterAlias(string aliasName, string cliExecutable)
-        {
-            var shellInfo = GetShellInfo();
-            if (shellInfo.ProfileName == string.Empty)
-            {
-                AnsiConsole.MarkupLine($"[red]Your shell [bold]{shellInfo.ShellName}[/] is not supported.[/]");
-                return;
-            }
-
-            File.AppendAllText(shellInfo.ProfilePath, $"alias {aliasName}='{cliExecutable}'{Environment.NewLine}");
-            AnsiConsole.MarkupLine($"Please restart your terminal or run [green]source ~/{shellInfo.ProfileName}[/]");
-        }
-
-        public static (string ShellName, string ProfileName, string ProfilePath, string UserFolder) GetShellInfo()
-        {
-            var shellName = Environment.GetEnvironmentVariable("SHELL")!;
-            var profileName = string.Empty;
-
-            if (shellName.Contains("zsh"))
-            {
-                profileName = ".zshrc";
-            }
-            else if (shellName.Contains("bash"))
-            {
-                profileName = ".bashrc";
-            }
-
-            var profilePath = profileName == string.Empty
-                ? string.Empty
-                : Path.Combine(Environment.GetEnvironmentVariable("HOME")!, profileName);
-
-            var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return (shellName, profileName, profilePath, userFolder);
-        }
     }
 }

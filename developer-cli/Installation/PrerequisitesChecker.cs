@@ -8,7 +8,7 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class PrerequisitesChecker
 {
-    public static void EnsurePrerequisitesAreMeet()
+    public static void EnsurePrerequisitesAreMeet(string[] args)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -26,6 +26,14 @@ public static class PrerequisitesChecker
             Environment.Exit(1);
         }
 
+        if (args.Contains(ConfigureDeveloperEnvironment.CommandName))
+        {
+            return;
+        }
+
+        EnsureEnvironmentVariableAreSourced("SQL_SERVER_PASSWORD");
+        EnsureEnvironmentVariableAreSourced("CERTIFICATE_PASSWORD");
+
         var sqlPasswordConfigured = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
         if (!sqlPasswordConfigured)
         {
@@ -38,7 +46,7 @@ public static class PrerequisitesChecker
         if (!sqlPasswordConfigured || !isValidDeveloperCertificateConfigured)
         {
             AnsiConsole.MarkupLine(
-                "[yellow]Please run ´pp configure-developer-environment´ to configure your environment.[/]");
+                $"[yellow]Please run 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
         }
     }
 
@@ -113,7 +121,6 @@ public static class PrerequisitesChecker
         {
             AnsiConsole.MarkupLine(
                 $"[red].NET [bold]{workloadName}[/] workload is not installed. Please run '[bold]dotnet workload install {workloadName}[/]' to install.[/]");
-            AnsiConsole.MarkupLine("[red][/]");
             return false;
         }
 
@@ -138,5 +145,17 @@ public static class PrerequisitesChecker
         AnsiConsole.MarkupLine(
             $"[red]Dotnet [bold]{workloadName}[/] workload is installed but not in the expected version. Please upgrade the workflow or update the CLI to check for correct version.[/]");
         return false;
+    }
+
+    private static void EnsureEnvironmentVariableAreSourced(string variableName)
+    {
+        if (Environment.GetEnvironmentVariable(variableName) is not null) return;
+
+        var fileContent1 = File.ReadAllText(MacOs.ShellInfo.ProfilePath);
+        if (!fileContent1.Contains($"export {variableName}")) return;
+
+        AnsiConsole.MarkupLine(
+            $"[red]{variableName} is configured but not available. Please run '[bold]source ~/{MacOs.ShellInfo.ProfileName}[/]'[/]");
+        Environment.Exit(0);
     }
 }
