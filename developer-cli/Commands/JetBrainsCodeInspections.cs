@@ -18,12 +18,9 @@ public class JetBrainsCodeInspections : Command
     {
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
-        ProcessHelpers.StartProcess("dotnet", "tool restore", workingDirectory);
-        ProcessHelpers.StartProcess(
-            "dotnet",
-            "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
-            workingDirectory
-        );
+        ProcessHelper.StartProcess("dotnet", "tool restore", workingDirectory);
+        ProcessHelper.StartProcess("dotnet",
+            "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION", workingDirectory);
 
         var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.xml"));
         if (resultXml.Contains("<Issues />"))
@@ -32,7 +29,7 @@ public class JetBrainsCodeInspections : Command
         }
         else
         {
-            ProcessHelpers.StartProcess("code", "result.xml", workingDirectory);
+            ProcessHelper.StartProcess("code", "result.xml", workingDirectory);
         }
 
         return 0;

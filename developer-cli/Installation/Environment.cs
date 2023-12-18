@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -30,14 +30,13 @@ public static class Environment
 
         public static void AddFolderToPath(string publishFolder)
         {
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = $"/c setx PATH \"%PATH%;{publishFolder}\"",
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            })!;
-            process.WaitForExit();
+            ProcessHelper.StartProcess(
+                "cmd.exe",
+                $"/c setx PATH \"%PATH%;{publishFolder}\"",
+                redirectStandardOutput: true,
+                createNoWindow: true,
+                printCommand: false
+            );
         }
     }
 

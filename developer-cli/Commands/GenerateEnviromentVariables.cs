@@ -1,7 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.Diagnostics;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
@@ -115,20 +115,13 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static bool IsDeveloperCertificateAlreadyConfigured()
     {
-        var isDeveloperCertificateAlreadyConfiguredProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "dev-certs https --check",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-        isDeveloperCertificateAlreadyConfiguredProcess.Start();
-        var output = isDeveloperCertificateAlreadyConfiguredProcess.StandardOutput.ReadToEnd();
-        isDeveloperCertificateAlreadyConfiguredProcess.WaitForExit();
+        var output = ProcessHelper.StartProcess(
+            "dotnet",
+            "dev-certs https --check",
+            redirectStandardOutput: true,
+            createNoWindow: true,
+            printCommand: false
+        );
 
         return output.Contains("A valid certificate was found");
     }
@@ -141,20 +134,13 @@ public class ConfigureDeveloperEnvironment : Command
             return false;
         }
 
-        var certificateValidationProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "openssl",
-                Arguments = $"pkcs12 -in {Environment.MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-        certificateValidationProcess.Start();
-        var certificateValidation = certificateValidationProcess.StandardOutput.ReadToEnd();
-        certificateValidationProcess.WaitForExit();
+        var certificateValidation = ProcessHelper.StartProcess(
+            "openssl",
+            $"pkcs12 -in {Environment.MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
+            redirectStandardOutput: true,
+            createNoWindow: true,
+            printCommand: false
+        );
 
         if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
         {
@@ -168,37 +154,23 @@ public class ConfigureDeveloperEnvironment : Command
     private static void CleanExistingCertificate()
     {
         File.Delete(Environment.MacOs.LocalhostPfx);
-        var deleteCertificateProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "dev-certs https --clean",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-        deleteCertificateProcess.Start();
-
-        deleteCertificateProcess.WaitForExit();
+        ProcessHelper.StartProcess(
+            "dotnet",
+            "dev-certs https --clean",
+            redirectStandardOutput: true,
+            createNoWindow: true,
+            printCommand: true
+        );
     }
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
         var localhostPfx = Environment.IsWindows ? Environment.Windows.LocalhostPfx : Environment.MacOs.LocalhostPfx;
 
-        var createCertificateProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"dev-certs https --trust -ep {localhostPfx} -p {password}"
-            }
-        };
-
-        createCertificateProcess.Start();
-        createCertificateProcess.WaitForExit();
+        ProcessHelper.StartProcess(
+            "dotnet",
+            $"dev-certs https --trust -ep {localhostPfx} -p {password}"
+        );
     }
 
     private static string GenerateRandomPassword(int passwordLength)
@@ -225,19 +197,13 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (Environment.IsWindows)
         {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "cmd.exe",
-                    Arguments = $"/c setx {variableName} {variableValue}",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-            process.Start();
-            process.WaitForExit();
+            ProcessHelper.StartProcess(
+                "cmd.exe",
+                $"/c setx {variableName} {variableValue}",
+                redirectStandardOutput: true,
+                createNoWindow: true,
+                printCommand: false
+            );
         }
         else
         {

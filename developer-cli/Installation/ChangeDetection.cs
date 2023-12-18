@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -38,12 +38,14 @@ public static class ChangeDetection
         }
 
         // Restart the process with the same arguments
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = currentExecutablePath,
-            Arguments = string.Join(" ", args),
-            WorkingDirectory = Environment.SolutionFolder
-        });
+        ProcessHelper.StartProcess(
+            currentExecutablePath,
+            string.Join(" ", args),
+            Environment.SolutionFolder,
+            waitForExit: false,
+            printCommand: false
+        );
+
         System.Environment.Exit(0);
     }
 
@@ -80,13 +82,10 @@ public static class ChangeDetection
         }
 
         // Call "dotnet publish" to create a new executable
-        var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "publish --configuration RELEASE /p:DebugType=None /p:DebugSymbols=false",
-            WorkingDirectory = Environment.SolutionFolder
-        })!;
-
-        process.WaitForExit();
+        ProcessHelper.StartProcess(
+            "dotnet",
+            "publish --configuration RELEASE /p:DebugType=None /p:DebugSymbols=false",
+            Environment.SolutionFolder,
+            printCommand: false);
     }
 }

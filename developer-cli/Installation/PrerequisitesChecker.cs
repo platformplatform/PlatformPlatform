@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -41,20 +41,20 @@ public static class PrerequisitesChecker
         {
             AnsiConsole.MarkupLine(
                 $"[yellow]Please run 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
+            Console.WriteLine();
         }
     }
 
     private static bool CheckCommandLineTool(string command, Version minVersion)
     {
         // Check if the command line tool is installed
-        var checkProcess = Process.Start(new ProcessStartInfo
-        {
-            FileName = Environment.IsWindows ? "where" : "which",
-            Arguments = command,
-            RedirectStandardOutput = true
-        });
+        var checkOutput = ProcessHelper.StartProcess(
+            Environment.IsWindows ? "where" : "which",
+            command,
+            redirectStandardOutput: true,
+            printCommand: false
+        );
 
-        var checkOutput = checkProcess!.StandardOutput.ReadToEnd();
         if (string.IsNullOrWhiteSpace(checkOutput))
         {
             AnsiConsole.MarkupLine(
@@ -63,14 +63,12 @@ public static class PrerequisitesChecker
         }
 
         // Get the version of the command line tool
-        var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = Environment.IsWindows ? "cmd.exe" : "/bin/bash",
-            Arguments = Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
-            RedirectStandardOutput = true
-        });
-
-        var output = process!.StandardOutput.ReadToEnd();
+        var output = ProcessHelper.StartProcess(
+            Environment.IsWindows ? "cmd.exe" : "/bin/bash",
+            Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
+            redirectStandardOutput: true,
+            printCommand: false
+        );
 
         var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
         var match = versionRegex.Match(output);
@@ -91,14 +89,13 @@ public static class PrerequisitesChecker
 
     private static bool CheckDotnetWorkload(string workloadName, string workloadRegex)
     {
-        var dotnetWorkloadProcess = Process.Start(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "workload list",
-            RedirectStandardOutput = true
-        });
+        var output = ProcessHelper.StartProcess(
+            "dotnet",
+            "workload list",
+            redirectStandardOutput: true,
+            printCommand: false
+        );
 
-        var output = dotnetWorkloadProcess!.StandardOutput.ReadToEnd();
         if (!output.Contains(workloadName))
         {
             AnsiConsole.MarkupLine(
