@@ -1,10 +1,9 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
+using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -15,7 +14,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     public ConfigureDeveloperEnvironment() : base(
         CommandName,
-        "Generates SQL_SERVER_PASSWORD and CERTIFICATE_PASSWORD, adds them to environment variables, and generates a dev certificate."
+        "Generates a developer certificate for localhost. Generates CERTIFICATE_PASSWORD SQL_SERVER_PASSWORD saves them in environment variables."
     )
     {
         Handler = CommandHandler.Create(new Func<int>(Execute));
@@ -29,7 +28,7 @@ public class ConfigureDeveloperEnvironment : Command
         if (passwordCreated || certificateCreated)
         {
             AnsiConsole.MarkupLine(
-                $"Please restart your terminal or run [green]source ~/{MacOs.ShellInfo.ProfileName}[/]");
+                $"Please restart your terminal or run [green]source ~/{Environment.MacOs.ShellInfo.ProfileName}[/]");
         }
         else
         {
@@ -41,21 +40,21 @@ public class ConfigureDeveloperEnvironment : Command
 
     private bool CreateSqlServerPasswordIfNotExists()
     {
-        var password = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
+        var certificatePassword = System.Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
 
-        if (password is not null)
+        if (certificatePassword is not null)
         {
             AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable already exist.[/]");
             return false;
         }
 
-        password = GenerateRandomPassword(16);
-        AddEnvironmentVariable("SQL_SERVER_PASSWORD", password);
+        certificatePassword = GenerateRandomPassword(16);
+        AddEnvironmentVariable("SQL_SERVER_PASSWORD", certificatePassword);
         AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable created.[/]");
         return true;
     }
 
-    public static bool IsValidDeveloperCertificateConfigured()
+    public static bool IsDeveloperCertificateConfigured()
     {
         if (!IsDeveloperCertificateAlreadyConfigured())
         {
@@ -63,14 +62,14 @@ public class ConfigureDeveloperEnvironment : Command
             return false;
         }
 
-        var password = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-        if (password is null)
+        var certificatePassword = System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        if (certificatePassword is null)
         {
             AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD environment variable is not set.[/]");
             return false;
         }
 
-        if (!IsCertificatePasswordValid(password))
+        if (!IsCertificatePasswordValid(certificatePassword))
         {
             AnsiConsole.MarkupLine("[yellow]A valid certificate password is not configured.[/]");
             return false;
@@ -81,12 +80,12 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
     {
-        var password = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        var certificatePassword = System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
 
         var isDeveloperCertificateAlreadyConfigured = IsDeveloperCertificateAlreadyConfigured();
         if (isDeveloperCertificateAlreadyConfigured)
         {
-            if (IsCertificatePasswordValid(password))
+            if (IsCertificatePasswordValid(certificatePassword))
             {
                 AnsiConsole.MarkupLine("[green]The existing certificate is valid and password is valid.[/]");
                 return false;
@@ -97,19 +96,19 @@ public class ConfigureDeveloperEnvironment : Command
             {
                 AnsiConsole.MarkupLine(
                     "[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]");
-                Environment.Exit(1);
+                System.Environment.Exit(1);
             }
 
             CleanExistingCertificate();
         }
 
-        if (password is null)
+        if (certificatePassword is null)
         {
-            password = GenerateRandomPassword(16);
-            AddEnvironmentVariable("CERTIFICATE_PASSWORD", password);
+            certificatePassword = GenerateRandomPassword(16);
+            AddEnvironmentVariable("CERTIFICATE_PASSWORD", certificatePassword);
         }
 
-        CreateNewSelfSignedDeveloperCertificate(password);
+        CreateNewSelfSignedDeveloperCertificate(certificatePassword);
 
         return true;
     }
@@ -137,7 +136,7 @@ public class ConfigureDeveloperEnvironment : Command
     private static bool IsCertificatePasswordValid(string? password)
     {
         if (string.IsNullOrWhiteSpace(password)) return false;
-        if (!File.Exists(MacOs.LocalhostPfx))
+        if (!File.Exists(Environment.MacOs.LocalhostPfx))
         {
             return false;
         }
@@ -147,7 +146,7 @@ public class ConfigureDeveloperEnvironment : Command
             StartInfo = new ProcessStartInfo
             {
                 FileName = "openssl",
-                Arguments = $"pkcs12 -in {MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
+                Arguments = $"pkcs12 -in {Environment.MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
@@ -168,7 +167,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CleanExistingCertificate()
     {
-        File.Delete(MacOs.LocalhostPfx);
+        File.Delete(Environment.MacOs.LocalhostPfx);
         var deleteCertificateProcess = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -187,27 +186,18 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
-        var userFolder = MacOs.ShellInfo.UserFolder;
+        var localhostPfx = Environment.IsWindows ? Environment.Windows.LocalhostPfx : Environment.MacOs.LocalhostPfx;
 
         var createCertificateProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"dev-certs https --trust -ep {userFolder}/.aspnet/https/localhost.pfx -p {password}",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
+                Arguments = $"dev-certs https --trust -ep {localhostPfx} -p {password}"
             }
         };
 
         createCertificateProcess.Start();
-        while (!createCertificateProcess.StandardOutput.EndOfStream)
-        {
-            var line = createCertificateProcess.StandardOutput.ReadLine();
-            Console.WriteLine(line);
-        }
-
         createCertificateProcess.WaitForExit();
     }
 
@@ -228,12 +218,12 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void AddEnvironmentVariable(string variableName, string variableValue)
     {
-        if (Environment.GetEnvironmentVariable(variableName) is not null)
+        if (System.Environment.GetEnvironmentVariable(variableName) is not null)
         {
             throw new ArgumentException($"Environment variable {variableName} already exists.");
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (Environment.IsWindows)
         {
             var process = new Process
             {
@@ -251,14 +241,14 @@ public class ConfigureDeveloperEnvironment : Command
         }
         else
         {
-            var fileContent = File.ReadAllText(MacOs.ShellInfo.ProfilePath);
-            if (!fileContent.EndsWith(Environment.NewLine))
+            var fileContent = File.ReadAllText(Environment.MacOs.ShellInfo.ProfilePath);
+            if (!fileContent.EndsWith(System.Environment.NewLine))
             {
-                File.AppendAllText(MacOs.ShellInfo.ProfilePath, Environment.NewLine);
+                File.AppendAllText(Environment.MacOs.ShellInfo.ProfilePath, System.Environment.NewLine);
             }
 
-            File.AppendAllText(MacOs.ShellInfo.ProfilePath,
-                $"export {variableName}='{variableValue}'{Environment.NewLine}");
+            File.AppendAllText(Environment.MacOs.ShellInfo.ProfilePath,
+                $"export {variableName}='{variableValue}'{System.Environment.NewLine}");
         }
     }
 }

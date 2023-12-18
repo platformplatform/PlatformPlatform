@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
 using Spectre.Console;
@@ -10,40 +9,35 @@ public static class PrerequisitesChecker
 {
     public static void EnsurePrerequisitesAreMeet(string[] args)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            AnsiConsole.MarkupLine("[red]Only Windows and macOS are currently supported.[/]");
-            Environment.Exit(1);
-        }
-
         var checkAzureCli = CheckCommandLineTool("az", new Version(2, 55));
         var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
         var docker = CheckCommandLineTool("docker", new Version(24, 0));
-        var aspire = CheckDotnetWorkload("aspire", """aspire\s*8\.0\.0-preview"""); // aspire 8.0.0-preview.1.23557
+        var aspire = CheckDotnetWorkload("aspire", """aspire\s*8\.0\.0-preview."""); // aspire 8.0.0-preview.1.23557
 
         if (!checkAzureCli || !checkBun || !docker || !aspire)
         {
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
 
         if (args.Contains(ConfigureDeveloperEnvironment.CommandName))
         {
+            // If we are configuring the environment we don't need to check if configuring the environment is needed
             return;
         }
 
+        // If Environment variables are set but not sourced exit hard with a message
         EnsureEnvironmentVariableAreSourced("SQL_SERVER_PASSWORD");
         EnsureEnvironmentVariableAreSourced("CERTIFICATE_PASSWORD");
 
-        var sqlPasswordConfigured = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
+        var sqlPasswordConfigured = System.Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
         if (!sqlPasswordConfigured)
         {
             AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
         }
 
-        var isValidDeveloperCertificateConfigured =
-            ConfigureDeveloperEnvironment.IsValidDeveloperCertificateConfigured();
+        var isDeveloperCertificateConfigured = ConfigureDeveloperEnvironment.IsDeveloperCertificateConfigured();
 
-        if (!sqlPasswordConfigured || !isValidDeveloperCertificateConfigured)
+        if (!sqlPasswordConfigured || !isDeveloperCertificateConfigured)
         {
             AnsiConsole.MarkupLine(
                 $"[yellow]Please run 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
@@ -53,55 +47,45 @@ public static class PrerequisitesChecker
     private static bool CheckCommandLineTool(string command, Version minVersion)
     {
         // Check if the command line tool is installed
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var checkCommand = isWindows ? "where" : "which";
-
         var checkProcess = Process.Start(new ProcessStartInfo
         {
-            FileName = checkCommand,
+            FileName = Environment.IsWindows ? "where" : "which",
             Arguments = command,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
+            RedirectStandardOutput = true
         });
 
         var checkOutput = checkProcess!.StandardOutput.ReadToEnd();
         if (string.IsNullOrWhiteSpace(checkOutput))
         {
             AnsiConsole.MarkupLine(
-                $"[red]The [bold]{command}[/] is not installed. Please see the README file for guidance.[/]");
+                $"[red]The '[bold]{command}[/]' is not installed. Please see the README file for guidance.[/]");
             return false;
         }
 
         // Get the version of the command line tool
         var process = Process.Start(new ProcessStartInfo
         {
-            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "/bin/bash",
-            Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? $"/c {command} --version"
-                : $"-c \"{command} --version\"",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
+            FileName = Environment.IsWindows ? "cmd.exe" : "/bin/bash",
+            Arguments = Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
+            RedirectStandardOutput = true
         });
 
         var output = process!.StandardOutput.ReadToEnd();
 
         var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
         var match = versionRegex.Match(output);
-
         if (match.Success)
         {
             var version = Version.Parse(match.Value);
             if (version >= minVersion) return true;
             AnsiConsole.MarkupLine(
-                $"[red]Please update [bold]{command}[/] from version [bold]{minVersion}[/] to [bold]{version}[/] or later.[/]");
+                $"[red]Please update '[bold]{command}[/]' from version [bold]{minVersion}[/] to [bold]{version}[/] or later.[/]");
             return false;
         }
 
         // If the version could not be determined please change the logic here to check for the correct version
         AnsiConsole.MarkupLine(
-            $"[red]Command [bold]{command}[/] is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
+            $"[red]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
         return false;
     }
 
@@ -111,16 +95,14 @@ public static class PrerequisitesChecker
         {
             FileName = "dotnet",
             Arguments = "workload list",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
+            RedirectStandardOutput = true
         });
 
         var output = dotnetWorkloadProcess!.StandardOutput.ReadToEnd();
         if (!output.Contains(workloadName))
         {
             AnsiConsole.MarkupLine(
-                $"[red].NET [bold]{workloadName}[/] workload is not installed. Please run '[bold]dotnet workload install {workloadName}[/]' to install.[/]");
+                $"[red].NET '[bold]{workloadName}[/]' workload is not installed. Please run '[bold]dotnet workload install {workloadName}[/]' to install.[/]");
             return false;
         }
 
@@ -135,27 +117,25 @@ public static class PrerequisitesChecker
          */
         var regex = new Regex(workloadRegex);
         var match = regex.Match(output);
-
-        if (match.Success)
+        if (!match.Success)
         {
-            return true;
+            // If the version could not be determined please change the logic here to check for the correct version
+            AnsiConsole.MarkupLine(
+                $"[red]Dotnet '[bold]{workloadName}[/]' workload is installed but not in the expected version. Please upgrade the workflow or update the CLI to check for correct version.[/]");
         }
 
-        // If the version could not be determined please change the logic here to check for the correct version
-        AnsiConsole.MarkupLine(
-            $"[red]Dotnet [bold]{workloadName}[/] workload is installed but not in the expected version. Please upgrade the workflow or update the CLI to check for correct version.[/]");
-        return false;
+        return match.Success;
     }
 
     private static void EnsureEnvironmentVariableAreSourced(string variableName)
     {
-        if (Environment.GetEnvironmentVariable(variableName) is not null) return;
+        if (System.Environment.GetEnvironmentVariable(variableName) is not null) return;
 
-        var fileContent1 = File.ReadAllText(MacOs.ShellInfo.ProfilePath);
-        if (!fileContent1.Contains($"export {variableName}")) return;
+        var fileContent = File.ReadAllText(Environment.MacOs.ShellInfo.ProfilePath);
+        if (!fileContent.Contains($"export {variableName}")) return;
 
         AnsiConsole.MarkupLine(
-            $"[red]{variableName} is configured but not available. Please run '[bold]source ~/{MacOs.ShellInfo.ProfileName}[/]'[/]");
-        Environment.Exit(0);
+            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.ShellInfo.ProfileName}[/]'[/]");
+        System.Environment.Exit(0);
     }
 }

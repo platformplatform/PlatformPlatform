@@ -14,9 +14,7 @@ public static class ProcessHelpers
             {
                 FileName = command,
                 Arguments = arguments,
-                WorkingDirectory = workingDirectory,
-                UseShellExecute = false,
-                CreateNoWindow = false
+                WorkingDirectory = workingDirectory
             }
         };
 

@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -12,9 +11,12 @@ public static class AliasRegistration
         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]pp[/].
 
         [green]The CLI can be used to:[/]
+        * Check if all prerequisites are installed (e.g., Azure CLI, Docker, Bun, .NET Aspire, etc.)
         * Set up secure passwordless continuous deployments between GitHub and Azure
         * Test deploy your application to Azure from your local machine
+        * Build self-contained executables for your application
         * Run static code analysis on your codebase to ensure it does not fail when running in GitHub Workflows
+        * Run tests and show code coverage reports locally
         * Much more is coming soon!
 
         [green]Best of all, you can easily create your own commands to automate your own workflows![/]
@@ -33,11 +35,6 @@ public static class AliasRegistration
 
         """;
 
-    public static readonly string SolutionFolder =
-        new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
-
-    public static readonly string PublishFolder =
-        Path.Combine(SolutionFolder, "artifacts", "publish", "DeveloperCli", "release");
 
     internal static void EnsureAliasIsRegistered()
     {
@@ -47,51 +44,37 @@ public static class AliasRegistration
         AnsiConsole.Write(figletText);
         AnsiConsole.Write(new Markup(Intro));
         AnsiConsole.WriteLine();
-        if (AnsiConsole.Confirm("This will register the alias [green]pp[/], so it will be available everywhere."))
+
+        if (AnsiConsole.Confirm("This will register the alias '[green]pp[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
-
             RegisterAlias("pp");
         }
 
         // Kill the current process
-        Environment.Exit(0);
+        System.Environment.Exit(0);
     }
 
     private static bool IsAliasRegistered()
     {
-        var processName = new FileInfo(Environment.ProcessPath!).Name;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            return MacOs.IsAliasRegisteredMacOs(processName);
-        }
+        var processName = new FileInfo(System.Environment.ProcessPath!).Name;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return Windows.IsAliasRegisteredWindows(PublishFolder);
-        }
-
-        AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
-        Environment.Exit(0);
-        return false;
+        return Environment.IsWindows
+            ? Environment.Windows.IsFolderInPath(Environment.PublishFolder)
+            : Environment.MacOs.IsAliasRegisteredMacOs(processName);
     }
 
     private static void RegisterAlias(string aliasName)
     {
-        var cliExecutable = Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
+        var cliExecutable = Path.Combine(Environment.PublishFolder, new FileInfo(System.Environment.ProcessPath!).Name);
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (Environment.IsWindows)
         {
-            MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
-            return;
+            Environment.Windows.AddFolderToPath(Environment.PublishFolder);
         }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        else if (Environment.IsMacOs)
         {
-            Windows.RegisterAliasWindows(PublishFolder);
-            return;
+            Environment.MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
         }
-
-        AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
     }
 }

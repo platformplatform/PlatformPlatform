@@ -1,6 +1,14 @@
 ﻿using System.CommandLine;
 using System.Reflection;
 using PlatformPlatform.DeveloperCli.Installation;
+using Spectre.Console;
+using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
+
+if (!Environment.IsMacOs && !Environment.IsWindows)
+{
+    AnsiConsole.MarkupLine($"[red]Your OS [bold]{System.Environment.OSVersion.Platform}[/] is not supported.[/]");
+    System.Environment.Exit(1);
+}
 
 ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
 AliasRegistration.EnsureAliasIsRegistered();
