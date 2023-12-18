@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Spectre.Console;
 
@@ -68,9 +69,7 @@ public static class AliasRegistration
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            AnsiConsole.MarkupLine("[red]Windows is not supported yet[/]");
-            Environment.Exit(0);
-            return false;
+            return Windows.IsAliasRegistered(PublishFolder);
         }
 
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
@@ -90,11 +89,34 @@ public static class AliasRegistration
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            AnsiConsole.MarkupLine("[red]Windows is not supported yet[/]");
+            Windows.RegisterAlias(PublishFolder);
             return;
         }
 
         AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
+    }
+
+    private static class Windows
+    {
+        internal static bool IsAliasRegistered(string publishFolder)
+        {
+            var path = Environment.GetEnvironmentVariable("PATH")!;
+            var paths = path.Split(';');
+            return paths.Contains(publishFolder);
+        }
+
+        public static void RegisterAlias(string publishFolder)
+        {
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c setx PATH \"%PATH%;{publishFolder}\"",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            })!;
+            process.WaitForExit();
+        }
     }
 
     public static class MacOs
