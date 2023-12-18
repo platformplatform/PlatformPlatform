@@ -128,11 +128,13 @@ public static class PrerequisitesChecker
     {
         if (System.Environment.GetEnvironmentVariable(variableName) is not null) return;
 
-        var fileContent = File.ReadAllText(Environment.MacOs.ShellInfo.ProfilePath);
+        if (Environment.IsWindows) return;
+
+        var fileContent = File.ReadAllText(Environment.MacOs.GetShellInfo().ProfilePath);
         if (!fileContent.Contains($"export {variableName}")) return;
 
         AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.ShellInfo.ProfileName}[/]'[/]");
+            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/]'[/]");
         System.Environment.Exit(0);
     }
 }

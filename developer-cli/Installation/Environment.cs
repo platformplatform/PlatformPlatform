@@ -42,19 +42,17 @@ public static class Environment
 
     public static class MacOs
     {
-        public static readonly (string ShellName, string ProfileName, string ProfilePath) ShellInfo = GetShellInfo();
-
         public static readonly string LocalhostPfx = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
         internal static bool IsAliasRegisteredMacOs(string processName)
         {
-            if (!File.Exists(ShellInfo.ProfilePath))
+            if (!File.Exists(GetShellInfo().ProfilePath))
             {
-                AnsiConsole.MarkupLine($"[red]Your shell [bold]{ShellInfo.ShellName}[/] is not supported.[/]");
+                AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return false;
             }
 
-            return Array.Exists(File.ReadAllLines(ShellInfo.ProfilePath), line =>
+            return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line =>
                 line.StartsWith("alias ") &&
                 line.Contains(SolutionFolder) &&
                 line.Contains(processName)
@@ -63,17 +61,19 @@ public static class Environment
 
         internal static void RegisterAliasMacOs(string aliasName, string filename)
         {
-            if (!File.Exists(ShellInfo.ProfilePath))
+            if (!File.Exists(GetShellInfo().ProfilePath))
             {
-                AnsiConsole.MarkupLine($"[red]Your shell [bold]{ShellInfo.ShellName}[/] is not supported.[/]");
+                AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return;
             }
 
-            File.AppendAllText(ShellInfo.ProfilePath, $"alias {aliasName}='{filename}'{System.Environment.NewLine}");
-            AnsiConsole.MarkupLine($"Please restart your terminal or run [green]source ~/{ShellInfo.ProfileName}[/]");
+            File.AppendAllText(GetShellInfo().ProfilePath,
+                $"alias {aliasName}='{filename}'{System.Environment.NewLine}");
+            AnsiConsole.MarkupLine(
+                $"Please restart your terminal or run [green]source ~/{GetShellInfo().ProfileName}[/]");
         }
 
-        private static (string ShellName, string ProfileName, string ProfilePath) GetShellInfo()
+        public static (string ShellName, string ProfileName, string ProfilePath) GetShellInfo()
         {
             var shellName = System.Environment.GetEnvironmentVariable("SHELL")!;
             var profileName = string.Empty;

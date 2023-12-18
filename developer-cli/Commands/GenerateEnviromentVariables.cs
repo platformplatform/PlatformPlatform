@@ -28,7 +28,7 @@ public class ConfigureDeveloperEnvironment : Command
         if (passwordCreated || certificateCreated)
         {
             AnsiConsole.MarkupLine(
-                $"Please restart your terminal or run [green]source ~/{Environment.MacOs.ShellInfo.ProfileName}[/]");
+                $"Please restart your terminal or run [green]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/]");
         }
         else
         {
@@ -205,15 +205,15 @@ public class ConfigureDeveloperEnvironment : Command
                 printCommand: false
             );
         }
-        else
+        else if (Environment.IsMacOs)
         {
-            var fileContent = File.ReadAllText(Environment.MacOs.ShellInfo.ProfilePath);
+            var fileContent = File.ReadAllText(Environment.MacOs.GetShellInfo().ProfilePath);
             if (!fileContent.EndsWith(System.Environment.NewLine))
             {
-                File.AppendAllText(Environment.MacOs.ShellInfo.ProfilePath, System.Environment.NewLine);
+                File.AppendAllText(Environment.MacOs.GetShellInfo().ProfilePath, System.Environment.NewLine);
             }
 
-            File.AppendAllText(Environment.MacOs.ShellInfo.ProfilePath,
+            File.AppendAllText(Environment.MacOs.GetShellInfo().ProfilePath,
                 $"export {variableName}='{variableValue}'{System.Environment.NewLine}");
         }
     }
