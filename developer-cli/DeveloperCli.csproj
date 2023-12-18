@@ -4,6 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <AssemblyName>pp</AssemblyName>
+        <PublishSingleFile>true</PublishSingleFile>
         <RootNamespace>PlatformPlatform.DeveloperCli</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>

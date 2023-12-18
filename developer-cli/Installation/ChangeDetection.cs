@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Spectre.Console;
 
@@ -8,7 +9,14 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
+        var processPath = Environment.ProcessPath!;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            File.Delete(processPath.Replace(".exe", ".previous.exe"));
+        }
+
+        var runningDebugBuild = new FileInfo(processPath).FullName.Contains("debug");
 
         var hashFile = Path.Combine(AliasRegistration.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
@@ -27,10 +35,17 @@ public static class ChangeDetection
 
         if (runningDebugBuild) return;
 
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+            // Kill the current process 
+            Environment.Exit(0);
+        }
+
         // Restart the process with the same arguments
         Process.Start(new ProcessStartInfo
         {
-            FileName = Environment.ProcessPath,
+            FileName = processPath,
             Arguments = string.Join(" ", args),
             WorkingDirectory = AliasRegistration.SolutionFolder
         });
@@ -60,13 +75,24 @@ public static class ChangeDetection
 
     private static void PublishDeveloperCli()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var currentExecutablePath = Environment.ProcessPath!;
+            var renamedExecutablePath = currentExecutablePath.Replace(".exe", ".previous.exe");
+
+            // Rename the current executable to .previous.exe to unblock publishing of new executable
+            File.Move(currentExecutablePath, renamedExecutablePath, true);
+        }
+
         // Call "dotnet publish --configuration RELEASE" to create a new executable
-        Process.Start(new ProcessStartInfo
+        var process = Process.Start(new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = "publish --configuration RELEASE",
+            Arguments = "publish --configuration RELEASE /p:DebugType=None /p:DebugSymbols=false",
             WorkingDirectory = AliasRegistration.SolutionFolder,
-            RedirectStandardOutput = true
-        })!.WaitForExit();
+            UseShellExecute = false
+        })!;
+
+        process.WaitForExit();
     }
 }
