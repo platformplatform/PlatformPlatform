@@ -40,8 +40,6 @@ public static class AliasRegistration
     {
         if (IsAliasRegistered()) return;
 
-        var figletText = new FigletText("PlatformPlatform").Color(Color.Green);
-        AnsiConsole.Write(figletText);
         AnsiConsole.Write(new Markup(Intro));
         AnsiConsole.WriteLine();
 
