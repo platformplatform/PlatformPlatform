@@ -56,8 +56,26 @@ public class ConfigureDeveloperEnvironment : Command
 
     public static bool IsValidDeveloperCertificateConfigured()
     {
+        if (IsDeveloperCertificateAlreadyConfigured())
+        {
+            AnsiConsole.MarkupLine("[yellow]Developer certificate is not configured.[/]");
+            return false;
+        }
+
         var password = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-        return IsDeveloperCertificateAlreadyConfigured() && IsCertificatePasswordValid(password);
+        if (password is null)
+        {
+            AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD environment variable is not set.[/]");
+            return false;
+        }
+
+        if (!IsCertificatePasswordValid(password))
+        {
+            AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD is not valid.[/]");
+            return false;
+        }
+
+        return true;
     }
 
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
@@ -123,7 +141,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static bool IsCertificatePasswordValid(string? password)
     {
-        if (password is null) return false;
+        if (string.IsNullOrWhiteSpace(password)) return false;
         var shellInfo = ShellInfo;
 
         var certificateValidationProcess = new Process
