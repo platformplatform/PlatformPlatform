@@ -27,8 +27,9 @@ public static class ChangeDetection
         // Update the hash file to avoid restarting the process again
         File.WriteAllText(hashFile, currentHash);
 
-        // When running in debug mode, we want to disable automatic change detection to avoid restarting the process
-        if (new FileInfo(currentExecutablePath).FullName.Contains("debug")) return;
+        // When running in debug mode, we want to avoid restarting the process
+        var isDebugBuild = new FileInfo(currentExecutablePath).FullName.Contains("debug");
+        if (isDebugBuild) return;
 
         if (Environment.IsWindows)
         {
@@ -70,22 +71,45 @@ public static class ChangeDetection
 
     private static void PublishDeveloperCli()
     {
-        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding the CLI.[/]");
+        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publising new CLI.[/]");
 
-        if (Environment.IsWindows)
+        var currentExecutablePath = System.Environment.ProcessPath!;
+        var renamedExecutablePath = "";
+
+        try
         {
-            // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming it
-            // We rename the current executable to .previous.exe to unblock publishing of new executable
-            var currentExecutablePath = System.Environment.ProcessPath!;
-            var renamedExecutablePath = currentExecutablePath.Replace(".exe", ".previous.exe");
-            File.Move(currentExecutablePath, renamedExecutablePath, true);
-        }
+            // Build project before renaming exe on Windows
+            ProcessHelper.StartProcess("dotnet", "build");
 
-        // Call "dotnet publish" to create a new executable
-        ProcessHelper.StartProcess(
-            "dotnet",
-            "publish --configuration RELEASE /p:DebugType=None /p:DebugSymbols=false",
-            Environment.SolutionFolder,
-            printCommand: false);
+            if (Environment.IsWindows)
+            {
+                // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming it
+                // We rename the current executable to .previous.exe to unblock publishing of new executable
+                renamedExecutablePath = currentExecutablePath.Replace(".exe", ".previous.exe");
+                File.Move(currentExecutablePath, renamedExecutablePath, true);
+            }
+
+            // Call "dotnet publish" to create a new executable
+            ProcessHelper.StartProcess(
+                "dotnet",
+                "publish",
+                Environment.SolutionFolder
+            );
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. Error message: {e.Message}[/]");
+            System.Environment.Exit(0);
+        }
+        finally
+        {
+            if (renamedExecutablePath != "" && !File.Exists(currentExecutablePath))
+            {
+                // If the publish command did not successfully create a new executable, put back the old one to ensure
+                // the CLI is still working
+                File.Move(renamedExecutablePath, currentExecutablePath);
+            }
+        }
     }
 }
