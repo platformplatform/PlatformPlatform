@@ -12,6 +12,8 @@ public static class Environment
     private static readonly string UserFolder =
         System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
 
+    public static readonly string LocalhostPfx = IsWindows ? Windows.LocalhostPfxWindows : MacOs.LocalhostPfxMacOs;
+
     public static readonly string SolutionFolder =
         new DirectoryInfo(System.Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
 
@@ -20,7 +22,7 @@ public static class Environment
 
     public static class Windows
     {
-        public static readonly string LocalhostPfx = $"{UserFolder}/.aspnet/https/localhost.pfx";
+        public static readonly string LocalhostPfxWindows = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
         internal static bool IsFolderInPath(string path)
         {
@@ -42,7 +44,7 @@ public static class Environment
 
     public static class MacOs
     {
-        public static readonly string LocalhostPfx = $"{UserFolder}/.aspnet/https/localhost.pfx";
+        public static readonly string LocalhostPfxMacOs = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
         internal static bool IsAliasRegisteredMacOs(string processName)
         {

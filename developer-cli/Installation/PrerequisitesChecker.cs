@@ -35,13 +35,13 @@ public static class PrerequisitesChecker
             AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
         }
 
-        var isDeveloperCertificateConfigured = ConfigureDeveloperEnvironment.IsDeveloperCertificateConfigured();
+        var hasValidDeveloperCertificate = ConfigureDeveloperEnvironment.HasValidDeveloperCertificate();
 
-        if (!sqlPasswordConfigured || !isDeveloperCertificateConfigured)
+        if (!sqlPasswordConfigured || !hasValidDeveloperCertificate)
         {
             AnsiConsole.MarkupLine(
                 $"[yellow]Please run 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
-            Console.WriteLine();
+            AnsiConsole.WriteLine();
         }
     }
 

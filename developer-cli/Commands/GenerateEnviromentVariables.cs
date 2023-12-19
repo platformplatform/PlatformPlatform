@@ -27,8 +27,7 @@ public class ConfigureDeveloperEnvironment : Command
 
         if (passwordCreated || certificateCreated)
         {
-            AnsiConsole.MarkupLine(
-                $"Please restart your terminal or run [green]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/]");
+            AnsiConsole.MarkupLine("[green]Please restart your terminal.[/]");
         }
         else
         {
@@ -54,9 +53,9 @@ public class ConfigureDeveloperEnvironment : Command
         return true;
     }
 
-    public static bool IsDeveloperCertificateConfigured()
+    public static bool HasValidDeveloperCertificate()
     {
-        if (!IsDeveloperCertificateAlreadyConfigured())
+        if (!IsDeveloperCertificateInstalled())
         {
             AnsiConsole.MarkupLine("[yellow]Developer certificate is not configured.[/]");
             return false;
@@ -82,8 +81,8 @@ public class ConfigureDeveloperEnvironment : Command
     {
         var certificatePassword = System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
 
-        var isDeveloperCertificateAlreadyConfigured = IsDeveloperCertificateAlreadyConfigured();
-        if (isDeveloperCertificateAlreadyConfigured)
+        var isDeveloperCertificateInstalled = IsDeveloperCertificateInstalled();
+        if (isDeveloperCertificateInstalled)
         {
             if (IsCertificatePasswordValid(certificatePassword))
             {
@@ -113,7 +112,7 @@ public class ConfigureDeveloperEnvironment : Command
         return true;
     }
 
-    private static bool IsDeveloperCertificateAlreadyConfigured()
+    private static bool IsDeveloperCertificateInstalled()
     {
         var output = ProcessHelper.StartProcess(
             "dotnet",
@@ -129,14 +128,14 @@ public class ConfigureDeveloperEnvironment : Command
     private static bool IsCertificatePasswordValid(string? password)
     {
         if (string.IsNullOrWhiteSpace(password)) return false;
-        if (!File.Exists(Environment.MacOs.LocalhostPfx))
+        if (!File.Exists(Environment.LocalhostPfx))
         {
             return false;
         }
 
         var certificateValidation = ProcessHelper.StartProcess(
             "openssl",
-            $"pkcs12 -in {Environment.MacOs.LocalhostPfx} -passin pass:{password} -nokeys",
+            $"pkcs12 -in {Environment.LocalhostPfx} -passin pass:{password} -nokeys",
             redirectStandardOutput: true,
             createNoWindow: true,
             printCommand: false
@@ -153,7 +152,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CleanExistingCertificate()
     {
-        File.Delete(Environment.MacOs.LocalhostPfx);
+        File.Delete(Environment.LocalhostPfx);
         ProcessHelper.StartProcess(
             "dotnet",
             "dev-certs https --clean",
@@ -165,11 +164,9 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
-        var localhostPfx = Environment.IsWindows ? Environment.Windows.LocalhostPfx : Environment.MacOs.LocalhostPfx;
-
         ProcessHelper.StartProcess(
             "dotnet",
-            $"dev-certs https --trust -ep {localhostPfx} -p {password}"
+            $"dev-certs https --trust -ep {Environment.LocalhostPfx} -p {password}"
         );
     }
 

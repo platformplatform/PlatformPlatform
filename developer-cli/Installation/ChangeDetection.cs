@@ -71,7 +71,7 @@ public static class ChangeDetection
 
     private static void PublishDeveloperCli()
     {
-        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publising new CLI.[/]");
+        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
 
         var currentExecutablePath = System.Environment.ProcessPath!;
         var renamedExecutablePath = "";
