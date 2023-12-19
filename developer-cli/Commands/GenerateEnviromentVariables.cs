@@ -152,7 +152,11 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CleanExistingCertificate()
     {
-        File.Delete(Environment.LocalhostPfx);
+        if (File.Exists(Environment.LocalhostPfx))
+        {
+            File.Delete(Environment.LocalhostPfx);
+        }
+
         ProcessHelper.StartProcess(
             "dotnet",
             "dev-certs https --clean",
