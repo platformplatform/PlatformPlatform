@@ -1,5 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -133,17 +135,34 @@ public class ConfigureDeveloperEnvironment : Command
             return false;
         }
 
-        var certificateValidation = ProcessHelper.StartProcess(
-            "openssl",
-            $"pkcs12 -in {Environment.LocalhostPfx} -passin pass:{password} -nokeys",
-            redirectStandardOutput: true,
-            createNoWindow: true,
-            printCommand: false
-        );
-
-        if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
+        if (Environment.IsWindows)
         {
-            return true;
+            try
+            {
+                // Try to load the certificate with the provided password
+                _ = new X509Certificate2(Environment.LocalhostPfx, password);
+                return true;
+            }
+            catch (CryptographicException)
+            {
+                // If a CryptographicException is thrown, the password is invalid
+                // Ignore the exception and return false
+            }
+        }
+        else if (Environment.IsMacOs)
+        {
+            var certificateValidation = ProcessHelper.StartProcess(
+                "openssl",
+                $"pkcs12 -in {Environment.LocalhostPfx} -passin pass:{password} -nokeys",
+                redirectStandardOutput: true,
+                createNoWindow: true,
+                printCommand: false
+            );
+
+            if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
+            {
+                return true;
+            }
         }
 
         AnsiConsole.MarkupLine("[red]The password for the certificate is invalid.[/]");
