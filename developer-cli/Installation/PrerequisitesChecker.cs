@@ -77,7 +77,7 @@ public static class PrerequisitesChecker
             var version = Version.Parse(match.Value);
             if (version >= minVersion) return true;
             AnsiConsole.MarkupLine(
-                $"[red]Please update '[bold]{command}[/]' from version [bold]{minVersion}[/] to [bold]{version}[/] or later.[/]");
+                $"[red]Please update '[bold]{command}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]");
             return false;
         }
 
