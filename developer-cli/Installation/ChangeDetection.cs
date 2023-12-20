@@ -54,8 +54,8 @@ public static class ChangeDetection
 
     private static string CalculateMd5HashForSolution()
     {
-        var solutionFiles = Directory.GetFiles(Environment.SolutionFolder, "*", SearchOption.AllDirectories)
-            .Where(f => !f.Contains("artifacts"));
+        // Get all files that are part of Git repository and ignore all other files
+        var solutionFiles = GetGitFiles(Environment.SolutionFolder);
 
         using var sha256 = SHA256.Create();
         using var combinedStream = new MemoryStream();
@@ -71,6 +71,26 @@ public static class ChangeDetection
         return BitConverter.ToString(sha256.ComputeHash(combinedStream));
     }
 
+    private static List<string> GetGitFiles(string folder)
+    {
+        var gitFiles = new List<string>();
+        var output = ProcessHelper.StartProcess(
+            "git",
+            "ls-files",
+            folder,
+            true,
+            true,
+            printCommand: false
+        );
+
+        foreach (var relativeFilepath in output.Trim().Split(System.Environment.NewLine).ToList())
+        {
+            gitFiles.Add(Path.Combine(folder, relativeFilepath));
+        }
+
+        return gitFiles;
+    }
+
     private static void PublishDeveloperCli()
     {
         AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
@@ -81,27 +101,22 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet", "build");
+            ProcessHelper.StartProcess("dotnet", "build", Environment.SolutionFolder);
 
             if (Environment.IsWindows)
             {
-                // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming it
+                // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming
                 // We rename the current executable to .previous.exe to unblock publishing of new executable
                 renamedExecutablePath = currentExecutablePath.Replace(".exe", ".previous.exe");
                 File.Move(currentExecutablePath, renamedExecutablePath, true);
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess(
-                "dotnet",
-                "publish",
-                Environment.SolutionFolder
-            );
+            ProcessHelper.StartProcess("dotnet", "publish", Environment.SolutionFolder);
         }
         catch (Exception e)
         {
-            AnsiConsole.MarkupLine(
-                $"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. Error message: {e.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix.  {e.Message}[/]");
             System.Environment.Exit(0);
         }
         finally
