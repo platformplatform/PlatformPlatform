@@ -32,7 +32,9 @@ jobs:
       - name: Generate version
         id: generate_version
         run: |
-          VERSION=$(date +"%Y.%-m.%-d.%-H%M")
+          # Strip leading 0s of Hours and Minutes after midnight
+          MINUTE=$(printf "%s" $(date +"%-H%M") | sed 's/^0*//')
+          VERSION=$(date +"%Y.%-m.%-d.")$MINUTE
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
