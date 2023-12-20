@@ -12,7 +12,7 @@ public static class PrerequisitesChecker
         var checkAzureCli = CheckCommandLineTool("az", new Version(2, 55));
         var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
         var docker = CheckCommandLineTool("docker", new Version(24, 0));
-        var aspire = CheckDotnetWorkload("aspire", """aspire\s*8\.0\.0-preview."""); // aspire 8.0.0-preview.1.23557
+        var aspire = CheckDotnetWorkload("aspire", """aspire\s*8\.0\.0-preview.2"""); // aspire 8.0.0-preview.2.23619.3
 
         if (!checkAzureCli || !checkBun || !docker || !aspire)
         {
@@ -98,8 +98,9 @@ public static class PrerequisitesChecker
 
         if (!output.Contains(workloadName))
         {
+            AnsiConsole.MarkupLine($"[red].NET '[bold]{workloadName}[/]' workload is not installed.[/]");
             AnsiConsole.MarkupLine(
-                $"[red].NET '[bold]{workloadName}[/]' workload is not installed. Please run '[bold]dotnet workload install {workloadName}[/]' to install.[/]");
+                $"[red]Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.");
             return false;
         }
 
@@ -108,7 +109,7 @@ public static class PrerequisitesChecker
 
            Installed Workload Id      Manifest Version                     Installation Source
            -----------------------------------------------------------------------------------
-           aspire                     8.0.0-preview.1.23557.2/8.0.100      SDK 8.0.100
+           aspire                     8.0.0-preview.2.23619.3/8.0.100      SDK 8.0.100
 
            Use `dotnet workload search` to find additional workloads to install.
          */
@@ -118,7 +119,8 @@ public static class PrerequisitesChecker
         {
             // If the version could not be determined please change the logic here to check for the correct version
             AnsiConsole.MarkupLine(
-                $"[red]Dotnet '[bold]{workloadName}[/]' workload is installed but not in the expected version. Please upgrade the workflow or update the CLI to check for correct version.[/]");
+                $"[red].NET '[bold]{workloadName}[/]' workload is installed but not in the expected version.[/]");
+            AnsiConsole.MarkupLine("[red]Please run '[bold]dotnet workload update[/]'.[/]");
         }
 
         return match.Success;
