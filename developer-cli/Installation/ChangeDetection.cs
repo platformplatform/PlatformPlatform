@@ -34,7 +34,9 @@ public static class ChangeDetection
         if (Environment.IsWindows)
         {
             // In Windows we have not found a reliable way to restart the process with the same arguments
+            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+            AnsiConsole.WriteLine();
             System.Environment.Exit(0);
         }
 
