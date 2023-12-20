@@ -121,7 +121,7 @@ PlatformPlatform is built on a solid foundation for a modern software developmen
 - [GitHub projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects)
 - [GitHub environments](https://docs.github.com/en/actions/reference/environments)
 - [GitHub CODEOWNERS](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners)
-- [GitHub dependabot](https://docs.github.com/en/code-security/dependabot)
+- [GitHub Dependabot](https://docs.github.com/en/code-security/dependabot)
 - [Bash scripts](https://www.gnu.org/software/bash/)
 - [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview)
 
@@ -148,90 +148,47 @@ PlatformPlatform is designed to support development on both Mac and Windows. The
 - [.NET](https://dotnet.microsoft.com)
 - [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload install aspire`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Bun](https://bun.sh/docs/installation) (an all-in-one CLI tool for React development much faster than NodeJS)
 - [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) with [JetBrains ReSharper](https://www.jetbrains.com/resharper)
 
 <details>
 
 <summary>Want to use Visual Studio Code?</summary>
 
-While [Visual Studio Code](https://code.visualstudio.com/) can be used and ReSharper is not strictly necessary, in both cases, you should either install the free [ReSharper command line tool](https://www.jetbrains.com/help/resharper/ReSharper_Command_Line_Tools.html) to ensure the codebase is formatted correctly.
-
-To install ReSharper command line tool run this command
+While [Visual Studio Code](https://code.visualstudio.com/) is supported, PlatformPlatform is not optimized for development in VS Code. Please use the CLI Tool for running JetBrains code inspections, and code formatting. Having strong conventions for naming, formatting, code style from the start is saving time and giving high-quality code.
 
 ```bash
-dotnet tool install -g JetBrains.ReSharper.GlobalTools # Add --arch arm64 for Apple silicon
-```
-
-Having a strong conventions for naming, formatting, code style from the start is saving time and giving high quality code.
-
-To inspect code run this command (Use Solution-Wide Analysis in Rider/ReSharper)
-
-```bash
-jb inspectcode PlatformPlatform.sln --build --output=result.xml
-```
-
-To clean up code this command (equvelent to `Ctrl+E+C` / `Cmd+E+C` in Rider/ReSharper)
-
-```bash
-jb cleanupcode PlatformPlatform.sln
+pp code-inspections
+pp code-cleanup
+pp code-coverage
 ```
 
 </details>
 
 ### Get started
 
-To debug the system locally we run SQL Server using Docker. The SQL Server password used is stored in an environment variable, and added to the connectionstring by .NET (when running in Azure we use Managed Identities instead of passwords).
-
-Likewise, when running .NET self-contained systems on `localhost` we need a valid and trusted certificate, and we need the password when building the Docker image.
-
-Please run the following scripts once to setup your localhost.
-
-- **macOS**:
-
-  ```bash
-  # Generate SQL_SERVER_PASSWORD and add to environment variables
-  SQL_SERVER_PASSWORD="$(LC_ALL=C tr -dc 'a-zA-Z0-9!_#$&%' < /dev/urandom | head -c 16)"
-  echo "export SQL_SERVER_PASSWORD='$SQL_SERVER_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
-
-  # Generate CERTIFICATE_PASSWORD and add to environment variables
-  CERTIFICATE_PASSWORD="$(LC_ALL=C tr -dc 'a-zA-Z0-9!_#$&%' < /dev/urandom | head -c 16)"
-  echo "export CERTIFICATE_PASSWORD='$CERTIFICATE_PASSWORD'" >> ~/.zshrc  # or ~/.bashrc, ~/.bash_profile
-
-  # Generate dev certificate
-  dotnet dev-certs https --trust -ep ${HOME}/.aspnet/https/localhost.pfx -p $CERTIFICATE_PASSWORD
-  ```
-
-- **Windows (not tested)**:
-
-  ```powershell
-  # Add SQL_SERVER_PASSWORD and add to environment variables
-  $SQL_SERVER_PASSWORD = "<YourSecretPassword>"
-  [Environment]::SetEnvironmentVariable('SQL_SERVER_PASSWORD', $SQL_SERVER_PASSWORD, [System.EnvironmentVariableTarget]::User)
-
-  # Add CERTIFICATE_PASSWORD and add to environment variables
-  $CERTIFICATE_PASSWORD = "<AnotherSecretPassword>"
-  [Environment]::SetEnvironmentVariable('CERTIFICATE_PASSWORD', $CERTIFICATE_PASSWORD, [System.EnvironmentVariableTarget]::User)
-
-  # Generate dev certificate
-  dotnet dev-certs https --trust -ep $env:USERPROFILE\.aspnet\https\localhost.pfx -p $env:CERTIFICATE_PASSWORD
-  ```
-
-To test the system you can now run this (the first time the API runs it will create the database and schema):
+Please install the [PlatformPlatform Developer CLI](/developer-cli/) by running the following command:
 
 ```bash
-# Run from the application folder
-cd ./application
-dotnet publish ./account-management/Api/Api.csproj --output ./account-management/Api/publish
-docker compose up -d
-open https://localhost:8443
+cd developer-cli
+dotnet run
+
+# IMPORTANT: Restart your terminal after installing the CLI!!!
+
+# Then run (this will prompt you to install SSL certificates for localhost):
+pp configure-developer-environment
 ```
 
-While developing you might want to only run the SQL Server, and compile and debug the source code from Rider or Visual Studio:
+This will install the `pp` CLI tool, which will not only have a lot of tools to enhance the developer experience. It will also check for prerequisites and allow easy setup your local environment with the required environment variables, certificates for localhost, etc.
+
+To run the application locally, ensure Docker is running on your machine, and simply run this:
 
 ```bash
-# Run from the application folder
-cd ./application
-docker compose up sql-server -d
+cd application/AppHost
+dotnet run
+
+# Open https://localhost:8001 for the Aspire Dashboard
+# Open https://localhost:8443 for the WebApp
 ```
 
 ## Automated first-time setup of GitHub and Azure

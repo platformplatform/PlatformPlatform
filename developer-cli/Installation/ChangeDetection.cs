@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -8,41 +8,52 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        var runningDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("/debug/");
+        var currentExecutablePath = System.Environment.ProcessPath!; // Don't inline as it can be renamed in Windows
 
-        var hashFile = Path.Combine(AliasRegistration.PublishFolder, "source-file-hash.md5");
+        if (Environment.IsWindows)
+        {
+            // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
+            // We delete the previous executable the next time the process is started
+            File.Delete(currentExecutablePath.Replace(".exe", ".previous.exe"));
+        }
+
+        var hashFile = Path.Combine(Environment.PublishFolder, "source-file-hash.md5");
         var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
-
-        if (!runningDebugBuild)
-        {
-            AnsiConsole.MarkupLine("[green]Changes detected, rebuilding the CLI.[/]");
-        }
 
         PublishDeveloperCli();
 
         // Update the hash file to avoid restarting the process again
         File.WriteAllText(hashFile, currentHash);
 
-        if (runningDebugBuild) return;
+        // When running in debug mode, we want to avoid restarting the process
+        var isDebugBuild = new FileInfo(currentExecutablePath).FullName.Contains("debug");
+        if (isDebugBuild) return;
+
+        if (Environment.IsWindows)
+        {
+            // In Windows we have not found a reliable way to restart the process with the same arguments
+            AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+            System.Environment.Exit(0);
+        }
 
         // Restart the process with the same arguments
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = Environment.ProcessPath,
-            Arguments = string.Join(" ", args),
-            WorkingDirectory = AliasRegistration.SolutionFolder
-        });
+        ProcessHelper.StartProcess(
+            currentExecutablePath,
+            string.Join(" ", args),
+            Environment.SolutionFolder,
+            waitForExit: false,
+            printCommand: false
+        );
 
-        // Kill the current process 
-        Environment.Exit(0);
+        System.Environment.Exit(0);
     }
 
     private static string CalculateMd5HashForSolution()
     {
-        var solutionFiles = Directory.GetFiles(AliasRegistration.SolutionFolder, "*", SearchOption.AllDirectories)
-            .Where(f => !f.Contains("/artifacts/"));
+        var solutionFiles = Directory.GetFiles(Environment.SolutionFolder, "*", SearchOption.AllDirectories)
+            .Where(f => !f.Contains("artifacts"));
 
         using var sha256 = SHA256.Create();
         using var combinedStream = new MemoryStream();
@@ -60,13 +71,45 @@ public static class ChangeDetection
 
     private static void PublishDeveloperCli()
     {
-        // Call "dotnet publish --configuration RELEASE" to create a new executable
-        Process.Start(new ProcessStartInfo
+        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
+
+        var currentExecutablePath = System.Environment.ProcessPath!;
+        var renamedExecutablePath = "";
+
+        try
         {
-            FileName = "dotnet",
-            Arguments = "publish --configuration RELEASE",
-            WorkingDirectory = AliasRegistration.SolutionFolder,
-            RedirectStandardOutput = true
-        })!.WaitForExit();
+            // Build project before renaming exe on Windows
+            ProcessHelper.StartProcess("dotnet", "build");
+
+            if (Environment.IsWindows)
+            {
+                // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming it
+                // We rename the current executable to .previous.exe to unblock publishing of new executable
+                renamedExecutablePath = currentExecutablePath.Replace(".exe", ".previous.exe");
+                File.Move(currentExecutablePath, renamedExecutablePath, true);
+            }
+
+            // Call "dotnet publish" to create a new executable
+            ProcessHelper.StartProcess(
+                "dotnet",
+                "publish",
+                Environment.SolutionFolder
+            );
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. Error message: {e.Message}[/]");
+            System.Environment.Exit(0);
+        }
+        finally
+        {
+            if (renamedExecutablePath != "" && !File.Exists(currentExecutablePath))
+            {
+                // If the publish command did not successfully create a new executable, put back the old one to ensure
+                // the CLI is still working
+                File.Move(renamedExecutablePath, currentExecutablePath);
+            }
+        }
     }
 }
