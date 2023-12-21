@@ -40,10 +40,10 @@ msgid "Create a account"
 msgstr "Opret en konto"
 
 msgid "Create Account"
-msgstr ""
+msgstr "Opret konto"
 
 msgid "Create account!"
-msgstr ""
+msgstr "Opdater konto!"
 
 msgid "Email"
 msgstr "E-mail"
