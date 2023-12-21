@@ -9,7 +9,7 @@ type LayoutProps = {
   params: Record<string, string>;
 };
 
-export default function Root({ children, params }: LayoutProps) {
+export default function Root({ children }: Readonly<LayoutProps>) {
   const navigate = useNavigate();
 
   function handleCreateTenant() {

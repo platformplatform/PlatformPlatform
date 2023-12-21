@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react";
 import { Locale, dynamicActivate, locales, getLanguage } from "@/translations/i18n";
 import { Button, Key, Label, ListBox, ListBoxItem, Popover, Select } from "react-aria-components";
-import { ChevronDown, ChevronDownIcon, LanguagesIcon } from "lucide-react";
+import { ChevronDownIcon, LanguagesIcon } from "lucide-react";
 
 export function LocaleSwitcher() {
   const { i18n } = useLingui();

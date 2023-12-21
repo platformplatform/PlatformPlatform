@@ -15,11 +15,7 @@ const config: ConfettiConfig = {
   colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"],
 };
 
-type PageProps = {
-  params: Record<string, string>;
-};
-
-export default function CreatedTenantSuccessPage({}: PageProps) {
+export default function CreatedTenantSuccessPage() {
   const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
