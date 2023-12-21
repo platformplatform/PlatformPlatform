@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
@@ -129,7 +130,7 @@ public static class WebAppMiddlewareExtensions
         Dictionary<string, string>? publicEnvironmentVariables = null
     )
     {
-        if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return builder;
+        if (InfrastructureCoreConfiguration.SwaggerGenerator) return builder;
 
         var publicUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.PublicUrlKey);
         var cdnUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.CdnUrlKey);
