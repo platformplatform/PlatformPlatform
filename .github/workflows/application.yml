@@ -73,8 +73,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-          dotnet build PlatformPlatform.sln --no-restore
-          dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput="coverage/dotCover.html" --dcReportType=HTML &&
+          dotnet build PlatformPlatform.sln --no-restore &&
+          dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
           dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
 
       - name: Publish Account Management build
