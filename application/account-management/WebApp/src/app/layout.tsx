@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import AcmeLogo from "@/ui/acme-logo.svg";
 import { Button } from "react-aria-components";
+import { LocaleSwitcher } from "@/ui/LocaleSwitcher";
+import { Trans } from "@lingui/macro";
 
 type LayoutProps = {
   children: React.ReactNode;
   params: Record<string, string>;
 };
 
-export default function Root({ children, params }: LayoutProps) {
+export default function Root({ children }: Readonly<LayoutProps>) {
   const navigate = useNavigate();
 
   function handleCreateTenant() {
@@ -22,19 +24,24 @@ export default function Root({ children, params }: LayoutProps) {
         </h1>
         <div className="justify-start flex flex-row border-b border-border py-4">
           <Button className="bg-blue-600 text-white py-2 px-4 rounded-full" onPress={handleCreateTenant}>
-            Create Tenant
+            <Trans>Create Account</Trans>
           </Button>
         </div>
         <nav className="grow">
           <ul>
             <li className="p-4 hover:bg-gray-200 rounded-xl cursor-pointer">
-              <a href={`/`}>Account Management</a>
+              <a href={`/`}>
+                <Trans>Account Management</Trans>
+              </a>
             </li>
             <li className="p-4 hover:bg-gray-200 rounded-xl cursor-pointer">
-              <a href={`/user-management`}>User Management</a>
+              <a href={`/user-management`}>
+                <Trans>User Management</Trans>
+              </a>
             </li>
           </ul>
         </nav>
+        <LocaleSwitcher />
       </div>
       <div className="flex flex-col w-full h-full bg-background">{children}</div>
     </div>

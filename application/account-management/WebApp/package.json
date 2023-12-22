@@ -4,17 +4,28 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build"
+    "build": "rspack build",
+    "lingui:extract": "lingui extract",
+    "lingui:compile": "lingui compile --typescript",
+    "postinstall": "bun run lingui:extract && bun run lingui:compile"
   },
   "dependencies": {
+    "@lingui/core": "^4.6.0",
+    "@lingui/macro": "^4.6.0",
+    "@lingui/react": "^4.6.0",
+    "lucide-react": "^0.294.0",
     "openapi-fetch": "^0.8.1",
     "react": "18.3.0-canary-c47c306a7-20231109",
     "react-aria-components": "^1.0.0-rc.0",
     "react-dom": "18.3.0-canary-c47c306a7-20231109",
     "react-dom-confetti": "^0.2.0",
+    "tailwind-merge": "^2.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@lingui/cli": "^4.6.0",
+    "@lingui/format-po": "^4.6.0",
+    "@lingui/swc-plugin": "^4.0.4",
     "@rspack/cli": "^0.3.11",
     "@rspack/core": "^0.3.11",
     "@platformplatform/client-filesystem-router": "workspace:*",
@@ -27,6 +38,7 @@
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "prettier": "^3.0.3",
+    "swc-loader": "0.2.3",
     "tailwindcss": "^3.3.5",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-react-aria-components": "^1.0.0-beta.1",

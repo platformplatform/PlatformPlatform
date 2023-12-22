@@ -36,25 +36,16 @@
         <None Remove="publish\**"/>
     </ItemGroup>
 
-    <Target Name="InstallDependencies" BeforeTargets="Build">
+    <Target Name="CreateSwaggerJson" AfterTargets="Build">
         <Exec Command="dotnet tool restore"/>
-        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)/../WebApp/"/>
+        <Exec Command="echo true > $(OutputPath)SwaggerGenerator.tmp"/>
+        <Exec Command="dotnet swagger tofile --output $(OutputPath)..\..\..\swagger.json $(OutputPath)$(AssemblyName).dll v1"/>
+        <Delete Files="$(OutputPath)SwaggerGenerator.tmp"/>
+        <OnError ExecuteTargets="CreatingSwaggerJson"/>
     </Target>
 
-    <Target Name="CreateSwaggerJson" AfterTargets="Build">
-        <!-- macOS and Linux command -->
-        <Exec Command="SWAGGER_GENERATOR=true dotnet swagger tofile --output $(OutputPath)swagger.json $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' != 'Windows_NT'"/>
-        <!-- Windows command -->
-        <Exec Command="cmd /C set SWAGGER_GENERATOR=true &amp;&amp; dotnet tool run swagger tofile --output $(OutputPath)swagger.json $(OutputPath)$(AssemblyName).dll v1" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Windows_NT'"/>
-        <Exec Command="bunx openapi-typescript@latest $(OutputPath)swagger.json -o ../WebApp/src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="bunx prettier ../WebApp/src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="bun run build" WorkingDirectory="$(ProjectDir)/../WebApp/"/>
-
-        <ItemGroup>
-            <WebAppSourceFiles Include="$(ProjectDir)../WebApp/dist/**/*.*"/>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(WebAppSourceFiles)" DestinationFolder="$(ProjectDir)publish/WebApp/dist/%(RecursiveDir)"/>
+    <Target Name="CleanupSwaggerGeneratorTmp">
+        <Delete Files="$(OutputPath)SwaggerGenerator.tmp"/>
     </Target>
 
 </Project>

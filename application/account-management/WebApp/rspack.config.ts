@@ -26,6 +26,35 @@ const configuration: Configuration = {
   module: {
     rules: [
       {
+        /**
+         * For now RSPack does not support plugins in the builtin SWC loader.
+         * This is a workaround to allow the use of macros for translations - can be removed once the builtin SWC supports plugins.
+         * (Note: swc-loader is used instead of swc-loader because swc-loader supports plugins)
+         */
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "swc-loader",
+          options: {
+            sourceMap: true,
+            jsc: {
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                },
+              },
+              experimental: {
+                plugins: [["@lingui/swc-plugin", {}]],
+              },
+            },
+          },
+        },
+      },
+      {
         test: /\.svg$/i,
         type: "asset",
         resourceQuery: /url/, // *.svg?url
@@ -78,10 +107,10 @@ const configuration: Configuration = {
     new HtmlWebpackPlugin({
       template: "./public/index.html",
       meta: {
-        runtimeEnv: "<ENCODED_RUNTIME_ENV>",
+        runtimeEnv: "%ENCODED_RUNTIME_ENV%",
       },
       alwaysWriteToDisk: true,
-      publicPath: "<CDN_URL>",
+      publicPath: "%CDN_URL%",
     }),
     new DefinePlugin({
       "import.meta.build_env": JSON.stringify(buildEnv),

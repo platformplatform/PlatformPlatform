@@ -15,11 +15,7 @@ const config: ConfettiConfig = {
   colors: ["#a864fd", "#29cdff", "#78ff44", "#ff718d", "#fdff6a"],
 };
 
-type PageProps = {
-  params: Record<string, string>;
-};
-
-export default function CreatedTenantSuccessPage({}: PageProps) {
+export default function CreatedTenantSuccessPage() {
   const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
@@ -30,7 +26,7 @@ export default function CreatedTenantSuccessPage({}: PageProps) {
     <div className="items-center flex flex-col justify-center h-full">
       <div className="p-8 bg-gray-800 text-white rounded-xl shadow-md text-center gap-4 flex flex-col">
         <h1 className="text-2xl">Success!</h1>
-        <p>Your tenant has been created.</p>
+        <p>Your account has been created.</p>
         <div className="self-center absolute top-10">
           <Confetti active={confetti} config={config} />
         </div>

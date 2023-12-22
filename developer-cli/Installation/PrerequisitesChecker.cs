@@ -100,7 +100,7 @@ public static class PrerequisitesChecker
         {
             AnsiConsole.MarkupLine($"[red].NET '[bold]{workloadName}[/]' workload is not installed.[/]");
             AnsiConsole.MarkupLine(
-                $"[red]Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.");
+                $"[red]Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]");
             return false;
         }
 

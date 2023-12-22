@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="IdGen" />
-        <PackageReference Include="JetBrains.Annotations" />
-        <PackageReference Include="MediatR.Contracts" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <PackageReference Include="NUlid" />
+        <PackageReference Include="IdGen"/>
+        <PackageReference Include="JetBrains.Annotations"/>
+        <PackageReference Include="MediatR.Contracts"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+        <PackageReference Include="NUlid"/>
     </ItemGroup>
 
 </Project>

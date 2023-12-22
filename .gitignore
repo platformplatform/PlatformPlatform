@@ -384,4 +384,6 @@ FodyWeavers.xsd
 **/*.generated.ts
 
 # Frontend builds
+.swc/
 dist/
+**/translations/locale/*.ts

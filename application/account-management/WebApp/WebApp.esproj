@@ -4,23 +4,39 @@
         <StartupCommand>set BROWSER=none;bun dev</StartupCommand>
         <JavaScriptTestRoot>src\</JavaScriptTestRoot>
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
-        <!-- Command to run on project build -->
-        <BuildCommand>bun install;bun run build</BuildCommand>
-        <!-- Command to create an optimized build of the project that's ready for publishing -->
-        <ProductionBuildCommand>bun run build</ProductionBuildCommand>
         <!-- Folder where production build objects will be placed -->
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
-
         <NpmInstallCheck>$(MSBuildProjectDirectory)\bun.lockb</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+        <!-- Command to run on project build -->
+        <BuildCommand>bun run build</BuildCommand>
+        <!-- Command to create an optimized build of the project that's ready for publishing -->
+        <ProductionBuildCommand>bun run build</ProductionBuildCommand>
     </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Api\Api.csproj"/>
+    </ItemGroup>
 
     <ItemGroup>
         <Script Include="tsconfig.json"/>
     </ItemGroup>
 
-    <Target Name="EnsureApiBuildsFirst" BeforeTargets="Build">
-        <MSBuild Projects="../Api/Api.csproj" Targets="Build"/>
+    <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
+        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
+    </Target>
+
+    <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
+        <Exec Command="bunx openapi-typescript@latest $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bunx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
+    </Target>
+
+    <Target Name="BuildFrontend" AfterTargets="Build">
+        <ItemGroup>
+            <WebAppSourceFiles Include="$(ProjectDir)dist/**/*.*"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(WebAppSourceFiles)" DestinationFolder="$(ProjectDir)../Api/publish/WebApp/dist/%(RecursiveDir)"/>
     </Target>
 
 </Project>

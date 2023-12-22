@@ -4,9 +4,11 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
@@ -15,6 +17,7 @@ public sealed class WebAppMiddleware
     private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
+    private const string Locale = "LOCALE";
     public const string ApplicationVersion = "APPLICATION_VERSION";
 
     private readonly string _cdnUrl;
@@ -25,26 +28,26 @@ public sealed class WebAppMiddleware
     private readonly RequestDelegate _next;
     private readonly string[] _publicAllowedKeys = { CdnUrlKey, ApplicationVersion };
     private readonly string _publicUrl;
-    private readonly Dictionary<string, string> _runtimeEnvironment;
+    private readonly Dictionary<string, string> _staticRuntimeEnvironment;
     private string? _htmlTemplate;
 
     public WebAppMiddleware(
         RequestDelegate next,
-        Dictionary<string, string> runtimeEnvironment,
+        Dictionary<string, string> staticRuntimeEnvironment,
         string htmlTemplatePath,
         IOptions<JsonOptions> jsonOptions
     )
     {
         _next = next;
-        _runtimeEnvironment = runtimeEnvironment;
+        _staticRuntimeEnvironment = staticRuntimeEnvironment;
         _htmlTemplatePath = htmlTemplatePath;
         _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
 
-        VerifyRuntimeEnvironment(runtimeEnvironment);
+        VerifyRuntimeEnvironment(staticRuntimeEnvironment);
 
         _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
-        _cdnUrl = runtimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
-        _publicUrl = runtimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
+        _cdnUrl = staticRuntimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
+        _publicUrl = staticRuntimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
         _contentSecurityPolicy = GetContentSecurityPolicy();
     }
 
@@ -84,25 +87,34 @@ public sealed class WebAppMiddleware
     {
         if (context.Request.Path.ToString().StartsWith("/api/")) return _next(context);
 
+        var cultureFeature = context.Features.Get<IRequestCultureFeature>();
+        var userCulture = cultureFeature?.RequestCulture.Culture;
+
+        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
+
         context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
-        return context.Response.WriteAsync(GetHtmlWithEnvironment());
+        return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
     }
 
-    private string GetHtmlWithEnvironment()
+    private string GetHtmlWithEnvironment(Dictionary<string, string>? requestEnvironmentVariables = null)
     {
         if (_htmlTemplate is null || _isDevelopment)
         {
             _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
         }
 
-        var encodeRuntimeEnvironment = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(_runtimeEnvironment, _jsonSerializerOptions))
-        );
-        var result = _htmlTemplate.Replace("<ENCODED_RUNTIME_ENV>", encodeRuntimeEnvironment);
+        var runtimeEnvironment = requestEnvironmentVariables is null
+            ? _staticRuntimeEnvironment
+            : _staticRuntimeEnvironment.Concat(requestEnvironmentVariables).ToDictionary();
 
-        foreach (var variable in _runtimeEnvironment)
+        var encodedRuntimeEnvironment = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(runtimeEnvironment, _jsonSerializerOptions))
+        );
+        var result = _htmlTemplate.Replace("%ENCODED_RUNTIME_ENV%", encodedRuntimeEnvironment);
+
+        foreach (var variable in runtimeEnvironment)
         {
-            result = result.Replace($"<{variable.Key}>", variable.Value);
+            result = result.Replace($"%{variable.Key}%", variable.Value);
         }
 
         return result;
@@ -118,26 +130,22 @@ public static class WebAppMiddlewareExtensions
         Dictionary<string, string>? publicEnvironmentVariables = null
     )
     {
-        if (Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true") return builder;
+        if (InfrastructureCoreConfiguration.SwaggerGenerator) return builder;
 
         var publicUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.PublicUrlKey);
         var cdnUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.CdnUrlKey);
         var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
 
-        var runtimeEnvironmentVariables = new Dictionary<string, string>
+        var environmentVariables = new Dictionary<string, string>
         {
             { WebAppMiddleware.PublicUrlKey, publicUrl },
             { WebAppMiddleware.CdnUrlKey, cdnUrl },
             { WebAppMiddleware.ApplicationVersion, applicationVersion }
         };
 
-        if (publicEnvironmentVariables != null)
-        {
-            foreach (var variable in publicEnvironmentVariables)
-            {
-                runtimeEnvironmentVariables.Add(variable.Key, variable.Value);
-            }
-        }
+        var staticRuntimeEnvironment = publicEnvironmentVariables is null
+            ? environmentVariables
+            : environmentVariables.Concat(publicEnvironmentVariables).ToDictionary();
 
         var buildRootPath = GetWebAppDistRoot(webAppProjectName, "dist");
         var templateFilePath = Path.Combine(buildRootPath, "index.html");
@@ -159,7 +167,8 @@ public static class WebAppMiddlewareExtensions
 
         return builder
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(buildRootPath) })
-            .UseMiddleware<WebAppMiddleware>(runtimeEnvironmentVariables, templateFilePath);
+            .UseRequestLocalization("en-US", "da-DK")
+            .UseMiddleware<WebAppMiddleware>(staticRuntimeEnvironment, templateFilePath);
     }
 
     private static string GetEnvironmentVariableOrThrow(string variableName)

@@ -83,7 +83,7 @@ public static class ChangeDetection
             printCommand: false
         );
 
-        foreach (var relativeFilepath in output.Trim().Split(System.Environment.NewLine).ToList())
+        foreach (var relativeFilepath in output.Trim().Split("\n").ToList())
         {
             gitFiles.Add(Path.Combine(folder, relativeFilepath));
         }
