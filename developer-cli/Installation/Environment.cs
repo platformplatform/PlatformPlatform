@@ -35,7 +35,7 @@ public static class Environment
             ProcessHelper.StartProcess(
                 "cmd.exe",
                 $"/c setx PATH \"%PATH%;{publishFolder}\"",
-                redirectStandardOutput: true,
+                redirectOutput: true,
                 createNoWindow: true,
                 printCommand: false
             );

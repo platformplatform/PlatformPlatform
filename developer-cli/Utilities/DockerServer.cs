@@ -1,27 +1,10 @@
+using System.Text;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
 
-internal class DockerServer : IDisposable
+internal class DockerServer(DockerServerOptions options) : IDisposable
 {
-    private readonly DockerServerOptions _options;
-    private readonly string _serverName;
-
-    public DockerServer(DockerServerOptions options)
-    {
-        _options = options;
-        _serverName = $"{_options.InstanceName} server";
-
-        try
-        {
-            StartServer();
-        }
-        catch
-        {
-            StopServer();
-        }
-    }
-
     public void Dispose()
     {
         StopServer();
@@ -29,115 +12,133 @@ internal class DockerServer : IDisposable
 
     private void StopServer()
     {
-        AnsiConsole.Status().Start($"Stopping {_serverName}...", context =>
+        AnsiConsole.Status().Start($"Stopping {options.InstanceName} server...", context =>
         {
-            if (RemoveDockerContainer(_options.InstanceName))
+            try
             {
-                context.Status($"Stopped {_serverName}");
-                AnsiConsole.MarkupLine($"[green]{_serverName} stopped[/]");
+                RemoveDockerContainer(options.InstanceName);
+                context.Status($"Stopped {options.InstanceName} server.");
+                AnsiConsole.MarkupLine($"[green]{options.InstanceName} server stopped.[/]");
             }
-            else
+            catch (Exception e)
             {
-                AnsiConsole.MarkupLine($"[red]Failed to stop Docker container for {_options.InstanceName}[/]");
+                AnsiConsole.MarkupLine($"[red]Failed stopping container for {options.InstanceName}. {e.Message}[/]");
+                Environment.Exit(1);
             }
         });
     }
 
-    private void StartServer()
+    public void StartServer()
     {
-        AnsiConsole.Status().Start($"Initializing {_serverName}...", context =>
+        AnsiConsole.Status().Start($"Initializing {options.InstanceName} server...", context =>
         {
-            if (!EnsureDockerImageExists(context)) throw new Exception("Failed to pull Docker image");
+            EnsureDockerImageExists(context);
 
-            context.Status($"Starting {_serverName}...");
+            context.Status($"Starting {options.InstanceName} server...");
 
-            if (RunDockerContainer(_options.ImageName, GetDockerRunArguments(), _options.InstanceName,
-                    _options.WorkingDirectory))
+            try
             {
-                AnsiConsole.MarkupLine($"[green]Started {_serverName}[/]");
+                var dockerRunArguments = GetDockerRunArguments();
+                RunDockerContainer(options.ImageName, dockerRunArguments, options.InstanceName);
+                AnsiConsole.MarkupLine($"[green]Started {options.InstanceName} server.[/]");
             }
-            else
+            catch (Exception e)
             {
-                AnsiConsole.MarkupLine($"[red]Failed to start {_serverName}[/]");
-                throw new Exception($"Failed to start ${_serverName}");
+                AnsiConsole.MarkupLine($"[red]Failed to start {options.InstanceName} server. {e.Message}[/]");
+                Environment.Exit(1);
             }
         });
     }
 
-    private bool EnsureDockerImageExists(StatusContext? context = null)
+    private void EnsureDockerImageExists(StatusContext context)
     {
-        if (!IsDockerImageFound(_options.ImageName))
-        {
-            context?.Status($"Pulling Docker image {_options.ImageName}...");
-            if (!PullDockerImage(_options.ImageName))
-            {
-                AnsiConsole.MarkupLine("[red]Failed to pull Docker image[/]");
-                return false;
-            }
+        if (DockerImageExists(options.ImageName)) return;
 
-            context?.Status($"Docker image {_options.ImageName} pulled");
-        }
-        else
-        {
-            context?.Status($"Docker image {_options.ImageName} found");
-        }
+        context.Status($"Pulling Docker image {options.ImageName}...");
+        PullDockerImage(options.ImageName);
 
-        return true;
+        context.Status($"Docker image {options.ImageName} pulled");
     }
 
     private string GetDockerRunArguments()
     {
-        var runOptions = "";
-        if (_options.Volumes != null)
-            foreach (var volume in _options.Volumes)
-                runOptions += $"-v {volume.Key}:{volume.Value} ";
-        if (_options.Ports != null)
-            foreach (var port in _options.Ports)
-                runOptions += $"-p {port.Key}:{port.Value} ";
-        if (_options.Environment != null)
-            foreach (var env in _options.Environment)
-                runOptions += $"-e {env.Key}={env.Value} ";
-        return runOptions;
-    }
-
-    private bool RunDockerContainer(string imageName, string runOptions, string instanceName, string? workingDirectory)
-    {
-        return ProcessHelpers.StartProcess("docker",
-            $"run -d {runOptions} --name {instanceName} {imageName}",
-            workingDirectory ?? Directory.GetCurrentDirectory(), false) == 0;
-    }
-
-    private bool RemoveDockerContainer(string containerName)
-    {
-        return ProcessHelpers.StartProcess("docker", $"rm --force {containerName}", Directory.GetCurrentDirectory(),
-            false) == 0;
-    }
-
-    private bool IsDockerImageFound(string imageName)
-    {
-        return ProcessHelpers.StartProcess("docker", $"image inspect {imageName}", _options.WorkingDirectory,
-            false) == 0;
-    }
-
-    private bool PullDockerImage(string imageName)
-    {
-        AnsiConsole.MarkupLine($"[green]Downloading {imageName} Docker image[/]");
-        if (ProcessHelpers.StartProcess("docker", $"pull {imageName}", _options.WorkingDirectory, false) != 0)
+        var runOptions = new StringBuilder();
+        if (options.Volumes is not null)
         {
-            AnsiConsole.MarkupLine($"[red]Failed to pull the latest {_options.ImageName} docker image[/]");
-            return false;
+            foreach (var volume in options.Volumes)
+            {
+                runOptions.Append($"-v {volume.Key}:{volume.Value} ");
+            }
         }
 
-        return true;
+        if (options.Ports is not null)
+        {
+            foreach (var port in options.Ports)
+            {
+                runOptions.Append($"-p {port.Key}:{port.Value} ");
+            }
+        }
+
+        if (options.Environment is not null)
+        {
+            foreach (var env in options.Environment)
+            {
+                runOptions.Append($"-e {env.Key}={env.Value} ");
+            }
+        }
+
+        return runOptions.ToString().Trim();
+    }
+
+    private void RunDockerContainer(string imageName, string runOptions, string instanceName)
+    {
+        var output = ProcessHelper.StartProcess(
+            "docker",
+            $"run -d {runOptions} --name {instanceName} {imageName}",
+            redirectOutput: true
+        );
+
+        if (!output.Contains("Error")) return;
+
+        AnsiConsole.MarkupLine($"[red]Failed to start {options.InstanceName} server. {output}[/]");
+        Environment.Exit(1);
+    }
+
+    private void RemoveDockerContainer(string containerName)
+    {
+        ProcessHelper.StartProcess("docker", $"rm --force {containerName}", Directory.GetCurrentDirectory());
+    }
+
+    private bool DockerImageExists(string imageName)
+    {
+        var output = ProcessHelper.StartProcess("docker", $"image inspect {imageName}", redirectOutput: true);
+        return output.Contains("Digest");
+    }
+
+    private void PullDockerImage(string imageName)
+    {
+        try
+        {
+            AnsiConsole.MarkupLine($"[green]Downloading {imageName} Docker image.[/]");
+            ProcessHelper.StartProcess("docker", $"pull {imageName}");
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLine($"[red]Failed to pull the latest {options.ImageName} docker image. {e.Message}[/]");
+            Environment.Exit(1);
+        }
     }
 }
 
 public class DockerServerOptions
 {
     public required string ImageName { get; init; }
+
     public required string InstanceName { get; init; }
+
     public Dictionary<string, string>? Volumes { get; init; }
+
     public Dictionary<string, string>? Ports { get; init; }
+
     public Dictionary<string, string>? Environment { get; init; }
-    public required string WorkingDirectory { get; init; }
 }

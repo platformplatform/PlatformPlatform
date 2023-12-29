@@ -51,7 +51,7 @@ public static class PrerequisitesChecker
         var checkOutput = ProcessHelper.StartProcess(
             Environment.IsWindows ? "where" : "which",
             command,
-            redirectStandardOutput: true,
+            redirectOutput: true,
             printCommand: false
         );
 
@@ -66,7 +66,7 @@ public static class PrerequisitesChecker
         var output = ProcessHelper.StartProcess(
             Environment.IsWindows ? "cmd.exe" : "/bin/bash",
             Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
-            redirectStandardOutput: true,
+            redirectOutput: true,
             printCommand: false
         );
 
@@ -92,7 +92,7 @@ public static class PrerequisitesChecker
         var output = ProcessHelper.StartProcess(
             "dotnet",
             "workload list",
-            redirectStandardOutput: true,
+            redirectOutput: true,
             printCommand: false
         );
 
