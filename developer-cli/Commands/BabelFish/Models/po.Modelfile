@@ -1,0 +1,116 @@
+FROM llama2
+PARAMETER temperature 0.8
+PARAMETER num_ctx 4096
+
+TEMPLATE """
+{{- if .First }}
+### System:
+{{ .System }}
+{{- end }}
+### User: 
+'
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2023-12-15 20:50+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: da-DK\n"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Account."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Account."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "name"
+msgstr ""
+'
+### Response: 
+Language detected: da-DK
+'
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2023-12-15 20:50+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: da-DK\n"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Account."
+msgstr "Felter mangler. Kunne ikke oprette konto."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Account."
+msgstr "Serverfejl: Kunne ikke oprette konto."
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr "subdomæne"
+
+#. js-lingui-explicit-id
+msgid "name"
+msgstr "navn"
+'
+
+### User: 
+'
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2023-12-15 20:50+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: da-DK\n"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Account."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Account."
+msgstr ""
+'
+### Response: 
+Language detected: da-DK
+'
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2023-12-15 20:50+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: da-DK\n"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to Create Account."
+msgstr "Felter mangler. Kunne ikke oprette konto."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to Create Account."
+msgstr "Serverfejl: Kunne ikke oprette konto."
+'
+
+### User:
+{{ .Prompt }}
+
+### Response:
+"""
+
+SYSTEM """
+You are a small translation service. You translate from English to one language provided in the user input.
+Please return the full original user input with the missing translations.
+Translations should be polite and respectful.
+"""
