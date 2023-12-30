@@ -13,9 +13,11 @@ public class BabelFish : Command
 {
     private const string InstanceName = "babelfish";
     private const string DockerImageName = "ollama/ollama";
+    private const int Port = 11434;
     private const string ModelName = "babelfish-po";
     private const string ModelFile = "po.Modelfile";
     private const string BaseModelName = "llama2";
+    private const string LocalizationFilesPath = "../application/account-management/WebApp/src/translations/locale";
 
     private readonly string _modelPath = Path.Combine(Environment.SolutionFolder, "Commands", "BabelFish", "Models");
 
@@ -27,41 +29,52 @@ public class BabelFish : Command
             fileArgument
         };
         AddCommand(translateCommand);
-        translateCommand.SetHandler(async file => { await Translate(file); }, fileArgument);
+        translateCommand.SetHandler(async file => { await Execute(file); }, fileArgument);
     }
 
-    private async Task Translate(string sourceFile)
+    private async Task Execute(string sourceFile)
     {
-        var workingDirectory = Path.Combine(
-            Environment.SolutionFolder,
-            "../application/account-management/WebApp/src/translations/locale"
-        );
-        var sourceFilePath = Path.Combine(workingDirectory, sourceFile);
+        var sourceFilePath = Path.Combine(Environment.SolutionFolder, LocalizationFilesPath, sourceFile);
         if (!File.Exists(sourceFilePath))
         {
             AnsiConsole.MarkupLine($"[red]File {sourceFile} not found.[/]");
             System.Environment.Exit(1);
         }
 
-        using var server = new DockerServer(new DockerServerOptions
-            {
-                ImageName = DockerImageName,
-                InstanceName = InstanceName,
-                Ports = new Dictionary<string, string> { { "11434", "11434" } },
-                Volumes = new Dictionary<string, string> { { InstanceName, "/root/.ollama" } }
-            }
+        var modelFilePath = Path.Combine(_modelPath, ModelFile);
+        if (!File.Exists(modelFilePath))
+        {
+            AnsiConsole.MarkupLine($"[red]Model file {ModelFile} not found.[/]");
+            System.Environment.Exit(1);
+        }
+
+        var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
+        try
+        {
+            dockerServer.StartServer();
+
+            await Translate(modelFilePath, sourceFilePath);
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLine($"[red]Translation failed. {e.Message}[/]");
+            System.Environment.ExitCode = 1;
+        }
+        finally
+        {
+            dockerServer.StopServer();
+        }
+    }
+
+    private async Task Translate(string modelFilePath, string translationFile)
+    {
+        AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
+        var ollamaApiClient = new OllamaApiClient(
+            new HttpClient { BaseAddress = new Uri($"http://localhost:{Port}"), Timeout = TimeSpan.FromMinutes(15) }
         );
 
-        server.StartServer();
-        await AnsiConsole.Status().StartAsync("Initializing translation...", async context =>
+        await AnsiConsole.Status().StartAsync("Checking base model...", async context =>
         {
-            AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
-            var uri = new Uri("http://localhost:11434");
-            var ollamaApiClient = new OllamaApiClient(
-                new HttpClient { BaseAddress = uri, Timeout = TimeSpan.FromMinutes(15) }
-            );
-
-
             var models = (await ollamaApiClient.ListLocalModels()).ToArray();
             var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{BaseModelName}:"));
 
@@ -75,69 +88,54 @@ public class BabelFish : Command
                 );
                 AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
             }
-            else
-            {
-                context.Status("Base model already downloaded.");
-            }
+        });
 
-            context.Status("Creating translation model.");
-            var modelFilePath = Path.Combine(_modelPath, ModelFile);
-            if (!File.Exists(modelFilePath))
-            {
-                context.Status($"Model file {ModelFile} not found.");
-                throw new InvalidOperationException($"Model file '{ModelFile}' not found.");
-            }
-
+        await AnsiConsole.Status().StartAsync("Creating translation model...", async context =>
+        {
+            AnsiConsole.MarkupLine($"[green]Creating {ModelName} model.[/]");
             await ollamaApiClient.CreateModel(
                 ModelName,
                 await File.ReadAllTextAsync(modelFilePath),
                 status => context.Status($"{status.Status}")
             );
-            AnsiConsole.MarkupLine($"[green]Model {ModelName} created.[/]");
+        });
 
-            context.Status("Loading translation context into model.");
-
-            context.Status("Initializing translation...");
-            var sourceContent = await File.ReadAllTextAsync(sourceFilePath);
-            var totalLines = sourceContent.Split("\n").Length + 3;
+        Message[] messages = [];
+        await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
+        {
+            var translationContent = await File.ReadAllTextAsync(translationFile);
+            var totalLines = translationContent.Split("\n").Length + 3;
             var currentLine = 0;
 
-            Message[] messages = [];
-            try
+            var chatRequest = new ChatRequest
             {
-                var result = await ollamaApiClient.SendChat(new ChatRequest
-                {
-                    Model = ModelName,
-                    Messages = new List<Message> { new() { Role = "user", Content = sourceContent } }
-                }, status =>
-                {
-                    var content = status.Message?.Content ?? "";
-                    currentLine += content.Count(c => c == '\n');
-                    var percent = Math.Round((decimal)currentLine / totalLines * 100);
-                    if (percent > 150) throw new InvalidOperationException($"Translation failed. {percent}%.");
+                Model = ModelName,
+                Messages = new List<Message> { new() { Role = "user", Content = translationContent } }
+            };
 
-                    context.Status($"Translating file {Math.Min(100, percent)}%");
-                });
-
-                messages = result.ToArray();
-            }
-            catch (Exception e)
+            context.Status("Loading language model. This can take several minutes...");
+            messages = (await ollamaApiClient.SendChat(chatRequest, status =>
             {
-                AnsiConsole.MarkupLine($"[red]Translation failed. {e.Message}[/]");
-                System.Environment.Exit(1);
-            }
+                var content = status.Message?.Content ?? "";
+                currentLine += content.Count(c => c == '\n');
+                var percent = Math.Round((decimal)currentLine / totalLines * 100);
+                if (percent > 100) throw new InvalidOperationException($"Translation failed. {percent}%.");
+
+                context.Status($"Translating file {Math.Min(100, percent)}%");
+            })).ToArray();
 
             AnsiConsole.MarkupLine("[green]Translation completed.[/]");
-            var lastResult = messages.LastOrDefault();
-            AnsiConsole.MarkupLine($"Role: {lastResult?.Role}.");
-            var translationContents = GetTranslationContents(lastResult?.Content ?? "");
-
-            await File.WriteAllTextAsync(sourceFilePath, translationContents);
-            AnsiConsole.MarkupLine($"[green]Translated file saved to {sourceFilePath}[/]");
-            AnsiConsole.MarkupLine(
-                "[yellow]WARNING: Please proofread translations, make sure the language is inclusive and polite.[/]"
-            );
         });
+
+        var lastResult = messages.LastOrDefault();
+        AnsiConsole.MarkupLine($"Role: {lastResult?.Role}.");
+        var translationContents = GetTranslationContents(lastResult?.Content ?? "");
+
+        await File.WriteAllTextAsync(translationFile, translationContents);
+        AnsiConsole.MarkupLine($"[green]Translated file saved to {translationFile}[/]");
+        AnsiConsole.MarkupLine(
+            "[yellow]WARNING: Please proofread translations, make sure the language is inclusive and polite.[/]"
+        );
     }
 
     private string GetTranslationContents(string responseContent)
@@ -148,7 +146,6 @@ public class BabelFish : Command
             return string.Join("\n", lines.Skip(2).Take(lines.Length - 3));
         }
 
-        AnsiConsole.MarkupLine("[red]Translation could not be read, unexpected format.[/]");
-        return responseContent;
+        throw new InvalidOperationException("Translation could not be read, unexpected format.");
     }
 }
