@@ -162,6 +162,12 @@ public class BabelFish : Command
             }
 
             AnsiConsole.MarkupLine($"Keys missing translation: {keysMissingTranslation.Count}");
+            if (keysMissingTranslation.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
+                return;
+            }
+
             var translationCount = 0;
             foreach (var key in keysMissingTranslation)
             {
@@ -194,11 +200,11 @@ public class BabelFish : Command
 
                 translationCount++;
             }
+
+            AnsiConsole.MarkupLine("[green]Translation completed.[/]");
+
+            await WriteTranslationFile(translationFile, poCatalog);
         });
-
-        AnsiConsole.MarkupLine("[green]Translation completed.[/]");
-
-        await WriteTranslationFile(translationFile, poCatalog);
     }
 
     private static void UpdateCatalogTranslation(POCatalog poCatalog, POKey key, string translation)
