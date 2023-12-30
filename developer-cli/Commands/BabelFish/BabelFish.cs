@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using Karambolo.PO;
 using OllamaSharp;
 using OllamaSharp.Models;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -76,7 +77,7 @@ public class BabelFish : Command
         {
             var translationFile = translationFiles.Values
                 .FirstOrDefault(f => f.Name.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
-            
+
             if (translationFile is not null) return translationFile.FullName;
 
             AnsiConsole.MarkupLine($"[red]ERROR: Translation file for language '{language}' not found.[/]");
@@ -125,52 +126,135 @@ public class BabelFish : Command
             );
         });
 
-        Message[] messages = [];
+        var poParseResult = await ReadTranslationFile(translationFile);
+
+        var poCatalog = poParseResult.Catalog;
+        var language = poCatalog.Language;
+        AnsiConsole.MarkupLine($"Language detected: {language}");
+
         await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
         {
-            var translationContent = await File.ReadAllTextAsync(translationFile);
-            var totalLines = translationContent.Split("\n").Length + 3;
-            var currentLine = 0;
-
-            var chatRequest = new ChatRequest
+            var keysMissingTranslation = new List<POKey>();
+            var messages = new List<Message>
             {
-                Model = ModelName,
-                Messages = new List<Message> { new() { Role = "user", Content = translationContent } }
+                new()
+                {
+                    Role = "system",
+                    Content = $"""
+                               You are a translation service translating from English to {language}.
+                               Return only the translation, not the original text or any other information.
+                               """
+                }
             };
 
-            context.Status("Loading language model. This can take several minutes...");
-            messages = (await ollamaApiClient.SendChat(chatRequest, status =>
+            foreach (var key in poCatalog.Keys)
             {
-                var content = status.Message?.Content ?? "";
-                currentLine += content.Count(c => c == '\n');
-                var percent = Math.Round((decimal)currentLine / totalLines * 100);
-                if (percent > 100) throw new InvalidOperationException($"Translation failed. {percent}%.");
+                var translation = poCatalog.GetTranslation(key);
+                if (translation.Length == 0)
+                {
+                    keysMissingTranslation.Add(key);
+                }
+                else
+                {
+                    messages.Add(new Message { Role = "user", Content = key.Id });
+                    messages.Add(new Message { Role = "assistant", Content = translation });
+                }
+            }
 
-                context.Status($"Translating file {Math.Min(100, percent)}%");
-            })).ToArray();
+            AnsiConsole.MarkupLine($"Keys missing translation: {keysMissingTranslation.Count}");
+            var translationCount = 0;
+            foreach (var key in keysMissingTranslation)
+            {
+                AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
+                var percent = Math.Round((decimal)translationCount / keysMissingTranslation.Count * 100);
+                var totalContentLength = (decimal)Math.Round(key.Id.Length * 1.2); // 20% overhead
+                var contentLength = 0;
 
-            AnsiConsole.MarkupLine("[green]Translation completed.[/]");
+                context.Status($"Translating {Math.Min(100, percent)}% (thinking...)");
+
+                messages.Add(new Message { Role = "user", Content = key.Id });
+
+                var result = await ollamaApiClient.SendChat(new ChatRequest
+                {
+                    Model = BaseModelName,
+                    Messages = messages
+                }, status =>
+                {
+                    contentLength += status.Message?.Content?.Length ?? 0;
+                    var contentPercent = Math.Round(contentLength / totalContentLength * 100);
+                    var pad = "".PadRight((int)Math.Max(0, Math.Round(contentPercent / 10 - 10)), '.');
+
+                    context.Status($"Translating {Math.Min(100, percent)}% ({Math.Min(100, contentPercent)}%){pad}");
+                });
+
+                var lastMessage = result.Last();
+                messages.Add(lastMessage);
+
+                UpdateCatalogTranslation(poCatalog, key, lastMessage.Content);
+
+                translationCount++;
+            }
         });
 
-        var lastResult = messages.LastOrDefault();
-        AnsiConsole.MarkupLine($"Role: {lastResult?.Role}.");
-        var translationContents = GetTranslationContents(lastResult?.Content ?? "");
+        AnsiConsole.MarkupLine("[green]Translation completed.[/]");
 
-        await File.WriteAllTextAsync(translationFile, translationContents);
+        await WriteTranslationFile(translationFile, poCatalog);
+    }
+
+    private static void UpdateCatalogTranslation(POCatalog poCatalog, POKey key, string translation)
+    {
+        var entry = poCatalog[key];
+        if (entry is POSingularEntry)
+        {
+            AnsiConsole.MarkupLine($"Singular {key.Id}");
+            AnsiConsole.MarkupLine("Last message: " + translation);
+            poCatalog.Remove(key);
+            poCatalog.Add(new POSingularEntry(key)
+            {
+                Translation = translation
+            });
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red]Plural is currently not supported Key: {key.Id}[/]");
+            System.Environment.Exit(1);
+        }
+    }
+
+    private static async Task WriteTranslationFile(string translationFile, POCatalog poCatalog)
+    {
+        var generate = new POGenerator(new POGeneratorSettings
+        {
+            IgnoreEncoding = true
+        });
+        var fileStream = File.OpenWrite(translationFile);
+        generate.Generate(fileStream, poCatalog);
+        await fileStream.FlushAsync();
+        fileStream.Close();
+
         AnsiConsole.MarkupLine($"[green]Translated file saved to {translationFile}[/]");
         AnsiConsole.MarkupLine(
             "[yellow]WARNING: Please proofread translations, make sure the language is inclusive and polite.[/]"
         );
     }
 
-    private string GetTranslationContents(string responseContent)
+    private static async Task<POParseResult> ReadTranslationFile(string translationFile)
     {
-        var lines = responseContent.Split("\n");
-        if (lines.Length >= 5 && lines[0].StartsWith("Language detected:") && lines.Last() == "'" && lines[1] == "'")
+        var translationContent = await File.ReadAllTextAsync(translationFile);
+        var parser = new POParser();
+        var poParseResult = parser.Parse(new StringReader(translationContent));
+        if (poParseResult.Success == false)
         {
-            return string.Join("\n", lines.Skip(2).Take(lines.Length - 3));
+            AnsiConsole.MarkupLine($"[red]Failed to parse PO file. {poParseResult.Diagnostics}[/]");
+            System.Environment.Exit(1);
         }
 
-        throw new InvalidOperationException("Translation could not be read, unexpected format.");
+        if (poParseResult.Catalog.Language is null)
+        {
+            AnsiConsole.MarkupLine("[red]Failed to parse PO file. Language not found.[/]");
+            System.Environment.Exit(1);
+        }
+
+        return poParseResult;
     }
 }
