@@ -8,20 +8,17 @@ using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
-namespace PlatformPlatform.DeveloperCli.Commands.BabelFish;
+namespace PlatformPlatform.DeveloperCli.Commands.Translate;
 
 [UsedImplicitly]
-public class BabelFish : Command
+public class Translate : Command
 {
-    private const string InstanceName = "babelfish";
+    private const string InstanceName = "platform-platform-ollama";
     private const string DockerImageName = "ollama/ollama";
     private const int Port = 11434;
-    private const string ModelName = "babelfish-po";
-    private const string ModelFile = "po.Modelfile";
     private const string BaseModelName = "llama2";
-    private readonly string _modelPath = Path.Combine(Environment.SolutionFolder, "Commands", "BabelFish", "Models");
 
-    public BabelFish() : base("babel-fish", $"Your local translator 🐡 (ALPHA) powered by {BaseModelName}")
+    public Translate() : base("translate", $"Your local translator 🐡 (ALPHA) powered by {BaseModelName}")
     {
         var fileOption = new Option<string?>(
             ["<language>", "--language", "-l"],
@@ -35,13 +32,6 @@ public class BabelFish : Command
 
     private async Task<int> Execute(string? language)
     {
-        var modelFilePath = Path.Combine(_modelPath, ModelFile);
-        if (!File.Exists(modelFilePath))
-        {
-            AnsiConsole.MarkupLine($"[red]Model file {ModelFile} not found.[/]");
-            System.Environment.Exit(1);
-        }
-
         var translationFile = GetTranslationFile(language);
 
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
@@ -49,7 +39,7 @@ public class BabelFish : Command
         {
             dockerServer.StartServer();
 
-            await Translate(modelFilePath, translationFile);
+            await RunTranslation(translationFile);
 
             return 0;
         }
@@ -92,7 +82,7 @@ public class BabelFish : Command
         return translationFiles[selection].FullName;
     }
 
-    private async Task Translate(string modelFilePath, string translationFile)
+    private async Task RunTranslation(string translationFile)
     {
         AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
         var ollamaApiClient = new OllamaApiClient(
@@ -114,16 +104,6 @@ public class BabelFish : Command
                 );
                 AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
             }
-        });
-
-        await AnsiConsole.Status().StartAsync("Creating translation model...", async context =>
-        {
-            AnsiConsole.MarkupLine($"[green]Creating {ModelName} model.[/]");
-            await ollamaApiClient.CreateModel(
-                ModelName,
-                await File.ReadAllTextAsync(modelFilePath),
-                status => context.Status($"{status.Status}")
-            );
         });
 
         var poParseResult = await ReadTranslationFile(translationFile);
