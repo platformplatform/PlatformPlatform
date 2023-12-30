@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
 using OllamaSharp;
 using OllamaSharp.Models;
@@ -17,30 +18,22 @@ public class BabelFish : Command
     private const string ModelName = "babelfish-po";
     private const string ModelFile = "po.Modelfile";
     private const string BaseModelName = "llama2";
-    private const string LocalizationFilesPath = "../application/account-management/WebApp/src/translations/locale";
-
     private readonly string _modelPath = Path.Combine(Environment.SolutionFolder, "Commands", "BabelFish", "Models");
 
     public BabelFish() : base("babel-fish", $"Your local translator 🐡 (ALPHA) powered by {BaseModelName}")
     {
-        var fileArgument = new Argument<string>("file", "The file to translate");
-        var translateCommand = new Command("translate", "Translate a file")
-        {
-            fileArgument
-        };
-        AddCommand(translateCommand);
-        translateCommand.SetHandler(async file => { await Execute(file); }, fileArgument);
+        var fileOption = new Option<string?>(
+            ["<language>", "--language", "-l"],
+            "The name of the language to translate (e.g `da-DK`)"
+        );
+
+        AddOption(fileOption);
+
+        Handler = CommandHandler.Create<string?>(Execute);
     }
 
-    private async Task Execute(string sourceFile)
+    private async Task<int> Execute(string? language)
     {
-        var sourceFilePath = Path.Combine(Environment.SolutionFolder, LocalizationFilesPath, sourceFile);
-        if (!File.Exists(sourceFilePath))
-        {
-            AnsiConsole.MarkupLine($"[red]File {sourceFile} not found.[/]");
-            System.Environment.Exit(1);
-        }
-
         var modelFilePath = Path.Combine(_modelPath, ModelFile);
         if (!File.Exists(modelFilePath))
         {
@@ -48,22 +41,54 @@ public class BabelFish : Command
             System.Environment.Exit(1);
         }
 
+        var translationFile = GetTranslationFile(language);
+
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try
         {
             dockerServer.StartServer();
 
-            await Translate(modelFilePath, sourceFilePath);
+            await Translate(modelFilePath, translationFile);
+
+            return 0;
         }
         catch (Exception e)
         {
             AnsiConsole.MarkupLine($"[red]Translation failed. {e.Message}[/]");
-            System.Environment.ExitCode = 1;
+            return 1;
         }
         finally
         {
             dockerServer.StopServer();
         }
+    }
+
+    private string GetTranslationFile(string? language)
+    {
+        var workingDirectory = new DirectoryInfo(Path.Combine(Environment.SolutionFolder, "..", "application"));
+        var translationFiles = workingDirectory
+            .GetFiles("*.po", SearchOption.AllDirectories)
+            .Where(f => !f.FullName.Contains("node_modules"))
+            .Where(f => !f.FullName.EndsWith("en-US.po"))
+            .ToDictionary(s => s.FullName.Replace(workingDirectory.FullName, ""), f => f);
+
+        if (language is not null)
+        {
+            var translationFile = translationFiles.Values
+                .FirstOrDefault(f => f.Name.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
+            
+            if (translationFile is not null) return translationFile.FullName;
+
+            AnsiConsole.MarkupLine($"[red]ERROR: Translation file for language '{language}' not found.[/]");
+            System.Environment.Exit(1);
+        }
+
+        var prompt = new SelectionPrompt<string>()
+            .Title("Please select the file to translate")
+            .AddChoices(translationFiles.Keys);
+
+        var selection = AnsiConsole.Prompt(prompt);
+        return translationFiles[selection].FullName;
     }
 
     private async Task Translate(string modelFilePath, string translationFile)
