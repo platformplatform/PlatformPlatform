@@ -57,7 +57,10 @@ public class BabelFish : Command
         {
             AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
             var uri = new Uri("http://localhost:11434");
-            var ollamaApiClient = new OllamaApiClient(uri);
+            var ollamaApiClient = new OllamaApiClient(
+                new HttpClient { BaseAddress = uri, Timeout = TimeSpan.FromMinutes(15) }
+            );
+
 
             var models = (await ollamaApiClient.ListLocalModels()).ToArray();
             var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{BaseModelName}:"));
@@ -111,7 +114,7 @@ public class BabelFish : Command
                     var content = status.Message?.Content ?? "";
                     currentLine += content.Count(c => c == '\n');
                     var percent = Math.Round((decimal)currentLine / totalLines * 100);
-                    if (percent > 150) throw new InvalidOperationException("Translation failed.");
+                    if (percent > 150) throw new InvalidOperationException($"Translation failed. {percent}%.");
 
                     context.Status($"Translating file {Math.Min(100, percent)}%");
                 });
