@@ -44,7 +44,7 @@ public static class ChangeDetection
         ProcessHelper.StartProcess(
             currentExecutablePath,
             string.Join(" ", args),
-            Environment.SolutionFolder,
+            Directory.GetCurrentDirectory(),
             waitForExit: false,
             printCommand: false
         );
