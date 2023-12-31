@@ -119,7 +119,7 @@ public class ConfigureDeveloperEnvironment : Command
         var output = ProcessHelper.StartProcess(
             "dotnet",
             "dev-certs https --check",
-            redirectStandardOutput: true,
+            redirectOutput: true,
             createNoWindow: true,
             printCommand: false
         );
@@ -154,7 +154,7 @@ public class ConfigureDeveloperEnvironment : Command
             var certificateValidation = ProcessHelper.StartProcess(
                 "openssl",
                 $"pkcs12 -in {Environment.LocalhostPfx} -passin pass:{password} -nokeys",
-                redirectStandardOutput: true,
+                redirectOutput: true,
                 createNoWindow: true,
                 printCommand: false
             );
@@ -179,7 +179,7 @@ public class ConfigureDeveloperEnvironment : Command
         ProcessHelper.StartProcess(
             "dotnet",
             "dev-certs https --clean",
-            redirectStandardOutput: true,
+            redirectOutput: true,
             createNoWindow: true,
             printCommand: true
         );
@@ -220,7 +220,7 @@ public class ConfigureDeveloperEnvironment : Command
             ProcessHelper.StartProcess(
                 "cmd.exe",
                 $"/c setx {variableName} {variableValue}",
-                redirectStandardOutput: true,
+                redirectOutput: true,
                 createNoWindow: true,
                 printCommand: false
             );

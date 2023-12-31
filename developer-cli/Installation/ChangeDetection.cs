@@ -44,7 +44,7 @@ public static class ChangeDetection
         ProcessHelper.StartProcess(
             currentExecutablePath,
             string.Join(" ", args),
-            Environment.SolutionFolder,
+            Directory.GetCurrentDirectory(),
             waitForExit: false,
             printCommand: false
         );
@@ -54,8 +54,10 @@ public static class ChangeDetection
 
     private static string CalculateMd5HashForSolution()
     {
-        // Get all files that are part of Git repository and ignore all other files
-        var solutionFiles = GetGitFiles(Environment.SolutionFolder);
+        // Get all files C# and C# project files in the Developer CLI solution
+        var solutionFiles = Directory.EnumerateFiles(Environment.SolutionFolder, "*.cs*", SearchOption.AllDirectories)
+            .Where(f => !f.Contains("artifacts"))
+            .ToList();
 
         using var sha256 = SHA256.Create();
         using var combinedStream = new MemoryStream();
@@ -69,26 +71,6 @@ public static class ChangeDetection
 
         combinedStream.Position = 0;
         return BitConverter.ToString(sha256.ComputeHash(combinedStream));
-    }
-
-    private static List<string> GetGitFiles(string folder)
-    {
-        var gitFiles = new List<string>();
-        var output = ProcessHelper.StartProcess(
-            "git",
-            "ls-files",
-            folder,
-            true,
-            true,
-            printCommand: false
-        );
-
-        foreach (var relativeFilepath in output.Trim().Split("\n").ToList())
-        {
-            gitFiles.Add(Path.Combine(folder, relativeFilepath));
-        }
-
-        return gitFiles;
     }
 
     private static void PublishDeveloperCli()

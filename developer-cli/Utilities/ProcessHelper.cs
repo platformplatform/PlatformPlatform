@@ -9,7 +9,7 @@ public static class ProcessHelper
         string command,
         string arguments,
         string? workingDirectory = null,
-        bool redirectStandardOutput = false,
+        bool redirectOutput = false,
         bool createNoWindow = false,
         bool waitForExit = true,
         bool printCommand = true
@@ -21,7 +21,8 @@ public static class ProcessHelper
         {
             FileName = command,
             Arguments = arguments,
-            RedirectStandardOutput = redirectStandardOutput,
+            RedirectStandardOutput = redirectOutput,
+            RedirectStandardError = redirectOutput,
             CreateNoWindow = createNoWindow
         };
 
@@ -32,7 +33,9 @@ public static class ProcessHelper
         if (!waitForExit) return string.Empty;
 
         var output = string.Empty;
-        if (redirectStandardOutput) output = process.StandardOutput.ReadToEnd();
+        if (redirectOutput) output += process.StandardOutput.ReadToEnd();
+        if (redirectOutput) output += process.StandardError.ReadToEnd();
+
         process.WaitForExit();
         return output;
     }

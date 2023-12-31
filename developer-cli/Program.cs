@@ -4,6 +4,8 @@ using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
+ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
+
 if (!Environment.IsMacOs && !Environment.IsWindows)
 {
     AnsiConsole.MarkupLine($"[red]Your OS [bold]{System.Environment.OSVersion.Platform}[/] is not supported.[/]");
@@ -21,7 +23,6 @@ if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-
     AnsiConsole.Write(figletText);
 }
 
-ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
 AliasRegistration.EnsureAliasIsRegistered();
 PrerequisitesChecker.EnsurePrerequisitesAreMeet(args);
 
