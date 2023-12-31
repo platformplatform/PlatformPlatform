@@ -112,7 +112,7 @@ public class Translate : Command
 
         await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
         {
-            var keysMissingTranslation = new List<POKey>();
+            var missingTranslations = new List<POKey>();
             var messages = new List<Message>
             {
                 new()
@@ -130,7 +130,7 @@ public class Translate : Command
                 var translation = poCatalog.GetTranslation(key);
                 if (translation.Length == 0)
                 {
-                    keysMissingTranslation.Add(key);
+                    missingTranslations.Add(key);
                 }
                 else
                 {
@@ -139,44 +139,36 @@ public class Translate : Command
                 }
             }
 
-            AnsiConsole.MarkupLine($"Keys missing translation: {keysMissingTranslation.Count}");
-            if (keysMissingTranslation.Count == 0)
+            AnsiConsole.MarkupLine($"Keys missing translation: {missingTranslations.Count}");
+            if (missingTranslations.Count == 0)
             {
                 AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
                 return;
             }
 
-            var translationCount = 0;
-            foreach (var key in keysMissingTranslation)
+            for (var index = 0; index < missingTranslations.Count; index++)
             {
-                AnsiConsole.MarkupLine($"[green]Translating '{key.Id}'[/]");
-                var percent = Math.Round((decimal)translationCount / keysMissingTranslation.Count * 100);
-                var totalContentLength = (decimal)Math.Round(key.Id.Length * 1.2); // 20% overhead
-                var contentLength = 0;
+                var key = missingTranslations[index];
+                var content = "";
 
-                context.Status($"Translating {Math.Min(100, percent)}% (thinking...)");
+                AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
+                context.Status($"Translating {index + 1}/{missingTranslations.Count} (thinking...)");
 
                 messages.Add(new Message { Role = "user", Content = key.Id });
 
-                var result = await ollamaApiClient.SendChat(new ChatRequest
+                messages = (await ollamaApiClient.SendChat(new ChatRequest
                 {
                     Model = ModelName,
                     Messages = messages
                 }, status =>
                 {
-                    contentLength += status.Message?.Content?.Length ?? 0;
-                    var contentPercent = Math.Round(contentLength / totalContentLength * 100);
-                    var pad = "".PadRight((int)Math.Max(0, Math.Round(contentPercent / 10 - 10)), '.');
+                    content += status.Message?.Content ?? "";
+                    var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
 
-                    context.Status($"Translating {Math.Min(100, percent)}% ({Math.Min(100, contentPercent)}%){pad}");
-                });
+                    context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
+                })).ToList();
 
-                var lastMessage = result.Last();
-                messages.Add(lastMessage);
-
-                UpdateCatalogTranslation(poCatalog, key, lastMessage.Content);
-
-                translationCount++;
+                UpdateCatalogTranslation(poCatalog, key, messages.Last().Content);
             }
 
             AnsiConsole.MarkupLine("[green]Translation completed.[/]");
@@ -191,14 +183,10 @@ public class Translate : Command
         var poParser = new POParser();
         var poParseResult = poParser.Parse(new StringReader(translationContent));
         if (poParseResult.Success == false)
-        {
             throw new InvalidOperationException($"Failed to parse PO file. {poParseResult.Diagnostics}");
-        }
 
         if (poParseResult.Catalog.Language is null)
-        {
             throw new InvalidOperationException($"Failed to parse PO file {translationFile}. Language not found.");
-        }
 
         return poParseResult;
     }
