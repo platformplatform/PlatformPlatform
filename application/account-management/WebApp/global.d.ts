@@ -16,6 +16,8 @@ export declare global {
     APPLICATION_VERSION: string;
     /* User locale */
     LOCALE: string;
+    /* Application Insights Connection String */
+    APP_INSIGHTS_CONNECTION_STRING: string;
   };
 
   /**
