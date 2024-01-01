@@ -10,21 +10,15 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 [UsedImplicitly]
 public class BuildSystem : Command
 {
-    public BuildSystem() : base(
-        "build",
-        "Builds a self-contained system. This is particularly useful in Rider where MS Build is not used and the Shared Kernel is not always built correctly."
-    )
+    public BuildSystem() : base("build", "Builds a self-contained system")
     {
-        // Define an option for the solutionName
         var solutionNameOption = new Option<string?>(
-            new[] { "<solution-name>", "--solution-name", "-s" },
+            ["<solution-name>", "--solution-name", "-s"],
             "The name of the self-contained system to build"
         );
 
-        // Add the option to the command
         AddOption(solutionNameOption);
 
-        // Bind the option to the Execute method parameter
         Handler = CommandHandler.Create<string?>(Execute);
     }
 
@@ -42,7 +36,7 @@ public class BuildSystem : Command
             return 1;
         }
 
-        if (string.IsNullOrEmpty(solutionName))
+        if (solutionName is null)
         {
             var prompt = new SelectionPrompt<string>()
                 .Title("Please select an option")

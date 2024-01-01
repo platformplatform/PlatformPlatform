@@ -10,10 +10,9 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 [UsedImplicitly]
 public class CodeInspections : Command
 {
-    public CodeInspections() :
-        base("code-inspections", "Run JetBrains Code Inspections")
+    public CodeInspections() : base("code-inspections", "Run JetBrains Code Inspections")
     {
-        Handler = CommandHandler.Create(new Func<int>(Execute));
+        Handler = CommandHandler.Create(Execute);
     }
 
     private int Execute()
