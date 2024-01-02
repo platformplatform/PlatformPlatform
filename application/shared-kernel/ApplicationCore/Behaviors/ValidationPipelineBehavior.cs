@@ -35,7 +35,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
                 .Distinct()
                 .ToArray();
 
-            if (errorDetails.Any())
+            if (errorDetails.Length > 0)
             {
                 return CreateValidationResult<TResponse>(errorDetails);
             }

@@ -28,18 +28,18 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
 
         EnqueueAndClearDomainEvents(domainEvents);
 
-        while (domainEvents.Any())
+        while (domainEvents.Count > 0)
         {
             var domainEvent = domainEvents.Dequeue();
 
-            // Publish the domain event to the MediatR pipeline. Any registered event handlers will be invoked. These
-            // event handlers can then carry out any necessary actions, such as managing side effects, updating read
-            // models, and so forth.
+            // Publish the domain event to the MediatR pipeline. Registered event handlers will be invoked immediately
             await mediator.Publish(domainEvent, cancellationToken);
 
-            // It is possible that a domain event handler creates a new domain event, so we need to check if there are
-            // any new domain events that need to be published and handled before continuing.
-            EnqueueAndClearDomainEvents(domainEvents);
+            if (domainEvents.Count == 0)
+            {
+                // Add any new domain events that were generated during the execution of the event handlers
+                EnqueueAndClearDomainEvents(domainEvents);
+            }
         }
 
         return response;
