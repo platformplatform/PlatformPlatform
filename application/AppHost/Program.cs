@@ -3,14 +3,6 @@ using AppHost;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
-// var sqlPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD")
-//                   ?? throw new InvalidOperationException("Missing SQL_SERVER_PASSWORD environment variable.");
-//
-// builder.AddContainer("localhost", "mcr.microsoft.com/azure-sql-edge")
-//     .WithEnvironment("ACCEPT_EULA", "Y")
-//     .WithEnvironment("SA_PASSWORD", sqlPassword)
-//     .WithServiceBinding(1433, "tcp", "localhost")
-//     .WithVolumeMount("sql-server-data", "/var/opt/mssql", VolumeMountType.Named);
 
 StartSqlServerUsingDockerCompose();
 
@@ -21,7 +13,9 @@ builder.AddBunApp("frontend", "../account-management/WebApp", "dev")
 
 builder.Build().Run();
 
-// Temporary workaround until staring container using builder.AddContainer() is working.
+return;
+
+// Temporary workaround until staring SQL Server using Aspire is fixed: https://github.com/dotnet/aspire/issues/1023
 static void StartSqlServerUsingDockerCompose()
 {
     try
