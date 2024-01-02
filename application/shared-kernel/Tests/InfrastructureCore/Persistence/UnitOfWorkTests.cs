@@ -1,6 +1,5 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
@@ -11,7 +10,7 @@ public sealed class UnitOfWorkTests : IDisposable
 {
     private readonly SqliteInMemoryDbContextFactory<TestDbContext> _sqliteInMemoryDbContextFactory;
     private readonly TestDbContext _testDbContext;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly UnitOfWork _unitOfWork;
 
     public UnitOfWorkTests()
     {

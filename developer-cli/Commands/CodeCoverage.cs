@@ -10,10 +10,9 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 [UsedImplicitly]
 public class CodeCoverage : Command
 {
-    public CodeCoverage() :
-        base("code-coverage", "Run JetBrains Code Coverage")
+    public CodeCoverage() : base("code-coverage", "Run JetBrains Code Coverage")
     {
-        Handler = CommandHandler.Create(new Func<int>(Execute));
+        Handler = CommandHandler.Create(Execute);
     }
 
     private int Execute()

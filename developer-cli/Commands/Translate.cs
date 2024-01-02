@@ -18,14 +18,16 @@ public class Translate : Command
     private const int Port = 11434;
     private const string ModelName = "llama2";
 
-    public Translate() : base("translate", $"Your local translator 🐡 (ALPHA) powered by {ModelName}")
+    public Translate() : base(
+        "translate",
+        $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}")
     {
-        var fileOption = new Option<string?>(
+        var languageOption = new Option<string?>(
             ["<language>", "--language", "-l"],
             "The name of the language to translate (e.g `da-DK`)"
         );
 
-        AddOption(fileOption);
+        AddOption(languageOption);
 
         Handler = CommandHandler.Create<string?>(Execute);
     }
@@ -183,10 +185,14 @@ public class Translate : Command
         var poParser = new POParser();
         var poParseResult = poParser.Parse(new StringReader(translationContent));
         if (poParseResult.Success == false)
+        {
             throw new InvalidOperationException($"Failed to parse PO file. {poParseResult.Diagnostics}");
+        }
 
         if (poParseResult.Catalog.Language is null)
+        {
             throw new InvalidOperationException($"Failed to parse PO file {translationFile}. Language not found.");
+        }
 
         return poParseResult;
     }

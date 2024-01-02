@@ -17,10 +17,10 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public string? Phone { get; private set; }
 
-    public static Tenant Create(string subdomain, string tenantName, string? phone)
+    public static Tenant Create(string subdomain, string tenantName, string? phone, string email)
     {
         var tenant = new Tenant(new TenantId(subdomain), tenantName, phone);
-        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id));
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }
 

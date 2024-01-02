@@ -16,10 +16,10 @@ public class ConfigureDeveloperEnvironment : Command
 
     public ConfigureDeveloperEnvironment() : base(
         CommandName,
-        "Generates a developer certificate for localhost. Generates CERTIFICATE_PASSWORD SQL_SERVER_PASSWORD saves them in environment variables."
+        "Generate CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD, create developer certificate for localhost with known password, and store passwords in environment variables"
     )
     {
-        Handler = CommandHandler.Create(new Func<int>(Execute));
+        Handler = CommandHandler.Create(Execute);
     }
 
     private int Execute()

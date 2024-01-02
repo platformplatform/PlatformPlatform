@@ -120,8 +120,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         if (expectedErrors is not null)
         {
             var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), options);
+            var actualErrors =
+                JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), JsonSerializerOptions);
 
             actualErrors.Should().BeEquivalentTo(expectedErrors);
         }
@@ -132,11 +132,10 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         }
     }
 
-    private static async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
+    private async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
 
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        return JsonSerializer.Deserialize<ProblemDetails>(content, options);
+        return JsonSerializer.Deserialize<ProblemDetails>(content, JsonSerializerOptions);
     }
 }

@@ -9,7 +9,7 @@ public sealed class DatabaseSeeder
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        Tenant1 = Tenant.Create("tenant1", "Tenant 1", "1234567890");
+        Tenant1 = Tenant.Create("tenant1", "Tenant 1", "1234567890", "user1@test.com");
         accountManagementDbContext.Tenants.AddRange(Tenant1);
 
         User1 = User.Create(Tenant1.Id, "user1@test.com", UserRole.TenantUser);

@@ -26,7 +26,7 @@ public sealed class PublishDomainEventsPipelineBehaviorTests
         next.Invoke().Returns(TestAggregate.Create("Test"));
 
         var testAggregate = TestAggregate.Create("TestAggregate");
-        var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created.
+        var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created
         domainEventCollector.GetAggregatesWithDomainEvents().Returns(new[] { testAggregate });
 
         // Act

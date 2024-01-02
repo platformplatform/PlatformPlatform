@@ -10,10 +10,9 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 [UsedImplicitly]
 public class CodeCleanup : Command
 {
-    public CodeCleanup() :
-        base("code-cleanup", "Run JetBrains Code Cleanup")
+    public CodeCleanup() : base("code-cleanup", "Run JetBrains Code Cleanup")
     {
-        Handler = CommandHandler.Create(new Func<int>(Execute));
+        Handler = CommandHandler.Create(Execute);
     }
 
     private int Execute()
@@ -27,15 +26,7 @@ public class CodeCleanup : Command
             workingDirectory
         );
 
-        var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.xml"));
-        if (resultXml.Contains("<Issues />"))
-        {
-            AnsiConsole.MarkupLine("[green]No issues found![/]");
-        }
-        else
-        {
-            ProcessHelper.StartProcess("code", "result.xml", workingDirectory);
-        }
+        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
 
         return 0;
     }

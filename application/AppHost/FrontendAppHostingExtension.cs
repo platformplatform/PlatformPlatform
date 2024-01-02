@@ -9,17 +9,17 @@ internal class FrontendAppAddPortLifecycleHook : IDistributedApplicationLifecycl
 {
     public Task BeforeStartAsync(DistributedApplicationModel appModel, CancellationToken cancellationToken = default)
     {
-        var frontendApps = appModel.Resources.OfType<FrontendAppResource>();
+        var frontendApps = appModel.Resources.OfType<ExecutableResource>();
         foreach (var frontendApp in frontendApps)
         {
             if (!frontendApp.TryGetServiceBindings(out var bindings)) continue;
 
             var environmentAnnotation = new EnvironmentCallbackAnnotation(env =>
             {
-                foreach (var binding in bindings)
+                foreach (var bindingName in bindings.Select(b => b.Name))
                 {
-                    var serviceName = $"{frontendApp.Name}_{binding.Name}";
-                    env[$"PORT_{binding.Name.ToUpperInvariant()}"] = $"{{{{- portForServing \"{serviceName}\" -}}}}";
+                    var serviceName = $"{frontendApp.Name}_{bindingName}";
+                    env[$"PORT_{bindingName.ToUpperInvariant()}"] = $"{{{{- portForServing \"{serviceName}\" -}}}}";
                 }
             });
 
@@ -32,14 +32,14 @@ internal class FrontendAppAddPortLifecycleHook : IDistributedApplicationLifecycl
 
 internal static class FrontendAppHostingExtension
 {
-    public static IResourceBuilder<FrontendAppResource> AddBunApp(
+    public static IResourceBuilder<ExecutableResource> AddBunApp(
         this IDistributedApplicationBuilder builder,
         string name,
         string workingDirectory,
         string bunCommand
     )
     {
-        var resource = new FrontendAppResource(name, "bun", workingDirectory, new[] { "run", bunCommand });
+        var resource = new ExecutableResource(name, "bun", workingDirectory, ["run", bunCommand]);
 
         builder.Services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IDistributedApplicationLifecycleHook, FrontendAppAddPortLifecycleHook>()
@@ -51,6 +51,3 @@ internal static class FrontendAppHostingExtension
             .ExcludeFromManifest();
     }
 }
-
-internal class FrontendAppResource(string name, string command, string workingDirectory, string[]? args)
-    : ExecutableResource(name, command, workingDirectory, args);

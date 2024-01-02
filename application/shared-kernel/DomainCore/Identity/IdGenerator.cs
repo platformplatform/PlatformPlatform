@@ -36,10 +36,10 @@ public static class IdGenerator
         var host = Dns.GetHostEntry(Dns.GetHostName());
         const string noNetworkAdapters =
             "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.";
-        var ipAddress = host.AddressList.FirstOrDefault(ip =>
+        var ipAddress = Array.Find(host.AddressList, ip =>
             ip.AddressFamily == AddressFamily.InterNetwork) ?? throw new InvalidOperationException(noNetworkAdapters);
 
-        var lastSegment = ipAddress.ToString().Split('.').Last();
+        var lastSegment = ipAddress.ToString().Split('.')[3];
         return int.Parse(lastSegment);
     }
 }

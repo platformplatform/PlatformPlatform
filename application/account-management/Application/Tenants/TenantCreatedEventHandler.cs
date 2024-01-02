@@ -1,12 +1,19 @@
+using PlatformPlatform.AccountManagement.Application.Users;
+
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 [UsedImplicitly]
-public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger)
+public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger, ISender mediator)
     : INotificationHandler<TenantCreatedEvent>
 {
-    public Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
     {
+        var createTenantOwnerCommand =
+            new CreateUserCommand(notification.TenantId, notification.Email, UserRole.TenantOwner);
+        var result = await mediator.Send(createTenantOwnerCommand, cancellationToken);
+
+        if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
+
         logger.LogInformation("Raise event to send Welcome mail to tenant.");
-        return Task.CompletedTask;
     }
 }

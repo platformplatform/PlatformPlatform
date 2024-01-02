@@ -14,7 +14,7 @@ if (!Environment.IsMacOs && !Environment.IsWindows)
 
 if (args.Length == 0)
 {
-    args = new[] { "--help" };
+    args = ["--help"];
 }
 
 if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))

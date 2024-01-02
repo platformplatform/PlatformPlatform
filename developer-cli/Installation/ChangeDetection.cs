@@ -8,13 +8,11 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        var currentExecutablePath = System.Environment.ProcessPath!; // Don't inline as it can be renamed in Windows
-
         if (Environment.IsWindows)
         {
             // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
             // We delete the previous executable the next time the process is started
-            File.Delete(currentExecutablePath.Replace(".exe", ".previous.exe"));
+            File.Delete(System.Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
         }
 
         var hashFile = Path.Combine(Environment.PublishFolder, "source-file-hash.md5");
@@ -28,7 +26,7 @@ public static class ChangeDetection
         File.WriteAllText(hashFile, currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
-        var isDebugBuild = new FileInfo(currentExecutablePath).FullName.Contains("debug");
+        var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
         if (Environment.IsWindows)
@@ -42,7 +40,7 @@ public static class ChangeDetection
 
         // Restart the process with the same arguments
         ProcessHelper.StartProcess(
-            currentExecutablePath,
+            System.Environment.ProcessPath!,
             string.Join(" ", args),
             Directory.GetCurrentDirectory(),
             waitForExit: false,
