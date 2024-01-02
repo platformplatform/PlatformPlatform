@@ -21,7 +21,11 @@ static void StartSqlServerUsingDockerCompose()
     try
     {
         using var process = new Process();
+
+#pragma warning disable S4036 // Disable "Searching OS commands in PATH is security-sensitive"
         process.StartInfo = new ProcessStartInfo { FileName = "docker", Arguments = "compose up sql-server -d" };
+#pragma warning restore S4036
+
         process.Start();
         process.WaitForExit();
         Thread.Sleep(TimeSpan.FromSeconds(3)); // Ensure SQL Server is ready
