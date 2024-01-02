@@ -65,7 +65,7 @@ public static class ApiCoreConfiguration
         }
         else
         {
-            // When running inside a Docker container running as non-root we need to use a port higher than 1024.
+            // When running inside a Docker container running as non-root we need to use a port higher than 1024
             builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(8443, _ => { }));
         }
 
@@ -84,26 +84,26 @@ public static class ApiCoreConfiguration
 
         if (app.Environment.IsDevelopment())
         {
-            // Enable the developer exception page, which displays detailed information about exceptions that occur.
+            // Enable the developer exception page, which displays detailed information about exceptions that occur
             app.UseDeveloperExceptionPage();
             app.UseCors(LocalhostCorsPolicyName);
         }
         else
         {
             // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
-            // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development.
+            // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
             app.UseHsts();
 
-            // Adds middleware for redirecting HTTP Requests to HTTPS.
+            // Adds middleware for redirecting HTTP Requests to HTTPS
             app.UseHttpsRedirection();
 
-            // Configure global exception handling for the production environment.
+            // Configure global exception handling for the production environment
             app.UseExceptionHandler(_ => { });
         }
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
-        // Add test-specific endpoints when running tests, such as /api/throwException.
+        // Add test-specific endpoints when running tests, such as /api/throwException
         app.MapTestEndpoints();
 
         app.Services.ApplyMigrations<TDbContext>();
