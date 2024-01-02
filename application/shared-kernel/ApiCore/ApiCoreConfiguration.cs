@@ -17,8 +17,8 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
-    private const string LocalhostCorsPolicyName = "localhost8443";
-    private const string LocalhostUrl = "https://localhost:8443";
+    private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
+    private static readonly string LocalhostUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)!;
 
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
