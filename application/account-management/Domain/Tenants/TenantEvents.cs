@@ -3,4 +3,4 @@ using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
 [UsedImplicitly]
-public sealed record TenantCreatedEvent(TenantId TenantId) : IDomainEvent;
+public sealed record TenantCreatedEvent(TenantId TenantId, string Email) : IDomainEvent;

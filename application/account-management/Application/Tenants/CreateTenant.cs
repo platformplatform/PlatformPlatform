@@ -1,6 +1,5 @@
 using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -13,32 +12,17 @@ public sealed record CreateTenantCommand(string Subdomain, string Name, string? 
 [UsedImplicitly]
 public sealed class CreateTenantHandler(
     ITenantRepository tenantRepository,
-    ITelemetryEventsCollector events,
-    ISender mediator
+    ITelemetryEventsCollector events
 ) : IRequestHandler<CreateTenantCommand, Result<TenantId>>
 {
     public async Task<Result<TenantId>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone);
+        var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone, command.Email);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
 
-        await CreateTenantOwnerAsync(tenant.Id, command.Email, cancellationToken);
-
         return tenant.Id;
-    }
-
-    private async Task CreateTenantOwnerAsync(
-        TenantId tenantId,
-        string tenantOwnerEmail,
-        CancellationToken cancellationToken
-    )
-    {
-        var createTenantOwnerUserCommand = new CreateUserCommand(tenantId, tenantOwnerEmail, UserRole.TenantOwner);
-        var result = await mediator.Send(createTenantOwnerUserCommand, cancellationToken);
-
-        if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
     }
 }
 
