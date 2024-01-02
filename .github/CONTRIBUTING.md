@@ -8,11 +8,11 @@ Please note that all contributions to this project require signing our [Contribu
 
 ## Contributing Workflow
 
-1. **Fork the Repository**: Navigate to the [PlatformPlatform repository](https://github.com/PlatformPlatform/platformplatform) and click the "Fork" button in the upper right-hand corner. This will create a copy of the repository under your GitHub account.
+1. **Fork the Repository**: Navigate to the [PlatformPlatform repository](https://github.com/platformplatform/PlatformPlatform) and click the "Fork" button in the upper right-hand corner. This will create a copy of the repository under your GitHub account.
 
 2. **Clone the Fork**: Open a terminal window and navigate to the directory where you want to clone the forked repository. Run the following command, replacing `your-username` with your GitHub username: `git clone https://github.com/your-username/platformplatform.git`
 
-3. **Add the Upstream Remote**: Navigate to the cloned repository and run the following command to add the original PlatformPlatform repository as a remote named `upstream`: `git remote add upstream https://github.com/PlatformPlatform/platformplatform.git`
+3. **Add the Upstream Remote**: Navigate to the cloned repository and run the following command to add the original PlatformPlatform repository as a remote named `upstream`: `git remote add upstream https://github.com/platformplatform/PlatformPlatform.git`
 
 4. **Create a Branch**: Create a new branch for your contribution, giving it a descriptive name that reflects the changes you intend to make: `git checkout -b your-branch-name`. Branch names should be lowercase and use a dash to separate words.
 
@@ -28,4 +28,4 @@ Please note that all contributions to this project require signing our [Contribu
 
 ## Questions and Support
 
-If you have any questions or need help with the contribution process, feel free to [open an issue](https://github.com/PlatformPlatform/platformplatform/issues/new) in the PlatformPlatform repository.
+If you have any questions or need help with the contribution process, feel free to [open an issue](https://github.com/platformplatform/PlatformPlatform/issues/new) in the PlatformPlatform repository.
