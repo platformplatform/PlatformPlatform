@@ -54,6 +54,9 @@ msgstr "Navn"
 msgid "Overview"
 msgstr "Oversigt"
 
+msgid "Something went wrong, please try again"
+msgstr "Noget gik galt, prøv igen"
+
 msgid "Subdomain"
 msgstr "Subdomæne"
 
