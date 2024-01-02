@@ -2,6 +2,7 @@ import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
 export const reactPlugin = new ReactPlugin();
+
 const appInsights = new ApplicationInsights({
   config: {
     // accountId: tenantId, // subdomain, cookie or custom domain
@@ -13,7 +14,7 @@ const appInsights = new ApplicationInsights({
 });
 
 // Set additional properties
-appInsights.context.application.ver = import.meta.env.APPLICATION_VERSION;
+// appInsights.context.application.ver = import.meta.env.APPLICATION_VERSION;
 // appInsights.context.user.id = userId;
 // appInsights.context.session.acquisitionDate
 
@@ -26,4 +27,6 @@ appInsights.context.application.ver = import.meta.env.APPLICATION_VERSION;
 }); */
 
 // Load the Application Insights script
-appInsights.loadAppInsights();
+if (import.meta.env.APP_INSIGHTS_CONNECTION_STRING != null) {
+  appInsights.loadAppInsights();
+}
