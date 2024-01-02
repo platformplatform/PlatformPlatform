@@ -21,7 +21,7 @@ public interface IAggregateRoot : IAuditableEntity
 
 public abstract class AggregateRoot<T>(T id) : AudibleEntity<T>(id), IAggregateRoot where T : IComparable<T>
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
+    private readonly List<IDomainEvent> _domainEvents = [];
 
     [NotMapped]
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();

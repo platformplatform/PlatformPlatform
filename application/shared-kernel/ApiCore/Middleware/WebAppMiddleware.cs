@@ -26,7 +26,7 @@ public sealed class WebAppMiddleware
     private readonly bool _isDevelopment;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly RequestDelegate _next;
-    private readonly string[] _publicAllowedKeys = { CdnUrlKey, ApplicationVersion };
+    private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersion];
     private readonly string _publicUrl;
     private readonly Dictionary<string, string> _staticRuntimeEnvironment;
     private string? _htmlTemplate;
@@ -65,9 +65,9 @@ public sealed class WebAppMiddleware
     {
         var devServerWebsocket = _cdnUrl.Replace("https", "wss");
 
-        var trustedHosts = _isDevelopment
-            ? new[] { "'self'", _publicUrl, _cdnUrl, devServerWebsocket }
-            : new[] { "'self'", _publicUrl, _cdnUrl };
+        string[] trustedHosts = _isDevelopment
+            ? ["'self'", _publicUrl, _cdnUrl, devServerWebsocket]
+            : ["'self'", _publicUrl, _cdnUrl];
 
         var contentSecurityPolicies = new Dictionary<string, string[]>
         {

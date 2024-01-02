@@ -29,7 +29,7 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
             typeof(T),
             BindingFlags.Instance | BindingFlags.Public,
             null,
-            new object[] { newValue.ToString() },
+            [newValue.ToString()],
             null
         )!;
     }

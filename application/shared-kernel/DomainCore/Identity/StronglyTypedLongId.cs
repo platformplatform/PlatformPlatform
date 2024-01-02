@@ -27,7 +27,7 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
             typeof(T),
             BindingFlags.Instance | BindingFlags.Public,
             null,
-            new object[] { newValue },
+            [newValue],
             null
         )!;
     }
