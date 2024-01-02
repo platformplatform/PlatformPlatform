@@ -5,11 +5,11 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
 {
-    public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         try
         {
-            await next(httpContext);
+            await next(context);
         }
         catch (BadHttpRequestException exception)
         {
@@ -17,7 +17,7 @@ public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
                 title: "Bad Request",
                 detail: exception.Message,
                 statusCode: (int)HttpStatusCode.BadRequest
-            ).ExecuteAsync(httpContext);
+            ).ExecuteAsync(context);
         }
     }
 }
