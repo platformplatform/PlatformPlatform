@@ -5,6 +5,7 @@ namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
 public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator.NewId())
 {
+    // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
     public string Name { get; set; } = name;
 
     public static TestAggregate Create(string name)

@@ -1,11 +1,14 @@
+using System.Text.Json;
 using Bogus;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -17,6 +20,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
     protected readonly Faker Faker = new();
+    protected readonly JsonSerializerOptions JsonSerializerOptions;
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
@@ -53,6 +57,9 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         using var serviceScope = Services.BuildServiceProvider().CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+        JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value
+            .SerializerOptions;
     }
 
     protected SqliteConnection Connection { get; }
