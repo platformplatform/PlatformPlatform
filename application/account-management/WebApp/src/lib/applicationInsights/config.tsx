@@ -3,7 +3,7 @@ import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 
 export const reactPlugin = new ReactPlugin();
 
-const appInsights = new ApplicationInsights({
+const applicationInsights = new ApplicationInsights({
   config: {
     appId: "account-management/webapp",
     instrumentationKey: "webapp",
@@ -21,5 +21,5 @@ const appInsights = new ApplicationInsights({
 });
 
 // Load the Application Insights script
-appInsights.loadAppInsights();
-appInsights.trackPageView();
+applicationInsights.loadAppInsights();
+applicationInsights.trackPageView();
