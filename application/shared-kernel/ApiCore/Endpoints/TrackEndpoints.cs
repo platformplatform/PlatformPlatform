@@ -1,5 +1,6 @@
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
@@ -34,6 +35,7 @@ public static class TrackEndpoints
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
+                    CopyContextTags(telemetry.Context, trackRequestDto);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -56,6 +58,7 @@ public static class TrackEndpoints
                         DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
                     };
 
+                    CopyContextTags(telemetry.Context, trackRequestDto);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -73,6 +76,7 @@ public static class TrackEndpoints
                         Timestamp = trackRequestDto.Time
                     };
 
+                    CopyContextTags(telemetry.Context, trackRequestDto);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -90,6 +94,7 @@ public static class TrackEndpoints
                         Timestamp = trackRequestDto.Time
                     };
 
+                    CopyContextTags(telemetry.Context, trackRequestDto);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
 
                     telemetryClient.TrackMetric(telemetry);
@@ -126,6 +131,17 @@ public static class TrackEndpoints
                 ))
             ));
         return exceptionDetailsInfos;
+    }
+
+    private static void CopyContextTags(TelemetryContext context, TrackRequestDto trackRequestDto)
+    {
+        context.User.Id = trackRequestDto.Tags["ai.user.id"];
+        context.Session.Id = trackRequestDto.Tags["ai.session.id"];
+        context.Device.Id = trackRequestDto.Tags["ai.device.id"];
+        context.Device.Type = trackRequestDto.Tags["ai.device.type"];
+        context.Operation.Name = trackRequestDto.Tags["ai.operation.name"];
+        context.Operation.Id = trackRequestDto.Tags["ai.operation.id"];
+        context.GetInternalContext().SdkVersion = trackRequestDto.Tags["ai.internal.sdkVersion"];
     }
 
     private static void CopyDictionary<TValue>(IDictionary<string, TValue>? source, IDictionary<string, TValue> target)
