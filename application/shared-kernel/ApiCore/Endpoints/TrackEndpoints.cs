@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +17,7 @@ public static class TrackEndpoints
     private static TrackResponseSuccessDto Track(
         List<TrackRequestDto> trackRequests,
         TelemetryClient telemetryClient,
-        ILogger<TrackEndpointsLoggerCategory> logger
+        ILogger<string> logger
     )
     {
         foreach (var trackRequestDto in trackRequests)
@@ -29,8 +30,8 @@ public static class TrackEndpoints
                     {
                         Name = trackRequestDto.Data.BaseData.Name,
                         Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration),
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time),
+                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration, CultureInfo.InvariantCulture),
+                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture),
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
@@ -46,8 +47,8 @@ public static class TrackEndpoints
                     {
                         Name = trackRequestDto.Data.BaseData.Name,
                         Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration),
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time),
+                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration, CultureInfo.InvariantCulture),
+                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture),
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
@@ -65,7 +66,7 @@ public static class TrackEndpoints
                         trackRequestDto.Data.BaseData.Properties, new Dictionary<string, double>())
                     {
                         SeverityLevel = trackRequestDto.Data.BaseData.SeverityLevel,
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time)
+                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture)
                     };
 
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
@@ -76,13 +77,13 @@ public static class TrackEndpoints
                 }
                 case "MetricData":
                 {
-                    var metric = trackRequestDto.Data.BaseData.Metrics.First();
+                    var metric = trackRequestDto.Data.BaseData.Metrics[0];
                     var telemetry = new MetricTelemetry
                     {
                         Name = metric.Name,
                         Sum = metric.Value,
                         Count = metric.Count,
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time)
+                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture)
                     };
 
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
@@ -129,20 +130,11 @@ public static class TrackEndpoints
 
         foreach (var pair in source)
         {
-            if (string.IsNullOrEmpty(pair.Key))
-            {
-                continue;
-            }
-
-            if (!target.ContainsKey(pair.Key))
-            {
-                target[pair.Key] = pair.Value;
-            }
+            if (string.IsNullOrEmpty(pair.Key) || target.ContainsKey(pair.Key)) continue;
+            target[pair.Key] = pair.Value;
         }
     }
 }
-
-internal abstract class TrackEndpointsLoggerCategory;
 
 [UsedImplicitly]
 public record TrackResponseSuccessDto(bool Success, string Message);
@@ -174,6 +166,9 @@ public record TrackRequestBaseDataDto(
 );
 
 [UsedImplicitly]
+public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
+
+[UsedImplicitly]
 public record TrackRequestExceptionDto(
     string TypeName,
     string Message,
@@ -183,13 +178,4 @@ public record TrackRequestExceptionDto(
 );
 
 [UsedImplicitly]
-public record TrackRequestParsedStackDto(
-    string Assembly,
-    string FileName,
-    string Method,
-    int Line,
-    int Level
-);
-
-[UsedImplicitly]
-public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
+public record TrackRequestParsedStackDto(string Assembly, string FileName, string Method, int Line, int Level);
