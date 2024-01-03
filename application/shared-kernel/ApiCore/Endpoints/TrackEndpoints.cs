@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
@@ -30,8 +29,8 @@ public static class TrackEndpoints
                     {
                         Name = trackRequestDto.Data.BaseData.Name,
                         Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration, CultureInfo.InvariantCulture),
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture),
+                        Duration = trackRequestDto.Data.BaseData.Duration,
+                        Timestamp = trackRequestDto.Time,
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
@@ -47,9 +46,14 @@ public static class TrackEndpoints
                     {
                         Name = trackRequestDto.Data.BaseData.Name,
                         Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = TimeSpan.Parse(trackRequestDto.Data.BaseData.Duration, CultureInfo.InvariantCulture),
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture),
-                        Id = trackRequestDto.Data.BaseData.Id
+                        Duration = trackRequestDto.Data.BaseData.Duration,
+                        Timestamp = trackRequestDto.Time,
+                        Id = trackRequestDto.Data.BaseData.Id,
+                        PerfTotal = trackRequestDto.Data.BaseData.PerfTotal,
+                        NetworkConnect = trackRequestDto.Data.BaseData.NetworkConnect,
+                        SentRequest = trackRequestDto.Data.BaseData.SentRequest,
+                        ReceivedResponse = trackRequestDto.Data.BaseData.ReceivedResponse,
+                        DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
                     };
 
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
@@ -66,7 +70,7 @@ public static class TrackEndpoints
                         trackRequestDto.Data.BaseData.Properties, new Dictionary<string, double>())
                     {
                         SeverityLevel = trackRequestDto.Data.BaseData.SeverityLevel,
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture)
+                        Timestamp = trackRequestDto.Time
                     };
 
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
@@ -83,7 +87,7 @@ public static class TrackEndpoints
                         Name = metric.Name,
                         Sum = metric.Value,
                         Count = metric.Count,
-                        Timestamp = DateTimeOffset.Parse(trackRequestDto.Time, CultureInfo.InvariantCulture)
+                        Timestamp = trackRequestDto.Time
                     };
 
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
@@ -141,7 +145,7 @@ public record TrackResponseSuccessDto(bool Success, string Message);
 
 [UsedImplicitly]
 public record TrackRequestDto(
-    string Time,
+    DateTimeOffset Time,
     // ReSharper disable once InconsistentNaming
     string IKey,
     string Name,
@@ -156,7 +160,12 @@ public record TrackRequestDataDto(string BaseType, TrackRequestBaseDataDto BaseD
 public record TrackRequestBaseDataDto(
     string Name,
     string Url,
-    string Duration,
+    TimeSpan Duration,
+    TimeSpan PerfTotal,
+    TimeSpan NetworkConnect,
+    TimeSpan SentRequest,
+    TimeSpan ReceivedResponse,
+    TimeSpan DomProcessing,
     Dictionary<string, string> Properties,
     Dictionary<string, double> Measurements,
     List<TrackRequestMetricsDto> Metrics,
