@@ -103,6 +103,9 @@ public static class ApiCoreConfiguration
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
+        // Configure track endpoint for Application Insights telemetry for PageViews and BrowserTimings
+        app.MapTrackEndpoints();
+
         // Add test-specific endpoints when running tests, such as /api/throwException
         app.MapTestEndpoints();
 

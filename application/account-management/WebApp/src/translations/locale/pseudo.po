@@ -54,6 +54,9 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
+msgid "Something went wrong, please try again"
+msgstr ""
+
 msgid "Subdomain"
 msgstr ""
 

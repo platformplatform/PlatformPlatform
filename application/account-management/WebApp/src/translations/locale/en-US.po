@@ -54,6 +54,9 @@ msgstr "Name"
 msgid "Overview"
 msgstr "Overview"
 
+msgid "Something went wrong, please try again"
+msgstr "Something went wrong, please try again"
+
 msgid "Subdomain"
 msgstr "Subdomain"
 
