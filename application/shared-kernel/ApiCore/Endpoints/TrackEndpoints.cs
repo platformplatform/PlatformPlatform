@@ -9,6 +9,13 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 public static class TrackEndpoints
 {
+    // <summary>
+    //     Maps the track endpoints for usage of application insights in the web application
+    //     Reason for this is to:
+    //          * secure the instrumentation key
+    //          * limit the amount of data that can be sent to application insights
+    //          * allow IDE's to instrument and display telemetry data from the web application
+    // </summary>
     public static void MapTrackEndpoints(this IEndpointRouteBuilder routes)
     {
         routes.MapPost("/api/track", Track);
