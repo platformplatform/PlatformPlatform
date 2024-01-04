@@ -85,19 +85,22 @@ public static class TrackEndpoints
                 }
                 case "MetricData":
                 {
-                    var metric = trackRequestDto.Data.BaseData.Metrics[0];
-                    var telemetry = new MetricTelemetry
+                    foreach (var metric in trackRequestDto.Data.BaseData.Metrics)
                     {
-                        Name = metric.Name,
-                        Sum = metric.Value,
-                        Count = metric.Count,
-                        Timestamp = trackRequestDto.Time
-                    };
+                        var telemetry = new MetricTelemetry
+                        {
+                            Name = metric.Name,
+                            Sum = metric.Value,
+                            Count = metric.Count,
+                            Timestamp = trackRequestDto.Time
+                        };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
+                        CopyContextTags(telemetry.Context, trackRequestDto.Tags);
+                        CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
 
-                    telemetryClient.TrackMetric(telemetry);
+                        telemetryClient.TrackMetric(telemetry);
+                    }
+
                     break;
                 }
                 case "RemoteDependencyData":
