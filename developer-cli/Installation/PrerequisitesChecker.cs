@@ -7,7 +7,7 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class PrerequisitesChecker
 {
-    public static void EnsurePrerequisitesAreMeet(string[] args)
+    public static void EnsurePrerequisitesAreMet(string[] args)
     {
         var checkAzureCli = CheckCommandLineTool("az", new Version(2, 55));
         var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
@@ -26,8 +26,8 @@ public static class PrerequisitesChecker
         }
 
         // If Environment variables are set but not sourced exit hard with a message
-        EnsureEnvironmentVariableAreSourced("SQL_SERVER_PASSWORD");
-        EnsureEnvironmentVariableAreSourced("CERTIFICATE_PASSWORD");
+        EnsureEnvironmentVariableIsConfigured("SQL_SERVER_PASSWORD");
+        EnsureEnvironmentVariableIsConfigured("CERTIFICATE_PASSWORD");
 
         var sqlPasswordConfigured = System.Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
         if (!sqlPasswordConfigured)
@@ -126,7 +126,7 @@ public static class PrerequisitesChecker
         return match.Success;
     }
 
-    private static void EnsureEnvironmentVariableAreSourced(string variableName)
+    private static void EnsureEnvironmentVariableIsConfigured(string variableName)
     {
         if (System.Environment.GetEnvironmentVariable(variableName) is not null) return;
 
