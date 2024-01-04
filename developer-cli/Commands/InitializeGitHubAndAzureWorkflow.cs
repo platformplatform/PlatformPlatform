@@ -3,6 +3,7 @@ using System.CommandLine.NamingConventionBinder;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using Environment = System.Environment;
@@ -28,6 +29,8 @@ public class InitializeGitHubAndAzureWorkflow : Command
 
     private int Execute(bool skipAzureLogin = false)
     {
+        EnsureAzureAndGitHubCliToolsAreInstalled();
+
         var subscription = GetAzureSubscription(skipAzureLogin);
 
         AnsiConsole.WriteLine(
@@ -46,6 +49,12 @@ public class InitializeGitHubAndAzureWorkflow : Command
         // Configure GitHub secrets and variables
 
         return 0;
+    }
+
+    private void EnsureAzureAndGitHubCliToolsAreInstalled()
+    {
+        PrerequisitesChecker.CheckCommandLineTool("az", "Azure CLI", new Version(2, 55), true);
+         PrerequisitesChecker.CheckCommandLineTool("gh", "GitHub CLI", new Version(2, 39), true);
     }
 
     private Subscription GetAzureSubscription(bool skipAzureLogin)
