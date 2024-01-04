@@ -37,6 +37,8 @@ public class InitializeGitHubAndAzureWorkflow : Command
 
         var subscription = GetAzureSubscription(skipAzureLogin);
 
+        LoginToGitHub();
+
         PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
 
         // Configuring Azure AD Service Principal for passwordless deployments using OpenID Connect and federated credentials
@@ -146,6 +148,13 @@ public class InitializeGitHubAndAzureWorkflow : Command
         }
 
         return selectedSubscriptions.Single();
+    }
+
+    private void LoginToGitHub()
+    {
+        ProcessHelper.StartProcess("gh", "auth login --git-protocol https --web");
+        var output = ProcessHelper.StartProcess("gh", "auth status", redirectOutput: true);
+        if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
     }
 
     private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
