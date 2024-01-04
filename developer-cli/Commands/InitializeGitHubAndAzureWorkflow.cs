@@ -37,10 +37,7 @@ public class InitializeGitHubAndAzureWorkflow : Command
 
         var subscription = GetAzureSubscription(skipAzureLogin);
 
-        AnsiConsole.WriteLine(
-            $"Azure subscription {subscription.Name} ({subscription.Id}) on Tenant {subscription.TenantId} selected.");
-
-        // Ensure 'Microsoft.ContainerService' service provider is registered on Azure Subscription
+        PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
 
         // Configuring Azure AD Service Principal for passwordless deployments using OpenID Connect and federated credentials
 
@@ -149,6 +146,15 @@ public class InitializeGitHubAndAzureWorkflow : Command
         }
 
         return selectedSubscriptions.Single();
+    }
+
+    private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
+    {
+        ProcessHelper.StartProcess(
+            "az",
+            $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
+            redirectOutput: true
+        );
     }
 }
 
