@@ -35,7 +35,7 @@ public static class TrackEndpoints
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -58,7 +58,7 @@ public static class TrackEndpoints
                         DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -76,7 +76,7 @@ public static class TrackEndpoints
                         Timestamp = trackRequestDto.Time
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -140,15 +140,35 @@ public static class TrackEndpoints
         return exceptionDetailsInfos;
     }
 
-    private static void CopyContextTags(TelemetryContext context, TrackRequestDto trackRequestDto)
+    private static void CopyContextTags(TelemetryContext context, Dictionary<string, string> tags)
     {
-        context.User.Id = trackRequestDto.Tags["ai.user.id"];
-        context.Session.Id = trackRequestDto.Tags["ai.session.id"];
-        context.Device.Id = trackRequestDto.Tags["ai.device.id"];
-        context.Device.Type = trackRequestDto.Tags["ai.device.type"];
-        context.Operation.Name = trackRequestDto.Tags["ai.operation.name"];
-        context.Operation.Id = trackRequestDto.Tags["ai.operation.id"];
-        context.GetInternalContext().SdkVersion = trackRequestDto.Tags["ai.internal.sdkVersion"];
+        context.Cloud.RoleInstance = tags.GetValueOrDefault("ai.cloud.roleInstance");
+        context.Cloud.RoleName = tags.GetValueOrDefault("ai.cloud.roleName");
+
+        context.Component.Version = tags.GetValueOrDefault("ai.application.ver");
+
+        context.Device.Id = tags.GetValueOrDefault("ai.device.id");
+        context.Device.Type = tags.GetValueOrDefault("ai.device.type");
+        context.Device.Model = tags.GetValueOrDefault("ai.device.model");
+        context.Device.OemName = tags.GetValueOrDefault("ai.device.oemName");
+        context.Device.OperatingSystem = tags.GetValueOrDefault("ai.device.osVersion");
+
+        context.Location.Ip = tags.GetValueOrDefault("ai.location.ip");
+
+        context.User.Id = tags.GetValueOrDefault("ai.user.id");
+        context.User.AccountId = tags.GetValueOrDefault("ai.user.accountId");
+
+        context.Session.Id = tags.GetValueOrDefault("ai.session.id");
+
+        context.Operation.Id = tags.GetValueOrDefault("ai.operation.id");
+        context.Operation.Name = tags.GetValueOrDefault("ai.operation.name");
+        context.Operation.ParentId = tags.GetValueOrDefault("ai.operation.parentId");
+        context.Operation.CorrelationVector = tags.GetValueOrDefault("ai.operation.correlationVector");
+        context.Operation.SyntheticSource = tags.GetValueOrDefault("ai.operation.syntheticSource");
+
+        context.GetInternalContext().SdkVersion = tags.GetValueOrDefault("ai.internal.sdkVersion");
+        context.GetInternalContext().AgentVersion = tags.GetValueOrDefault("ai.internal.agentVersion");
+        context.GetInternalContext().NodeName = tags.GetValueOrDefault("ai.internal.nodeName");
     }
 
     private static void CopyDictionary<TValue>(IDictionary<string, TValue>? source, IDictionary<string, TValue> target)
