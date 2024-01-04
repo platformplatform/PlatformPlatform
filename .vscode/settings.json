@@ -23,5 +23,7 @@
   },
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
+  "githubPullRequests.assignCreated": "${user}"
 }
