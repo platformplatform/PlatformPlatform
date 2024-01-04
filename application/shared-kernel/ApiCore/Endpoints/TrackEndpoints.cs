@@ -104,11 +104,15 @@ public static class TrackEndpoints
                     break;
                 }
                 case "RemoteDependencyData":
+                {
                     // Ignore remote dependency data
                     break;
+                }
                 default:
+                {
                     logger.LogWarning($"Unsupported telemetry type: {trackRequestDto.Data.BaseType}");
                     break;
+                }
             }
         }
 
