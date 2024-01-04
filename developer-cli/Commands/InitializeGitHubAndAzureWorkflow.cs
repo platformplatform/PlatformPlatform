@@ -39,6 +39,8 @@ public class InitializeGitHubAndAzureWorkflow : Command
 
         LoginToGitHub();
 
+        var azureContainerRegistryName = GetValidAzureContainerRegisterName(subscription);
+
         PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
 
         // Configuring Azure AD Service Principal for passwordless deployments using OpenID Connect and federated credentials
@@ -155,6 +157,54 @@ public class InitializeGitHubAndAzureWorkflow : Command
         ProcessHelper.StartProcess("gh", "auth login --git-protocol https --web");
         var output = ProcessHelper.StartProcess("gh", "auth status", redirectOutput: true);
         if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
+    }
+
+    private string GetValidAzureContainerRegisterName(Subscription azureSubscription)
+    {
+        var existingContainerRegistryName = Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
+
+        while (true)
+        {
+            var registryName = AnsiConsole.Ask("Please enter a unique name for the Azure Container Registry",
+                existingContainerRegistryName);
+
+            // Check if the Azure Container Registry name is available
+            var checkAvailability =
+                ProcessHelper.StartProcess("az", $"acr check-name --name {registryName}", redirectOutput: true);
+
+            var nameAvailable =
+                JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean();
+
+            if (nameAvailable)
+            {
+                AnsiConsole.MarkupLine($"[green]SUCCESS:[/] The Azure Container Registry {registryName} is available.");
+                return registryName;
+            }
+
+            // Check if the Azure Container Registry is a resource on the current subscription
+            var showExistingRegistry = ProcessHelper.StartProcess(
+                "az",
+                $"acr show --name {registryName} --subscription {azureSubscription.Id}",
+                redirectOutput: true
+            );
+
+            var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
+            var match = jsonRegex.Match(showExistingRegistry);
+
+            if (match.Success)
+            {
+                var jsonDocument = JsonDocument.Parse(match.Value);
+                if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureSubscription.Id) == true)
+                {
+                    AnsiConsole.MarkupLine(
+                        $"[green]SUCCESS:[/] The Azure Container Registry {registryName} is already a resource on the current subscription.");
+                    return registryName;
+                }
+            }
+
+            AnsiConsole.MarkupLine(
+                $"[red]ERROR:[/] The Azure Container Registry {registryName} is invalid or already. Please try again.");
+        }
     }
 
     private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
