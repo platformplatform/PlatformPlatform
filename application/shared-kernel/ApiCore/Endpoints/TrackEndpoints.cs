@@ -2,6 +2,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
 
@@ -22,11 +23,13 @@ public static class TrackEndpoints
     }
 
     private static TrackResponseSuccessDto Track(
+        HttpContext context,
         List<TrackRequestDto> trackRequests,
         TelemetryClient telemetryClient,
         ILogger<string> logger
     )
     {
+        var ip = context.Connection.RemoteIpAddress?.ToString();
         foreach (var trackRequestDto in trackRequests)
         {
             switch (trackRequestDto.Data.BaseType)
@@ -42,7 +45,7 @@ public static class TrackEndpoints
                         Id = trackRequestDto.Data.BaseData.Id
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -65,7 +68,7 @@ public static class TrackEndpoints
                         DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -83,7 +86,7 @@ public static class TrackEndpoints
                         Timestamp = trackRequestDto.Time
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags);
+                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
 
@@ -102,7 +105,7 @@ public static class TrackEndpoints
                             Timestamp = trackRequestDto.Time
                         };
 
-                        CopyContextTags(telemetry.Context, trackRequestDto.Tags);
+                        CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                         CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
 
                         telemetryClient.TrackMetric(telemetry);
@@ -147,7 +150,7 @@ public static class TrackEndpoints
         return exceptionDetailsInfos;
     }
 
-    private static void CopyContextTags(TelemetryContext context, Dictionary<string, string> tags)
+    private static void CopyContextTags(TelemetryContext context, Dictionary<string, string> tags, string? ip)
     {
         context.Cloud.RoleInstance = tags.GetValueOrDefault("ai.cloud.roleInstance");
         context.Cloud.RoleName = tags.GetValueOrDefault("ai.cloud.roleName");
@@ -160,7 +163,7 @@ public static class TrackEndpoints
         context.Device.OemName = tags.GetValueOrDefault("ai.device.oemName");
         context.Device.OperatingSystem = tags.GetValueOrDefault("ai.device.osVersion");
 
-        context.Location.Ip = tags.GetValueOrDefault("ai.location.ip");
+        context.Location.Ip = ip;
 
         context.User.Id = tags.GetValueOrDefault("ai.user.id");
         context.User.AccountId = tags.GetValueOrDefault("ai.user.accountId");
