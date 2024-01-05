@@ -1,3 +1,4 @@
+using System.CommandLine;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -7,17 +8,12 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class PrerequisitesChecker
 {
-    public static void EnsurePrerequisitesAreMet(string[] args)
+    public static async void EnsurePrerequisitesAreMet(string[] args)
     {
-        var checkAzureCli = CheckCommandLineTool("az", new Version(2, 55));
-        var checkBun = CheckCommandLineTool("bun", new Version(1, 0));
-        var docker = CheckCommandLineTool("docker", new Version(24, 0));
-        var aspire = CheckDotnetWorkload("aspire", """aspire\s*8\.0\.0-preview.2"""); // aspire 8.0.0-preview.2.23619.3
-
-        if (!checkAzureCli || !checkBun || !docker || !aspire)
-        {
-            System.Environment.Exit(1);
-        }
+        CheckCommandLineTool("docker", "Docker", new Version(24, 0));
+        CheckCommandLineTool("az", "Azure CLI", new Version(2, 55));
+        CheckCommandLineTool("bun", "Bun.js", new Version(1, 0));
+        CheckDotnetWorkload("aspire", "Aspire", """aspire\s*8\.0\.0-preview.2""");
 
         if (args.Contains(ConfigureDeveloperEnvironment.CommandName))
         {
@@ -40,12 +36,20 @@ public static class PrerequisitesChecker
         if (!sqlPasswordConfigured || !hasValidDeveloperCertificate)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]Please run 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
+                $"[yellow]Running 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
             AnsiConsole.WriteLine();
+
+            var command = new ConfigureDeveloperEnvironment();
+            await command.InvokeAsync(Array.Empty<string>());
         }
     }
 
-    private static bool CheckCommandLineTool(string command, Version minVersion)
+    public static void CheckCommandLineTool(
+        string command,
+        string displayName,
+        Version minVersion,
+        bool isRequired = false
+    )
     {
         // Check if the command line tool is installed
         var checkOutput = ProcessHelper.StartProcess(
@@ -54,12 +58,18 @@ public static class PrerequisitesChecker
             redirectOutput: true,
             printCommand: false
         );
+        var outputMessageColor = isRequired ? "red" : "yellow";
 
-        if (string.IsNullOrWhiteSpace(checkOutput))
+        var possibleFileLocations = checkOutput.Split(System.Environment.NewLine);
+
+        if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() ||
+            !File.Exists(possibleFileLocations[0]))
         {
             AnsiConsole.MarkupLine(
-                $"[red]The '[bold]{command}[/]' is not installed. Please see the README file for guidance.[/]");
-            return false;
+                $"[{outputMessageColor}]{displayName} of minimum version {minVersion} should be installed.[/]");
+
+            ExitIfRequired(isRequired);
+            return;
         }
 
         // Get the version of the command line tool
@@ -75,19 +85,27 @@ public static class PrerequisitesChecker
         if (match.Success)
         {
             var version = Version.Parse(match.Value);
-            if (version >= minVersion) return true;
+            if (version >= minVersion) return;
             AnsiConsole.MarkupLine(
-                $"[red]Please update '[bold]{command}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]");
-            return false;
+                $"[{outputMessageColor}]Please update '[bold]{displayName}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]");
+
+            ExitIfRequired(isRequired);
+            return;
         }
 
         // If the version could not be determined please change the logic here to check for the correct version
         AnsiConsole.MarkupLine(
-            $"[red]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
-        return false;
+            $"[{outputMessageColor}]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
+
+        ExitIfRequired(isRequired);
     }
 
-    private static bool CheckDotnetWorkload(string workloadName, string workloadRegex)
+    public static void CheckDotnetWorkload(
+        string workloadName,
+        string displayName,
+        string workloadRegex,
+        bool isRequired = false
+    )
     {
         var output = ProcessHelper.StartProcess(
             "dotnet",
@@ -96,12 +114,15 @@ public static class PrerequisitesChecker
             printCommand: false
         );
 
+        var outputMessageColor = isRequired ? "red" : "yellow";
+
         if (!output.Contains(workloadName))
         {
-            AnsiConsole.MarkupLine($"[red].NET '[bold]{workloadName}[/]' workload is not installed.[/]");
             AnsiConsole.MarkupLine(
-                $"[red]Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]");
-            return false;
+                $"[{outputMessageColor}].NET '[bold]{displayName}[/]' should be installed. Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]");
+
+            ExitIfRequired(isRequired);
+            return;
         }
 
         /*
@@ -119,11 +140,18 @@ public static class PrerequisitesChecker
         {
             // If the version could not be determined please change the logic here to check for the correct version
             AnsiConsole.MarkupLine(
-                $"[red].NET '[bold]{workloadName}[/]' workload is installed but not in the expected version.[/]");
-            AnsiConsole.MarkupLine("[red]Please run '[bold]dotnet workload update[/]'.[/]");
-        }
+                $"[{outputMessageColor}].NET '[bold]{displayName}[/]' is installed but not in the expected version. Please run '[bold]dotnet workload update[/]'.[/]");
 
-        return match.Success;
+            ExitIfRequired(isRequired);
+        }
+    }
+
+    private static void ExitIfRequired(bool isRequired)
+    {
+        if (isRequired)
+        {
+            System.Environment.Exit(1);
+        }
     }
 
     private static void EnsureEnvironmentVariableIsConfigured(string variableName)
@@ -136,7 +164,7 @@ public static class PrerequisitesChecker
         if (!fileContent.Contains($"export {variableName}")) return;
 
         AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/]'[/]");
+            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]");
         System.Environment.Exit(0);
     }
 }
