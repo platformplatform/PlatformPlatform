@@ -8,6 +8,7 @@
     "lingui:extract": "lingui extract",
     "lingui:compile": "lingui compile --typescript",
     "lint": "eslint .",
+    "typechecking": "tsc --noEmit",
     "postinstall": "bun run lingui:extract && bun run lingui:compile"
   },
   "dependencies": {
