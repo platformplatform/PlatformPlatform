@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
-type ErrorProps = {
+interface ErrorProps {
   error: Error;
   reset: () => void;
-};
+}
 
 export default function ErrorPage({ error, reset }: Readonly<ErrorProps>) {
   useEffect(() => {

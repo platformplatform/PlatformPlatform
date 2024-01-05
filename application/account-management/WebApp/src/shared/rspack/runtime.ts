@@ -8,12 +8,11 @@
  * or split versions
  * - import.meta.build_env
  * - import.meta.runtime_env
- * */
+ */
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
 
-if (runtimeEnvElement == null) {
+if (runtimeEnvElement == null)
   throw new Error("Runtime environment is not configured.");
-}
 
 try {
   const runtimeEnv: RuntimeEnv = JSON.parse(atob(runtimeEnvElement.content));
@@ -23,7 +22,8 @@ try {
     ...runtimeEnv,
   };
 
-  // @ts-ignore
+  // eslint-disable-next-line ts/ban-ts-comment
+  // @ts-expect-error
   window.getApplicationEnvironment = function () {
     return {
       buildEnv: import.meta.build_env,
@@ -31,6 +31,7 @@ try {
       env: environment,
     };
   };
-} catch (e) {
+}
+catch (e) {
   throw new Error("Could not read runtime environment.");
 }

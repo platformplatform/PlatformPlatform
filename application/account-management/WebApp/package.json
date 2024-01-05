@@ -1,7 +1,7 @@
 {
   "name": "account-management-webapp",
-  "private": true,
   "version": "1.0.0",
+  "private": true,
   "scripts": {
     "dev": "rspack serve",
     "build": "rspack build",
@@ -30,9 +30,9 @@
     "@lingui/cli": "^4.6.0",
     "@lingui/format-po": "^4.6.0",
     "@lingui/swc-plugin": "^4.0.4",
+    "@platformplatform/client-filesystem-router": "workspace:*",
     "@rspack/cli": "^0.3.11",
     "@rspack/core": "^0.3.11",
-    "@platformplatform/client-filesystem-router": "workspace:*",
     "@svgr/webpack": "^8.1.0",
     "@types/react": "18.2.36",
     "@types/react-dom": "18.2.13",

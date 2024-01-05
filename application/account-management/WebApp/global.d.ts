@@ -2,12 +2,12 @@ export declare global {
   /**
    * Build Environment Variables
    */
-  type BuildEnv = {};
+  interface BuildEnv {}
 
   /**
    * Runtime Environment Variables
    */
-  type RuntimeEnv = {
+  interface RuntimeEnv {
     /* Public url / base url */
     PUBLIC_URL: string;
     /* CDN url / location of client bundle files */
@@ -16,7 +16,7 @@ export declare global {
     APPLICATION_VERSION: string;
     /* User locale */
     LOCALE: string;
-  };
+  }
 
   /**
    * Both Build and Runtime Environment variables

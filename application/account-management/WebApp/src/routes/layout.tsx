@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import AcmeLogo from "@/ui/acme-logo.svg";
 import { Button } from "react-aria-components";
+import AcmeLogo from "@/ui/acme-logo.svg";
 
 export default function Root() {
   const navigate = useNavigate();
@@ -23,10 +23,10 @@ export default function Root() {
         <nav className="grow">
           <ul>
             <li className="p-4 hover:bg-gray-200 rounded-xl cursor-pointer">
-              <a href={`/`}>Account Management</a>
+              <a href="/">Account Management</a>
             </li>
             <li className="p-4 hover:bg-gray-200 rounded-xl cursor-pointer">
-              <a href={`/user-management`}>User Management</a>
+              <a href="/user-management">User Management</a>
             </li>
           </ul>
         </nav>
