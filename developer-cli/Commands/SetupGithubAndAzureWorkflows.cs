@@ -11,12 +11,12 @@ using Environment = System.Environment;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class InitializeGitHubAndAzureWorkflow : Command
+public class SetupGithubAndAzureWorkflows : Command
 {
     private static readonly JsonSerializerOptions? JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public InitializeGitHubAndAzureWorkflow() : base(
-        "initialize-github-and-azure-workflow",
+    public SetupGithubAndAzureWorkflows() : base(
+        "setup-github-and-azure-workflow",
         "Set up trust between Azure and GitHub for passwordless deployments using Azure Service Principals with OpenID (aka Federated Credentials)."
     )
     {
