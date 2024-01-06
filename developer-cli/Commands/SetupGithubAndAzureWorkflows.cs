@@ -40,21 +40,28 @@ public class SetupGithubAndAzureWorkflows : Command
         PrintHeader("Collecting data");
 
         var subscription = GetAzureSubscription(skipAzureLogin);
+        var (azureContainerRegistryName, azureContainerRegistryExists) = GetAzureContainerRegistryName(subscription);
+        var servicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
+        var existingServicePrincipalId = GetExistingServicePrincipalId(servicePrincipalName);
 
         LoginToGithub();
 
-        var azureContainerRegistryName = GetValidAzureContainerRegistryName(subscription);
-        var servicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
-
         PrintHeader("Confirm changes");
-        
-        ConfirmChangesPrompt(githubInfo, subscription, azureContainerRegistryName, servicePrincipalName);
+
+        ConfirmChangesPrompt(
+            githubInfo,
+            subscription,
+            azureContainerRegistryName,
+            azureContainerRegistryExists,
+            servicePrincipalName,
+            existingServicePrincipalId
+        );
 
         PrintHeader("Configuring Azure and GitHub");
 
         PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
 
-        // Configure Azure AD Service Principal for passwordless deployments using OpenID Connect and federated credentials
+        var servicePrincipalId = existingServicePrincipalId ?? CreateServicePrincipal(servicePrincipalName);
 
         // Grant 'Contributor' and 'User Access Administrator' roles at the subscription level to the Infrastructure Service Principal
 
@@ -71,7 +78,7 @@ public class SetupGithubAndAzureWorkflows : Command
         PrerequisitesChecker.CheckCommandLineTool("gh", "GitHub CLI", new Version(2, 39), true);
     }
 
-    private GithubRepository GetGithubInfo()
+    private GithubInfo GetGithubInfo()
     {
         var gitRemotes = ProcessHelper.StartProcess(
             "git",
@@ -93,23 +100,23 @@ public class SetupGithubAndAzureWorkflows : Command
         var githubOrganization = githubUrl.Split("/")[3];
         var githubRepositoryName = githubUrl.Split("/")[4];
 
-        return new GithubRepository(githubOrganization, githubRepositoryName, githubUrl);
+        return new GithubInfo(githubOrganization, githubRepositoryName, githubUrl);
     }
 
     private void ShowIntroPrompt()
     {
         var setupIntroPrompt =
-            $"""
-             This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
+            """
+            This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
 
-             * Prompt you to log in to Azure and select a subscription
-             * Prompt you to log in to GitHub
-             * Confirm before you continue
-             
-             You need owner permissions on the Azure subscription and GitHub repository. Plus you need permissions to create Directory Groups and Service Principals in Microsoft Entra ID.
+            * Prompt you to log in to Azure and select a subscription
+            * Prompt you to log in to GitHub
+            * Confirm before you continue
 
-             [bold]Would you like to continue?[/]
-             """;
+            You need owner permissions on the Azure subscription and GitHub repository. Plus you need permissions to create Directory Groups and Service Principals in Microsoft Entra ID.
+
+            [bold]Would you like to continue?[/]
+            """;
 
         if (!AnsiConsole.Confirm(setupIntroPrompt, false)) Environment.Exit(0);
 
@@ -154,19 +161,13 @@ public class SetupGithubAndAzureWorkflows : Command
         }
 
         var subscription = selectedSubscriptions.Single();
+        ProcessHelper.StartProcess("az", $"account set --subscription {subscription.Id}", printCommand: false);
+
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
         return subscription;
     }
 
-    private void LoginToGithub()
-    {
-        ProcessHelper.StartProcess("gh", "auth login --git-protocol https --web", printCommand: false);
-        var output = ProcessHelper.StartProcess("gh", "auth status", redirectOutput: true, printCommand: false);
-        if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
-        AnsiConsole.WriteLine();
-    }
-
-    private string GetValidAzureContainerRegistryName(Subscription azureSubscription)
+    private (string, bool) GetAzureContainerRegistryName(Subscription azureSubscription)
     {
         var existingContainerRegistryName = Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
 
@@ -188,7 +189,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
             if (nameAvailable)
             {
-                return registryName;
+                return (registryName, false);
             }
 
             // Check if the Azure Container Registry is a resource under the current subscription
@@ -207,7 +208,9 @@ public class SetupGithubAndAzureWorkflows : Command
                 var jsonDocument = JsonDocument.Parse(match.Value);
                 if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureSubscription.Id) == true)
                 {
-                    return registryName;
+                    AnsiConsole.MarkupLine(
+                        $"[yellow] The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]");
+                    return (registryName, true);
                 }
             }
 
@@ -216,22 +219,80 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
+    private string? GetExistingServicePrincipalId(string servicePrincipalName)
+    {
+        var existingServicePrincipalId = ProcessHelper.StartProcess(
+            "az",
+            $"""ad sp list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
+            redirectOutput: true,
+            printCommand: false
+        ).Trim();
+
+        var existingAppId = ProcessHelper.StartProcess(
+            "az",
+            $"""ad app list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
+            redirectOutput: true,
+            printCommand: false
+        ).Trim();
+
+        if (string.IsNullOrEmpty(existingServicePrincipalId) && string.IsNullOrEmpty(existingAppId)) return null;
+
+        if (string.IsNullOrEmpty(existingServicePrincipalId))
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]The Service Principal '{servicePrincipalName}' exists but the App Registration does not. Please manually delete the Service Principle and retry.[/]");
+            Environment.Exit(1);
+        }
+
+        if (string.IsNullOrEmpty(existingAppId))
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]The App Registration '{servicePrincipalName}' exists but the Service Principal does not. Please manually delete the App Registration and retry.[/]");
+            Environment.Exit(1);
+        }
+
+        AnsiConsole.MarkupLine(
+            $"[yellow]The Service Principal (App registration) '{servicePrincipalName}' already exists with App ID: {existingServicePrincipalId}[/]");
+
+        if (!AnsiConsole.Confirm("The existing Service Principal will be reused. Do you want to continue?"))
+        {
+            AnsiConsole.MarkupLine("[red]Please delete the existing Service Principal and try again.[/]");
+            Environment.Exit(1);
+            return null;
+        }
+
+        return existingServicePrincipalId;
+    }
+
+    private void LoginToGithub()
+    {
+        ProcessHelper.StartProcess("gh", "auth login --git-protocol https --web", printCommand: false);
+        var output = ProcessHelper.StartProcess("gh", "auth status", redirectOutput: true, printCommand: false);
+        if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
+        AnsiConsole.WriteLine();
+    }
+
     private void ConfirmChangesPrompt(
-        GithubRepository githubRepository,
+        GithubInfo githubInfo,
         Subscription subscription,
         string azureContainerRegistryName,
-        string servicePrincipalName
+        bool azureContainerRegistryExists,
+        string servicePrincipalName,
+        string? existingServicePrincipalId
     )
     {
+        var reuseContainerRegistry = azureContainerRegistryExists ? " - reuse existing Azure Container Registry" : "";
+        var reuseServicePrinciple = existingServicePrincipalId is not null ? " - reuse existing service principle" : "";
+
         var setupConfirmPrompt =
             $"""
-             * GitHub Organization: [blue]{githubRepository.OrganizationName}[/]
-             * GitHub Repository Name: [blue]{githubRepository.RepositoryName}[/]
-             * GitHub Repository URL: [blue]{githubRepository.GithubUrl}[/]
+             * GitHub Organization: [blue]{githubInfo.OrganizationName}[/]
+             * GitHub Repository Name: [blue]{githubInfo.RepositoryName}[/]
+             * GitHub Repository URL: [blue]{githubInfo.GithubUrl}[/]
              * Azure Subscription: [blue]{subscription.Name} ({subscription.Id})[/]
              * Microsoft Entra ID Tenant ID: [blue]{subscription.TenantId}[/]
-             * Azure Container Registry Name: [blue]{azureContainerRegistryName}[/]
-             * Service Principal Name: [blue]{servicePrincipalName}[/]
+             * Azure Container Registry Name: [blue]{azureContainerRegistryName}[/]{reuseContainerRegistry}
+             * Service Principal Name: [blue]{servicePrincipalName}[/]{reuseServicePrinciple}
              * SQL Admins Security Group Name: [blue]Azure SQL Server Admins[/]
 
              [bold]If you continue the following changes will be made:[/]
@@ -242,7 +303,7 @@ public class SetupGithubAndAzureWorkflows : Command
              5. Configure GitHub Repository with info about Azure Tenant, Subscription, Service Principal, etc.
 
              After this setup you can deploy to Azure Container Apps Environment using GitHub Actions.
-             
+
              [bold]Would you like to continue?[/]
              """;
 
@@ -259,6 +320,28 @@ public class SetupGithubAndAzureWorkflows : Command
         );
     }
 
+    private string CreateServicePrincipal(string servicePrincipalName)
+    {
+        var servicePrincipalId = ProcessHelper.StartProcess(
+            "az",
+            $"""ad app create --display-name "{servicePrincipalName}" --query appId -o tsv""",
+            redirectOutput: true,
+            printCommand: false
+        ).Trim();
+
+        ProcessHelper.StartProcess(
+            "az",
+            $"ad sp create --id {servicePrincipalId}",
+            redirectOutput: true,
+            printCommand: false
+        );
+
+        AnsiConsole.MarkupLine(
+            $"Service Principle {servicePrincipalName} created successfully. Id: [blue]{servicePrincipalId}[/]");
+
+        return servicePrincipalId;
+    }
+
     private void PrintHeader(string heading)
     {
         var separator = new string('━', Console.WindowWidth - heading.Length - 1);
@@ -269,4 +352,4 @@ public class SetupGithubAndAzureWorkflows : Command
 [UsedImplicitly]
 public record Subscription(string Id, string Name, string TenantId, string State);
 
-public record GithubRepository(string OrganizationName, string RepositoryName, string GithubUrl);
+public record GithubInfo(string OrganizationName, string RepositoryName, string GithubUrl);
