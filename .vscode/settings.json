@@ -24,6 +24,6 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
-  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedIssueTitle}",
+  "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}"
 }
