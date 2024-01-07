@@ -64,6 +64,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
         var servicePrincipalId = existingServicePrincipalId ?? CreateServicePrincipal(servicePrincipalName);
 
+        CreateFederatedCredentials(servicePrincipalId, githubInfo);
+
         // Grant 'Contributor' and 'User Access Administrator' roles at the subscription level to the Infrastructure Service Principal
 
         // Configure Azure AD 'Azure SQL Server Admins' Security Group
@@ -185,7 +187,7 @@ public class SetupGithubAndAzureWorkflows : Command
             var registryName = AnsiConsole.Ask("[bold]Please enter a unique name for the Azure Container Registry.[/]",
                 existingContainerRegistryName);
 
-            // Check whether the Azure Container Registry name is available
+            //  Check whether the Azure Container Registry name is available
             var checkAvailability = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "az",
@@ -202,7 +204,7 @@ public class SetupGithubAndAzureWorkflows : Command
                 return (registryName, false);
             }
 
-            // Check if the Azure Container Registry is a resource under the current subscription
+            // Checks if the Azure Container Registry is a resource under the current subscription
             var showExistingRegistry = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "az",
@@ -365,10 +367,39 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false);
 
-        AnsiConsole.MarkupLine(
-            $"Service Principle {servicePrincipalName} created successfully. Id: [blue]{servicePrincipalId}[/]");
+        AnsiConsole.MarkupLine($"Service Principle {servicePrincipalName} created successfully.");
 
         return servicePrincipalId;
+    }
+
+    private void CreateFederatedCredentials(string servicePrincipalId, GithubInfo githubInfo)
+    {
+        CreateFederatedCredential("MainBranch", "ref:refs/heads/main");
+        CreateFederatedCredential("PullRequests", "pull_request");
+        CreateFederatedCredential("SharedEnvironment", "environment:shared");
+        CreateFederatedCredential("StagingEnvironment", "environment:staging");
+        CreateFederatedCredential("ProductionEnvironment", "environment:production");
+
+        AnsiConsole.MarkupLine($"Federated Credentials for passwordless deployments from {githubInfo.GithubUrl} created successfully.");
+
+        void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
+        {
+            var parameters = JsonSerializer.Serialize(new
+            {
+                name = displayName,
+                issuer = "https://token.actions.githubusercontent.com",
+                subject = $"repo:{githubInfo.GithubUrl}:{refRefsHeadsMain}",
+                audiences = new[] { "api://AzureADTokenExchange" }
+            });
+
+            ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "az",
+                Arguments = $@"ad app federated-credential create --id {servicePrincipalId} --parameters  @-",
+                RedirectStandardInput = true,
+                RedirectStandardError = true
+            }, printCommand: false, input: parameters);
+        }
     }
 
     private void PrintHeader(string heading)
