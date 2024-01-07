@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Cryptography;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -39,13 +40,14 @@ public static class ChangeDetection
         }
 
         // Restart the process with the same arguments
-        ProcessHelper.StartProcess(
-            System.Environment.ProcessPath!,
-            string.Join(" ", args),
-            Directory.GetCurrentDirectory(),
-            waitForExit: false,
-            printCommand: false
-        );
+        var arguments = string.Join(" ", args);
+        var workingDirectory = Directory.GetCurrentDirectory();
+        ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = System.Environment.ProcessPath!,
+            Arguments = arguments,
+            WorkingDirectory = workingDirectory
+        }, printCommand: false, waitForExit: false);
 
         System.Environment.Exit(0);
     }
@@ -81,7 +83,12 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet", "build", Environment.SolutionFolder);
+            ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "build",
+                WorkingDirectory = Environment.SolutionFolder
+            });
 
             if (Environment.IsWindows)
             {
@@ -92,7 +99,12 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess("dotnet", "publish", Environment.SolutionFolder);
+            ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = "publish",
+                WorkingDirectory = Environment.SolutionFolder
+            });
         }
         catch (Exception e)
         {

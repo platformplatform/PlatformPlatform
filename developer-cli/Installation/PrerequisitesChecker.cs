@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -52,12 +53,14 @@ public static class PrerequisitesChecker
     )
     {
         // Check if the command line tool is installed
-        var checkOutput = ProcessHelper.StartProcess(
-            Environment.IsWindows ? "where" : "which",
-            command,
-            redirectOutput: true,
-            printCommand: false
-        );
+        var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = Environment.IsWindows ? "where" : "which",
+            Arguments = command,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
+
         var outputMessageColor = isRequired ? "red" : "yellow";
 
         var possibleFileLocations = checkOutput.Split(System.Environment.NewLine);
@@ -73,12 +76,13 @@ public static class PrerequisitesChecker
         }
 
         // Get the version of the command line tool
-        var output = ProcessHelper.StartProcess(
-            Environment.IsWindows ? "cmd.exe" : "/bin/bash",
-            Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
-            redirectOutput: true,
-            printCommand: false
-        );
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = Environment.IsWindows ? "cmd.exe" : "/bin/bash",
+            Arguments = Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
 
         var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
         var match = versionRegex.Match(output);
@@ -107,12 +111,13 @@ public static class PrerequisitesChecker
         bool isRequired = false
     )
     {
-        var output = ProcessHelper.StartProcess(
-            "dotnet",
-            "workload list",
-            redirectOutput: true,
-            printCommand: false
-        );
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = "workload list",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
 
         var outputMessageColor = isRequired ? "red" : "yellow";
 

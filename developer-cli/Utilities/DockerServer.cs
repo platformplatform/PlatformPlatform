@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
@@ -9,17 +10,19 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
         if (!DockerImageExists())
         {
             AnsiConsole.MarkupLine($"[green]Pulling {imageName} Docker Image.[/]");
-            ProcessHelper.StartProcess("docker", $"pull {imageName}");
+            ProcessHelper.StartProcess(new ProcessStartInfo { FileName = "docker", Arguments = $"pull {imageName}" });
         }
 
         AnsiConsole.MarkupLine($"[green]Starting {instanceName} server.[/]");
         var portArguments = port.HasValue ? $"-p {port}:{port}" : "";
         var volumeArguments = volume is not null ? $"-v {instanceName}:{volume}" : "";
-        var output = ProcessHelper.StartProcess(
-            "docker",
-            $"run -d {portArguments} {volumeArguments} --name {instanceName} {imageName}",
-            redirectOutput: true
-        );
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "docker",
+            Arguments = $"run -d {portArguments} {volumeArguments} --name {instanceName} {imageName}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
 
         if (output.Contains("Error"))
         {
@@ -30,7 +33,15 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
     public void StopServer()
     {
         AnsiConsole.MarkupLine($"[green]Stopping {instanceName} server.[/]");
-        var output = ProcessHelper.StartProcess("docker", $"rm --force {instanceName}", redirectOutput: true);
+
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "docker",
+            Arguments = $"rm --force {instanceName}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
+
         if (output.Contains("Error"))
         {
             AnsiConsole.MarkupLine($"[red]Failed to stop {instanceName} server. {output}[/]");
@@ -40,7 +51,15 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
     private bool DockerImageExists()
     {
         AnsiConsole.MarkupLine("[green]Checking for existing Docker image.[/]");
-        var output = ProcessHelper.StartProcess("docker", $"image inspect {imageName}", redirectOutput: true);
+
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "docker",
+            Arguments = $"image inspect {imageName}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
+
         return output.Contains("Digest");
     }
 }

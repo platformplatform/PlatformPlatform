@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -80,13 +81,14 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private GithubInfo GetGithubInfo()
     {
-        var gitRemotes = ProcessHelper.StartProcess(
-            "git",
-            "remote -v",
-            Installation.Environment.SolutionFolder,
-            printCommand: false,
-            redirectOutput: true
-        );
+        var gitRemotes = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "git",
+            Arguments = "remote -v",
+            WorkingDirectory = Installation.Environment.SolutionFolder,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
 
         var gitRemoteRegex = new Regex(@"(?<url>https://github\.com/.*\.git)");
         var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);
@@ -126,9 +128,13 @@ public class SetupGithubAndAzureWorkflows : Command
     private Subscription GetAzureSubscription(bool skipAzureLogin)
     {
         // Both `az login` and `az account list` will return a JSON array of subscriptions
-        var arguments = skipAzureLogin ? "account list" : "login";
-        var subscriptionListJson =
-            ProcessHelper.StartProcess("az", arguments, redirectOutput: true, printCommand: false);
+        var subscriptionListJson = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = skipAzureLogin ? "account list" : "login",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
 
         // Regular expression to match JSON part
         var jsonRegex = new Regex(@"\[.*\]", RegexOptions.Singleline);
@@ -161,7 +167,10 @@ public class SetupGithubAndAzureWorkflows : Command
         }
 
         var subscription = selectedSubscriptions.Single();
-        ProcessHelper.StartProcess("az", $"account set --subscription {subscription.Id}", printCommand: false);
+        ProcessHelper.StartProcess(
+            new ProcessStartInfo { FileName = "az", Arguments = $"account set --subscription {subscription.Id}" },
+            printCommand: false
+        );
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
         return subscription;
@@ -177,12 +186,13 @@ public class SetupGithubAndAzureWorkflows : Command
                 existingContainerRegistryName);
 
             // Check whether the Azure Container Registry name is available
-            var checkAvailability = ProcessHelper.StartProcess(
-                "az",
-                $"acr check-name --name {registryName}",
-                redirectOutput: true,
-                printCommand: false
-            );
+            var checkAvailability = ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "az",
+                Arguments = $"acr check-name --name {registryName}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }, printCommand: false);
 
             var nameAvailable =
                 JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean();
@@ -193,12 +203,13 @@ public class SetupGithubAndAzureWorkflows : Command
             }
 
             // Check if the Azure Container Registry is a resource under the current subscription
-            var showExistingRegistry = ProcessHelper.StartProcess(
-                "az",
-                $"acr show --name {registryName} --subscription {azureSubscription.Id}",
-                redirectOutput: true,
-                printCommand: false
-            );
+            var showExistingRegistry = ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "az",
+                Arguments = $"acr show --name {registryName} --subscription {azureSubscription.Id}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }, printCommand: false);
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
@@ -221,19 +232,21 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private string? GetExistingServicePrincipalId(string servicePrincipalName)
     {
-        var existingServicePrincipalId = ProcessHelper.StartProcess(
-            "az",
-            $"""ad sp list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
-            redirectOutput: true,
-            printCommand: false
-        ).Trim();
+        var existingServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad sp list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
 
-        var existingAppId = ProcessHelper.StartProcess(
-            "az",
-            $"""ad app list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
-            redirectOutput: true,
-            printCommand: false
-        ).Trim();
+        var existingAppId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad app list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
 
         if (string.IsNullOrEmpty(existingServicePrincipalId) && string.IsNullOrEmpty(existingAppId)) return null;
 
@@ -266,8 +279,21 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void LoginToGithub()
     {
-        ProcessHelper.StartProcess("gh", "auth login --git-protocol https --web", printCommand: false);
-        var output = ProcessHelper.StartProcess("gh", "auth status", redirectOutput: true, printCommand: false);
+        ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "gh",
+                Arguments = "auth login --git-protocol https --web"
+            }, printCommand: false
+        );
+
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "gh",
+            Arguments = "auth status",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
+
         if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
         AnsiConsole.WriteLine();
     }
@@ -312,29 +338,32 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
     {
-        ProcessHelper.StartProcess(
-            "az",
-            $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
-            redirectOutput: true,
-            printCommand: false
-        );
+        ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
     }
 
     private string CreateServicePrincipal(string servicePrincipalName)
     {
-        var servicePrincipalId = ProcessHelper.StartProcess(
-            "az",
-            $"""ad app create --display-name "{servicePrincipalName}" --query appId -o tsv""",
-            redirectOutput: true,
-            printCommand: false
-        ).Trim();
+        var servicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad app create --display-name "{servicePrincipalName}" --query appId -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
 
-        ProcessHelper.StartProcess(
-            "az",
-            $"ad sp create --id {servicePrincipalId}",
-            redirectOutput: true,
-            printCommand: false
-        );
+        ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"ad sp create --id {servicePrincipalId}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
 
         AnsiConsole.MarkupLine(
             $"Service Principle {servicePrincipalName} created successfully. Id: [blue]{servicePrincipalId}[/]");
