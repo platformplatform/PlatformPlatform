@@ -43,7 +43,7 @@ public class SetupGithubAndAzureWorkflows : Command
         var subscription = GetAzureSubscription(skipAzureLogin);
         var (azureContainerRegistryName, azureContainerRegistryExists) = GetAzureContainerRegistryName(subscription);
         var servicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
-        var existingServicePrincipalId = GetExistingServicePrincipalId(servicePrincipalName);
+        var (servicePrincipalId, servicePrincipalAppId) = GetExistingServicePrincipalId(servicePrincipalName);
 
         LoginToGithub();
 
@@ -55,18 +55,21 @@ public class SetupGithubAndAzureWorkflows : Command
             azureContainerRegistryName,
             azureContainerRegistryExists,
             servicePrincipalName,
-            existingServicePrincipalId
+            servicePrincipalId
         );
 
         PrintHeader("Configuring Azure and GitHub");
 
         PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
 
-        var servicePrincipalId = existingServicePrincipalId ?? CreateServicePrincipal(servicePrincipalName);
+        if (servicePrincipalId == null || servicePrincipalAppId == null)
+        {
+            (servicePrincipalId, servicePrincipalAppId) = CreateServicePrincipal(servicePrincipalName);
+        }
 
         CreateFederatedCredentials(servicePrincipalId, githubInfo);
 
-        // Grant 'Contributor' and 'User Access Administrator' roles at the subscription level to the Infrastructure Service Principal
+        GrantSubscriptionPermissionsForServicePrincipal(subscription, servicePrincipalAppId);
 
         // Configure Azure AD 'Azure SQL Server Admins' Security Group
 
@@ -232,7 +235,7 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
-    private string? GetExistingServicePrincipalId(string servicePrincipalName)
+    private (string?, string?) GetExistingServicePrincipalId(string servicePrincipalName)
     {
         var existingServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
@@ -242,7 +245,7 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false).Trim();
 
-        var existingAppId = ProcessHelper.StartProcess(new ProcessStartInfo
+        var existingServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
             Arguments = $"""ad app list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
@@ -250,7 +253,10 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false).Trim();
 
-        if (string.IsNullOrEmpty(existingServicePrincipalId) && string.IsNullOrEmpty(existingAppId)) return null;
+        if (string.IsNullOrEmpty(existingServicePrincipalId) && string.IsNullOrEmpty(existingServicePrincipalAppId))
+        {
+            return (null, null);
+        }
 
         if (string.IsNullOrEmpty(existingServicePrincipalId))
         {
@@ -259,7 +265,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Environment.Exit(1);
         }
 
-        if (string.IsNullOrEmpty(existingAppId))
+        if (string.IsNullOrEmpty(existingServicePrincipalAppId))
         {
             AnsiConsole.MarkupLine(
                 $"[red]The App Registration '{servicePrincipalName}' exists but the Service Principal does not. Please manually delete the App Registration and retry.[/]");
@@ -273,10 +279,10 @@ public class SetupGithubAndAzureWorkflows : Command
         {
             AnsiConsole.MarkupLine("[red]Please delete the existing Service Principal and try again.[/]");
             Environment.Exit(1);
-            return null;
+            return (null, null);
         }
 
-        return existingServicePrincipalId;
+        return (existingServicePrincipalId, existingServicePrincipalAppId);
     }
 
     private void LoginToGithub()
@@ -347,9 +353,12 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardOutput = true,
             RedirectStandardError = true
         }, printCommand: false);
+
+        AnsiConsole.MarkupLine(
+            "[green]Successfully ensured the subscription supports creation of Azure Container Apps environments.[/]");
     }
 
-    private string CreateServicePrincipal(string servicePrincipalName)
+    private (string, string) CreateServicePrincipal(string servicePrincipalName)
     {
         var servicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
@@ -359,7 +368,7 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false).Trim();
 
-        ProcessHelper.StartProcess(new ProcessStartInfo
+        var servicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
             Arguments = $"ad sp create --id {servicePrincipalId}",
@@ -367,9 +376,10 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false);
 
-        AnsiConsole.MarkupLine($"Service Principle {servicePrincipalName} created successfully.");
+        AnsiConsole.MarkupLine(
+            $"[green]Successfully created Service Principle {servicePrincipalName} ({servicePrincipalId}).[/]");
 
-        return servicePrincipalId;
+        return (servicePrincipalId, servicePrincipalAppId);
     }
 
     private void CreateFederatedCredentials(string servicePrincipalId, GithubInfo githubInfo)
@@ -380,7 +390,8 @@ public class SetupGithubAndAzureWorkflows : Command
         CreateFederatedCredential("StagingEnvironment", "environment:staging");
         CreateFederatedCredential("ProductionEnvironment", "environment:production");
 
-        AnsiConsole.MarkupLine($"Federated Credentials for passwordless deployments from {githubInfo.GithubUrl} created successfully.");
+        AnsiConsole.MarkupLine(
+            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}[/]");
 
         void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
         {
@@ -401,6 +412,29 @@ public class SetupGithubAndAzureWorkflows : Command
             }, printCommand: false, input: parameters);
         }
     }
+
+    private void GrantSubscriptionPermissionsForServicePrincipal(Subscription subscription, string servicePrincipalId)
+    {
+        GrantAccess("Contributor");
+        GrantAccess("User Access Administrator");
+        GrantAccess("AcrPush");
+
+        AnsiConsole.MarkupLine(
+            "[green]Successfully granted the Service Principal 'Contributor' rights to the Azure Subscription.[/]");
+
+        void GrantAccess(string role)
+        {
+            ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "az",
+                Arguments =
+                    $"role assignment create --assignee {servicePrincipalId} --role \"{role}\" --scope /subscriptions/{subscription.Id}",
+                RedirectStandardInput = true,
+                RedirectStandardError = true
+            }, printCommand: false);
+        }
+    }
+
 
     private void PrintHeader(string heading)
     {
