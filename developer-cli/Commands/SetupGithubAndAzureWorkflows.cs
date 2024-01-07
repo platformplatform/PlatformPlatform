@@ -40,36 +40,30 @@ public class SetupGithubAndAzureWorkflows : Command
 
         PrintHeader("Collecting data");
 
-        var subscription = GetAzureSubscription(skipAzureLogin);
-        var (azureContainerRegistryName, azureContainerRegistryExists) = GetAzureContainerRegistryName(subscription);
-        var servicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
-        var (servicePrincipalId, servicePrincipalAppId) = GetExistingServicePrincipalId(servicePrincipalName);
+        AzureInfo azureInfo = new();
+        azureInfo.Subscription = GetAzureSubscription(skipAzureLogin);
+        azureInfo.ServicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
+        PublishExistingServicePrincipalId(azureInfo);
+        azureInfo.ContainerRegistry = GetAzureContainerRegistryName(azureInfo.Subscription);
 
         LoginToGithub();
 
         PrintHeader("Confirm changes");
 
-        ConfirmChangesPrompt(
-            githubInfo,
-            subscription,
-            azureContainerRegistryName,
-            azureContainerRegistryExists,
-            servicePrincipalName,
-            servicePrincipalId
-        );
+        ConfirmChangesPrompt(githubInfo, azureInfo);
 
         PrintHeader("Configuring Azure and GitHub");
 
-        PrepareSubscriptionForContainerAppsEnvironment(subscription.Id);
+        PrepareSubscriptionForContainerAppsEnvironment(azureInfo.Subscription.Id);
 
-        if (servicePrincipalId == null || servicePrincipalAppId == null)
+        if (!azureInfo.ServicePrincipalExists)
         {
-            (servicePrincipalId, servicePrincipalAppId) = CreateServicePrincipal(servicePrincipalName);
+            CreateServicePrincipal(azureInfo);
         }
 
-        CreateFederatedCredentials(servicePrincipalId, githubInfo);
+        CreateFederatedCredentials(azureInfo, githubInfo);
 
-        GrantSubscriptionPermissionsForServicePrincipal(subscription, servicePrincipalAppId);
+        GrantSubscriptionPermissionsForServicePrincipal(azureInfo);
 
         // Configure Azure AD 'Azure SQL Server Admins' Security Group
 
@@ -181,7 +175,58 @@ public class SetupGithubAndAzureWorkflows : Command
         return subscription;
     }
 
-    private (string, bool) GetAzureContainerRegistryName(Subscription azureSubscription)
+    private void PublishExistingServicePrincipalId(AzureInfo azureInfo)
+    {
+        var existingServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad sp list --display-name "{azureInfo.ServicePrincipalName}" --query "[].appId" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
+
+        var existingServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad app list --display-name "{azureInfo.ServicePrincipalName}" --query "[].appId" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
+
+        if (existingServicePrincipalId != string.Empty && existingServicePrincipalAppId != string.Empty)
+        {
+            AnsiConsole.MarkupLine(
+                $"[yellow]The Service Principal (App registration) '{azureInfo.ServicePrincipalName}' already exists with App ID: {existingServicePrincipalId}[/]");
+
+            if (AnsiConsole.Confirm("The existing Service Principal will be reused. Do you want to continue?"))
+            {
+                AnsiConsole.WriteLine();
+                azureInfo.ServicePrincipalExists = true;
+                azureInfo.ServicePrincipalId = existingServicePrincipalId;
+                azureInfo.ServicePrincipalAppId = existingServicePrincipalAppId;
+                return;
+            }
+
+            AnsiConsole.MarkupLine("[red]Please delete the existing Service Principal and try again.[/]");
+            Environment.Exit(1);
+        }
+
+        if (!string.IsNullOrEmpty(existingServicePrincipalId))
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]The Service Principal '{azureInfo.ServicePrincipalName}' exists but the App Registration does not. Please manually delete the Service Principle and retry.[/]");
+            Environment.Exit(1);
+        }
+
+        if (!string.IsNullOrEmpty(existingServicePrincipalAppId))
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]The App Registration '{azureInfo.ServicePrincipalName}' exists but the Service Principal does not. Please manually delete the App Registration and retry.[/]");
+            Environment.Exit(1);
+        }
+    }
+
+    private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription)
     {
         var existingContainerRegistryName = Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
 
@@ -204,7 +249,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
             if (nameAvailable)
             {
-                return (registryName, false);
+                AnsiConsole.WriteLine();
+                return new ContainerRegistry(registryName, false);
             }
 
             // Checks if the Azure Container Registry is a resource under the current subscription
@@ -226,63 +272,13 @@ public class SetupGithubAndAzureWorkflows : Command
                 {
                     AnsiConsole.MarkupLine(
                         $"[yellow] The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]");
-                    return (registryName, true);
+                    return new ContainerRegistry(registryName, true);
                 }
             }
 
             AnsiConsole.MarkupLine(
                 $"[red]ERROR:[/] The Azure Container Registry {registryName} is invalid or already exists. Please try again.");
         }
-    }
-
-    private (string?, string?) GetExistingServicePrincipalId(string servicePrincipalName)
-    {
-        var existingServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "az",
-            Arguments = $"""ad sp list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        }, printCommand: false).Trim();
-
-        var existingServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "az",
-            Arguments = $"""ad app list --display-name "{servicePrincipalName}" --query "[].appId" -o tsv""",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        }, printCommand: false).Trim();
-
-        if (string.IsNullOrEmpty(existingServicePrincipalId) && string.IsNullOrEmpty(existingServicePrincipalAppId))
-        {
-            return (null, null);
-        }
-
-        if (string.IsNullOrEmpty(existingServicePrincipalId))
-        {
-            AnsiConsole.MarkupLine(
-                $"[red]The Service Principal '{servicePrincipalName}' exists but the App Registration does not. Please manually delete the Service Principle and retry.[/]");
-            Environment.Exit(1);
-        }
-
-        if (string.IsNullOrEmpty(existingServicePrincipalAppId))
-        {
-            AnsiConsole.MarkupLine(
-                $"[red]The App Registration '{servicePrincipalName}' exists but the Service Principal does not. Please manually delete the App Registration and retry.[/]");
-            Environment.Exit(1);
-        }
-
-        AnsiConsole.MarkupLine(
-            $"[yellow]The Service Principal (App registration) '{servicePrincipalName}' already exists with App ID: {existingServicePrincipalId}[/]");
-
-        if (!AnsiConsole.Confirm("The existing Service Principal will be reused. Do you want to continue?"))
-        {
-            AnsiConsole.MarkupLine("[red]Please delete the existing Service Principal and try again.[/]");
-            Environment.Exit(1);
-            return (null, null);
-        }
-
-        return (existingServicePrincipalId, existingServicePrincipalAppId);
     }
 
     private void LoginToGithub()
@@ -306,27 +302,21 @@ public class SetupGithubAndAzureWorkflows : Command
         AnsiConsole.WriteLine();
     }
 
-    private void ConfirmChangesPrompt(
-        GithubInfo githubInfo,
-        Subscription subscription,
-        string azureContainerRegistryName,
-        bool azureContainerRegistryExists,
-        string servicePrincipalName,
-        string? existingServicePrincipalId
-    )
+    private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        var reuseContainerRegistry = azureContainerRegistryExists ? " - reuse existing Azure Container Registry" : "";
-        var reuseServicePrinciple = existingServicePrincipalId is not null ? " - reuse existing service principle" : "";
+        var reuseContainerRegistry =
+            azureInfo.ContainerRegistry.Exists ? " - reuse existing Azure Container Registry" : "";
+        var reuseServicePrinciple = azureInfo.ServicePrincipalExists ? " - reuse existing service principle" : "";
 
         var setupConfirmPrompt =
             $"""
              * GitHub Organization: [blue]{githubInfo.OrganizationName}[/]
              * GitHub Repository Name: [blue]{githubInfo.RepositoryName}[/]
              * GitHub Repository URL: [blue]{githubInfo.GithubUrl}[/]
-             * Azure Subscription: [blue]{subscription.Name} ({subscription.Id})[/]
-             * Microsoft Entra ID Tenant ID: [blue]{subscription.TenantId}[/]
-             * Azure Container Registry Name: [blue]{azureContainerRegistryName}[/]{reuseContainerRegistry}
-             * Service Principal Name: [blue]{servicePrincipalName}[/]{reuseServicePrinciple}
+             * Azure Subscription: [blue]{azureInfo.Subscription.Name} ({azureInfo.Subscription.Id})[/]
+             * Microsoft Entra ID Tenant ID: [blue]{azureInfo.Subscription.TenantId}[/]
+             * Azure Container Registry Name: [blue]{azureInfo.ContainerRegistry.Name}[/]{reuseContainerRegistry}
+             * Service Principal Name: [blue]{azureInfo.ServicePrincipalName}[/]{reuseServicePrinciple}
              * SQL Admins Security Group Name: [blue]Azure SQL Server Admins[/]
 
              [bold]If you continue the following changes will be made:[/]
@@ -355,34 +345,32 @@ public class SetupGithubAndAzureWorkflows : Command
         }, printCommand: false);
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully ensured the subscription supports creation of Azure Container Apps environments.[/]");
+            "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
     }
 
-    private (string, string) CreateServicePrincipal(string servicePrincipalName)
+    private void CreateServicePrincipal(AzureInfo azureInfo)
     {
-        var servicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
+        azureInfo.ServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"""ad app create --display-name "{servicePrincipalName}" --query appId -o tsv""",
+            Arguments = $"""ad app create --display-name "{azureInfo.ServicePrincipalName}" --query appId -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
         }, printCommand: false).Trim();
 
-        var servicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
+        azureInfo.ServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"ad sp create --id {servicePrincipalId}",
+            Arguments = $"ad sp create --id {azureInfo.ServicePrincipalId}",
             RedirectStandardOutput = true,
             RedirectStandardError = true
         }, printCommand: false);
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created Service Principle {servicePrincipalName} ({servicePrincipalId}).[/]");
-
-        return (servicePrincipalId, servicePrincipalAppId);
+            $"[green]Successfully create a Service Principal {azureInfo.ServicePrincipalName} ({azureInfo.ServicePrincipalId}).[/]");
     }
 
-    private void CreateFederatedCredentials(string servicePrincipalId, GithubInfo githubInfo)
+    private void CreateFederatedCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
     {
         CreateFederatedCredential("MainBranch", "ref:refs/heads/main");
         CreateFederatedCredential("PullRequests", "pull_request");
@@ -391,7 +379,7 @@ public class SetupGithubAndAzureWorkflows : Command
         CreateFederatedCredential("ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}[/]");
+            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]");
 
         void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
         {
@@ -406,21 +394,23 @@ public class SetupGithubAndAzureWorkflows : Command
             ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "az",
-                Arguments = $@"ad app federated-credential create --id {servicePrincipalId} --parameters  @-",
+                Arguments =
+                    $@"ad app federated-credential create --id {azureInfo.ServicePrincipalAppId} --parameters  @-",
                 RedirectStandardInput = true,
+                RedirectStandardOutput = true,
                 RedirectStandardError = true
             }, printCommand: false, input: parameters);
         }
     }
 
-    private void GrantSubscriptionPermissionsForServicePrincipal(Subscription subscription, string servicePrincipalId)
+    private void GrantSubscriptionPermissionsForServicePrincipal(AzureInfo azureInfo)
     {
         GrantAccess("Contributor");
         GrantAccess("User Access Administrator");
         GrantAccess("AcrPush");
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully granted the Service Principal 'Contributor' rights to the Azure Subscription.[/]");
+            "[green]Successfully granted the Service Principal 'Contributor' and `User Access Administrator` rights to the Azure Subscription.[/]");
 
         void GrantAccess(string role)
         {
@@ -428,13 +418,12 @@ public class SetupGithubAndAzureWorkflows : Command
             {
                 FileName = "az",
                 Arguments =
-                    $"role assignment create --assignee {servicePrincipalId} --role \"{role}\" --scope /subscriptions/{subscription.Id}",
-                RedirectStandardInput = true,
+                    $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
+                RedirectStandardOutput = true,
                 RedirectStandardError = true
             }, printCommand: false);
         }
     }
-
 
     private void PrintHeader(string heading)
     {
@@ -443,7 +432,24 @@ public class SetupGithubAndAzureWorkflows : Command
     }
 }
 
+public record GithubInfo(string OrganizationName, string RepositoryName, string GithubUrl);
+
+public class AzureInfo
+{
+    public Subscription Subscription { get; set; } = default!;
+
+    public ContainerRegistry ContainerRegistry { get; set; } = default!;
+
+    public string ServicePrincipalName { get; set; } = default!;
+
+    public object ServicePrincipalId { get; set; } = default!;
+
+    public string ServicePrincipalAppId { get; set; } = default!;
+
+    public bool ServicePrincipalExists { get; set; }
+}
+
 [UsedImplicitly]
 public record Subscription(string Id, string Name, string TenantId, string State);
 
-public record GithubInfo(string OrganizationName, string RepositoryName, string GithubUrl);
+public record ContainerRegistry(string Name, bool Exists);
