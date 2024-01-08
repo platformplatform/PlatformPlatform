@@ -88,50 +88,8 @@ jobs:
           name: account-management
           path: application/account-management/Api/publish/**/*
 
-  eslint-code-inspection:
-    name: ESLint Code Inspections and Formatting
-    if: github.ref != 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Install Node modules
-        working-directory: application/account-management/WebApp
-        run: bun install --frozen-lockfile
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore .NET tools
-        working-directory: application
-        run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
-
-      - name: Restore .NET dependencies
-        working-directory: application
-        run: dotnet restore
-
-      - name: Build solution
-        working-directory: application
-        run: dotnet build PlatformPlatform.sln --no-restore
-
-      - name: Run ESLint
-        working-directory: application/account-management/WebApp
-        run: bun lint
-
-      - name: Run Type Checking
-        working-directory: application/account-management/WebApp
-        run: bun typechecking
-
-  jetbrains-code-inspection:
-    name: JetBrains Code Inspections
+  code-style-and-linting:
+    name: Code Style and Linting
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -186,6 +144,14 @@ jobs:
             echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
             exit 1
           }
+
+      - name: Run ESLint
+        working-directory: application/account-management/WebApp
+        run: bun lint
+
+      - name: Run Type Checking
+        working-directory: application/account-management/WebApp
+        run: bun typechecking
 
   account-management-publish:
     name: Account Management Publish
