@@ -39,6 +39,7 @@ public static class ApiCoreConfiguration
         };
 
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
+        services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
 
         services.AddSwaggerGen(c =>
         {
