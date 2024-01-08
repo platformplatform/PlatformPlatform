@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -77,6 +78,12 @@ public static class ApiCoreConfiguration
         where TDbContext : DbContext
     {
         app.MapDefaultEndpoints();
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
 
         // Enable Swagger UI
         app.UseSwagger();
