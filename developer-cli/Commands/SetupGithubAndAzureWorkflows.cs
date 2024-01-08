@@ -44,6 +44,7 @@ public class SetupGithubAndAzureWorkflows : Command
         azureInfo.Subscription = GetAzureSubscription(skipAzureLogin);
         azureInfo.ServicePrincipalName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
         PublishExistingServicePrincipalId(azureInfo);
+        PublishExistingSqlAdminSecurityGroup(azureInfo);
         azureInfo.ContainerRegistry = GetAzureContainerRegistryName(azureInfo.Subscription);
 
         LoginToGithub();
@@ -65,7 +66,10 @@ public class SetupGithubAndAzureWorkflows : Command
 
         GrantSubscriptionPermissionsForServicePrincipal(azureInfo);
 
-        // Configure Azure AD 'Azure SQL Server Admins' Security Group
+        if (!azureInfo.SqlAdminsSecurityGroupExists)
+        {
+            CreateAzureSqlServerSecurityGroup(azureInfo);
+        }
 
         // Configure GitHub secrets and variables
 
@@ -226,6 +230,34 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
+    private void PublishExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
+    {
+        var existingSqlAdminSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
+
+        if (existingSqlAdminSecurityGroupId != string.Empty)
+        {
+            AnsiConsole.MarkupLine(
+                $"[yellow]The Azure AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {existingSqlAdminSecurityGroupId}[/]");
+
+            if (AnsiConsole.Confirm("The existing Azure AD Security Group will be reused. Do you want to continue?"))
+            {
+                AnsiConsole.WriteLine();
+                azureInfo.SqlAdminsSecurityGroupExists = true;
+                azureInfo.SqlAdminsSecurityGroupId = existingSqlAdminSecurityGroupId;
+                return;
+            }
+
+            AnsiConsole.MarkupLine("[red]Please delete the existing Azure AD Security Group and try again.[/]");
+            Environment.Exit(1);
+        }
+    }
+
     private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription)
     {
         var existingContainerRegistryName = Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
@@ -366,6 +398,14 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }, printCommand: false);
 
+        azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad sp list --filter "appId eq '{azureInfo.ServicePrincipalAppId}'" --query "[].objectId" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
+
         AnsiConsole.MarkupLine(
             $"[green]Successfully create a Service Principal {azureInfo.ServicePrincipalName} ({azureInfo.ServicePrincipalId}).[/]");
     }
@@ -425,6 +465,28 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
+    private void CreateAzureSqlServerSecurityGroup(AzureInfo azureInfo)
+    {
+        azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false).Trim();
+        
+        ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }, printCommand: false);
+        
+        AnsiConsole.MarkupLine(
+            $"[green]Successfully created Azure AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the Service Principal {azureInfo.ServicePrincipalName} owner.[/]");
+    }
+
     private void PrintHeader(string heading)
     {
         var separator = new string('━', Console.WindowWidth - heading.Length - 1);
@@ -445,8 +507,18 @@ public class AzureInfo
     public object ServicePrincipalId { get; set; } = default!;
 
     public string ServicePrincipalAppId { get; set; } = default!;
+    
+    public string ServicePrincipalObjectId { get; set; } = default!;
 
     public bool ServicePrincipalExists { get; set; }
+
+    public string SqlAdminsSecurityGroupName { get; } = "Azure SQL Server Admins";
+    
+    public string SqlAdminsSecurityGroupNickName { get; } = "AzureSQLServerAdmins";
+
+    public string SqlAdminsSecurityGroupId { get; set; } = default!;
+
+    public bool SqlAdminsSecurityGroupExists { get; set; }
 }
 
 [UsedImplicitly]
