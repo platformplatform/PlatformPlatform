@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = System.Environment;
+using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -21,15 +21,16 @@ public class SetupGithubAndAzureWorkflows : Command
         "Set up trust between Azure and GitHub for passwordless deployments using Azure Service Principals with OpenID (aka Federated Credentials)."
     )
     {
-        var skipAzureLoginOption = new Option<bool>(["--skip-azure-login"], "Skip Azure login");
+        AddOption(new Option<bool>(["--skip-azure-login"], "Skip Azure login"));
+        AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and Github CLI commands and output"));
 
-        AddOption(skipAzureLoginOption);
-
-        Handler = CommandHandler.Create<bool>(Execute);
+        Handler = CommandHandler.Create<bool, bool>(Execute);
     }
 
-    private int Execute(bool skipAzureLogin = false)
+    private int Execute(bool skipAzureLogin = false, bool verboseLogging = false)
     {
+        Environment.VerboseLogging = verboseLogging;
+
         EnsureAzureAndGithubCliToolsAreInstalled();
 
         PrintHeader("Introduction");
@@ -88,7 +89,7 @@ public class SetupGithubAndAzureWorkflows : Command
         {
             FileName = "git",
             Arguments = "remote -v",
-            WorkingDirectory = Installation.Environment.SolutionFolder,
+            WorkingDirectory = Environment.SolutionFolder,
             RedirectStandardOutput = true,
             RedirectStandardError = true
         });
@@ -98,7 +99,7 @@ public class SetupGithubAndAzureWorkflows : Command
         if (!gitRemoteMatches.Success)
         {
             AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. This tool only works with GitHub remotes.[/]");
-            Environment.Exit(0);
+            System.Environment.Exit(0);
         }
 
         var githubUrl = gitRemoteMatches.Groups["url"].Value.Replace(".git", "");
@@ -123,7 +124,7 @@ public class SetupGithubAndAzureWorkflows : Command
             [bold]Would you like to continue?[/]
             """;
 
-        if (!AnsiConsole.Confirm(setupIntroPrompt, false)) Environment.Exit(0);
+        if (!AnsiConsole.Confirm(setupIntroPrompt, false)) System.Environment.Exit(0);
 
         AnsiConsole.WriteLine();
     }
@@ -152,7 +153,7 @@ public class SetupGithubAndAzureWorkflows : Command
         if (azureSubscriptions == null)
         {
             AnsiConsole.MarkupLine("[red]ERROR:[/] No subscriptions found.");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
 
         var activeSubscriptions = azureSubscriptions.Where(s => s.State == "Enabled").ToList();
@@ -166,7 +167,7 @@ public class SetupGithubAndAzureWorkflows : Command
         if (selectedSubscriptions.Length > 1)
         {
             AnsiConsole.MarkupLine($"[red]ERROR:[/] Found two subscriptions with the name {selectedDisplayName}.");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
 
         var subscription = selectedSubscriptions.Single();
@@ -213,21 +214,21 @@ public class SetupGithubAndAzureWorkflows : Command
             }
 
             AnsiConsole.MarkupLine("[red]Please delete the existing Service Principal and try again.[/]");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
 
         if (!string.IsNullOrEmpty(existingServicePrincipalId))
         {
             AnsiConsole.MarkupLine(
                 $"[red]The Service Principal '{azureInfo.ServicePrincipalName}' exists but the App Registration does not. Please manually delete the Service Principle and retry.[/]");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
 
         if (!string.IsNullOrEmpty(existingServicePrincipalAppId))
         {
             AnsiConsole.MarkupLine(
                 $"[red]The App Registration '{azureInfo.ServicePrincipalName}' exists but the Service Principal does not. Please manually delete the App Registration and retry.[/]");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
     }
 
@@ -256,13 +257,13 @@ public class SetupGithubAndAzureWorkflows : Command
             }
 
             AnsiConsole.MarkupLine("[red]Please delete the existing Azure AD Security Group and try again.[/]");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
     }
 
     private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription)
     {
-        var existingContainerRegistryName = Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
+        var existingContainerRegistryName = System.Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
 
         while (true)
         {
@@ -332,7 +333,7 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         });
 
-        if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
+        if (!output.Contains("Logged in to github.com")) System.Environment.Exit(0);
         AnsiConsole.WriteLine();
     }
 
@@ -365,7 +366,7 @@ public class SetupGithubAndAzureWorkflows : Command
              [bold]Would you like to continue?[/]
              """;
 
-        if (!AnsiConsole.Confirm($"{setupConfirmPrompt}", false)) Environment.Exit(0);
+        if (!AnsiConsole.Confirm($"{setupConfirmPrompt}", false)) System.Environment.Exit(0);
     }
 
     private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
@@ -374,8 +375,8 @@ public class SetupGithubAndAzureWorkflows : Command
         {
             FileName = "az",
             Arguments = $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardOutput = !Environment.VerboseLogging,
+            RedirectStandardError = !Environment.VerboseLogging
         });
 
         AnsiConsole.MarkupLine(
@@ -440,8 +441,8 @@ public class SetupGithubAndAzureWorkflows : Command
                 Arguments =
                     $@"ad app federated-credential create --id {azureInfo.ServicePrincipalAppId} --parameters  @-",
                 RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardOutput = !Environment.VerboseLogging,
+                RedirectStandardError = !Environment.VerboseLogging
             }, parameters);
         }
     }
@@ -462,8 +463,8 @@ public class SetupGithubAndAzureWorkflows : Command
                 FileName = "az",
                 Arguments =
                     $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardOutput = !Environment.VerboseLogging,
+                RedirectStandardError = !Environment.VerboseLogging
             });
         }
     }
@@ -484,8 +485,8 @@ public class SetupGithubAndAzureWorkflows : Command
             FileName = "az",
             Arguments =
                 $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
+            RedirectStandardOutput = !Environment.VerboseLogging,
+            RedirectStandardError = !Environment.VerboseLogging
         });
 
         AnsiConsole.MarkupLine(
