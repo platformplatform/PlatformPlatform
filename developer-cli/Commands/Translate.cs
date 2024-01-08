@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Karambolo.PO;
 using OllamaSharp;
 using OllamaSharp.Models;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
@@ -34,6 +35,7 @@ public class Translate : Command
 
     private async Task<int> Execute(string? language)
     {
+        PrerequisitesChecker.CheckCommandLineTool("docker", "Docker", new Version(24, 0), true);
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try
         {
