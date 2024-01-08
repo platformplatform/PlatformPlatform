@@ -1,6 +1,8 @@
-import os from "os";
-import { join, resolve } from "path";
-import { Configuration, DefinePlugin } from "@rspack/core";
+import os from "node:os";
+import { join, resolve } from "node:path";
+import process from "node:process";
+import type { Configuration } from "@rspack/core";
+import { DefinePlugin } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
 import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesystem-router/rspack-plugin";
@@ -103,7 +105,8 @@ const configuration: Configuration = {
     ],
   },
   plugins: [
-    // @ts-ignore
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-expect-error
     new HtmlWebpackPlugin({
       template: "./public/index.html",
       meta: {

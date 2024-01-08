@@ -88,8 +88,8 @@ jobs:
           name: account-management
           path: application/account-management/Api/publish/**/*
 
-  jetbrains-code-inspection:
-    name: JetBrains Code Inspections
+  code-style-and-linting:
+    name: Code Style and Linting
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -144,6 +144,14 @@ jobs:
             echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
             exit 1
           }
+
+      - name: Run ESLint
+        working-directory: application/account-management/WebApp
+        run: bun lint
+
+      - name: Run Type Checking
+        working-directory: application/account-management/WebApp
+        run: bun typechecking
 
   account-management-publish:
     name: Account Management Publish

@@ -1,17 +1,17 @@
 import { z } from "zod";
-import { accountManagementApi } from "@/lib/api/client.ts";
-import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { navigate } from "@platformplatform/client-filesystem-router/react";
 import { i18n } from "@lingui/core";
+import { accountManagementApi } from "@/lib/api/client.ts";
+import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 
-export type State = {
+export interface State {
   errors?: {
-    subdomain?: string[];
-    name?: string[];
-    email?: string[];
+    subdomain?: string[],
+    name?: string[],
+    email?: string[],
   };
   message?: string | null;
-};
+}
 
 export const CreateTenantSchema = z.object({
   subdomain: z.string().min(1, "Please enter a subdomain").min(4, "Subdomain is required to be at least 4 characters"),
@@ -27,6 +27,7 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
   });
 
   if (!validatedFields.success) {
+    // eslint-disable-next-line no-console
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -58,7 +59,8 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
       message: apiError.title,
       errors: getFieldErrors(apiError.Errors),
     };
-  } catch (e) {
+  }
+  catch (e) {
     return {
       message: i18n.t("Server error: Failed to Create Account."),
     };
