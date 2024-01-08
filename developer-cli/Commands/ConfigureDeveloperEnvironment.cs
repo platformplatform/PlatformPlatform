@@ -124,7 +124,7 @@ public class ConfigureDeveloperEnvironment : Command
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
-        }, printCommand: false);
+        });
 
         return output.Contains("A valid certificate was found");
     }
@@ -161,7 +161,7 @@ public class ConfigureDeveloperEnvironment : Command
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
-            }, printCommand: false);
+            });
 
             if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
             {
@@ -231,7 +231,7 @@ public class ConfigureDeveloperEnvironment : Command
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
-            }, printCommand: false);
+            });
         }
         else if (Environment.IsMacOs)
         {

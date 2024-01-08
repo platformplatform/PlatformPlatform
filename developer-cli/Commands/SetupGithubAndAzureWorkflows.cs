@@ -91,7 +91,7 @@ public class SetupGithubAndAzureWorkflows : Command
             WorkingDirectory = Installation.Environment.SolutionFolder,
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         var gitRemoteRegex = new Regex(@"(?<url>https://github\.com/.*\.git)");
         var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);
@@ -137,7 +137,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = skipAzureLogin ? "account list" : "login",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         // Regular expression to match JSON part
         var jsonRegex = new Regex(@"\[.*\]", RegexOptions.Singleline);
@@ -170,10 +170,11 @@ public class SetupGithubAndAzureWorkflows : Command
         }
 
         var subscription = selectedSubscriptions.Single();
-        ProcessHelper.StartProcess(
-            new ProcessStartInfo { FileName = "az", Arguments = $"account set --subscription {subscription.Id}" },
-            printCommand: false
-        );
+        ProcessHelper.StartProcess(new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"account set --subscription {subscription.Id}"
+        });
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
         return subscription;
@@ -187,7 +188,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = $"""ad sp list --display-name "{azureInfo.ServicePrincipalName}" --query "[].appId" -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
+        }).Trim();
 
         var existingServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
@@ -195,7 +196,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = $"""ad app list --display-name "{azureInfo.ServicePrincipalName}" --query "[].appId" -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
+        }).Trim();
 
         if (existingServicePrincipalId != string.Empty && existingServicePrincipalAppId != string.Empty)
         {
@@ -235,10 +236,11 @@ public class SetupGithubAndAzureWorkflows : Command
         var existingSqlAdminSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""",
+            Arguments =
+                $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
+        }).Trim();
 
         if (existingSqlAdminSecurityGroupId != string.Empty)
         {
@@ -274,7 +276,7 @@ public class SetupGithubAndAzureWorkflows : Command
                 Arguments = $"acr check-name --name {registryName}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            }, printCommand: false);
+            });
 
             var nameAvailable =
                 JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean();
@@ -292,7 +294,7 @@ public class SetupGithubAndAzureWorkflows : Command
                 Arguments = $"acr show --name {registryName} --subscription {azureSubscription.Id}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            }, printCommand: false);
+            });
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
@@ -319,7 +321,7 @@ public class SetupGithubAndAzureWorkflows : Command
             {
                 FileName = "gh",
                 Arguments = "auth login --git-protocol https --web"
-            }, printCommand: false
+            }
         );
 
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
@@ -328,7 +330,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = "auth status",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
         AnsiConsole.WriteLine();
@@ -374,7 +376,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         AnsiConsole.MarkupLine(
             "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
@@ -388,7 +390,7 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = $"""ad app create --display-name "{azureInfo.ServicePrincipalName}" --query appId -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
+        }).Trim();
 
         azureInfo.ServicePrincipalAppId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
@@ -396,15 +398,16 @@ public class SetupGithubAndAzureWorkflows : Command
             Arguments = $"ad sp create --id {azureInfo.ServicePrincipalId}",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"""ad sp list --filter "appId eq '{azureInfo.ServicePrincipalAppId}'" --query "[].objectId" -o tsv""",
+            Arguments =
+                $"""ad sp list --filter "appId eq '{azureInfo.ServicePrincipalAppId}'" --query "[].objectId" -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
+        }).Trim();
 
         AnsiConsole.MarkupLine(
             $"[green]Successfully create a Service Principal {azureInfo.ServicePrincipalName} ({azureInfo.ServicePrincipalId}).[/]");
@@ -439,7 +442,7 @@ public class SetupGithubAndAzureWorkflows : Command
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            }, printCommand: false, input: parameters);
+            }, parameters);
         }
     }
 
@@ -461,7 +464,7 @@ public class SetupGithubAndAzureWorkflows : Command
                     $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            }, printCommand: false);
+            });
         }
     }
 
@@ -470,19 +473,21 @@ public class SetupGithubAndAzureWorkflows : Command
         azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv""",
+            Arguments =
+                $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv""",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false).Trim();
-        
+        }).Trim();
+
         ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
+            Arguments =
+                $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
-        
+        });
+
         AnsiConsole.MarkupLine(
             $"[green]Successfully created Azure AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the Service Principal {azureInfo.ServicePrincipalName} owner.[/]");
     }
@@ -507,13 +512,13 @@ public class AzureInfo
     public object ServicePrincipalId { get; set; } = default!;
 
     public string ServicePrincipalAppId { get; set; } = default!;
-    
+
     public string ServicePrincipalObjectId { get; set; } = default!;
 
     public bool ServicePrincipalExists { get; set; }
 
     public string SqlAdminsSecurityGroupName { get; } = "Azure SQL Server Admins";
-    
+
     public string SqlAdminsSecurityGroupNickName { get; } = "AzureSQLServerAdmins";
 
     public string SqlAdminsSecurityGroupId { get; set; } = default!;

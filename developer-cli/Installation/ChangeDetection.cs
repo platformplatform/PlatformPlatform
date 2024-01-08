@@ -47,7 +47,7 @@ public static class ChangeDetection
             FileName = System.Environment.ProcessPath!,
             Arguments = arguments,
             WorkingDirectory = workingDirectory
-        }, printCommand: false, waitForExit: false);
+        }, waitForExit: false);
 
         System.Environment.Exit(0);
     }

@@ -21,6 +21,8 @@ public static class Environment
     public static readonly string PublishFolder =
         Path.Combine(SolutionFolder, "artifacts", "publish", "DeveloperCli", "release");
 
+    public static bool VerboseLogging { get; set; }
+
     public static class Windows
     {
         public static readonly string LocalhostPfxWindows = $"{UserFolder}/.aspnet/https/localhost.pfx";
@@ -41,7 +43,7 @@ public static class Environment
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
-            }, printCommand: false);
+            });
         }
     }
 

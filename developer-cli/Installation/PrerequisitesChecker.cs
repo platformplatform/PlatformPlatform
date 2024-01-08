@@ -59,7 +59,7 @@ public static class PrerequisitesChecker
             Arguments = command,
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         var outputMessageColor = isRequired ? "red" : "yellow";
 
@@ -82,7 +82,7 @@ public static class PrerequisitesChecker
             Arguments = Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
         var match = versionRegex.Match(output);
@@ -117,7 +117,7 @@ public static class PrerequisitesChecker
             Arguments = "workload list",
             RedirectStandardOutput = true,
             RedirectStandardError = true
-        }, printCommand: false);
+        });
 
         var outputMessageColor = isRequired ? "red" : "yellow";
 
