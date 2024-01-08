@@ -45,7 +45,6 @@ export class ClientFilesystemRouter {
 
   constructor({
     dir = "app",
-    // style = "nextjs/app",
     importPrefix = "@",
     assetPrefix,
   }: ClientFilesystemRouterOptions = {}) {
