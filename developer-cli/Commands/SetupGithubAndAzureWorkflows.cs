@@ -67,10 +67,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
         GrantSubscriptionPermissionsToServicePrincipal(azureInfo);
 
-        if (!azureInfo.SqlAdminsSecurityGroupExists)
-        {
-            CreateAzureSqlServerSecurityGroup(azureInfo);
-        }
+        CreateAzureSqlServerSecurityGroup(azureInfo);
 
         // Configure GitHub secrets and variables
 
@@ -183,7 +180,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void PublishExistingAppRegistration(AzureInfo azureInfo)
     {
-        var existingAppRegistrationId = ProcessHelper.StartProcess(new ProcessStartInfo
+        azureInfo.AppRegistrationId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
             Arguments = $"""ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
@@ -191,7 +188,7 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }).Trim();
 
-        var existingServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
+        azureInfo.ServicePrincipalId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
             Arguments = $"""ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
@@ -199,17 +196,24 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }).Trim();
 
-        if (existingAppRegistrationId != string.Empty && existingServicePrincipalId != string.Empty)
+        azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
+            FileName = "az",
+            Arguments =
+                $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        }).Trim();
+
+        if (azureInfo.AppRegistrationId != string.Empty && azureInfo.ServicePrincipalId != string.Empty)
+        {
+            azureInfo.AppRegistrationExists = true;
             AnsiConsole.MarkupLine(
-                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {existingAppRegistrationId}[/]");
+                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {azureInfo.ServicePrincipalId}[/]");
 
             if (AnsiConsole.Confirm("The existing App Registration will be reused. Do you want to continue?"))
             {
                 AnsiConsole.WriteLine();
-                azureInfo.AppRegistrationExists = true;
-                azureInfo.AppRegistrationId = existingAppRegistrationId;
-                azureInfo.ServicePrincipalId = existingServicePrincipalId;
                 return;
             }
 
@@ -217,7 +221,7 @@ public class SetupGithubAndAzureWorkflows : Command
             System.Environment.Exit(1);
         }
 
-        if (!string.IsNullOrEmpty(existingAppRegistrationId) || !string.IsNullOrEmpty(existingServicePrincipalId))
+        if (azureInfo.AppRegistrationId != string.Empty || azureInfo.ServicePrincipalId != string.Empty)
         {
             AnsiConsole.MarkupLine(
                 $"[red]The App Registration or Service Principal '{azureInfo.AppRegistrationName}' exists but not both. Please manually delete and retry.[/]");
@@ -227,7 +231,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void PublishExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
     {
-        var existingSqlAdminSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
+        azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
         {
             FileName = "az",
             Arguments =
@@ -236,16 +240,15 @@ public class SetupGithubAndAzureWorkflows : Command
             RedirectStandardError = true
         }).Trim();
 
-        if (existingSqlAdminSecurityGroupId == string.Empty) return;
+        if (azureInfo.SqlAdminsSecurityGroupId == string.Empty) return;
 
         AnsiConsole.MarkupLine(
-            $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {existingSqlAdminSecurityGroupId}[/]");
+            $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]");
 
         if (AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?"))
         {
             AnsiConsole.WriteLine();
             azureInfo.SqlAdminsSecurityGroupExists = true;
-            azureInfo.SqlAdminsSecurityGroupId = existingSqlAdminSecurityGroupId;
             return;
         }
 
@@ -461,14 +464,17 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void CreateAzureSqlServerSecurityGroup(AzureInfo azureInfo)
     {
-        azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
+        if (!azureInfo.SqlAdminsSecurityGroupExists)
         {
-            FileName = "az",
-            Arguments =
-                $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv""",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        }).Trim();
+            azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "az",
+                Arguments =
+                    $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "AzureSQLServerAdmins" --query "id" -o tsv""",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }).Trim();
+        }
 
         ProcessHelper.StartProcess(new ProcessStartInfo
         {
@@ -502,7 +508,7 @@ public class AzureInfo
 
     public string AppRegistrationId { get; set; } = default!;
 
-    public object ServicePrincipalId { get; set; } = default!;
+    public string ServicePrincipalId { get; set; } = default!;
 
     public string ServicePrincipalObjectId { get; set; } = default!;
 
