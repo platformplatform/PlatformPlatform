@@ -10,7 +10,7 @@ public static class ProcessHelper
     {
         if (Environment.VerboseLogging)
         {
-            var escapedArguments = processStartInfo.Arguments.Replace("[", "[[").Replace("]", "]]");
+            var escapedArguments = Markup.Escape(processStartInfo.Arguments);
             AnsiConsole.MarkupLine($"[cyan]{processStartInfo.FileName} {escapedArguments}[/]");
         }
 
