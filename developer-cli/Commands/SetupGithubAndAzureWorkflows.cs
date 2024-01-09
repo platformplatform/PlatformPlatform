@@ -431,7 +431,7 @@ public class SetupGithubAndAzureWorkflows : Command
             {
                 name = displayName,
                 issuer = "https://token.actions.githubusercontent.com",
-                subject = $"repo:{githubInfo.GithubUrl}:{refRefsHeadsMain}",
+                subject = $"""repo:{githubInfo.OrganizationName}/{githubInfo.RepositoryName}:{refRefsHeadsMain}""",
                 audiences = new[] { "api://AzureADTokenExchange" }
             });
 
