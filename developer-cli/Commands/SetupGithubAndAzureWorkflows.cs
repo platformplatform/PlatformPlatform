@@ -290,27 +290,34 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        var reuseContainerRegistry = azureInfo.ContainerRegistry.Exists ? " - [yellow]reuse existing[/]" : "";
-        var reuseAppRegistration = azureInfo.AppRegistrationExists ? " - [yellow]reuse existing[/]" : "";
-        var reuseSqlAdminsSecurityGroup = azureInfo.SqlAdminsSecurityGroupExists ? " - [yellow]reuse existing[/]" : "";
+        var appRegistrationInto = azureInfo.AppRegistrationExists ? "Update" : "Create";
+        var reuseSqlAdminsSecurityGroupIntro = azureInfo.SqlAdminsSecurityGroupExists ? "Reuse" : "Create";
 
         var setupConfirmPrompt =
             $"""
-             * GitHub Organization: [blue]{githubInfo.OrganizationName}[/]
-             * GitHub Repository name: [blue]{githubInfo.RepositoryName}[/]
-             * GitHub Repository URL: [blue]{githubInfo.GithubUrl}[/]
-             * Azure Subscription: [blue]{azureInfo.Subscription.Name} ({azureInfo.Subscription.Id})[/]
-             * Microsoft Entra ID Tenant ID: [blue]{azureInfo.Subscription.TenantId}[/]
-             * Azure Container Registry name: [blue]{azureInfo.ContainerRegistry.Name}[/]{reuseContainerRegistry}
-             * App Registration name: [blue]{azureInfo.AppRegistrationName}[/]{reuseAppRegistration}
-             * SQL Admins AD Security Group name: [blue]Azure SQL Server Admins[/]{reuseSqlAdminsSecurityGroup}
-
              [bold]If you continue the following changes will be made:[/]
-             1. Ensure deployment of Azure Container Apps Environment is enabled on Azure Subscription
-             2. Create an App Registration (aka Service Principal) with Federated Credentials and trust deployments from Github
+
+             1. Ensure deployment of Azure Container Apps Environment is enabled on Azure Subscription: [blue]{azureInfo.Subscription.Name} ({azureInfo.Subscription.Id})[/]
+
+             2. {appRegistrationInto} [blue]{azureInfo.AppRegistrationName}[/] App Registration with Federated Credentials and trust deployments from Github
+
              3. Grant the App Registration 'Contributor' and 'User Access Administrator' to the Azure Subscription
-             4. Create a 'Azure SQL Server Admins' AD Security Group and make the App Registration owner
-             5. Configure GitHub Repository with info about Azure Tenant, Subscription, App Registration, Container Registry, etc.
+
+             4. {reuseSqlAdminsSecurityGroupIntro} [blue]{azureInfo.SqlAdminsSecurityGroupName}[/] AD Security Group and make the App Registration owner
+
+             5. Configure GitHub Repository [blue]{githubInfo.GithubUrl}[/] with the following
+             
+                GitHub Secrets:
+                * AZURE_TENANT_ID: [blue]{azureInfo.Subscription.TenantId}[/]
+                * AZURE_SUBSCRIPTION_ID: [blue]{azureInfo.Subscription.Id}[/]
+                * AZURE_SERVICE_PRINCIPAL_ID: [blue]{azureInfo.AppRegistrationId}[/]
+                * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId}[/]
+                
+                GitHub Variables:
+                * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
+                * UNIQUE_CLUSTER_PREFIX: [blue]{githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"]}[/]
+                * DOMAIN_NAME_STAGING: [blue]{githubInfo.Variables["DOMAIN_NAME_STAGING"]}[/]
+                * DOMAIN_NAME_PRODUCTION: [blue]{githubInfo.Variables["DOMAIN_NAME_PRODUCTION"]}[/]
 
              After this setup you can run GitHub workflows to deploy infrastructure and Docker containers to Azure.
 
