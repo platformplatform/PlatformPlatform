@@ -29,6 +29,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private int Execute(bool skipAzureLogin = false, bool verboseLogging = false)
     {
+        AzureInfo azureInfo = new();
+
         Environment.VerboseLogging = verboseLogging;
 
         EnsureAzureAndGithubCliToolsAreInstalled();
@@ -41,12 +43,13 @@ public class SetupGithubAndAzureWorkflows : Command
 
         PrintHeader("Collecting data");
 
-        AzureInfo azureInfo = new();
-        azureInfo.Subscription = GetAzureSubscription(skipAzureLogin);
-        azureInfo.AppRegistrationName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
-        PublishExistingAppRegistration(azureInfo);
-        PublishExistingSqlAdminSecurityGroup(azureInfo);
-        azureInfo.ContainerRegistry = GetAzureContainerRegistryName(azureInfo.Subscription, githubInfo);
+        CollectAzureSubscriptionInfo(azureInfo, skipAzureLogin, githubInfo);
+
+        CollectExistingAppRegistration(azureInfo);
+
+        CollectExistingSqlAdminSecurityGroup(azureInfo);
+
+        CollectAzureContainerRegistryName(githubInfo, azureInfo);
 
         LoginToGithub();
 
@@ -58,10 +61,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
         PrepareSubscriptionForContainerAppsEnvironment(azureInfo.Subscription.Id);
 
-        if (!azureInfo.AppRegistrationExists)
-        {
-            CreateAppRegistration(azureInfo);
-        }
+        CreateAppRegistrationIfNotExists(azureInfo);
 
         CreateFederatedCredentials(azureInfo, githubInfo);
 
@@ -128,7 +128,7 @@ public class SetupGithubAndAzureWorkflows : Command
         AnsiConsole.WriteLine();
     }
 
-    private Subscription GetAzureSubscription(bool skipAzureLogin)
+    private void CollectAzureSubscriptionInfo(AzureInfo azureInfo, bool skipAzureLogin, GithubInfo githubInfo)
     {
         // Both `az login` and `az account list` will return a JSON array of subscriptions
         var subscriptionListJson =
@@ -168,10 +168,13 @@ public class SetupGithubAndAzureWorkflows : Command
         ProcessHelper.StartProcess($"az account set --subscription {subscription.Id}");
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
-        return subscription;
+
+        azureInfo.AppRegistrationName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
+
+        azureInfo.Subscription = subscription;
     }
 
-    private void PublishExistingAppRegistration(AzureInfo azureInfo)
+    private void CollectExistingAppRegistration(AzureInfo azureInfo)
     {
         azureInfo.AppRegistrationId = ProcessHelper.StartProcess(
             $"""az ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
@@ -212,7 +215,7 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
-    private void PublishExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
+    private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
     {
         azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(
             $"""az ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""",
@@ -235,7 +238,7 @@ public class SetupGithubAndAzureWorkflows : Command
         System.Environment.Exit(1);
     }
 
-    private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription, GithubInfo githubInfo)
+    private void CollectAzureContainerRegistryName(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         var existingContainerRegistryName = githubInfo.Variables["CONTAINER_REGISTRY_NAME"];
 
@@ -251,12 +254,13 @@ public class SetupGithubAndAzureWorkflows : Command
             if (JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean())
             {
                 AnsiConsole.WriteLine();
-                return new ContainerRegistry(registryName, false);
+                azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
+                return;
             }
 
             // Checks if the Azure Container Registry is a resource under the current subscription
             var showExistingRegistry = ProcessHelper.StartProcess(
-                $"az acr show --name {registryName} --subscription {azureSubscription.Id}", redirectOutput: true);
+                $"az acr show --name {registryName} --subscription {azureInfo.Subscription.Id}", redirectOutput: true);
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
@@ -264,12 +268,13 @@ public class SetupGithubAndAzureWorkflows : Command
             if (match.Success)
             {
                 var jsonDocument = JsonDocument.Parse(match.Value);
-                if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureSubscription.Id) == true)
+                if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureInfo.Subscription.Id) == true)
                 {
                     AnsiConsole.MarkupLine(
                         $"[yellow]The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]");
                     AnsiConsole.WriteLine();
-                    return new ContainerRegistry(registryName, true);
+                    azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
+                    return;
                 }
             }
 
@@ -291,7 +296,7 @@ public class SetupGithubAndAzureWorkflows : Command
     private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         var appRegistrationInto = azureInfo.AppRegistrationExists ? "Update" : "Create";
-        var reuseSqlAdminsSecurityGroupIntro = azureInfo.SqlAdminsSecurityGroupExists ? "Reuse" : "Create";
+        var reuseSqlAdminsSecurityGroupIntro = azureInfo.SqlAdminsSecurityGroupExists ? "Update" : "Create";
 
         var setupConfirmPrompt =
             $"""
@@ -301,7 +306,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
              2. {appRegistrationInto} [blue]{azureInfo.AppRegistrationName}[/] App Registration with Federated Credentials and trust deployments from Github
 
-             3. Grant the App Registration 'Contributor' and 'User Access Administrator' to the Azure Subscription
+             3. Grant the App Registration 'Contributor' and 'User Access Administrator' role to the Azure Subscription
 
              4. {reuseSqlAdminsSecurityGroupIntro} [blue]{azureInfo.SqlAdminsSecurityGroupName}[/] AD Security Group and make the App Registration owner
 
@@ -338,8 +343,10 @@ public class SetupGithubAndAzureWorkflows : Command
             "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
     }
 
-    private void CreateAppRegistration(AzureInfo azureInfo)
+    private void CreateAppRegistrationIfNotExists(AzureInfo azureInfo)
     {
+        if (azureInfo.AppRegistrationExists) return;
+
         azureInfo.AppRegistrationId = ProcessHelper.StartProcess(
             $"""az ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv""",
             redirectOutput: true
@@ -511,4 +518,4 @@ public class AzureInfo
 [UsedImplicitly]
 public record Subscription(string Id, string Name, string TenantId, string State);
 
-public record ContainerRegistry(string Name, bool Exists);
+public record ContainerRegistry(string Name);
