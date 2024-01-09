@@ -83,12 +83,7 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "build",
-                WorkingDirectory = Environment.SolutionFolder
-            });
+            ProcessHelper.StartProcess("dotnet build", Environment.SolutionFolder);
 
             if (Environment.IsWindows)
             {
@@ -99,16 +94,11 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "publish",
-                WorkingDirectory = Environment.SolutionFolder
-            });
+            ProcessHelper.StartProcess("dotnet publish", Environment.SolutionFolder);
         }
         catch (Exception e)
         {
-            AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix.  {e.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. {e.Message}[/]");
             System.Environment.Exit(0);
         }
         finally

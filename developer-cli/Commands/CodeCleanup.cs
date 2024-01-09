@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -20,18 +19,11 @@ public class CodeCleanup : Command
     {
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "tool restore",
-            WorkingDirectory = workingDirectory
-        });
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"",
-            WorkingDirectory = workingDirectory
-        });
+        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
+        ProcessHelper.StartProcess(
+            "dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"",
+            workingDirectory
+        );
 
         AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
 

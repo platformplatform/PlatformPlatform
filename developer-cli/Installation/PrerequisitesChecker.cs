@@ -111,13 +111,7 @@ public static class PrerequisitesChecker
         bool isRequired = false
     )
     {
-        var output = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "workload list",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        });
+        var output = ProcessHelper.StartProcess("dotnet workload list", redirectOutput: true);
 
         var outputMessageColor = isRequired ? "red" : "yellow";
 

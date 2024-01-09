@@ -192,11 +192,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = $"dev-certs https --trust -ep {Environment.LocalhostPfx} -p {password}"
-        });
+        ProcessHelper.StartProcess($"dotnet dev-certs https --trust -ep {Environment.LocalhostPfx} -p {password}");
     }
 
     private static string GenerateRandomPassword(int passwordLength)

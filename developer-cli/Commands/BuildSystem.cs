@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -46,11 +45,7 @@ public class BuildSystem : Command
             solutionName = AnsiConsole.Prompt(prompt);
         }
 
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = $"build {solutionsFiles[solutionName]}"
-        });
+        ProcessHelper.StartProcess($"dotnet build {solutionsFiles[solutionName]}");
 
         return 0;
     }

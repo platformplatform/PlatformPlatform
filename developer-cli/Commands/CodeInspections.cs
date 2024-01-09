@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -20,19 +19,12 @@ public class CodeInspections : Command
     {
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "tool restore",
-            WorkingDirectory = workingDirectory
-        });
+        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
 
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
-            WorkingDirectory = workingDirectory
-        });
+        ProcessHelper.StartProcess(
+            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
+            workingDirectory
+        );
 
         var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.xml"));
         if (resultXml.Contains("<Issues />"))
@@ -41,12 +33,7 @@ public class CodeInspections : Command
         }
         else
         {
-            ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "code",
-                Arguments = "result.xml",
-                WorkingDirectory = workingDirectory
-            });
+            ProcessHelper.StartProcess("code result.xml", workingDirectory);
         }
 
         return 0;
