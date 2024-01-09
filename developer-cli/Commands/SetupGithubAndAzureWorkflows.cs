@@ -46,7 +46,7 @@ public class SetupGithubAndAzureWorkflows : Command
         azureInfo.AppRegistrationName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
         PublishExistingAppRegistration(azureInfo);
         PublishExistingSqlAdminSecurityGroup(azureInfo);
-        azureInfo.ContainerRegistry = GetAzureContainerRegistryName(azureInfo.Subscription);
+        azureInfo.ContainerRegistry = GetAzureContainerRegistryName(azureInfo.Subscription, githubInfo);
 
         LoginToGithub();
 
@@ -69,7 +69,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
         CreateAzureSqlServerSecurityGroup(azureInfo);
 
-        // Configure GitHub secrets and variables
+        CreateGithubSecretsAndVariables(githubInfo, azureInfo);
 
         return 0;
     }
@@ -92,11 +92,20 @@ public class SetupGithubAndAzureWorkflows : Command
             System.Environment.Exit(0);
         }
 
-        var githubUrl = gitRemoteMatches.Groups["url"].Value.Replace(".git", "");
-        var githubOrganization = githubUrl.Split("/")[3];
-        var githubRepositoryName = githubUrl.Split("/")[4];
+        var githubInfo = new GithubInfo(gitRemoteMatches.Groups["url"].Value);
 
-        return new GithubInfo(githubOrganization, githubRepositoryName, githubUrl);
+        var githubVariablesJson = ProcessHelper.StartProcess(
+            $"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true);
+
+        var githubVariables = JsonDocument.Parse(githubVariablesJson);
+        foreach (var variable in githubVariables.RootElement.GetProperty("variables").EnumerateArray())
+        {
+            var variableName = variable.GetProperty("name").GetString()!;
+            var variableValue = variable.GetProperty("value").GetString()!;
+            githubInfo.Variables.Add(variableName, variableValue);
+        }
+
+        return githubInfo;
     }
 
     private void ShowIntroPrompt()
@@ -226,9 +235,9 @@ public class SetupGithubAndAzureWorkflows : Command
         System.Environment.Exit(1);
     }
 
-    private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription)
+    private ContainerRegistry GetAzureContainerRegistryName(Subscription azureSubscription, GithubInfo githubInfo)
     {
-        var existingContainerRegistryName = System.Environment.GetEnvironmentVariable("CONTAINER_REGISTRY_NAME") ?? "";
+        var existingContainerRegistryName = githubInfo.Variables["CONTAINER_REGISTRY_NAME"];
 
         while (true)
         {
@@ -360,7 +369,7 @@ public class SetupGithubAndAzureWorkflows : Command
             {
                 name = displayName,
                 issuer = "https://token.actions.githubusercontent.com",
-                subject = $"""repo:{githubInfo.OrganizationName}/{githubInfo.RepositoryName}:{refRefsHeadsMain}""",
+                subject = $"""repo:{githubInfo.Path}:{refRefsHeadsMain}""",
                 audiences = new[] { "api://AzureADTokenExchange" }
             });
 
@@ -411,6 +420,32 @@ public class SetupGithubAndAzureWorkflows : Command
             $"[green]Successfully created AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]");
     }
 
+    private void CreateGithubSecretsAndVariables(GithubInfo githubInfo, AzureInfo azureInfo)
+    {
+        var clusterPrefix = githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"];
+        var domainNameStaging = githubInfo.Variables["DOMAIN_NAME_STAGING"];
+        var domainNameProduction = githubInfo.Variables["DOMAIN_NAME_PRODUCTION"];
+
+        ProcessHelper.StartProcess(
+            $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh secret set AZURE_SUBSCRIPTION_ID -b\"{azureInfo.Subscription.Id}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh secret set AZURE_SERVICE_PRINCIPAL_ID -b\"{azureInfo.AppRegistrationId}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b\"{azureInfo.SqlAdminsSecurityGroupId}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh variable set CONTAINER_REGISTRY_NAME -b\"{azureInfo.ContainerRegistry.Name}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{clusterPrefix}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh variable set DOMAIN_NAME_STAGING -b\"{domainNameStaging}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{domainNameProduction}\" --repo={githubInfo.Path}");
+
+        AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
+    }
+
     private void PrintHeader(string heading)
     {
         var separator = new string('━', Console.WindowWidth - heading.Length - 1);
@@ -418,7 +453,28 @@ public class SetupGithubAndAzureWorkflows : Command
     }
 }
 
-public record GithubInfo(string OrganizationName, string RepositoryName, string GithubUrl);
+public class GithubInfo
+{
+    public GithubInfo(string gitUrl)
+    {
+        GithubUrl = gitUrl.Replace(".git", "");
+        OrganizationName = GithubUrl.Split("/")[3];
+        RepositoryName = GithubUrl.Split("/")[4];
+        Path = $"{OrganizationName}/{RepositoryName}";
+    }
+
+    public string OrganizationName { get; }
+
+    public string RepositoryName { get; }
+
+    public string GithubUrl { get; }
+
+    public string Path { get; }
+
+    public Dictionary<string, string> Secrets { get; set; } = new();
+
+    public Dictionary<string, string> Variables { get; set; } = new();
+}
 
 public class AzureInfo
 {
