@@ -242,7 +242,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void CollectAzureContainerRegistryName(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        var existingContainerRegistryName = githubInfo.Variables["CONTAINER_REGISTRY_NAME"];
+        githubInfo.Variables.TryGetValue("CONTAINER_REGISTRY_NAME", out var existingContainerRegistryName);
+        existingContainerRegistryName ??= githubInfo.OrganizationName.ToLower();
 
         while (true)
         {
