@@ -182,29 +182,32 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void CollectExistingAppRegistration(AzureInfo azureInfo)
     {
-        azureInfo.AppRegistrationId = ProcessHelper.StartProcess(
+        var appRegistrationId = ProcessHelper.StartProcess(
             $"""az ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
             redirectOutput: true
         ).Trim();
 
-        azureInfo.ServicePrincipalId = ProcessHelper.StartProcess(
+        var servicePrincipalId = ProcessHelper.StartProcess(
             $"""az ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
             redirectOutput: true
         ).Trim();
 
-        azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(
-            $"""az ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""",
+        var servicePrincipalObjectId = ProcessHelper.StartProcess(
+            $"""az ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv""",
             redirectOutput: true
         ).Trim();
 
-        if (azureInfo.AppRegistrationId != string.Empty && azureInfo.ServicePrincipalId != string.Empty)
+        if (appRegistrationId != string.Empty && servicePrincipalId != string.Empty)
         {
             azureInfo.AppRegistrationExists = true;
             AnsiConsole.MarkupLine(
-                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {azureInfo.ServicePrincipalId}[/]");
+                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {servicePrincipalId}[/]");
 
             if (AnsiConsole.Confirm("The existing App Registration will be reused. Do you want to continue?"))
             {
+                azureInfo.AppRegistrationId = appRegistrationId;
+                azureInfo.ServicePrincipalId = servicePrincipalId;
+                azureInfo.ServicePrincipalObjectId = servicePrincipalObjectId;
                 AnsiConsole.WriteLine();
                 return;
             }
@@ -213,7 +216,7 @@ public class SetupGithubAndAzureWorkflows : Command
             System.Environment.Exit(1);
         }
 
-        if (azureInfo.AppRegistrationId != string.Empty || azureInfo.ServicePrincipalId != string.Empty)
+        if (appRegistrationId != string.Empty || servicePrincipalId != string.Empty)
         {
             AnsiConsole.MarkupLine(
                 $"[red]The App Registration or Service Principal '{azureInfo.AppRegistrationName}' exists but not both. Please manually delete and retry.[/]");
@@ -228,7 +231,11 @@ public class SetupGithubAndAzureWorkflows : Command
             redirectOutput: true
         ).Trim();
 
-        if (azureInfo.SqlAdminsSecurityGroupId == string.Empty) return;
+        if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
+        {
+            azureInfo.SqlAdminsSecurityGroupId = null;
+            return;
+        }
 
         AnsiConsole.MarkupLine(
             $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]");
@@ -395,8 +402,8 @@ public class SetupGithubAndAzureWorkflows : Command
                 GitHub Secrets:
                 * AZURE_TENANT_ID: [blue]{azureInfo.Subscription.TenantId}[/]
                 * AZURE_SUBSCRIPTION_ID: [blue]{azureInfo.Subscription.Id}[/]
-                * AZURE_SERVICE_PRINCIPAL_ID: [blue]{azureInfo.AppRegistrationId}[/]
-                * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId}[/]
+                * AZURE_SERVICE_PRINCIPAL_ID: [blue]{azureInfo.AppRegistrationId ?? "will be generated"}[/]
+                * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId ?? "will be generated"}[/]
                 
                 GitHub Variables:
                 * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
@@ -590,7 +597,7 @@ public class AzureInfo
 
     public string AppRegistrationName { get; set; } = default!;
 
-    public string AppRegistrationId { get; set; } = default!;
+    public string? AppRegistrationId { get; set; }
 
     public string ServicePrincipalId { get; set; } = default!;
 
@@ -598,11 +605,11 @@ public class AzureInfo
 
     public bool AppRegistrationExists { get; set; }
 
-    public string SqlAdminsSecurityGroupName { get; } = "Azure SQL Server Admins";
+    public string SqlAdminsSecurityGroupName => "Azure SQL Server Admins";
 
-    public string SqlAdminsSecurityGroupNickName { get; } = "AzureSQLServerAdmins";
+    public string SqlAdminsSecurityGroupNickName => "AzureSQLServerAdmins";
 
-    public string SqlAdminsSecurityGroupId { get; set; } = default!;
+    public string? SqlAdminsSecurityGroupId { get; set; }
 
     public bool SqlAdminsSecurityGroupExists { get; set; }
 
