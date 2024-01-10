@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -30,25 +29,9 @@ public static class ChangeDetection
         var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
-        if (Environment.IsWindows)
-        {
-            // In Windows we have not found a reliable way to restart the process with the same arguments
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
-            AnsiConsole.WriteLine();
-            System.Environment.Exit(0);
-        }
-
-        // Restart the process with the same arguments
-        var arguments = string.Join(" ", args);
-        var workingDirectory = Directory.GetCurrentDirectory();
-        ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = System.Environment.ProcessPath!,
-            Arguments = arguments,
-            WorkingDirectory = workingDirectory
-        }, waitForExit: false);
-
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+        AnsiConsole.WriteLine();
         System.Environment.Exit(0);
     }
 
