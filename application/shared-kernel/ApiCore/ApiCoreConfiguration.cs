@@ -56,6 +56,16 @@ public static class ApiCoreConfiguration
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 
+        // Ensure correct client IP addresses are set for requests
+        // This is required when running behind a reverse proxy like YARP or Azure Container Apps
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+
         builder.AddServiceDefaults();
 
         if (builder.Environment.IsDevelopment())
@@ -80,11 +90,8 @@ public static class ApiCoreConfiguration
     {
         app.MapDefaultEndpoints();
 
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-        });
+        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+        app.UseForwardedHeaders();
 
         // Enable Swagger UI
         app.UseSwagger();
