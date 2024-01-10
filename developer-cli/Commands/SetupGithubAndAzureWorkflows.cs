@@ -75,6 +75,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
         CreateGithubSecretsAndVariables(githubInfo, azureInfo);
 
+        CreateGithubEnvironments(githubInfo);
+
         return 0;
     }
 
@@ -532,6 +534,22 @@ public class SetupGithubAndAzureWorkflows : Command
             $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}");
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
+    }
+
+    private void CreateGithubEnvironments(GithubInfo githubInfo)
+    {
+        ProcessHelper.StartProcess(
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/shared""",
+            redirectOutput: true
+        );
+        ProcessHelper.StartProcess(
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/staging""",
+            redirectOutput: true
+        );
+        ProcessHelper.StartProcess(
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/production""",
+            redirectOutput: true
+        );
     }
 
     private void PrintHeader(string heading)
