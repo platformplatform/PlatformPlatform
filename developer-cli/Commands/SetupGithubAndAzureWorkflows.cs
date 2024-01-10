@@ -411,6 +411,8 @@ public class SetupGithubAndAzureWorkflows : Command
                 * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/]
                 * UNIQUE_CLUSTER_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
 
+             6. Create [blue]shared[/], [blue]staging[/], and [blue]production[/] environments in GitHub repository
+             
              After this setup you can run GitHub workflows to deploy infrastructure and Docker containers to Azure.
 
              [bold]Would you like to continue?[/]
@@ -557,6 +559,9 @@ public class SetupGithubAndAzureWorkflows : Command
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/production""",
             redirectOutput: true
         );
+
+        AnsiConsole.MarkupLine(
+            "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]");
     }
 
     private void PrintHeader(string heading)
