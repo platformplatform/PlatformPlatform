@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -36,6 +37,18 @@ public static class ServiceDefaultsExtensions
     [UsedImplicitly]
     private static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
+        builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
+        {
+            // Exclude the following health check endpoints from tracing in OpenTelemetry
+            string[] excludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
+            options.Filter = httpContext =>
+            {
+                // Add filtering to exclude health check endpoints
+                var requestPath = httpContext.Request.Path.ToString();
+                return !Array.Exists(excludedPaths, requestPath.StartsWith);
+            };
+        });
+
         builder.Logging.AddOpenTelemetry(logging =>
         {
             logging.IncludeFormattedMessage = true;
