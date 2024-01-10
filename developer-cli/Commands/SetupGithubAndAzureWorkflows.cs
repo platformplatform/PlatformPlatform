@@ -53,6 +53,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
         CollectDomainNames(githubInfo, azureInfo);
 
+        CollectUniquePrefix(githubInfo, azureInfo);
+
         LoginToGithub();
 
         PrintHeader("Confirm changes");
@@ -332,6 +334,33 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
+    private void CollectUniquePrefix(GithubInfo githubInfo, AzureInfo azureInfo)
+    {
+        githubInfo.Variables.TryGetValue("UNIQUE_CLUSTER_PREFIX", out var uniquePrefix);
+
+        AnsiConsole.MarkupLine(
+            "When creating Azure resources like SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'`.");
+
+        var defaultValue = uniquePrefix ?? githubInfo.OrganizationName.ToLower()
+            .Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
+
+        while (true)
+        {
+            uniquePrefix = AnsiConsole.Ask(
+                "[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]",
+                defaultValue
+            ).ToLower();
+
+            if (uniquePrefix.Length is < 2 or > 6) continue;
+
+            azureInfo.UniquePrefix = uniquePrefix;
+
+            AnsiConsole.WriteLine();
+            return;
+        }
+    }
+
+
     private void LoginToGithub()
     {
         ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
@@ -369,9 +398,9 @@ public class SetupGithubAndAzureWorkflows : Command
                 
                 GitHub Variables:
                 * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
-                * UNIQUE_CLUSTER_PREFIX: [blue]{githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"]}[/]
                 * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/]
                 * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/]
+                * UNIQUE_CLUSTER_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
 
              After this setup you can run GitHub workflows to deploy infrastructure and Docker containers to Azure.
 
@@ -485,8 +514,6 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private void CreateGithubSecretsAndVariables(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        var clusterPrefix = githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"];
-
         ProcessHelper.StartProcess(
             $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}");
         ProcessHelper.StartProcess(
@@ -498,11 +525,11 @@ public class SetupGithubAndAzureWorkflows : Command
         ProcessHelper.StartProcess(
             $"gh variable set CONTAINER_REGISTRY_NAME -b\"{azureInfo.ContainerRegistry.Name}\" --repo={githubInfo.Path}");
         ProcessHelper.StartProcess(
-            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{clusterPrefix}\" --repo={githubInfo.Path}");
-        ProcessHelper.StartProcess(
             $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}");
         ProcessHelper.StartProcess(
             $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}");
+        ProcessHelper.StartProcess(
+            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}");
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
     }
@@ -564,6 +591,8 @@ public class AzureInfo
     public string ProductionDomainName { get; set; } = "-";
 
     public string StagingDomainName { get; set; } = "-";
+
+    public string UniquePrefix { get; set; } = default!;
 }
 
 [UsedImplicitly]
