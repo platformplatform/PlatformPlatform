@@ -51,6 +51,8 @@ public class SetupGithubAndAzureWorkflows : Command
 
         CollectAzureContainerRegistryName(githubInfo, azureInfo);
 
+        CollectDomainNames(githubInfo, azureInfo);
+
         LoginToGithub();
 
         PrintHeader("Confirm changes");
@@ -283,6 +285,52 @@ public class SetupGithubAndAzureWorkflows : Command
         }
     }
 
+    private void CollectDomainNames(GithubInfo githubInfo, AzureInfo azureInfo)
+    {
+        AnsiConsole.MarkupLine(
+            "You can configure a custom domain name for both production and staging environments. During deployment you will be asked to configure DNS records, after which a valid certificate will automatically be generated and configured.");
+
+        githubInfo.Variables.TryGetValue("DOMAIN_NAME_PRODUCTION", out var domainNameProduction);
+        azureInfo.ProductionDomainName = GetValidDomainName("production", domainNameProduction);
+
+        githubInfo.Variables.TryGetValue("DOMAIN_NAME_STAGING", out var domainNameStaging);
+        domainNameStaging = GetValidDomainName("staging",
+            domainNameStaging
+            ?? (azureInfo.ProductionDomainName == "-" ? null : $"staging.{azureInfo.ProductionDomainName}")
+        );
+        azureInfo.StagingDomainName = domainNameStaging;
+        return;
+
+        string GetValidDomainName(string displayName, string? defaultDomainName = "")
+        {
+            while (true)
+            {
+                if (defaultDomainName == "-") defaultDomainName = "";
+                var domainName =
+                    AnsiConsole.Ask(
+                        $"[bold]Please enter a domain name for [blue]{displayName}[/]. Use [blue]-[/] or leave blank to configure later.[/]",
+                        defaultDomainName
+                    );
+
+                if (string.IsNullOrWhiteSpace(domainName))
+                {
+                    AnsiConsole.WriteLine();
+                    return "-";
+                }
+
+                if (Uri.CheckHostName(domainName) == UriHostNameType.Dns || !domainName.Contains('.'))
+                {
+                    AnsiConsole.WriteLine();
+
+                    return domainName;
+                }
+
+                AnsiConsole.MarkupLine(
+                    $"[red]ERROR:[/]The domain name {domainName} is not a valid host name. Please try again.");
+            }
+        }
+    }
+
     private void LoginToGithub()
     {
         ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
@@ -321,8 +369,8 @@ public class SetupGithubAndAzureWorkflows : Command
                 GitHub Variables:
                 * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
                 * UNIQUE_CLUSTER_PREFIX: [blue]{githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"]}[/]
-                * DOMAIN_NAME_STAGING: [blue]{githubInfo.Variables["DOMAIN_NAME_STAGING"]}[/]
-                * DOMAIN_NAME_PRODUCTION: [blue]{githubInfo.Variables["DOMAIN_NAME_PRODUCTION"]}[/]
+                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/]
+                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/]
 
              After this setup you can run GitHub workflows to deploy infrastructure and Docker containers to Azure.
 
@@ -437,8 +485,6 @@ public class SetupGithubAndAzureWorkflows : Command
     private void CreateGithubSecretsAndVariables(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         var clusterPrefix = githubInfo.Variables["UNIQUE_CLUSTER_PREFIX"];
-        var domainNameStaging = githubInfo.Variables["DOMAIN_NAME_STAGING"];
-        var domainNameProduction = githubInfo.Variables["DOMAIN_NAME_PRODUCTION"];
 
         ProcessHelper.StartProcess(
             $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}");
@@ -453,9 +499,9 @@ public class SetupGithubAndAzureWorkflows : Command
         ProcessHelper.StartProcess(
             $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{clusterPrefix}\" --repo={githubInfo.Path}");
         ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_STAGING -b\"{domainNameStaging}\" --repo={githubInfo.Path}");
+            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}");
         ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{domainNameProduction}\" --repo={githubInfo.Path}");
+            $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}");
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
     }
@@ -513,6 +559,10 @@ public class AzureInfo
     public string SqlAdminsSecurityGroupId { get; set; } = default!;
 
     public bool SqlAdminsSecurityGroupExists { get; set; }
+
+    public string ProductionDomainName { get; set; } = "-";
+
+    public string StagingDomainName { get; set; } = "-";
 }
 
 [UsedImplicitly]
