@@ -46,6 +46,11 @@ function is_domain_configured() {
   fi
 }
 
+if [[ "$DOMAIN_NAME" == "-" ]]; then
+  # "-" is used to indicate that the domain is not configured
+  DOMAIN_NAME=""
+fi
+
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
 ACTIVE_ACCOUNT_MANAGEMENT_VERSION=$(get_active_version account-management)
 ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=$(is_domain_configured "account-management" "$RESOURCE_GROUP_NAME")
@@ -79,9 +84,9 @@ then
     default_domain=$(echo "$env_details" | jq -r '.properties.defaultDomain')
 
     # Display instructions for setting up DNS entries
-    echo -e "${RED}$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries to $DOMAIN_NAME, and then retry:${RESET}"
-    echo -e "${RED}- A TXT record with the name 'asuid.account-management' and the value '$custom_domain_verification_id'.${RESET}"
-    echo -e "${RED}- A CNAME record with the Host name 'account-management' that points to address 'account-management.$default_domain'.${RESET}"
+    echo -e "${RED}$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries and then retry:${RESET}"
+    echo -e "${RED}- A TXT record with the name 'asuid.account-management.$DOMAIN_NAME' and the value '$custom_domain_verification_id'.${RESET}"
+    echo -e "${RED}- A CNAME record with the Host name 'account-management.$DOMAIN_NAME' that points to address 'account-management.$default_domain'.${RESET}"
     exit 1
   elif [[ $output == "ERROR:"* ]]; then
     echo -e "${RED}$output${RESET}"
