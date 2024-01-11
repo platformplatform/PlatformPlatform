@@ -50,10 +50,10 @@ public static class ServiceDefaultsExtensions
 
             options.EnrichWithHttpRequest = (activity, request) =>
             {
-                var context = request.HttpContext;
+                var clientIp = request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
                 // Add the client IP address to the trace
-                activity.AddTag(SemanticConventions.AttributeHttpClientIp, context.Connection.RemoteIpAddress);
+                activity.AddTag(TraceSemanticConventions.AttributeHttpClientIp, clientIp);
             };
         });
 
@@ -127,15 +127,5 @@ public static class ServiceDefaultsExtensions
         app.MapHealthChecks("/alive", new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
 
         return app;
-    }
-
-    /// <summary>
-    ///     Constants for semantic attribute names outlined by the OpenTelemetry specifications.
-    ///     <see
-    ///         href="https://github.com/open-telemetry/opentelemetry-dotnet/blob/d0620e6f0f24bc4aa89143aaeddfac7a4fffb2aa/src/Shared/SemanticConventions.cs" />
-    /// </summary>
-    private static class SemanticConventions
-    {
-        public const string AttributeHttpClientIp = "http.client_ip";
     }
 }
