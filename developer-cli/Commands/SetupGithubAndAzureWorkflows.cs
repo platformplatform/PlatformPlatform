@@ -77,6 +77,10 @@ public class SetupGithubAndAzureWorkflows : Command
 
         CreateGithubEnvironments(githubInfo);
 
+        PrintHeader("Configuration of GitHub and Azure completed 🎉");
+
+        ShowSuccessMessage(githubInfo);
+
         return 0;
     }
 
@@ -412,8 +416,10 @@ public class SetupGithubAndAzureWorkflows : Command
                 * UNIQUE_CLUSTER_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
 
              6. Create [blue]shared[/], [blue]staging[/], and [blue]production[/] environments in GitHub repository
-             
-             After this setup you can run GitHub workflows to deploy infrastructure and Docker containers to Azure.
+
+             7. Provide instructions on how to do the first deployment of infrastructure and application to Azure, and make recommendations configuring to GitHub
+
+             Please note that you can run this command multiple times to update the configuration.
 
              [bold]Would you like to continue?[/]
              """;
@@ -563,6 +569,41 @@ public class SetupGithubAndAzureWorkflows : Command
         AnsiConsole.MarkupLine(
             "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]");
     }
+
+    private void ShowSuccessMessage(GithubInfo githubInfo)
+    {
+        var setupIntroPrompt =
+            $"""
+             We are almost done.
+
+             [yellow]Please read and follow the following instructions to complete the configuration:[/]
+
+             1. To avoid automated deployments to Staging and Production, please go to [blue]{githubInfo.GithubUrl}/settings/environments[/] and check [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. This will ensure manual approval before deployment of changes to infrastructure to Staging and Production.
+
+             2. Azure Infrastructure needs to be created before we can deploy Docker images to the Azure Container Registry. But deployment of Azure Container Apps requires a Docker image to be available in the Azure Container Registry. The solution is to follow these steps carefully:
+
+             - Run the [blue]Cloud Infrastructure - Deployment[/] GitHub workflow to deploy the Azure Infrastructure to the Shared environment, [yellow]but do not approve infrastructure changes to Staging and Production yet.[/]
+             - Run the [blue]Application - Build and Deploy[/] GitHub workflow to build and deploy the Docker images to the Azure Container Registry, [yellow]but do not deploy the application to Staging and Production yet.[/]
+             - Complete the deployment of the Azure Infrastructure to Staging and Production - [yellow]please see step 3.[/]
+             - Complete the deployment of the application to Staging and Production.
+
+             3. If you configured a domain a DNS record needs to be created before the Azure Container App can be fully created. The GitHub action deployment of infrastructure will fail with clear instructions on how to create the DNS record, after which you can [yellow]click the "Re-run failed jobs" in the GitHub UI[/], to complete the deployment.
+
+             TIP: If the GitHub workflow fails, you can always rerun the workflow. Knowing these issues will help you understand the error messages more easily.
+
+             [bold]Optionally, but recommended:[/]
+
+             - Set up branch protection rules for the [blue]main[/] branch to require pull request reviews before merging.
+             - Set up SonarCloud for code quality and security analysis. Workflows are already configured to run SonarCloud analysis. Just go to [blue]https://sonarcloud.io[/] and connect your GitHub account, and add [blue]SONAR_TOKEN[/] secret, and [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository.
+             - Enable Microsoft Defender for Cloud (aka Azure Security Center). PlatformPlatform is built following all security recommendations, but as the system evolves, new security recommendations will be added. Microsoft Defender for Cloud will help you keep track of these recommendations and help you fix them.
+
+             Also, note that you can run this command multiple times to update the configuration.
+             """;
+
+        AnsiConsole.MarkupLine($"{setupIntroPrompt}");
+        AnsiConsole.WriteLine();
+    }
+
 
     private void PrintHeader(string heading)
     {
