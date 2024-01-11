@@ -19,10 +19,10 @@ public class CodeInspections : Command
     {
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
-        ProcessHelper.StartProcess("dotnet", "tool restore", workingDirectory);
+        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
+
         ProcessHelper.StartProcess(
-            "dotnet",
-            "jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
+            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
             workingDirectory
         );
 
@@ -33,7 +33,7 @@ public class CodeInspections : Command
         }
         else
         {
-            ProcessHelper.StartProcess("code", "result.xml", workingDirectory);
+            ProcessHelper.StartProcess("code result.xml", workingDirectory);
         }
 
         return 0;

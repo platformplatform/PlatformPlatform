@@ -9,14 +9,6 @@ A self-contained system is a large microservice (or a small monolith) that conta
 
 While PlatformPlatform is currently a monolith, as it only has one self-contained system, it is prepared for a future where it can be easily split into more self-contained systems.
 
-## Orchestration using .NET Aspire
-
-The project is using the newly introduced [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) to give a "F5 experience". If you have the prerequisites installed (see [the main README.md](../README.md#prerequisites)), just open the solution in Rider or Visual Studio code and run the `AppHost project`. This is how it looks:
-
-<p align="center">
-  <img src="https://platformplatformgithub.blob.core.windows.net/$root/DotNetAspire.gif" alt="Using .NET Aspire">
-</p>
-
 ## Account Management
 
 Account Management currently offers a skeleton of the essential parts of any multi-tenant SaaS solution, like creating tenants, users, etc. Eventually, it will contain features to showcase single sign-on (SSO), subscription management, etc. that are common to all SaaS solutions. As of now, it just showcases how to build a clean architecture system with CQRS, DDD, ASP.NET Minimal API, SPA frontend, orchestrated with .NET Aspire.
@@ -37,48 +29,33 @@ Self-contained systems in PlatformPlatform are divided into four core projects f
 3. `Application`: The Application layer consists of the use cases of the system implemented as MediatR commands and queries. Each command and query is a vertical slice of the system, containing all the logic needed to complete a task. This layer is also responsible for validation using FluentValidation. Here's an example showing the CreateUser command, its handler, and its validator. Note that the command, handler, and validator are all in the same file, using a static class. This aligns with the Single Responsibility Principle (SRP), making the code easy to understand and more maintainable.
 
     ```csharp
-    public static class CreateUser
+    public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole)
+        : ICommand, IUserValidation, IRequest<Result<UserId>>;
+
+    public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+        : IRequestHandler<CreateUserCommand, Result<UserId>>
     {
-        public sealed record Command(TenantId TenantId, string Email, UserRole UserRole)
-            : ICommand, IUserValidation, IRequest<Result<UserId>>;
-
-        public sealed class Handler : IRequestHandler<Command, Result<UserId>>
+        public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
         {
-            private readonly IUserRepository _userRepository;
+            var user = User.Create(command.TenantId, command.Email, command.UserRole);
+            await userRepository.AddAsync(user, cancellationToken);
 
-            public Handler(IUserRepository userRepository)
-            {
-                _userRepository = userRepository;
-            }
+            events.CollectEvent(new UserCreated(command.TenantId));
 
-            public async Task<Result<UserId>> Handle(Command command, CancellationToken cancellationToken)
-            {
-                var user = User.Create(command.TenantId, command.Email, command.UserRole);
-                await _userRepository.AddAsync(user, cancellationToken);
-                return user.Id;
-            }
+            return user.Id;
         }
+    }
 
-        public sealed class Validator : AbstractValidator<Command>
+    public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
+    {
+        public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
         {
-            public Validator(IUserRepository userRepository, ITenantRepository tenantRepository)
-            {
-                RuleFor(x => x.TenantId)
-                    .MustAsync(async (tenantId, cancellationToken) =>
-                        await tenantRepository.ExistsAsync(tenantId, cancellationToken))
-                    .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.");
-
-                RuleFor(x => x.Email)
-                    .NotEmpty()
-                    .EmailAddress()
-                    .MaximumLength(100)
-                    .WithMessage("Email must be in a valid format and no longer than 100 characters.");
-
-                RuleFor(x => x)
-                    .MustAsync(async (x, cancellationToken)
-                        => await userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
-                    .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.");
-            }
+            RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+            RuleFor(x => x)
+                .MustAsync((x, cancellationToken)=> userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+                .WithName("Email")
+                .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
+                .When(x => !string.IsNullOrEmpty(x.Email));
         }
     }
     ```

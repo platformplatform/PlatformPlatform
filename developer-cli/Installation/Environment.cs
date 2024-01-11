@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -20,6 +21,8 @@ public static class Environment
     public static readonly string PublishFolder =
         Path.Combine(SolutionFolder, "artifacts", "publish", "DeveloperCli", "release");
 
+    public static bool VerboseLogging { get; set; }
+
     public static class Windows
     {
         public static readonly string LocalhostPfxWindows = $"{UserFolder}/.aspnet/https/localhost.pfx";
@@ -32,13 +35,15 @@ public static class Environment
 
         public static void AddFolderToPath(string publishFolder)
         {
-            ProcessHelper.StartProcess(
-                "cmd.exe",
-                $"/c setx PATH \"%PATH%;{publishFolder}\"",
-                redirectOutput: true,
-                createNoWindow: true,
-                printCommand: false
-            );
+            var arguments = $"/c setx PATH \"%PATH%;{publishFolder}\"";
+            ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            });
         }
     }
 

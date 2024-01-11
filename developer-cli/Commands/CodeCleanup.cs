@@ -19,10 +19,9 @@ public class CodeCleanup : Command
     {
         var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
 
-        ProcessHelper.StartProcess("dotnet", "tool restore", workingDirectory);
+        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
         ProcessHelper.StartProcess(
-            "dotnet",
-            "jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"",
+            "dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"",
             workingDirectory
         );
 

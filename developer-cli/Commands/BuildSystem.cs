@@ -45,7 +45,7 @@ public class BuildSystem : Command
             solutionName = AnsiConsole.Prompt(prompt);
         }
 
-        ProcessHelper.StartProcess("dotnet", $"build {solutionsFiles[solutionName]}");
+        ProcessHelper.StartProcess($"dotnet build {solutionsFiles[solutionName]}");
 
         return 0;
     }

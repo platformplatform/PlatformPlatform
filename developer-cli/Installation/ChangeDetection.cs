@@ -29,24 +29,9 @@ public static class ChangeDetection
         var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
-        if (Environment.IsWindows)
-        {
-            // In Windows we have not found a reliable way to restart the process with the same arguments
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
-            AnsiConsole.WriteLine();
-            System.Environment.Exit(0);
-        }
-
-        // Restart the process with the same arguments
-        ProcessHelper.StartProcess(
-            System.Environment.ProcessPath!,
-            string.Join(" ", args),
-            Directory.GetCurrentDirectory(),
-            waitForExit: false,
-            printCommand: false
-        );
-
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+        AnsiConsole.WriteLine();
         System.Environment.Exit(0);
     }
 
@@ -81,7 +66,7 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet", "build", Environment.SolutionFolder);
+            ProcessHelper.StartProcess("dotnet build", Environment.SolutionFolder);
 
             if (Environment.IsWindows)
             {
@@ -92,11 +77,11 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess("dotnet", "publish", Environment.SolutionFolder);
+            ProcessHelper.StartProcess("dotnet publish", Environment.SolutionFolder);
         }
         catch (Exception e)
         {
-            AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix.  {e.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. {e.Message}[/]");
             System.Environment.Exit(0);
         }
         finally
