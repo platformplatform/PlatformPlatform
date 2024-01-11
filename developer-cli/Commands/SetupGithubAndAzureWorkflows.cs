@@ -87,7 +87,7 @@ public class SetupGithubAndAzureWorkflows : Command
     private void EnsureAzureAndGithubCliToolsAreInstalled()
     {
         PrerequisitesChecker.CheckCommandLineTool("az", "Azure CLI", new Version(2, 55), true);
-        PrerequisitesChecker.CheckCommandLineTool("gh", "GitHub CLI", new Version(2, 39), true);
+        PrerequisitesChecker.CheckCommandLineTool("gh", "GitHub CLI", new Version(2, 41), true);
     }
 
     private GithubInfo GetGithubInfo()
