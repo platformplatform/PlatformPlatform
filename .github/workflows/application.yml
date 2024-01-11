@@ -72,10 +72,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-          dotnet build PlatformPlatform.sln --no-restore &&
-          dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
-          dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]]; then
+            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
+            dotnet build PlatformPlatform.sln --no-restore
+          else
+            dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
+            dotnet build PlatformPlatform.sln --no-restore &&
+            dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+            dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+          fi
 
       - name: Publish Account Management build
         working-directory: application/account-management
