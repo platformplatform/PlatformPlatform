@@ -62,6 +62,9 @@ public static class ApiCoreConfiguration
         {
             // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            // SECURITY: Fix potential security issue
+            // We should only allow trusted proxies here, but we don't know the IP addresses of the proxies
+            // For now we clear the list of known proxies and allow all
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
