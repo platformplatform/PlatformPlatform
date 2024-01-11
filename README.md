@@ -24,19 +24,67 @@
 
 ## 👋 Welcome to PlatformPlatform
 
-PlatformPlatform aims to showcase an end-to-end solution for building a multi-tenant application using Azure, .NET, React, Infrastructure as Code, GitHub workflows, and more. The roadmap includes features such as Single Sign-On (SSO), subscription management, usage tracking, feature flags, A/B testing, rate limiting, multi-region, disaster recovery, localization, accessibility, and much more. Follow the [continuously updated roadmap here](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
+PlatformPlatform aims to showcase an end-to-end solution for building enterprise-grade multi-tenant application using Azure, .NET, React, Infrastructure as Code, GitHub workflows, and more. The roadmap includes features such as Single Sign-On (SSO), subscription management, usage tracking, feature flags, A/B testing, rate limiting, multi-region, disaster recovery, localization, accessibility, and much more. Follow the [continuously updated roadmap here](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
 
 Just getting off the ground, your star can help lift this higher! ⭐ Thanks!
 
-## Orchestration using .NET Aspire
+## Getting started 
 
-The project is using the newly introduced [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) to give a "F5 experience". If you have the [prerequisites](#prerequisites) installed, just open the solution in Rider or Visual Studio code and run the `AppHost project`. This is how it looks:
+### Setting up Developer Environment with one command
 
-<p align="center">
-  <img src="https://platformplatformgithub.blob.core.windows.net/$root/DotNetAspire.gif" alt="Using .NET Aspire">
-</p>
+PlatformPlatform is designed to support development on both Mac and Windows. The only prerequisites are the latest versions of:
 
-## .NET 8 backend with Clean Architecture, DDD, CQRS, Minimal API, and Aspire
+- [.NET](https://dotnet.microsoft.com)
+- [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload update` and then `dotnet workload install aspire`)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Bun](https://bun.sh/docs/installation) (an all-in-one CLI tool for React development much faster than NodeJS - currently unstable on Windows)
+
+Please fork the repository, and install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running the following command:
+
+```bash
+cd developer-cli
+dotnet run
+
+# IMPORTANT: Restart your terminal after installing the CLI
+```
+
+This will make the `pp` command globally available, and also set up your local environment with an SSL certificate for localhost, and a few environment variables for development.
+
+PlatformPlatform is built with the newly introduced [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) to give a "F5 experience". Just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) and run the [AppHost](/application/AppHost/AppHost.csproj) project. Or you can run the following command:
+
+
+```bash
+cd application/AppHost
+dotnet run
+
+# Open https://localhost:8001 for the Aspire Dashboard
+# Open https://localhost:8443 for the WebApp
+```
+
+### Setting up CI/CD with passwordless deployments from GitHub to Azure in minutes
+
+These are the prerequisites:
+
+- PlatformPlatform Developer CLI (see above)
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) (Mac: `brew install azure-cli`. Windows: `choco install azure-cli`)
+- [GitHub CLI](https://cli.github.com/) (Mac: `brew install gh`. Windows: `choco install gh`)
+- Owner permissions on the GitHub repository
+- A preferably empty [Azure Subscription](https://azure.microsoft.com/en-gb/free) with owner permissions
+- Permissions to create Service Principals and Active Directory User Groups in Microsoft Entra ID
+
+Then run the following command, which will guide you through the setup:
+
+```bash
+pp setup-github-and-azure-workflow
+```
+
+This will prompt for an Azure subscription and configure GitHub workflows to set up a full production-ready Staging and Production environment with domains, SSL certificates, and enterprise-grade secure infrastructure using Managed Identities instead of connection strings. A Service Principal will be used to set up OpenID Connect trusting the GitHub repository to do passwordless deployments (no passwords anywhere 🔒). Except for adding a DNS record, everything is fully automated. On top of that, it will set up continuous deployments of application code to Azure Container Apps.
+
+The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
+
+## Application Architecture
+
+### .NET 8 backend with Clean Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
@@ -68,16 +116,18 @@ Although some features like authentication and multi-tenancy are not yet impleme
 
 </details>
 
-## React frontend with TypeScript, Bun, and React Aria Components
+### React frontend with TypeScript, React Aria Components, and Bun
 
 The frontend is built with these technologies:
 
 - [React](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
-- [Bun](https://bun.sh)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
+- [Bun](https://bun.sh)
 
-## Azure cloud infrastructure with enterprise-grade security and zero secrets
+## Cloud Architecture
+
+### Azure cloud infrastructure with enterprise-grade security and zero secrets
 
 PlatformPlatform's cloud infrastructure is built using the latest Azure Platform as a Service (PaaS) technologies:
 
@@ -112,7 +162,7 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 
 </details>
 
-## GitHub SDLC for passwordless deploying application and infrastructure in minutes
+### GitHub SDLC for passwordless deploying application and infrastructure in minutes
 
 PlatformPlatform is built on a solid foundation for a modern software development lifecycle (SDLC):
 
@@ -138,59 +188,3 @@ These are the resource groups created when deploying one staging cluster, and tw
 This is the security score after deploying PlatformPlatform resources to Azure. Achieving a 100% security score in Azure Defender for Cloud without exemptions is not trivial.
 
 ![Azure Security Recommendations](https://platformplatformgithub.blob.core.windows.net/AzureSecurityRecommendations.png)
-
-## Developer environment for both Mac and Windows
-
-### Prerequisites
-
-PlatformPlatform is designed to support development on both Mac and Windows. The only requirements are:
-
-- [.NET](https://dotnet.microsoft.com)
-- [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload install aspire`)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Bun](https://bun.sh/docs/installation) (an all-in-one CLI tool for React development much faster than NodeJS)
-- [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) with [JetBrains ReSharper](https://www.jetbrains.com/resharper)
-
-<details>
-
-<summary>Want to use Visual Studio Code?</summary>
-
-While [Visual Studio Code](https://code.visualstudio.com/) is supported, PlatformPlatform is not optimized for development in VS Code. Please use the CLI Tool for running JetBrains code inspections, and code formatting. Having strong conventions for naming, formatting, code style from the start is saving time and giving high-quality code.
-
-```bash
-pp code-inspections
-pp code-cleanup
-pp code-coverage
-```
-
-</details>
-
-### Get started
-
-Please install the [PlatformPlatform Developer CLI](/developer-cli/) by running the following command:
-
-```bash
-cd developer-cli
-dotnet run
-
-# IMPORTANT: Restart your terminal after installing the CLI!!!
-
-# Then run (this will prompt you to install SSL certificates for localhost):
-pp configure-developer-environment
-```
-
-This will install the `pp` CLI tool, which will not only have a lot of tools to enhance the developer experience. It will also check for prerequisites and allow easy setup your local environment with the required environment variables, certificates for localhost, etc.
-
-To run the application locally, ensure Docker is running on your machine, and simply run this:
-
-```bash
-cd application/AppHost
-dotnet run
-
-# Open https://localhost:8001 for the Aspire Dashboard
-# Open https://localhost:8443 for the WebApp
-```
-
-## Automated first-time setup of GitHub and Azure
-
-Refer to the [Set up automatic deployment of Azure infrastructure and code from GitHub](cloud-infrastructure/README.md#set-up-automatic-deployment-of-azure-infrastructure-and-code-from-github) in the [cloud-infrastructure/README](/cloud-infrastructure/README.md). It's just one Bash script that you run locally, and it will set up everything for you. 🎉
