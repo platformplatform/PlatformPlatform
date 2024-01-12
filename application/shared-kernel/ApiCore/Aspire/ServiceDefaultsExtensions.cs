@@ -1,9 +1,11 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -37,6 +39,7 @@ public static class ServiceDefaultsExtensions
     [UsedImplicitly]
     private static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
+        const string proxySubnet = "10.0.0.0/23";
         builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
         {
             // Exclude the following health check endpoints from tracing in OpenTelemetry
@@ -48,12 +51,27 @@ public static class ServiceDefaultsExtensions
                 return !Array.Exists(excludedPaths, requestPath.StartsWith);
             };
 
+            var forwardedHeaderOptions = new ForwardedHeadersOptions
+            {
+                // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            };
+            // Add the subnet IP address of the reverse proxy to the known proxies list
+            forwardedHeaderOptions.KnownNetworks.Add(IPNetwork.Parse(proxySubnet));
+
             options.EnrichWithHttpRequest = (activity, request) =>
             {
-                var clientIp = request.HttpContext.Connection.RemoteIpAddress?.ToString();
+                // Apply the forwarded headers middleware to the current request to ensure the client IP address is set correctly
+                new ForwardedHeadersMiddleware(context =>
+                    {
+                        var clientIp = context.Connection.RemoteIpAddress?.ToString();
 
-                // Add the client IP address to the trace
-                activity.AddTag(TraceSemanticConventions.AttributeHttpClientIp, clientIp);
+                        // Add the client IP address to the trace
+                        activity.AddTag(TraceSemanticConventions.AttributeHttpClientIp, clientIp);
+
+                        return Task.CompletedTask;
+                    }, new LoggerFactory(), Options.Create(forwardedHeaderOptions))
+                    .Invoke(request.HttpContext).Wait();
             };
         });
 
