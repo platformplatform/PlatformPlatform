@@ -32,14 +32,14 @@ internal class FrontendAppAddPortLifecycleHook : IDistributedApplicationLifecycl
 
 internal static class FrontendAppHostingExtension
 {
-    public static IResourceBuilder<ExecutableResource> AddBunApp(
+    public static IResourceBuilder<ExecutableResource> AddFrontendApp(
         this IDistributedApplicationBuilder builder,
         string name,
         string workingDirectory,
-        string bunCommand
+        string npmCommand
     )
     {
-        var resource = new ExecutableResource(name, "bun", workingDirectory, ["run", bunCommand]);
+        var resource = new ExecutableResource(name, "yarn", workingDirectory, ["run", npmCommand]);
 
         builder.Services.TryAddEnumerable(
             ServiceDescriptor.Singleton<IDistributedApplicationLifecycleHook, FrontendAppAddPortLifecycleHook>()

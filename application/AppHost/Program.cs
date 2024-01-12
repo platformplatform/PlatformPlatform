@@ -11,7 +11,7 @@ var database = builder.AddSqlServerContainer("Default", sqlServerPassword, 1433)
 var accountManagementApi = builder.AddProject<PlatformPlatform_AccountManagement_Api>("account-management-api")
     .WithReference(database);
 
-builder.AddBunApp("frontend", "../account-management/WebApp", "dev")
+builder.AddFrontendApp("frontend", "../account-management/WebApp", "dev")
     .WithReference(accountManagementApi);
 
 builder.Build().Run();

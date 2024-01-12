@@ -1,8 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { type Compiler, type RspackPluginInstance } from "@rspack/core";
-import { ClientFilesystemRouterOptions } from "./lib/ClientFilesystemRouter";
-import { ClientFilesystemRouter } from "./lib/ClientFilesystemRouter";
+import { ClientFilesystemRouterOptions, ClientFilesystemRouter } from "./lib/ClientFilesystemRouter";
 
 const PLUGIN_NAME = "ClientFilesystemRouterPlugin";
 

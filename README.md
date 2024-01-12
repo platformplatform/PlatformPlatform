@@ -37,7 +37,7 @@ PlatformPlatform is designed to support development on both Mac and Windows. The
 - [.NET](https://dotnet.microsoft.com)
 - [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload update` and then `dotnet workload install aspire`)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Bun](https://bun.sh/docs/installation) (an all-in-one CLI tool for React development much faster than NodeJS - currently unstable on Windows)
+- [Node](https://nodejs.org/en)
 
 Please fork the repository, and install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running the following command:
 
@@ -116,14 +116,14 @@ Although some features like authentication and multi-tenancy are not yet impleme
 
 </details>
 
-### React frontend with TypeScript, React Aria Components, and Bun
+### React frontend with TypeScript, React Aria Components, and Node
 
 The frontend is built with these technologies:
 
 - [React](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
-- [Bun](https://bun.sh)
+- [Node](https://nodejs.org/en)
 
 ## Cloud Architecture
 

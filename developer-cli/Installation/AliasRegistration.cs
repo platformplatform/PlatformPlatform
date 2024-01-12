@@ -11,7 +11,7 @@ public static class AliasRegistration
         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]pp[/].
 
         [green]The CLI can be used to:[/]
-        * Check if all prerequisites are installed (e.g., Azure CLI, Docker, Bun, .NET Aspire, etc.)
+        * Check if all prerequisites are installed (e.g., Azure CLI, Docker, Yarn, .NET Aspire, etc.)
         * Set up secure passwordless continuous deployments between GitHub and Azure
         * Test deploy your application to Azure from your local machine
         * Build self-contained executables for your application
