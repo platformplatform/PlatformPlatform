@@ -26,7 +26,6 @@
     <PackageVersion Include="NUlid" Version="1.7.1" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
-    <PackageVersion Include="OpenTelemetry.SemanticConventions" Version="1.0.0-rc9.9" />
     <PackageVersion Include="Scrutor" Version="4.2.2" />
     <!-- PlatformPlatform dependencies - Tests -->
     <PackageVersion Include="Bogus" Version="35.0.1" />

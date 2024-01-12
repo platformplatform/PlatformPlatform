@@ -13,14 +13,12 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
-using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 using IServiceCollection = Microsoft.Extensions.DependencyInjection.IServiceCollection;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
-    private const string ProxySubnet = "10.0.0.0/23";
     private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
     private static readonly string LocalhostUrl = Environment.GetEnvironmentVariable(WebAppMiddleware.PublicUrlKey)!;
 
@@ -65,8 +63,8 @@ public static class ApiCoreConfiguration
         {
             // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            // Add the subnet IP address of the reverse proxy to the known proxies list
-            options.KnownNetworks.Add(IPNetwork.Parse(ProxySubnet));
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
         });
 
         builder.AddServiceDefaults();
