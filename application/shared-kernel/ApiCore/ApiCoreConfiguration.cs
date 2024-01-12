@@ -88,10 +88,11 @@ public static class ApiCoreConfiguration
     public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
         where TDbContext : DbContext
     {
-        app.MapDefaultEndpoints();
-
         // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
         app.UseForwardedHeaders();
+
+        // Map default endpoints such as /health, /alive etc.
+        app.MapDefaultEndpoints();
 
         // Enable Swagger UI
         app.UseSwagger();
