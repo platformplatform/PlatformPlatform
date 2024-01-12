@@ -13,7 +13,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
-using IServiceCollection = Microsoft.Extensions.DependencyInjection.IServiceCollection;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
