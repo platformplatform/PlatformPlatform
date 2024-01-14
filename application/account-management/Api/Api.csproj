@@ -23,6 +23,10 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="NSwag.MSBuild">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -36,16 +40,14 @@
         <None Remove="publish\**"/>
     </ItemGroup>
 
-    <Target Name="CreateSwaggerJson" AfterTargets="Build">
-        <Exec Command="dotnet tool restore"/>
-        <Exec Command="echo true > $(OutputPath)SwaggerGenerator.tmp"/>
-        <Exec Command="dotnet swagger tofile --output $(OutputPath)..\..\..\swagger.json $(OutputPath)$(AssemblyName).dll v1"/>
-        <Delete Files="$(OutputPath)SwaggerGenerator.tmp"/>
-        <OnError ExecuteTargets="CreatingSwaggerJson"/>
-    </Target>
+    <PropertyGroup>
+         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+     </PropertyGroup>
 
-    <Target Name="CleanupSwaggerGeneratorTmp">
-        <Delete Files="$(OutputPath)SwaggerGenerator.tmp"/>
+    <Target Name="NSwag" AfterTargets="PostBuildEvent">
+        <Exec
+            EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development;SWAGGER_GENERATOR=true;PUBLIC_URL=https://localhost:8443"
+            Command="$(NSwagExe_Net80) aspnetcore2openapi /Project:Api.csproj /Output:$(OutputPath)..\..\..\swagger.json /DocumentName:v1 /NoBuild:true /TargetFramework:net8.0 /Configuration:$(Configuration) /NewLineBehavior:LF"
+        />
     </Target>
-
 </Project>

@@ -11,9 +11,7 @@ public static class InfrastructureCoreConfiguration
 {
     private static string? _cachedConnectionString;
 
-    public static readonly bool SwaggerGenerator = File.Exists(
-        Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "SwaggerGenerator.tmp")
-    );
+    public static readonly bool SwaggerGenerator = Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true";
 
     [UsedImplicitly]
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
@@ -35,8 +33,6 @@ public static class InfrastructureCoreConfiguration
         IConfiguration configuration
     ) where T : DbContext
     {
-        if (SwaggerGenerator) return services;
-
         services.AddDbContext<T>((_, options) => options.UseSqlServer(GetConnectionString(configuration)));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));

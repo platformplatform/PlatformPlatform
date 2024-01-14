@@ -27,8 +27,8 @@
     </Target>
 
     <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
-        <Exec Command="bunx openapi-typescript@latest $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="bunx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bun openapi-typescript $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="bun prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 
     <Target Name="BuildFrontend" AfterTargets="Build">

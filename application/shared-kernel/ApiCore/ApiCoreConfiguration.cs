@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
+using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
@@ -41,12 +42,19 @@ public static class ApiCoreConfiguration
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
 
-        services.AddSwaggerGen(c =>
+        services.AddOpenApiDocument((settings, serviceProvider) =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" });
+            settings.DocumentName = "v1";
+            settings.Title = "PlatformPlatform API";
+            settings.Version = "v1";
 
-            // Ensure that enums are shown as strings in the Swagger UI
-            c.SchemaFilter<XEnumNamesSchemaFilter>();
+            var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
+            var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+            options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
+
+            // Ensure that enums are serialized as strings and use CamelCase
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 
         // Ensure that enums are serialized as strings
@@ -95,8 +103,8 @@ public static class ApiCoreConfiguration
         app.MapDefaultEndpoints();
 
         // Enable Swagger UI
-        app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
+        app.UseOpenApi();
+        app.UseSwaggerUi();
 
         if (app.Environment.IsDevelopment())
         {
