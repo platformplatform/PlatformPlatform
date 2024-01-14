@@ -1,8 +1,8 @@
-import { useNavigate } from "@platformplatform/client-filesystem-router/react";
-import { Button } from "react-aria-components";
+import { useNavigate } from "react-router-dom";
 import { Trans } from "@lingui/macro";
 import AcmeLogo from "@/ui/acme-logo.svg";
 import { LocaleSwitcher } from "@/ui/LocaleSwitcher";
+import { Button } from "@/ui/components/Button";
 
 interface LayoutProps {
   children: React.ReactNode;

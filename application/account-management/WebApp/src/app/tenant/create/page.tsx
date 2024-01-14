@@ -1,9 +1,12 @@
-import { Button, FieldError, Form, Input, Label, TextField } from "react-aria-components";
 import { useFormState } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import type { State } from "./actions";
 import { createTenant } from "./actions";
+import { Form } from "@/ui/components/Form";
+import { TextField } from "@/ui/components/TextField";
+import { FieldError, Input, Label } from "@/ui/components/Field";
+import { Button } from "@/ui/components/Button";
 
 export default function CreateTenantForm() {
   const initialState: State = { message: null, errors: {} };
