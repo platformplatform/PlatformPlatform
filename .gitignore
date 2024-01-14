@@ -382,6 +382,7 @@ FodyWeavers.xsd
 # Generated files
 **/*.generated.d.ts
 **/*.generated.ts
+**/Api/swagger.json
 
 # Frontend builds
 .swc/

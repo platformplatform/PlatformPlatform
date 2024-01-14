@@ -31,7 +31,7 @@
     </Target>
 
     <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
-        <Exec Command="npx openapi-typescript $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="npx openapi-typescript ../Api/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
         <Exec Command="npx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 

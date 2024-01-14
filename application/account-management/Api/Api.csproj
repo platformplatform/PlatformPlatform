@@ -47,7 +47,7 @@
     <Target Name="NSwag" AfterTargets="PostBuildEvent">
         <Exec
             EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development;SWAGGER_GENERATOR=true;PUBLIC_URL=https://localhost:8443"
-            Command="$(NSwagExe_Net80) aspnetcore2openapi /Project:Api.csproj /Output:$(OutputPath)..\..\..\swagger.json /DocumentName:v1 /NoBuild:true /TargetFramework:net8.0 /Configuration:$(Configuration) /NewLineBehavior:LF"
+            Command="$(NSwagExe_Net80) aspnetcore2openapi /Project:Api.csproj /Output:swagger.json /DocumentName:v1 /NoBuild:true /TargetFramework:net8.0 /Configuration:$(Configuration) /NewLineBehavior:LF"
         />
     </Target>
 </Project>
