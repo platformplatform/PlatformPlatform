@@ -96,7 +96,7 @@ public static class ApiCoreConfiguration
 
         // Enable Swagger UI
         app.UseOpenApi();
-        app.UseSwaggerUi(); // Alternative: "app.UseReDoc();"
+        app.UseSwaggerUi();
 
         if (app.Environment.IsDevelopment())
         {
