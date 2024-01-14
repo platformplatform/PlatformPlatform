@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.151394-alpha">
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.302517-alpha">
 
     <PropertyGroup>
         <StartupCommand>set BROWSER=none;yarn dev</StartupCommand>
