@@ -45,6 +45,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "html-webpack-harddisk-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.5.3",
+    "openapi-typescript": "6.7.3",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "swc-loader": "0.2.3",
