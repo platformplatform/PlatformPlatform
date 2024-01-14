@@ -4,6 +4,7 @@ using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using NSwag.Annotations;
 using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
@@ -22,6 +23,7 @@ public static class TrackEndpoints
         routes.MapPost("/api/track", Track);
     }
 
+    [OpenApiIgnore]
     private static TrackResponseSuccessDto Track(
         HttpContext context,
         List<TrackRequestDto> trackRequests,

@@ -23,6 +23,8 @@
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="NSwag.AspNetCore" Version="14.0.1" />
+    <PackageVersion Include="NSwag.MSBuild" Version="14.0.1" />
     <PackageVersion Include="NUlid" Version="1.7.1" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
@@ -84,7 +86,6 @@
     <!-- Miscellaneous -->
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.0" />
     <PackageVersion Include="Dapr.AspNetCore" Version="1.12.0" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
   </ItemGroup>
 </Project>

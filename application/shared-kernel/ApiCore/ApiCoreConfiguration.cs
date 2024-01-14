@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
+using PlatformPlatform.SharedKernel.ApiCore.OpenApi;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -41,12 +41,12 @@ public static class ApiCoreConfiguration
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
 
-        services.AddSwaggerGen(c =>
+        services.AddOpenApiDocument((settings, serviceProvider) =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" });
-
-            // Ensure that enums are shown as strings in the Swagger UI
-            c.SchemaFilter<XEnumNamesSchemaFilter>();
+            settings.DocumentName = "v1";
+            settings.Title = "PlatformPlatform API";
+            settings.Version = "v1";
+            settings.ConfigureSchemaSettings(serviceProvider);
         });
 
         // Ensure that enums are serialized as strings
@@ -95,8 +95,8 @@ public static class ApiCoreConfiguration
         app.MapDefaultEndpoints();
 
         // Enable Swagger UI
-        app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API"));
+        app.UseOpenApi();
+        app.UseSwaggerUi(); // Alternative: "app.UseReDoc();"
 
         if (app.Environment.IsDevelopment())
         {
