@@ -43,7 +43,7 @@ msgid "Create Account"
 msgstr "Opret konto"
 
 msgid "Create account!"
-msgstr "Opdater konto!"
+msgstr "Opret konto!"
 
 msgid "Email"
 msgstr "E-mail"
