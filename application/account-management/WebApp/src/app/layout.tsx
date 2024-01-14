@@ -25,7 +25,7 @@ export default function Root({ children }: Readonly<LayoutProps>) {
           ACME Company
         </h1>
         <div className="justify-start flex flex-row border-b border-border py-4">
-          <Button className="bg-blue-600 text-white py-2 px-4 rounded-full" onPress={handleCreateTenant}>
+          <Button variant="secondary" className="w-full" onPress={handleCreateTenant}>
             <Trans>Create Account</Trans>
           </Button>
         </div>

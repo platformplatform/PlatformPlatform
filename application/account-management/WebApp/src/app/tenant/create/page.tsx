@@ -27,7 +27,7 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Subdomain</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("subdomain")} />
+          <Input placeholder={i18n.t("subdomain")} />
           <FieldError />
         </TextField>
 
@@ -35,7 +35,7 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Name</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("name")} />
+          <Input placeholder={i18n.t("name")} />
           <FieldError />
         </TextField>
 
@@ -43,13 +43,10 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Email</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("email")} />
+          <Input placeholder={i18n.t("email")} />
           <FieldError />
         </TextField>
-        <Button
-          type="submit"
-          className="bg-blue-600 p-2 rounded-md text-white text-sm border border-border shadow-lg hover:bg-slate-400 w-fit"
-        >
+        <Button type="submit" variant="primary">
           <Trans>Create account!</Trans>
         </Button>
       </div>
