@@ -7,11 +7,12 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
-using PlatformPlatform.SharedKernel.ApiCore.OpenApi;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -46,7 +47,14 @@ public static class ApiCoreConfiguration
             settings.DocumentName = "v1";
             settings.Title = "PlatformPlatform API";
             settings.Version = "v1";
-            settings.ConfigureSchemaSettings(serviceProvider);
+
+            var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
+            var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+            options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
+
+            // Ensure that enums are serialized as strings and use CamelCase
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 
         // Ensure that enums are serialized as strings
