@@ -14,6 +14,10 @@
         <ProductionBuildCommand>yarn run build</ProductionBuildCommand>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(OS)'=='WINDOWS_NT'">
+        <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Api\Api.csproj"/>
     </ItemGroup>
