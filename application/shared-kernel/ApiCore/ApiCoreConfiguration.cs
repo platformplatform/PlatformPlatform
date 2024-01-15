@@ -74,6 +74,13 @@ public static class ApiCoreConfiguration
             options.KnownProxies.Clear();
         });
 
+        // Enable support for CSRF tokens and configure the header and form field names
+        services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "X-XSRF-TOKEN";
+            options.FormFieldName = "__RequestVerificationToken";
+        });
+
         builder.AddServiceDefaults();
 
         if (builder.Environment.IsDevelopment())
@@ -134,6 +141,9 @@ public static class ApiCoreConfiguration
         app.MapTestEndpoints();
 
         app.Services.ApplyMigrations<TDbContext>();
+
+        // Enable support for CSRF tokens
+        app.UseAntiforgery();
 
         return app;
     }

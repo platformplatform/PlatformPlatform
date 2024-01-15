@@ -16,6 +16,8 @@ export declare global {
     APPLICATION_VERSION: string;
     /* User locale */
     LOCALE: string;
+    /* AntiForgery token */
+    XSRF_TOKEN: string;
   }
 
   /**

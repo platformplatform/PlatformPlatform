@@ -1,6 +1,7 @@
 using System.Security;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
@@ -18,7 +19,9 @@ public sealed class WebAppMiddleware
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
     private const string Locale = "LOCALE";
+    private const string XsrfToken = "XSRF_TOKEN";
     public const string ApplicationVersion = "APPLICATION_VERSION";
+    private readonly IAntiforgery _antiforgery;
 
     private readonly string _cdnUrl;
     private readonly StringValues _contentSecurityPolicy;
@@ -35,12 +38,14 @@ public sealed class WebAppMiddleware
         RequestDelegate next,
         Dictionary<string, string> staticRuntimeEnvironment,
         string htmlTemplatePath,
-        IOptions<JsonOptions> jsonOptions
+        IOptions<JsonOptions> jsonOptions,
+        IAntiforgery antiforgery
     )
     {
         _next = next;
         _staticRuntimeEnvironment = staticRuntimeEnvironment;
         _htmlTemplatePath = htmlTemplatePath;
+        _antiforgery = antiforgery;
         _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
 
         VerifyRuntimeEnvironment(staticRuntimeEnvironment);
@@ -87,10 +92,13 @@ public sealed class WebAppMiddleware
     {
         if (context.Request.Path.ToString().StartsWith("/api/")) return _next(context);
 
+        var tokenSet = _antiforgery.GetAndStoreTokens(context);
+
         var cultureFeature = context.Features.Get<IRequestCultureFeature>();
         var userCulture = cultureFeature?.RequestCulture.Culture;
 
-        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
+        var requestEnvironmentVariables = new Dictionary<string, string>
+            { { Locale, userCulture?.Name ?? "en-US" }, { XsrfToken, tokenSet.RequestToken! } };
 
         context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
         return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
