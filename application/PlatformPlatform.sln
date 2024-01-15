@@ -106,4 +106,10 @@ Global
 		{ABEB4337-3606-4730-8ABE-94DF98C2C348} = {92101687-8181-4543-84F9-E702DD874619}
 		{8292F35B-F0F6-4DB1-90E2-4707DB8C7104} = {EEA1463E-71F8-44E6-8055-787DAA5E62D2}
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4E2051F8-4E8C-48FC-9B72-481AB7C1C94C}
+	EndGlobalSection
 EndGlobal
