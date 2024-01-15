@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{92101687
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "WebApp\WebApp.esproj", "{7E781B90-C407-4FB2-BC20-10A457E08D7F}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "WebApp\WebApp.esproj", "{7E781B90-C407-4FB2-BC20-10A457E08D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

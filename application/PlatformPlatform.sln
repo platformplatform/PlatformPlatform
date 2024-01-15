@@ -27,7 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{92101687
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "account-management\Tests\Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "account-management\WebApp\WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "account-management\WebApp\WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "AppHost\AppHost.csproj", "{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}"
 	ProjectSection(ProjectDependencies) = postProject
