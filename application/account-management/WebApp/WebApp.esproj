@@ -9,9 +9,9 @@
         <NpmInstallCheck>$(MSBuildProjectDirectory)\yarn.lock</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
         <!-- Command to run on project build -->
-        <BuildCommand>yarn run build</BuildCommand>
+        <BuildCommand>yarn run msbuild</BuildCommand>
         <!-- Command to create an optimized build of the project that's ready for publishing -->
-        <ProductionBuildCommand>yarn run build</ProductionBuildCommand>
+        <ProductionBuildCommand>yarn run msbuild</ProductionBuildCommand>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(OS)'=='WINDOWS_NT'">
@@ -28,11 +28,6 @@
 
     <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
         <Exec Command="yarn install --frozen-lockfile --ignore-engines" WorkingDirectory="$(ProjectDir)"/>
-    </Target>
-
-    <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
-        <Exec Command="npx openapi-typescript ../Api/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="npx prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 
     <Target Name="BuildFrontend" AfterTargets="Build">

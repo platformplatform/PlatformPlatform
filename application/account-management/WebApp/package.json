@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "rspack serve",
-    "build": "rspack build",
+    "build": "tsc --noEmit && rspack build",
     "lingui:extract": "lingui extract",
     "lingui:compile": "lingui compile --typescript",
     "lint": "eslint .",
     "typechecking": "tsc --noEmit",
+    "msbuild": "yarn run msbuild:swagger && yarn run build",
+    "msbuild:swagger": "npx openapi-typescript ../Api/swagger.json -o src/lib/api/api.generated.d.ts && npx prettier src/lib/api/api.generated.d.ts --write",
     "postinstall": "yarn run lingui:extract && yarn run lingui:compile"
   },
   "dependencies": {
