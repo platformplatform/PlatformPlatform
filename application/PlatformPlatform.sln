@@ -30,6 +30,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "account-management\WebApp\WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "AppHost\AppHost.csproj", "{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8292F35B-F0F6-4DB1-90E2-4707DB8C7104} = {8292F35B-F0F6-4DB1-90E2-4707DB8C7104}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
