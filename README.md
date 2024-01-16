@@ -54,8 +54,7 @@ PlatformPlatform is built with the newly introduced [.NET Aspire](https://learn.
 
 
 ```bash
-cd application/AppHost
-dotnet run
+pp run
 
 # Open https://localhost:8001 for the Aspire Dashboard
 # Open https://localhost:8443 for the WebApp
