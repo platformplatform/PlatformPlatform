@@ -1,39 +1,41 @@
+using System.Reflection;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class AliasRegistration
 {
-    private const string Intro =
-        """
-        [green]Welcome to:[/]
-        To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
-        This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]pp[/].
+    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 
-        [green]The CLI can be used to:[/]
-        * Check if all prerequisites are installed (e.g., Azure CLI, Docker, Yarn, .NET Aspire, etc.)
-        * Set up secure passwordless continuous deployments between GitHub and Azure
-        * Test deploy your application to Azure from your local machine
-        * Build self-contained executables for your application
-        * Run static code analysis on your codebase to ensure it does not fail when running in GitHub Workflows
-        * Run tests and show code coverage reports locally
-        * Much more is coming soon!
+    private static readonly string Intro =
+        $"""
+         [green]Welcome to:[/]
+         To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
+         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{AliasName}[/].
 
-        [green]Best of all, you can easily create your own commands to automate your own workflows![/]
-        The CLI will automatically detect any changes and recompile itself whenever your team does a [bold][grey]git pull[/][/].
-        This ensures that you always have the correct version of the CLI that works with the current version of your codebase.
+         [green]The CLI can be used to:[/]
+         * Start all PlatformPlatform services locally in one command
+         * Be guided through setting up secure passwordless continuous deployments between GitHub and Azure
+         * Test deploy your application to Azure from your local machine
+         * Run static code analysis on your codebase to ensure it does not fail when running in GitHub Workflows
+         * Run tests and show code coverage reports locally
+         * Much more is coming soon!
 
-        [green]Is this secure?[/]
-        Like any code you copy from the internet, you should always review it before you run it.
-        Just open the project in your IDE and review the code.
-        But yes, it is secure, and apart from the alias, it does not make any changes to your machine.
+         [green]Best of all, you can easily create your own commands to automate your own workflows![/]
+         The CLI will automatically detect any changes and recompile itself whenever your team does a [bold][grey]git pull[/][/].
+         It's a great way to automate workflows and share them with your team.
 
-        [green]How does it work?[/]
-        The Alias is just a shortcut to the CLI tool, in your shell's config file (e.g., .zshrc or .bashrc).
-        Each command is just a C# class that can be customized to automate your own workflows.
-        To remove the alias, just remove the line from your shell config file.
+         [green]Is this secure?[/]
+         Like any code you copy from the internet, you should always review it before you run it.
+         Just open the project in your IDE and review the code.
 
-        """;
+         [green]How does it work?[/]
+         The CLI has several commands that you can run from anywhere on your machine.
+         Each command is one C# class that can be customized to automate your own workflows.
+         Each command check for its prerequisites (e.g., Docker, Node, Yarn, .NET Aspire, Azure CLI, etc.)
+         To remove the alias, just run [green]{AliasName} uninstall[/].
+
+         """;
 
 
     internal static void EnsureAliasIsRegistered()
@@ -43,10 +45,11 @@ public static class AliasRegistration
         AnsiConsole.Write(new Markup(Intro));
         AnsiConsole.WriteLine();
 
-        if (AnsiConsole.Confirm("This will register the alias '[green]pp[/]', so it will be available everywhere."))
+        if (AnsiConsole.Confirm(
+                $"This will register the alias '[green]{AliasName}[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
-            RegisterAlias("pp");
+            RegisterAlias(AliasName);
         }
 
         // Kill the current process
