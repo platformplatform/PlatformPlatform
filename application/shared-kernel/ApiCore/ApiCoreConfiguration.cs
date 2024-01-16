@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -75,12 +76,8 @@ public static class ApiCoreConfiguration
             options.KnownProxies.Clear();
         });
 
-        // Enable support for CSRF tokens and configure the header and form field names
-        services.AddAntiforgery(options =>
-        {
-            options.HeaderName = "X-XSRF-TOKEN";
-            options.FormFieldName = "__RequestVerificationToken";
-        });
+        // Enable support for CSRF tokens and configure the header
+        services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
         builder.AddServiceDefaults();
 
@@ -138,26 +135,17 @@ public static class ApiCoreConfiguration
 
         // Enable support for CSRF tokens
         app.UseAntiforgery();
-        app.Use(async (context, next) =>
+
+        // Enable support for anti XSRF/CSRF on all mutation endpoints 
+        app.Use((context, next) =>
         {
-            if (context.Request.Path.StartsWithSegments("/api/track", StringComparison.OrdinalIgnoreCase))
+            var antiforgeryMetadata = context.GetEndpoint()?.Metadata.GetMetadata<IAntiforgeryMetadata>();
+            if (antiforgeryMetadata != null || !IsMutationMethod(context))
             {
-                // Hack: to disable CSRF token validation for the track endpoint
-                await next.Invoke();
-                return;
+                return next.Invoke();
             }
 
-            // Validate CSRF tokens for all POST, PUT, PATCH and DELETE requests
-            if (string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(context.Request.Method, "PUT", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(context.Request.Method, "PATCH", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(context.Request.Method, "DELETE", StringComparison.OrdinalIgnoreCase))
-            {
-                var antiforgery = context.RequestServices.GetService<IAntiforgery>()!;
-                await antiforgery.ValidateRequestAsync(context);
-            }
-
-            await next.Invoke();
+            return context.RequestServices.GetService<IAntiforgery>()!.ValidateRequestAsync(context);
         });
 
         // Configure track endpoint for Application Insights telemetry for PageViews and BrowserTimings
@@ -169,5 +157,16 @@ public static class ApiCoreConfiguration
         app.Services.ApplyMigrations<TDbContext>();
 
         return app;
+    }
+
+    /// <summary>
+    ///     Returns true if the request is a mutation method (POST, PUT, PATCH, DELETE)
+    /// </summary>
+    private static bool IsMutationMethod(HttpContext context)
+    {
+        return HttpMethods.IsPost(context.Request.Method) ||
+               HttpMethods.IsPut(context.Request.Method) ||
+               HttpMethods.IsPatch(context.Request.Method) ||
+               HttpMethods.IsDelete(context.Request.Method);
     }
 }

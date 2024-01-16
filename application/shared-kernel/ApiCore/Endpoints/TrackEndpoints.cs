@@ -20,7 +20,7 @@ public static class TrackEndpoints
     // </summary>
     public static void MapTrackEndpoints(this IEndpointRouteBuilder routes)
     {
-        routes.MapPost("/api/track", Track);
+        routes.MapPost("/api/track", Track).DisableAntiforgery();
     }
 
     [OpenApiIgnore]
