@@ -22,9 +22,7 @@ public static class Configuration
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".PlatformPlatform");
 
-    public static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
-
-    public static string HashFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.md5");
+    private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
 
     public static bool VerboseLogging { get; set; }
 
@@ -33,11 +31,38 @@ public static class Configuration
         if (Environment.ProcessPath!.Contains("debug"))
         {
             // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
-            return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
+            return new DirectoryInfo(Environment.ProcessPath).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
         }
 
-        var jsonDocument = JsonDocument.Parse(File.ReadAllText(ConfigFile));
-        return jsonDocument.RootElement.GetProperty("SolutionFolder").GetString()!;
+        return GetConfigurationSetting().SolutionFolder!;
+    }
+
+    public static ConfigurationSetting GetConfigurationSetting()
+    {
+        if (!File.Exists(ConfigFile))
+        {
+            return new ConfigurationSetting();
+        }
+
+        try
+        {
+            var readAllText = File.ReadAllText(ConfigFile);
+            return JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
+        }
+        catch (Exception)
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]Reading configuration. Please delete the folder {PublishFolder} and reinstall the CLI.[/]");
+            Environment.Exit(1);
+            throw;
+        }
+    }
+
+    public static void SaveConfigurationSetting(ConfigurationSetting configurationSetting)
+    {
+        var jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
+        var configuration = JsonSerializer.Serialize(configurationSetting, jsonSerializerOptions);
+        File.WriteAllText(ConfigFile, configuration);
     }
 
     public static class Windows
@@ -116,4 +141,11 @@ public static class Configuration
             return (shellName, profileName, profilePath);
         }
     }
+}
+
+public class ConfigurationSetting
+{
+    public string? SolutionFolder { get; set; }
+
+    public string? Hash { get; set; }
 }

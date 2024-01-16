@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text.Json;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
@@ -16,17 +15,10 @@ public static class ChangeDetection
             File.Delete(Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
         }
 
-        var storedHash = File.Exists(Configuration.HashFile) ? File.ReadAllText(Configuration.HashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
-        if (currentHash == storedHash) return;
+        if (currentHash == Configuration.GetConfigurationSetting().Hash) return;
 
-        PublishDeveloperCli();
-        
-        var configuration = JsonSerializer.Serialize(new { SolutionFolder = Configuration.GetSolutionFolder() });
-        File.WriteAllText(Configuration.ConfigFile, configuration);
-
-        // Update the hash file to avoid restarting the process again
-        File.WriteAllText(Configuration.HashFile, currentHash);
+        PublishDeveloperCli(currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
         var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
@@ -60,7 +52,7 @@ public static class ChangeDetection
         return BitConverter.ToString(sha256.ComputeHash(combinedStream));
     }
 
-    private static void PublishDeveloperCli()
+    private static void PublishDeveloperCli(string currentHash)
     {
         AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
 
@@ -81,8 +73,13 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess($"dotnet publish  DeveloperCli.csproj -o {Configuration.PublishFolder}",
+            ProcessHelper.StartProcess($"dotnet publish DeveloperCli.csproj -o {Configuration.PublishFolder}",
                 Configuration.GetSolutionFolder());
+
+            var configurationSetting = Configuration.GetConfigurationSetting();
+            configurationSetting.SolutionFolder = Configuration.GetSolutionFolder();
+            configurationSetting.Hash = currentHash;
+            Configuration.SaveConfigurationSetting(configurationSetting);
         }
         catch (Exception e)
         {
