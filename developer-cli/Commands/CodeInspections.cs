@@ -1,9 +1,9 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -17,7 +17,7 @@ public class CodeInspections : Command
 
     private int Execute()
     {
-        var workingDirectory = Path.Combine(Environment.GetSolutionFolder(), "..", "application");
+        var workingDirectory = Path.Combine(Configuration.GetSolutionFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
 

@@ -1,9 +1,9 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -24,7 +24,7 @@ public class BuildSystem : Command
 
     private int Execute(string? solutionName)
     {
-        var workingDirectory = Path.Combine(Environment.GetSolutionFolder(), "..", "application");
+        var workingDirectory = Path.Combine(Configuration.GetSolutionFolder(), "..", "application");
 
         var solutionsFiles = Directory
             .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)

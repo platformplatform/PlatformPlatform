@@ -7,7 +7,6 @@ using OllamaSharp.Models;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -60,7 +59,7 @@ public class Translate : Command
 
     private string GetTranslationFile(string? language)
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Environment.GetSolutionFolder(), "..", "application"));
+        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSolutionFolder(), "..", "application"));
         var translationFiles = workingDirectory
             .GetFiles("*.po", SearchOption.AllDirectories)
             .Where(f => !f.FullName.Contains("node_modules") &&

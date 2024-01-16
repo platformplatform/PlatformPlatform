@@ -53,29 +53,29 @@ public static class AliasRegistration
         }
 
         // Kill the current process
-        System.Environment.Exit(0);
+        Environment.Exit(0);
     }
 
     private static bool IsAliasRegistered()
     {
-        var processName = new FileInfo(System.Environment.ProcessPath!).Name;
+        var processName = new FileInfo(Environment.ProcessPath!).Name;
 
-        return Environment.IsWindows
-            ? Environment.Windows.IsFolderInPath(Environment.PublishFolder)
-            : Environment.MacOs.IsAliasRegisteredMacOs(processName);
+        return Configuration.IsWindows
+            ? Configuration.Windows.IsFolderInPath(Configuration.PublishFolder)
+            : Configuration.MacOs.IsAliasRegisteredMacOs(processName);
     }
 
     private static void RegisterAlias(string aliasName)
     {
-        var cliExecutable = Path.Combine(Environment.PublishFolder, new FileInfo(System.Environment.ProcessPath!).Name);
+        var cliExecutable = Path.Combine(Configuration.PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
 
-        if (Environment.IsWindows)
+        if (Configuration.IsWindows)
         {
-            Environment.Windows.AddFolderToPath(Environment.PublishFolder);
+            Configuration.Windows.AddFolderToPath(Configuration.PublishFolder);
         }
-        else if (Environment.IsMacOs)
+        else if (Configuration.IsMacOs)
         {
-            Environment.MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
+            Configuration.MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
         }
     }
 }

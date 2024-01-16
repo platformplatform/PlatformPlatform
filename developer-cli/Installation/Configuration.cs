@@ -6,20 +6,20 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
-public static class Environment
+public static class Configuration
 {
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
     private static readonly string UserFolder =
-        System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
     public static readonly string LocalhostPfx = IsWindows ? Windows.LocalhostPfxWindows : MacOs.LocalhostPfxMacOs;
 
     public static readonly string PublishFolder = IsWindows
-        ? Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "PlatformPlatform")
-        : Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".PlatformPlatform");
 
     public static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
@@ -30,10 +30,10 @@ public static class Environment
 
     public static string GetSolutionFolder()
     {
-        if (System.Environment.ProcessPath!.Contains("debug"))
+        if (Environment.ProcessPath!.Contains("debug"))
         {
             // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
-            return new DirectoryInfo(System.Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
+            return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
         }
 
         var jsonDocument = JsonDocument.Parse(File.ReadAllText(ConfigFile));
@@ -46,7 +46,7 @@ public static class Environment
 
         internal static bool IsFolderInPath(string path)
         {
-            var paths = System.Environment.GetEnvironmentVariable("PATH")!.Split(';');
+            var paths = Environment.GetEnvironmentVariable("PATH")!.Split(';');
             return paths.Contains(path);
         }
 
@@ -92,14 +92,14 @@ public static class Environment
             }
 
             File.AppendAllText(GetShellInfo().ProfilePath,
-                $"alias {aliasName}='{filename}'{System.Environment.NewLine}");
+                $"alias {aliasName}='{filename}'{Environment.NewLine}");
             AnsiConsole.MarkupLine(
                 $"Please restart your terminal or run [green]source ~/{GetShellInfo().ProfileName}[/]");
         }
 
         public static (string ShellName, string ProfileName, string ProfilePath) GetShellInfo()
         {
-            var shellName = System.Environment.GetEnvironmentVariable("SHELL")!;
+            var shellName = Environment.GetEnvironmentVariable("SHELL")!;
             var profileName = string.Empty;
 
             if (shellName.Contains("zsh"))

@@ -1,6 +1,6 @@
 using System.Diagnostics;
+using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
 
@@ -29,7 +29,7 @@ public static class ProcessHelper
 
     public static string StartProcess(ProcessStartInfo processStartInfo, string? input = null, bool waitForExit = true)
     {
-        if (Environment.VerboseLogging)
+        if (Configuration.VerboseLogging)
         {
             var escapedArguments = Markup.Escape(processStartInfo.Arguments);
             AnsiConsole.MarkupLine($"[cyan]{processStartInfo.FileName} {escapedArguments}[/]");

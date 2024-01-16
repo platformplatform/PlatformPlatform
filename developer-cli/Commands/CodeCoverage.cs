@@ -1,9 +1,9 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -17,7 +17,7 @@ public class CodeCoverage : Command
 
     private int Execute()
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Environment.GetSolutionFolder(), "..", "application"))
+        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSolutionFolder(), "..", "application"))
             .FullName;
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);

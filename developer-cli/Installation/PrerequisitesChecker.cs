@@ -27,7 +27,7 @@ public static class PrerequisitesChecker
         EnsureEnvironmentVariableIsConfigured("SQL_SERVER_PASSWORD");
         EnsureEnvironmentVariableIsConfigured("CERTIFICATE_PASSWORD");
 
-        var sqlPasswordConfigured = System.Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
+        var sqlPasswordConfigured = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
         if (!sqlPasswordConfigured)
         {
             AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
@@ -56,7 +56,7 @@ public static class PrerequisitesChecker
         // Check if the command line tool is installed
         var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
         {
-            FileName = Environment.IsWindows ? "where" : "which",
+            FileName = Configuration.IsWindows ? "where" : "which",
             Arguments = command,
             RedirectStandardOutput = true,
             RedirectStandardError = true
@@ -64,7 +64,7 @@ public static class PrerequisitesChecker
 
         var outputMessageColor = isRequired ? "red" : "yellow";
 
-        var possibleFileLocations = checkOutput.Split(System.Environment.NewLine);
+        var possibleFileLocations = checkOutput.Split(Environment.NewLine);
 
         if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() ||
             !File.Exists(possibleFileLocations[0]))
@@ -79,8 +79,8 @@ public static class PrerequisitesChecker
         // Get the version of the command line tool
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
         {
-            FileName = Environment.IsWindows ? "cmd.exe" : "/bin/bash",
-            Arguments = Environment.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
+            FileName = Configuration.IsWindows ? "cmd.exe" : "/bin/bash",
+            Arguments = Configuration.IsWindows ? $"/c {command} --version" : $"-c \"{command} --version\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true
         });
@@ -150,21 +150,21 @@ public static class PrerequisitesChecker
     {
         if (isRequired)
         {
-            System.Environment.Exit(1);
+            Environment.Exit(1);
         }
     }
 
     private static void EnsureEnvironmentVariableIsConfigured(string variableName)
     {
-        if (System.Environment.GetEnvironmentVariable(variableName) is not null) return;
+        if (Environment.GetEnvironmentVariable(variableName) is not null) return;
 
-        if (Environment.IsWindows) return;
+        if (Configuration.IsWindows) return;
 
-        var fileContent = File.ReadAllText(Environment.MacOs.GetShellInfo().ProfilePath);
+        var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
         if (!fileContent.Contains($"export {variableName}")) return;
 
         AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Environment.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]");
-        System.Environment.Exit(0);
+            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]");
+        Environment.Exit(0);
     }
 }

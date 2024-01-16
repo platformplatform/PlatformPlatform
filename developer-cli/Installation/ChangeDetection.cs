@@ -9,40 +9,40 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        if (Environment.IsWindows)
+        if (Configuration.IsWindows)
         {
             // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
             // We delete the previous executable the next time the process is started
-            File.Delete(System.Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
+            File.Delete(Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
         }
 
-        var storedHash = File.Exists(Environment.HashFile) ? File.ReadAllText(Environment.HashFile) : "";
+        var storedHash = File.Exists(Configuration.HashFile) ? File.ReadAllText(Configuration.HashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
 
         PublishDeveloperCli();
         
-        var configuration = JsonSerializer.Serialize(new { SolutionFolder = Environment.GetSolutionFolder() });
-        File.WriteAllText(Environment.ConfigFile, configuration);
+        var configuration = JsonSerializer.Serialize(new { SolutionFolder = Configuration.GetSolutionFolder() });
+        File.WriteAllText(Configuration.ConfigFile, configuration);
 
         // Update the hash file to avoid restarting the process again
-        File.WriteAllText(Environment.HashFile, currentHash);
+        File.WriteAllText(Configuration.HashFile, currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
-        var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
+        var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
         AnsiConsole.WriteLine();
-        System.Environment.Exit(0);
+        Environment.Exit(0);
     }
 
     private static string CalculateMd5HashForSolution()
     {
         // Get all files C# and C# project files in the Developer CLI solution
         var solutionFiles = Directory
-            .EnumerateFiles(Environment.GetSolutionFolder(), "*.cs*", SearchOption.AllDirectories)
+            .EnumerateFiles(Configuration.GetSolutionFolder(), "*.cs*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("artifacts"))
             .ToList();
 
@@ -64,15 +64,15 @@ public static class ChangeDetection
     {
         AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
 
-        var currentExecutablePath = System.Environment.ProcessPath!;
+        var currentExecutablePath = Environment.ProcessPath!;
         var renamedExecutablePath = "";
 
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet build", Environment.GetSolutionFolder());
+            ProcessHelper.StartProcess("dotnet build", Configuration.GetSolutionFolder());
 
-            if (Environment.IsWindows)
+            if (Configuration.IsWindows)
             {
                 // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming
                 // We rename the current executable to .previous.exe to unblock publishing of new executable
@@ -81,13 +81,13 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess($"dotnet publish  DeveloperCli.csproj -o {Environment.PublishFolder}",
-                Environment.GetSolutionFolder());
+            ProcessHelper.StartProcess($"dotnet publish  DeveloperCli.csproj -o {Configuration.PublishFolder}",
+                Configuration.GetSolutionFolder());
         }
         catch (Exception e)
         {
             AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. {e.Message}[/]");
-            System.Environment.Exit(0);
+            Environment.Exit(0);
         }
         finally
         {

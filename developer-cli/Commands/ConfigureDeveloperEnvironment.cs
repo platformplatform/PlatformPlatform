@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -42,7 +42,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private bool CreateSqlServerPasswordIfNotExists()
     {
-        var certificatePassword = System.Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
+        var certificatePassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
 
         if (certificatePassword is not null)
         {
@@ -64,7 +64,7 @@ public class ConfigureDeveloperEnvironment : Command
             return false;
         }
 
-        var certificatePassword = System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
         if (certificatePassword is null)
         {
             AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD environment variable is not set.[/]");
@@ -82,7 +82,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
     {
-        var certificatePassword = System.Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
+        var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
 
         var isDeveloperCertificateInstalled = IsDeveloperCertificateInstalled();
         if (isDeveloperCertificateInstalled)
@@ -98,7 +98,7 @@ public class ConfigureDeveloperEnvironment : Command
             {
                 AnsiConsole.MarkupLine(
                     "[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]");
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
 
             CleanExistingCertificate();
@@ -132,17 +132,17 @@ public class ConfigureDeveloperEnvironment : Command
     private static bool IsCertificatePasswordValid(string? password)
     {
         if (string.IsNullOrWhiteSpace(password)) return false;
-        if (!File.Exists(Environment.LocalhostPfx))
+        if (!File.Exists(Configuration.LocalhostPfx))
         {
             return false;
         }
 
-        if (Environment.IsWindows)
+        if (Configuration.IsWindows)
         {
             try
             {
                 // Try to load the certificate with the provided password
-                _ = new X509Certificate2(Environment.LocalhostPfx, password);
+                _ = new X509Certificate2(Configuration.LocalhostPfx, password);
                 return true;
             }
             catch (CryptographicException)
@@ -151,9 +151,9 @@ public class ConfigureDeveloperEnvironment : Command
                 // Ignore the exception and return false
             }
         }
-        else if (Environment.IsMacOs)
+        else if (Configuration.IsMacOs)
         {
-            var arguments = $"pkcs12 -in {Environment.LocalhostPfx} -passin pass:{password} -nokeys";
+            var arguments = $"pkcs12 -in {Configuration.LocalhostPfx} -passin pass:{password} -nokeys";
             var certificateValidation = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "openssl",
@@ -175,9 +175,9 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CleanExistingCertificate()
     {
-        if (File.Exists(Environment.LocalhostPfx))
+        if (File.Exists(Configuration.LocalhostPfx))
         {
-            File.Delete(Environment.LocalhostPfx);
+            File.Delete(Configuration.LocalhostPfx);
         }
 
         ProcessHelper.StartProcess(new ProcessStartInfo
@@ -192,7 +192,7 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
-        ProcessHelper.StartProcess($"dotnet dev-certs https --trust -ep {Environment.LocalhostPfx} -p {password}");
+        ProcessHelper.StartProcess($"dotnet dev-certs https --trust -ep {Configuration.LocalhostPfx} -p {password}");
     }
 
     private static string GenerateRandomPassword(int passwordLength)
@@ -212,12 +212,12 @@ public class ConfigureDeveloperEnvironment : Command
 
     private static void AddEnvironmentVariable(string variableName, string variableValue)
     {
-        if (System.Environment.GetEnvironmentVariable(variableName) is not null)
+        if (Environment.GetEnvironmentVariable(variableName) is not null)
         {
             throw new ArgumentException($"Environment variable {variableName} already exists.");
         }
 
-        if (Environment.IsWindows)
+        if (Configuration.IsWindows)
         {
             var arguments = $"/c setx {variableName} {variableValue}";
             ProcessHelper.StartProcess(new ProcessStartInfo
@@ -229,16 +229,16 @@ public class ConfigureDeveloperEnvironment : Command
                 CreateNoWindow = true
             });
         }
-        else if (Environment.IsMacOs)
+        else if (Configuration.IsMacOs)
         {
-            var fileContent = File.ReadAllText(Environment.MacOs.GetShellInfo().ProfilePath);
-            if (!fileContent.EndsWith(System.Environment.NewLine))
+            var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
+            if (!fileContent.EndsWith(Environment.NewLine))
             {
-                File.AppendAllText(Environment.MacOs.GetShellInfo().ProfilePath, System.Environment.NewLine);
+                File.AppendAllText(Configuration.MacOs.GetShellInfo().ProfilePath, Environment.NewLine);
             }
 
-            File.AppendAllText(Environment.MacOs.GetShellInfo().ProfilePath,
-                $"export {variableName}='{variableValue}'{System.Environment.NewLine}");
+            File.AppendAllText(Configuration.MacOs.GetShellInfo().ProfilePath,
+                $"export {variableName}='{variableValue}'{Environment.NewLine}");
         }
     }
 }
