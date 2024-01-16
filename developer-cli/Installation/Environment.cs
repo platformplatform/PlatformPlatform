@@ -24,6 +24,8 @@ public static class Environment
 
     public static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
 
+    public static string HashFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.md5");
+
     public static bool VerboseLogging { get; set; }
 
     public static string GetSolutionFolder()

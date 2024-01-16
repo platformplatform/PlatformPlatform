@@ -16,8 +16,7 @@ public static class ChangeDetection
             File.Delete(System.Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
         }
 
-        var hashFile = Path.Combine(Environment.PublishFolder, "source-file-hash.md5");
-        var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
+        var storedHash = File.Exists(Environment.HashFile) ? File.ReadAllText(Environment.HashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
         if (currentHash == storedHash) return;
 
@@ -27,7 +26,7 @@ public static class ChangeDetection
         File.WriteAllText(Environment.ConfigFile, configuration);
 
         // Update the hash file to avoid restarting the process again
-        File.WriteAllText(hashFile, currentHash);
+        File.WriteAllText(Environment.HashFile, currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
         var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
