@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
@@ -134,6 +135,31 @@ public static class ApiCoreConfiguration
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
+
+        // Enable support for CSRF tokens
+        app.UseAntiforgery();
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api/track", StringComparison.OrdinalIgnoreCase))
+            {
+                // Hack: to disable CSRF token validation for the track endpoint
+                await next.Invoke();
+                return;
+            }
+
+            // Validate CSRF tokens for all POST, PUT, PATCH and DELETE requests
+            if (string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(context.Request.Method, "PUT", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(context.Request.Method, "PATCH", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(context.Request.Method, "DELETE", StringComparison.OrdinalIgnoreCase))
+            {
+                var antiforgery = context.RequestServices.GetService<IAntiforgery>()!;
+                await antiforgery.ValidateRequestAsync(context);
+            }
+
+            await next.Invoke();
+        });
+
         // Configure track endpoint for Application Insights telemetry for PageViews and BrowserTimings
         app.MapTrackEndpoints();
 
@@ -141,9 +167,6 @@ public static class ApiCoreConfiguration
         app.MapTestEndpoints();
 
         app.Services.ApplyMigrations<TDbContext>();
-
-        // Enable support for CSRF tokens
-        app.UseAntiforgery();
 
         return app;
     }
