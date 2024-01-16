@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
@@ -21,6 +22,9 @@ public static class ChangeDetection
         if (currentHash == storedHash) return;
 
         PublishDeveloperCli();
+        
+        var configuration = JsonSerializer.Serialize(new { SolutionFolder = Environment.GetSolutionFolder() });
+        File.WriteAllText(Environment.ConfigFile, configuration);
 
         // Update the hash file to avoid restarting the process again
         File.WriteAllText(hashFile, currentHash);
