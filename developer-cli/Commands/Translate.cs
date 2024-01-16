@@ -59,7 +59,8 @@ public class Translate : Command
 
     private string GetTranslationFile(string? language)
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSolutionFolder(), "..", "application"));
+        var workingDirectory =
+            new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
         var translationFiles = workingDirectory
             .GetFiles("*.po", SearchOption.AllDirectories)
             .Where(f => !f.FullName.Contains("node_modules") &&

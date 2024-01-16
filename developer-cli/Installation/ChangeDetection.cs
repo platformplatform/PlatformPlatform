@@ -34,7 +34,7 @@ public static class ChangeDetection
     {
         // Get all files C# and C# project files in the Developer CLI solution
         var solutionFiles = Directory
-            .EnumerateFiles(Configuration.GetSolutionFolder(), "*.cs*", SearchOption.AllDirectories)
+            .EnumerateFiles(Configuration.GetSourceCodeFolder(), "*.cs*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("artifacts"))
             .ToList();
 
@@ -62,7 +62,7 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet build", Configuration.GetSolutionFolder());
+            ProcessHelper.StartProcess("dotnet build", Configuration.GetSourceCodeFolder());
 
             if (Configuration.IsWindows)
             {
@@ -74,10 +74,10 @@ public static class ChangeDetection
 
             // Call "dotnet publish" to create a new executable
             ProcessHelper.StartProcess($"dotnet publish DeveloperCli.csproj -o {Configuration.PublishFolder}",
-                Configuration.GetSolutionFolder());
+                Configuration.GetSourceCodeFolder());
 
             var configurationSetting = Configuration.GetConfigurationSetting();
-            configurationSetting.SolutionFolder = Configuration.GetSolutionFolder();
+            configurationSetting.SourceCodeFolder = Configuration.GetSourceCodeFolder();
             configurationSetting.Hash = currentHash;
             Configuration.SaveConfigurationSetting(configurationSetting);
         }

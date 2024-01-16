@@ -24,7 +24,7 @@ public class BuildSystem : Command
 
     private int Execute(string? solutionName)
     {
-        var workingDirectory = Path.Combine(Configuration.GetSolutionFolder(), "..", "application");
+        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         var solutionsFiles = Directory
             .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)

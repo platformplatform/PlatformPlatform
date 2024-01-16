@@ -17,7 +17,7 @@ public class CodeCoverage : Command
 
     private int Execute()
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSolutionFolder(), "..", "application"))
+        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"))
             .FullName;
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);

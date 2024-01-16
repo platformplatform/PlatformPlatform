@@ -26,7 +26,7 @@ public static class Configuration
 
     public static bool VerboseLogging { get; set; }
 
-    public static string GetSolutionFolder()
+    public static string GetSourceCodeFolder()
     {
         if (Environment.ProcessPath!.Contains("debug"))
         {
@@ -34,7 +34,7 @@ public static class Configuration
             return new DirectoryInfo(Environment.ProcessPath).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
         }
 
-        return GetConfigurationSetting().SolutionFolder!;
+        return GetConfigurationSetting().SourceCodeFolder!;
     }
 
     public static ConfigurationSetting GetConfigurationSetting()
@@ -145,7 +145,7 @@ public static class Configuration
 
 public class ConfigurationSetting
 {
-    public string? SolutionFolder { get; set; }
+    public string? SourceCodeFolder { get; set; }
 
     public string? Hash { get; set; }
 }
