@@ -15,7 +15,7 @@ Filesystem routing styles / conventions supported:
 ### Installation
 
 ```bash
-bun i @platformplatform/client-filesystem-router -D
+yarn i @platformplatform/client-filesystem-router -D
 ```
 
 ### Application entry point

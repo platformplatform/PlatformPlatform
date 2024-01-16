@@ -1,17 +1,21 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.151394-alpha">
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.302517-alpha">
 
     <PropertyGroup>
-        <StartupCommand>set BROWSER=none;bun dev</StartupCommand>
+        <StartupCommand>set BROWSER=none;yarn dev</StartupCommand>
         <JavaScriptTestRoot>src\</JavaScriptTestRoot>
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
         <!-- Folder where production build objects will be placed -->
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
-        <NpmInstallCheck>$(MSBuildProjectDirectory)\bun.lockb</NpmInstallCheck>
+        <NpmInstallCheck>$(MSBuildProjectDirectory)\yarn.lock</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
         <!-- Command to run on project build -->
-        <BuildCommand>bun run build</BuildCommand>
+        <BuildCommand>yarn run msbuild</BuildCommand>
         <!-- Command to create an optimized build of the project that's ready for publishing -->
-        <ProductionBuildCommand>bun run build</ProductionBuildCommand>
+        <ProductionBuildCommand>yarn run msbuild</ProductionBuildCommand>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(OS)'=='WINDOWS_NT'">
+        <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,12 +27,7 @@
     </ItemGroup>
 
     <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
-        <Exec Command="bun install" WorkingDirectory="$(ProjectDir)"/>
-    </Target>
-
-    <Target Name="SwaggerApi" BeforeTargets="Build" DependsOnTargets="FrontendDependencies">
-        <Exec Command="bun openapi-typescript $(OutputPath)../../artifacts/swagger.json -o src/lib/api/api.generated.d.ts" WorkingDirectory="$(ProjectDir)"/>
-        <Exec Command="bun prettier src/lib/api/api.generated.d.ts --write" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="yarn install --frozen-lockfile --ignore-engines" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 
     <Target Name="BuildFrontend" AfterTargets="Build">

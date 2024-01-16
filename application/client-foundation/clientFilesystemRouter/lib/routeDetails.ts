@@ -49,7 +49,7 @@ export type RouteDetailOptions = {
 
 export function getRouteDetails(segments: string[], { importPrefix = "@", appPath }: RouteDetailOptions): RouteEntry {
   const routePath = path.join(appPath, ...segments);
-  const importRootPath = path.join(importPrefix, "app", path.relative(appPath, routePath));
+  const importRootPath = path.posix.join(importPrefix, "app", ...segments);
   const params = getParamScope(segments);
   const routeItems = fs.readdirSync(routePath).map((file) => ({
     file,

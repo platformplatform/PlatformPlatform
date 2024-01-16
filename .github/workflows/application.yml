@@ -38,12 +38,13 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Install Node modules
         working-directory: application/account-management/WebApp
-        run: bun install --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -101,12 +102,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Install Node modules
         working-directory: application/account-management/WebApp
-        run: bun install --frozen-lockfile
+        run: yarn install --frozen-lockfile
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -152,11 +154,11 @@ jobs:
 
       - name: Run ESLint
         working-directory: application/account-management/WebApp
-        run: bun lint
+        run: yarn run lint
 
       - name: Run Type Checking
         working-directory: application/account-management/WebApp
-        run: bun typechecking
+        run: yarn run typechecking
 
   account-management-publish:
     name: Account Management Publish

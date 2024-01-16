@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@platformplatform/client-filesystem-router/react";
 import { Button } from "react-aria-components";
 import { Trans } from "@lingui/macro";
 import AcmeLogo from "@/ui/acme-logo.svg";

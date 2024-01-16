@@ -13,7 +13,8 @@ public static class PrerequisitesChecker
     {
         CheckCommandLineTool("docker", "Docker", new Version(24, 0));
         CheckCommandLineTool("az", "Azure CLI", new Version(2, 55));
-        CheckCommandLineTool("bun", "Bun.js", new Version(1, 0));
+        CheckCommandLineTool("yarn", "Yarn", new Version(1, 22));
+        CheckCommandLineTool("node", "NodeJS", new Version(20, 0));
         CheckDotnetWorkload("aspire", "Aspire", """aspire\s*8\.0\.0-preview.2""");
 
         if (args.Contains(ConfigureDeveloperEnvironment.CommandName))

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@platformplatform/client-filesystem-router/react";
 
 export default function NotFound() {
   return (
