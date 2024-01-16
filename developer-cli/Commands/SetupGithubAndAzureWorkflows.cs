@@ -92,7 +92,7 @@ public class SetupGithubAndAzureWorkflows : Command
 
     private GithubInfo GetGithubInfo()
     {
-        var gitRemotes = ProcessHelper.StartProcess("git remote -v", Environment.SolutionFolder, true);
+        var gitRemotes = ProcessHelper.StartProcess("git remote -v", Environment.GetSolutionFolder(), true);
 
         var gitRemoteRegex = new Regex(@"(?<url>https://github\.com/.*\.git)");
         var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);

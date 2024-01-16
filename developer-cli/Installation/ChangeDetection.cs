@@ -38,7 +38,8 @@ public static class ChangeDetection
     private static string CalculateMd5HashForSolution()
     {
         // Get all files C# and C# project files in the Developer CLI solution
-        var solutionFiles = Directory.EnumerateFiles(Environment.SolutionFolder, "*.cs*", SearchOption.AllDirectories)
+        var solutionFiles = Directory
+            .EnumerateFiles(Environment.GetSolutionFolder(), "*.cs*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("artifacts"))
             .ToList();
 
@@ -66,7 +67,7 @@ public static class ChangeDetection
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet build", Environment.SolutionFolder);
+            ProcessHelper.StartProcess("dotnet build", Environment.GetSolutionFolder());
 
             if (Environment.IsWindows)
             {
@@ -77,7 +78,8 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess("dotnet publish", Environment.SolutionFolder);
+            ProcessHelper.StartProcess($"dotnet publish  DeveloperCli.csproj -o {Environment.PublishFolder}",
+                Environment.GetSolutionFolder());
         }
         catch (Exception e)
         {

@@ -17,7 +17,7 @@ public class CodeCleanup : Command
 
     private int Execute()
     {
-        var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
+        var workingDirectory = Path.Combine(Environment.GetSolutionFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
         ProcessHelper.StartProcess(

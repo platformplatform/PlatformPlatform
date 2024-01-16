@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
@@ -15,13 +16,27 @@ public static class Environment
 
     public static readonly string LocalhostPfx = IsWindows ? Windows.LocalhostPfxWindows : MacOs.LocalhostPfxMacOs;
 
-    public static readonly string SolutionFolder =
-        new DirectoryInfo(System.Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
+    public static readonly string PublishFolder = IsWindows
+        ? Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+            "PlatformPlatform")
+        : Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile),
+            ".PlatformPlatform");
 
-    public static readonly string PublishFolder =
-        Path.Combine(SolutionFolder, "artifacts", "publish", "DeveloperCli", "release");
+    public static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
 
     public static bool VerboseLogging { get; set; }
+
+    public static string GetSolutionFolder()
+    {
+        if (System.Environment.ProcessPath!.Contains("debug"))
+        {
+            // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
+            return new DirectoryInfo(System.Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
+        }
+
+        var jsonDocument = JsonDocument.Parse(File.ReadAllText(ConfigFile));
+        return jsonDocument.RootElement.GetProperty("SolutionFolder").GetString()!;
+    }
 
     public static class Windows
     {
@@ -61,7 +76,7 @@ public static class Environment
 
             return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line =>
                 line.StartsWith("alias ") &&
-                line.Contains(SolutionFolder) &&
+                line.Contains(PublishFolder) &&
                 line.Contains(processName)
             );
         }
