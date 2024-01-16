@@ -8,9 +8,9 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class CodeInspections : Command
+public class CodeInspectionsCommand : Command
 {
-    public CodeInspections() : base("code-inspections", "Run JetBrains Code Inspections")
+    public CodeInspectionsCommand() : base("code-inspections", "Run JetBrains Code Inspections")
     {
         Handler = CommandHandler.Create(Execute);
     }

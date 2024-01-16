@@ -75,7 +75,7 @@ These are the prerequisites:
 Then run the following command, which will guide you through the setup:
 
 ```bash
-pp setup-github-and-azure-workflow
+pp configure-continuous-deployments
 ```
 
 This will prompt for an Azure subscription and configure GitHub workflows to set up a full production-ready Staging and Production environment with domains, SSL certificates, and enterprise-grade secure infrastructure using Managed Identities instead of connection strings. A Service Principal will be used to set up OpenID Connect trusting the GitHub repository to do passwordless deployments (no passwords anywhere 🔒). Except for adding a DNS record, everything is fully automated. On top of that, it will set up continuous deployments of application code to Azure Container Apps.

@@ -8,9 +8,9 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class BuildSystem : Command
+public class BuildCommand : Command
 {
-    public BuildSystem() : base("build", "Builds a self-contained system")
+    public BuildCommand() : base("build", "Builds a self-contained system")
     {
         var solutionNameOption = new Option<string?>(
             ["<solution-name>", "--solution-name", "-s"],

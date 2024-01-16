@@ -8,9 +8,9 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class CodeCoverage : Command
+public class CodeCoverageCommand : Command
 {
-    public CodeCoverage() : base("code-coverage", "Run JetBrains Code Coverage")
+    public CodeCoverageCommand() : base("code-coverage", "Run JetBrains Code Coverage")
     {
         Handler = CommandHandler.Create(Execute);
     }

@@ -17,7 +17,7 @@ public static class PrerequisitesChecker
         CheckCommandLineTool("node", "NodeJS", new Version(20, 0));
         CheckDotnetWorkload("aspire", "Aspire", """aspire\s*8\.0\.0-preview.2""");
 
-        if (args.Contains(ConfigureDeveloperEnvironment.CommandName))
+        if (args.Contains(ConfigureDeveloperEnvironmentCommand.CommandName))
         {
             // If we are configuring the environment we don't need to check if configuring the environment is needed
             return;
@@ -33,15 +33,15 @@ public static class PrerequisitesChecker
             AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
         }
 
-        var hasValidDeveloperCertificate = ConfigureDeveloperEnvironment.HasValidDeveloperCertificate();
+        var hasValidDeveloperCertificate = ConfigureDeveloperEnvironmentCommand.HasValidDeveloperCertificate();
 
         if (!sqlPasswordConfigured || !hasValidDeveloperCertificate)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]Running 'pp {ConfigureDeveloperEnvironment.CommandName}' to configure your environment.[/]");
+                $"[yellow]Running 'pp {ConfigureDeveloperEnvironmentCommand.CommandName}' to configure your environment.[/]");
             AnsiConsole.WriteLine();
 
-            var command = new ConfigureDeveloperEnvironment();
+            var command = new ConfigureDeveloperEnvironmentCommand();
             await command.InvokeAsync(Array.Empty<string>());
         }
     }

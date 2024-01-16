@@ -11,12 +11,12 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class SetupGithubAndAzureWorkflows : Command
+public class ConfigureContinuousDeploymentsCommand : Command
 {
     private static readonly JsonSerializerOptions? JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public SetupGithubAndAzureWorkflows() : base(
-        "setup-github-and-azure-workflow",
+    public ConfigureContinuousDeploymentsCommand() : base(
+        "configure-continuous-deployments",
         "Set up trust between Azure and GitHub for passwordless deployments using Azure App Registration with OpenID (aka Federated Credentials)."
     )
     {

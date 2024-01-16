@@ -11,14 +11,14 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class Translate : Command
+public class TranslateCommand : Command
 {
     private const string InstanceName = "platform-platform-ollama";
     private const string DockerImageName = "ollama/ollama";
     private const int Port = 11434;
     private const string ModelName = "llama2";
 
-    public Translate() : base(
+    public TranslateCommand() : base(
         "translate",
         $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}")
     {

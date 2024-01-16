@@ -11,11 +11,11 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class ConfigureDeveloperEnvironment : Command
+public class ConfigureDeveloperEnvironmentCommand : Command
 {
     public const string CommandName = "configure-developer-environment";
 
-    public ConfigureDeveloperEnvironment() : base(
+    public ConfigureDeveloperEnvironmentCommand() : base(
         CommandName,
         "Generate CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD, create developer certificate for localhost with known password, and store passwords in environment variables"
     )

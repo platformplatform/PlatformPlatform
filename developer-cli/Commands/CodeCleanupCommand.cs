@@ -8,9 +8,9 @@ using Spectre.Console;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class CodeCleanup : Command
+public class CodeCleanupCommand : Command
 {
-    public CodeCleanup() : base("code-cleanup", "Run JetBrains Code Cleanup")
+    public CodeCleanupCommand() : base("code-cleanup", "Run JetBrains Code Cleanup")
     {
         Handler = CommandHandler.Create(Execute);
     }
