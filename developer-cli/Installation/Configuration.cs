@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
@@ -26,12 +27,14 @@ public static class Configuration
 
     public static bool VerboseLogging { get; set; }
 
+    private static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
+
     public static string GetSourceCodeFolder()
     {
-        if (Environment.ProcessPath!.Contains("debug"))
+        if (IsDebugMode)
         {
             // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
-            return new DirectoryInfo(Environment.ProcessPath).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
+            return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
         }
 
         return GetConfigurationSetting().SourceCodeFolder!;
@@ -39,7 +42,7 @@ public static class Configuration
 
     public static ConfigurationSetting GetConfigurationSetting()
     {
-        if (!File.Exists(ConfigFile))
+        if (!File.Exists(ConfigFile) && IsDebugMode)
         {
             return new ConfigurationSetting();
         }
@@ -47,15 +50,29 @@ public static class Configuration
         try
         {
             var readAllText = File.ReadAllText(ConfigFile);
-            return JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
+            var configurationSetting = JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
+
+            if (configurationSetting.IsValid) return configurationSetting;
         }
-        catch (Exception)
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLine($"[red]Error: {e.Message}[/]");
+        }
+
+        if (IsDebugMode)
+        {
+            Directory.Delete(PublishFolder, true);
+            AnsiConsole.MarkupLine(
+                $"[red]Invalid configuration. The {PublishFolder} has been deleted. Please try again.[/]");
+        }
+        else
         {
             AnsiConsole.MarkupLine(
-                $"[red]Reading configuration. Please delete the folder {PublishFolder} and reinstall the CLI.[/]");
-            Environment.Exit(1);
-            throw;
+                "[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]");
         }
+
+        Environment.Exit(1);
+        return null;
     }
 
     public static void SaveConfigurationSetting(ConfigurationSetting configurationSetting)
@@ -148,4 +165,17 @@ public class ConfigurationSetting
     public string? SourceCodeFolder { get; set; }
 
     public string? Hash { get; set; }
+
+    [JsonIgnore]
+    public bool IsValid
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(SourceCodeFolder)) return false;
+
+            if (string.IsNullOrEmpty(Hash)) return false;
+
+            return true;
+        }
+    }
 }
