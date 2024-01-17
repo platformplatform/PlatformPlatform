@@ -28,11 +28,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private int Execute(bool skipAzureLogin = false, bool verboseLogging = false)
     {
+        PrerequisitesChecker.Check("az", "gh");
+
         AzureInfo azureInfo = new();
 
         Configuration.VerboseLogging = verboseLogging;
-
-        EnsureAzureAndGithubCliToolsAreInstalled();
 
         PrintHeader("Introduction");
 
@@ -81,12 +81,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
         ShowSuccessMessage(githubInfo);
 
         return 0;
-    }
-
-    private void EnsureAzureAndGithubCliToolsAreInstalled()
-    {
-        PrerequisitesChecker.CheckCommandLineTool("az", "Azure CLI", new Version(2, 55), true);
-        PrerequisitesChecker.CheckCommandLineTool("gh", "GitHub CLI", new Version(2, 41), true);
     }
 
     private GithubInfo GetGithubInfo()

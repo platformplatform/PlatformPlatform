@@ -26,9 +26,9 @@ public class ConfigureDeveloperEnvironmentCommand : Command
     private int Execute()
     {
         var certificateCreated = EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured();
-        var passwordCreated = CreateSqlServerPasswordIfNotExists();
+        var sqlServerPasswordCreated = CreateSqlServerPasswordIfNotExists();
 
-        if (passwordCreated || certificateCreated)
+        if (certificateCreated || sqlServerPasswordCreated)
         {
             AnsiConsole.MarkupLine("[green]Please restart your terminal.[/]");
         }
@@ -53,30 +53,6 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         certificatePassword = GenerateRandomPassword(16);
         AddEnvironmentVariable("SQL_SERVER_PASSWORD", certificatePassword);
         AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable created.[/]");
-        return true;
-    }
-
-    public static bool HasValidDeveloperCertificate()
-    {
-        if (!IsDeveloperCertificateInstalled())
-        {
-            AnsiConsole.MarkupLine("[yellow]Developer certificate is not configured.[/]");
-            return false;
-        }
-
-        var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
-        if (certificatePassword is null)
-        {
-            AnsiConsole.MarkupLine("[yellow]CERTIFICATE_PASSWORD environment variable is not set.[/]");
-            return false;
-        }
-
-        if (!IsCertificatePasswordValid(certificatePassword))
-        {
-            AnsiConsole.MarkupLine("[yellow]A valid certificate password is not configured.[/]");
-            return false;
-        }
-
         return true;
     }
 

@@ -1,4 +1,6 @@
+using System.CommandLine;
 using System.Reflection;
+using PlatformPlatform.DeveloperCli.Commands;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -50,6 +52,14 @@ public static class AliasRegistration
         {
             AnsiConsole.WriteLine();
             RegisterAlias(AliasName);
+        }
+
+        if (AnsiConsole.Confirm(
+                "PlatformPlatform requires a self-signed certificate and a SQL Server password. Do you want to create them now?"))
+        {
+            AnsiConsole.WriteLine();
+            var command = new ConfigureDeveloperEnvironmentCommand();
+            command.Invoke(Array.Empty<string>());
         }
 
         // Kill the current process

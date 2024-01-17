@@ -134,7 +134,7 @@ public static class Configuration
             }
 
             File.AppendAllText(GetShellInfo().ProfilePath,
-                $"alias {aliasName}='{filename}'{Environment.NewLine}");
+                $"{Environment.NewLine}alias {aliasName}='{filename}'{Environment.NewLine}");
             AnsiConsole.MarkupLine(
                 $"Please restart your terminal or run [green]source ~/{GetShellInfo().ProfileName}[/]");
         }

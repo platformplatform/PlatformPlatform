@@ -17,6 +17,8 @@ public class CodeInspectionsCommand : Command
 
     private int Execute()
     {
+        PrerequisitesChecker.Check("node", "yarn");
+
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);

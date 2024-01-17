@@ -1,4 +1,3 @@
-using System.CommandLine;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
@@ -7,51 +6,81 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
+public record Prerequisite(
+    PrerequisiteType Type,
+    string Name,
+    string? DisplayName = null,
+    Version? Version = null,
+    string? Regex = null
+);
+
+public enum PrerequisiteType
+{
+    CommandLineTool,
+    DotnetWorkload,
+    EnvironmentVariable
+}
+
 public static class PrerequisitesChecker
 {
-    public static async void EnsurePrerequisitesAreMet(string[] args)
+    private static readonly List<Prerequisite> Dependencies =
+    [
+        new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(24, 0)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(21, 0)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "yarn", "Yarn", new Version(1, 22)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.2"""),
+        new Prerequisite(PrerequisiteType.EnvironmentVariable, "SQL_SERVER_PASSWORD"),
+        new Prerequisite(PrerequisiteType.EnvironmentVariable, "CERTIFICATE_PASSWORD")
+    ];
+
+    public static void Check(params string[] prerequisiteName)
     {
-        CheckCommandLineTool("docker", "Docker", new Version(24, 0));
-        CheckCommandLineTool("az", "Azure CLI", new Version(2, 55));
-        CheckCommandLineTool("yarn", "Yarn", new Version(1, 22));
-        CheckCommandLineTool("node", "NodeJS", new Version(20, 0));
-        CheckDotnetWorkload("aspire", "Aspire", """aspire\s*8\.0\.0-preview.2""");
-
-        if (args.Contains(ConfigureDeveloperEnvironmentCommand.CommandName))
+        var invalid = false;
+        foreach (var command in prerequisiteName)
         {
-            // If we are configuring the environment we don't need to check if configuring the environment is needed
-            return;
+            var prerequisite = Dependencies.SingleOrDefault(p => p.Name == command);
+            if (prerequisite is null)
+            {
+                AnsiConsole.MarkupLine($"[red]Unknown prerequisite: {command}[/]");
+                invalid = true;
+                continue;
+            }
+
+            switch (prerequisite.Type)
+            {
+                case PrerequisiteType.CommandLineTool:
+                    if (!IsCommandLineToolValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Version!))
+                    {
+                        invalid = true;
+                    }
+
+                    break;
+                case PrerequisiteType.DotnetWorkload:
+                    if (!IsDotnetWorkloadValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Regex!))
+                    {
+                        invalid = true;
+                    }
+
+                    break;
+                case PrerequisiteType.EnvironmentVariable:
+                    if (!IsEnvironmentVariableSet(prerequisite.Name))
+                    {
+                        invalid = true;
+                    }
+
+                    break;
+            }
         }
 
-        // If Environment variables are set but not sourced exit hard with a message
-        EnsureEnvironmentVariableIsConfigured("SQL_SERVER_PASSWORD");
-        EnsureEnvironmentVariableIsConfigured("CERTIFICATE_PASSWORD");
-
-        var sqlPasswordConfigured = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD") is not null;
-        if (!sqlPasswordConfigured)
+        if (invalid)
         {
-            AnsiConsole.MarkupLine("[yellow]SQL_SERVER_PASSWORD environment variable is not set.[/]");
-        }
-
-        var hasValidDeveloperCertificate = ConfigureDeveloperEnvironmentCommand.HasValidDeveloperCertificate();
-
-        if (!sqlPasswordConfigured || !hasValidDeveloperCertificate)
-        {
-            AnsiConsole.MarkupLine(
-                $"[yellow]Running 'pp {ConfigureDeveloperEnvironmentCommand.CommandName}' to configure your environment.[/]");
-            AnsiConsole.WriteLine();
-
-            var command = new ConfigureDeveloperEnvironmentCommand();
-            await command.InvokeAsync(Array.Empty<string>());
+            Environment.Exit(1);
         }
     }
 
-    public static void CheckCommandLineTool(
-        string command,
-        string displayName,
-        Version minVersion,
-        bool isRequired = false
-    )
+    private static bool IsCommandLineToolValid(string command, string displayName, Version minVersion)
     {
         // Check if the command line tool is installed
         var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
@@ -62,18 +91,15 @@ public static class PrerequisitesChecker
             RedirectStandardError = true
         });
 
-        var outputMessageColor = isRequired ? "red" : "yellow";
-
         var possibleFileLocations = checkOutput.Split(Environment.NewLine);
 
         if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() ||
             !File.Exists(possibleFileLocations[0]))
         {
             AnsiConsole.MarkupLine(
-                $"[{outputMessageColor}]{displayName} of minimum version {minVersion} should be installed.[/]");
+                $"[red]{displayName} of minimum version {minVersion} should be installed.[/]");
 
-            ExitIfRequired(isRequired);
-            return;
+            return false;
         }
 
         // Get the version of the command line tool
@@ -90,39 +116,30 @@ public static class PrerequisitesChecker
         if (match.Success)
         {
             var version = Version.Parse(match.Value);
-            if (version >= minVersion) return;
+            if (version >= minVersion) return true;
             AnsiConsole.MarkupLine(
-                $"[{outputMessageColor}]Please update '[bold]{displayName}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]");
+                $"[red]Please update '[bold]{displayName}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]");
 
-            ExitIfRequired(isRequired);
-            return;
+            return false;
         }
 
         // If the version could not be determined please change the logic here to check for the correct version
         AnsiConsole.MarkupLine(
-            $"[{outputMessageColor}]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
+            $"[red]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]");
 
-        ExitIfRequired(isRequired);
+        return false;
     }
 
-    public static void CheckDotnetWorkload(
-        string workloadName,
-        string displayName,
-        string workloadRegex,
-        bool isRequired = false
-    )
+    private static bool IsDotnetWorkloadValid(string workloadName, string displayName, string workloadRegex)
     {
         var output = ProcessHelper.StartProcess("dotnet workload list", redirectOutput: true);
-
-        var outputMessageColor = isRequired ? "red" : "yellow";
 
         if (!output.Contains(workloadName))
         {
             AnsiConsole.MarkupLine(
-                $"[{outputMessageColor}].NET '[bold]{displayName}[/]' should be installed. Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]");
+                $"[red].NET '[bold]{displayName}[/]' should be installed. Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]");
 
-            ExitIfRequired(isRequired);
-            return;
+            return false;
         }
 
         /*
@@ -140,31 +157,34 @@ public static class PrerequisitesChecker
         {
             // If the version could not be determined please change the logic here to check for the correct version
             AnsiConsole.MarkupLine(
-                $"[{outputMessageColor}].NET '[bold]{displayName}[/]' is installed but not in the expected version. Please run '[bold]dotnet workload update[/]'.[/]");
+                $"[red].NET '[bold]{displayName}[/]' is installed but not in the expected version. Please run '[bold]dotnet workload update[/]'.[/]");
 
-            ExitIfRequired(isRequired);
+            return false;
         }
+
+        return true;
     }
 
-    private static void ExitIfRequired(bool isRequired)
+    private static bool IsEnvironmentVariableSet(string variableName)
     {
-        if (isRequired)
+        if (Environment.GetEnvironmentVariable(variableName) is not null) return true;
+
+
+        if (Configuration.IsMacOs)
         {
-            Environment.Exit(1);
+            var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
+
+            if (fileContent.Contains($"export {variableName}"))
+            {
+                AnsiConsole.MarkupLine(
+                    $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]");
+                return false;
+            }
         }
-    }
-
-    private static void EnsureEnvironmentVariableIsConfigured(string variableName)
-    {
-        if (Environment.GetEnvironmentVariable(variableName) is not null) return;
-
-        if (Configuration.IsWindows) return;
-
-        var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
-        if (!fileContent.Contains($"export {variableName}")) return;
 
         AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]");
-        Environment.Exit(0);
+            $"[red]'{variableName}' is not configured. Please run '[bold]{AliasRegistration.AliasName} {ConfigureDeveloperEnvironmentCommand.CommandName}[/] and restart the terminal'[/]");
+
+        return false;
     }
 }
