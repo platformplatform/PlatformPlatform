@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
@@ -27,7 +25,7 @@ public static class Configuration
 
     public static bool VerboseLogging { get; set; }
 
-    private static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
+    public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
 
     public static string GetSourceCodeFolder()
     {
@@ -84,25 +82,36 @@ public static class Configuration
 
     public static class Windows
     {
+        private const char PathDelimiter = ';';
+        private const string PathName = "PATH";
         public static readonly string LocalhostPfxWindows = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
-        internal static bool IsFolderInPath(string path)
+        internal static bool IsFolderInPath(string folder)
         {
-            var paths = Environment.GetEnvironmentVariable("PATH")!.Split(';');
-            return paths.Contains(path);
+            var paths = Environment.GetEnvironmentVariable(PathName)!.Split(PathDelimiter);
+            return paths.Contains(folder);
         }
 
-        public static void AddFolderToPath(string publishFolder)
+        public static void AddFolderToPath(string folder)
         {
-            var arguments = $"/c setx PATH \"%PATH%;{publishFolder}\"";
-            ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            });
+            if (IsFolderInPath(folder)) return;
+            var existingPath = Environment.GetEnvironmentVariable(PathName)!;
+            var newPath = existingPath.EndsWith(PathDelimiter)
+                ? $"{existingPath}{folder}{PathDelimiter}"
+                : $"{existingPath}{PathDelimiter}{folder}{PathDelimiter}";
+
+            Environment.SetEnvironmentVariable(PathName, newPath, EnvironmentVariableTarget.User);
+        }
+
+        public static void RemoveFolderFromPath(string folder)
+        {
+            // Get existing PATH on Windows
+            var existingPath = Environment.GetEnvironmentVariable(PathName);
+
+            // Remove the from the PATH environment variable and replace any double ;; left behind
+            var newPath = existingPath!.Replace(folder, string.Empty).Replace(";;", ";");
+
+            Environment.SetEnvironmentVariable(PathName, newPath, EnvironmentVariableTarget.User);
         }
     }
 
@@ -110,7 +119,13 @@ public static class Configuration
     {
         public static readonly string LocalhostPfxMacOs = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
-        internal static bool IsAliasRegisteredMacOs(string processName)
+        private static string CliPath =>
+            Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
+
+        private static string AliasLineRepresentation => $"alias {AliasRegistration.AliasName}='{CliPath}'";
+
+
+        internal static bool IsAliasRegisteredMacOs()
         {
             if (!File.Exists(GetShellInfo().ProfilePath))
             {
@@ -118,14 +133,10 @@ public static class Configuration
                 return false;
             }
 
-            return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line =>
-                line.StartsWith("alias ") &&
-                line.Contains(PublishFolder) &&
-                line.Contains(processName)
-            );
+            return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line => line == AliasLineRepresentation);
         }
 
-        internal static void RegisterAliasMacOs(string aliasName, string filename)
+        internal static void RegisterAliasMacOs()
         {
             if (!File.Exists(GetShellInfo().ProfilePath))
             {
@@ -133,10 +144,28 @@ public static class Configuration
                 return;
             }
 
-            File.AppendAllText(GetShellInfo().ProfilePath,
-                $"{Environment.NewLine}alias {aliasName}='{filename}'{Environment.NewLine}");
+            File.AppendAllLines(GetShellInfo().ProfilePath, new[] { AliasLineRepresentation });
             AnsiConsole.MarkupLine(
                 $"Please restart your terminal or run [green]source ~/{GetShellInfo().ProfileName}[/]");
+        }
+
+        public static void DeleteAlias()
+        {
+            DeleteLineFromProfile(AliasLineRepresentation);
+        }
+
+        public static void DeleteEnvironmentVariable(string variableName)
+        {
+            DeleteLineFromProfile($"export {variableName}='{Environment.GetEnvironmentVariable(variableName)}'");
+        }
+
+        private static void DeleteLineFromProfile(string lineRepresentation)
+        {
+            var profilePath = GetShellInfo().ProfilePath;
+            var tempFilePath = profilePath + ".tmp";
+            var linesToKeep = File.ReadLines(profilePath).Where(l => !l.Contains(lineRepresentation)).ToArray();
+            File.WriteAllLines(tempFilePath, linesToKeep);
+            File.Replace(tempFilePath, profilePath, null);
         }
 
         public static (string ShellName, string ProfileName, string ProfilePath) GetShellInfo()

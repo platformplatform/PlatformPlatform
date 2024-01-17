@@ -39,7 +39,6 @@ public static class AliasRegistration
 
          """;
 
-
     internal static void EnsureAliasIsRegistered()
     {
         if (IsAliasRegistered()) return;
@@ -51,7 +50,7 @@ public static class AliasRegistration
                 $"This will register the alias '[green]{AliasName}[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
-            RegisterAlias(AliasName);
+            RegisterAlias();
         }
 
         if (AnsiConsole.Confirm(
@@ -72,20 +71,18 @@ public static class AliasRegistration
 
         return Configuration.IsWindows
             ? Configuration.Windows.IsFolderInPath(Configuration.PublishFolder)
-            : Configuration.MacOs.IsAliasRegisteredMacOs(processName);
+            : Configuration.MacOs.IsAliasRegisteredMacOs();
     }
 
-    private static void RegisterAlias(string aliasName)
+    private static void RegisterAlias()
     {
-        var cliExecutable = Path.Combine(Configuration.PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
-
         if (Configuration.IsWindows)
         {
             Configuration.Windows.AddFolderToPath(Configuration.PublishFolder);
         }
         else if (Configuration.IsMacOs)
         {
-            Configuration.MacOs.RegisterAliasMacOs(aliasName, cliExecutable);
+            Configuration.MacOs.RegisterAliasMacOs();
         }
     }
 }

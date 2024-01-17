@@ -25,7 +25,7 @@ public static class ChangeDetection
         if (isDebugBuild) return;
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+        AnsiConsole.MarkupLine("[green]The CLI was successfully updated. Please rerun the command.[/]");
         AnsiConsole.WriteLine();
         Environment.Exit(0);
     }
