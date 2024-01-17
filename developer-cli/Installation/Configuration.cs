@@ -145,8 +145,6 @@ public static class Configuration
             }
 
             File.AppendAllLines(GetShellInfo().ProfilePath, new[] { AliasLineRepresentation });
-            AnsiConsole.MarkupLine(
-                $"Please restart your terminal or run [green]source ~/{GetShellInfo().ProfileName}[/]");
         }
 
         public static void DeleteAlias()

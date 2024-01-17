@@ -61,14 +61,23 @@ public static class AliasRegistration
             command.Invoke(Array.Empty<string>());
         }
 
+        if (Configuration.IsWindows)
+        {
+            AnsiConsole.MarkupLine(
+                "Please restart your terminal to update your PATH and environment variables.");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine(
+                $"Please restart your terminal to update your PATH and environment variables (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/]).");
+        }
+
         // Kill the current process
         Environment.Exit(0);
     }
 
     private static bool IsAliasRegistered()
     {
-        var processName = new FileInfo(Environment.ProcessPath!).Name;
-
         return Configuration.IsWindows
             ? Configuration.Windows.IsFolderInPath(Configuration.PublishFolder)
             : Configuration.MacOs.IsAliasRegisteredMacOs();
