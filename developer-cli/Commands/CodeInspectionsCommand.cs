@@ -1,23 +1,25 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class CodeInspections : Command
+public class CodeInspectionsCommand : Command
 {
-    public CodeInspections() : base("code-inspections", "Run JetBrains Code Inspections")
+    public CodeInspectionsCommand() : base("code-inspections", "Run JetBrains Code Inspections")
     {
         Handler = CommandHandler.Create(Execute);
     }
 
     private int Execute()
     {
-        var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
+        PrerequisitesChecker.Check("node", "yarn");
+
+        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
 

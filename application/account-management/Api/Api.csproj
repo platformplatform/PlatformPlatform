@@ -24,8 +24,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NSwag.MSBuild">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
@@ -41,8 +41,8 @@
     </ItemGroup>
 
     <PropertyGroup>
-         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-     </PropertyGroup>
+        <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    </PropertyGroup>
 
     <Target Name="NSwag" AfterTargets="PostBuildEvent">
         <Exec

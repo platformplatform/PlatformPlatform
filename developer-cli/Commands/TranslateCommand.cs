@@ -7,19 +7,18 @@ using OllamaSharp.Models;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class Translate : Command
+public class TranslateCommand : Command
 {
     private const string InstanceName = "platform-platform-ollama";
     private const string DockerImageName = "ollama/ollama";
     private const int Port = 11434;
     private const string ModelName = "llama2";
 
-    public Translate() : base(
+    public TranslateCommand() : base(
         "translate",
         $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}")
     {
@@ -35,7 +34,8 @@ public class Translate : Command
 
     private async Task<int> Execute(string? language)
     {
-        PrerequisitesChecker.CheckCommandLineTool("docker", "Docker", new Version(24, 0), true);
+        PrerequisitesChecker.Check("docker");
+
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try
         {
@@ -60,7 +60,8 @@ public class Translate : Command
 
     private string GetTranslationFile(string? language)
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Environment.SolutionFolder, "..", "application"));
+        var workingDirectory =
+            new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
         var translationFiles = workingDirectory
             .GetFiles("*.po", SearchOption.AllDirectories)
             .Where(f => !f.FullName.Contains("node_modules") &&

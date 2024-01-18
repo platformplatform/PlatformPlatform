@@ -8,37 +8,33 @@ public static class ChangeDetection
 {
     internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
     {
-        if (Environment.IsWindows)
+        if (Configuration.IsWindows)
         {
             // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
             // We delete the previous executable the next time the process is started
-            File.Delete(System.Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
+            File.Delete(Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
         }
 
-        var hashFile = Path.Combine(Environment.PublishFolder, "source-file-hash.md5");
-        var storedHash = File.Exists(hashFile) ? File.ReadAllText(hashFile) : "";
         var currentHash = CalculateMd5HashForSolution();
-        if (currentHash == storedHash) return;
+        if (currentHash == Configuration.GetConfigurationSetting().Hash) return;
 
-        PublishDeveloperCli();
-
-        // Update the hash file to avoid restarting the process again
-        File.WriteAllText(hashFile, currentHash);
+        PublishDeveloperCli(currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
-        var isDebugBuild = new FileInfo(System.Environment.ProcessPath!).FullName.Contains("debug");
+        var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[green]CLI successfully updated. Please rerun the command.[/]");
+        AnsiConsole.MarkupLine("[green]The CLI was successfully updated. Please rerun the command.[/]");
         AnsiConsole.WriteLine();
-        System.Environment.Exit(0);
+        Environment.Exit(0);
     }
 
     private static string CalculateMd5HashForSolution()
     {
         // Get all files C# and C# project files in the Developer CLI solution
-        var solutionFiles = Directory.EnumerateFiles(Environment.SolutionFolder, "*.cs*", SearchOption.AllDirectories)
+        var solutionFiles = Directory
+            .EnumerateFiles(Configuration.GetSourceCodeFolder(), "*.cs*", SearchOption.AllDirectories)
             .Where(f => !f.Contains("artifacts"))
             .ToList();
 
@@ -56,19 +52,19 @@ public static class ChangeDetection
         return BitConverter.ToString(sha256.ComputeHash(combinedStream));
     }
 
-    private static void PublishDeveloperCli()
+    private static void PublishDeveloperCli(string currentHash)
     {
         AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
 
-        var currentExecutablePath = System.Environment.ProcessPath!;
+        var currentExecutablePath = Environment.ProcessPath!;
         var renamedExecutablePath = "";
 
         try
         {
             // Build project before renaming exe on Windows
-            ProcessHelper.StartProcess("dotnet build", Environment.SolutionFolder);
+            ProcessHelper.StartProcess("dotnet build", Configuration.GetSourceCodeFolder());
 
-            if (Environment.IsWindows)
+            if (Configuration.IsWindows)
             {
                 // In Windows the executing assembly is locked by the process, blocking overwriting it, but not renaming
                 // We rename the current executable to .previous.exe to unblock publishing of new executable
@@ -77,12 +73,18 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess("dotnet publish", Environment.SolutionFolder);
+            ProcessHelper.StartProcess($"dotnet publish DeveloperCli.csproj -o {Configuration.PublishFolder}",
+                Configuration.GetSourceCodeFolder());
+
+            var configurationSetting = Configuration.GetConfigurationSetting();
+            configurationSetting.SourceCodeFolder = Configuration.GetSourceCodeFolder();
+            configurationSetting.Hash = currentHash;
+            Configuration.SaveConfigurationSetting(configurationSetting);
         }
         catch (Exception e)
         {
             AnsiConsole.MarkupLine($"[red]Failed to publish new CLI. Please run 'dotnet run' to fix. {e.Message}[/]");
-            System.Environment.Exit(0);
+            Environment.Exit(0);
         }
         finally
         {

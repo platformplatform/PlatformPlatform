@@ -1,16 +1,16 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
-using Environment = PlatformPlatform.DeveloperCli.Installation.Environment;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class BuildSystem : Command
+public class BuildCommand : Command
 {
-    public BuildSystem() : base("build", "Builds a self-contained system")
+    public BuildCommand() : base("build", "Builds a self-contained system")
     {
         var solutionNameOption = new Option<string?>(
             ["<solution-name>", "--solution-name", "-s"],
@@ -24,7 +24,9 @@ public class BuildSystem : Command
 
     private int Execute(string? solutionName)
     {
-        var workingDirectory = Path.Combine(Environment.SolutionFolder, "..", "application");
+        PrerequisitesChecker.Check("node", "yarn");
+
+        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         var solutionsFiles = Directory
             .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)

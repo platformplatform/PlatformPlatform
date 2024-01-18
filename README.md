@@ -32,55 +32,54 @@ Just getting off the ground, your star can help lift this higher! ⭐ Thanks!
 
 ### Setting up Developer Environment with one command
 
-PlatformPlatform is designed to support development on both Mac and Windows. The only prerequisites are the latest versions of:
+For development on both Mac and Windows, all you need is [.NET](https://dotnet.microsoft.com), [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/), [Docker Desktop](https://www.docker.com/products/docker-desktop/), [Node](https://nodejs.org/en), and [Yarn](https://yarnpkg.com/).
 
-- [.NET](https://dotnet.microsoft.com)
-- [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) (run `dotnet workload update` and then `dotnet workload install aspire`)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Node](https://nodejs.org/en)
-
-Please fork the repository, and install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running the following command:
+Then fork or clone this repository, install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running this command:
 
 ```bash
 cd developer-cli
-dotnet run
-
-# IMPORTANT: Restart your terminal after installing the CLI
+dotnet run # IMPORTANT: Restart the terminal and run "pp --help" to get started
 ```
 
-This will make the `pp` command globally available, and also set up your local environment with an SSL certificate for localhost, and a few environment variables for development.
+This will also set up your localhost with a SSL certificate for debugging, and a few environment variables.
 
-PlatformPlatform is built with the newly introduced [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/) to give a "F5 experience". Just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in [JetBrains Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) and run the [AppHost](/application/AppHost/AppHost.csproj) project. Or you can run the following command:
+When running the CLI, it will automatically detect changes and recompile, ensuring that it is always up to date. Also, this makes it a powerful way to build and share tools for your team.
 
+Now spin up an SQL Server in Docker, the .NET Minimal API, and the React frontend with the following command:
 
 ```bash
-cd application/AppHost
-dotnet run
-
-# Open https://localhost:8001 for the Aspire Dashboard
-# Open https://localhost:8443 for the WebApp
+pp run # The Aspire Dashboard and WebApp will automatically open in your browser when ready
 ```
+
+To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in [Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) and run the [AppHost](/application/AppHost/AppHost.csproj) project.
 
 ### Setting up CI/CD with passwordless deployments from GitHub to Azure in minutes
 
-These are the prerequisites:
-
-- PlatformPlatform Developer CLI (see above)
-- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) (Mac: `brew install azure-cli`. Windows: `choco install azure-cli`)
-- [GitHub CLI](https://cli.github.com/) (Mac: `brew install gh`. Windows: `choco install gh`)
-- Owner permissions on the GitHub repository
-- A preferably empty [Azure Subscription](https://azure.microsoft.com/en-gb/free) with owner permissions
-- Permissions to create Service Principals and Active Directory User Groups in Microsoft Entra ID
-
-Then run the following command, which will guide you through the setup:
+With the CLI, you can run this command to set up GitHub to create both Azure Infrastructure and CI/CD. Just run the following command, which will guide you through the setup:
 
 ```bash
-pp setup-github-and-azure-workflow
+pp configure-continuous-deployments
 ```
 
-This will prompt for an Azure subscription and configure GitHub workflows to set up a full production-ready Staging and Production environment with domains, SSL certificates, and enterprise-grade secure infrastructure using Managed Identities instead of connection strings. A Service Principal will be used to set up OpenID Connect trusting the GitHub repository to do passwordless deployments (no passwords anywhere 🔒). Except for adding a DNS record, everything is fully automated. On top of that, it will set up continuous deployments of application code to Azure Container Apps.
+To run this command, you need to be the Owner of the GitHub repository and the Azure Subscription. You also need to install the [GitHub CLI](https://cli.github.com/) and the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), plus have permissions to create Service Principals and Active Directory User Groups in Microsoft Entra ID.
+
+The flow will prompt for an Azure subscription and configure GitHub workflows to set up a full production-ready Staging and Production environment with domains, SSL certificates, and enterprise-grade secure infrastructure using Managed Identities instead of connection strings. A Service Principal will be used to set up OpenID Connect, trusting the GitHub repository to do passwordless deployments (no passwords anywhere 🔒). Except for adding a DNS record, everything is fully automated. On top of that, it will set up continuous deployments of application code to Azure Container Apps.
 
 The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
+
+## Installing prerequisites
+
+### Windows
+
+- `[ ]  wsl --install` (Windows Subsystem for Linux)
+- `[ ]` Install [Chocolatey](https://chocolatey.org/install) 
+- `[ ]  choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
+- `[ ]  npm install --global yarn`
+
+### Mac
+- `[ ]` Install [Homebrew](https://brew.sh/).
+- `[ ]  brew install --cask dotnet-sdk`
+- `[ ]  brew install git docker node yarn azure-cli gh`
 
 ## Application Architecture
 
