@@ -195,15 +195,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
 
         if (Configuration.IsWindows)
         {
-            var arguments = $"/c setx {variableName} {variableValue}";
-            ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            });
+            Environment.SetEnvironmentVariable(variableName, variableValue, EnvironmentVariableTarget.User);
         }
         else if (Configuration.IsMacOs)
         {
