@@ -55,15 +55,19 @@ To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution i
 
 ### Setting up CI/CD with passwordless deployments from GitHub to Azure in minutes
 
-With the CLI, you can run this command to set up GitHub to create both Azure Infrastructure and CI/CD. Just run the following command, which will guide you through the setup:
+Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
 
 ```bash
-pp configure-continuous-deployments
+pp configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
 ```
 
-To run this command, you need to be the Owner of the GitHub repository and the Azure Subscription. You also need to install the [GitHub CLI](https://cli.github.com/) and the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli), plus have permissions to create Service Principals and Active Directory User Groups in Microsoft Entra ID.
+You need to be the owner of the GitHub repository and the Azure Subscription, plus have permissions to create Service Principals and Active Directory Groups. You also need to have the [GitHub CLI](https://cli.github.com/) and the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
-The flow will prompt for an Azure subscription and configure GitHub workflows to set up a full production-ready Staging and Production environment with domains, SSL certificates, and enterprise-grade secure infrastructure using Managed Identities instead of connection strings. A Service Principal will be used to set up OpenID Connect, trusting the GitHub repository to do passwordless deployments (no passwords anywhere 🔒). Except for adding a DNS record, everything is fully automated. On top of that, it will set up continuous deployments of application code to Azure Container Apps.
+The command will first prompt you to login to Azure and GitHub, and collect information. You will be presented with a complete list of changes before they are applied. It will look something like this:
+
+![Configure Continuous Deployments](https://platformplatformgithub.blob.core.windows.net/$root/ConfigureContinuousDeployments.png)
+
+Except for adding a DNS record, everything is fully automated. After successful setup, the command will provide simple instructions on how to configure branch policies, Sonar Cloud static code analysis, and more.
 
 The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
 
@@ -71,15 +75,22 @@ The infrastructure is configured with auto-scaling and hosting costs in focus. I
 
 ### Windows
 
-- `[ ]  wsl --install` (Windows Subsystem for Linux)
-- `[ ]` Install [Chocolatey](https://chocolatey.org/install) 
-- `[ ]  choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
-- `[ ]  npm install --global yarn`
+Open a PowerShell terminal as Administrator and run the following commands:
+
+- `wsl --install` (Windows Subsystem for Linux, required for Docker)
+- Install [Chocolatey](https://chocolatey.org/install) 
+- `choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
+- `npm install --global yarn`
+- `dotnet workload update` and `dotnet workload install aspire`
 
 ### Mac
-- `[ ]` Install [Homebrew](https://brew.sh/).
-- `[ ]  brew install --cask dotnet-sdk`
-- `[ ]  brew install git docker node yarn azure-cli gh`
+
+Open a terminal and run the following commands:
+
+- Install [Homebrew](https://brew.sh/).
+- `brew install --cask dotnet-sdk`
+- `brew install git docker node yarn azure-cli gh`
+- `dotnet workload update` and `dotnet workload install aspire`
 
 ## Application Architecture
 
