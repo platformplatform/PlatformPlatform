@@ -38,7 +38,7 @@ Then fork or clone this repository, install the [PlatformPlatform Developer CLI]
 
 ```bash
 cd developer-cli
-dotnet run # IMPORTANT: Restart the terminal and run "pp --help" to get started
+dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to get started
 ```
 
 This will also set up your localhost with a SSL certificate for debugging, and a few environment variables.

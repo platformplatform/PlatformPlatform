@@ -3,7 +3,8 @@ using System.Reflection;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
-ChangeDetection.EnsureCliIsCompiledWithLatestChanges(args);
+var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
+ChangeDetection.EnsureCliIsCompiledWithLatestChanges(isDebugBuild);
 
 if (!Configuration.IsMacOs && !Configuration.IsWindows)
 {
@@ -22,8 +23,6 @@ if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-
     AnsiConsole.Write(figletText);
 }
 
-AliasRegistration.EnsureAliasIsRegistered();
-
 var rootCommand = new RootCommand
 {
     Description = "Welcome to the PlatformPlatform Developer CLI!"
@@ -34,6 +33,12 @@ var allCommands = Assembly.GetExecutingAssembly().GetTypes()
     .Select(Activator.CreateInstance)
     .Cast<Command>()
     .ToList();
+
+if (!isDebugBuild)
+{
+    // Remove InstallCommand if isDebugBuild is false
+    allCommands.Remove(allCommands.First(c => c.Name == "install"));
+}
 
 allCommands.ForEach(rootCommand.AddCommand);
 
