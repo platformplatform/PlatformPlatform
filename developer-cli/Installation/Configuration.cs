@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,7 +22,7 @@ public static class Configuration
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".PlatformPlatform");
 
-    private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasRegistration.AliasName}.json");
+    private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
     public static bool VerboseLogging { get; set; }
 
@@ -122,7 +123,7 @@ public static class Configuration
         private static string CliPath =>
             Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
 
-        private static string AliasLineRepresentation => $"alias {AliasRegistration.AliasName}='{CliPath}'";
+        private static string AliasLineRepresentation => $"alias {AliasName}='{CliPath}'";
 
 
         internal static bool IsAliasRegisteredMacOs()
@@ -185,6 +186,8 @@ public static class Configuration
             return (shellName, profileName, profilePath);
         }
     }
+
+    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 }
 
 public class ConfigurationSetting

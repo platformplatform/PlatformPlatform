@@ -13,7 +13,7 @@ public class InstallCommand : Command
         $"""
          [green]Welcome to:[/]
          To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
-         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{AliasRegistration.AliasName}[/].
+         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{Configuration.AliasName}[/].
 
          [green]The CLI can be used to:[/]
          * Start all PlatformPlatform services locally in one command
@@ -35,13 +35,13 @@ public class InstallCommand : Command
          The CLI has several commands that you can run from anywhere on your machine.
          Each command is one C# class that can be customized to automate your own workflows.
          Each command check for its prerequisites (e.g., Docker, Node, Yarn, .NET Aspire, Azure CLI, etc.)
-         To remove the alias, just run [green]{AliasRegistration.AliasName} uninstall[/].
+         To remove the alias, just run [green]{Configuration.AliasName} uninstall[/].
 
          """;
 
     public InstallCommand() : base(
         "install",
-        $"This will register the alias {AliasRegistration.AliasName} so it will be available everywhere.")
+        $"This will register the alias {Configuration.AliasName} so it will be available everywhere.")
     {
         Handler = CommandHandler.Create(Execute);
     }
@@ -50,7 +50,7 @@ public class InstallCommand : Command
     {
         if (IsAliasRegistered())
         {
-            AnsiConsole.MarkupLine($"[yellow]The CLI is already installed please run {AliasRegistration.AliasName} to use it.[/]");
+            AnsiConsole.MarkupLine($"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]");
             return;
         }
 
@@ -58,7 +58,7 @@ public class InstallCommand : Command
         AnsiConsole.WriteLine();
 
         if (AnsiConsole.Confirm(
-                $"This will register the alias '[green]{AliasRegistration.AliasName}[/]', so it will be available everywhere."))
+                $"This will register the alias '[green]{Configuration.AliasName}[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
             RegisterAlias();
