@@ -3,7 +3,7 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
-var database = builder.AddSqlServerContainer("Default", sqlServerPassword, 1433)
+var database = builder.AddSqlServerContainer("Default", sqlServerPassword)
     .WithVolumeMount("sql-server-data", "/var/opt/mssql", VolumeMountType.Named)
     .AddDatabase("account-management");
 
