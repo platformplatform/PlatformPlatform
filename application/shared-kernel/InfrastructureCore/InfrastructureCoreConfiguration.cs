@@ -1,8 +1,8 @@
 using System.Net.Sockets;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
@@ -11,75 +11,35 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {
-    private static string? _cachedConnectionString;
-
     public static readonly bool SwaggerGenerator = Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true";
+
+    [UsedImplicitly]
+    public static IServiceCollection ConfigureDatabaseContext<T>(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder,
+        string connectionName
+    ) where T : DbContext
+    {
+        builder.AddSqlServerDbContext<T>(connectionName, static settings => settings.DbContextPooling = false);
+
+        return services;
+    }
 
     [UsedImplicitly]
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
         this IServiceCollection services,
-        IConfiguration configuration,
         Assembly assembly
     ) where T : DbContext
     {
-        services.ConfigureDatabaseContext<T>(configuration);
+        services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
+        services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
+            new DomainEventCollector(provider.GetRequiredService<T>()));
 
         services.RegisterRepositories(assembly);
 
         return services;
     }
 
-    [UsedImplicitly]
-    private static IServiceCollection ConfigureDatabaseContext<T>(
-        this IServiceCollection services,
-        IConfiguration configuration
-    ) where T : DbContext
-    {
-        services.AddDbContext<T>((_, options) => options.UseSqlServer(GetConnectionString(configuration)));
-
-        services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
-        services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
-            new DomainEventCollector(provider.GetRequiredService<T>()));
-
-        return services;
-    }
-
-    private static string GetConnectionString(IConfiguration configuration)
-    {
-        if (_cachedConnectionString is not null) return _cachedConnectionString;
-
-        var serverName = Environment.GetEnvironmentVariable("AZURE_SQL_SERVER_NAME");
-        var databaseName = Environment.GetEnvironmentVariable("AZURE_SQL_DATABASE_NAME");
-        var managedIdentityId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID");
-
-        var isRunningInAzure = serverName is not null && databaseName is not null && managedIdentityId is not null;
-        if (isRunningInAzure)
-        {
-            _cachedConnectionString = $"""
-                                       Server=tcp:{serverName}.database.windows.net,1433;
-                                       Initial Catalog={databaseName};
-                                       User Id={managedIdentityId};
-                                       Authentication=Active Directory Default;TrustServerCertificate=True;
-                                       """;
-        }
-        else
-        {
-            var connectionString = configuration.GetConnectionString("Default")
-                                   ?? throw new InvalidOperationException("Missing ConnectionString configuration.");
-
-            var password = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD")
-                           ?? throw new InvalidOperationException("Missing SQL_SERVER_PASSWORD environment variable.");
-
-            // When running in Docker (on localhost) the SQL Sever name is configured in the docker-compose.yml
-            var sqlServerName = Environment.GetEnvironmentVariable("SQL_SERVER_NAME") ?? "localhost";
-
-            _cachedConnectionString = connectionString
-                .Replace("${SQL_SERVER_NAME}", sqlServerName)
-                .Replace("${SQL_SERVER_PASSWORD}", password);
-        }
-
-        return _cachedConnectionString;
-    }
 
     [UsedImplicitly]
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
