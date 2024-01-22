@@ -56,7 +56,8 @@ export function Slider<T extends number | number[]>(
         {({ state, ...renderProps }) => (
           <>
             <div className={trackStyles(renderProps)} />
-            {state.values.map((_, i) => <SliderThumb key={i} index={i} aria-label={thumbLabels?.[i]} className={thumbStyles} />)}
+            {state.values.map((_, i) =>
+              <SliderThumb key={i} index={i} aria-label={thumbLabels?.[i]} className={thumbStyles} />)}
           </>
         )}
       </SliderTrack>

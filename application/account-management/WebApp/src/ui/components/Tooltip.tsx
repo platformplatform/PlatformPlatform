@@ -27,7 +27,11 @@ const styles = tv({
 
 export function Tooltip({ children, ...props }: Readonly<TooltipProps>) {
   return (
-    <AriaTooltip {...props} offset={10} className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className }))}>
+    <AriaTooltip
+      {...props}
+      offset={10}
+      className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className }))}
+    >
       <OverlayArrow>
         <svg width={8} height={8} viewBox="0 0 8 8" className="fill-slate-700 dark:fill-slate-600 forced-colors:fill-[Canvas] stroke-gray-800 dark:stroke-white/10 forced-colors:stroke-[ButtonBorder] group-placement-bottom:rotate-180 group-placement-left:-rotate-90 group-placement-right:rotate-90">
           <path d="M0 0 L4 4 L8 0" />

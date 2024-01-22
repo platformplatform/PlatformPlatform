@@ -21,6 +21,7 @@ module.exports = antfu({
       functions: "never",
     }],
     "style/jsx-one-expression-per-line": "off",
+    "style/jsx-closing-tag-location": "off",
     "style/max-len": ["error", {
       code: 120,
       ignoreComments: true,

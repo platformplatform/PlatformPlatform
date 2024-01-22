@@ -22,5 +22,12 @@ const styles = tv({
 });
 
 export function Link(props: Readonly<LinkProps>) {
-  return <AriaLink {...props} className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className, variant: props.variant }))} />;
+  return (
+    <AriaLink
+      {...props}
+      className={composeRenderProps(props.className, (className, renderProps) => {
+        return styles({ ...renderProps, className, variant: props.variant });
+      })}
+    />
+  );
 }

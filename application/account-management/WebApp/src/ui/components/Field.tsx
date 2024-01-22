@@ -40,7 +40,14 @@ export const fieldGroupStyles = tv({
 });
 
 export function FieldGroup(props: Readonly<GroupProps>) {
-  return <Group {...props} className={composeRenderProps(props.className, (className, renderProps) => fieldGroupStyles({ ...renderProps, className }))} />;
+  return (
+    <Group
+      {...props}
+      className={composeRenderProps(props.className, (className, renderProps) => {
+        return fieldGroupStyles({ ...renderProps, className });
+      })}
+    />
+  );
 }
 
 export function Input(props: Readonly<InputProps>) {

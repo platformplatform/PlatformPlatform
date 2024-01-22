@@ -55,7 +55,12 @@ const iconStyles = "w-4 h-4 text-white group-disabled:text-gray-400 dark:text-sl
 
 export function Checkbox(props: Readonly<CheckboxProps>) {
   return (
-    <AriaCheckbox {...props} className={composeRenderProps(props.className, (className, renderProps) => checkboxStyles({ ...renderProps, className }))}>
+    <AriaCheckbox
+      {...props}
+      className={composeRenderProps(props.className, (className, renderProps) => {
+        return checkboxStyles({ ...renderProps, className });
+      })}
+    >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>

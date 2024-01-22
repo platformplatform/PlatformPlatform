@@ -12,6 +12,8 @@ export const focusRing = tv({
   },
 });
 
-export function composeTailwindRenderProps<T>(className: string | ((v: T) => string) | undefined, tw: string): string | ((v: T) => string) {
+export type ComposeClass<T> = string | ((v: T) => string);
+
+export function composeTailwindRenderProps<T>(className: ComposeClass<T> | undefined, tw: string): ComposeClass<T> {
   return composeRenderProps(className, className => twMerge(tw, className));
 }
