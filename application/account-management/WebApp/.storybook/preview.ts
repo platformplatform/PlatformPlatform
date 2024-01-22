@@ -1,8 +1,8 @@
 import { themes } from "@storybook/theming";
-import "../src/index.css";
+import type { Preview } from "@storybook/react";
+import "../src/main.css";
 
-/** @type { import('@storybook/react').Preview } */
-const preview = {
+const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {

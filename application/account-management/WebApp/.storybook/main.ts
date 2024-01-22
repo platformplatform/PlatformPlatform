@@ -12,7 +12,6 @@ const excludedProps = new Set([
   "onInput",
 ]);
 
-/** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
   stories: [
     "../stories/**/*.mdx",
@@ -25,14 +24,16 @@ const config = {
     "@storybook/addon-interactions",
   ],
   framework: {
-    name: "@storybook/react-vite",
-    options: {},
+    name: "storybook-react-rspack",
+    options: {
+      fastRefresh: true,
+    },
   },
   docs: {
     autodocs: "tag",
   },
   typescript: {
-    reactDocgen: "react-docgen-typescript",
+    reactDocgen: "react-docgen",
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
       compilerOptions: {
