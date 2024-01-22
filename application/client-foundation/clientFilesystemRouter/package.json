@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@rspack/core": "^0.3.11",
     "react-router-dom": "^6.21.2"
   },
   "devDependencies": {

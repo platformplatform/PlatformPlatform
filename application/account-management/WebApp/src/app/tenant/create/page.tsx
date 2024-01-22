@@ -1,9 +1,12 @@
-import { Button, FieldError, Form, Input, Label, TextField } from "react-aria-components";
 import { useFormState } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import type { State } from "./actions";
 import { createTenant } from "./actions";
+import { Form } from "@/ui/components/Form";
+import { TextField } from "@/ui/components/TextField";
+import { FieldError, Input, Label } from "@/ui/components/Field";
+import { Button } from "@/ui/components/Button";
 
 export default function CreateTenantForm() {
   const initialState: State = { message: null, errors: {} };
@@ -24,7 +27,7 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Subdomain</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("subdomain")} />
+          <Input placeholder={i18n.t("subdomain")} />
           <FieldError />
         </TextField>
 
@@ -32,7 +35,7 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Name</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("name")} />
+          <Input placeholder={i18n.t("name")} />
           <FieldError />
         </TextField>
 
@@ -40,13 +43,10 @@ export default function CreateTenantForm() {
           <Label>
             <Trans>Email</Trans>
           </Label>
-          <Input className="p-2 rounded-md border border-black" placeholder={i18n.t("email")} />
+          <Input placeholder={i18n.t("email")} />
           <FieldError />
         </TextField>
-        <Button
-          type="submit"
-          className="bg-blue-600 p-2 rounded-md text-white text-sm border border-border shadow-lg hover:bg-slate-400 w-fit"
-        >
+        <Button type="submit" variant="primary">
           <Trans>Create account!</Trans>
         </Button>
       </div>
