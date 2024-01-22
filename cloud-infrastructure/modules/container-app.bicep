@@ -103,7 +103,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           env: [
             {
               name: 'ConnectionStrings__${sqlDatabaseName}'
-              value: 'Server=tcp:${sqlServerName}.${environment().sqlManagement},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
+              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
             }
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
