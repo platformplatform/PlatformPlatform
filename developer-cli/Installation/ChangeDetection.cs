@@ -6,7 +6,7 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 
 public static class ChangeDetection
 {
-    internal static void EnsureCliIsCompiledWithLatestChanges(string[] args)
+    internal static void EnsureCliIsCompiledWithLatestChanges(bool isDebugBuild)
     {
         if (Configuration.IsWindows)
         {
@@ -21,7 +21,6 @@ public static class ChangeDetection
         PublishDeveloperCli(currentHash);
 
         // When running in debug mode, we want to avoid restarting the process
-        var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
         if (isDebugBuild) return;
 
         AnsiConsole.WriteLine();

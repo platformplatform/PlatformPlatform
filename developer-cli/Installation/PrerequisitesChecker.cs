@@ -183,7 +183,7 @@ public static class PrerequisitesChecker
         }
 
         AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is not configured. Please run '[bold]{AliasRegistration.AliasName} {ConfigureDeveloperEnvironmentCommand.CommandName}[/] and restart the terminal'[/]");
+            $"[red]'{variableName}' is not configured. Please run '[bold]{Configuration.AliasName} {ConfigureDeveloperEnvironmentCommand.CommandName}[/] and restart the terminal'[/]");
 
         return false;
     }

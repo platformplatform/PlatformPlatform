@@ -26,7 +26,7 @@ Self-contained systems in PlatformPlatform are divided into four core projects f
          => await mediator.Send(command);
     ```
 
-3. `Application`: The Application layer consists of the use cases of the system implemented as MediatR commands and queries. Each command and query is a vertical slice of the system, containing all the logic needed to complete a task. This layer is also responsible for validation using FluentValidation. Here's an example showing the CreateUser command, its handler, and its validator. Note that the command, handler, and validator are all in the same file, using a static class. This aligns with the Single Responsibility Principle (SRP), making the code easy to understand and more maintainable.
+3. `Application`: The Application layer consists of the use cases of the system implemented as MediatR commands and queries. Each command and query is a vertical slice of the system, containing all the logic needed to complete a task. This layer is also responsible for validation using FluentValidation. Here's an example showing the CreateUser command, its handler, and its validator. Note that the command, handler, and validator are all in the same file. This aligns with the Single Responsibility Principle (SRP), making the code easy to understand and more maintainable.
 
     ```csharp
     public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole)
@@ -113,7 +113,7 @@ Below is a visual representation of the layers. An important constraint is that 
   <img src="https://platformplatformgithub.blob.core.windows.net/CleanArchitecture.png" alt="Clean Architecture">
 </p>
 
-Tests for the Account Management system are conducted using xUnit, with SQLite for in-memory database testing. The tests can be run directly in JetBrains Rider, Visual Studio, or with the `dotnet test` command. The tests focus on the behavior of the system, not the implementation details. In fact, over 90% code coverage is achieved by testing only the API.
+Tests for the Account Management system are conducted using xUnit, with SQLite for in-memory database testing. The tests can be run directly in JetBrains Rider, Visual Studio, or with the `pp test` command. The tests focus on the behavior of the system, not the implementation details. This is done by focusing on testing the API instead of Application and Domain classes when possible.
 
 ## Shared Kernel
 
@@ -125,7 +125,7 @@ The Shared Kernel is divided into four core projects that align with the DDD and
 
 2. `ApplicationCore`: Houses common functionalities for the Application layer, like MediatR behaviour pipelines for UnitOfWork, Validation, publishing domain events, and a base class for MediatR commands and queries.
 
-3. `DomainCore`: Contains base classes for tactically implementing DDD patterns like AggregateRoot, Entity, ValueObject, DomainEvent, etc. It also contains a base class for strongly typed ID, and unique chronological ID generation.
+3. `DomainCore`: Contains base classes for tactically implementing DDD patterns like AggregateRoot, Entity, Repository, DomainEvent, etc. It also contains a base class for strongly typed ID, and unique chronological ID generation.
 
 4. `InfrastructureCore`: Holds shared functionality for the Infrastructure layer like Entity framework core helpers like RepositoryBase, logic to ensure entities timestamp are updated, that enums are saved as strings, configuration helpers, and more.
 

@@ -1,19 +1,19 @@
 using System.CommandLine;
-using System.Reflection;
-using PlatformPlatform.DeveloperCli.Commands;
+using System.CommandLine.NamingConventionBinder;
+using JetBrains.Annotations;
+using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Installation;
+namespace PlatformPlatform.DeveloperCli.Commands;
 
-public static class AliasRegistration
+[UsedImplicitly]
+public class InstallCommand : Command
 {
-    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
-
     private static readonly string Intro =
         $"""
          [green]Welcome to:[/]
          To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
-         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{AliasName}[/].
+         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{Configuration.AliasName}[/].
 
          [green]The CLI can be used to:[/]
          * Start all PlatformPlatform services locally in one command
@@ -35,19 +35,30 @@ public static class AliasRegistration
          The CLI has several commands that you can run from anywhere on your machine.
          Each command is one C# class that can be customized to automate your own workflows.
          Each command check for its prerequisites (e.g., Docker, Node, Yarn, .NET Aspire, Azure CLI, etc.)
-         To remove the alias, just run [green]{AliasName} uninstall[/].
+         To remove the alias, just run [green]{Configuration.AliasName} uninstall[/].
 
          """;
 
-    internal static void EnsureAliasIsRegistered()
+    public InstallCommand() : base(
+        "install",
+        $"This will register the alias {Configuration.AliasName} so it will be available everywhere.")
     {
-        if (IsAliasRegistered()) return;
+        Handler = CommandHandler.Create(Execute);
+    }
+
+    private void Execute()
+    {
+        if (IsAliasRegistered())
+        {
+            AnsiConsole.MarkupLine($"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]");
+            return;
+        }
 
         AnsiConsole.Write(new Markup(Intro));
         AnsiConsole.WriteLine();
 
         if (AnsiConsole.Confirm(
-                $"This will register the alias '[green]{AliasName}[/]', so it will be available everywhere."))
+                $"This will register the alias '[green]{Configuration.AliasName}[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
             RegisterAlias();
@@ -71,9 +82,6 @@ public static class AliasRegistration
             AnsiConsole.MarkupLine(
                 $"Please restart your terminal to update your PATH and environment variables (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/]).");
         }
-
-        // Kill the current process
-        Environment.Exit(0);
     }
 
     private static bool IsAliasRegistered()

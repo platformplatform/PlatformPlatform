@@ -11,7 +11,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base(
         "uninstall",
-        $"Will remove the {AliasRegistration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD environment variables.")
+        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD environment variables.")
     {
         Handler = CommandHandler.Create(Execute);
     }
@@ -32,7 +32,7 @@ public class UninstallCommand : Command
              This will do the following:
              - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLi from the PATH (Windows)
              - Remove the CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD environment variables
-             - Delete the {Configuration.PublishFolder}/{AliasRegistration.AliasName}.* files
+             - Delete the {Configuration.PublishFolder}/{Configuration.AliasName}.* files
              - Remove the {Configuration.PublishFolder} folder if empty
 
              Are you sure you want to uninstall the PlatformPlatform Developer CLI?
@@ -90,7 +90,7 @@ public class UninstallCommand : Command
         if (!Directory.Exists(Configuration.PublishFolder)) return;
 
         // Multiple CLIs can be running side by side. Only delete the files belonging to the current version.
-        foreach (var file in Directory.GetFiles(Configuration.PublishFolder, $"{AliasRegistration.AliasName}.*"))
+        foreach (var file in Directory.GetFiles(Configuration.PublishFolder, $"{Configuration.AliasName}.*"))
         {
             File.Delete(file);
         }
