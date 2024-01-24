@@ -28,6 +28,35 @@ PlatformPlatform aims to showcase an end-to-end solution for building enterprise
 
 Just getting off the ground, your star can help lift this higher! ⭐ Thanks!
 
+## Inside Our Monorepo: A Quick Overview
+
+PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all application code, infrastructure, tools, libraries, documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber, Microsoft, etc.
+
+```bash
+.
+├── .github                # GitHub workflows for CI/CD, etc.
+├── application            # Contains the application source code
+│   ├── AppHost            # .NET Aspire Project for starting API, WebApp, SQL Server, etc.
+│   ├── account-management # A self-contained system with SaaS features (DDD, CQRS, Clean Architecture)
+│   │   ├── Api            # Presentation layer exposing the API to WebApp or other clients
+│   │   ├── Application    # Use Case layer containing CQRS Command and Query handlers 
+│   │   ├── Domain         # Business logic containing DDD aggregates, entities, etc.
+│   │   ├── Infrastructure # Integrations for accessing external resources (e.g., database)
+│   │   ├── Tests          # Tests for the API, Application, Domain, and Infrastructure
+│   │   └── WebApp         # React SPA frontend using TypeScript and React Aria Components
+│   ├── shared-kernel      # Reusable components for all self-contained systems
+│   ├── [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
+│   └── [sysops]           # [Planned] A self-contained system for operations and support
+├── cloud-infrastructure   # Contains Bash and Bicep scripts (IaC) for Azure resources
+│   ├── cluster            # Scale units like production-west-eu, production-east-us, etc.
+│   ├── environment        # Shared resources like App Insights for all Production clusters
+│   ├── shared             # Azure Container Registry shared between all environments
+│   └── modules            # Reusable Bicep modules like Container App, SQL Server, etc.
+└── development-cli        # A .NET CLI tool for automating common developer tasks
+```
+
+** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation.
+
 ## Getting started 
 
 ### Setting up Developer Environment with one command
