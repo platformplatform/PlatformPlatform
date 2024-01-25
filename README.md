@@ -1,6 +1,4 @@
-<p align="center">
-  <i align="center">Kick-start the creation of production-ready multi-tenant SaaS solutions with enterprise-grade security 🚀</i>
-</p>
+![PlatformPlatform Resource Groups](https://platformplatformgithub.blob.core.windows.net/$root/GitHubTopBanner.png)
 
 <h4 align="center">
 
