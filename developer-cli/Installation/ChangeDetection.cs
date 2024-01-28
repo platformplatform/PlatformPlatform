@@ -72,7 +72,7 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess($"dotnet publish DeveloperCli.csproj -o {Configuration.PublishFolder}",
+            ProcessHelper.StartProcess($"dotnet publish DeveloperCli.csproj -o \"{Configuration.PublishFolder}\"",
                 Configuration.GetSourceCodeFolder());
 
             var configurationSetting = Configuration.GetConfigurationSetting();
