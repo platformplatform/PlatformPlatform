@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to the PlatformPlatform project! We appreciate your effort and contributions that will help improve the project. This document outlines the guidelines for contributing to the project.
 
-Before you start working on a contribution, we recommend discussing your ideas with the project maintainers by creating an issue. This ensures that your efforts align with the project's goals and that you won't spend time implementing something that may be rejected later. For small bug fixes and clear objective improvements, this step may not be necessary.
+Before you start working on a contribution, **we strongly recommend discussing your ideas with the project maintainers by [starting a discussion here](https://github.com/platformplatform/PlatformPlatform/discussions)**. This ensures that your efforts align with the project's goals and that you won't spend time implementing something that may be rejected later. We have strong opinions and uphold an high standard of quality for the project, so please be prepared to make changes to your contribution based on feedback from the maintainers. Pay special attention to Branch name and Commit messages guidelines below.
 
 Please note that all contributions to this project require signing our [Contributor License Agreement (CLA)](https://gist.github.com/platformplatformadmin/dcedb5be10888e216fb2a0c59435e44d). By signing the CLA, you grant PlatformPlatform the rights to your contributions, ensuring that we can continue to develop and distribute the project under the MIT License or potentially other licensing options. The CLA signing process is handled through [CLA Assistant](https://cla-assistant.io/). You will be prompted to sign the CLA when you submit a pull request.
 
@@ -20,12 +20,14 @@ Please note that all contributions to this project require signing our [Contribu
 
 6. **Commit Your Changes**: Stage and commit your changes with descriptive commit messages. Commit messages should be formulated as a sentence in present tense, but do not include the trailing dot. All commits must be signed with GPG. Please follow the [GitHub guide](https://docs.github.com/en/authentication/managing-commit-signature-verification) on setting up GPG signing.
 
-7. **Pull the Latest Changes from Upstream**: Before pushing your changes to your fork, pull the latest changes from the upstream repository to ensure that your changes are compatible with the current state of the project: `git pull upstream main`
+7. **Rebase with the Latest Changes from Upstream**: Before pushing your changes to your fork, pull and rebase the latest changes from the upstream repository to ensure that your changes are compatible with the current state of the project: `git pull upstream main`
 
 8. **Push Your Changes**: Push your changes to your fork on GitHub: `git push origin your-branch-name`
 
 9. **Submit a Pull Request**: Navigate to your fork on GitHub and click the "Compare & pull request" button to create a pull request. Fill out the pull request template with the necessary information and submit your request.
 
+Please note that we intend to merge pull-requests as fast as possible (preferably within 24 hours), so please be prepared to make prompt changes to your contribution based on feedback from the maintainers. To keep the commit history clean we may ask you to force push previous commits to your branch.
+
 ## Questions and Support
 
-If you have any questions or need help with the contribution process, feel free to [open an issue](https://github.com/platformplatform/PlatformPlatform/issues/new) in the PlatformPlatform repository.
+If you have any questions or need help with the contribution process, feel free to [start a discussion here](https://github.com/platformplatform/PlatformPlatform/discussions).
