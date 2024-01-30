@@ -1,6 +1,4 @@
-<p align="center">
-  <i align="center">Kick-start the creation of production-ready multi-tenant SaaS solutions with enterprise-grade security 🚀</i>
-</p>
+![PlatformPlatform Resource Groups](https://platformplatformgithub.blob.core.windows.net/$root/GitHubTopBanner.png)
 
 <h4 align="center">
 
@@ -24,34 +22,67 @@
 
 ## 👋 Welcome to PlatformPlatform
 
-PlatformPlatform aims to showcase an end-to-end solution for building enterprise-grade multi-tenant application using Azure, .NET, React, Infrastructure as Code, GitHub workflows, and more. The roadmap includes features such as Single Sign-On (SSO), subscription management, usage tracking, feature flags, A/B testing, rate limiting, multi-region, disaster recovery, localization, accessibility, and much more. Follow the [continuously updated roadmap here](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
+Craft top-tier B2B & B2C SaaS products with sleek design, fully accessible, clean architecture, automated and fast DevOps, top-notch security, and a premier developer experience. All in one place – at zero cost.
 
-Just getting off the ground, your star can help lift this higher! ⭐ Thanks!
+Easily start with [one command](#setting-up-cicd-with-passwordless-deployments-from-github-to-azure-in-minutes). Answer a few questions and sit back while your product is launched on a custom domain with SSL, full CI/CD workflows, staging & production environments. All for less than $2 daily per cluster.
 
-## Getting started 
+It's still early days, but you'll soon be ready to use PlatformPlatform. Follow our always [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2), with features like SSO, Usage Tracking, Audit Logs, Multi-Region, Health Checks, Localization, Feature Flags, and more.
+
+Show your support for our project – star us on GitHub! Thank you for the love! ⭐
+
+## Inside Our Monorepo: A Quick Overview
+
+PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all application code, infrastructure, tools, libraries, documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber, Microsoft, etc.
+
+```bash
+.
+├── .github                # GitHub workflows for CI/CD, etc.
+├── application            # Contains the application source code
+│   ├── AppHost            # .NET Aspire Project for starting API, WebApp, SQL Server, etc.
+│   ├── account-management # A self-contained system with SaaS features (DDD, CQRS, Clean Architecture)
+│   │   ├── Api            # Presentation layer exposing the API to WebApp or other clients
+│   │   ├── Application    # Use Case layer containing CQRS Command and Query handlers 
+│   │   ├── Domain         # Business logic containing DDD aggregates, entities, etc.
+│   │   ├── Infrastructure # Integrations for accessing external resources (e.g., database)
+│   │   ├── Tests          # Tests for the API, Application, Domain, and Infrastructure
+│   │   └── WebApp         # React SPA frontend using TypeScript and React Aria Components
+│   ├── shared-kernel      # Reusable components for all self-contained systems
+│   ├── [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
+│   └── [sysops]           # [Planned] A self-contained system for operations and support
+├── cloud-infrastructure   # Contains Bash and Bicep scripts (IaC) for Azure resources
+│   ├── cluster            # Scale units like production-west-eu, production-east-us, etc.
+│   ├── environment        # Shared resources like App Insights for all Production clusters
+│   ├── shared             # Azure Container Registry shared between all environments
+│   └── modules            # Reusable Bicep modules like Container App, SQL Server, etc.
+└── development-cli        # A .NET CLI tool for automating common developer tasks
+```
+
+** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation.
+
+## Getting Started 
 
 ### Setting up Developer Environment with one command
 
-For development on both Mac and Windows, all you need is [.NET](https://dotnet.microsoft.com), [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/), [Docker Desktop](https://www.docker.com/products/docker-desktop/), [Node](https://nodejs.org/en), and [Yarn](https://yarnpkg.com/).
+For development you just need .NET, Aspire, Docker, Node, and Yarn. See [prerequisites](#installing-prerequisites) for Mac and Windows.
 
 Then fork or clone this repository, install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running this command:
 
 ```bash
 cd developer-cli
-dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to get started
+dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to confirm installation
 ```
 
 This will also set up your localhost with a SSL certificate for debugging, and a few environment variables.
 
-When running the CLI, it will automatically detect changes and recompile, ensuring that it is always up to date. Also, this makes it a powerful way to build and share tools for your team.
+When running the CLI, it will automatically detect changes and recompile, ensuring that it is always up to date. This makes it a powerful way to build and share tools for your team.
 
-Now spin up an SQL Server in Docker, the .NET Minimal API, and the React frontend with the following command:
+Run the following command to spin up the .NET Minimal API, the React frontend, and an SQL Server in Docker:
 
 ```bash
 pp run # The Aspire Dashboard and WebApp will automatically open in your browser when ready
 ```
 
-To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in [Rider](https://www.jetbrains.com/rider) or [Visual Studio](https://visualstudio.microsoft.com) and run the [AppHost](/application/AppHost/AppHost.csproj) project.
+To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [AppHost](/application/AppHost/AppHost.csproj) project.
 
 ### Setting up CI/CD with passwordless deployments from GitHub to Azure in minutes
 
@@ -71,7 +102,7 @@ Except for adding a DNS record, everything is fully automated. After successful 
 
 The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
 
-## Installing prerequisites
+## Installing Prerequisites
 
 ### Windows
 
@@ -94,7 +125,7 @@ Open a terminal and run the following commands:
 
 ## Application Architecture
 
-### .NET 8 backend with Clean Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 8 Backend With Clean Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
@@ -126,7 +157,7 @@ Although some features like authentication and multi-tenancy are not yet impleme
 
 </details>
 
-### React frontend with TypeScript, React Aria Components, and Node
+### React Frontend With TypeScript, React Aria Components, and Node
 
 The frontend is built with these technologies:
 
@@ -137,7 +168,7 @@ The frontend is built with these technologies:
 
 ## Cloud Architecture
 
-### Azure cloud infrastructure with enterprise-grade security and zero secrets
+### Azure Cloud Infrastructure With Enterprise-Grade Security and Zero Secrets
 
 PlatformPlatform's cloud infrastructure is built using the latest Azure Platform as a Service (PaaS) technologies:
 
@@ -172,7 +203,7 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 
 </details>
 
-### GitHub SDLC for passwordless deploying application and infrastructure in minutes
+### GitHub SDLC for Passwordless Deploying Application and Infrastructure in Minutes
 
 PlatformPlatform is built on a solid foundation for a modern software development lifecycle (SDLC):
 

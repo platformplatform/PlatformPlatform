@@ -4,14 +4,22 @@
 
 The security of our project is a top priority. We appreciate the contributions of our community in identifying potential vulnerabilities and helping us maintain a secure environment. This policy outlines the steps we will take to ensure the security of our project and provides guidance on how to report any security concerns.
 
-## Supported Versions
+## Reporting a Vulnerability
 
-This project is currently in the Alpha stage. Before releasing version 1.0, our team will perform comprehensive security hardening. Our plans include, but are not limited to:
+If you encounter or suspect any security issues, please [use this form to create a new security advisory](https://github.com/platformplatform/PlatformPlatform/security/advisories). We take all reports seriously and will respond promptly.
 
-1. Implementing Static Code Analysis within pull request workflows
-2. Integrating Open Source vulnerability and license scanning tools
-3. Resolving all security warnings and alerts in Azure
-4. Engaging professional penetration testing services
+## Responsible Disclosure Policy
+
+We support responsible disclosure practices. Please allow us a reasonable timeframe to address vulnerabilities before public disclosure. In return, we commit to acknowledging your contribution and collaborating to resolve issues quickly.
+
+## Security Roadmap
+
+PlatformPlatform is currently in the early stage. We're proactively working towards strengthening our security posture. Our ongoing efforts include:
+
+1. Engaging professional penetration testing services
+2. Implementing Static Code Analysis within pull request workflows
+3. Integrating Open Source vulnerability and license scanning tools
+4. Resolving all security warnings and alerts in Azure
 5. Ensuring secure coding practices are followed
 6. Conducting regular security audits and assessments
 7. Developing and implementing an incident response plan
@@ -19,23 +27,6 @@ This project is currently in the Alpha stage. Before releasing version 1.0, our 
 9. Monitoring and logging all activities for potential security threats
 10. Utilizing encryption for sensitive data
 
-## Reporting a Vulnerability
-
-Should you discover or suspect any security concerns, please contact us immediately by sending an email to security@platformplatform.net.
-
-We treat all security findings as critical issues and will take prompt action to address them. When reporting a vulnerability, please provide the following information:
-
-1. A detailed description of the vulnerability
-2. Steps to reproduce the issue, if possible
-3. Potential impact and severity of the vulnerability
-4. Any known workarounds or mitigations
-
-We appreciate your discretion and ask that you do not publicly disclose the vulnerability until we have had the opportunity to investigate and address it.
-
-## Responsible Disclosure Policy
-
-We support responsible disclosure practices and ask that you provide us with a reasonable timeframe to fix any identified vulnerabilities before disclosing them publicly. In return, we commit to acknowledging your contribution and working with you to ensure that the vulnerability is addressed as quickly as possible.
-
 ## Security Pledge
 
-We appreciate your assistance in making our project more secure and will work diligently to address any vulnerabilities identified by our community.
+We are dedicated to making our project more secure and greatly appreciate your help in this effort. Your assistance is invaluable in maintaining a safe environment for our community.
