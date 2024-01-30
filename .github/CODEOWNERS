@@ -6,6 +6,3 @@
 
 # Site Reliability Team owns the 'cloud-infrastructure' directory
 /cloud-infrastructure/ @PlatformPlatform/Site-Reliability-Team
-
-# Account Team owns the 'account-management' directory
-/application/account-management/ @PlatformPlatform/Account-Team
