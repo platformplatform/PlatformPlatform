@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Switch } from "@/ui/components/Switch";
 
 const meta: Meta<typeof Switch> = {

@@ -1,6 +1,6 @@
-import type { Meta } from "@storybook/react";
 import { MoreHorizontal } from "lucide-react";
 import { MenuTrigger } from "react-aria-components";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { Menu, MenuItem, MenuSection, MenuSeparator } from "@/ui/components/Menu";
 

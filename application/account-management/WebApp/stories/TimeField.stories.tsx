@@ -1,5 +1,5 @@
-import type { Meta } from "@storybook/react";
 import { Form } from "react-aria-components";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { TimeField } from "@/ui/components/TimeField";
 

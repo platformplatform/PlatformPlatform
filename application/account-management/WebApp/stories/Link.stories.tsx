@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Link } from "@/ui/components/Link";
 
 const meta: Meta<typeof Link> = {

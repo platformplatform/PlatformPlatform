@@ -1,6 +1,6 @@
 import { BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { Group } from "react-aria-components";
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { Checkbox } from "@/ui/components/Checkbox";
 import { Separator } from "@/ui/components/Separator";

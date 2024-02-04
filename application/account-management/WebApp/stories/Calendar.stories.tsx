@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Calendar } from "@/ui/components/Calendar";
 
 const meta: Meta<typeof Calendar> = {

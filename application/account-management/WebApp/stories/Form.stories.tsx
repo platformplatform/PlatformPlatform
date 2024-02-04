@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { DateField } from "@/ui/components/DateField";
 import { Form } from "@/ui/components/Form";
