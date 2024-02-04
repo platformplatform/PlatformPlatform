@@ -1,5 +1,5 @@
-import type { Meta } from "@storybook/react";
 import { DialogTrigger } from "react-aria-components";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { Modal } from "@/ui/components/Modal";
 import { AlertDialog } from "@/ui/components/AlertDialog";

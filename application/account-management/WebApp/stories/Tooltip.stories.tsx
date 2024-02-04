@@ -1,6 +1,6 @@
-import type { Meta } from "@storybook/react";
 import { PrinterIcon, SaveIcon } from "lucide-react";
 import { TooltipTrigger } from "react-aria-components";
+import type { Meta } from "./Meta";
 import { Button } from "@/ui/components/Button";
 import { Tooltip } from "@/ui/components/Tooltip";
 

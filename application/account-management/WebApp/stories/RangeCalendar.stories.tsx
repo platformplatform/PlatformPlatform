@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { RangeCalendar } from "@/ui/components/RangeCalendar";
 
 const meta: Meta<typeof RangeCalendar> = {

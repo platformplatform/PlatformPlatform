@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Tag, TagGroup } from "@/ui/components/TagGroup";
 
 const meta: Meta<typeof Example> = {
@@ -7,6 +7,10 @@ const meta: Meta<typeof Example> = {
     layout: "centered",
   },
   tags: ["autodocs"],
+  args: {
+    label: "Ice cream flavor",
+    selectionMode: "single",
+  },
 };
 
 export default meta;
@@ -21,8 +25,3 @@ export function Example(args: any) {
     </TagGroup>
   );
 }
-
-Example.args = {
-  label: "Ice cream flavor",
-  selectionMode: "single",
-};

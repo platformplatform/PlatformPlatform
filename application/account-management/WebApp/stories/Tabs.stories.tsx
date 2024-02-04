@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { Tab, TabList, TabPanel, Tabs } from "@/ui/components/Tabs";
 
 const meta: Meta<typeof Tabs> = {

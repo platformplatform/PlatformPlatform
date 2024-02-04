@@ -1,4 +1,4 @@
-import type { Meta } from "@storybook/react";
+import type { Meta } from "./Meta";
 import { ListBox, ListBoxItem } from "@/ui/components/ListBox";
 
 const meta: Meta<typeof ListBox> = {
