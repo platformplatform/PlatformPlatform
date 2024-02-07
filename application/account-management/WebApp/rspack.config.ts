@@ -2,9 +2,7 @@ import os from "node:os";
 import { join, resolve } from "node:path";
 import process from "node:process";
 import type { Configuration } from "@rspack/core";
-import { DefinePlugin } from "@rspack/core";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import HtmlWebpackHarddiskPlugin from "html-webpack-harddisk-plugin";
+import { DefinePlugin, HtmlRspackPlugin } from "@rspack/core";
 import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesystem-router/rspack-plugin";
 
 const buildEnv: BuildEnv = {};
@@ -105,23 +103,17 @@ const configuration: Configuration = {
     ],
   },
   plugins: [
-    // eslint-disable-next-line ts/ban-ts-comment
-    // @ts-expect-error
-    new HtmlWebpackPlugin({
+    new HtmlRspackPlugin({
       template: "./public/index.html",
       meta: {
         runtimeEnv: "%ENCODED_RUNTIME_ENV%",
       },
-      alwaysWriteToDisk: true,
       publicPath: "%CDN_URL%",
     }),
     new DefinePlugin({
       "import.meta.build_env": JSON.stringify(buildEnv),
       "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
       "import.meta.env": "getApplicationEnvironment().env",
-    }),
-    new HtmlWebpackHarddiskPlugin({
-      outputPath,
     }),
     new ClientFilesystemRouterPlugin({
       dir: "src/app",
@@ -138,6 +130,12 @@ const configuration: Configuration = {
       options: {
         pfx: join(os.homedir(), ".aspnet", "https", "localhost.pfx"),
         passphrase: process.env.CERTIFICATE_PASSWORD,
+      },
+    },
+    devMiddleware: {
+      writeToDisk: (filename) => {
+        // Write index.html to disk so that the Api can serve it
+        return /index.html$/.test(filename);
       },
     },
   },
