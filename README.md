@@ -20,17 +20,120 @@
 
 </h4>
 
-## 👋 Welcome to PlatformPlatform
+# 👋 Welcome to PlatformPlatform
 
-Craft top-tier B2B & B2C SaaS products with sleek design, fully accessible, clean architecture, automated and fast DevOps, top-notch security, and a premier developer experience. All in one place – at zero cost.
+Drawing on our expertise building true enterprise-grade products with millions of daily users in highly regulated sectors like healthcare, finance, government, etc., we aim to help you create secure production-ready products.
 
-Easily start with [one command](#setting-up-cicd-with-passwordless-deployments-from-github-to-azure-in-minutes). Answer a few questions and sit back while your product is launched on a custom domain with SSL, full CI/CD workflows, staging & production environments. All for less than $2 daily per cluster.
+ Still alpha state, we’re developing a platform for SaaS products with features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, multi-region, feature flags, backoffice for support, and much more.  Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2). We minimize WiP, have short-lived branches and deploy multiple times daily.
 
-It's still early days, but you'll soon be ready to use PlatformPlatform. Follow our always [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2), with features like SSO, Usage Tracking, Audit Logs, Multi-Region, Health Checks, Localization, Feature Flags, and more.
+The platform is built on a modern .NET backend adhering to the principles of DDD, Clean Architecture, and CQRS. We are building a sleek localized React SPA frontend using TypeScript and a mature accessible design system. It includes automated CI/CD of both Application and Azure infrastructure, plus an extensible CLI for task automation.
 
-Show your support for our project – star us on GitHub! Thank you for the love! ⭐
+Show your support for our project – star us on GitHub! It truly means a lot! ⭐
 
-## Inside Our Monorepo: A Quick Overview
+This readme contains the following sections:
+* [Getting Started](#getting-started) - Simple steps to set up local development and continuous deployments to Azure
+* [Inside Our Monorepo](#inside-our-monorepo-a-quick-overview) - An overview of what's inside this repository
+* [Technologies](#technologies) - Overview of technologies for Backend, Frontend, Azure, and GitHub SDLC
+* [Screenshots](#screenshots) - A few screenshots of the GitHub workflows and Azure resources
+
+# Getting Started 
+
+## 1. Check prerequisites
+
+For development you need .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
+
+<details>
+
+<summary>Install prerequisites for Windows</summary>
+
+Open a PowerShell terminal as Administrator and run the following commands:
+
+- `wsl --install` (Windows Subsystem for Linux, required for Docker)
+- Install [Chocolatey](https://chocolatey.org/install), a package manager for Windows
+- `choco install git dotnet-sdk git docker-desktop nodejs azure-cli gh`
+- `npm install --global yarn`
+- `dotnet workload update` and `dotnet workload install aspire`
+
+</details>
+
+<details>
+
+<summary>Install prerequisites for Mac</summary>
+
+Open a terminal and run the following commands:
+
+- Install [Homebrew](https://brew.sh/), a package manager for Mac
+- `brew install --cask dotnet-sdk`
+- `brew install git docker node yarn azure-cli gh`
+- `dotnet workload update` and `dotnet workload install aspire`
+
+</details>
+
+## 2. Fork and clone the repository
+
+Forking is required to configure GitHub repository with continuous deployments to Azure ([step 5](#5-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
+
+Our clean commit history serves as a great learning and troubleshooting resource. We recommend you keep it 😃
+
+## 3. Install the developer CLI 
+
+PlatformPlatform comes with a lightweight developer CLI `pp` that e.g. will help you set up CI/CD in a few minutes. It's a powerful way for sharing tools on a team - the first step to an internal developer platform.
+
+```bash
+cd developer-cli
+dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to confirm installation
+```
+
+<details>
+
+<summary>Read more about how the Developer CLI works</summary>
+
+The CLI will automatically detect code changes and automatically recompile, ensuring that it is always up to date and in sync with the code base.
+
+Upon installing, you will be offered to set up an SSL certificate and a few environment variables for easy debugging.
+
+The CLI is published to `%LocalAppData%/PlatformPlatform` on Windows and `~/.platformplatform` on MacOS. It designed to run side-by-side, just change the `pp` to another alias in the [DeveloperCli.csproj](developer-cli/DeveloperCli.csproj) file.
+
+If you want to skip installing the CLI you can run the commands manually from the CLI folder like this:
+
+```bash
+cd developer-cli
+dotnet run [command-name] # e.g. `dotnet run code-cleanup` instead of `pp code-cleanup`
+```
+
+To uninstall the CLI, simply run `pp uninstall`.
+
+</details>
+
+## 4. Run the application locally
+
+Run the following command to spin up the .NET Minimal API, the React frontend, and an SQL Server in Docker:
+
+```bash
+pp run # The Aspire Dashboard and WebApp will automatically open in your browser when ready
+```
+
+To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [AppHost](/application/AppHost/AppHost.csproj) project.
+
+## 5. Set up CI/CD with passwordless deployments from GitHub to Azure
+
+Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
+
+```bash
+pp configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
+```
+
+You need to be the owner of the GitHub repository and the Azure Subscription, plus have permissions to create Service Principals and Active Directory Groups.
+
+The command will first prompt you to login to Azure and GitHub, and collect information. You will be presented with a complete list of changes before they are applied. It will look something like this:
+
+![Configure Continuous Deployments](https://platformplatformgithub.blob.core.windows.net/$root/ConfigureContinuousDeployments.png)
+
+Except for adding a DNS record, everything is fully automated. After successful setup, the command will provide simple instructions on how to configure branch policies, Sonar Cloud static code analysis, and more.
+
+The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
+
+# Inside Our Monorepo
 
 PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all application code, infrastructure, tools, libraries, documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber, Microsoft, etc.
 
@@ -59,71 +162,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation.
 
-## Getting Started 
-
-### Setting up Developer Environment with one command
-
-For development you just need .NET, Aspire, Docker, Node, and Yarn. See [prerequisites](#installing-prerequisites) for Mac and Windows.
-
-Then fork or clone this repository, install the [PlatformPlatform Developer CLI](/developer-cli/) called `pp` by running this command:
-
-```bash
-cd developer-cli
-dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to confirm installation
-```
-
-This will also set up your localhost with a SSL certificate for debugging, and a few environment variables.
-
-When running the CLI, it will automatically detect changes and recompile, ensuring that it is always up to date. This makes it a powerful way to build and share tools for your team.
-
-Run the following command to spin up the .NET Minimal API, the React frontend, and an SQL Server in Docker:
-
-```bash
-pp run # The Aspire Dashboard and WebApp will automatically open in your browser when ready
-```
-
-To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [AppHost](/application/AppHost/AppHost.csproj) project.
-
-### Setting up CI/CD with passwordless deployments from GitHub to Azure in minutes
-
-Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
-
-```bash
-pp configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
-```
-
-You need to be the owner of the GitHub repository and the Azure Subscription, plus have permissions to create Service Principals and Active Directory Groups. You also need to have the [GitHub CLI](https://cli.github.com/) and the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
-
-The command will first prompt you to login to Azure and GitHub, and collect information. You will be presented with a complete list of changes before they are applied. It will look something like this:
-
-![Configure Continuous Deployments](https://platformplatformgithub.blob.core.windows.net/$root/ConfigureContinuousDeployments.png)
-
-Except for adding a DNS record, everything is fully automated. After successful setup, the command will provide simple instructions on how to configure branch policies, Sonar Cloud static code analysis, and more.
-
-The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
-
-## Installing Prerequisites
-
-### Windows
-
-Open a PowerShell terminal as Administrator and run the following commands:
-
-- `wsl --install` (Windows Subsystem for Linux, required for Docker)
-- Install [Chocolatey](https://chocolatey.org/install) 
-- `choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
-- `npm install --global yarn`
-- `dotnet workload update` and `dotnet workload install aspire`
-
-### Mac
-
-Open a terminal and run the following commands:
-
-- Install [Homebrew](https://brew.sh/).
-- `brew install --cask dotnet-sdk`
-- `brew install git docker node yarn azure-cli gh`
-- `dotnet workload update` and `dotnet workload install aspire`
-
-## Application Architecture
+# Technologies
 
 ### .NET 8 Backend With Clean Architecture, DDD, CQRS, Minimal API, and Aspire
 
@@ -149,7 +188,7 @@ The backend is built using the most popular, mature, and commonly used technolog
 - **Screaming architecture**: The architecture is designed with namespaces (folders) per feature, making the concepts easily visible and expressive, rather than organizing the code by types like models and repositories.
 - **MediatR pipelines**: MediatR pipeline behaviors are used to ensure consistent handling of cross-cutting concerns like validation, unit of work, and handling of domain events.
 - **Strongly Typed IDs**: The codebase uses strongly typed IDs, which are a combination of the entity type and the entity ID. This is even at the outer API layer, and Swagger translates this to the underlying contract. This ensures type safety and consistency across the codebase.
-- **JetBrains Code style and Cleanup**: JetBrains Rider/ReSharper is used for code style and automatic cleanup (configured in `.editorconfig`), ensuring consistent code formatting. No need to discuss tabs vs. spaces anymore; Invalid formatting breaks the build.
+- **JetBrains Code style and Cleanup**: JetBrains Rider/ReSharper is used for code style and automatic cleanup (configured in `.DotSettings`), ensuring consistent code formatting. No need to discuss tabs vs. spaces anymore; Invalid formatting breaks the build.
 - **Monolith prepared for self-contained systems**: The codebase is organized into a monolith, but the architecture is prepared for splitting in to self-contained systems. A self-contained system is a large microservice (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large monolith and many small microservices. Unlike the popular backend-for-frontend (BFF) style with one shared frontend, this allows teams to work fully independently.
 - **Shared Kernel**: The codebase uses a shared kernel for all the boilerplate code required to build a clean codebase. The shared kernel ensures consistency between self-contained systems, e.g., enforcing tenant isolation, auditing, tracking, implementation of tactical DDD patterns like aggregate, entities, repository base, ID generation, etc.
 
@@ -165,8 +204,6 @@ The frontend is built with these technologies:
 - [TypeScript](https://www.typescriptlang.org)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
 - [Node](https://nodejs.org/en)
-
-## Cloud Architecture
 
 ### Azure Cloud Infrastructure With Enterprise-Grade Security and Zero Secrets
 
@@ -194,7 +231,7 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
   - **Federated credentials**: Deployment from GitHub to Azure is done using federated credentials, establishing a trust between the GitHub repository and Azure subscription based on the repository's URL, without the need for secrets.
   - **No secrets expires**: Since no secrets are used, there is no need to rotate secrets, and no risk of secrets expiring.
   - **100% Security Score**: The current infrastructure configuration follows best practices, and the current setup code achieves a 100% Security Score in Microsoft Defender for Cloud. This minimizes the attack surface and protects against even sophisticated attacks.
-- **Automatic certificate management**: The infrastructure is configured to automatically request and renew SSL certificates from Let's Encrypt, eliminating the need for manual certificate management.
+- **Automatic certificate management**: The infrastructure is configured to automatically request and renew SSL certificates, eliminating the need for manual certificate management.
 - **Multiple environments**: The setup includes different environments like Development, Staging, and Production, deployed into clearly named resource groups within a single Azure Subscription.
 - **Multi-region**: Spinning up a cluster in a new region is a matter of adding one extra deployment job to the GitHub workflow. This allows customers to select a region where their data is close to the user and local data protection laws like GDPR, CCPA, etc. are followed.
 - **Azure Container Apps**: The application is hosted using Azure Container Apps, which is a new service from Azure that provides a fully managed Kubernetes environment for running containerized applications. You don't need to be a Kubernetes expert to run your application in a scalable and secure environment.
@@ -216,7 +253,7 @@ PlatformPlatform is built on a solid foundation for a modern software developmen
 - [Bash scripts](https://www.gnu.org/software/bash/)
 - [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview)
 
-## Screenshots
+# Screenshots
 
 This is how it looks when GitHub workflows has deployed Azure Infrastructure:
 
