@@ -27,7 +27,7 @@ jobs:
       version: ${{ steps.generate_version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate version
         id: generate_version
@@ -47,7 +47,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
@@ -62,7 +62,7 @@ jobs:
         run: dotnet restore
 
       - name: Setup-java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "microsoft"
           java-version: "17"
@@ -89,7 +89,7 @@ jobs:
           dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
 
       - name: Save Account Management artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: account-management
           path: application/account-management/Api/publish/**/*
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
@@ -111,7 +111,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
