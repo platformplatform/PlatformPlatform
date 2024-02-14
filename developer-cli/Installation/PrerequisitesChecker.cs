@@ -30,7 +30,7 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "yarn", "Yarn", new Version(1, 22)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
-        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.2"""),
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.3"""),
         new Prerequisite(PrerequisiteType.EnvironmentVariable, "SQL_SERVER_PASSWORD"),
         new Prerequisite(PrerequisiteType.EnvironmentVariable, "CERTIFICATE_PASSWORD")
     ];
@@ -147,7 +147,7 @@ public static class PrerequisitesChecker
 
            Installed Workload Id      Manifest Version                     Installation Source
            -----------------------------------------------------------------------------------
-           aspire                     8.0.0-preview.2.23619.3/8.0.100      SDK 8.0.100
+           aspire                     8.0.0-preview.3.24105.21/8.0.100     SDK 8.0.100
 
            Use `dotnet workload search` to find additional workloads to install.
          */

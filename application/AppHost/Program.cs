@@ -7,7 +7,7 @@ var database = builder.AddSqlServerContainer("account-management-db", sqlServerP
     .WithVolumeMount("sql-server-data", "/var/opt/mssql", VolumeMountType.Named)
     .AddDatabase("account-management");
 
-var accountManagementApi = builder.AddProject<PlatformPlatform_AccountManagement_Api>("account-management-api")
+var accountManagementApi = builder.AddProject<Api>("account-management-api")
     .WithReference(database);
 
 builder.AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
