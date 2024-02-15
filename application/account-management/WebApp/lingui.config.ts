@@ -10,7 +10,13 @@ const config: LinguiConfig = {
     {
       path: "<rootDir>/translations/locale/{locale}",
       include: ["<rootDir>"],
-      exclude: ["**/node_modules/**"],
+      exclude: [
+        "**/node_modules/**",
+        "**/dist",
+        "**/*.d.ts",
+        "**/*.test.*",
+        "**/.*",
+      ],
     },
   ],
   format: formatter({ origins: false }),

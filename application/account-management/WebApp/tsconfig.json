@@ -20,5 +20,5 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "exclude": ["dist"]
+  "exclude": ["node_modules", "dist"]
 }
