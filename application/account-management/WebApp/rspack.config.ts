@@ -12,7 +12,7 @@ const outputPath = resolve(__dirname, "dist");
 const configuration: Configuration = {
   context: __dirname,
   entry: {
-    main: ["./src/shared/rspack/runtime.ts", "./src/main.tsx"],
+    main: ["./shared/rspack/runtime.ts", "./main.tsx"],
   },
   output: {
     clean: true,
@@ -116,7 +116,7 @@ const configuration: Configuration = {
       "import.meta.env": "getApplicationEnvironment().env",
     }),
     new ClientFilesystemRouterPlugin({
-      dir: "src/app",
+      dir: "app",
     }),
   ],
   devServer: {

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <StartupCommand>set BROWSER=none;yarn dev</StartupCommand>
-        <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+        <JavaScriptTestRoot>.\</JavaScriptTestRoot>
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
         <!-- Folder where production build objects will be placed -->
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
