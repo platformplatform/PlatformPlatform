@@ -24,11 +24,17 @@
 
 Drawing on our expertise building true enterprise-grade products with millions of daily users in highly regulated sectors like healthcare, finance, government, etc., we aim to help you create secure production-ready products.
 
- Still alpha state, we’re developing a platform for SaaS products with features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, multi-region, feature flags, backoffice for support, and much more.  Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2). We minimize WiP, have short-lived branches and deploy multiple times daily.
+ Still pre-alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
 
-The platform is built on a modern .NET backend adhering to the principles of DDD, Clean Architecture, and CQRS. We are building a sleek localized React SPA frontend using TypeScript and a mature accessible design system. It includes automated CI/CD of both Application and Azure infrastructure, plus an extensible CLI for task automation.
+Building blocks of PlatformPlatform:
 
-Show your support for our project – star us on GitHub! It truly means a lot! ⭐
+* **Backend** - .NET adhering to the principles of Clean Architecture, DDD, CQRS, and clean code
+* **Frontend** - React using TypeScript, with a sleek fully localized UI and a mature accessible design system
+* **CI/CD** - GitHub actions for fast passwordless deployments of application (Docker) and infrastructure (Bicep)
+* **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
+* **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
+
+**Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐**
 
 This readme contains the following sections:
 * [Getting Started](#getting-started) - Simple steps to set up local development and continuous deployments to Azure
@@ -151,7 +157,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │   │   └── WebApp         # React SPA frontend using TypeScript and React Aria Components
 │   ├── shared-kernel      # Reusable components for all self-contained systems
 │   ├── [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│   └── [sysops]           # [Planned] A self-contained system for operations and support
+│   └── [back-office]      # [Planned] A self-contained system for operations and support
 ├── cloud-infrastructure   # Contains Bash and Bicep scripts (IaC) for Azure resources
 │   ├── cluster            # Scale units like production-west-eu, production-east-us, etc.
 │   ├── environment        # Shared resources like App Insights for all Production clusters
@@ -239,19 +245,6 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 - **Azure SQL**: The database is hosted using Azure SQL Database, which is a fully managed SQL Server instance. SQL Server is known for its high performance, stability, scalability, and security. The server will easily handle millions of users with single-digit millisecond response times.
 
 </details>
-
-### GitHub SDLC for Passwordless Deploying Application and Infrastructure in Minutes
-
-PlatformPlatform is built on a solid foundation for a modern software development lifecycle (SDLC):
-
-- [GitHub Pull Requests](https://docs.github.com/en/pull-requests)
-- [GitHub Actions](https://docs.github.com/en/actions)
-- [GitHub projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects)
-- [GitHub environments](https://docs.github.com/en/actions/reference/environments)
-- [GitHub CODEOWNERS](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners)
-- [GitHub Dependabot](https://docs.github.com/en/code-security/dependabot)
-- [Bash scripts](https://www.gnu.org/software/bash/)
-- [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview)
 
 # Screenshots
 
