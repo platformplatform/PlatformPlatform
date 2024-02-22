@@ -38,7 +38,7 @@ Building blocks of PlatformPlatform:
 
 This readme contains the following sections:
 * [Getting Started](#getting-started) - Simple steps to set up local development and continuous deployments to Azure
-* [Inside Our Monorepo](#inside-our-monorepo-a-quick-overview) - An overview of what's inside this repository
+* [Inside Our Monorepo](#inside-our-monorepo) - An overview of what's inside this repository
 * [Technologies](#technologies) - Overview of technologies for Backend, Frontend, Azure, and GitHub SDLC
 * [Screenshots](#screenshots) - A few screenshots of the GitHub workflows and Azure resources
 
