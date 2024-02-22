@@ -18,8 +18,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(30)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     State = table.Column<string>(type: "varchar(20)", nullable: false),
                     Phone = table.Column<string>(type: "varchar(20)", nullable: true)
@@ -35,8 +35,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 {
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: false),
                     Id = table.Column<long>(type: "char(26)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     UserRole = table.Column<string>(type: "varchar(20)", nullable: false)
                 },
