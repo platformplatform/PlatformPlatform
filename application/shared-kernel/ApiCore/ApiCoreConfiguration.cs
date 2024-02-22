@@ -96,16 +96,6 @@ public static class ApiCoreConfiguration
     public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
         where TDbContext : DbContext
     {
-        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
-        app.UseForwardedHeaders();
-
-        // Map default endpoints such as /health, /alive etc.
-        app.MapDefaultEndpoints();
-
-        // Enable Swagger UI
-        app.UseOpenApi();
-        app.UseSwaggerUi();
-
         if (app.Environment.IsDevelopment())
         {
             // Enable the developer exception page, which displays detailed information about exceptions that occur
@@ -114,18 +104,35 @@ public static class ApiCoreConfiguration
         }
         else
         {
+            // Configure global exception handling for the production environment
+            app.UseExceptionHandler(_ => { });
+        }
+
+        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before  other middleware.
+        app.UseForwardedHeaders();
+
+        if (!app.Environment.IsDevelopment())
+        {
             // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
             // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
             app.UseHsts();
 
             // Adds middleware for redirecting HTTP Requests to HTTPS
             app.UseHttpsRedirection();
-
-            // Configure global exception handling for the production environment
-            app.UseExceptionHandler(_ => { });
         }
 
+        // Enable authentication and authorization. This must happen after e.g. UseHttpsRedirection()UseHttpsRedirection()
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        // Enable Swagger UI
+        app.UseOpenApi();
+        app.UseSwaggerUi();
+
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
+
+        // Map default endpoints such as /health, /alive etc.
+        app.MapDefaultEndpoints();
 
         // Configure track endpoint for Application Insights telemetry for PageViews and BrowserTimings
         app.MapTrackEndpoints();

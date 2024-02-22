@@ -22,18 +22,14 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
 // Add common configuration for all APIs like Swagger, HSTS, DeveloperExceptionPage, and run EF database migrations.
 app.AddApiCoreConfiguration<AccountManagementDbContext>();
-app.UseWebAppMiddleware();
 
-app.MapUserEndpoints();
-app.MapTenantEndpoints();
 app.MapAccountRegistrationsEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapPasswordEndpoints();
+app.MapUserEndpoints();
+app.MapTenantEndpoints();
 
 app.MapGet("/api/secret",
         (ClaimsPrincipal user) => $"Hello {user.Identity?.Name} Role: {user.FindFirst(ClaimTypes.Role)}. My secret")
@@ -42,5 +38,8 @@ app.MapGet("/api/secretOwner", () => "Hello Owner. My secret")
     .RequireAuthorization(RequireOwnerRole.Name);
 app.MapGet("/api/secretUser", () => "Hello Member. My secret")
     .RequireAuthorization(RequireUserRole.Name);
+
+// Server the SPA Index.html if no other endpoints are found
+app.UseWebAppMiddleware();
 
 app.Run();
