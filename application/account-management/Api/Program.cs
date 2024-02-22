@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Api.Auth;
 using PlatformPlatform.AccountManagement.Api.Auth.JwtCookieAuthentication;
 using PlatformPlatform.AccountManagement.Api.Tenants;
@@ -30,7 +31,7 @@ app.UseWebAppMiddleware();
 
 app.MapUserEndpoints();
 app.MapTenantEndpoints();
-app.MapRegistrationEndpoints();
+app.MapAccountRegistrationsEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapPasswordEndpoints();
 

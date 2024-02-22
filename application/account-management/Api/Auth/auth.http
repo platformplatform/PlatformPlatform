@@ -4,13 +4,11 @@
 @password = !mySecretPassword123
 
 ### User registration of a new user and tenant
-POST {{host}}/api/auth/register
+POST {{host}}/api/account-registrations/start
 Content-Type: application/json
 
 {
-  "tenantId": "{{tenantId}}",
-  "email": "{{email}}",
-  "password": "{{password}}"
+  "email": "{{email}}"
 }
 
 ### User login
