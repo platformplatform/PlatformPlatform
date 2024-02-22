@@ -41,7 +41,7 @@ export type ClientFilesystemRouterOptions = {
 };
 
 export class ClientFilesystemRouter {
-  private generateOptions: GenerateReactRouterOptions;
+  public generateOptions: GenerateReactRouterOptions;
 
   constructor({
     dir = "app",
