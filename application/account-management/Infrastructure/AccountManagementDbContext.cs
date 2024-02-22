@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using IdentityUser = PlatformPlatform.AccountManagement.Infrastructure.Identity.IdentityUser;
 
@@ -8,6 +9,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options)
     : SharedKernelDbContext<AccountManagementDbContext>(options)
 {
+    public DbSet<AccountRegistration> AccountRegistrations => Set<AccountRegistration>();
+
     public DbSet<Tenant> Tenants => Set<Tenant>();
 
     public DbSet<User> Users => Set<User>();
@@ -21,6 +24,9 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // AccountRegistration
+        modelBuilder.MapStronglyTypedUuid<AccountRegistration, AccountRegistrationId>(a => a.Id);
 
         // Tenant
         modelBuilder.MapStronglyTypedId<Tenant, TenantId, string>(t => t.Id);
