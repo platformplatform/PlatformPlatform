@@ -6,10 +6,10 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 /// </summary>
 public interface IAuditableEntity
 {
-    DateTime CreatedAt { get; }
+    DateTimeOffset CreatedAt { get; }
 
     [UsedImplicitly]
-    DateTime? ModifiedAt { get; }
+    DateTimeOffset? ModifiedAt { get; }
 
-    void UpdateModifiedAt(DateTime? modifiedAt);
+    void UpdateModifiedAt(DateTimeOffset? modifiedAt);
 }

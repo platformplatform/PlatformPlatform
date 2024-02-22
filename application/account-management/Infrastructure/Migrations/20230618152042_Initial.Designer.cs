@@ -31,11 +31,11 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .IsConcurrencyToken()
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -63,11 +63,11 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("char(26)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .IsConcurrencyToken()
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Email")
                         .IsRequired()

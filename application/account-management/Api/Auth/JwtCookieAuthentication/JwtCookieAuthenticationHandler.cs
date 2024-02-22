@@ -56,7 +56,7 @@ public class JwtCookieAuthenticationHandler(
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtSigningCredentials = new SigningCredentials(Options.SigningSecurityKey, SecurityAlgorithms.HmacSha256);
 
-        var utcNow = DateTime.UtcNow;
+        var utcNow = TimeProvider.System.GetUtcNow().DateTime;
         var accessToken = CreateAccessToken(user, tokenHandler, utcNow, jwtSigningCredentials);
         var refreshTokenTicket = CreateRefreshTicket(user, utcNow, properties);
         var refreshToken = Options.RefreshTokenProtector.Protect(refreshTokenTicket, GetTlsTokenBinding());
