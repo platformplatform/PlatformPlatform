@@ -24,6 +24,45 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.AccountRegistrations.AccountRegistration", b =>
+            {
+                b.Property<string>("Id")
+                    .HasColumnType("varchar(26)");
+
+                b.Property<DateTimeOffset?>("CompletedAt")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<DateTimeOffset>("CreatedAt")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("varchar(100)");
+
+                b.Property<string>("FirstName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(30)");
+
+                b.Property<string>("LastName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(30)");
+
+                b.Property<DateTimeOffset?>("ModifiedAt")
+                    .IsConcurrencyToken()
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<string>("OneTimePassword")
+                    .IsRequired()
+                    .HasColumnType("varchar(6)");
+
+                b.Property<DateTimeOffset>("ValidUntil")
+                    .HasColumnType("datetimeoffset");
+
+                b.HasKey("Id");
+
+                b.ToTable("AccountRegistrations");
+            });
+
             modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<string>("Id")
