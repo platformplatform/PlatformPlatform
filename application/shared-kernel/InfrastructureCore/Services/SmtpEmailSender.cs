@@ -1,8 +1,9 @@
 using System.Net.Mail;
+using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 
-public sealed class SmtpEmailSender
+public sealed class SmtpEmailSender : ISmtpEmailSender
 {
     private readonly SmtpClient _emailSender = new("localhost", 1025);
 

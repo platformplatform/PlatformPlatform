@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
@@ -38,7 +39,7 @@ public static class InfrastructureCoreConfiguration
 
         services.RegisterRepositories(assembly);
 
-        services.AddTransient<SmtpEmailSender>();
+        services.AddTransient<ISmtpEmailSender, SmtpEmailSender>();
 
         return services;
     }

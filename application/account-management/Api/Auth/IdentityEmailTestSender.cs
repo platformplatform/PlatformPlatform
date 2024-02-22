@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.SharedKernel.InfrastructureCore.Services;
+using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using IdentityUser = PlatformPlatform.AccountManagement.Infrastructure.Identity.IdentityUser;
 
 namespace PlatformPlatform.AccountManagement.Api.Auth;
 
-internal sealed class IdentityEmailTestSender(SmtpEmailSender emailSender) : IEmailSender<IdentityUser>
+internal sealed class IdentityEmailTestSender(ISmtpEmailSender emailSender) : IEmailSender<IdentityUser>
 {
     public Task SendConfirmationLinkAsync(IdentityUser user, string email, string confirmationLink)
     {
