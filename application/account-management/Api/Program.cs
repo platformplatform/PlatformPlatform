@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using PlatformPlatform.AccountManagement.Api.Auth;
+using PlatformPlatform.AccountManagement.Api.Auth.JwtCookieAuthentication;
 using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
@@ -33,11 +34,12 @@ app.MapRegistrationEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapPasswordEndpoints();
 
-app.MapGet("/api/secret", (ClaimsPrincipal user) => $"Hello {user.Identity?.Name} Role: {user.FindFirst(ClaimTypes.Role)}. My secret")
+app.MapGet("/api/secret",
+        (ClaimsPrincipal user) => $"Hello {user.Identity?.Name} Role: {user.FindFirst(ClaimTypes.Role)}. My secret")
     .RequireAuthorization();
 app.MapGet("/api/secretOwner", () => "Hello Owner. My secret")
-    .RequireAuthorization("RequireOwnerRole");
-app.MapGet("/api/secretMember", () => "Hello Member. My secret")
-    .RequireAuthorization("RequireMemberRole");
+    .RequireAuthorization(RequireOwnerRole.Name);
+app.MapGet("/api/secretUser", () => "Hello Member. My secret")
+    .RequireAuthorization(RequireUserRole.Name);
 
 app.Run();

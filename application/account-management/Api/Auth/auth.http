@@ -15,7 +15,6 @@ Content-Type: application/json
 
 ### User login
 POST {{host}}/api/auth/login
-# Cookie: X-Access-Token=mySecretAccessToken; X-Refresh-Token=123
 Content-Type: application/json
 
 {
@@ -29,8 +28,8 @@ GET {{host}}/api/secret
 ### Get Secret Role Owner
 GET {{host}}/api/secretOwner
 
-### Get Secret Role Member
-GET {{host}}/api/secretMember
+### Get Secret Role User
+GET {{host}}/api/secretUser
 
 ### Logout
 POST {{host}}/api/auth/logout

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace PlatformPlatform.AccountManagement.Api.Auth.JwtCookieAuthentication;
@@ -7,14 +6,6 @@ namespace PlatformPlatform.AccountManagement.Api.Auth.JwtCookieAuthentication;
 public class JwtCookieAuthenticationOptions : AuthenticationSchemeOptions
 {
     public const string DefaultScheme = "JwtCookieAuthenticationScheme";
-
-    private CookieBuilder _cookieBuilder = new RequestPathBaseCookieBuilder
-    {
-        SameSite = SameSiteMode.Strict,
-        HttpOnly = true,
-        SecurePolicy = CookieSecurePolicy.Always,
-        IsEssential = true
-    };
 
     private ISecureDataFormat<AuthenticationTicket>? _refreshTokenProtector;
 
@@ -37,11 +28,5 @@ public class JwtCookieAuthenticationOptions : AuthenticationSchemeOptions
         get => _refreshTokenProtector ??
                throw new InvalidOperationException($"{nameof(RefreshTokenProtector)} was not set.");
         set => _refreshTokenProtector = value;
-    }
-
-    public CookieBuilder Cookie
-    {
-        get => _cookieBuilder;
-        set => _cookieBuilder = value ?? throw new ArgumentNullException(nameof(value));
     }
 }
