@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
@@ -22,6 +23,7 @@ var app = builder.Build();
 app.AddApiCoreConfiguration<AccountManagementDbContext>();
 app.UseWebAppMiddleware();
 
+app.MapAccountRegistrationsEndpoints();
 app.MapTenantEndpoints();
 app.MapUserEndpoints();
 
