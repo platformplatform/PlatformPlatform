@@ -19,6 +19,7 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
 
         // AccountRegistration
         modelBuilder.MapStronglyTypedUuid<AccountRegistration, AccountRegistrationId>(a => a.Id);
+        modelBuilder.MapStronglyTypedNullableId<AccountRegistration, TenantId, string>(u => u.TenantId);
 
         // Tenant
         modelBuilder.MapStronglyTypedId<Tenant, TenantId, string>(t => t.Id);

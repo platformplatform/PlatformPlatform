@@ -22,6 +22,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     OneTimePassword = table.Column<string>(type: "varchar(6)", nullable: false),
+                    TenantId = table.Column<string>(type: "varchar(30)", nullable: true),
                     ValidUntil = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CompletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },

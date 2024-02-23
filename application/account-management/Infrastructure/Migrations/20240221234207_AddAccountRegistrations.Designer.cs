@@ -53,6 +53,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<string>("OneTimePassword")
                         .HasColumnType("varchar(6)");
 
+                    b.Property<string>("TenantId")
+                        .HasColumnType("varchar(30)");
+
                     b.Property<DateTimeOffset>("ValidUntil")
                         .HasColumnType("datetimeoffset");
 

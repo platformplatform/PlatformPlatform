@@ -24,6 +24,8 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     public string OneTimePassword { get; private set; }
 
+    public TenantId? TenantId { get; private set; }
+
     [UsedImplicitly]
     public DateTimeOffset ValidUntil { get; private set; }
 

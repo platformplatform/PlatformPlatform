@@ -55,6 +55,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     .IsRequired()
                     .HasColumnType("varchar(6)");
 
+                b.Property<string>("TenantId")
+                    .HasColumnType("varchar(30)");
+
                 b.Property<DateTimeOffset>("ValidUntil")
                     .HasColumnType("datetimeoffset");
 
