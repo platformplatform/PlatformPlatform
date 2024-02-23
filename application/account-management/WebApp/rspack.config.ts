@@ -1,4 +1,5 @@
 import os from "node:os";
+import fs from "node:fs";
 import { join, resolve } from "node:path";
 import process from "node:process";
 import type { Configuration } from "@rspack/core";
@@ -8,6 +9,7 @@ import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesyste
 const buildEnv: BuildEnv = {};
 
 const outputPath = resolve(__dirname, "dist");
+fs.rmdirSync(outputPath, { recursive: true });
 
 const configuration: Configuration = {
   context: __dirname,
