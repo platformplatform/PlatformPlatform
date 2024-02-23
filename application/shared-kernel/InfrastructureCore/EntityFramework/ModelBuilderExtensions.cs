@@ -46,6 +46,26 @@ public static class ModelBuilderExtensions
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
+    public static void MapStronglyTypedNullableId<T, TId, TValue>(
+        this ModelBuilder modelBuilder,
+        Expression<Func<T, TId?>> idExpression
+    )
+        where T : class
+        where TValue : class, IComparable<TValue>
+        where TId : StronglyTypedId<TValue, TId>
+    {
+        var nullConstant = Expression.Constant(null, typeof(TValue));
+        var idParameter = Expression.Parameter(typeof(TId), "id");
+        var idValueProperty = Expression.Property(idParameter, nameof(StronglyTypedId<TValue, TId>.Value));
+        var idCoalesceExpression =
+            Expression.Lambda<Func<TId, TValue>>(Expression.Coalesce(idValueProperty, nullConstant), idParameter);
+
+        modelBuilder
+            .Entity<T>()
+            .Property(idExpression)
+            .HasConversion(idCoalesceExpression!, v => Activator.CreateInstance(typeof(TId), v) as TId);
+    }
+
     /// <summary>
     ///     This method is used to tell Entity Framework to store all enum properties as strings in the database.
     /// </summary>

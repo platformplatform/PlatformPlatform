@@ -21,6 +21,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     Email = table.Column<string>(type: "varchar(100)", nullable: false),
                     OneTimePassword = table.Column<string>(type: "varchar(6)", nullable: false),
                     ValidUntil = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    TenantId = table.Column<string>(type: "varchar(30)", nullable: true),
                     CompletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
