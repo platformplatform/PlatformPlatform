@@ -39,6 +39,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     .IsRequired()
                     .HasColumnType("varchar(100)");
 
+                b.Property<DateTimeOffset?>("EmailConfirmedAt")
+                    .HasColumnType("datetimeoffset");
+
                 b.Property<string>("FirstName")
                     .IsRequired()
                     .HasColumnType("nvarchar(30)");
@@ -54,6 +57,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 b.Property<string>("OneTimePassword")
                     .IsRequired()
                     .HasColumnType("varchar(6)");
+
+                b.Property<int>("RetryCount")
+                    .HasColumnType("int");
 
                 b.Property<string>("TenantId")
                     .HasColumnType("varchar(30)");

@@ -1,4 +1,5 @@
 using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
+using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations;
@@ -13,5 +14,12 @@ public static class AccountRegistrationsEndpoints
 
         group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
+
+        group.MapPost("{id}/confirm-email", async Task<ApiResult> (
+                AccountRegistrationId id,
+                ConfirmAccountRegistrationEmailCommand command,
+                ISender mediator
+            )
+            => await mediator.Send(command with { Id = id }));
     }
 }

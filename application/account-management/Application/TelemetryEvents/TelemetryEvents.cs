@@ -11,6 +11,19 @@ namespace PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 public sealed class AccountRegistrationStarted()
     : TelemetryEvent(nameof(AccountRegistrationStarted));
 
+public sealed class AccountRegistrationEmailConfirmed()
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmed));
+
+public sealed class AccountRegistrationEmailConfirmationAttemptFailed(int retryCount)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmationAttemptFailed), ("RetryCount", retryCount.ToString()));
+
+public sealed class AccountRegistrationEmailConfirmedButBlocked(int retryCount)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmedButBlocked), ("RetryCount", retryCount.ToString()));
+
+public sealed class AccountRegistrationEmailConfirmedButExpired(int secondsFromCreation)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmedButExpired),
+        ("SecondsFromCreation", secondsFromCreation.ToString()));
+
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state.ToString()));
 

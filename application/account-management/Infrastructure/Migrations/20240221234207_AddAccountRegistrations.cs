@@ -21,9 +21,11 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     Email = table.Column<string>(type: "varchar(100)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    RetryCount = table.Column<int>(type: "int", nullable: false),
                     OneTimePassword = table.Column<string>(type: "varchar(6)", nullable: false),
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: true),
                     ValidUntil = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    EmailConfirmedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     CompletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
