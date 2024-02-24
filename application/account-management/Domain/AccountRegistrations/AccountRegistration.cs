@@ -5,6 +5,8 @@ namespace PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 
 public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 {
+    public const int MaxAttempts = 3;
+
     private static readonly Random Random = new();
 
     private AccountRegistration(string email) : base(AccountRegistrationId.NewId())
@@ -18,8 +20,12 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     public string OneTimePassword { get; private set; }
 
+    public int RetryCount { get; private set; }
+
     [UsedImplicitly]
     public DateTimeOffset ValidUntil { get; private set; }
+
+    public DateTimeOffset? EmailConfirmedAt { get; private set; }
 
     public TenantId? TenantId { get; private set; }
 
@@ -31,9 +37,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         return new string(Enumerable.Repeat(chars, length).Select(s => s[Random.Next(s.Length)]).ToArray());
     }
 
-    public bool IsValid()
+    public bool HasExpired()
     {
-        return ValidUntil > TimeProvider.System.GetUtcNow();
+        return ValidUntil < TimeProvider.System.GetUtcNow();
     }
 
     public static AccountRegistration Create(string email)
@@ -41,9 +47,33 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         return new AccountRegistration(email.ToLowerInvariant());
     }
 
-    public void MarkAsComplete()
+    public void RegisterInvalidPasswordAttempt()
     {
-        if (!IsValid()) throw new InvalidOperationException("This account registration has expired.");
+        RetryCount++;
+    }
+
+    public void ConfirmEmail()
+    {
+        if (HasExpired() || RetryCount >= MaxAttempts)
+        {
+            throw new UnreachableException("This account registration has expired.");
+        }
+
+        if (EmailConfirmedAt.HasValue) throw new UnreachableException("The mail confirmation already occured.");
+        EmailConfirmedAt = TimeProvider.System.GetUtcNow();
+    }
+
+    public void AccountCreated(TenantId tenantId)
+    {
+        if (HasExpired() || RetryCount >= MaxAttempts)
+        {
+            throw new UnreachableException("This account registration has expired.");
+        }
+
+        if (!EmailConfirmedAt.HasValue) throw new UnreachableException("The mail is not confirmation.");
+        if (tenantId is not null) throw new UnreachableException("The account has already been created.");
+        if (CompletedAt.HasValue) throw new UnreachableException("The account has already been created.");
+        TenantId = tenantId;
         CompletedAt = TimeProvider.System.GetUtcNow();
     }
 }

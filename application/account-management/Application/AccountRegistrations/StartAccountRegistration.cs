@@ -26,7 +26,7 @@ public sealed class StartAccountRegistrationCommandHandler(
     {
         var existingAccountRegistrations = accountRegistrationRepository.GetByEmail(command.Email);
 
-        if (existingAccountRegistrations.Any(r => r.IsValid()))
+        if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
             return Result<AccountRegistrationId>.BadRequest(
                 "Account registration for this mail has already been started. Please check your spam folder.");

@@ -3,12 +3,20 @@
 @email = foo@bar.dk
 @password = !mySecretPassword123
 
-### User registration of a new user and tenant
+### User account registration of a new tenant and owner
 POST {{host}}/api/account-registrations/start
 Content-Type: application/json
 
 {
   "email": "{{email}}"
+}
+
+### User account registration of a new tenant and owner
+POST {{host}}/api/account-registrations/{{AccountRegistrationId}}/confirm-email
+Content-Type: application/json
+
+{
+    "oneTimePassword": "{{OneTimePassword}}",
 }
 
 ### User login

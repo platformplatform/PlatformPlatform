@@ -29,27 +29,33 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 b.Property<string>("Id")
                     .HasColumnType("varchar(26)");
 
-                b.Property<DateTime?>("CompletedAt")
+                b.Property<DateTimeOffset?>("CompletedAt")
                     .HasColumnType("datetimeoffset");
 
-                b.Property<DateTime>("CreatedAt")
+                b.Property<DateTimeOffset>("CreatedAt")
                     .HasColumnType("datetimeoffset");
 
                 b.Property<string>("Email")
                     .IsRequired()
                     .HasColumnType("varchar(100)");
 
-                b.Property<DateTime?>("ModifiedAt")
+                b.Property<DateTimeOffset?>("EmailConfirmedAt")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<DateTimeOffset?>("ModifiedAt")
                     .IsConcurrencyToken()
                     .HasColumnType("datetimeoffset");
 
                 b.Property<string>("OneTimePassword")
                     .HasColumnType("varchar(6)");
 
+                b.Property<int>("RetryCount")
+                    .HasColumnType("int");
+
                 b.Property<string>("TenantId")
                     .HasColumnType("varchar(30)");
 
-                b.Property<DateTime>("ValidUntil")
+                b.Property<DateTimeOffset>("ValidUntil")
                     .HasColumnType("datetimeoffset");
 
                 b.HasKey("Id");

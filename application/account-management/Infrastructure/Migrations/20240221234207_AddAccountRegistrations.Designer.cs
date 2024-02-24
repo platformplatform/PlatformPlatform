@@ -38,12 +38,18 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(100)");
 
+                    b.Property<DateTimeOffset?>("EmailConfirmedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .IsConcurrencyToken()
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("OneTimePassword")
                         .HasColumnType("varchar(6)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("TenantId")
                         .HasColumnType("varchar(30)");
