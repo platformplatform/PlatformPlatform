@@ -11,11 +11,12 @@ public abstract class ResultBase
         StatusCode = httpStatusCode;
     }
 
-    protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
+    protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
     {
         IsSuccess = false;
         StatusCode = statusCode;
         ErrorMessage = errorMessage;
+        CommitChangesOnFailure = commitChanges;
         Errors = errors;
     }
 
@@ -24,6 +25,8 @@ public abstract class ResultBase
     public HttpStatusCode StatusCode { get; }
 
     public ErrorMessage? ErrorMessage { get; }
+
+    public bool CommitChangesOnFailure { get; }
 
     public ErrorDetail[]? Errors { get; }
 
@@ -46,20 +49,22 @@ public sealed class Result : ResultBase
     }
 
     [UsedImplicitly]
-    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
-        : base(statusCode, errorMessage, errors)
+    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
+        : base(statusCode, errorMessage, commitChanges, errors)
     {
     }
 
-    public static Result NotFound(string message)
+    public static Result NotFound(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 
     [UsedImplicitly]
-    public static Result BadRequest(string message)
+    public static Result BadRequest(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 
     public static Result Success()
@@ -81,21 +86,23 @@ public sealed class Result<T> : ResultBase
     }
 
     [UsedImplicitly]
-    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, ErrorDetail[] errors)
-        : base(statusCode, errorMessage, errors)
+    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
+        : base(statusCode, errorMessage, commitChanges, errors)
     {
     }
 
     public T? Value { get; }
 
-    public static Result<T> NotFound(string message)
+    public static Result<T> NotFound(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 
-    public static Result<T> BadRequest(string message)
+    public static Result<T> BadRequest(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 
     /// <summary>
