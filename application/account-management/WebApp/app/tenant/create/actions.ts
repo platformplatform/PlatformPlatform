@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { navigate } from "@platformplatform/client-filesystem-router/react";
 import { i18n } from "@lingui/core";
+import { navigate } from "@/lib/router/router";
 import { accountManagementApi } from "@/lib/api/client.ts";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 

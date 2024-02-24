@@ -9,25 +9,31 @@ import {
 
 type TemplateObject = Record<string, string>;
 
-function generateReactRouterCode(routeItem: RouteType): string {
+function generateReactRouterCode(routeItem: RouteType, indent = "  "): string {
   if (routeItem.type === "page") {
     if (routeItem.loadingPage) {
       const landingRoutePage: RoutePage = { ...routeItem, page: routeItem.loadingPage };
-      return `{
-        index: true,
-        element: ${lazyLoadingPageCode(routeItem, landingRoutePage)},
-      }`;
+      return "\n" + [
+        "{",
+        "  index: true,",
+        `  element: ${lazyLoadingPageCode(routeItem, landingRoutePage)},`,
+        "}"
+      ].map(l => indent + l).join("\n");
     }
-    return `{
-      index: true,
-      element: ${normalPageCode(routeItem)},
-    }`;
+    return "\n" + [
+      `{`,
+      `  index: true,`,
+      `  element: ${normalPageCode(routeItem)},`,
+      `}`
+    ].map(l => indent + l).join("\n");
   }
   if (routeItem.type === "not-found") {
-    return `{
-      path: "*",
-      element: ${normalPageCode(routeItem)},
-    }`;
+    return "\n" + [
+      `{`,
+      `  path: "*",`,
+      `  element: ${normalPageCode(routeItem)},`,
+      `}`
+    ].map(l => indent + l).join("\n");
   }
 
   if (routeItem.type === "entry") {
@@ -42,7 +48,7 @@ function generateReactRouterCode(routeItem: RouteType): string {
     }
 
     if (routeItem.children.length > 0) {
-      result.children = `[${routeItem.children.map((c) => generateReactRouterCode(c)).join(",\n")}]`;
+      result.children = `[${routeItem.children.map((c) => generateReactRouterCode(c, indent + "    ")).join(",\n")}\n  ${indent}]`;
     }
 
     return routeItem.aliases
@@ -50,8 +56,9 @@ function generateReactRouterCode(routeItem: RouteType): string {
         serializeTemplateObject({
           path: `"${alias}"`,
           ...result,
-        }),
+        }, indent),
       )
+      .map(l => `\n${indent}${l}`)
       .join(",\n");
   }
 
@@ -62,6 +69,7 @@ export type GenerateReactRouterOptions = {
   appPath: string;
   assetPrefix?: string;
   importPrefix: string;
+  outputPath: string;
 };
 
 export function generateReactRouter({ appPath, importPrefix, assetPrefix }: GenerateReactRouterOptions) {
@@ -71,6 +79,6 @@ export function generateReactRouter({ appPath, importPrefix, assetPrefix }: Gene
   );
 }
 
-function serializeTemplateObject(object: TemplateObject) {
-  return Object.entries(object).reduce((result, [key, value]) => `${result}${key}: ${value},\n`, "{\n") + "}";
+function serializeTemplateObject(object: TemplateObject, indent = "") {
+  return Object.entries(object).reduce((result, [key, value]) => `${result}${indent}  ${key}: ${value},\n`, `{\n`) + `${indent}}`;
 }

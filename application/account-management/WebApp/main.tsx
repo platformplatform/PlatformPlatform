@@ -1,11 +1,11 @@
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import { ReactFilesystemRouter } from "@platformplatform/client-filesystem-router/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ApplicationInsightsProvider } from "./lib/applicationInsights/ApplicationInsightsProvider";
 import "./main.css";
 import { dynamicActivate, getInitialLocale } from "./translations/i18n";
+import { ReactFilesystemRouter } from "@/lib/router/router";
 
 await dynamicActivate(i18n, getInitialLocale());
 

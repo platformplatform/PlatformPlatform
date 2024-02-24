@@ -38,6 +38,12 @@ export type ClientFilesystemRouterOptions = {
    * @see Not yet implemented
    */
   fileExtensions?: string[];
+
+  /**
+   * The path to the generated router file.
+   * @default "@lib/router/router.generated.ts"
+   */
+  outputPath?: string;
 };
 
 export class ClientFilesystemRouter {
@@ -47,11 +53,13 @@ export class ClientFilesystemRouter {
     dir = "app",
     importPrefix = "@",
     assetPrefix,
+    outputPath,
   }: ClientFilesystemRouterOptions = {}) {
     this.generateOptions = {
       appPath: path.join(process.cwd(), dir),
       importPrefix,
       assetPrefix,
+      outputPath: outputPath ?? path.join(process.cwd(), "lib", "router", "router.generated.ts"),
     };
 
     if (!fs.existsSync(this.generateOptions.appPath)) {
