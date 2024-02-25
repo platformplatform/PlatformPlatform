@@ -28,13 +28,13 @@ public sealed class StartAccountRegistrationCommandHandler(
 
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
-            return Result<AccountRegistrationId>.BadRequest(
+            return Result<AccountRegistrationId>.Conflict(
                 "Account registration for this mail has already been started. Please check your spam folder.");
         }
 
         if (existingAccountRegistrations.Count(r => r.CompletedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
         {
-            return Result<AccountRegistrationId>.BadRequest(
+            return Result<AccountRegistrationId>.TooManyRequests(
                 "Too many attempts to register this email address. Please try again later.");
         }
 

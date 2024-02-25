@@ -46,7 +46,7 @@ public sealed class ConfirmAccountRegistrationEmailCommandHandler(
         if (accountRegistration.RetryCount >= AccountRegistration.MaxAttempts)
         {
             events.CollectEvent(new AccountRegistrationEmailConfirmedButBlocked(accountRegistration.RetryCount));
-            return Result.BadRequest("To many attempts, please request a new code.", true);
+            return Result.Forbidden("To many attempts, please request a new code.", true);
         }
 
         if (accountRegistration.HasExpired())
