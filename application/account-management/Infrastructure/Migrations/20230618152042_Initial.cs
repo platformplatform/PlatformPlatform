@@ -21,8 +21,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(30)", nullable: false),
-                    State = table.Column<string>(type: "varchar(20)", nullable: false),
-                    Phone = table.Column<string>(type: "varchar(20)", nullable: true)
+                    State = table.Column<string>(type: "varchar(20)", nullable: false)
                 },
                 constraints: table =>
                 {

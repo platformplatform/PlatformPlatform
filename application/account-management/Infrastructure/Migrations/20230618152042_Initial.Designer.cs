@@ -45,9 +45,6 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("Phone")
-                        .HasColumnType("varchar(20)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Tenants");

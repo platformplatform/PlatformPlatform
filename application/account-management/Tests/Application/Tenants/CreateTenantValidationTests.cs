@@ -8,26 +8,21 @@ namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 
 public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbContext>
 {
-    [Theory]
-    [InlineData("Valid properties", "tenant2", "Tenant 2")]
-    [InlineData("Valid properties - No phone", "tenant2", "Tenant 2")]
-    [InlineData("Valid properties - Empty phone", "tenant2", "Tenant 2")]
-    public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult(
-        string scenario,
-        string subdomain,
-        string name
-    )
+    [Fact]
+    public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult()
     {
         // Arrange
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, name);
+        var subdomain =  Faker.Subdomain();
+        var tenantName = Faker.TenantName();
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, tenantName);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
         var result = await mediator.Send(command);
 
         // Assert
-        result.IsSuccess.Should().BeTrue(scenario);
-        result.Errors.Should().BeNull(scenario);
+        result.IsSuccess.Should().BeTrue();
+        result.Errors.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
 

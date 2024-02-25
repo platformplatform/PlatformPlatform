@@ -6,6 +6,5 @@ public sealed record TenantResponseDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
     string Name,
-    TenantState State,
-    string? Phone
+    TenantState State
 );
