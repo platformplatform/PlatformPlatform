@@ -54,10 +54,9 @@ public sealed class Result : ResultBase
     {
     }
 
-    public static Result NotFound(string message, bool commitChanges = false)
+    public static Result Success()
     {
-        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.NoContent);
     }
 
     [UsedImplicitly]
@@ -67,9 +66,10 @@ public sealed class Result : ResultBase
             Array.Empty<ErrorDetail>());
     }
 
-    public static Result Success()
+    public static Result NotFound(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.NoContent);
+        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 }
 
@@ -93,10 +93,13 @@ public sealed class Result<T> : ResultBase
 
     public T? Value { get; }
 
-    public static Result<T> NotFound(string message, bool commitChanges = false)
+    /// <summary>
+    ///     Use this to indicate a successful command. There is a implicit conversion from T to
+    ///     <see cref="Result{T}" />, so you can also just return T from a command handler.
+    /// </summary>
+    public static Result<T> Success(T value)
     {
-        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(value, HttpStatusCode.OK);
     }
 
     public static Result<T> BadRequest(string message, bool commitChanges = false)
@@ -105,13 +108,10 @@ public sealed class Result<T> : ResultBase
             Array.Empty<ErrorDetail>());
     }
 
-    /// <summary>
-    ///     Use this to indicate a successful command. There is a implicit conversion from T to
-    ///     <see cref="Result{T}" />, so you can also just return T from a Command handler.
-    /// </summary>
-    public static Result<T> Success(T value)
+    public static Result<T> NotFound(string message, bool commitChanges = false)
     {
-        return new Result<T>(value, HttpStatusCode.OK);
+        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
+            Array.Empty<ErrorDetail>());
     }
 
     /// <summary>
