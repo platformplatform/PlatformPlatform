@@ -83,8 +83,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var subdomain = Faker.Subdomain();
-        var email = Faker.Internet.Email();
-        var command = new CreateTenantCommand(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
+        var email = DatabaseSeeder.AccountRegistration1.Email;
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, Faker.TenantName());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -106,10 +106,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var invalidSubdomain = Faker.Random.AlphaNumeric(1);
         var invalidName = Faker.Random.String(31);
-        var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
-        var invalidEmail = Faker.InvalidEmail();
 
-        var command = new CreateTenantCommand(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, invalidSubdomain, invalidName);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -132,7 +130,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateTenantCommand(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, unavailableSubdomain,
+            Faker.TenantName());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);

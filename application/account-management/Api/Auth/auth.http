@@ -1,7 +1,10 @@
 @host = https://localhost:8443
 @tenantId = acme
+@tenantName = Acme
 @email = foo@bar.dk
 @password = !mySecretPassword123
+@accountRegistrationId = xx
+@oneTimePassword = 123456
 
 ### User account registration of a new tenant and owner
 POST {{host}}/api/account-registrations/start
@@ -12,11 +15,21 @@ Content-Type: application/json
 }
 
 ### User account registration of a new tenant and owner
-POST {{host}}/api/account-registrations/{{AccountRegistrationId}}/confirm-email
+POST {{host}}/api/account-registrations/{{accountRegistrationId}}/confirm-email
 Content-Type: application/json
 
 {
-    "oneTimePassword": "{{OneTimePassword}}",
+    "oneTimePassword": "{{oneTimePassword}}"
+}
+
+### User account registration of a new tenant and owner
+POST {{host}}/api/tenants
+Content-Type: application/json
+
+{
+    "accountRegistrationId": "{{accountRegistrationId}}",
+    "subdomain": "{{tenantId}}",
+    "name": "{{tenantName}}"
 }
 
 ### User login
