@@ -69,7 +69,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         EmailConfirmedAt = TimeProvider.System.GetUtcNow();
     }
 
-    public void AccountCreated(TenantId tenantId)
+    public void MarkAsCompleted(TenantId tenantId)
     {
         if (HasExpired() || RetryCount >= MaxAttempts)
         {
@@ -77,8 +77,8 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         }
 
         if (!EmailConfirmedAt.HasValue) throw new UnreachableException("The mail is not confirmation.");
-        if (tenantId is not null) throw new UnreachableException("The account has already been created.");
         if (CompletedAt.HasValue) throw new UnreachableException("The account has already been created.");
+
         TenantId = tenantId;
         CompletedAt = TimeProvider.System.GetUtcNow();
     }

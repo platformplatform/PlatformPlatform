@@ -9,19 +9,18 @@ namespace PlatformPlatform.AccountManagement.Tests.Application.Tenants;
 public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbContext>
 {
     [Theory]
-    [InlineData("Valid properties", "tenant2", "Tenant 2", "+44 (0)20 7946 0123", "test@test.com")]
-    [InlineData("Valid properties - No phone", "tenant2", "Tenant 2", null, "test@test.com")]
-    [InlineData("Valid properties - Empty phone", "tenant2", "Tenant 2", "", "test@test.com")]
+    [InlineData("Valid properties", "tenant2", "Tenant 2", "+44 (0)20 7946 0123")]
+    [InlineData("Valid properties - No phone", "tenant2", "Tenant 2", null)]
+    [InlineData("Valid properties - Empty phone", "tenant2", "Tenant 2", "")]
     public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult(
         string scenario,
         string subdomain,
         string name,
-        string? phone,
-        string email
+        string? phone
     )
     {
         // Arrange
-        var command = new CreateTenantCommand(subdomain, name, phone, email);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, name, phone);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -46,28 +45,25 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     }
 
     [Theory]
-    [InlineData("Phone number too long", "tenant2", "Tenant 2", "123456789012345678901", "test@test.com")]
-    [InlineData("Phone number invalid ", "tenant2", "Tenant 2", "+1 ### ###-INVALID", "test@test.com")]
-    [InlineData("Tenant name empty", "", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Tenant name too long ", "tenant2", "1234567890123456789012345678901", "1234567890", "test@test.com")]
-    [InlineData("Email empty", "tenant2", "Tenant 2", "1234567890", "")]
-    [InlineData("Email invalid", "tenant2", "Tenant 2", "1234567890", "@test.com")]
-    [InlineData("Subdomain empty", "", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Subdomain too short", "12", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Subdomain too long", "1234567890123456789012345678901", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Subdomain with uppercase", "Tenant2", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Subdomain special characters", "tenant-2", "Tenant 2", "1234567890", "test@test.com")]
-    [InlineData("Subdomain with spaces", "tenant 2", "Tenant 2", "1234567890", "test@test.com")]
+    [InlineData("Phone number too long", "tenant2", "Tenant 2", "123456789012345678901")]
+    [InlineData("Phone number invalid ", "tenant2", "Tenant 2", "+1 ### ###-INVALID")]
+    [InlineData("Tenant name empty", "", "Tenant 2", "1234567890")]
+    [InlineData("Tenant name too long ", "tenant2", "1234567890123456789012345678901", "1234567890")]
+    [InlineData("Subdomain empty", "", "Tenant 2", "1234567890")]
+    [InlineData("Subdomain too short", "12", "Tenant 2", "1234567890")]
+    [InlineData("Subdomain too long", "1234567890123456789012345678901", "Tenant 2", "1234567890")]
+    [InlineData("Subdomain with uppercase", "Tenant2", "Tenant 2", "1234567890")]
+    [InlineData("Subdomain special characters", "tenant-2", "Tenant 2", "1234567890")]
+    [InlineData("Subdomain with spaces", "tenant 2", "Tenant 2", "1234567890")]
     public async Task CreateTenant_WhenInvalidCommand_ShouldReturnUnsuccessfulResultWithOneError(
         string scenario,
         string subdomain,
         string name,
-        string phone,
-        string email
+        string phone
     )
     {
         // Arrange
-        var command = new CreateTenantCommand(subdomain, name, phone, email);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, name, phone);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act

@@ -83,8 +83,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var subdomain = Faker.Subdomain();
-        var email = Faker.Internet.Email();
-        var command = new CreateTenantCommand(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
+        var email = DatabaseSeeder.AccountRegistration1.Email;
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, Faker.TenantName(),
+            Faker.PhoneNumber());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -107,9 +108,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var invalidSubdomain = Faker.Random.AlphaNumeric(1);
         var invalidName = Faker.Random.String(31);
         var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
-        var invalidEmail = Faker.InvalidEmail();
 
-        var command = new CreateTenantCommand(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, invalidSubdomain, invalidName,
+            invalidPhone);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -119,8 +120,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         {
             new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters."),
             new ErrorDetail("Name", "Name must be between 1 and 30 characters."),
-            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters."),
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
+            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
@@ -132,7 +132,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateTenantCommand(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, unavailableSubdomain,
+            Faker.TenantName(), Faker.PhoneNumber());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);

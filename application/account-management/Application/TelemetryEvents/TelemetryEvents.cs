@@ -24,8 +24,9 @@ public sealed class AccountRegistrationEmailConfirmedButExpired(int secondsFromC
     : TelemetryEvent(nameof(AccountRegistrationEmailConfirmedButExpired),
         ("SecondsFromCreation", secondsFromCreation.ToString()));
 
-public sealed class TenantCreated(TenantId tenantId, TenantState state)
-    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state.ToString()));
+public sealed class TenantCreated(TenantId tenantId, TenantState state, int registrationTimeInSeconds)
+    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state.ToString()),
+        ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
 
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
     : TelemetryEvent(nameof(TenantDeleted), ("TenantId", tenantId), ("TenantState", tenantState.ToString()));

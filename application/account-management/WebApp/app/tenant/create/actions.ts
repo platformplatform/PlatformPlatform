@@ -14,9 +14,8 @@ export interface State {
 }
 
 export const CreateTenantSchema = z.object({
-  subdomain: z.string().min(1, "Please enter a subdomain").min(4, "Subdomain is required to be at least 4 characters"),
+  subdomain: z.string().min(1, "Please enter a subdomain").min(3, "Subdomain must be between 3-30 alphanumeric and lowercase characters"),
   name: z.string().min(1, "Please enter your name"),
-  email: z.string().min(1, "Please enter your email").email("Please enter a valid email"),
 });
 
 export async function createTenant(_: State, formData: FormData): Promise<State> {
@@ -35,13 +34,13 @@ export async function createTenant(_: State, formData: FormData): Promise<State>
     };
   }
 
-  const { subdomain, email, name } = validatedFields.data;
+  const { subdomain, name } = validatedFields.data;
 
   try {
     const result = await accountManagementApi.POST("/api/tenants", {
       body: {
+        accountRegistrationId: "",
         subdomain,
-        email,
         name,
       },
     });
