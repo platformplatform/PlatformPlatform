@@ -33,6 +33,18 @@ msgstr "name"
 msgid "email"
 msgstr "email"
 
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to login."
+msgstr "Missing Fields. Failed to login."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed login."
+msgstr "Server error: Failed login."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed logout."
+msgstr "Server error: Failed logout."
+
 msgid "Account Management"
 msgstr "Account Management"
 
