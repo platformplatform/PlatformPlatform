@@ -17,8 +17,7 @@ public sealed class TenantCreatedEventHandlerTests : BaseTest<AccountManagementD
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, "tenant2", "TestTenant",
-            "1234567890");
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, "tenant2", "TestTenant");
         _ = await mediator.Send(command);
 
         // Assert

@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-public sealed record CreateTenantCommand(string AccountRegistrationId, string Subdomain, string Name, string? Phone)
+public sealed record CreateTenantCommand(string AccountRegistrationId, string Subdomain, string Name)
     : ICommand, ITenantValidation, IRequest<Result<TenantId>>
 {
     public AccountRegistrationId GetAccountRegistrationId()
@@ -51,7 +51,7 @@ public sealed class CreateTenantHandler(
                 $"The account registration {accountRegistration.Id} has already been completed.");
         }
 
-        var tenant = Tenant.Create(command.Subdomain, command.Name, command.Phone, accountRegistration.Email);
+        var tenant = Tenant.Create(command.Subdomain, command.Name, accountRegistration.Email);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         accountRegistration.MarkAsCompleted(tenant.Id);
