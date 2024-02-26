@@ -122,6 +122,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               name: 'CDN_URL'
               value: cdnUrl
             }
+            {
+              name: 'KEYVAULT_URL'
+              value: keyVault.properties.vaultUri
+            }
           ]
         }
       ]
