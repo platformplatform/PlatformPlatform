@@ -198,6 +198,7 @@ module accountManagement '../modules/container-app.bicep' = {
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
     applicationInsightsConnectionString: applicationInsightsConnectionString
+    keyVaultName: keyVault.outputs.name
   }
   dependsOn: [accountManagementDatabase]
 }

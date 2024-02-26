@@ -17,10 +17,15 @@ param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
 param applicationInsightsConnectionString string
+param keyVaultName string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
   name: userAssignedIdentityName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+  name: keyVaultName
 }
 
 var containerRegistryResourceGroupName = 'shared'
@@ -150,4 +155,22 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
     }
   }
   dependsOn: [containerRegistryPermission]
+}
+
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-10-01' = {
+  parent: keyVault
+  name: 'add'
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        objectId: userAssignedIdentity.properties.principalId
+        permissions: {
+          secrets: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
 }
