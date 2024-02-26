@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "rspack serve",
-    "build": "tsc --noEmit && rspack build",
+    "build": "rspack build && tsc --noEmit",
     "lingui:extract": "lingui extract",
     "lingui:compile": "lingui compile --typescript",
     "lint": "eslint .",
