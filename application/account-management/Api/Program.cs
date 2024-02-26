@@ -13,7 +13,8 @@ builder.Services
     .AddApplicationServices()
     .AddDatabaseContext(builder)
     .AddInfrastructureServices()
-    .AddApiCoreServices(builder);
+    .AddApiCoreServices(builder)
+    .AddWebAppMiddleware();
 
 var app = builder.Build();
 

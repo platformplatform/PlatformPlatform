@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -12,7 +13,7 @@ using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-public sealed class WebAppMiddleware
+public sealed class WebAppMiddleware : IMiddleware
 {
     private const string PublicKeyPrefix = "PUBLIC_";
     public const string PublicUrlKey = "PUBLIC_URL";
@@ -24,29 +25,44 @@ public sealed class WebAppMiddleware
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
-    private readonly RequestDelegate _next;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersion];
     private readonly string _publicUrl;
     private readonly Dictionary<string, string> _staticRuntimeEnvironment;
     private string? _htmlTemplate;
 
     public WebAppMiddleware(
-        RequestDelegate next,
-        Dictionary<string, string> staticRuntimeEnvironment,
-        string htmlTemplatePath,
-        IOptions<JsonOptions> jsonOptions
+        IOptions<JsonOptions> jsonOptions,
+        WebAppMiddlewareConfiguration configuration
     )
     {
-        _next = next;
-        _staticRuntimeEnvironment = staticRuntimeEnvironment;
-        _htmlTemplatePath = htmlTemplatePath;
+        _htmlTemplatePath = configuration.HtmlTemplatePath;
         _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
+        _staticRuntimeEnvironment = configuration.StaticRuntimeEnvironment;
 
-        VerifyRuntimeEnvironment(staticRuntimeEnvironment);
+        VerifyRuntimeEnvironment(_staticRuntimeEnvironment);
 
         _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
-        _cdnUrl = staticRuntimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
-        _publicUrl = staticRuntimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
+        _cdnUrl = _staticRuntimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
+        _publicUrl = _staticRuntimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
+    }
+
+    public Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        if (context.Request.Path.ToString().StartsWith("/api/")) return next(context);
+
+        var cultureFeature = context.Features.Get<IRequestCultureFeature>();
+        var userCulture = cultureFeature?.RequestCulture.Culture;
+
+        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
+
+        // Cache control
+        ApplyNoCacheHeaders(context);
+        // Content security policy
+        context.Response.Headers.Append("Content-Security-Policy", GetContentSecurityPolicy());
+        // Set content type
+        context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
+
+        return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
     }
 
     private void VerifyRuntimeEnvironment(Dictionary<string, string> environmentVariables)
@@ -85,25 +101,6 @@ public sealed class WebAppMiddleware
         );
     }
 
-    public Task InvokeAsync(HttpContext context)
-    {
-        if (context.Request.Path.ToString().StartsWith("/api/")) return _next(context);
-
-        var cultureFeature = context.Features.Get<IRequestCultureFeature>();
-        var userCulture = cultureFeature?.RequestCulture.Culture;
-
-        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
-
-        // Cache control
-        ApplyNoCacheHeaders(context);
-        // Content security policy
-        context.Response.Headers.Append("Content-Security-Policy", GetContentSecurityPolicy());
-        // Set content type
-        context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
-
-        return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
-    }
-
     private string GetHtmlWithEnvironment(Dictionary<string, string>? requestEnvironmentVariables = null)
     {
         if (_htmlTemplate is null || _isDevelopment)
@@ -139,13 +136,52 @@ public static class WebAppMiddlewareExtensions
 {
     [UsedImplicitly]
     public static IApplicationBuilder UseWebAppMiddleware(
-        this IApplicationBuilder builder,
-        string webAppProjectName = "WebApp",
-        Dictionary<string, string>? publicEnvironmentVariables = null
+        this IApplicationBuilder builder
     )
     {
         if (InfrastructureCoreConfiguration.SwaggerGenerator) return builder;
 
+        var configuration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
+
+        return builder
+            .UseStaticFiles(new StaticFileOptions
+                { FileProvider = new PhysicalFileProvider(configuration.BuildRootPath) })
+            .UseRequestLocalization("en-US", "da-DK")
+            .UseMiddleware<WebAppMiddleware>();
+    }
+
+    [UsedImplicitly]
+    public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
+    {
+        return services.AddWebAppMiddleware(_ => { });
+    }
+
+    [UsedImplicitly]
+    public static IServiceCollection AddWebAppMiddleware(
+        this IServiceCollection services,
+        Action<WebAppMiddlewareConfiguration> configureOptions
+    )
+    {
+        if (InfrastructureCoreConfiguration.SwaggerGenerator) return services;
+
+        var configuration = new WebAppMiddlewareConfiguration();
+
+        configureOptions.Invoke(configuration);
+
+        return services
+            .AddSingleton(configuration)
+            .AddTransient<WebAppMiddleware>();
+    }
+}
+
+[UsedImplicitly]
+public class WebAppMiddlewareConfiguration
+{
+    public WebAppMiddlewareConfiguration(
+        string webAppProjectName = "WebApp",
+        Dictionary<string, string>? publicEnvironmentVariables = null
+    )
+    {
         var publicUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.PublicUrlKey);
         var cdnUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.CdnUrlKey);
         var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
@@ -157,33 +193,34 @@ public static class WebAppMiddlewareExtensions
             { WebAppMiddleware.ApplicationVersion, applicationVersion }
         };
 
-        var staticRuntimeEnvironment = publicEnvironmentVariables is null
+        StaticRuntimeEnvironment = publicEnvironmentVariables is null
             ? environmentVariables
             : environmentVariables.Concat(publicEnvironmentVariables).ToDictionary();
 
-        var buildRootPath = GetWebAppDistRoot(webAppProjectName, "dist");
-        var templateFilePath = Path.Combine(buildRootPath, "index.html");
+        BuildRootPath = GetWebAppDistRoot(webAppProjectName, "dist");
+        HtmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
 
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development")
         {
             for (var i = 0; i < 10; i++)
             {
-                if (File.Exists(templateFilePath)) break;
+                if (File.Exists(HtmlTemplatePath)) break;
                 Debug.WriteLine($"Waiting for {webAppProjectName} build to be ready...");
                 Thread.Sleep(TimeSpan.FromSeconds(1));
             }
         }
 
-        if (!File.Exists(templateFilePath))
+        if (!File.Exists(HtmlTemplatePath))
         {
-            throw new FileNotFoundException("index.html does not exist.", templateFilePath);
+            throw new FileNotFoundException("index.html does not exist.", HtmlTemplatePath);
         }
-
-        return builder
-            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(buildRootPath) })
-            .UseRequestLocalization("en-US", "da-DK")
-            .UseMiddleware<WebAppMiddleware>(staticRuntimeEnvironment, templateFilePath);
     }
+
+    public Dictionary<string, string> StaticRuntimeEnvironment { get; }
+
+    public string HtmlTemplatePath { get; }
+
+    public string BuildRootPath { get; }
 
     private static string GetEnvironmentVariableOrThrow(string variableName)
     {
