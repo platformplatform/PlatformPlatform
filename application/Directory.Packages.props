@@ -27,6 +27,8 @@
     <PackageVersion Include="NSwag.MSBuild" Version="14.0.3" />
     <PackageVersion Include="NUlid" Version="1.7.1" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
+    <PackageVersion Include="Azure.Communication.Email" Version="1.0.1" />
+    <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Scrutor" Version="4.2.2" />
     <!-- PlatformPlatform dependencies - Tests -->
