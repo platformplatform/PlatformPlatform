@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
@@ -57,8 +56,10 @@ public sealed class WebAppMiddleware : IMiddleware
 
         // Cache control
         ApplyNoCacheHeaders(context);
+        // Security headers
+        ApplySecurityPolicyHeaders(context);
         // Content security policy
-        context.Response.Headers.Append("Content-Security-Policy", GetContentSecurityPolicy());
+        ApplyContentSecurityPolicy(context);
         // Set content type
         context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
 
@@ -73,32 +74,6 @@ public sealed class WebAppMiddleware : IMiddleware
 
             throw new SecurityException($"Environment variable '{key}' is not allowed to be public.");
         }
-    }
-
-    private StringValues GetContentSecurityPolicy()
-    {
-        var devServerWebsocket = _cdnUrl.Replace("https", "wss");
-
-        string[] trustedHosts = _isDevelopment
-            ? [_publicUrl, _cdnUrl, devServerWebsocket]
-            : [_publicUrl, _cdnUrl];
-
-        var contentSecurityPolicies = new Dictionary<string, string[]>
-        {
-            { "script-src", trustedHosts.Concat(["'strict-dynamic'", "https:"]).ToArray() },
-            { "script-src-elem", trustedHosts },
-            { "default-src", trustedHosts },
-            { "connect-src", trustedHosts },
-            { "img-src", trustedHosts.Append("data:").ToArray() },
-            { "object-src", ["'none'"] },
-            { "base-uri", ["'none'"] }
-            // { "require-trusted-types-for", ["'script'"] }
-        };
-
-        return string.Join(
-            " ",
-            contentSecurityPolicies.Select(policy => $"{policy.Key} {string.Join(" ", policy.Value)};")
-        );
     }
 
     private string GetHtmlWithEnvironment(Dictionary<string, string>? requestEnvironmentVariables = null)
@@ -129,6 +104,58 @@ public sealed class WebAppMiddleware : IMiddleware
     {
         context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
         context.Response.Headers.Append("Pragma", "no-cache");
+    }
+
+    private void ApplyContentSecurityPolicy(HttpContext context)
+    {
+        var devServerWebsocket = _cdnUrl.Replace("https", "wss");
+
+        string[] trustedHosts = _isDevelopment
+            ? [_publicUrl, _cdnUrl, devServerWebsocket]
+            : [_publicUrl, _cdnUrl];
+
+        context.Response.Headers.Append("Content-Security-Policy", SerializeContentSecurityPolicy(
+            new Dictionary<string, string[]>
+            {
+                { "script-src", trustedHosts.Concat(["'strict-dynamic'", "https:"]).ToArray() },
+                { "script-src-elem", trustedHosts },
+                { "default-src", trustedHosts },
+                { "connect-src", trustedHosts },
+                { "img-src", trustedHosts.Append("data:").ToArray() },
+                { "object-src", ["'none'"] },
+                { "base-uri", ["'none'"] }
+                // { "require-trusted-types-for", ["'script'"] }
+            }));
+    }
+
+    private static void ApplySecurityPolicyHeaders(HttpContext context)
+    {
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+        context.Response.Headers.Append("Referrer-Policy", "no-referrer, strict-origin-when-cross-origin");
+        context.Response.Headers.Append("Permissions-Policy", SerializePermissionsPolicy(
+            new Dictionary<string, string[]>
+            {
+                { "geolocation", [] },
+                { "microphone", [] },
+                { "camera", [] },
+                { "picture-in-picture", [] },
+                { "display-capture", [] },
+                { "fullscreen", [] },
+                { "web-share", [] },
+                { "identity-credentials-get", [] }
+            }));
+    }
+
+    private static string SerializePermissionsPolicy(Dictionary<string, string[]> permissionsPolicy)
+    {
+        return string.Join(", ", permissionsPolicy.Select(p => $"{p.Key}=({string.Join(", ", p.Value)})"));
+    }
+
+    private static string SerializeContentSecurityPolicy(Dictionary<string, string[]> contentSecurityPolicies)
+    {
+        return string.Join(" ", contentSecurityPolicies.Select(p => $"{p.Key} {string.Join(" ", p.Value)};"));
     }
 }
 

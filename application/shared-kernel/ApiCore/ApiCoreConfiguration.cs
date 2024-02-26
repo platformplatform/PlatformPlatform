@@ -28,7 +28,6 @@ public static class ApiCoreConfiguration
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
-            .AddTransient<SecurityHeaderMiddleware>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer();
@@ -129,9 +128,6 @@ public static class ApiCoreConfiguration
             // Configure global exception handling for the production environment
             app.UseExceptionHandler(_ => { });
         }
-
-        // Add security headers to the response
-        app.UseMiddleware<SecurityHeaderMiddleware>();
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
