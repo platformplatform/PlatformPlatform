@@ -28,6 +28,7 @@ public static class ApiCoreConfiguration
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
+            .AddTransient<SecurityHeaderMiddleware>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer();
@@ -86,7 +87,11 @@ public static class ApiCoreConfiguration
         else
         {
             // When running inside a Docker container running as non-root we need to use a port higher than 1024
-            builder.WebHost.ConfigureKestrel(options => options.ListenAnyIP(8443, _ => { }));
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(8443, _ => { });
+                options.AddServerHeader = false;
+            });
         }
 
         return services;
@@ -124,6 +129,9 @@ public static class ApiCoreConfiguration
             // Configure global exception handling for the production environment
             app.UseExceptionHandler(_ => { });
         }
+
+        // Add security headers to the response
+        app.UseMiddleware<SecurityHeaderMiddleware>();
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
