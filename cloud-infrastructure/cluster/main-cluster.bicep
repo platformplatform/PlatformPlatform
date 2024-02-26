@@ -12,6 +12,7 @@ param domainName string
 param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
 param applicationInsightsConnectionString string
+param communicatoinServicesDataLocation string = 'europe'
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -126,6 +127,16 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
       maxDatabaseCapacity: 5
     }
   }
+
+module communicationService '../modules/communication-services.bicep' = {
+  scope: clusterResourceGroup
+  name: 'communication-services'
+  params: {
+    name: clusterUniqueName
+    tags: tags
+    dataLocation: communicatoinServicesDataLocation
+  }
+}
 
 module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   name: 'account-management-database'
