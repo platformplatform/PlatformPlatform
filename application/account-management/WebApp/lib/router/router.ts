@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./ReactFilesystemRouter";
+import { router } from "./router.generated";
 
 export { Link, useParams, useNavigate } from "react-router-dom";
 
@@ -11,7 +11,7 @@ export { Link, useParams, useNavigate } from "react-router-dom";
  *
  * @example
  * ```tsx
- * import { ReactFilesystemRouter } from "@platformplatform/client-filesystem-router/react";
+ * import { ReactFilesystemRouter } from "@/lib/router/router";
  *
  * export const App = () => (
  *  <ReactFilesystemRouter />
@@ -20,9 +20,9 @@ export { Link, useParams, useNavigate } from "react-router-dom";
  */
 export const ReactFilesystemRouter = () => createElement(RouterProvider, { router });
 
-export type NavigateOptions = {
+export interface NavigateOptions {
   replace?: boolean;
-};
+}
 
 /**
  * Navigate to a route.
@@ -32,7 +32,7 @@ export type NavigateOptions = {
  *
  * @example
  * ```tsx
- * import { navigate } from "@platformplatform/client-filesystem-router/react";
+ * import { navigate } from "@/lib/router/router";
  *
  * const MyComponent = () => {
  *   const onClick = () => navigate("/my-route");

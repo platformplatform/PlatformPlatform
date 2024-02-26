@@ -5,39 +5,71 @@ import { ClientFilesystemRouterOptions, ClientFilesystemRouter } from "./lib/Cli
 
 const PLUGIN_NAME = "ClientFilesystemRouterPlugin";
 
-const { name } = require("./package.json");
-const routerPath = path.join("react", "ReactFilesystemRouter");
-const GENERATED_IMPORT_PATH = path.join(name, routerPath);
-
-const absoluteGeneratedPath = path.join(__dirname, routerPath);
-
-if (!fs.existsSync(`${absoluteGeneratedPath}.d.ts`)) {
-  throw new Error(`Router exported path "${routerPath}.d.ts" does not exist in "${name}".`);
-}
+const conventionFileNames = [
+  "layout.tsx",
+  "page.tsx",
+  "loading.tsx",
+  "error.tsx",
+  "not-found.tsx"
+];
 
 export class ClientFilesystemRouterPlugin implements RspackPluginInstance {
   private router: ClientFilesystemRouter;
+  private routePathPrefix: string;
+
   constructor(options?: ClientFilesystemRouterOptions) {
     this.router = new ClientFilesystemRouter(options);
+    this.routePathPrefix = this.router.generateOptions.appPath + path.sep;
   }
+
   apply(compiler: Compiler) {
     const logger = compiler.getInfrastructureLogger(PLUGIN_NAME);
-    compiler.hooks.normalModuleFactory.tap(PLUGIN_NAME, (normalModuleFactory) => {
-      normalModuleFactory.hooks.beforeResolve.tapPromise(PLUGIN_NAME, async (resolveData) => {
-        if (resolveData.request.endsWith("/ReactFilesystemRouter")) {
-          const absoluteRequiredPath = path.resolve(resolveData.context ?? "", resolveData.request);
-          if (absoluteRequiredPath === absoluteGeneratedPath) {
-            const start = Date.now();
-            const generatedCode = this.router.generate();
-            const duration = Date.now() - start;
-            logger.info("Generated", `'${GENERATED_IMPORT_PATH}'`, `(${duration}ms)`);
-            resolveData.request = `data:text/javascript,${generatedCode}`;
-            return true;
-          }
+
+    let generateRouterFile = true;
+
+    const generateRouter = () => {
+      if (generateRouterFile) {
+        generateRouterFile = false;
+        const start = Date.now();
+        const fileUpdated = writeFileIfChanged(this.router.generateOptions.outputPath, this.router.generate());
+        const duration = Date.now() - start;
+        const relativeOutputPath = path.relative(process.cwd(), this.router.generateOptions.outputPath);
+        if (fileUpdated) {
+          logger.info("Generated", `'${relativeOutputPath}'`, `(${duration}ms)`);
+        } else {
+          logger.info("No changes to", `'${relativeOutputPath}'`, `(${duration}ms)`);
         }
-      });
+      }
+    }
+
+    compiler.hooks.invalid.tap(PLUGIN_NAME, (fileName) => {
+      if (fileName != null && fileName.startsWith(this.routePathPrefix) && conventionFileNames.includes(path.basename(fileName))) {
+        generateRouter();
+      }
+    });
+
+    generateRouter();
+
+    compiler.hooks.afterCompile.tap(PLUGIN_NAME, () => {
+      generateRouterFile = true;
     });
   }
 }
 
 export default ClientFilesystemRouterPlugin;
+
+/**
+ * Write a file if the content has changed.
+ * Return true if the file was written, false if the content was the same.
+ */
+function writeFileIfChanged(filePath: string, content: string) {
+  try {
+    // Check if the file already exists and has the same content
+    if (fs.readFileSync(filePath, "utf8") === content) return false;
+  } catch {
+    // noop
+  }
+
+  fs.writeFileSync(filePath, content, "utf8");
+  return true;
+}
