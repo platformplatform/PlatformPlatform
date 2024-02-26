@@ -96,8 +96,8 @@ public sealed class WebAppMiddleware
 
         // Cache control
         ApplyNoCacheHeaders(context);
-        // Security headers
-        ApplySecurityHeaders(context, GetContentSecurityPolicy());
+        // Content security policy
+        context.Response.Headers.Append("Content-Security-Policy", GetContentSecurityPolicy());
         // Set content type
         context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
 
@@ -132,17 +132,6 @@ public sealed class WebAppMiddleware
     {
         context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
         context.Response.Headers.Append("Pragma", "no-cache");
-    }
-
-    private static void ApplySecurityHeaders(HttpContext context, StringValues contentSecurityPolicy)
-    {
-        context.Response.Headers.Append("Content-Security-Policy", contentSecurityPolicy);
-        // Disable automatic content type detection
-        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
-        context.Response.Headers.Append("X-Frame-Options", "DENY");
-        context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
-        context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-        context.Response.Headers.Append("Referrer-Policy", "no-referrer, strict-origin-when-cross-origin");
     }
 }
 
