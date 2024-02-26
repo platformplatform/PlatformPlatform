@@ -108,3 +108,5 @@ resource keyVaultMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@
     ]
   }
 }
+
+output name string = keyVault.name

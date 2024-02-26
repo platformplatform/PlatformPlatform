@@ -137,6 +137,7 @@ module communicationService '../modules/communication-services.bicep' = {
     tags: tags
     dataLocation: communicatoinServicesDataLocation
     mailSenderDisplayName: mailSenderDisplayName
+    keyVaultName: keyVault.outputs.name
   }
 }
 

@@ -2,6 +2,7 @@ param name string
 param tags object
 param dataLocation string
 param mailSenderDisplayName string
+param keyVaultName string
 
 resource emailServices 'Microsoft.Communication/emailServices@2023-06-01-preview' = {
   name: name
@@ -41,3 +42,16 @@ resource communicationServices 'Microsoft.Communication/communicationServices@20
     linkedDomains: [azureManagedDomainEmailServices.id]
   }
 }
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+  name: keyVaultName
+}
+
+resource communicationServiceConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
+  parent: keyVault
+  name: 'communication-services-connection-string'
+  properties: {
+    value: communicationServices.listKeys().primaryConnectionString
+  }
+}
+
