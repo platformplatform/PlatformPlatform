@@ -9,7 +9,9 @@ import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesyste
 const buildEnv: BuildEnv = {};
 
 const outputPath = resolve(__dirname, "dist");
-fs.rmdirSync(outputPath, { recursive: true });
+
+if (fs.existsSync(outputPath))
+  fs.rmSync(outputPath, { recursive: true });
 
 const configuration: Configuration = {
   context: __dirname,
