@@ -12,6 +12,8 @@ param domainName string
 param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
 param applicationInsightsConnectionString string
+param communicatoinServicesDataLocation string = 'europe'
+param mailSenderDisplayName string = 'PlatformPlatform'
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -127,6 +129,18 @@ module microsoftSqlServerElasticPool '../modules/microsoft-sql-server-elastic-po
     }
   }
 
+module communicationService '../modules/communication-services.bicep' = {
+  scope: clusterResourceGroup
+  name: 'communication-services'
+  params: {
+    name: clusterUniqueName
+    tags: tags
+    dataLocation: communicatoinServicesDataLocation
+    mailSenderDisplayName: mailSenderDisplayName
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
 module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   name: 'account-management-database'
   scope: clusterResourceGroup
@@ -178,12 +192,14 @@ module accountManagement '../modules/container-app.bicep' = {
     memory: '0.5Gi'
     minReplicas: 1
     maxReplicas: 3
+    emailServicesName: clusterUniqueName
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
     applicationInsightsConnectionString: applicationInsightsConnectionString
+    keyVaultName: keyVault.outputs.name
   }
   dependsOn: [accountManagementDatabase]
 }

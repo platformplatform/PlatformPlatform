@@ -11,16 +11,26 @@ param cpu string = '0.25'
 param memory string = '0.5Gi'
 param minReplicas int = 1
 param maxReplicas int = 3
+param emailServicesName string
 param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
 param applicationInsightsConnectionString string
+param keyVaultName string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
   name: userAssignedIdentityName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+  name: keyVaultName
+}
+
+resource azureManagedDomainEmailServices 'Microsoft.Communication/emailServices/domains@2023-06-01-preview' existing = {
+  name: '${emailServicesName}/AzureManagedDomain'
 }
 
 var containerRegistryResourceGroupName = 'shared'
@@ -117,6 +127,14 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               name: 'CDN_URL'
               value: cdnUrl
             }
+            {
+              name: 'KEYVAULT_URL'
+              value: keyVault.properties.vaultUri
+            }
+            {
+              name: 'SENDER_EMAIL_ADDRESS'
+              value: 'no-reply@${azureManagedDomainEmailServices.properties.mailFromSenderDomain}'
+            }
           ]
         }
       ]
@@ -150,4 +168,22 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
     }
   }
   dependsOn: [containerRegistryPermission]
+}
+
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-10-01' = {
+  parent: keyVault
+  name: 'add'
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        objectId: userAssignedIdentity.properties.principalId
+        permissions: {
+          secrets: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
 }

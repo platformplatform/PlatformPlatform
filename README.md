@@ -34,13 +34,13 @@ Building blocks of PlatformPlatform:
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 
-**Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐**
-
 This readme contains the following sections:
 * [Getting Started](#getting-started) - Simple steps to set up local development and continuous deployments to Azure
 * [Inside Our Monorepo](#inside-our-monorepo) - An overview of what's inside this repository
-* [Technologies](#technologies) - Overview of technologies for Backend, Frontend, Azure, and GitHub SDLC
+* [Technologies](#technologies) - Overview of technologies for Backend, Frontend, Azure, etc.
 * [Screenshots](#screenshots) - A few screenshots of the GitHub workflows and Azure resources
+
+**⭐⭐⭐ Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐⭐⭐**
 
 # Getting Started 
 
@@ -224,7 +224,8 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 - [Azure Log Analytics](https://azure.microsoft.com/en-us/services/monitor)
 - [Azure Virtual Network](https://azure.microsoft.com/en-us/services/virtual-network)
 - [Azure Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/lifecyclesmanaged-identities-azure-resources/overview)
-- [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry)
+- [Azure Container Registry](https://azure.microsoft.com/en-us/products/communication-services/)
+- [Azure Communication Services](https://azure.microsoft.com/en-us/products/communication-services/)
 - [Microsoft Defender for Cloud](https://azure.microsoft.com/en-us/products/defender-for-cloud)
 
 <details>
