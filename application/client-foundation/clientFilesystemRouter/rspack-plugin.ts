@@ -43,13 +43,16 @@ export class ClientFilesystemRouterPlugin implements RspackPluginInstance {
     }
 
     compiler.hooks.invalid.tap(PLUGIN_NAME, (fileName) => {
-      if (generateRouterFile === false && fileName != null && fileName.startsWith(this.routePathPrefix) && conventionFileNames.includes(path.basename(fileName))) {
-        generateRouterFile = true;
+      if (fileName != null && fileName.startsWith(this.routePathPrefix) && conventionFileNames.includes(path.basename(fileName))) {
         generateRouter();
       }
     });
 
     generateRouter();
+
+    compiler.hooks.afterCompile.tap(PLUGIN_NAME, () => {
+      generateRouterFile = true;
+    });
   }
 }
 
