@@ -11,6 +11,7 @@ param cpu string = '0.25'
 param memory string = '0.5Gi'
 param minReplicas int = 1
 param maxReplicas int = 3
+param emailServicesName string
 param sqlServerName string
 param sqlDatabaseName string
 param userAssignedIdentityName string
@@ -26,6 +27,10 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
   name: keyVaultName
+}
+
+resource azureManagedDomainEmailServices 'Microsoft.Communication/emailServices/domains@2023-06-01-preview' existing = {
+  name: '${emailServicesName}/AzureManagedDomain'
 }
 
 var containerRegistryResourceGroupName = 'shared'
@@ -125,6 +130,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             {
               name: 'KEYVAULT_URL'
               value: keyVault.properties.vaultUri
+            }
+            {
+              name: 'SENDER_EMAIL_ADDRESS'
+              value: 'no-reply@${azureManagedDomainEmailServices.properties.mailFromSenderDomain}'
             }
           ]
         }

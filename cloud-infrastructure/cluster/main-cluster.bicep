@@ -192,6 +192,7 @@ module accountManagement '../modules/container-app.bicep' = {
     memory: '0.5Gi'
     minReplicas: 1
     maxReplicas: 3
+    emailServicesName: clusterUniqueName
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
     userAssignedIdentityName: 'account-management-${resourceGroupName}'
