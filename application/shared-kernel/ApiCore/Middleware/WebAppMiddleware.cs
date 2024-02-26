@@ -21,7 +21,6 @@ public sealed class WebAppMiddleware
     public const string ApplicationVersion = "APPLICATION_VERSION";
 
     private readonly string _cdnUrl;
-    private readonly StringValues _contentSecurityPolicy;
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
@@ -48,7 +47,6 @@ public sealed class WebAppMiddleware
         _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development";
         _cdnUrl = staticRuntimeEnvironment.GetValueOrDefault(CdnUrlKey)!;
         _publicUrl = staticRuntimeEnvironment.GetValueOrDefault(PublicUrlKey)!;
-        _contentSecurityPolicy = GetContentSecurityPolicy();
     }
 
     private void VerifyRuntimeEnvironment(Dictionary<string, string> environmentVariables)
@@ -66,15 +64,19 @@ public sealed class WebAppMiddleware
         var devServerWebsocket = _cdnUrl.Replace("https", "wss");
 
         string[] trustedHosts = _isDevelopment
-            ? ["'self'", _publicUrl, _cdnUrl, devServerWebsocket]
-            : ["'self'", _publicUrl, _cdnUrl];
+            ? [_publicUrl, _cdnUrl, devServerWebsocket]
+            : [_publicUrl, _cdnUrl];
 
         var contentSecurityPolicies = new Dictionary<string, string[]>
         {
+            { "script-src", trustedHosts.Concat(["'strict-dynamic'", "https:"]).ToArray() },
+            { "script-src-elem", trustedHosts },
             { "default-src", trustedHosts },
             { "connect-src", trustedHosts },
-            { "script-src", trustedHosts },
-            { "img-src", trustedHosts.Append("data:").ToArray() }
+            { "img-src", trustedHosts.Append("data:").ToArray() },
+            { "object-src", ["'none'"] },
+            { "base-uri", ["'none'"] }
+            // { "require-trusted-types-for", ["'script'"] }
         };
 
         return string.Join(
@@ -92,7 +94,13 @@ public sealed class WebAppMiddleware
 
         var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
 
-        context.Response.Headers.Append("Content-Security-Policy", _contentSecurityPolicy);
+        // Cache control
+        ApplyNoCacheHeaders(context);
+        // Content security policy
+        context.Response.Headers.Append("Content-Security-Policy", GetContentSecurityPolicy());
+        // Set content type
+        context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
+
         return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
     }
 
@@ -118,6 +126,12 @@ public sealed class WebAppMiddleware
         }
 
         return result;
+    }
+
+    private static void ApplyNoCacheHeaders(HttpContext context)
+    {
+        context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        context.Response.Headers.Append("Pragma", "no-cache");
     }
 }
 
