@@ -13,6 +13,7 @@ param accountManagementVersion string = ''
 param accountManagementDomainConfigured bool
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
+param mailSenderDisplayName string = 'PlatformPlatform'
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
@@ -135,6 +136,7 @@ module communicationService '../modules/communication-services.bicep' = {
     name: clusterUniqueName
     tags: tags
     dataLocation: communicatoinServicesDataLocation
+    mailSenderDisplayName: mailSenderDisplayName
   }
 }
 
