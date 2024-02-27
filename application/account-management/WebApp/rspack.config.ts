@@ -115,6 +115,7 @@ const configuration: Configuration = {
       template: "./public/index.html",
       meta: {
         runtimeEnv: "%ENCODED_RUNTIME_ENV%",
+        userInfoEnv: "%ENCODED_USER_INFO_ENV%",
       },
       publicPath: "%CDN_URL%",
     }),
@@ -132,6 +133,7 @@ const configuration: Configuration = {
     new DefinePlugin({
       "import.meta.build_env": JSON.stringify(buildEnv),
       "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
+      "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",
       "import.meta.env": "getApplicationEnvironment().env",
     }),
     new ClientFilesystemRouterPlugin({
