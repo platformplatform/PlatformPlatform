@@ -14,6 +14,14 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing mobile versions"
+msgstr "Screenshots of the dashboard project showing mobile versions"
+
+#. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing desktop and mobile versions"
+msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to Create Account."
 msgstr "Missing Fields. Failed to Create Account."
 
@@ -45,14 +53,8 @@ msgstr "Server error: Failed login."
 msgid "Server error: Failed logout."
 msgstr "Server error: Failed logout."
 
-msgid "Account Management"
-msgstr "Account Management"
-
 msgid "Create a account"
 msgstr "Create a account"
-
-msgid "Create Account"
-msgstr "Create Account"
 
 msgid "Create account!"
 msgstr "Create account!"
@@ -63,8 +65,8 @@ msgstr "Email"
 msgid "Name"
 msgstr "Name"
 
-msgid "Overview"
-msgstr "Overview"
+msgid "Sign in"
+msgstr "Sign in"
 
 msgid "Something went wrong, please try again"
 msgstr "Something went wrong, please try again"
@@ -72,5 +74,8 @@ msgstr "Something went wrong, please try again"
 msgid "Subdomain"
 msgstr "Subdomain"
 
-msgid "User Management"
-msgstr "User Management"
+msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+msgstr "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+
+msgid "Welcome to Acme."
+msgstr "Welcome to Acme."
