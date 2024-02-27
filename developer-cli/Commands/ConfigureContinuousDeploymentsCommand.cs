@@ -131,11 +131,17 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.WriteLine();
     }
 
+    private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
+    {
+        var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
+
+        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
+    }
+
     private void CollectAzureSubscriptionInfo(AzureInfo azureInfo, bool skipAzureLogin, GithubInfo githubInfo)
     {
         // Both `az login` and `az account list` will return a JSON array of subscriptions
-        var subscriptionListJson =
-            ProcessHelper.StartProcess($"az {(skipAzureLogin ? "account list" : "login")}", redirectOutput: true);
+        var subscriptionListJson = RunAzureCliCommand($"{(skipAzureLogin ? "account list" : "login")}");
 
         // Regular expression to match JSON part
         var jsonRegex = new Regex(@"\[.*\]", RegexOptions.Singleline);
@@ -168,7 +174,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         var subscription = selectedSubscriptions.Single();
-        ProcessHelper.StartProcess($"az account set --subscription {subscription.Id}");
+        RunAzureCliCommand($"account set --subscription {subscription.Id}", redirectOutput: false);
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
 
@@ -179,20 +185,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CollectExistingAppRegistration(AzureInfo azureInfo)
     {
-        var appRegistrationId = ProcessHelper.StartProcess(
-            $"""az ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
-            redirectOutput: true
-        ).Trim();
+        var appRegistrationId = RunAzureCliCommand(
+            $"""ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""").Trim();
 
-        var servicePrincipalId = ProcessHelper.StartProcess(
-            $"""az ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""",
-            redirectOutput: true
-        ).Trim();
+        var servicePrincipalId = RunAzureCliCommand(
+            $"""ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""").Trim();
 
-        var servicePrincipalObjectId = ProcessHelper.StartProcess(
-            $"""az ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv""",
-            redirectOutput: true
-        ).Trim();
+        var servicePrincipalObjectId = RunAzureCliCommand(
+            $"""ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv""").Trim();
 
         if (appRegistrationId != string.Empty && servicePrincipalId != string.Empty)
         {
@@ -223,10 +223,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
     {
-        azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(
-            $"""az ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""",
-            redirectOutput: true
-        ).Trim();
+        azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
+                $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""")
+            .Trim();
 
         if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
         {
@@ -259,8 +258,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 existingContainerRegistryName);
 
             //  Check whether the Azure Container Registry name is available
-            var checkAvailability =
-                ProcessHelper.StartProcess($"az acr check-name --name {registryName}", redirectOutput: true);
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {registryName}");
 
             if (JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean())
             {
@@ -270,8 +268,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
 
             // Checks if the Azure Container Registry is a resource under the current subscription
-            var showExistingRegistry = ProcessHelper.StartProcess(
-                $"az acr show --name {registryName} --subscription {azureInfo.Subscription.Id}", redirectOutput: true);
+            var showExistingRegistry =
+                RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id}");
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
@@ -422,8 +420,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
     {
-        ProcessHelper.StartProcess(
-            $"az provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
+        RunAzureCliCommand(
+            $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
             redirectOutput: !Configuration.VerboseLogging
         );
 
@@ -435,20 +433,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         if (azureInfo.AppRegistrationExists) return;
 
-        azureInfo.AppRegistrationId = ProcessHelper.StartProcess(
-            $"""az ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv""",
-            redirectOutput: true
-        ).Trim();
+        azureInfo.AppRegistrationId = RunAzureCliCommand(
+            $"""ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv""").Trim();
 
-        azureInfo.ServicePrincipalId = ProcessHelper.StartProcess(
-            $"az ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv",
-            redirectOutput: true
-        ).Trim();
+        azureInfo.ServicePrincipalId =
+            RunAzureCliCommand($"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv").Trim();
 
         azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(
-            $"""az ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""",
-            redirectOutput: true
-        ).Trim();
+            $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""").Trim();
 
         AnsiConsole.MarkupLine(
             $"[green]Successfully created an App Registration {azureInfo.AppRegistrationName} ({azureInfo.AppRegistrationId}).[/]");
@@ -477,8 +469,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
             ProcessHelper.StartProcess(new ProcessStartInfo
             {
-                FileName = "az",
-                Arguments = $"ad app federated-credential create --id {azureInfo.AppRegistrationId} --parameters  @-",
+                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                Arguments =
+                    $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {azureInfo.AppRegistrationId} --parameters  @-",
                 RedirectStandardInput = true,
                 RedirectStandardOutput = !Configuration.VerboseLogging,
                 RedirectStandardError = !Configuration.VerboseLogging
@@ -497,8 +490,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         void GrantAccess(string role)
         {
-            ProcessHelper.StartProcess(
-                $"az role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
+            RunAzureCliCommand(
+                $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
                 redirectOutput: !Configuration.VerboseLogging
             );
         }
@@ -508,14 +501,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         if (!azureInfo.SqlAdminsSecurityGroupExists)
         {
-            azureInfo.SqlAdminsSecurityGroupId = ProcessHelper.StartProcess(
-                $"""az ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv""",
-                redirectOutput: true
-            ).Trim();
+            azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
+                    $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv""")
+                .Trim();
         }
 
-        ProcessHelper.StartProcess(
-            $"az ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
+        RunAzureCliCommand(
+            $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
             redirectOutput: !Configuration.VerboseLogging);
 
         AnsiConsole.MarkupLine(
@@ -600,7 +592,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void PrintHeader(string heading)
     {
-        var separator = new string('━', Console.WindowWidth - heading.Length - 1);
+        var separator = new string('-', Console.WindowWidth - heading.Length - 1);
         AnsiConsole.MarkupLine($"\n[bold][green]{heading}[/] {separator}[/]\n");
     }
 }
