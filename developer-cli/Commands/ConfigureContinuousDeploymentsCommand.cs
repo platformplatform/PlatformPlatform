@@ -600,7 +600,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void PrintHeader(string heading)
     {
-        var separator = new string('━', Console.WindowWidth - heading.Length - 1);
+        var separator = new string('-', Console.WindowWidth - heading.Length - 1);
         AnsiConsole.MarkupLine($"\n[bold][green]{heading}[/] {separator}[/]\n");
     }
 }
