@@ -34,7 +34,6 @@ export default function LandingPage() {
           </Link>
         </div>
         <div className="flex items-center justify-center p-6 bg-gray-50 md:w-3/5 md:px-28 md:py-12">
-          {/* Add Hero Images Here */}
           <img
             src={heroMobile}
             width={560}

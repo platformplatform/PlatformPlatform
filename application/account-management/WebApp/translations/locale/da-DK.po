@@ -53,11 +53,22 @@ msgstr "Serverfejl: Kunne ikke logge ind."
 msgid "Server error: Failed logout."
 msgstr "Serverfejl: Kunne ikke logge ud."
 
+#. js-lingui-explicit-id
+msgid "name@work.email.com"
+msgstr "navn@arbejde.email.dk"
+
+#. js-lingui-explicit-id
+msgid "Enter password"
+msgstr "Indtast adgangskode"
+
 msgid "Create a account"
 msgstr "Opret en konto"
 
 msgid "Create account!"
 msgstr "Opret konto!"
+
+msgid "Don't have an account?"
+msgstr "Har du ikke en konto?"
 
 msgid "Email"
 msgstr "E-mail"
@@ -65,8 +76,20 @@ msgstr "E-mail"
 msgid "Name"
 msgstr "Navn"
 
+msgid "Password"
+msgstr "Adgangskode"
+
+msgid "Please sign in to continue"
+msgstr "Log ind for at fortsætte"
+
 msgid "Sign in"
 msgstr "Log ind"
+
+msgid "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
+msgstr "Log ind med din virksomheds e-mail-adresse for at komme i gang med at bygge på PlatformPlatform - ligesom tusindvis af andre udviklere."
+
+msgid "Sign up"
+msgstr "Opret"
 
 msgid "Something went wrong, please try again"
 msgstr "Noget gik galt, prøv igen"

@@ -53,11 +53,22 @@ msgstr "Server error: Failed login."
 msgid "Server error: Failed logout."
 msgstr "Server error: Failed logout."
 
+#. js-lingui-explicit-id
+msgid "name@work.email.com"
+msgstr "name@work.email.com"
+
+#. js-lingui-explicit-id
+msgid "Enter password"
+msgstr "Enter password"
+
 msgid "Create a account"
 msgstr "Create a account"
 
 msgid "Create account!"
 msgstr "Create account!"
+
+msgid "Don't have an account?"
+msgstr "Don't have an account?"
 
 msgid "Email"
 msgstr "Email"
@@ -65,8 +76,20 @@ msgstr "Email"
 msgid "Name"
 msgstr "Name"
 
+msgid "Password"
+msgstr "Password"
+
+msgid "Please sign in to continue"
+msgstr "Please sign in to continue"
+
 msgid "Sign in"
 msgstr "Sign in"
+
+msgid "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
+msgstr "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
+
+msgid "Sign up"
+msgstr "Sign up"
 
 msgid "Something went wrong, please try again"
 msgstr "Something went wrong, please try again"

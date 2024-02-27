@@ -53,10 +53,21 @@ msgstr ""
 msgid "Server error: Failed logout."
 msgstr ""
 
+#. js-lingui-explicit-id
+msgid "name@work.email.com"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Enter password"
+msgstr ""
+
 msgid "Create a account"
 msgstr ""
 
 msgid "Create account!"
+msgstr ""
+
+msgid "Don't have an account?"
 msgstr ""
 
 msgid "Email"
@@ -65,7 +76,19 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+msgid "Password"
+msgstr ""
+
+msgid "Please sign in to continue"
+msgstr ""
+
 msgid "Sign in"
+msgstr ""
+
+msgid "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
+msgstr ""
+
+msgid "Sign up"
 msgstr ""
 
 msgid "Something went wrong, please try again"
