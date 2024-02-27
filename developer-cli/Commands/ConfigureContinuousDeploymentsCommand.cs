@@ -436,10 +436,10 @@ public class ConfigureContinuousDeploymentsCommand : Command
         azureInfo.AppRegistrationId = RunAzureCliCommand(
             $"""ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv""").Trim();
 
-        azureInfo.ServicePrincipalId =
-            RunAzureCliCommand($"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv").Trim();
+        azureInfo.ServicePrincipalId = RunAzureCliCommand(
+            $"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv").Trim();
 
-        azureInfo.ServicePrincipalObjectId = ProcessHelper.StartProcess(
+        azureInfo.ServicePrincipalObjectId = RunAzureCliCommand(
             $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""").Trim();
 
         AnsiConsole.MarkupLine(
