@@ -1,17 +1,22 @@
 using System.Net.Sockets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {
     public static readonly bool SwaggerGenerator = Environment.GetEnvironmentVariable("SWAGGER_GENERATOR") == "true";
+    private static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("KEYVAULT_URL") is not null;
 
     [UsedImplicitly]
     public static IServiceCollection ConfigureDatabaseContext<T>(
@@ -37,9 +42,22 @@ public static class InfrastructureCoreConfiguration
 
         services.RegisterRepositories(assembly);
 
+        if (IsRunningInAzure)
+        {
+            services.AddSingleton<SecretClient>(_ =>
+            {
+                var keyVaultUrl = Environment.GetEnvironmentVariable("KEYVAULT_URL")!;
+                return new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+            });
+            services.AddTransient<IEmailService, AzureEmailService>();
+        }
+        else
+        {
+            services.AddTransient<IEmailService, DevelopmentEmailService>();
+        }
+
         return services;
     }
-
 
     [UsedImplicitly]
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
