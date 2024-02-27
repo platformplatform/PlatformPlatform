@@ -10,12 +10,17 @@
  * - import.meta.runtime_env
  */
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
+const userInfoEnvElement = document.head.getElementsByTagName("meta").namedItem("userInfoEnv");
 
 if (runtimeEnvElement == null)
   throw new Error("Runtime environment is not configured.");
 
+if (userInfoEnvElement == null)
+  throw new Error("UserInfo environment is not configured.");
+
 try {
   const runtimeEnv: RuntimeEnv = JSON.parse(atob(runtimeEnvElement.content));
+  const userInfoEnv: UserInfoEnv = JSON.parse(atob(userInfoEnvElement.content));
 
   const environment = {
     ...import.meta.build_env,
@@ -28,6 +33,7 @@ try {
     return {
       buildEnv: import.meta.build_env,
       runtimeEnv,
+      userInfoEnv,
       env: environment,
     };
   };

@@ -14,8 +14,23 @@ export declare global {
     CDN_URL: string;
     /* Application version */
     APPLICATION_VERSION: string;
-    /* User locale */
+    /* Culture locale */
     LOCALE: string;
+  }
+
+  interface UserInfoEnv {
+    /* Is user authenticated */
+    isAuthenticated: boolean;
+    /* User locale */
+    locale: string;
+    /* User email */
+    email?: string;
+    /* User name */
+    name?: string;
+    /* User role */
+    role?: string;
+    /* Tenant id */
+    tenantId?: string;
   }
 
   /**
@@ -27,5 +42,6 @@ export declare global {
     env: Environment;
     build_env: BuildEnv;
     runtime_env: RuntimeEnv;
+    user_info_env: UserInfoEnv;
   }
 }

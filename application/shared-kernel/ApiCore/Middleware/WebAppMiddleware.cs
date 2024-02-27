@@ -1,4 +1,5 @@
 using System.Security;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -50,9 +51,11 @@ public sealed class WebAppMiddleware : IMiddleware
         if (context.Request.Path.ToString().StartsWith("/api/")) return next(context);
 
         var cultureFeature = context.Features.Get<IRequestCultureFeature>();
-        var userCulture = cultureFeature?.RequestCulture.Culture;
+        var locale = cultureFeature?.RequestCulture.Culture.Name ?? "en-US";
 
-        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, userCulture?.Name ?? "en-US" } };
+        var userInfo = new UserInfo(context.User, locale);
+
+        var requestEnvironmentVariables = new Dictionary<string, string> { { Locale, locale } };
 
         // Cache control
         ApplyNoCacheHeaders(context);
@@ -63,7 +66,7 @@ public sealed class WebAppMiddleware : IMiddleware
         // Set content type
         context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
 
-        return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables));
+        return context.Response.WriteAsync(GetHtmlWithEnvironment(requestEnvironmentVariables, userInfo));
     }
 
     private void VerifyRuntimeEnvironment(Dictionary<string, string> environmentVariables)
@@ -76,7 +79,7 @@ public sealed class WebAppMiddleware : IMiddleware
         }
     }
 
-    private string GetHtmlWithEnvironment(Dictionary<string, string>? requestEnvironmentVariables = null)
+    private string GetHtmlWithEnvironment(Dictionary<string, string>? requestEnvironmentVariables, UserInfo userInfo)
     {
         if (_htmlTemplate is null || _isDevelopment)
         {
@@ -91,6 +94,11 @@ public sealed class WebAppMiddleware : IMiddleware
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(runtimeEnvironment, _jsonSerializerOptions))
         );
         var result = _htmlTemplate.Replace("%ENCODED_RUNTIME_ENV%", encodedRuntimeEnvironment);
+
+        var encodedUserInfo = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(userInfo, _jsonSerializerOptions))
+        );
+        result = result.Replace("%ENCODED_USER_INFO_ENV%", encodedUserInfo);
 
         foreach (var variable in runtimeEnvironment)
         {
@@ -270,4 +278,34 @@ public class WebAppMiddlewareConfiguration
 
         return Path.Join(directoryInfo!.FullName, webAppProjectName, webAppDistRootName);
     }
+}
+
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
+public class UserInfo
+{
+    public UserInfo(ClaimsPrincipal user, string defaultLocale)
+    {
+        IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
+        Locale = user.FindFirst("locale")?.Value ?? defaultLocale;
+
+        if (IsAuthenticated)
+        {
+            Email = user.Identity?.Name;
+            Name = user.FindFirst(ClaimTypes.Name)?.Value;
+            Role = user.FindFirst(ClaimTypes.Role)?.Value;
+            TenantId = user.FindFirst("tenantId")?.Value;
+        }
+    }
+
+    public bool IsAuthenticated { get; init; }
+
+    public string Locale { get; init; }
+
+    public string? Email { get; init; }
+
+    public string? Name { get; init; }
+
+    public string? Role { get; init; }
+
+    public string? TenantId { get; init; }
 }
