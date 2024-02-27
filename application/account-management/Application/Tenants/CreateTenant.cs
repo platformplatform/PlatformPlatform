@@ -51,7 +51,13 @@ public sealed class CreateTenantHandler(
                 $"The account registration {accountRegistration.Id} has already been completed.");
         }
 
-        var tenant = Tenant.Create(command.Subdomain, command.Name, accountRegistration.Email);
+        var tenant = Tenant.Create(
+            command.Subdomain,
+            command.Name,
+            accountRegistration.Email,
+            accountRegistration.FirstName,
+            accountRegistration.LastName
+        );
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         accountRegistration.MarkAsCompleted(tenant.Id);

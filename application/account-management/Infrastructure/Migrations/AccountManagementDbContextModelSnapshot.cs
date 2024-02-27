@@ -117,9 +117,21 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(30)");
+
                     b.Property<string>("UserRole")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .IsRequired()
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 

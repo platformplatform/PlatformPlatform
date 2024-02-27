@@ -37,7 +37,10 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", nullable: false),
-                    UserRole = table.Column<string>(type: "varchar(20)", nullable: false)
+                    FirstName = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    UserRole = table.Column<string>(type: "varchar(20)", nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

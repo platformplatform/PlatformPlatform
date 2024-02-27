@@ -8,8 +8,14 @@ public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler>
 {
     public async Task Handle(TenantCreatedEvent notification, CancellationToken cancellationToken)
     {
-        var createTenantOwnerCommand =
-            new CreateUserCommand(notification.TenantId, notification.Email, UserRole.TenantOwner);
+        var createTenantOwnerCommand = new CreateUserCommand(
+            notification.TenantId,
+            notification.Email,
+            notification.FirstName,
+            notification.LastName,
+            UserRole.TenantOwner,
+            true
+        );
         var result = await mediator.Send(createTenantOwnerCommand, cancellationToken);
 
         if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
