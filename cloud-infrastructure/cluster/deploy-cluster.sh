@@ -56,6 +56,7 @@ ACTIVE_ACCOUNT_MANAGEMENT_VERSION=$(get_active_version account-management)
 ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=$(is_domain_configured "account-management" "$RESOURCE_GROUP_NAME")
 
 az extension add --name application-insights
+az extension add --name application-insights --allow-preview true
 APPLICATION_INSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $ENVIRONMENT-application-insights --resource-group $ENVIRONMENT --query connectionString --output tsv)
 
 DEPLOYMENT_COMMAND="az deployment sub create"
