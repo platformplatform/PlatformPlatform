@@ -201,7 +201,7 @@ module accountManagement '../modules/container-app.bicep' = {
     applicationInsightsConnectionString: applicationInsightsConnectionString
     keyVaultName: keyVault.outputs.name
   }
-  dependsOn: [accountManagementDatabase]
+  dependsOn: [accountManagementDatabase, communicationService]
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
