@@ -5,7 +5,14 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole)
+public sealed record CreateUserCommand(
+    TenantId TenantId,
+    string Email,
+    string FirstName,
+    string LastName,
+    UserRole UserRole,
+    bool EmailConfirmed
+)
     : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
 [UsedImplicitly]
@@ -14,7 +21,14 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        var user = User.Create(command.TenantId, command.Email, command.UserRole);
+        var user = User.Create(
+            command.TenantId,
+            command.Email,
+            command.FirstName,
+            command.LastName,
+            command.UserRole,
+            command.EmailConfirmed
+        );
         await userRepository.AddAsync(user, cancellationToken);
 
         events.CollectEvent(new UserCreated(command.TenantId));

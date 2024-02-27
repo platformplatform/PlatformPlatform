@@ -16,7 +16,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
         CancellationToken cancellationToken
     )
     {
-        var result = await next();
+        var response = await next();
 
         if (concurrentCommandCounter.IsZero())
         {
@@ -27,6 +27,6 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
             }
         }
 
-        return result;
+        return response;
     }
 }

@@ -10,8 +10,6 @@ public sealed record UpdateTenantCommand : ICommand, ITenantValidation, IRequest
     public TenantId Id { get; init; } = null!;
 
     public required string Name { get; init; }
-
-    public string? Phone { get; init; }
 }
 
 [UsedImplicitly]
@@ -23,7 +21,7 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
         var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
 
-        tenant.Update(command.Name, command.Phone);
+        tenant.Update(command.Name);
         tenantRepository.Update(tenant);
 
         events.CollectEvent(new TenantUpdated(tenant.Id));

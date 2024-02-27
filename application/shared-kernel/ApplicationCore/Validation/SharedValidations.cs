@@ -22,6 +22,7 @@ public static class SharedValidations
         }
     }
 
+    [UsedImplicitly]
     public sealed class Phone : AbstractValidator<string?>
     {
         // The ITU-T E.164 standard limits phone numbers to 15 digits (including country code),

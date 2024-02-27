@@ -8,8 +8,25 @@ namespace PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
-public sealed class TenantCreated(TenantId tenantId, TenantState state)
-    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state.ToString()));
+public sealed class AccountRegistrationStarted()
+    : TelemetryEvent(nameof(AccountRegistrationStarted));
+
+public sealed class AccountRegistrationEmailConfirmed()
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmed));
+
+public sealed class AccountRegistrationEmailConfirmationAttemptFailed(int retryCount)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmationAttemptFailed), ("RetryCount", retryCount.ToString()));
+
+public sealed class AccountRegistrationEmailConfirmedButBlocked(int retryCount)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmedButBlocked), ("RetryCount", retryCount.ToString()));
+
+public sealed class AccountRegistrationEmailConfirmedButExpired(int secondsFromCreation)
+    : TelemetryEvent(nameof(AccountRegistrationEmailConfirmedButExpired),
+        ("SecondsFromCreation", secondsFromCreation.ToString()));
+
+public sealed class TenantCreated(TenantId tenantId, TenantState state, int registrationTimeInSeconds)
+    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state.ToString()),
+        ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
 
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
     : TelemetryEvent(nameof(TenantDeleted), ("TenantId", tenantId), ("TenantState", tenantState.ToString()));

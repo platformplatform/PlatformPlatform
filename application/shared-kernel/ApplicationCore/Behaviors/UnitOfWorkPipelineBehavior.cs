@@ -24,7 +24,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(
         concurrentCommandCounter.Increment();
         var response = await next();
 
-        if (response is ResultBase { IsSuccess: true })
+        if (response is ResultBase { IsSuccess: true } || response.CommitChangesOnFailure)
         {
             concurrentCommandCounter.Decrement();
             if (concurrentCommandCounter.IsZero())

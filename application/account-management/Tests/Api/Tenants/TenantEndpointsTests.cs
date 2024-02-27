@@ -32,10 +32,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'name': {'type': 'string', 'minLength': 1, 'maxLength': 30},
-                    'state': {'type': 'string', 'minLength': 1, 'maxLength':20},
-                    'phone': {'type': ['null', 'string'], 'maxLength': 20}
+                    'state': {'type': 'string', 'minLength': 1, 'maxLength':20}
                 },
-                'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'phone'],
+                'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state'],
                 'additionalProperties': false
             }
             """);
@@ -83,8 +82,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var subdomain = Faker.Subdomain();
-        var email = Faker.Internet.Email();
-        var command = new CreateTenantCommand(subdomain, Faker.TenantName(), Faker.PhoneNumber(), email);
+        var email = DatabaseSeeder.AccountRegistration1.Email;
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, Faker.TenantName());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -106,10 +105,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var invalidSubdomain = Faker.Random.AlphaNumeric(1);
         var invalidName = Faker.Random.String(31);
-        var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
-        var invalidEmail = Faker.InvalidEmail();
 
-        var command = new CreateTenantCommand(invalidSubdomain, invalidName, invalidPhone, invalidEmail);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, invalidSubdomain, invalidName);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -118,9 +115,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var expectedErrors = new[]
         {
             new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters."),
-            new ErrorDetail("Name", "Name must be between 1 and 30 characters."),
-            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters."),
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
+            new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
@@ -132,7 +127,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateTenantCommand(unavailableSubdomain, Faker.TenantName(), null, Faker.Internet.Email());
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, unavailableSubdomain,
+            Faker.TenantName());
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -152,7 +148,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new UpdateTenantCommand { Name = Faker.TenantName(), Phone = Faker.PhoneNumber() };
+        var command = new UpdateTenantCommand { Name = Faker.TenantName() };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
@@ -171,8 +167,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidName = Faker.Random.String2(31);
-        var invalidPhone = Faker.Phone.PhoneNumber("+1 ### ###-INVALID");
-        var command = new UpdateTenantCommand { Name = invalidName, Phone = invalidPhone };
+        var command = new UpdateTenantCommand { Name = invalidName };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
@@ -180,8 +175,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Name", "Name must be between 1 and 30 characters."),
-            new ErrorDetail("Phone", "Phone must be in a valid format and no longer than 20 characters.")
+            new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
@@ -193,7 +187,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        var command = new UpdateTenantCommand { Name = Faker.TenantName(), Phone = Faker.PhoneNumber() };
+        var command = new UpdateTenantCommand { Name = Faker.TenantName() };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{unknownTenantId}", command);
