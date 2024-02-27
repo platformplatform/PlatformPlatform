@@ -14,6 +14,14 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing mobile versions"
+msgstr "Skærmbilleder af dashboard-projektet, der viser mobile versioner"
+
+#. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing desktop and mobile versions"
+msgstr "Skærmbilleder af dashboard-projektet, der viser desktop- og mobile versioner"
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to Create Account."
 msgstr "Felter mangler. Kunne ikke oprette konto."
 
@@ -35,24 +43,18 @@ msgstr "e-mail"
 
 #. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
-msgstr ""
+msgstr "Felter mangler. Kunne ikke logge ind."
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed login."
-msgstr ""
+msgstr "Serverfejl: Kunne ikke logge ind."
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
-msgstr ""
-
-msgid "Account Management"
-msgstr "Kontoadministration"
+msgstr "Serverfejl: Kunne ikke logge ud."
 
 msgid "Create a account"
 msgstr "Opret en konto"
-
-msgid "Create Account"
-msgstr "Opret konto"
 
 msgid "Create account!"
 msgstr "Opret konto!"
@@ -63,8 +65,8 @@ msgstr "E-mail"
 msgid "Name"
 msgstr "Navn"
 
-msgid "Overview"
-msgstr "Oversigt"
+msgid "Sign in"
+msgstr "Log ind"
 
 msgid "Something went wrong, please try again"
 msgstr "Noget gik galt, prøv igen"
@@ -72,5 +74,8 @@ msgstr "Noget gik galt, prøv igen"
 msgid "Subdomain"
 msgstr "Subdomæne"
 
-msgid "User Management"
-msgstr "Brugeradministration"
+msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"
+
+msgid "Welcome to Acme."
+msgstr "Velkommen til Acme."

@@ -14,17 +14,19 @@ export type UserRole = z.infer<typeof userRoleScheme>;
 export const UserInfoScheme = z.object({
   isAuthenticated: z.boolean(),
   locale: z.string(),
-  email: z.string().email().optional(),
-  tenantId: z.string().optional(),
-  userRole: userRoleScheme.optional(),
-  userName: z.string().optional(),
+  email: z.string().email().nullable().optional(),
+  tenantId: z.string().nullable().optional(),
+  userRole: userRoleScheme.nullable().optional(),
+  userName: z.string().nullable().optional(),
 });
 export type UserInfo = z.infer<typeof UserInfoScheme>;
 
 const validationResult = UserInfoScheme.safeParse(import.meta.user_info_env);
 
-if (!validationResult.success)
+if (!validationResult.success) {
+  console.error("Invalid user info", validationResult.error.flatten().fieldErrors);
   throw new Error("Invalid user info");
+}
 
 export const initialUserInfo: UserInfo = validationResult.data;
 
