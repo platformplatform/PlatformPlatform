@@ -54,6 +54,18 @@ msgid "Server error: Failed logout."
 msgstr "Server error: Failed logout."
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to register."
+msgstr "Missing Fields. Failed to register."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed register."
+msgstr "Server error: Failed register."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to resend verification."
+msgstr "Server error: Failed to resend verification."
+
+#. js-lingui-explicit-id
 msgid "name@work.email.com"
 msgstr "name@work.email.com"
 
@@ -61,11 +73,31 @@ msgstr "name@work.email.com"
 msgid "Enter password"
 msgstr "Enter password"
 
+#. js-lingui-explicit-id
+msgid "Enter your first name"
+msgstr "Enter your first name"
+
+#. js-lingui-explicit-id
+msgid "Enter your last name"
+msgstr "Enter your last name"
+
+msgid "Already have an account?"
+msgstr "Already have an account?"
+
+msgid "Can't find your code? Check your spam folder"
+msgstr "Can't find your code? Check your spam folder"
+
 msgid "Create a account"
 msgstr "Create a account"
 
 msgid "Create account!"
 msgstr "Create account!"
+
+msgid "Create your account"
+msgstr "Create your account"
+
+msgid "Did't receive the code? Resend"
+msgstr "Did't receive the code? Resend"
 
 msgid "Don't have an account?"
 msgstr "Don't have an account?"
@@ -73,11 +105,23 @@ msgstr "Don't have an account?"
 msgid "Email"
 msgstr "Email"
 
+msgid "Enter your verification code"
+msgstr "Enter your verification code"
+
+msgid "First name"
+msgstr "First name"
+
+msgid "Last name"
+msgstr "Last name"
+
 msgid "Name"
 msgstr "Name"
 
 msgid "Password"
 msgstr "Password"
+
+msgid "Please check your email for a verification code sent to <0>{email}</0>"
+msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
 msgid "Please sign in to continue"
 msgstr "Please sign in to continue"
@@ -99,6 +143,9 @@ msgstr "Subdomain"
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
 msgstr "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+
+msgid "Verify"
+msgstr "Verify"
 
 msgid "Welcome to Acme."
 msgstr "Welcome to Acme."

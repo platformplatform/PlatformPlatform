@@ -54,11 +54,37 @@ msgid "Server error: Failed logout."
 msgstr ""
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to register."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed register."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to resend verification."
+msgstr ""
+
+#. js-lingui-explicit-id
 msgid "name@work.email.com"
 msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Enter password"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Enter your first name"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Enter your last name"
+msgstr ""
+
+msgid "Already have an account?"
+msgstr ""
+
+msgid "Can't find your code? Check your spam folder"
 msgstr ""
 
 msgid "Create a account"
@@ -67,16 +93,34 @@ msgstr ""
 msgid "Create account!"
 msgstr ""
 
+msgid "Create your account"
+msgstr ""
+
+msgid "Did't receive the code? Resend"
+msgstr ""
+
 msgid "Don't have an account?"
 msgstr ""
 
 msgid "Email"
 msgstr ""
 
+msgid "Enter your verification code"
+msgstr ""
+
+msgid "First name"
+msgstr ""
+
+msgid "Last name"
+msgstr ""
+
 msgid "Name"
 msgstr ""
 
 msgid "Password"
+msgstr ""
+
+msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr ""
 
 msgid "Please sign in to continue"
@@ -98,6 +142,9 @@ msgid "Subdomain"
 msgstr ""
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "Welcome to Acme."

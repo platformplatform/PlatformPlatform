@@ -54,6 +54,18 @@ msgid "Server error: Failed logout."
 msgstr "Serverfejl: Kunne ikke logge ud."
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to register."
+msgstr "Felter mangler. Kunne ikke oprette konto."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed register."
+msgstr "Serverfejl: Kunne ikke oprette konto."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to resend verification."
+msgstr "Serverfejl: Kunne ikke sende verifikation igen."
+
+#. js-lingui-explicit-id
 msgid "name@work.email.com"
 msgstr "navn@arbejde.email.dk"
 
@@ -61,11 +73,31 @@ msgstr "navn@arbejde.email.dk"
 msgid "Enter password"
 msgstr "Indtast adgangskode"
 
+#. js-lingui-explicit-id
+msgid "Enter your first name"
+msgstr "Indtast dit fornavn"
+
+#. js-lingui-explicit-id
+msgid "Enter your last name"
+msgstr "Indtast dit efternavn"
+
+msgid "Already have an account?"
+msgstr "Har du allerede en konto?"
+
+msgid "Can't find your code? Check your spam folder"
+msgstr "Kan ikke finde din kode? Tjek din spam-mappe"
+
 msgid "Create a account"
 msgstr "Opret en konto"
 
 msgid "Create account!"
 msgstr "Opret konto!"
+
+msgid "Create your account"
+msgstr "Opret din konto"
+
+msgid "Did't receive the code? Resend"
+msgstr "Modtog ikke koden? Send igen"
 
 msgid "Don't have an account?"
 msgstr "Har du ikke en konto?"
@@ -73,11 +105,23 @@ msgstr "Har du ikke en konto?"
 msgid "Email"
 msgstr "E-mail"
 
+msgid "Enter your verification code"
+msgstr "Indtast din verifikationskode"
+
+msgid "First name"
+msgstr "Fornavn"
+
+msgid "Last name"
+msgstr "Efternavn"
+
 msgid "Name"
 msgstr "Navn"
 
 msgid "Password"
 msgstr "Adgangskode"
+
+msgid "Please check your email for a verification code sent to <0>{email}</0>"
+msgstr "Tjek venligst din e-mail for en verifikationskode sendt til <0>{email}</0>"
 
 msgid "Please sign in to continue"
 msgstr "Log ind for at fortsætte"
@@ -99,6 +143,9 @@ msgstr "Subdomæne"
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
 msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"
+
+msgid "Verify"
+msgstr "Bekræft"
 
 msgid "Welcome to Acme."
 msgstr "Velkommen til Acme."
