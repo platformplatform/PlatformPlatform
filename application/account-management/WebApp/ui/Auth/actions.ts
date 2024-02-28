@@ -69,3 +69,58 @@ export async function register(_: State, formData: FormData): Promise<State> {
     };
   }
 }
+
+const VerifyEmailSchema = z.object({
+  registrationId: z.string().min(1, "Please enter your registration id"),
+  oneTimePassword: z.string().min(6, "Please enter your verification code"),
+});
+
+export async function VerifyEmail(_: State, formData: FormData): Promise<State> {
+  const validatedFields = VerifyEmailSchema.safeParse({
+    registrationId: formData.get("registrationId"),
+    oneTimePassword: formData.get("oneTimePassword"),
+  });
+
+  if (!validatedFields.success) {
+    // eslint-disable-next-line no-console
+    console.log("validation errors", validatedFields.error.flatten().fieldErrors);
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: i18n.t("Missing Fields. Failed to register."),
+    };
+  }
+
+  const { registrationId, oneTimePassword } = validatedFields.data;
+
+  try {
+    const result = await accountManagementApi.POST("/api/account-registrations/{id}/confirm-email", {
+      params: {
+        path: {
+          // eslint-disable-next-line ts/ban-ts-comment
+          // @ts-expect-error
+          id: registrationId,
+        },
+      },
+      body: {
+        oneTimePassword,
+      },
+    });
+
+    if (result.response.ok) {
+      navigate("/dashboard");
+      return {};
+    }
+
+    const apiError = getApiError(result);
+
+    return {
+      message: apiError.title,
+      errors: getFieldErrors(apiError.Errors),
+    };
+  }
+  catch (e) {
+    return {
+      message: i18n.t("Server error: Failed to resend verification."),
+    };
+  }
+}
