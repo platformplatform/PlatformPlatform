@@ -28,7 +28,7 @@ export interface PageProps<T extends unknown = unknown> {
   params: T;
 };
 
-export interface ErrorPageProps<E extends unknown = unknown> {
+export interface ErrorPageProps<E extends unknown = unknown> extends PageProps {
   error: E;
   reset: () => void;
 };
@@ -39,11 +39,12 @@ function createErrorPage(errorPage: FunctionComponent) {
   return createElement(() => {
     /* Error page */
     const error = useRouteError();
+    const params = useParams();
     const reset = () => {
       // eslint-disable-next-line no-console
       console.log("Not implemented");
     };
-    return createElement<ErrorPageProps>(errorPage, { error, reset }, null);
+    return createElement<ErrorPageProps>(errorPage, { params, error, reset }, null);
   });
 }
 
