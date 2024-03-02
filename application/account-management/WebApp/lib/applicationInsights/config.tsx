@@ -25,6 +25,8 @@ const applicationInsights = new ApplicationInsights({
     // Disable dependency tracking
     disableFetchTracking: true,
     disableAjaxTracking: true,
+    // Disable the unload event as it is not best practice
+    disablePageUnloadEvents: ["unload"],
   },
 });
 
