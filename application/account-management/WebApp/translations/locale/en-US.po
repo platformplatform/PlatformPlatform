@@ -14,14 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Screenshots of the dashboard project showing mobile versions"
-msgstr "Screenshots of the dashboard project showing mobile versions"
-
-#. js-lingui-explicit-id
-msgid "Screenshots of the dashboard project showing desktop and mobile versions"
-msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to Create Account."
 msgstr "Missing Fields. Failed to Create Account."
 
@@ -80,6 +72,14 @@ msgstr "Enter your first name"
 #. js-lingui-explicit-id
 msgid "Enter your last name"
 msgstr "Enter your last name"
+
+#. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing mobile versions"
+msgstr "Screenshots of the dashboard project showing mobile versions"
+
+#. js-lingui-explicit-id
+msgid "Screenshots of the dashboard project showing desktop and mobile versions"
+msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
 
 msgid "Already have an account?"
 msgstr "Already have an account?"
