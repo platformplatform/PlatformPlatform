@@ -1,9 +1,7 @@
-import { useLingui } from "@lingui/react";
 import { z } from "zod";
-import heroDesktop from "@/app/hero-desktop.png";
-import heroMobile from "@/app/hero-mobile.png";
 import { SignUpVerifyForm } from "@/ui/Auth/SignUpVerifyForm";
 import { useSearchParams } from "@/lib/router/router";
+import { HeroImage } from "@/ui/images/HeroImage";
 
 interface SignUpVerifyPageProps {
   params: {
@@ -12,7 +10,6 @@ interface SignUpVerifyPageProps {
 }
 
 export default function SignUpVerifyPage({ params: { registrationId } }: Readonly<SignUpVerifyPageProps>) {
-  const { i18n } = useLingui();
   const [searchParams] = useSearchParams();
 
   const email = z.string().email().parse(searchParams.get("email"));
@@ -26,20 +23,7 @@ export default function SignUpVerifyPage({ params: { registrationId } }: Readonl
           <SignUpVerifyForm email={email} expireAt={expireAt} registrationId={registrationId} />
         </div>
         <div className="flex items-center justify-center p-6 bg-gray-50 md:w-3/5 md:px-28 md:py-12">
-          <img
-            src={heroMobile}
-            width={560}
-            height={620}
-            className="block md:hidden"
-            alt={i18n.t("Screenshots of the dashboard project showing mobile versions")}
-          />
-          <img
-            src={heroDesktop}
-            width={1000}
-            height={760}
-            className="hidden md:block"
-            alt={i18n.t("Screenshots of the dashboard project showing desktop and mobile versions")}
-          />
+          <HeroImage />
         </div>
       </div>
     </main>
