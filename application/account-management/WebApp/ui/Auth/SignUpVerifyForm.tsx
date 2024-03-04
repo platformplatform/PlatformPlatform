@@ -8,7 +8,7 @@ import { VerifyEmail } from "./actions";
 import { useExpirationTimeout } from "./otp/useExpiration";
 import { OneTimeCodeInput } from "./otp/OneTimeCodeInput";
 import { DigitPattern } from "./otp/DigitPattern";
-import { Link } from "@/lib/router/router";
+import { Link } from "@/ui/components/Link";
 import poweredByUrl from "@/ui/Auth/powered-by.png";
 import logoMarkUrl from "@/ui/Auth/logo-mark.png";
 
@@ -39,7 +39,7 @@ export function SignUpVerifyForm({ email, expireAt, registrationId }: Readonly<S
         <div className="w-full flex flex-col gap-4">
           <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} />
           <div className="text-xs text-neutral-500 text-center">
-            <Link to="/resend-verification" className="font-bold leading-none"><Trans>Did't receive the code? Resend</Trans></Link>
+            <Link href="/resend-verification" bold><Trans>Did't receive the code? Resend</Trans></Link>
             {" "}
             <span className="font-normal leading-none tabular-nums">
               ({expiresInString})
@@ -63,7 +63,7 @@ function VerifyEmailButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="neutral" type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
+    <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
       <Trans>Verify</Trans>
     </Button>
   );

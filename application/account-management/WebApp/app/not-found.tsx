@@ -1,11 +1,11 @@
-import { Link } from "@/lib/router/router";
+import { Link } from "@/ui/components/Link";
 
 export default function NotFound() {
   return (
     <div>
       <h2>Not Found</h2>
       <p>Could not find requested resource</p>
-      <Link to="/">Return Home</Link>
+      <Link href="/">Return Home</Link>
     </div>
   );
 }

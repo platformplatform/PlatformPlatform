@@ -7,7 +7,7 @@ import { Button } from "../components/Button";
 import { Form } from "../components/Form";
 import type { State } from "./actions";
 import { register } from "./actions";
-import { Link } from "@/lib/router/router";
+import { Link } from "@/ui/components/Link";
 import { FieldError, Input, Label } from "@/ui/components/Field";
 import poweredByUrl from "@/ui/Auth/powered-by.png";
 import logoMarkUrl from "@/ui/Auth/logo-mark.png";
@@ -77,14 +77,14 @@ export function SignUpForm() {
           <p className="text-xs ">
             <Trans>Already have an account?</Trans>
             {" "}
-            <Link to="/login" className="font-semibold"><Trans>Sign in</Trans></Link>
+            <Link href="/login" bold><Trans>Sign in</Trans></Link>
           </p>
           <div className="text-sm text-neutral-500">
             By continuing, you agree to our policies
             <div className="flex items-center justify-center">
-              <Link to="/terms" className="font-semibold">Terms of use</Link>
+              <Link href="/terms" bold>Terms of use</Link>
               <DotIcon className="w-4 h-4" />
-              <Link to="/privacy" className="font-semibold">Privacy Policies</Link>
+              <Link href="/privacy" bold>Privacy Policies</Link>
             </div>
           </div>
           <img src={poweredByUrl} alt="powered by" />
@@ -98,7 +98,7 @@ function CreateAccountButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="neutral" type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
+    <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
       <Trans>Create your account</Trans>
     </Button>
   );
