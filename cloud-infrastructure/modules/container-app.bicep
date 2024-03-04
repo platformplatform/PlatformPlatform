@@ -116,6 +116,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
             }
             {
+              name: 'MANAGED_IDENTITY_CLIENT_ID'
+              value: userAssignedIdentity.properties.clientId
+            }
+            {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: applicationInsightsConnectionString
             }
@@ -170,20 +174,12 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   dependsOn: [containerRegistryPermission]
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-10-01' = {
-  parent: keyVault
-  name: 'add'
+var keyVaultSecretsUserRoleDefinitionId = '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User role
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(keyVault.name, name, keyVaultSecretsUserRoleDefinitionId)
+  scope: keyVault
   properties: {
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: userAssignedIdentity.properties.principalId
-        permissions: {
-          secrets: [
-            'get'
-          ]
-        }
-      }
-    ]
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleDefinitionId)
+    principalId: userAssignedIdentity.properties.principalId
   }
 }
