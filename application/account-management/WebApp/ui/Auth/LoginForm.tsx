@@ -3,9 +3,9 @@ import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
-import { Button } from "../components/Button";
-import { Form } from "../components/Form";
-import { Link } from "@/lib/router/router";
+import { Button } from "@/ui/components/Button";
+import { Form } from "@/ui/components/Form";
+import { Link } from "@/ui/components/Link";
 import { FieldError, Input, Label } from "@/ui/components/Field";
 import poweredByUrl from "@/ui/Auth/powered-by.png";
 import logoMarkUrl from "@/ui/Auth/logo-mark.png";
@@ -71,7 +71,7 @@ export default function LoginForm() {
           <p className="text-xs text-neutral-500">
             <Trans>Don't have an account?</Trans>
             {" "}
-            <Link to="/register" className="font-semibold"><Trans>Sign up</Trans></Link>
+            <Link href="/register" bold><Trans>Sign up</Trans></Link>
           </p>
           <img src={poweredByUrl} alt="powered by" />
         </div>
@@ -84,7 +84,7 @@ function LoginButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="neutral" type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
+    <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
       <Trans>Sign in</Trans>
     </Button>
   );

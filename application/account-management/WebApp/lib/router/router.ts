@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router.generated";
 
-export { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
+export { useParams, useNavigate, useSearchParams } from "react-router-dom";
 
 /**
  * React Router Provider serving the routes defined in the filesystem.

@@ -64,5 +64,10 @@
   "resolutions": {
     "react": "18.3.0-canary-c47c306a7-20231109",
     "react-dom": "18.3.0-canary-c47c306a7-20231109"
-  }
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "not dead"
+  ]
 }

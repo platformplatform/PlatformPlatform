@@ -15,6 +15,7 @@ if (fs.existsSync(outputPath))
 
 const configuration: Configuration = {
   context: __dirname,
+  target: "browserslist",
   entry: {
     main: ["./shared/rspack/runtime.ts", "./main.tsx"],
   },
