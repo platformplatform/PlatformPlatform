@@ -116,6 +116,10 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
             }
             {
+              name: 'MANAGED_IDENTITY_CLIENT_ID'
+              value: userAssignedIdentity.properties.clientId
+            }
+            {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: applicationInsightsConnectionString
             }
