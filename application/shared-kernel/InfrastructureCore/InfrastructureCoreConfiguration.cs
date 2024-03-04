@@ -47,7 +47,10 @@ public static class InfrastructureCoreConfiguration
             services.AddSingleton<SecretClient>(_ =>
             {
                 var keyVaultUrl = Environment.GetEnvironmentVariable("KEYVAULT_URL")!;
-                return new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+                var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")!;
+                var credentialOptions = new DefaultAzureCredentialOptions
+                    { ManagedIdentityClientId = managedIdentityClientId };
+                return new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential(credentialOptions));
             });
             services.AddTransient<IEmailService, AzureEmailService>();
         }
