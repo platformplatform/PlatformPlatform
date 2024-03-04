@@ -9,7 +9,7 @@ export interface ButtonProps extends RACButtonProps {
 
 const button = tv({
   extend: focusRing,
-  base: "px-5 py-2 text-sm text-center transition rounded-lg border border-black/10 dark:border-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] dark:shadow-none cursor-default",
+  base: "px-6 py-3 text-sm text-center transition rounded-lg border border-black/10 dark:border-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] dark:shadow-none cursor-default",
   variants: {
     variant: {
       primary: "bg-blue-600 hover:bg-blue-700 pressed:bg-blue-800 text-white",
@@ -23,7 +23,7 @@ const button = tv({
     },
   },
   defaultVariants: {
-    variant: "primary",
+    variant: "neutral",
   },
 });
 
