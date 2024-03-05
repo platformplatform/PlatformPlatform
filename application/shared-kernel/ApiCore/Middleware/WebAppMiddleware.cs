@@ -1,15 +1,10 @@
 using System.Security;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
@@ -30,10 +25,7 @@ public sealed class WebAppMiddleware : IMiddleware
     private readonly Dictionary<string, string> _staticRuntimeEnvironment;
     private string? _htmlTemplate;
 
-    public WebAppMiddleware(
-        IOptions<JsonOptions> jsonOptions,
-        WebAppMiddlewareConfiguration configuration
-    )
+    public WebAppMiddleware(IOptions<JsonOptions> jsonOptions, WebAppMiddlewareConfiguration configuration)
     {
         _htmlTemplatePath = configuration.HtmlTemplatePath;
         _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
@@ -165,147 +157,4 @@ public sealed class WebAppMiddleware : IMiddleware
     {
         return string.Join(" ", contentSecurityPolicies.Select(p => $"{p.Key} {string.Join(" ", p.Value)};"));
     }
-}
-
-public static class WebAppMiddlewareExtensions
-{
-    [UsedImplicitly]
-    public static IApplicationBuilder UseWebAppMiddleware(
-        this IApplicationBuilder builder
-    )
-    {
-        if (InfrastructureCoreConfiguration.SwaggerGenerator) return builder;
-
-        var configuration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
-
-        return builder
-            .UseStaticFiles(new StaticFileOptions
-                { FileProvider = new PhysicalFileProvider(configuration.BuildRootPath) })
-            .UseRequestLocalization("en-US", "da-DK")
-            .UseMiddleware<WebAppMiddleware>();
-    }
-
-    [UsedImplicitly]
-    public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
-    {
-        return services.AddWebAppMiddleware(_ => { });
-    }
-
-    [UsedImplicitly]
-    public static IServiceCollection AddWebAppMiddleware(
-        this IServiceCollection services,
-        Action<WebAppMiddlewareConfiguration> configureOptions
-    )
-    {
-        if (InfrastructureCoreConfiguration.SwaggerGenerator) return services;
-
-        var configuration = new WebAppMiddlewareConfiguration();
-
-        configureOptions.Invoke(configuration);
-
-        return services
-            .AddSingleton(configuration)
-            .AddTransient<WebAppMiddleware>();
-    }
-}
-
-[UsedImplicitly]
-public class WebAppMiddlewareConfiguration
-{
-    public WebAppMiddlewareConfiguration(
-        string webAppProjectName = "WebApp",
-        Dictionary<string, string>? publicEnvironmentVariables = null
-    )
-    {
-        var publicUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.PublicUrlKey);
-        var cdnUrl = GetEnvironmentVariableOrThrow(WebAppMiddleware.CdnUrlKey);
-        var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
-
-        var environmentVariables = new Dictionary<string, string>
-        {
-            { WebAppMiddleware.PublicUrlKey, publicUrl },
-            { WebAppMiddleware.CdnUrlKey, cdnUrl },
-            { WebAppMiddleware.ApplicationVersion, applicationVersion }
-        };
-
-        StaticRuntimeEnvironment = publicEnvironmentVariables is null
-            ? environmentVariables
-            : environmentVariables.Concat(publicEnvironmentVariables).ToDictionary();
-
-        BuildRootPath = GetWebAppDistRoot(webAppProjectName, "dist");
-        HtmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
-
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "development")
-        {
-            for (var i = 0; i < 10; i++)
-            {
-                if (File.Exists(HtmlTemplatePath)) break;
-                Debug.WriteLine($"Waiting for {webAppProjectName} build to be ready...");
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-        }
-
-        if (!File.Exists(HtmlTemplatePath))
-        {
-            throw new FileNotFoundException("index.html does not exist.", HtmlTemplatePath);
-        }
-    }
-
-    public Dictionary<string, string> StaticRuntimeEnvironment { get; }
-
-    public string HtmlTemplatePath { get; }
-
-    public string BuildRootPath { get; }
-
-    private static string GetEnvironmentVariableOrThrow(string variableName)
-    {
-        return Environment.GetEnvironmentVariable(variableName)
-               ?? throw new InvalidOperationException($"Required environment variable '{variableName}' is not set.");
-    }
-
-    private static string GetWebAppDistRoot(string webAppProjectName, string webAppDistRootName)
-    {
-        var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-
-        var directoryInfo = new DirectoryInfo(assemblyPath);
-        while (directoryInfo is not null &&
-               directoryInfo.GetDirectories(webAppProjectName).Length == 0 &&
-               !Path.Exists(Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName))
-              )
-        {
-            directoryInfo = directoryInfo.Parent;
-        }
-
-        return Path.Join(directoryInfo!.FullName, webAppProjectName, webAppDistRootName);
-    }
-}
-
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
-public class UserInfo
-{
-    public UserInfo(ClaimsPrincipal user, string defaultLocale)
-    {
-        IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
-        Locale = user.FindFirst("locale")?.Value ?? defaultLocale;
-
-        if (IsAuthenticated)
-        {
-            Email = user.Identity?.Name;
-            Name = user.FindFirst(ClaimTypes.Name)?.Value;
-            Role = user.FindFirst(ClaimTypes.Role)?.Value;
-            TenantId = user.FindFirst("tenantId")?.Value;
-        }
-    }
-
-    public bool IsAuthenticated { get; init; }
-
-    public string Locale { get; init; }
-
-    public string? Email { get; init; }
-
-    public string? Name { get; init; }
-
-    public string? Role { get; init; }
-
-    public string? TenantId { get; init; }
 }
