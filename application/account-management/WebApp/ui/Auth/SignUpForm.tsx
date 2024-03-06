@@ -33,41 +33,27 @@ export function SignUpForm() {
         <div className="w-full flex flex-col gap-4">
           <TextField className="flex flex-col">
             <Label>
-              <Trans>First name</Trans>
-            </Label>
-            <Input
-              type="text"
-              name="firstName"
-              autoComplete="given-name"
-              autoFocus
-              required
-              placeholder={i18n.t("Enter your first name")}
-            />
-            <FieldError />
-          </TextField>
-          <TextField className="flex flex-col">
-            <Label>
-              <Trans>Last name</Trans>
-            </Label>
-            <Input
-              type="text"
-              name="lastName"
-              autoComplete="family-name"
-              required
-              placeholder={i18n.t("Enter your last name")}
-            />
-            <FieldError />
-          </TextField>
-          <TextField className="flex flex-col">
-            <Label>
               <Trans>Email</Trans>
             </Label>
             <Input
               type="email"
               name="email"
+              autoFocus
               autoComplete="email webauthn"
               required
               placeholder={i18n.t("name@work.email.com")}
+            />
+            <FieldError />
+          </TextField>
+          <TextField className="flex flex-col">
+            <Label>
+              <Trans>Subdomain</Trans>
+            </Label>
+            <Input
+              type="text"
+              name="subdomain"
+              required
+              placeholder={i18n.t("uniquesubdomain")}
             />
             <FieldError />
           </TextField>

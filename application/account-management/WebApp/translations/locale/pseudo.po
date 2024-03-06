@@ -46,11 +46,7 @@ msgid "Enter password"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Enter your first name"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Enter your last name"
+msgid "uniquesubdomain"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -82,12 +78,6 @@ msgstr ""
 msgid "Enter your verification code"
 msgstr ""
 
-msgid "First name"
-msgstr ""
-
-msgid "Last name"
-msgstr ""
-
 msgid "Password"
 msgstr ""
 
@@ -107,6 +97,9 @@ msgid "Sign up"
 msgstr ""
 
 msgid "Something went wrong, please try again"
+msgstr ""
+
+msgid "Subdomain"
 msgstr ""
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"

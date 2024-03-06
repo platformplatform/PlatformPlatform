@@ -12,16 +12,14 @@ export interface State {
 }
 
 export const RegisterSchema = z.object({
-  email: z.string().min(1, "Please enter your email").email("Please enter a valid email"),
-  firstName: z.string().min(1, "Please enter your first name"),
-  lastName: z.string().min(1, "Please enter your last name"),
+  subdomain: z.string().min(3, "Subdomain must be between 3-30 alphanumeric and lowercase characters").max(30),
+  email: z.string().min(5, "Please enter your email").email("Email must be in a valid format and no longer than 100 characters").max(100),
 });
 
 export async function register(_: State, formData: FormData): Promise<State> {
   const validatedFields = RegisterSchema.safeParse({
+    subdomain: formData.get("subdomain"),
     email: formData.get("email"),
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
   });
 
   if (!validatedFields.success) {
@@ -33,14 +31,13 @@ export async function register(_: State, formData: FormData): Promise<State> {
     };
   }
 
-  const { email, firstName, lastName } = validatedFields.data;
+  const { subdomain, email} = validatedFields.data;
 
   try {
     const result = await accountManagementApi.POST("/api/account-registrations/start", {
       body: {
-        email,
-        firstName,
-        lastName,
+        subdomain,
+        email
       },
     });
 
