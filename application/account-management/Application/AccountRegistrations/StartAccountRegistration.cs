@@ -9,7 +9,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 
 [UsedImplicitly]
-public sealed record StartAccountRegistrationCommand(string Email, string FirstName, string LastName)
+public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
     : ICommand, IRequest<Result<AccountRegistrationId>>;
 
 [UsedImplicitly]
@@ -38,7 +38,7 @@ public sealed class StartAccountRegistrationCommandHandler(
                 "Too many attempts to register this email address. Please try again later.");
         }
 
-        var accountRegistration = AccountRegistration.Create(command.Email, command.FirstName, command.LastName);
+        var accountRegistration = AccountRegistration.Create(new TenantId(command.Subdomain), command.Email);
         await accountRegistrationRepository.AddAsync(accountRegistration, cancellationToken);
         events.CollectEvent(new AccountRegistrationStarted());
 
@@ -56,14 +56,15 @@ public sealed class StartAccountRegistrationCommandHandler(
 [UsedImplicitly]
 public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
 {
-    public StartAccountRegistrationValidator()
+    public StartAccountRegistrationValidator(ITenantRepository tenantRepository)
     {
+        RuleFor(x => x.Subdomain).NotEmpty();
+        RuleFor(x => x.Subdomain)
+            .Matches("^[a-z0-9]{3,30}$")
+            .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
+            .WithMessage("The subdomain is not available.")
+            .When(x => !string.IsNullOrEmpty(x.Subdomain));
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-        RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage("First name must be between 1 and 30 characters.")
-            .Length(1, 30).WithMessage("First name must be between 1 and 30 characters.");
-        RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage("First name must be between 1 and 30 characters.")
-            .Length(1, 30).WithMessage("First name must be between 1 and 30 characters.");
     }
 }

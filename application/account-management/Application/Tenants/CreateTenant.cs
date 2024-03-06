@@ -1,4 +1,3 @@
-using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
@@ -6,8 +5,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-public sealed record CreateTenantCommand(string AccountRegistrationId, string Subdomain, string Name)
-    : ICommand, ITenantValidation, IRequest<Result<TenantId>>
+public sealed record CreateTenantCommand(string AccountRegistrationId)
+    : ICommand, IRequest<Result<TenantId>>
 {
     public AccountRegistrationId GetAccountRegistrationId()
     {
@@ -51,13 +50,7 @@ public sealed class CreateTenantHandler(
                 $"The account registration {accountRegistration.Id} has already been completed.");
         }
 
-        var tenant = Tenant.Create(
-            command.Subdomain,
-            command.Name,
-            accountRegistration.Email,
-            accountRegistration.FirstName,
-            accountRegistration.LastName
-        );
+        var tenant = Tenant.Create(accountRegistration.TenantId, accountRegistration.Email);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         accountRegistration.MarkAsCompleted(tenant.Id);
@@ -67,20 +60,5 @@ public sealed class CreateTenantHandler(
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State, (int)timeFromCreation.TotalSeconds));
 
         return tenant.Id;
-    }
-}
-
-[UsedImplicitly]
-public sealed class CreateTenantValidator : TenantValidator<CreateTenantCommand>
-{
-    public CreateTenantValidator(ITenantRepository tenantRepository)
-    {
-        RuleFor(x => x.Subdomain).NotEmpty();
-        RuleFor(x => x.Subdomain)
-            .Matches("^[a-z0-9]{3,30}$")
-            .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
-            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
-            .WithMessage("The subdomain is not available.")
-            .When(x => !string.IsNullOrEmpty(x.Subdomain));
     }
 }

@@ -14,10 +14,10 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public TenantState State { get; private set; }
 
-    public static Tenant Create(string subdomain, string tenantName, string email, string firstName, string lastName)
+    public static Tenant Create(TenantId tenantId, string email)
     {
-        var tenant = new Tenant(new TenantId(subdomain), tenantName);
-        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email, firstName, lastName));
+        var tenant = new Tenant(tenantId, tenantId.ToString());
+        tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }
 

@@ -1,10 +1,11 @@
+using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-public sealed record UpdateTenantCommand : ICommand, ITenantValidation, IRequest<Result>
+public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes the Id from the API contract
     public TenantId Id { get; init; } = null!;
@@ -31,4 +32,13 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
 }
 
 [UsedImplicitly]
-public sealed class UpdateTenantValidator : TenantValidator<UpdateTenantCommand>;
+public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>
+{
+    public UpdateTenantValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Name).Length(1, 30)
+            .WithMessage("Name must be between 1 and 30 characters.")
+            .When(x => !string.IsNullOrEmpty(x.Name));
+    }
+}

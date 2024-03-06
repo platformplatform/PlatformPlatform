@@ -11,8 +11,6 @@ public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler>
         var createTenantOwnerCommand = new CreateUserCommand(
             notification.TenantId,
             notification.Email,
-            notification.FirstName,
-            notification.LastName,
             UserRole.TenantOwner,
             true
         );

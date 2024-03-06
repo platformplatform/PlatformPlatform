@@ -9,26 +9,21 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     private static readonly Random Random = new();
 
-    private AccountRegistration(string email, string firstName, string lastName) : base(AccountRegistrationId.NewId())
+    private AccountRegistration(TenantId tenantId, string email) : base(AccountRegistrationId.NewId())
     {
+        TenantId = tenantId;
         Email = email;
-        FirstName = firstName;
-        LastName = lastName;
         OneTimePassword = GenerateOneTimePassword(6);
         ValidUntil = CreatedAt.AddMinutes(5);
     }
 
+    public TenantId TenantId { get; private set; }
+
     public string Email { get; private set; }
-
-    public string FirstName { get; private set; }
-
-    public string LastName { get; private set; }
 
     public string OneTimePassword { get; private set; }
 
     public int RetryCount { get; private set; }
-
-    public TenantId? TenantId { get; private set; }
 
     [UsedImplicitly]
     public DateTimeOffset ValidUntil { get; private set; }
@@ -48,9 +43,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         return ValidUntil < TimeProvider.System.GetUtcNow();
     }
 
-    public static AccountRegistration Create(string email, string firstName, string lastName)
+    public static AccountRegistration Create(TenantId tenantId, string email)
     {
-        return new AccountRegistration(email.ToLowerInvariant(), firstName, lastName);
+        return new AccountRegistration(tenantId, email.ToLowerInvariant());
     }
 
     public void RegisterInvalidPasswordAttempt()

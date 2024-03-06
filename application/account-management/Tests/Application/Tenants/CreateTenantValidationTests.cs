@@ -12,9 +12,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult()
     {
         // Arrange
-        var subdomain = Faker.Subdomain();
-        var tenantName = Faker.TenantName();
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, tenantName);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -28,13 +26,13 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "TenantCreated" &&
-            e.Properties["Event_TenantId"] == subdomain &&
+            e.Properties["Event_TenantId"] == DatabaseSeeder.AccountRegistration1.TenantId &&
             e.Properties["Event_TenantState"] == "Trial"
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "UserCreated" &&
-            e.Properties["Event_TenantId"] == subdomain
+            e.Properties["Event_TenantId"] == DatabaseSeeder.AccountRegistration1.TenantId
         ).Should().Be(1);
     }
 
@@ -54,7 +52,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     )
     {
         // Arrange
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id, subdomain, name);
+        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
