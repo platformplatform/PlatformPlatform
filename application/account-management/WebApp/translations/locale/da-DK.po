@@ -14,26 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to Create Account."
-msgstr "Felter mangler. Kunne ikke oprette konto."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to Create Account."
-msgstr "Serverfejl: Kunne ikke oprette konto."
-
-#. js-lingui-explicit-id
-msgid "subdomain"
-msgstr "subdomæne"
-
-#. js-lingui-explicit-id
-msgid "name"
-msgstr "navn"
-
-#. js-lingui-explicit-id
-msgid "email"
-msgstr "e-mail"
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
 msgstr "Felter mangler. Kunne ikke logge ind."
 
@@ -87,12 +67,6 @@ msgstr "Har du allerede en konto?"
 msgid "Can't find your code? Check your spam folder"
 msgstr "Kan ikke finde din kode? Tjek din spam-mappe"
 
-msgid "Create a account"
-msgstr "Opret en konto"
-
-msgid "Create account!"
-msgstr "Opret konto!"
-
 msgid "Create your account"
 msgstr "Opret din konto"
 
@@ -114,9 +88,6 @@ msgstr "Fornavn"
 msgid "Last name"
 msgstr "Efternavn"
 
-msgid "Name"
-msgstr "Navn"
-
 msgid "Password"
 msgstr "Adgangskode"
 
@@ -137,9 +108,6 @@ msgstr "Opret"
 
 msgid "Something went wrong, please try again"
 msgstr "Noget gik galt, prøv igen"
-
-msgid "Subdomain"
-msgstr "Subdomæne"
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
 msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"

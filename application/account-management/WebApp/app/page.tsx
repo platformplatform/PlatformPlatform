@@ -13,9 +13,7 @@ export default function LandingPage() {
       </div>
       <div className="flex grow flex-col gap-4 md:flex-row">
         <div className="flex flex-col justify-center gap-6 md:w-2/5 md:px-20 p-6">
-          <p
-            className="text-xl text-neutral-800 md:text-2xl md:leading-normal"
-          >
+          <p className="text-xl text-neutral-800 md:text-2xl md:leading-normal">
             <strong><Trans>Welcome to Acme.</Trans></strong> <Trans>This is the example for the
               {" "}
               <a href="https://platformplatform.net/" className="text-neutral-800 font-semibold mx-2">

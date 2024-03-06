@@ -14,26 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to Create Account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to Create Account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "subdomain"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "name"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "email"
-msgstr ""
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
 msgstr ""
 
@@ -87,12 +67,6 @@ msgstr ""
 msgid "Can't find your code? Check your spam folder"
 msgstr ""
 
-msgid "Create a account"
-msgstr ""
-
-msgid "Create account!"
-msgstr ""
-
 msgid "Create your account"
 msgstr ""
 
@@ -114,9 +88,6 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-msgid "Name"
-msgstr ""
-
 msgid "Password"
 msgstr ""
 
@@ -136,9 +107,6 @@ msgid "Sign up"
 msgstr ""
 
 msgid "Something went wrong, please try again"
-msgstr ""
-
-msgid "Subdomain"
 msgstr ""
 
 msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
