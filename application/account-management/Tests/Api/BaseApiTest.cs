@@ -20,8 +20,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
     protected BaseApiTests()
     {
-        Environment.SetEnvironmentVariable(WebAppMiddleware.PublicUrlKey, "https://localhost:8444");
-        Environment.SetEnvironmentVariable(WebAppMiddleware.CdnUrlKey, "https://localhost:8444");
+        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey, "https://localhost:8444");
+        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.CdnUrlKey, "https://localhost:8444");
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
