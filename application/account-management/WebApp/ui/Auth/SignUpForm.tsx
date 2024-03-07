@@ -6,7 +6,7 @@ import { TextField } from "react-aria-components";
 import { Button } from "../components/Button";
 import { Form } from "../components/Form";
 import type { State } from "./actions";
-import { register } from "./actions";
+import { registerAccount } from "./actions";
 import { Link } from "@/ui/components/Link";
 import { FieldError, Input, Label } from "@/ui/components/Field";
 import poweredByUrl from "@/ui/Auth/powered-by.png";
@@ -16,7 +16,7 @@ export function SignUpForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
-  const [state, action] = useFormState(register, initialState);
+  const [state, action] = useFormState(registerAccount, initialState);
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">

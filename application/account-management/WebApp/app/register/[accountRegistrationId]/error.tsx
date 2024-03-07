@@ -3,20 +3,20 @@ import { VerificationExpirationError } from "@/ui/Auth/otp/VerificationExpiratio
 
 interface ErrorProps {
   params: {
-    registrationId: string,
+    accountRegistrationId: string,
   };
   error: Error;
   reset: () => void;
 }
 
-export default function ErrorPage({ error, reset, params: { registrationId } }: Readonly<ErrorProps>) {
+export default function ErrorPage({ error, reset, params: { accountRegistrationId } }: Readonly<ErrorProps>) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   if (error instanceof VerificationExpirationError)
-    return <VerificationExpired registrationId={registrationId} />;
+    return <VerificationExpired accountRegistrationId={accountRegistrationId} />;
 
   // Generic error message
   return (
@@ -36,15 +36,15 @@ export default function ErrorPage({ error, reset, params: { registrationId } }: 
 }
 
 interface VerificationExpiredProps {
-  registrationId: string;
+  accountRegistrationId: string;
 }
 
-function VerificationExpired({ registrationId }: VerificationExpiredProps) {
+function VerificationExpired({ accountRegistrationId }: VerificationExpiredProps) {
   return (
     <div className="flex flex-col text-center p-8">
       <h2>Verification code expired</h2>
       <p>The verification code you are trying to use has expired.</p>
-      <p>Registration ID: {registrationId}</p>
+      <p>Account Registration ID: {accountRegistrationId}</p>
       <button className="font-semibold">
         Try again
       </button>

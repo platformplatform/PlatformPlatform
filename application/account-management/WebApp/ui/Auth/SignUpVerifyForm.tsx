@@ -13,12 +13,12 @@ import poweredByUrl from "@/ui/Auth/powered-by.png";
 import logoMarkUrl from "@/ui/Auth/logo-mark.png";
 
 export interface SignUpVerifyFormProps {
-  registrationId: string;
+  accountRegistrationId: string;
   email: string;
   expireAt: Date;
 }
 
-export function SignUpVerifyForm({ email, expireAt, registrationId }: Readonly<SignUpVerifyFormProps>) {
+export function SignUpVerifyForm({ email, expireAt, accountRegistrationId }: Readonly<SignUpVerifyFormProps>) {
   const initialState: State = { message: null, errors: {} };
   const { expiresInString } = useExpirationTimeout(expireAt);
 
@@ -47,7 +47,7 @@ export function SignUpVerifyForm({ email, expireAt, registrationId }: Readonly<S
           </div>
         </div>
         <VerifyEmailButton />
-        <input type="hidden" name="registrationId" value={registrationId} />
+        <input type="hidden" name="accountRegistrationId" value={accountRegistrationId} />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>

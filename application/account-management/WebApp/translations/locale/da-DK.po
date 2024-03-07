@@ -26,11 +26,11 @@ msgid "Server error: Failed logout."
 msgstr "Serverfejl: Kunne ikke logge ud."
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to register."
+msgid "Missing Fields. Failed to register account."
 msgstr "Felter mangler. Kunne ikke oprette konto."
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed register."
+msgid "Server error: Failed to register account."
 msgstr "Serverfejl: Kunne ikke oprette konto."
 
 #. js-lingui-explicit-id

@@ -5,11 +5,11 @@ import { HeroImage } from "@/ui/images/HeroImage";
 
 interface SignUpVerifyPageProps {
   params: {
-    registrationId: string,
+    accountRegistrationId: string,
   };
 }
 
-export default function SignUpVerifyPage({ params: { registrationId } }: Readonly<SignUpVerifyPageProps>) {
+export default function SignUpVerifyPage({ params: { accountRegistrationId } }: Readonly<SignUpVerifyPageProps>) {
   const [searchParams] = useSearchParams();
 
   const email = z.string().email().parse(searchParams.get("email"));
@@ -20,7 +20,7 @@ export default function SignUpVerifyPage({ params: { registrationId } }: Readonl
       <div className="flex grow flex-col gap-4 md:flex-row">
 
         <div className="flex flex-col items-center justify-center gap-6 md:w-2/5 p-6">
-          <SignUpVerifyForm email={email} expireAt={expireAt} registrationId={registrationId} />
+          <SignUpVerifyForm email={email} expireAt={expireAt} accountRegistrationId={accountRegistrationId} />
         </div>
         <div className="flex items-center justify-center p-6 bg-gray-50 md:w-3/5 md:px-28 md:py-12">
           <HeroImage />

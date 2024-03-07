@@ -11,13 +11,13 @@ export interface State {
   message?: string | null;
 }
 
-export const RegisterSchema = z.object({
+export const AccountRegistrationSchema = z.object({
   subdomain: z.string().min(3, "Subdomain must be between 3-30 alphanumeric and lowercase characters").max(30),
   email: z.string().min(5, "Please enter your email").email("Email must be in a valid format and no longer than 100 characters").max(100),
 });
 
-export async function register(_: State, formData: FormData): Promise<State> {
-  const validatedFields = RegisterSchema.safeParse({
+export async function registerAccount(_: State, formData: FormData): Promise<State> {
+  const validatedFields = AccountRegistrationSchema.safeParse({
     subdomain: formData.get("subdomain"),
     email: formData.get("email"),
   });
@@ -27,7 +27,7 @@ export async function register(_: State, formData: FormData): Promise<State> {
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to register."),
+      message: i18n.t("Missing Fields. Failed to register account."),
     };
   }
 
@@ -45,11 +45,11 @@ export async function register(_: State, formData: FormData): Promise<State> {
       const location = result.response.headers.get("Location");
       if (!location) {
         return {
-          message: i18n.t("Server error: Failed register."),
+          message: i18n.t("Server error: Failed to register account."),
         };
       }
-      const registrationId = location.split("/").pop();
-      navigate(`/register/${registrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
+      const accountRegistrationId = location.split("/").pop();
+      navigate(`/register/${accountRegistrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
       return {};
     }
 
@@ -62,19 +62,19 @@ export async function register(_: State, formData: FormData): Promise<State> {
   }
   catch (e) {
     return {
-      message: i18n.t("Server error: Failed register."),
+      message: i18n.t("Server error: Failed to register account."),
     };
   }
 }
 
 const VerifyEmailSchema = z.object({
-  registrationId: z.string().min(1, "Please enter your registration id"),
+  accountRegistrationId: z.string().min(1, "Please enter your registration id"),
   oneTimePassword: z.string().min(6, "Please enter your verification code"),
 });
 
 export async function VerifyEmail(_: State, formData: FormData): Promise<State> {
   const validatedFields = VerifyEmailSchema.safeParse({
-    registrationId: formData.get("registrationId"),
+    accountRegistrationId: formData.get("accountRegistrationId"),
     oneTimePassword: formData.get("oneTimePassword"),
   });
 
@@ -83,11 +83,11 @@ export async function VerifyEmail(_: State, formData: FormData): Promise<State> 
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to register."),
+      message: i18n.t("Missing Fields. Failed to register account."),
     };
   }
 
-  const { registrationId, oneTimePassword } = validatedFields.data;
+  const { accountRegistrationId, oneTimePassword } = validatedFields.data;
 
   try {
     const result = await accountManagementApi.POST("/api/account-registrations/{id}/confirm-email", {
@@ -95,7 +95,7 @@ export async function VerifyEmail(_: State, formData: FormData): Promise<State> 
         path: {
           // eslint-disable-next-line ts/ban-ts-comment
           // @ts-expect-error
-          id: registrationId,
+          id: accountRegistrationId,
         },
       },
       body: {
