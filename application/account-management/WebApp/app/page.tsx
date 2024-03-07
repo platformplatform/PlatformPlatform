@@ -23,9 +23,14 @@ export default function LandingPage() {
               demo product, brought to you by PlatformPlatform
             </Trans>
           </p>
-          <Button onPress={() => navigate("/login")} className="w-fit">
-            <Trans>Sign in</Trans>
-          </Button>
+          <div className="flex justify-center gap-x-4">
+            <Button onPress={() => navigate("/login")} className="w-fit">
+              <Trans>Sign in</Trans>
+            </Button>
+            <Button onPress={() => navigate("/register")} className="w-fit">
+              <Trans>Sign up</Trans>
+            </Button>
+          </div>
         </div>
         <div className="flex items-center justify-center p-6 bg-gray-50 md:w-3/5 md:px-28 md:py-12">
           <HeroImage />
