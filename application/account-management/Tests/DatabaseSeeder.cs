@@ -12,7 +12,6 @@ public sealed class DatabaseSeeder
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
         AccountRegistration1 = AccountRegistration.Create(new TenantId("newtenant"), "newuser@newtenant.com");
-        AccountRegistration1.ConfirmEmail();
         accountManagementDbContext.AccountRegistrations.AddRange(AccountRegistration1);
 
         Tenant1 = Tenant.Create(new TenantId("tenant1"), "user1@test.com");

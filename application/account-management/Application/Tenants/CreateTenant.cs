@@ -33,30 +33,22 @@ public sealed class CreateTenantHandler(
                 $"AccountRegistration with id '{command.GetAccountRegistrationId()}' not found.");
         }
 
-        if (!accountRegistration.EmailConfirmedAt.HasValue)
-        {
-            logger.LogWarning(
-                "AccountRegistration with id '{command.AccountRegistrationId}' has already been confirmed.",
-                accountRegistration.Id);
-            return Result<TenantId>.BadRequest("The email has not been confirmed.");
-        }
-
-        if (accountRegistration.CompletedAt.HasValue)
+        if (accountRegistration.Completed)
         {
             logger.LogWarning(
                 "AccountRegistration with id '{command.AccountRegistrationId}' has already been completed.",
                 accountRegistration.Id);
             return Result<TenantId>.BadRequest(
-                $"The account registration {accountRegistration.Id} has already been completed.");
+                $"The account registration {accountRegistration.Id} for tenant {accountRegistration.TenantId} has already been completed.");
         }
 
         var tenant = Tenant.Create(accountRegistration.TenantId, accountRegistration.Email);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
-        accountRegistration.MarkAsCompleted(tenant.Id);
+        accountRegistration.MarkAsCompleted();
         accountRegistrationRepository.Update(accountRegistration);
 
-        var timeFromCreation = accountRegistration.CompletedAt!.Value - accountRegistration.CreatedAt;
+        var timeFromCreation = TimeProvider.System.GetUtcNow() - accountRegistration.CreatedAt;
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State, (int)timeFromCreation.TotalSeconds));
 
         return tenant.Id;

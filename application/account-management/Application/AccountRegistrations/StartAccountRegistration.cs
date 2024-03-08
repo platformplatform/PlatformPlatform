@@ -10,7 +10,13 @@ namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 
 [UsedImplicitly]
 public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
-    : ICommand, IRequest<Result<AccountRegistrationId>>;
+    : ICommand, IRequest<Result<AccountRegistrationId>>
+{
+    public TenantId GetTenantId()
+    {
+        return new TenantId(Subdomain);
+    }
+}
 
 [UsedImplicitly]
 public sealed class StartAccountRegistrationCommandHandler(
@@ -24,23 +30,24 @@ public sealed class StartAccountRegistrationCommandHandler(
         CancellationToken cancellationToken
     )
     {
-        var existingAccountRegistrations = accountRegistrationRepository.GetByEmail(command.Email);
+        var existingAccountRegistrations =
+            accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
 
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
             return Result<AccountRegistrationId>.Conflict(
-                "Account registration for this mail has already been started. Please check your spam folder.");
+                "Account registration for this subdomain/mail has already been started. Please check your spam folder.");
         }
 
-        if (existingAccountRegistrations.Count(r => r.CompletedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
+        if (existingAccountRegistrations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
         {
             return Result<AccountRegistrationId>.TooManyRequests(
                 "Too many attempts to register this email address. Please try again later.");
         }
 
-        var accountRegistration = AccountRegistration.Create(new TenantId(command.Subdomain), command.Email);
+        var accountRegistration = AccountRegistration.Create(command.GetTenantId(), command.Email);
         await accountRegistrationRepository.AddAsync(accountRegistration, cancellationToken);
-        events.CollectEvent(new AccountRegistrationStarted());
+        events.CollectEvent(new AccountRegistrationStarted(command.GetTenantId()));
 
         await emailService.SendAsync(accountRegistration.Email, "Confirm your email address",
             $"""

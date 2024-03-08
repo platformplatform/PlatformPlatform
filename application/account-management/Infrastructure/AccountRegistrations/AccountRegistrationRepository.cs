@@ -8,9 +8,11 @@ public sealed class AccountRegistrationRepository(AccountManagementDbContext acc
     : RepositoryBase<AccountRegistration, AccountRegistrationId>(accountManagementDbContext),
         IAccountRegistrationRepository
 {
-    public AccountRegistration[] GetByEmail(string email)
+    public AccountRegistration[] GetByEmailOrTenantId(TenantId tenantId, string email)
     {
         return accountManagementDbContext.AccountRegistrations
-            .Where(r => r.Email == email.ToLowerInvariant()).ToArray();
+            .Where(r => !r.Completed)
+            .Where(r => r.TenantId == tenantId || r.Email == email.ToLowerInvariant())
+            .ToArray();
     }
 }

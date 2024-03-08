@@ -28,9 +28,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
     [UsedImplicitly]
     public DateTimeOffset ValidUntil { get; private set; }
 
-    public DateTimeOffset? EmailConfirmedAt { get; private set; }
-
-    public DateTimeOffset? CompletedAt { get; private set; }
+    public bool Completed { get; private set; }
 
     private string GenerateOneTimePassword(int length)
     {
@@ -53,29 +51,16 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         RetryCount++;
     }
 
-    public void ConfirmEmail()
+    public void MarkAsCompleted()
     {
         if (HasExpired() || RetryCount >= MaxAttempts)
         {
             throw new UnreachableException("This account registration has expired.");
         }
 
-        if (EmailConfirmedAt.HasValue) throw new UnreachableException("The mail confirmation already occured.");
-        EmailConfirmedAt = TimeProvider.System.GetUtcNow();
-    }
+        if (Completed) throw new UnreachableException("The account has already been created.");
 
-    public void MarkAsCompleted(TenantId tenantId)
-    {
-        if (HasExpired() || RetryCount >= MaxAttempts)
-        {
-            throw new UnreachableException("This account registration has expired.");
-        }
-
-        if (!EmailConfirmedAt.HasValue) throw new UnreachableException("The mail is not confirmation.");
-        if (CompletedAt.HasValue) throw new UnreachableException("The account has already been created.");
-
-        TenantId = tenantId;
-        CompletedAt = TimeProvider.System.GetUtcNow();
+        Completed = true;
     }
 }
 

@@ -18,6 +18,7 @@ public sealed record ConfirmAccountRegistrationEmailCommand : ICommand, IRequest
 [UsedImplicitly]
 public sealed class ConfirmAccountRegistrationEmailCommandHandler(
     IAccountRegistrationRepository accountRegistrationRepository,
+    ITenantRepository tenantRepository,
     ITelemetryEventsCollector events,
     ILogger<ConfirmAccountRegistrationEmailCommandHandler> logger
 )
@@ -35,12 +36,23 @@ public sealed class ConfirmAccountRegistrationEmailCommandHandler(
             return Result.NotFound($"AccountRegistration with id '{command.Id}' not found.");
         }
 
+        var timeFromCreation = TimeProvider.System.GetUtcNow() - accountRegistration.CreatedAt;
+
         if (accountRegistration.OneTimePassword != command.OneTimePassword)
         {
             accountRegistration.RegisterInvalidPasswordAttempt();
             accountRegistrationRepository.Update(accountRegistration);
             events.CollectEvent(new AccountRegistrationEmailConfirmationAttemptFailed(accountRegistration.RetryCount));
             return Result.BadRequest("The code is wrong or no longer valid.", true);
+        }
+
+        if (accountRegistration.Completed)
+        {
+            logger.LogWarning(
+                "AccountRegistration with id '{AccountRegistrationId}' has already been completed.",
+                accountRegistration.Id);
+            return Result.BadRequest(
+                $"The account registration {accountRegistration.Id} for tenant {accountRegistration.TenantId} has already been completed.");
         }
 
         if (accountRegistration.RetryCount >= AccountRegistration.MaxAttempts)
@@ -51,21 +63,17 @@ public sealed class ConfirmAccountRegistrationEmailCommandHandler(
 
         if (accountRegistration.HasExpired())
         {
-            var timeFromCreation = TimeProvider.System.GetUtcNow() - accountRegistration.CreatedAt;
             events.CollectEvent(new AccountRegistrationEmailConfirmedButExpired((int)timeFromCreation.TotalSeconds));
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
-        if (accountRegistration.EmailConfirmedAt.HasValue)
-        {
-            logger.LogWarning("AccountRegistration with id '{AccountRegistrationId}' has already been confirmed.",
-                command.Id);
-            return Result.BadRequest("The code has already been used, please request a new code.");
-        }
+        var tenant = Tenant.Create(accountRegistration.TenantId, accountRegistration.Email);
+        await tenantRepository.AddAsync(tenant, cancellationToken);
 
-        accountRegistration.ConfirmEmail();
+        accountRegistration.MarkAsCompleted();
         accountRegistrationRepository.Update(accountRegistration);
-        events.CollectEvent(new AccountRegistrationEmailConfirmed());
+
+        events.CollectEvent(new TenantCreated(tenant.Id, tenant.State, (int)timeFromCreation.TotalSeconds));
 
         return Result.Success();
     }
