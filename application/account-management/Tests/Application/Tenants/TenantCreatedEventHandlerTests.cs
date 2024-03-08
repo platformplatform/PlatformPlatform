@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
@@ -17,7 +18,7 @@ public sealed class TenantCreatedEventHandlerTests : BaseTest<AccountManagementD
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
         _ = await mediator.Send(command);
 
         // Assert

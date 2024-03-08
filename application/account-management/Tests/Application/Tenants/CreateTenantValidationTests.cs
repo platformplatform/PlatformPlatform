@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Application.Tenants;
+using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
@@ -12,7 +12,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     public async Task CreateTenant_WhenValidCommand_ShouldReturnSuccessfulResult()
     {
         // Arrange
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -52,7 +52,7 @@ public sealed class CreateTenantValidationTests : BaseTest<AccountManagementDbCo
     )
     {
         // Arrange
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act

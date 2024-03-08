@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NJsonSchema;
+using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -83,7 +84,9 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var subdomain = Faker.Subdomain();
         var email = DatabaseSeeder.AccountRegistration1.Email;
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var oneTimePassword = DatabaseSeeder.AccountRegistration1.OneTimePassword;
+        var command = new CompleteAccountRegistrationCommand(oneTimePassword)
+            { Id = DatabaseSeeder.AccountRegistration1.Id };
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -106,7 +109,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var invalidSubdomain = Faker.Random.AlphaNumeric(1);
         var invalidName = Faker.Random.String(31);
 
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
@@ -127,7 +130,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateTenantCommand(DatabaseSeeder.AccountRegistration1.Id);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);

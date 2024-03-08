@@ -26,23 +26,15 @@ msgid "Server error: Failed logout."
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to register account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to register account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to resend verification."
-msgstr ""
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to create account."
 msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed to create account."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to resend verification."
 msgstr ""
 
 #. js-lingui-explicit-id
