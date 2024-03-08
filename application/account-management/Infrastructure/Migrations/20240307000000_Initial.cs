@@ -25,8 +25,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     RetryCount = table.Column<int>(type: "int", nullable: false),
                     OneTimePassword = table.Column<string>(type: "varchar(6)", nullable: false),
                     ValidUntil = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    EmailConfirmedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    CompletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
+                    Completed = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

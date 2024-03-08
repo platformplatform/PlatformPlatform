@@ -27,8 +27,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("varchar(26)");
 
-                    b.Property<DateTimeOffset?>("CompletedAt")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<bool>("Completed")
+                        .IsRequired()
+                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -36,9 +37,6 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("varchar(100)");
-
-                    b.Property<DateTimeOffset?>("EmailConfirmedAt")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .IsConcurrencyToken()
