@@ -4,7 +4,7 @@ import { navigate } from "@/lib/router/router";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { accountManagementApi } from "@/lib/api/client";
 
-const VALIDATION_LIFETIME = 1000 * 60 * 10; // 10 minutes
+const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
 
 export interface State {
   errors?: { [key: string]: string | string[], };
@@ -27,7 +27,7 @@ export async function registerAccount(_: State, formData: FormData): Promise<Sta
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to register account."),
+      message: i18n.t("Missing Fields. Failed to create account."),
     };
   }
 
@@ -45,7 +45,7 @@ export async function registerAccount(_: State, formData: FormData): Promise<Sta
       const location = result.response.headers.get("Location");
       if (!location) {
         return {
-          message: i18n.t("Server error: Failed to register account."),
+          message: i18n.t("Server error: Failed to create account."),
         };
       }
       const accountRegistrationId = location.split("/").pop();
@@ -62,13 +62,13 @@ export async function registerAccount(_: State, formData: FormData): Promise<Sta
   }
   catch (e) {
     return {
-      message: i18n.t("Server error: Failed to register account."),
+      message: i18n.t("Server error: Failed to create account."),
     };
   }
 }
 
 const VerifyEmailSchema = z.object({
-  accountRegistrationId: z.string().min(1, "Please enter your registration id"),
+  accountRegistrationId: z.string().min(1, "Please enter your account registration id"),
   oneTimePassword: z.string().min(6, "Please enter your verification code"),
 });
 
@@ -83,14 +83,14 @@ export async function VerifyEmail(_: State, formData: FormData): Promise<State> 
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to register account."),
+      message: i18n.t("Missing Fields. Failed to create account."),
     };
   }
 
   const { accountRegistrationId, oneTimePassword } = validatedFields.data;
 
   try {
-    const result = await accountManagementApi.POST("/api/account-registrations/{id}/confirm-email", {
+    const result = await accountManagementApi.POST("/api/account-registrations/{id}/complete", {
       params: {
         path: {
           // eslint-disable-next-line ts/ban-ts-comment

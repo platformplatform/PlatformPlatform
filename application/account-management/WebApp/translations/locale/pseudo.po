@@ -38,6 +38,14 @@ msgid "Server error: Failed to resend verification."
 msgstr ""
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to create account."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to create account."
+msgstr ""
+
+#. js-lingui-explicit-id
 msgid "name@work.email.com"
 msgstr ""
 
