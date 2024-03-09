@@ -14,6 +14,34 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "yourname@example.com"
+msgstr "ditnavn@example.com"
+
+#. js-lingui-explicit-id
+msgid "Enter password"
+msgstr "Indtast adgangskode"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to start account registration."
+msgstr "Felter mangler. Kunne ikke starte konto oprettelse."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to start account registration."
+msgstr "Serverfejl: Kunne ikke starte konto oprettelse."
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to complete account registration."
+msgstr "Felter mangler. Kunne ikke færdigøre konto oprettelse."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to complete account registration."
+msgstr "Serverfejl: Kunne ikke færdigøre konto oprettelse."
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr "subdomæne"
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
 msgstr "Felter mangler. Kunne ikke logge ind."
 
@@ -24,30 +52,6 @@ msgstr "Serverfejl: Kunne ikke logge ind."
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
 msgstr "Serverfejl: Kunne ikke logge ud."
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to create account."
-msgstr "Felter mangler. Kunne ikke oprette konto"
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to create account."
-msgstr "Serverfejl: Kunne ikke oprette konto"
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to resend verification."
-msgstr "Serverfejl: Kunne ikke sende verifikation igen."
-
-#. js-lingui-explicit-id
-msgid "name@work.email.com"
-msgstr "navn@arbejde.email.dk"
-
-#. js-lingui-explicit-id
-msgid "Enter password"
-msgstr "Indtast adgangskode"
-
-#. js-lingui-explicit-id
-msgid "uniquesubdomain"
-msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"

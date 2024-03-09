@@ -1,28 +1,32 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
-import { Button } from "../components/Button";
-import { Form } from "../components/Form";
-import type { State } from "./actions";
-import { VerifyEmail } from "./actions";
-import { useExpirationTimeout } from "./otp/useExpiration";
-import { OneTimeCodeInput } from "./otp/OneTimeCodeInput";
-import { DigitPattern } from "./otp/DigitPattern";
+import type { State } from "./actions.ts";
+import { completeAccountRegistration } from "./actions.ts";
+import { Button } from "@/ui/components/Button";
+import { Form } from "@/ui/components/Form";
+import { useExpirationTimeout } from "@/ui/oneTimePassword/useExpiration";
+import { OneTimeCodeInput } from "@/ui/oneTimePassword/OneTimeCodeInput";
+import { DigitPattern } from "@/ui/oneTimePassword/DigitPattern";
 import { Link } from "@/ui/components/Link";
-import poweredByUrl from "@/ui/Auth/powered-by.png";
-import logoMarkUrl from "@/ui/Auth/logo-mark.png";
+import poweredByUrl from "@/ui/images/powered-by.png";
+import logoMarkUrl from "@/ui/images/logo-mark.png";
 
-export interface SignUpVerifyFormProps {
+export interface CompleteAccountRegistrationProps {
   accountRegistrationId: string;
   email: string;
   expireAt: Date;
 }
 
-export function SignUpVerifyForm({ email, expireAt, accountRegistrationId }: Readonly<SignUpVerifyFormProps>) {
+export function CompleteAccountRegistrationForm({
+  email,
+  expireAt,
+  accountRegistrationId,
+}: Readonly<CompleteAccountRegistrationProps>) {
   const initialState: State = { message: null, errors: {} };
   const { expiresInString } = useExpirationTimeout(expireAt);
 
-  const [state, action] = useFormState(VerifyEmail, initialState);
+  const [state, action] = useFormState(completeAccountRegistration, initialState);
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
@@ -34,19 +38,20 @@ export function SignUpVerifyForm({ email, expireAt, accountRegistrationId }: Rea
           <Trans>Enter your verification code</Trans>
         </h1>
         <div className="text-gray-500 text-sm text-center">
-          <Trans>Please check your email for a verification code sent to <span className="font-semibold">{email}</span></Trans>
+          <Trans>
+            Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
+          </Trans>
         </div>
         <div className="w-full flex flex-col gap-4">
           <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} />
           <div className="text-xs text-neutral-500 text-center">
-            <Link href="/resend-verification" bold><Trans>Did't receive the code? Resend</Trans></Link>
-            {" "}
-            <span className="font-normal leading-none tabular-nums">
-              ({expiresInString})
-            </span>
+            <Link href="/resend-verification" bold>
+              <Trans>Did't receive the code? Resend</Trans>
+            </Link>{" "}
+            <span className="font-normal leading-none tabular-nums">({expiresInString})</span>
           </div>
         </div>
-        <VerifyEmailButton />
+        <CompleteAccountRegistrationButton />
         <input type="hidden" name="accountRegistrationId" value={accountRegistrationId} />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
@@ -59,7 +64,7 @@ export function SignUpVerifyForm({ email, expireAt, accountRegistrationId }: Rea
   );
 }
 
-function VerifyEmailButton() {
+function CompleteAccountRegistrationButton() {
   const { pending } = useFormStatus();
 
   return (

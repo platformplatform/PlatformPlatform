@@ -7,8 +7,8 @@ import { Button } from "@/ui/components/Button";
 import { Form } from "@/ui/components/Form";
 import { Link } from "@/ui/components/Link";
 import { FieldError, Input, Label } from "@/ui/components/Field";
-import poweredByUrl from "@/ui/Auth/powered-by.png";
-import logoMarkUrl from "@/ui/Auth/logo-mark.png";
+import poweredByUrl from "@/ui/images/powered-by.png";
+import logoMarkUrl from "@/ui/images/logo-mark.png";
 import { useSignInAction } from "@/lib/auth/hooks";
 import type { State } from "@/lib/auth/actions";
 
@@ -47,7 +47,7 @@ export default function LoginForm() {
               autoComplete="email webauthn"
               autoFocus
               required
-              placeholder={i18n.t("name@work.email.com")}
+              placeholder={i18n.t("yourname@example.com")}
             />
             <FieldError />
           </TextField>

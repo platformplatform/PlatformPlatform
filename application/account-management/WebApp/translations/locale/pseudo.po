@@ -14,6 +14,34 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "yourname@example.com"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Enter password"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to start account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to start account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to complete account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to complete account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "subdomain"
+msgstr ""
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
 msgstr ""
 
@@ -23,30 +51,6 @@ msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to create account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to create account."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to resend verification."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "name@work.email.com"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Enter password"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "uniquesubdomain"
 msgstr ""
 
 #. js-lingui-explicit-id

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { VerificationExpirationError } from "@/ui/Auth/otp/VerificationExpirationError";
+import { VerificationExpirationError } from "@/ui/oneTimePassword/VerificationExpirationError";
 
 interface ErrorProps {
   params: {

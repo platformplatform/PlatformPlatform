@@ -3,20 +3,20 @@ import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
-import { Button } from "../components/Button";
-import { Form } from "../components/Form";
-import type { State } from "./actions";
-import { registerAccount } from "./actions";
+import type { State } from "./actions.ts";
+import { startAccountRegistration } from "./actions.ts";
+import { Button } from "@/ui/components/Button";
+import { Form } from "@/ui//components/Form";
 import { Link } from "@/ui/components/Link";
 import { FieldError, Input, Label } from "@/ui/components/Field";
-import poweredByUrl from "@/ui/Auth/powered-by.png";
-import logoMarkUrl from "@/ui/Auth/logo-mark.png";
+import poweredByUrl from "@/ui/images/powered-by.png";
+import logoMarkUrl from "@/ui/images/logo-mark.png";
 
-export function SignUpForm() {
+export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
-  const [state, action] = useFormState(registerAccount, initialState);
+  const [state, action] = useFormState(startAccountRegistration, initialState);
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
@@ -41,7 +41,7 @@ export function SignUpForm() {
               autoFocus
               autoComplete="email webauthn"
               required
-              placeholder={i18n.t("name@work.email.com")}
+              placeholder={i18n.t("yourname@example.com")}
             />
             <FieldError />
           </TextField>
@@ -53,12 +53,12 @@ export function SignUpForm() {
               type="text"
               name="subdomain"
               required
-              placeholder={i18n.t("uniquesubdomain")}
+              placeholder={i18n.t("subdomain")}
             />
             <FieldError />
           </TextField>
         </div>
-        <CreateAccountButton />
+        <StartAccountRegistrationButton />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
             <Trans>Already have an account?</Trans>
@@ -80,7 +80,7 @@ export function SignUpForm() {
   );
 }
 
-function CreateAccountButton() {
+function StartAccountRegistrationButton() {
   const { pending } = useFormStatus();
 
   return (

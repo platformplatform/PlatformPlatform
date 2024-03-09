@@ -1,4 +1,4 @@
-import LoginForm from "@/ui/Auth/LoginForm";
+import LoginForm from "./components/LoginForm";
 import { HeroImage } from "@/ui/images/HeroImage";
 
 export default function LoginPage() {
