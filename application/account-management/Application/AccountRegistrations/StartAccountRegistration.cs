@@ -1,4 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
@@ -22,6 +25,7 @@ public sealed record StartAccountRegistrationCommand(string Subdomain, string Em
 public sealed class StartAccountRegistrationCommandHandler(
     IAccountRegistrationRepository accountRegistrationRepository,
     IEmailService emailService,
+    IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events
 ) : IRequestHandler<StartAccountRegistrationCommand, Result<AccountRegistrationId>>
 {
@@ -45,7 +49,10 @@ public sealed class StartAccountRegistrationCommandHandler(
                 "Too many attempts to register this email address. Please try again later.");
         }
 
-        var accountRegistration = AccountRegistration.Create(command.GetTenantId(), command.Email);
+        var oneTimePassword = GenerateOneTimePassword(6);
+        var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
+        var accountRegistration = AccountRegistration.Create(command.GetTenantId(), command.Email, oneTimePasswordHash);
+
         await accountRegistrationRepository.AddAsync(accountRegistration, cancellationToken);
         events.CollectEvent(new AccountRegistrationStarted(command.GetTenantId()));
 
@@ -53,10 +60,22 @@ public sealed class StartAccountRegistrationCommandHandler(
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>
-             <p style="text-align:center;font-family=sans-serif;font-size:40px;background:#f5f4f5">{accountRegistration.OneTimePassword}</p>
+             <p style="text-align:center;font-family=sans-serif;font-size:40px;background:#f5f4f5">{oneTimePassword}</p>
              """, cancellationToken);
 
         return accountRegistration.Id;
+    }
+
+    public static string GenerateOneTimePassword(int length)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var oneTimePassword = new StringBuilder(length);
+        for (var i = 0; i < length; i++)
+        {
+            oneTimePassword.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
+        }
+
+        return oneTimePassword.ToString();
     }
 }
 

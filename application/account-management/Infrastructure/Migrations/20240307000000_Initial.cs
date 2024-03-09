@@ -23,7 +23,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: false),
                     Email = table.Column<string>(type: "varchar(100)", nullable: false),
                     RetryCount = table.Column<int>(type: "int", nullable: false),
-                    OneTimePassword = table.Column<string>(type: "varchar(6)", nullable: false),
+                    OneTimePasswordHash = table.Column<string>(type: "varchar(84)", nullable: false),
                     ValidUntil = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     Completed = table.Column<bool>(type: "bit", nullable: false)
                 },

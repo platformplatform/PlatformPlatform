@@ -7,13 +7,12 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 {
     public const int MaxAttempts = 3;
 
-    private static readonly Random Random = new();
-
-    private AccountRegistration(TenantId tenantId, string email) : base(AccountRegistrationId.NewId())
+    private AccountRegistration(TenantId tenantId, string email, string oneTimePasswordHash)
+        : base(AccountRegistrationId.NewId())
     {
         TenantId = tenantId;
         Email = email;
-        OneTimePassword = GenerateOneTimePassword(6);
+        OneTimePasswordHash = oneTimePasswordHash;
         ValidUntil = CreatedAt.AddMinutes(5);
     }
 
@@ -21,7 +20,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     public string Email { get; private set; }
 
-    public string OneTimePassword { get; private set; }
+    public string OneTimePasswordHash { get; private set; }
 
     public int RetryCount { get; private set; }
 
@@ -30,20 +29,14 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     public bool Completed { get; private set; }
 
-    private string GenerateOneTimePassword(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        return new string(Enumerable.Repeat(chars, length).Select(s => s[Random.Next(s.Length)]).ToArray());
-    }
-
     public bool HasExpired()
     {
         return ValidUntil < TimeProvider.System.GetUtcNow();
     }
 
-    public static AccountRegistration Create(TenantId tenantId, string email)
+    public static AccountRegistration Create(TenantId tenantId, string email, string oneTimePasswordHash)
     {
-        return new AccountRegistration(tenantId, email.ToLowerInvariant());
+        return new AccountRegistration(tenantId, email.ToLowerInvariant(), oneTimePasswordHash);
     }
 
     public void RegisterInvalidPasswordAttempt()

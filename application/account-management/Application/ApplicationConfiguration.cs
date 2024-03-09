@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApplicationCore;
 
@@ -9,6 +10,8 @@ public static class ApplicationConfiguration
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
+        services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
+
         services.AddApplicationCoreServices(Assembly);
 
         return services;
