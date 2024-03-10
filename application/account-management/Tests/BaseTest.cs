@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 
@@ -18,6 +19,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
+    protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly JsonSerializerOptions JsonSerializerOptions;
     protected readonly ServiceCollection Services;
@@ -47,6 +49,9 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
+
+        EmailService = Substitute.For<IEmailService>();
+        Services.AddScoped<IEmailService>(_ => EmailService);
 
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));

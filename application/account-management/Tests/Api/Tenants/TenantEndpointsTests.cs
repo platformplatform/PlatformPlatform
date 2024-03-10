@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NJsonSchema;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
@@ -76,73 +75,6 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
             HttpStatusCode.BadRequest,
             $"""Failed to bind parameter "TenantId id" from "{invalidTenantId}"."""
         );
-    }
-
-    [Fact]
-    public async Task CreateTenant_WhenValid_ShouldCreateTenantAndOwnerUser()
-    {
-        // Arrange
-        var subdomain = Faker.Subdomain();
-        var email = DatabaseSeeder.AccountRegistration1.Email;
-        var oneTimePassword = DatabaseSeeder.AccountRegistration1.OneTimePassword;
-        var command = new CompleteAccountRegistrationCommand(oneTimePassword)
-            { Id = DatabaseSeeder.AccountRegistration1.Id };
-
-        // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
-
-        // Assert
-        await EnsureSuccessPostRequest(response, $"/api/tenants/{subdomain}");
-        Connection.RowExists("Tenants", subdomain);
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task CreateTenant_WhenInvalid_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var invalidSubdomain = Faker.Random.AlphaNumeric(1);
-        var invalidName = Faker.Random.String(31);
-
-        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
-
-        // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters."),
-            new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
-        };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task CreateTenant_WhenTenantExists_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var unavailableSubdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.Id);
-
-        // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/tenants", command);
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Subdomain", "The subdomain is not available.")
-        };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
     [Fact]
