@@ -12,28 +12,41 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.AccountRegistrations;
 public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDbContext>
 {
     [Fact]
-    public async Task CompleteAccountRegistration_WhenValid_ShouldCreateTenantAndOwnerUser()
+    public async Task StartAccountRegistration_WhenTenantExists_ShouldReturnBadRequest()
     {
         // Arrange
-        var email = DatabaseSeeder.AccountRegistration1.Email;
-        var oneTimePassword = DatabaseSeeder.AccountRegistration1.OneTimePassword;
-        var command = new CompleteAccountRegistrationCommand(oneTimePassword);
-        var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
+        var email = Faker.Internet.Email();
+        var subdomain = DatabaseSeeder.Tenant1.Id;
+        var command = new StartAccountRegistrationCommand(subdomain, email);
+
+        // Act
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-registrations/start", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("Subdomain", "The subdomain is not available.")
+        };
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task IsSubdomainFree_WhenTenantExists_ShouldReturnFalse()
+    {
+        // Arrange
+        var subdomain = Faker.Subdomain();
 
         // Act
         var response =
-            await TestHttpClient.PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete",
-                command);
+            await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
-        await EnsureSuccessPostRequest(response, hasLocation: false);
-        Connection.RowExists("Tenants", accountRegistrationId);
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
+        EnsureSuccessGetRequest(response);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "AccountRegistrationCompleted").Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be("true");
     }
 
     [Fact]
@@ -60,23 +73,44 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
     }
 
     [Fact]
-    public async Task StartAccountRegistration_WhenTenantExists_ShouldReturnBadRequest()
+    public async Task IsSubdomainFree_WhenTenantExists_ShouldReturnTrue()
     {
         // Arrange
-        var email = Faker.Internet.Email();
         var subdomain = DatabaseSeeder.Tenant1.Id;
-        var command = new StartAccountRegistrationCommand(subdomain, email);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-registrations/start", command);
+        var response =
+            await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Subdomain", "The subdomain is not available.")
-        };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        EnsureSuccessGetRequest(response);
 
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        responseBody.Should().Be("false");
+    }
+
+    [Fact]
+    public async Task CompleteAccountRegistration_WhenValid_ShouldCreateTenantAndOwnerUser()
+    {
+        // Arrange
+        var email = DatabaseSeeder.AccountRegistration1.Email;
+        var oneTimePassword = DatabaseSeeder.AccountRegistration1.OneTimePassword;
+        var command = new CompleteAccountRegistrationCommand(oneTimePassword);
+        var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
+
+        // Act
+        var response =
+            await TestHttpClient.PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete",
+                command);
+
+        // Assert
+        await EnsureSuccessPostRequest(response, hasLocation: false);
+        Connection.RowExists("Tenants", accountRegistrationId);
+        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "AccountRegistrationCompleted").Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 }
