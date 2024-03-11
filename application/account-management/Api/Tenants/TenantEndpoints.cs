@@ -14,9 +14,6 @@ public static class TenantEndpoints
         group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> (TenantId id, ISender mediator)
             => await mediator.Send(new GetTenantQuery(id)));
 
-        group.MapPost("/", async Task<ApiResult> (CreateTenantCommand command, ISender mediator)
-            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
-
         group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
             => await mediator.Send(command with { Id = id }));
 

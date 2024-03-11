@@ -14,24 +14,32 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to Create Account."
-msgstr "Missing Fields. Failed to Create Account."
+msgid "yourname@example.com"
+msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed to Create Account."
-msgstr "Server error: Failed to Create Account."
+msgid "Enter password"
+msgstr "Enter password"
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to start account registration."
+msgstr "Missing Fields. Failed to start account registration."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to start account registration."
+msgstr "Server error: Failed to start account registration."
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to complete account registration."
+msgstr "Missing Fields. Failed to complete account registration."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to complete account registration."
+msgstr "Server error: Failed to complete account registration."
 
 #. js-lingui-explicit-id
 msgid "subdomain"
 msgstr "subdomain"
-
-#. js-lingui-explicit-id
-msgid "name"
-msgstr "name"
-
-#. js-lingui-explicit-id
-msgid "email"
-msgstr "email"
 
 #. js-lingui-explicit-id
 msgid "Missing Fields. Failed to login."
@@ -44,34 +52,6 @@ msgstr "Server error: Failed login."
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
 msgstr "Server error: Failed logout."
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to register."
-msgstr "Missing Fields. Failed to register."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed register."
-msgstr "Server error: Failed register."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to resend verification."
-msgstr "Server error: Failed to resend verification."
-
-#. js-lingui-explicit-id
-msgid "name@work.email.com"
-msgstr "name@work.email.com"
-
-#. js-lingui-explicit-id
-msgid "Enter password"
-msgstr "Enter password"
-
-#. js-lingui-explicit-id
-msgid "Enter your first name"
-msgstr "Enter your first name"
-
-#. js-lingui-explicit-id
-msgid "Enter your last name"
-msgstr "Enter your last name"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"
@@ -87,12 +67,6 @@ msgstr "Already have an account?"
 msgid "Can't find your code? Check your spam folder"
 msgstr "Can't find your code? Check your spam folder"
 
-msgid "Create a account"
-msgstr "Create a account"
-
-msgid "Create account!"
-msgstr "Create account!"
-
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -107,15 +81,6 @@ msgstr "Email"
 
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
-
-msgid "First name"
-msgstr "First name"
-
-msgid "Last name"
-msgstr "Last name"
-
-msgid "Name"
-msgstr "Name"
 
 msgid "Password"
 msgstr "Password"

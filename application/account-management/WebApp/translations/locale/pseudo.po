@@ -14,23 +14,31 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to Create Account."
+msgid "yourname@example.com"
 msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed to Create Account."
+msgid "Enter password"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to start account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to start account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to complete account registration."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed to complete account registration."
 msgstr ""
 
 #. js-lingui-explicit-id
 msgid "subdomain"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "name"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "email"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -43,34 +51,6 @@ msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to register."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed register."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to resend verification."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "name@work.email.com"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Enter password"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Enter your first name"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Enter your last name"
 msgstr ""
 
 #. js-lingui-explicit-id
@@ -87,12 +67,6 @@ msgstr ""
 msgid "Can't find your code? Check your spam folder"
 msgstr ""
 
-msgid "Create a account"
-msgstr ""
-
-msgid "Create account!"
-msgstr ""
-
 msgid "Create your account"
 msgstr ""
 
@@ -106,15 +80,6 @@ msgid "Email"
 msgstr ""
 
 msgid "Enter your verification code"
-msgstr ""
-
-msgid "First name"
-msgstr ""
-
-msgid "Last name"
-msgstr ""
-
-msgid "Name"
 msgstr ""
 
 msgid "Password"

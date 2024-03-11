@@ -78,14 +78,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateUserCommand(
-            existingTenantId,
-            Faker.Internet.Email(),
-            Faker.Name.FirstName(),
-            Faker.Name.LastName(),
-            UserRole.TenantUser,
-            false
-        );
+        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -101,14 +94,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new CreateUserCommand(
-            existingTenantId,
-            invalidEmail,
-            Faker.Name.FirstName(),
-            Faker.Name.LastName(),
-            UserRole.TenantUser,
-            false
-        );
+        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.TenantUser, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -127,14 +113,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
-        var command = new CreateUserCommand(
-            existingTenantId,
-            existingUserEmail,
-            Faker.Name.FirstName(),
-            Faker.Name.LastName(),
-            UserRole.TenantUser,
-            false
-        );
+        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.TenantUser, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
@@ -158,8 +137,6 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(
             new TenantId(unknownTenantId),
             Faker.Internet.Email(),
-            Faker.Name.FirstName(),
-            Faker.Name.LastName(),
             UserRole.TenantUser,
             false
         );

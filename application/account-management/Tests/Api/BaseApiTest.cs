@@ -20,8 +20,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
     protected BaseApiTests()
     {
-        Environment.SetEnvironmentVariable(WebAppMiddleware.PublicUrlKey, "https://localhost:8444");
-        Environment.SetEnvironmentVariable(WebAppMiddleware.CdnUrlKey, "https://localhost:8444");
+        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey, "https://localhost:8444");
+        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.CdnUrlKey, "https://localhost:8444");
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
         {
@@ -57,7 +57,8 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
     protected static async Task EnsureSuccessPostRequest(
         HttpResponseMessage response,
         string? exact = null,
-        string? startsWith = null
+        string? startsWith = null,
+        bool hasLocation = true
     )
     {
         var responseBody = await response.Content.ReadAsStringAsync();
@@ -65,7 +66,16 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();
-        response.Headers.Location.Should().NotBeNull();
+
+        if (hasLocation)
+        {
+            response.Headers.Location.Should().NotBeNull();
+        }
+        else
+        {
+            response.Headers.Location.Should().BeNull();
+        }
+
         if (exact is not null)
         {
             response.Headers.Location!.ToString().Should().Be(exact);

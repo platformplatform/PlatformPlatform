@@ -12,7 +12,7 @@ using PlatformPlatform.AccountManagement.Infrastructure;
 namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountManagementDbContext))]
-    [Migration("20230618152042_Initial")]
+    [Migration("20240307000000_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,10 +20,49 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.AccountRegistrations.AccountRegistration", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(26)");
+
+                    b.Property<bool>("Completed")
+                        .IsRequired()
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .IsConcurrencyToken()
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("OneTimePassword")
+                        .IsRequired()
+                        .HasColumnType("varchar(6)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)");
+
+                    b.Property<DateTimeOffset>("ValidUntil")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountRegistrations");
+                });
 
             modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", b =>
                 {
@@ -71,11 +110,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("UserRole")
@@ -85,7 +122,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .IsRequired()
                         .HasColumnType("bit");
-                    
+
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId");
