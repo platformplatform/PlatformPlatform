@@ -83,7 +83,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
-        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.AccountRegistration1.OneTimePassword);
+        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.OneTimePassword);
         _ = await mediator.Send(command with { Id = DatabaseSeeder.AccountRegistration1.Id });
 
         // Assert

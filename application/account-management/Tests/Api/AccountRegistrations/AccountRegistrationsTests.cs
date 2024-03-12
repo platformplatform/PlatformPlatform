@@ -94,7 +94,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
     {
         // Arrange
         var email = DatabaseSeeder.AccountRegistration1.Email;
-        var oneTimePassword = DatabaseSeeder.AccountRegistration1.OneTimePassword;
+        var oneTimePassword = DatabaseSeeder.OneTimePassword;
         var command = new CompleteAccountRegistrationCommand(oneTimePassword);
         var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
 

@@ -45,9 +45,9 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("OneTimePassword")
+                    b.Property<string>("OneTimePasswordHash")
                         .IsRequired()
-                        .HasColumnType("varchar(6)");
+                        .HasColumnType("varchar(84)");
 
                     b.Property<int>("RetryCount")
                         .HasColumnType("int");

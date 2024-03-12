@@ -22,6 +22,7 @@
     <PackageVersion Include="IdGen" Version="3.0.3" />
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.0.3" />
     <PackageVersion Include="NSwag.MSBuild" Version="14.0.3" />
