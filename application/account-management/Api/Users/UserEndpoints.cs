@@ -12,7 +12,7 @@ public static class UserEndpoints
         var group = routes.MapGroup(RoutesPrefix);
 
         group.MapGet("/",
-            async Task<ApiResult<UserResponseDto[]>> ([AsParameters] GetUsersQuery query, ISender mediator)
+            async Task<ApiResult<SearchUsersDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
                 => await mediator.Send(query));
 
         group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> (UserId id, ISender mediator)

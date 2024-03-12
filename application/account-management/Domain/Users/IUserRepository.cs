@@ -16,7 +16,7 @@ public interface IUserRepository
 
     Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken);
 
-    Task<User[]> Search(
+    Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
         SortableUserProperties? orderBy,

@@ -13,15 +13,15 @@ public sealed record GetUsersQuery(
     int? PageSize = null,
     int? PageOffset = null
 )
-    : IRequest<Result<UserResponseDto[]>>;
+    : IRequest<Result<SearchUsersDto>>;
 
 [UsedImplicitly]
 public sealed class GetUsersHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUsersQuery, Result<UserResponseDto[]>>
+    : IRequestHandler<GetUsersQuery, Result<SearchUsersDto>>
 {
-    public async Task<Result<UserResponseDto[]>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
+    public async Task<Result<SearchUsersDto>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
-        var users = await userRepository.Search(
+        var (users, count, totalPages) = await userRepository.Search(
             query.Search,
             query.UserRole,
             query.OrderBy,
@@ -30,6 +30,8 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
             query.PageOffset,
             cancellationToken
         );
-        return users.Select(u => u.Adapt<UserResponseDto>()).ToArray();
+
+        var userResponseDtos = users.Select(u => u.Adapt<UserResponseDto>()).ToArray();
+        return new SearchUsersDto(count, totalPages, query.PageOffset ?? 0, userResponseDtos);
     }
 }

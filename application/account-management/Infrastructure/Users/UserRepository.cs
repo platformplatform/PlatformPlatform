@@ -18,7 +18,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
     }
 
-    public async Task<User[]> Search(
+    public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
         SortableUserProperties? orderBy,
@@ -64,6 +64,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
         pageSize ??= 50;
         var itemOffset = (pageOffset ?? 0) * pageSize.Value;
-        return await users.Skip(itemOffset).Take(pageSize.Value).ToArrayAsync(cancellationToken);
+        var result = await users.Skip(itemOffset).Take(pageSize.Value).ToArrayAsync(cancellationToken);
+
+        var totalItems = await users.CountAsync(cancellationToken);
+
+        var totalPages = (totalItems - 1) / pageSize.Value + 1;
+        return (result, totalItems, totalPages);
     }
 }
