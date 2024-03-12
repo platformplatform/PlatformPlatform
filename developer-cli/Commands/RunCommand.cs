@@ -17,7 +17,7 @@ public class RunCommand : Command
 
     private void Execute()
     {
-        PrerequisitesChecker.Check("node", "yarn", "docker", "aspire", "SQL_SERVER_PASSWORD", "CERTIFICATE_PASSWORD");
+        PrerequisitesChecker.Check("docker", "aspire", "node", "yarn", "SQL_SERVER_PASSWORD", "CERTIFICATE_PASSWORD");
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
 

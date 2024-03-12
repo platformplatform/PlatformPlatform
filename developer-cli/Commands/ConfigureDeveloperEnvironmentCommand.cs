@@ -25,6 +25,8 @@ public class ConfigureDeveloperEnvironmentCommand : Command
 
     private int Execute()
     {
+        PrerequisitesChecker.Check("docker", "aspire", "node", "yarn");
+
         var certificateCreated = EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured();
         var sqlServerPasswordCreated = CreateSqlServerPasswordIfNotExists();
 
