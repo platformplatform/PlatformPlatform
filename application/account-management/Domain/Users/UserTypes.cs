@@ -22,3 +22,12 @@ public enum UserRole
     TenantAdmin,
     TenantOwner
 }
+
+public enum SortableUserProperties
+{
+    CreatedAt,
+    ModifiedAt,
+    Name,
+    Email,
+    UserRole
+}
