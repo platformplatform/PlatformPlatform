@@ -8,7 +8,6 @@ public static class InfrastructureConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-
     public static IServiceCollection AddDatabaseContext(
         this IServiceCollection services,
         IHostApplicationBuilder builder

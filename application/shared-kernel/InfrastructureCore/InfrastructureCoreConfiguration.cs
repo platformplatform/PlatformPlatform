@@ -3,6 +3,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
@@ -25,7 +26,9 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        builder.AddSqlServerDbContext<T>(connectionName, static settings => settings.DbContextPooling = false);
+        var connectionString = builder.Configuration.GetConnectionString("account-management");
+        builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
+        builder.EnrichSqlServerDbContext<T>();
 
         return services;
     }
@@ -98,7 +101,9 @@ public static class InfrastructureCoreConfiguration
                 var dbContext = scope.ServiceProvider.GetService<T>() ??
                                 throw new UnreachableException("Missing DbContext.");
 
-                dbContext.Database.Migrate();
+                var strategy = dbContext.Database.CreateExecutionStrategy();
+
+                strategy.Execute(() => dbContext.Database.Migrate());
 
                 logger.LogInformation("Finished migrating database.");
 

@@ -17,8 +17,6 @@ public class CodeCoverageCommand : Command
 
     private int Execute()
     {
-        PrerequisitesChecker.Check("node", "yarn");
-
         var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"))
             .FullName;
 
