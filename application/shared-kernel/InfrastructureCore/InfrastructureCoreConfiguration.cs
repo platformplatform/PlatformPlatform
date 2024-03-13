@@ -25,7 +25,9 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        builder.AddSqlServerDbContext<T>(connectionName, static settings => settings.DbContextPooling = false);
+        var connectionString = builder.Configuration.GetConnectionString("account-management");
+        builder.Services.AddSqlServer<T>(connectionString);
+        builder.EnrichSqlServerDbContext<T>();
 
         return services;
     }
