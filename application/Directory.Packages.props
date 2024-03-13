@@ -6,7 +6,7 @@
     <AspNetCoreVersion>8.0.1</AspNetCoreVersion>
     <EfCoreVersion>8.0.2</EfCoreVersion>
     <RuntimeVersion>8.0.0</RuntimeVersion>
-    <AspireVersion>8.0.0-preview.3.24105.21</AspireVersion>
+    <AspireVersion>8.0.0-preview.4.24156.9</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- PlatformPlatform dependencies - Api -->
