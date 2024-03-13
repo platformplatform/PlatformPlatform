@@ -3,47 +3,55 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
-    <AspNetCoreVersion>8.0.1</AspNetCoreVersion>
-    <EfCoreVersion>8.0.2</EfCoreVersion>
-    <RuntimeVersion>8.0.0</RuntimeVersion>
+    <AspNetCoreVersion>8.0.3</AspNetCoreVersion>
+    <EfCoreVersion>8.0.3</EfCoreVersion>
     <AspireVersion>8.0.0-preview.4.24156.9</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- PlatformPlatform dependencies - Api -->
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EfCoreVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
     <!-- PlatformPlatform dependencies - Application -->
     <PackageVersion Include="Microsoft.ApplicationInsights" Version="2.22.0" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="MediatR" Version="12.2.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
     <!-- PlatformPlatform dependencies - Domain-->
-    <PackageVersion Include="IdGen" Version="3.0.3" />
+    <PackageVersion Include="IdGen" Version="3.0.5" />
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.0.3" />
     <PackageVersion Include="NSwag.MSBuild" Version="14.0.3" />
-    <PackageVersion Include="NUlid" Version="1.7.1" />
+    <PackageVersion Include="NUlid" Version="1.7.2" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
     <PackageVersion Include="Azure.Communication.Email" Version="1.0.1" />
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
     <PackageVersion Include="Scrutor" Version="4.2.2" />
     <!-- PlatformPlatform dependencies - Tests -->
-    <PackageVersion Include="Bogus" Version="35.4.0" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="Bogus" Version="35.5.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Meziantou.Xunit.ParallelTestFramework" Version="2.1.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.2" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.3" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <PackageVersion Include="NJsonSchema" Version="11.0.0" />
     <PackageVersion Include="NSubstitute" Version="5.1.0" />
-    <PackageVersion Include="xunit" Version="2.6.6" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.6" />
+    <PackageVersion Include="xunit" Version="2.7.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
   </ItemGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
@@ -64,17 +72,20 @@
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <!-- Version together with EF -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EfCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfCoreVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
     <!-- Version together with runtime -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(RuntimeVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimeVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <!-- Open Telemetry -->
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.1.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
