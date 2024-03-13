@@ -3,6 +3,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
+[UsedImplicitly]
 public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
 [UsedImplicitly]

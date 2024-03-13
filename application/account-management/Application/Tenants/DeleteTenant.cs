@@ -5,6 +5,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
+[UsedImplicitly]
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]

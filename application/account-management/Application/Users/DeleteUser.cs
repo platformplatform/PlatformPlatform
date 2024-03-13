@@ -4,6 +4,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
+[UsedImplicitly]
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
 [UsedImplicitly]
