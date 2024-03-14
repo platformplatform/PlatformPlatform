@@ -12,8 +12,9 @@ public static class AccountRegistrationsEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix);
 
-        group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> (string subdomain, ISender mediator)
-            => await mediator.Send(new IsSubdomainFreeQuery(subdomain)));
+        group.MapGet("/is-subdomain-free",
+            async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, ISender mediator)
+                => await mediator.Send(query));
 
         group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));

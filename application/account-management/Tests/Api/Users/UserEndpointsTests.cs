@@ -70,7 +70,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
-            $"""Failed to bind parameter "UserId id" from "{invalidUserId}".""");
+            $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
     }
 
     [Fact]

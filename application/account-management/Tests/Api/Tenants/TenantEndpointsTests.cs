@@ -73,7 +73,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         await EnsureErrorStatusCode(
             response,
             HttpStatusCode.BadRequest,
-            $"""Failed to bind parameter "TenantId id" from "{invalidTenantId}"."""
+            $"""Failed to bind parameter "TenantId Id" from "{invalidTenantId}"."""
         );
     }
 
