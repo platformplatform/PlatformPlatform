@@ -3,14 +3,23 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
-var database = builder.AddSqlServer("account-management-db", sqlServerPassword, 8433)
+var database = builder
+    .AddSqlServer("account-management-db", sqlServerPassword, 8433)
     .WithVolumeMount("sql-server-data", "/var/opt/mssql")
     .AddDatabase("account-management");
 
-var accountManagementApi = builder.AddProject<Api>("account-management-api")
-    .WithReference(database);
+var accountManagementStorage = builder
+    .AddAzureStorage("account-management-storage")
+    .RunAsEmulator()
+    .AddBlobs("blobs");
 
-builder.AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
+var accountManagementApi = builder
+    .AddProject<Api>("account-management-api")
+    .WithReference(database)
+    .WithReference(accountManagementStorage);
+
+builder
+    .AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
     .WithReference(accountManagementApi);
 
 builder.AddContainer("email-test-server", "mailhog/mailhog")

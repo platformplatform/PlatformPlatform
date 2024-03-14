@@ -31,6 +31,7 @@
     <PackageVersion Include="NUlid" Version="1.7.2" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
     <PackageVersion Include="Azure.Communication.Email" Version="1.0.1" />
+    <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
     <PackageVersion Include="Scrutor" Version="4.2.2" />
