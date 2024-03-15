@@ -10,7 +10,11 @@ var database = builder
 
 var accountManagementStorage = builder
     .AddAzureStorage("account-management-storage")
-    .RunAsEmulator()
+    .RunAsEmulator(resourceBuilder =>
+    {
+        resourceBuilder.WithVolumeMount("account-management-storage", "/var/opt/blobstorage");
+        resourceBuilder.UseBlobPort(10000);
+    })
     .AddBlobs("blobs");
 
 var accountManagementApi = builder
