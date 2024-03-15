@@ -26,10 +26,21 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        var connectionString = builder.Configuration.GetConnectionString("account-management");
+        var connectionString = builder.Configuration.GetConnectionString(connectionName);
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddBlobStorage(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder,
+        string connectionName
+    )
+    {
+        builder.AddAzureBlobService(connectionName);
+        services.AddTransient<IBlobStorage, BlobStorage>();
         return services;
     }
 
