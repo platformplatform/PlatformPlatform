@@ -28,6 +28,7 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
         modelBuilder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
         modelBuilder.MapStronglyTypedId<User, TenantId, string>(u => u.TenantId);
         modelBuilder.Entity<User>()
+            .OwnsOne(e => e.Avatar, b => b.ToJson())
             .HasOne<Tenant>()
             .WithMany()
             .HasForeignKey(u => u.TenantId)
