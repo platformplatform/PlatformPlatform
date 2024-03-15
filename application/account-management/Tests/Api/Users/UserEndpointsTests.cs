@@ -34,8 +34,9 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
                     'email': {'type': 'string', 'maxLength': 100},
                     'firstName': {'type': ['null', 'string'], 'maxLength': 30},
                     'lastName': {'type': ['null', 'string'], 'maxLength': 30},
-                    'userRole': {'type': 'string', 'minLength': 1, 'maxLength':20},
-                    'emailConfirmed': {'type': 'boolean'}
+                    'userRole': {'type': 'string', 'minLength': 1, 'maxLength': 20},
+                    'emailConfirmed': {'type': 'boolean'},
+                    'avatarUrl': {'type': ['null', 'string'], 'maxLength': 100},
                 },
                 'required': ['id', 'createdAt', 'modifiedAt', 'email', 'userRole'],
                 'additionalProperties': false
