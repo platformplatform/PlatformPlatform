@@ -31,8 +31,9 @@ public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
 public sealed class TenantUpdated(TenantId tenantId)
     : TelemetryEvent(nameof(TenantUpdated), ("TenantId", tenantId));
 
-public sealed class UserCreated(TenantId tenantId)
-    : TelemetryEvent(nameof(UserCreated), ("TenantId", tenantId));
+public sealed class UserCreated(TenantId tenantId, bool gravatarProfileFound)
+    : TelemetryEvent(nameof(UserCreated), ("TenantId", tenantId),
+        ("GravatarProfileFound", gravatarProfileFound.ToString()));
 
 public sealed class UserDeleted()
     : TelemetryEvent(nameof(UserDeleted));
