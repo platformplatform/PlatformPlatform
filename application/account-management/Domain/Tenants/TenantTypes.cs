@@ -2,7 +2,7 @@ using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Domain.Tenants;
 
-[TypeConverter(typeof(TenantIdTypeConverter))]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, TenantId>))]
 public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(Value)
 {
     public override string ToString()
@@ -23,8 +23,6 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
         return false;
     }
 }
-
-public sealed class TenantIdTypeConverter : StronglyTypedIdTypeConverter<string, TenantId>;
 
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 [JsonConverter(typeof(JsonStringEnumConverter))]
