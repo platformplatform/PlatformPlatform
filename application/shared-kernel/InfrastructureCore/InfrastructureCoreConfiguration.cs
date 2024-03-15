@@ -32,6 +32,17 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
+    public static IServiceCollection AddBlobStorage(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder,
+        string connectionName
+    )
+    {
+        builder.AddAzureBlobService(connectionName);
+        services.AddTransient<IBlobStorage, BlobStorage>();
+        return services;
+    }
+
     [UsedImplicitly]
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
         this IServiceCollection services,
