@@ -28,9 +28,18 @@ public sealed class User : AggregateRoot<UserId>
     [UsedImplicitly]
     public bool EmailConfirmed { get; private set; }
 
-    public static User Create(TenantId tenantId, string email, UserRole userRole, bool emailConfirmed)
+    public Avatar Avatar { get; private set; } = default!;
+
+    public static User Create(
+        TenantId tenantId,
+        string email,
+        UserRole userRole,
+        bool emailConfirmed,
+        string? gravatarUrl
+    )
     {
-        return new User(tenantId, email, userRole, emailConfirmed);
+        var avatar = new Avatar(gravatarUrl, 0, gravatarUrl is not null);
+        return new User(tenantId, email, userRole, emailConfirmed) { Avatar = avatar };
     }
 
     public void Update(string email, UserRole userRole)
@@ -38,4 +47,17 @@ public sealed class User : AggregateRoot<UserId>
         Email = email;
         UserRole = userRole;
     }
+
+    public void UpdateAvatar(string avatarUrl, int version = 1, bool isGravatar = false)
+    {
+        Avatar = new Avatar(avatarUrl, version, isGravatar);
+    }
+
+    public void RemoveAvatar()
+    {
+        Avatar = new Avatar();
+    }
 }
+
+[UsedImplicitly]
+public sealed record Avatar(string? Url = null, int Version = 0, bool IsGravatar = false);

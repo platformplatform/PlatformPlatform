@@ -27,7 +27,7 @@ public sealed class DatabaseSeeder
         Tenant1 = Tenant.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email());
         accountManagementDbContext.Tenants.AddRange(Tenant1);
 
-        User1 = User.Create(Tenant1.Id, _faker.Internet.Email(), UserRole.TenantOwner, true);
+        User1 = User.Create(Tenant1.Id, _faker.Internet.Email(), UserRole.TenantOwner, true, null);
         accountManagementDbContext.Users.AddRange(User1);
 
         accountManagementDbContext.SaveChanges();

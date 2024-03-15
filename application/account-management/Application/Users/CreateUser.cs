@@ -19,7 +19,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, null);
         await userRepository.AddAsync(user, cancellationToken);
 
         events.CollectEvent(new UserCreated(command.TenantId));
