@@ -93,8 +93,6 @@ export async function completeAccountRegistration(_: State, formData: FormData):
     const result = await accountManagementApi.POST("/api/account-registrations/{id}/complete", {
       params: {
         path: {
-          // eslint-disable-next-line ts/ban-ts-comment
-          // @ts-expect-error
           id: accountRegistrationId,
         },
       },
