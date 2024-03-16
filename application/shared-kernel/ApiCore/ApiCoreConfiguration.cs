@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NJsonSchema;
 using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
+using PlatformPlatform.SharedKernel.DomainCore.Identity;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -25,7 +27,11 @@ public static class ApiCoreConfiguration
         Environment.GetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey)!;
 
     [UsedImplicitly]
-    public static IServiceCollection AddApiCoreServices(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddApiCoreServices(
+        this IServiceCollection services,
+        WebApplicationBuilder builder,
+        Assembly assembly
+    )
     {
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
@@ -57,6 +63,23 @@ public static class ApiCoreConfiguration
             // Ensure that enums are serialized as strings and use CamelCase
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+            settings.PostProcess = document =>
+            {
+                // Find all strongly typed IDs
+                var stronglyTypedIdNames = assembly.GetTypes()
+                    .Where(t => typeof(IStronglyTypedId).IsAssignableFrom(t))
+                    .Select(t => t.Name)
+                    .ToList();
+
+                // Ensure the Swagger UI to correctly display strongly typed IDs as plain text instead of complex objects
+                foreach (var stronglyTypedIdName in stronglyTypedIdNames)
+                {
+                    var schema = document.Definitions[stronglyTypedIdName];
+                    schema.Type = JsonObjectType.String;
+                    schema.Properties.Clear();
+                }
+            };
         });
 
         // Ensure that enums are serialized as strings

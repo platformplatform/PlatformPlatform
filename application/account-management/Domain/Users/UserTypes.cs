@@ -2,7 +2,7 @@ using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Domain.Users;
 
-[TypeConverter(typeof(UserIdTypeConverter))]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, UserId>))]
 [UsedImplicitly]
 public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
 {
@@ -12,9 +12,6 @@ public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
     }
 }
 
-public sealed class UserIdTypeConverter : StronglyTypedIdTypeConverter<string, UserId>;
-
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {

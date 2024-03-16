@@ -1,7 +1,8 @@
 namespace PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
+[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public enum SortOrder
 {
     Ascending,
-    [UsedImplicitly] Descending
+    Descending
 }

@@ -2,6 +2,7 @@ using PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
@@ -14,7 +15,7 @@ builder.Services
     .AddApplicationServices()
     .AddDatabaseContext(builder)
     .AddInfrastructureServices()
-    .AddApiCoreServices(builder)
+    .AddApiCoreServices(builder, DomainConfiguration.Assembly)
     .AddWebAppMiddleware();
 
 var app = builder.Build();
