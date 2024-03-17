@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -17,6 +18,8 @@ var accountManagementStorage = builder
     })
     .AddBlobs("blobs");
 
+CreateBlobContainer("avatars");
+
 var accountManagementApi = builder
     .AddProject<Api>("account-management-api")
     .WithReference(database)
@@ -31,3 +34,17 @@ builder.AddContainer("email-test-server", "mailhog/mailhog")
     .WithEndpoint(hostPort: 1025, containerPort: 1025);
 
 builder.Build().Run();
+
+return;
+
+void CreateBlobContainer(string containerName)
+{
+    const string connectionString = "UseDevelopmentStorage=true";
+
+    new Task(() =>
+    {
+        var blobServiceClient = new BlobServiceClient(connectionString);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        containerClient.CreateIfNotExists();
+    }).Start();
+}
