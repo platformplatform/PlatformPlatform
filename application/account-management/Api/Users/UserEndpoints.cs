@@ -29,5 +29,15 @@ public class UserEndpoints : IEndpoints
 
         group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteUserCommand command, ISender mediator)
             => await mediator.Send(command));
+
+        // Id should be inferred from the authenticated user
+        group.MapPost("/{id}/update-avatar", async Task<ApiResult> (UserId id, IFormFile file, ISender mediator)
+                => await mediator.Send(new UpdateAvatarCommand(id, file.OpenReadStream(), file.ContentType)))
+            .DisableAntiforgery(); // Disable antiforgery until we implement it
+
+        // Id should be inferred from the authenticated user
+        group.MapPost("/{id}/remove-avatar",
+            async Task<ApiResult> ([AsParameters] RemoveAvatarCommand command, ISender mediator)
+                => await mediator.Send(command));
     }
 }

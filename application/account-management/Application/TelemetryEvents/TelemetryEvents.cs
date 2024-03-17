@@ -40,3 +40,9 @@ public sealed class UserDeleted()
 
 public sealed class UserUpdated()
     : TelemetryEvent(nameof(UserUpdated));
+
+public sealed class UserAvatarUpdated(string contentType, long size)
+    : TelemetryEvent(nameof(UserAvatarUpdated), ("ContentType", contentType), ("Size", size.ToString()));
+
+public sealed class UserAvatarRemoved()
+    : TelemetryEvent(nameof(UserAvatarUpdated));
