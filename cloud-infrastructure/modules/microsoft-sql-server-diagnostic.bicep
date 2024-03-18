@@ -4,37 +4,22 @@ param principalId string
 param dianosticStorageAccountSubscriptionId string
 param dianosticStorageAccountBlobEndpoint string
 
-resource existingStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
-  scope: resourceGroup()
-  name: diagnosticStorageAccountName
+module diagnosticStorageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (principalId != '') {
+  name: '${microsoftSqlServerName}-sql-server-blob-contributer-role-assignment'
+  params: {
+    storageAccountName: diagnosticStorageAccountName
+    principalId: principalId
+  }
 }
 
 resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
   name: microsoftSqlServerName
 }
 
-@description(
-  'This is the built-in Storage Blob Data Contributor role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor'
-)
-resource existingStorageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
-  scope: subscription()
-  name: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
-}
-
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: existingStorageAccount
-  name: guid(existingStorageAccount.id, principalId, existingStorageBlobDataContributorRoleDefinition.id)
-  properties: {
-    roleDefinitionId: existingStorageBlobDataContributorRoleDefinition.id
-    principalId: principalId
-    principalType: 'ServicePrincipal'
-  }
-}
-
 resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2023-05-01-preview' = {
   parent: existingMicrosoftSqlServer
   name: replace(replace(dianosticStorageAccountBlobEndpoint, 'https:', ''), '/', '')
-  dependsOn: [roleAssignment]
+  dependsOn: [diagnosticStorageBlobDataContributorRoleAssignment]
 }
 
 resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = {

@@ -34,12 +34,12 @@ resource azureManagedDomainEmailServices 'Microsoft.Communication/emailServices/
 }
 
 var containerRegistryResourceGroupName = 'shared'
-module containerRegistryPermission './container-registry-permission.bicep' = {
+module containerRegistryPermission './role-assignments-container-registry-acr-pull.bicep' = {
   name: 'container-registry-permission'
   scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
-    identityPrincipalId: userAssignedIdentity.properties.principalId
+    principalId: userAssignedIdentity.properties.principalId
   }
 }
 
@@ -175,7 +175,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
 }
 
 var keyVaultSecretsUserRoleDefinitionId = '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User role
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(keyVault.name, name, keyVaultSecretsUserRoleDefinitionId)
   scope: keyVault
   properties: {
