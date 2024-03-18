@@ -58,14 +58,9 @@ public static class InfrastructureCoreConfiguration
 
         if (IsRunningInAzure)
         {
-            services.AddSingleton<SecretClient>(_ =>
-            {
-                var keyVaultUrl = Environment.GetEnvironmentVariable("KEYVAULT_URL")!;
-                var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")!;
-                var credentialOptions = new DefaultAzureCredentialOptions
-                    { ManagedIdentityClientId = managedIdentityClientId };
-                return new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential(credentialOptions));
-            });
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            services.AddSingleton(_ => new SecretClient(keyVaultUri, GetDefaultAzureCredential()));
+
             services.AddTransient<IEmailService, AzureEmailService>();
         }
         else
@@ -74,6 +69,13 @@ public static class InfrastructureCoreConfiguration
         }
 
         return services;
+    }
+
+    private static DefaultAzureCredential GetDefaultAzureCredential()
+    {
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")!;
+        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
+        return new DefaultAzureCredential(credentialOptions);
     }
 
     [UsedImplicitly]
