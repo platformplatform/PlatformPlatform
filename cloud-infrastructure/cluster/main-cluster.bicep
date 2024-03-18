@@ -176,6 +176,26 @@ module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   dependsOn: [microsoftSqlServer]
 }
 
+var accountManagementStorageAccountName = '${clusterUniqueName}acctmgmt'
+module accountManagementStorageAccount '../modules/storage-account.bicep' = {
+  scope: clusterResourceGroup
+  name: 'account-management-storage-account'
+  params: {
+    location: location
+    name: accountManagementStorageAccountName
+    tags: tags
+    sku: 'Standard_GRS'
+    userAssignedIdentityName: accountManagementIdentityName
+    containers: [
+      {
+        name: 'avatars'
+        publicAccess: 'None'
+      }
+    ]
+  }
+  dependsOn: [accountManagementIdentity]
+}
+
 module accountManagement '../modules/container-app.bicep' = {
   name: 'account-management'
   scope: clusterResourceGroup
@@ -202,7 +222,7 @@ module accountManagement '../modules/container-app.bicep' = {
     applicationInsightsConnectionString: applicationInsightsConnectionString
     keyVaultName: keyVault.outputs.name
   }
-  dependsOn: [accountManagementDatabase, communicationService]
+  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
