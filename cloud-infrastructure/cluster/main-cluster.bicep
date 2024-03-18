@@ -216,6 +216,7 @@ module accountManagement '../modules/container-app.bicep' = {
     emailServicesName: clusterUniqueName
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
+    storageAccountName: accountManagementStorageAccountName
     userAssignedIdentityName: accountManagementIdentityName
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
