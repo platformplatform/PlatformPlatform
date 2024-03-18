@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,10 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        var connectionString = builder.Configuration.GetConnectionString(connectionName);
+        var connectionString = IsRunningInAzure
+            ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+            : builder.Configuration.GetConnectionString(connectionName);
+
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
 
@@ -38,7 +42,16 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     )
     {
-        builder.AddAzureBlobService(connectionName);
+        if (IsRunningInAzure)
+        {
+            var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_URL")!);
+            services.AddSingleton(_ => new BlobServiceClient(storageEndpointUri, GetDefaultAzureCredential()));
+        }
+        else
+        {
+            builder.AddAzureBlobService(connectionName);
+        }
+
         services.AddTransient<IBlobStorage, BlobStorage>();
         return services;
     }
