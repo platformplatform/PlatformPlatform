@@ -2,6 +2,7 @@ param name string
 param location string
 param tags object
 param sku string
+param userAssignedIdentityName string = ''
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: name
@@ -35,6 +36,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
       keySource: 'Microsoft.Storage'
     }
     accessTier: 'Hot'
+  }
+}
+
+module storageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (userAssignedIdentityName != '') {
+  name: '${name}-blob-contributer-role-assignment'
+  params: {
+    storageAccountName: name
+    userAssignedIdentityName: userAssignedIdentityName
   }
 }
 
