@@ -197,7 +197,7 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
 }
 
 module accountManagement '../modules/container-app.bicep' = {
-  name: 'account-management'
+  name: 'account-management-container-app'
   scope: clusterResourceGroup
   params: {
     name: 'account-management'
