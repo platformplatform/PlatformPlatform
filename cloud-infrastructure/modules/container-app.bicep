@@ -14,6 +14,7 @@ param maxReplicas int = 3
 param emailServicesName string
 param sqlServerName string
 param sqlDatabaseName string
+param storageAccountName string
 param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
@@ -112,10 +113,6 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           }
           env: [
             {
-              name: 'ConnectionStrings__${sqlDatabaseName}'
-              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
-            }
-            {
               name: 'MANAGED_IDENTITY_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
             }
@@ -124,16 +121,24 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               value: applicationInsightsConnectionString
             }
             {
+              name: 'DATABASE_CONNECTION_STRING'
+              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
+            }
+            {
+              name: 'STORAGE_ACCOUNT_URL'
+              value: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
+            }
+            {
+              name: 'KEYVAULT_URL'
+              value: keyVault.properties.vaultUri
+            }
+            {
               name: 'PUBLIC_URL'
               value: publicUrl
             }
             {
               name: 'CDN_URL'
               value: cdnUrl
-            }
-            {
-              name: 'KEYVAULT_URL'
-              value: keyVault.properties.vaultUri
             }
             {
               name: 'SENDER_EMAIL_ADDRESS'
