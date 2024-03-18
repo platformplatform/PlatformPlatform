@@ -13,7 +13,7 @@ public static class InfrastructureConfiguration
         IHostApplicationBuilder builder
     )
     {
-        services.ConfigureDatabaseContext<AccountManagementDbContext>(builder, "account-management");
+        services.ConfigureDatabaseContext<AccountManagementDbContext>(builder);
 
         return services;
     }

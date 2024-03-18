@@ -22,8 +22,7 @@ public static class InfrastructureCoreConfiguration
     [UsedImplicitly]
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
-        IHostApplicationBuilder builder,
-        string connectionName
+        IHostApplicationBuilder builder
     ) where T : DbContext
     {
         var connectionString = builder.Configuration.GetConnectionString("account-management");
