@@ -18,6 +18,17 @@ param mailSenderDisplayName string = 'PlatformPlatform'
 var tags = { environment: environment, 'managed-by': 'bicep' }
 var diagnosticStorageAccountName = '${clusterUniqueName}diagnostic'
 
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+  name: resourceGroupName
+  location: location
+  tags: tags
+}
+
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  scope: resourceGroup('${environment}')
+  name: '${environment}-log-analytics-workspace'
+}
+
 // Manually construct virtual network subnetId to avoid dependent Bicep resources to be ignored. See https://github.com/Azure/arm-template-whatif/issues/157#issuecomment-1336139303
 var virtualNetworkName = '${locationPrefix}-virtual-network'
 var subnetId = resourceId(
@@ -28,25 +39,14 @@ var subnetId = resourceId(
   'subnet'
 )
 
-resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
-  scope: resourceGroup('${environment}')
-  name: '${environment}-log-analytics-workspace'
-}
-
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: resourceGroupName
-  location: location
-  tags: tags
-}
-
 module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
   name: 'diagnostic-storage-account'
   params: {
     location: location
     name: diagnosticStorageAccountName
-    sku: 'Standard_GRS'
     tags: tags
+    sku: 'Standard_GRS'
   }
 }
 
@@ -60,31 +60,16 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
   }
 }
 
-module keyVault '../modules/key-vault.bicep' = {
+module containerAppsEnvironment '../modules/container-apps-environment.bicep' = {
   scope: clusterResourceGroup
-  name: 'key-vault'
+  name: 'container-apps-environment'
   params: {
     location: location
-    name: clusterUniqueName
+    name: '${locationPrefix}-container-apps-environment'
     tags: tags
-    tenantId: subscription().tenantId
     subnetId: subnetId
-    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
-    workspaceId: existingLogAnalyticsWorkspace.id
   }
   dependsOn: [virtualNetwork]
-}
-
-module serviceBus '../modules/service-bus.bicep' = {
-  scope: clusterResourceGroup
-  name: 'service-bus'
-  params: {
-    location: location
-    name: clusterUniqueName
-    tags: tags
-    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
-    workspaceId: existingLogAnalyticsWorkspace.id
-  }
 }
 
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
@@ -141,6 +126,44 @@ module communicationService '../modules/communication-services.bicep' = {
   }
 }
 
+module keyVault '../modules/key-vault.bicep' = {
+  scope: clusterResourceGroup
+  name: 'key-vault'
+  params: {
+    location: location
+    name: clusterUniqueName
+    tags: tags
+    tenantId: subscription().tenantId
+    subnetId: subnetId
+    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
+    workspaceId: existingLogAnalyticsWorkspace.id
+  }
+  dependsOn: [virtualNetwork]
+}
+
+module serviceBus '../modules/service-bus.bicep' = {
+  scope: clusterResourceGroup
+  name: 'service-bus'
+  params: {
+    location: location
+    name: clusterUniqueName
+    tags: tags
+    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
+    workspaceId: existingLogAnalyticsWorkspace.id
+  }
+}
+
+var accountManagementIdentityName = 'account-management-${resourceGroupName}'
+module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: 'account-management-managed-identity'
+  scope: clusterResourceGroup
+  params: {
+    name: accountManagementIdentityName
+    location: location
+    tags: tags
+  }
+}
+
 module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
   name: 'account-management-database'
   scope: clusterResourceGroup
@@ -151,28 +174,6 @@ module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
     tags: tags
   }
   dependsOn: [microsoftSqlServer]
-}
-
-module containerAppsEnvironment '../modules/container-apps-environment.bicep' = {
-  scope: clusterResourceGroup
-  name: 'container-apps-environment'
-  params: {
-    location: location
-    name: '${locationPrefix}-container-apps-environment'
-    tags: tags
-    subnetId: subnetId
-  }
-  dependsOn: [virtualNetwork]
-}
-
-module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: 'account-management-managed-identity'
-  scope: clusterResourceGroup
-  params: {
-    name: 'account-management-${resourceGroupName}'
-    location: location
-    tags: tags
-  }
 }
 
 module accountManagement '../modules/container-app.bicep' = {
@@ -195,7 +196,7 @@ module accountManagement '../modules/container-app.bicep' = {
     emailServicesName: clusterUniqueName
     sqlServerName: clusterUniqueName
     sqlDatabaseName: 'account-management'
-    userAssignedIdentityName: 'account-management-${resourceGroupName}'
+    userAssignedIdentityName: accountManagementIdentityName
     domainName: domainName == '' ? '' : 'account-management.${domainName}'
     domainConfigured: domainName != '' && accountManagementDomainConfigured
     applicationInsightsConnectionString: applicationInsightsConnectionString
