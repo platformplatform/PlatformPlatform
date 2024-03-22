@@ -30,9 +30,16 @@ public static class ApiCoreConfiguration
     public static IServiceCollection AddApiCoreServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
-        Assembly assembly
+        Assembly apiAssembly,
+        Assembly domainAssembly
     )
     {
+        services.Scan(scan => scan
+            .FromAssemblies(apiAssembly)
+            .AddClasses(classes => classes.AssignableTo<IEndpoints>())
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
@@ -67,7 +74,7 @@ public static class ApiCoreConfiguration
             settings.PostProcess = document =>
             {
                 // Find all strongly typed IDs
-                var stronglyTypedIdNames = assembly.GetTypes()
+                var stronglyTypedIdNames = domainAssembly.GetTypes()
                     .Where(t => typeof(IStronglyTypedId).IsAssignableFrom(t))
                     .Select(t => t.Name)
                     .ToList();
@@ -164,6 +171,16 @@ public static class ApiCoreConfiguration
 
         // Add test-specific endpoints when running tests, such as /api/throwException
         app.MapTestEndpoints();
+
+        // Manually create all endpoints classes to call the MapEndpoints containing the mappings
+        using (var scope = app.Services.CreateScope())
+        {
+            var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
+            foreach (var endpoint in endpointServices)
+            {
+                endpoint.MapEndpoints(app);
+            }
+        }
 
         app.Services.ApplyMigrations<TDbContext>();
 

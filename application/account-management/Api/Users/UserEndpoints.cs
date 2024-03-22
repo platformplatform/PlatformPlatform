@@ -1,13 +1,15 @@
 using PlatformPlatform.AccountManagement.Application.Users;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
-public static class UserEndpoints
+[UsedImplicitly]
+public class UserEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/users";
 
-    public static void MapUserEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix);
 

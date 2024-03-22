@@ -1,13 +1,15 @@
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
-public static class TenantEndpoints
+[UsedImplicitly]
+public class TenantEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/tenants";
 
-    public static void MapTenantEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix);
 

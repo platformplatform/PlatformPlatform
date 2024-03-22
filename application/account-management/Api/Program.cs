@@ -1,6 +1,3 @@
-using PlatformPlatform.AccountManagement.Api.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Api.Tenants;
-using PlatformPlatform.AccountManagement.Api.Users;
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Infrastructure;
@@ -15,17 +12,13 @@ builder.Services
     .AddApplicationServices()
     .AddDatabaseContext(builder)
     .AddInfrastructureServices()
-    .AddApiCoreServices(builder, DomainConfiguration.Assembly)
+    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
     .AddWebAppMiddleware();
 
 var app = builder.Build();
 
 // Add common configuration for all APIs like Swagger, HSTS, DeveloperExceptionPage, and run EF database migrations.
 app.AddApiCoreConfiguration<AccountManagementDbContext>();
-
-app.MapAccountRegistrationsEndpoints();
-app.MapTenantEndpoints();
-app.MapUserEndpoints();
 
 // Server the SPA Index.html if no other endpoints are found
 app.UseWebAppMiddleware();
