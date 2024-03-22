@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Api.Tenants;
 using PlatformPlatform.AccountManagement.Api.Users;
@@ -23,9 +24,9 @@ var app = builder.Build();
 // Add common configuration for all APIs like Swagger, HSTS, DeveloperExceptionPage, and run EF database migrations.
 app.AddApiCoreConfiguration<AccountManagementDbContext>();
 
-app.MapAccountRegistrationsEndpoints();
-app.MapTenantEndpoints();
-app.MapUserEndpoints();
+app.MapEndpoints<AccountRegistrationsEndpoints>();
+app.MapEndpoints<TenantEndpoints>();
+app.MapEndpoints<UserEndpoints>();
 
 // Server the SPA Index.html if no other endpoints are found
 app.UseWebAppMiddleware();

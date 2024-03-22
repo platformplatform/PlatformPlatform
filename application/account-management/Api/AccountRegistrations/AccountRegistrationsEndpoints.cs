@@ -4,11 +4,11 @@ using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 
-public static class AccountRegistrationsEndpoints
+public class AccountRegistrationsEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-registrations";
 
-    public static void MapAccountRegistrationsEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix);
 

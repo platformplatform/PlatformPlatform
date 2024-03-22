@@ -3,11 +3,11 @@ using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
-public static class UserEndpoints
+public class UserEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/users";
 
-    public static void MapUserEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix);
 
