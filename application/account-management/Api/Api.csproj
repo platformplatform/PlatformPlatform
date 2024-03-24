@@ -6,6 +6,9 @@
         <RootNamespace>PlatformPlatform.AccountManagement.Api</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../WebApp/lib/api/</OpenApiDocumentsDirectory>
+        <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+        <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,6 +25,10 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="NSwag.MSBuild">
             <PrivateAssets>all</PrivateAssets>
@@ -40,14 +47,4 @@
         <None Remove="publish\**"/>
     </ItemGroup>
 
-    <PropertyGroup>
-        <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    </PropertyGroup>
-
-    <Target Name="NSwag" AfterTargets="PostBuildEvent">
-        <Exec
-            EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development;SWAGGER_GENERATOR=true;PUBLIC_URL=https://localhost:8443"
-            Command="$(NSwagExe_Net80) aspnetcore2openapi /Project:Api.csproj /Output:swagger.json /DocumentName:v1 /NoBuild:true /TargetFramework:net8.0 /Configuration:$(Configuration) /NewLineBehavior:LF"
-        />
-    </Target>
 </Project>

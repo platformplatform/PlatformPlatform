@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
@@ -14,8 +13,6 @@ public static class WebAppMiddlewareExtensions
     [UsedImplicitly]
     public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
     {
-        if (InfrastructureCoreConfiguration.SwaggerGenerator) return services;
-
         return services.AddSingleton<WebAppMiddlewareConfiguration>(serviceProvider =>
             {
                 var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
@@ -28,7 +25,7 @@ public static class WebAppMiddlewareExtensions
     [UsedImplicitly]
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder)
     {
-        if (InfrastructureCoreConfiguration.SwaggerGenerator) return builder;
+        if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return builder;
 
         var webAppConfiguration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
 
