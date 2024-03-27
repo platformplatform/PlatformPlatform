@@ -35,7 +35,7 @@ jobs:
           bicep --version
 
       - name: Login to Azure subscription
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -88,7 +88,7 @@ jobs:
           bicep --version
 
       - name: Login to Azure Subscription
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -125,7 +125,7 @@ jobs:
           sudo apt-get install -y sqlcmd
 
       - name: Login to Azure Subscription
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -144,7 +144,7 @@ jobs:
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
       - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -185,7 +185,7 @@ jobs:
           sudo apt-get install -y sqlcmd
 
       - name: Login to Azure Subscription
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -204,7 +204,7 @@ jobs:
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
 
       - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
