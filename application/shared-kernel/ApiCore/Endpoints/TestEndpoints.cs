@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Routing;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
-public static class TestEndpoints
+[UsedImplicitly]
+public class TestEndpoints : IEndpoints
 {
-    public static void MapTestEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         if (!bool.TryParse(Environment.GetEnvironmentVariable("TestEndpointsEnabled"), out _)) return;
 

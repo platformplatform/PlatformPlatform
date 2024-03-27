@@ -9,7 +9,8 @@ using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
-public static class TrackEndpoints
+[UsedImplicitly]
+public class TrackEndpoints : IEndpoints
 {
     // <summary>
     //     Maps the track endpoints for usage of application insights in the web application
@@ -18,7 +19,7 @@ public static class TrackEndpoints
     //          * limit the amount of data that can be sent to application insights
     //          * allow IDE's to instrument and display telemetry data from the web application
     // </summary>
-    public static void MapTrackEndpoints(this IEndpointRouteBuilder routes)
+    public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         routes.MapPost("/api/track", Track);
     }
@@ -122,7 +123,7 @@ public static class TrackEndpoints
                 }
                 default:
                 {
-                    logger.LogWarning($"Unsupported telemetry type: {trackRequestDto.Data.BaseType}");
+                    logger.LogWarning("Unsupported telemetry type: {BaseType}", trackRequestDto.Data.BaseType);
                     break;
                 }
             }
