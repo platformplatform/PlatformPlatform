@@ -72,7 +72,10 @@ public static class InfrastructureCoreConfiguration
         // and register them as a service in the container.
         services.Scan(scan => scan
             .FromAssemblies(assembly)
-            .AddClasses(classes => classes.Where(type => type.IsClass && (type.IsNotPublic || type.IsPublic)))
+            .AddClasses(classes => classes.Where(type =>
+                type.IsClass && (type.IsNotPublic || type.IsPublic)
+                             && type.BaseType is { IsGenericType: true } &&
+                             type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)))
             .AsImplementedInterfaces()
             .WithScopedLifetime());
 
