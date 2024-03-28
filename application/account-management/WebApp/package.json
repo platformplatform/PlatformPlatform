@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typechecking": "tsc --noEmit",
     "msbuild": "yarn run msbuild:swagger && yarn run build",
-    "msbuild:swagger": "npx openapi-typescript ../Api/swagger.json -o lib/api/api.generated.d.ts && npx prettier lib/api/api.generated.d.ts --write",
+    "msbuild:swagger": "npx openapi-typescript lib/api/Api.json -o lib/api/api.generated.d.ts && npx prettier lib/api/api.generated.d.ts --write",
     "postinstall": "yarn run lingui:extract && yarn run lingui:compile"
   },
   "dependencies": {

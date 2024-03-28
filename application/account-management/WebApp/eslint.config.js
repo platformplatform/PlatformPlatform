@@ -62,5 +62,6 @@ module.exports = antfu({
     "**/.swc/*",
     "**/dist/*",
     "**/locale/*.d.ts",
+    "**/lib/api/Api.json",
   ],
 });

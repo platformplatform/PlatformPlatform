@@ -36,7 +36,7 @@ public class WebAppMiddlewareConfiguration
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
 
         BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
-        HtmlTemplate = ReadHtmlTemplate(Path.Combine(BuildRootPath, "index.html"), isDevelopment);
+        HtmlTemplate = ReadHtmlTemplate(GetHtmlTemplatePath(), isDevelopment);
 
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies(isDevelopment);
@@ -72,6 +72,12 @@ public class WebAppMiddlewareConfiguration
         }
 
         return Path.Join(directoryInfo!.FullName, webAppProjectName, webAppDistRootName);
+    }
+
+    public static string GetHtmlTemplatePath()
+    {
+        var buildRootPath = GetWebAppDistRoot("WebApp", "dist");
+        return Path.Combine(buildRootPath, "index.html");
     }
 
     private string ReadHtmlTemplate(string htmlTemplatePath, bool isDevelopment)
