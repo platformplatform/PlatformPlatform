@@ -22,12 +22,17 @@ var accountManagementApi = builder
     .WithReference(database)
     .WithReference(accountManagementStorage);
 
-builder
+var accountManagementSpa = builder
     .AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
     .WithReference(accountManagementApi);
 
 builder.AddContainer("email-test-server", "mailhog/mailhog")
     .WithEndpoint(hostPort: 8025, containerPort: 8025, scheme: "http")
     .WithEndpoint(hostPort: 1025, containerPort: 1025);
+
+builder
+    .AddProject<AppGateway>("app-gateway")
+    .WithReference(accountManagementApi)
+    .WithReference(accountManagementSpa);
 
 builder.Build().Run();
