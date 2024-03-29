@@ -8,4 +8,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Yarp.ReverseProxy"/>
+    </ItemGroup>
+
 </Project>
