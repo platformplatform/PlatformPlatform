@@ -12,4 +12,6 @@ public interface IBlobStorage
 
     [UsedImplicitly]
     string GetBlobUrl(string container, string blobName);
+
+    string GetSharedAccessSignature(string container, TimeSpan expiresIn);
 }
