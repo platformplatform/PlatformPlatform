@@ -17,4 +17,8 @@
         <PackageReference Include="Yarp.ReverseProxy"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
+    </ItemGroup>
+
 </Project>
