@@ -7,6 +7,8 @@ builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>();
 
+builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
