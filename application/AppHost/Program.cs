@@ -4,7 +4,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
 var sqlServer = builder
-    .AddSqlServer("sql-server", sqlServerPassword, 8433)
+    .AddSqlServer("sql-server", sqlServerPassword, 9002)
     .WithVolumeMount("sql-server-data", "/var/opt/mssql");
 
 var azureStorage = builder
@@ -18,8 +18,8 @@ var azureStorage = builder
 
 builder
     .AddContainer("mail-server", "mailhog/mailhog")
-    .WithEndpoint(hostPort: 8025, containerPort: 8025, scheme: "http")
-    .WithEndpoint(hostPort: 1025, containerPort: 1025);
+    .WithEndpoint(hostPort: 9003, containerPort: 8025, scheme: "http")
+    .WithEndpoint(hostPort: 9004, containerPort: 1025);
 
 var accountManagementDatabase = sqlServer
     .AddDatabase("account-management-database", "account-management");

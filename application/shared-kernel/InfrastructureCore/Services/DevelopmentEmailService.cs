@@ -6,7 +6,7 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 public sealed class DevelopmentEmailService : IEmailService
 {
     private const string Sender = "no-reply@localhost";
-    private readonly SmtpClient _emailSender = new("localhost", 1025);
+    private readonly SmtpClient _emailSender = new("localhost", 9004);
 
     public Task SendAsync(
         string recipient,

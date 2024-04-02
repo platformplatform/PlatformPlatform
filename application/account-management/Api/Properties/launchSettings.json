@@ -6,10 +6,10 @@
       "launchUrl": "",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "development",
-        "PUBLIC_URL": "https://localhost:8002",
-        "CDN_URL": "https://localhost:8444"
+        "PUBLIC_URL": "https://localhost:9000",
+        "CDN_URL": "https://localhost:9099"
       },
-      "applicationUrl": "https://localhost:8443"
+      "applicationUrl": "https://localhost:9100"
     }
   }
 }
