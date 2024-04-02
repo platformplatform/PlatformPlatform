@@ -24,10 +24,10 @@ public class RunCommand : Command
         Task.Run(async () =>
         {
             // Start a background task that monitors the websites and opens the browser when ready
-            const int aspireDashboardPort = 8001;
+            const int aspireDashboardPort = 9000;
             await StartBrowserWhenSiteIsReady(aspireDashboardPort);
-            const int accountManagementPort = 8443;
-            await StartBrowserWhenSiteIsReady(accountManagementPort);
+            const int appPort = 9001;
+            await StartBrowserWhenSiteIsReady(appPort);
         });
 
         ProcessHelper.StartProcess("dotnet run", workingDirectory);

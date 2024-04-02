@@ -3,32 +3,35 @@ using Projects;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var sqlServerPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
-var database = builder
-    .AddSqlServer("account-management-db", sqlServerPassword, 8433)
-    .WithVolumeMount("sql-server-data", "/var/opt/mssql")
-    .AddDatabase("account-management");
+var sqlServer = builder
+    .AddSqlServer("sql-server", sqlServerPassword, 8433)
+    .WithVolumeMount("sql-server-data", "/var/opt/mssql");
 
-var accountManagementStorage = builder
-    .AddAzureStorage("account-management-storage")
+var azureStorage = builder
+    .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
     {
-        resourceBuilder.WithVolumeMount("account-management-storage", "/var/opt/blobstorage");
+        resourceBuilder.WithVolumeMount("azure-storage-data", "/var/opt/azurestorage");
         resourceBuilder.UseBlobPort(10000);
     })
     .AddBlobs("blobs");
 
+builder
+    .AddContainer("mail-server", "mailhog/mailhog")
+    .WithEndpoint(hostPort: 8025, containerPort: 8025, scheme: "http")
+    .WithEndpoint(hostPort: 1025, containerPort: 1025);
+
+var accountManagementDatabase = sqlServer
+    .AddDatabase("account-management-database", "account-management");
+
 var accountManagementApi = builder
     .AddProject<Api>("account-management-api")
-    .WithReference(database)
-    .WithReference(accountManagementStorage);
+    .WithReference(accountManagementDatabase)
+    .WithReference(azureStorage);
 
 var accountManagementSpa = builder
     .AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
     .WithReference(accountManagementApi);
-
-builder.AddContainer("email-test-server", "mailhog/mailhog")
-    .WithEndpoint(hostPort: 8025, containerPort: 8025, scheme: "http")
-    .WithEndpoint(hostPort: 1025, containerPort: 1025);
 
 builder
     .AddProject<AppGateway>("app-gateway")
