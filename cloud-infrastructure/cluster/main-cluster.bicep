@@ -9,8 +9,9 @@ param containerRegistryName string
 param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
+param isDomainConfigured bool
+param appGatewayVersion string = ''
 param accountManagementVersion string = ''
-param accountManagementDomainConfigured bool
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
@@ -196,6 +197,12 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
   dependsOn: [accountManagementIdentity]
 }
 
+var isCustomDomainSet = domainName != ''
+var publicUrl = isCustomDomainSet
+  ? 'https://${domainName}'
+  : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
+var cdnUrl = publicUrl
+
 module accountManagement '../modules/container-app.bicep' = {
   name: 'account-management-container-app'
   scope: clusterResourceGroup
@@ -213,17 +220,103 @@ module accountManagement '../modules/container-app.bicep' = {
     memory: '0.5Gi'
     minReplicas: 1
     maxReplicas: 3
-    emailServicesName: clusterUniqueName
-    sqlServerName: clusterUniqueName
-    sqlDatabaseName: 'account-management'
-    storageAccountName: accountManagementStorageAccountName
     userAssignedIdentityName: accountManagementIdentityName
-    domainName: domainName == '' ? '' : 'account-management.${domainName}'
-    domainConfigured: domainName != '' && accountManagementDomainConfigured
-    applicationInsightsConnectionString: applicationInsightsConnectionString
     keyVaultName: keyVault.outputs.name
+    environmentVariables: [
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: '${accountManagementIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
+      }
+      {
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+        value: applicationInsightsConnectionString
+      }
+      {
+        name: 'DATABASE_CONNECTION_STRING'
+        value: '${accountManagementDatabase.outputs.connectionString};User Id=${accountManagementIdentity.outputs.clientId};'
+      }
+      {
+        name: 'KEYVAULT_URL'
+        value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
+      }
+      {
+        name: 'BLOB_STORAGE_URL'
+        value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
+      }
+      {
+        name: 'PUBLIC_URL'
+        value: publicUrl
+      }
+      {
+        name: 'CDN_URL'
+        value: cdnUrl
+      }
+      {
+        name: 'SENDER_EMAIL_ADDRESS'
+        value: communicationService.outputs.senderEmailAddress
+      }
+    ]
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
+}
+
+var appGatewayIdentityName = 'app-gateway-${resourceGroupName}'
+module mainAppIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: 'app-gateway-managed-identity'
+  scope: clusterResourceGroup
+  params: {
+    name: appGatewayIdentityName
+    location: location
+    tags: tags
+  }
+}
+
+var appGatewayContainerAppName = 'app-gateway'
+module appGateway '../modules/container-app.bicep' = {
+  name: 'app-gateway-container-app'
+  scope: clusterResourceGroup
+  params: {
+    name: appGatewayContainerAppName
+    location: location
+    tags: tags
+    resourceGroupName: resourceGroupName
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
+    containerRegistryName: containerRegistryName
+    containerImageName: 'app-gateway'
+    containerImageTag: appGatewayVersion
+    cpu: '0.25'
+    memory: '0.5Gi'
+    minReplicas: 1
+    maxReplicas: 3
+    userAssignedIdentityName: appGatewayIdentityName
+    domainName: domainName == '' ? '' : domainName
+    isDomainConfigured: domainName != '' && isDomainConfigured
+    keyVaultName: keyVault.outputs.name
+    environmentVariables: [
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: '${mainAppIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
+      }
+      {
+        name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+        value: applicationInsightsConnectionString
+      }
+      {
+        name: 'KEYVAULT_URL'
+        value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
+      }
+      {
+        name: 'AVATARS_STORAGE_URL'
+        value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
+      }
+      {
+        name: 'ACCOUNT_MANAGEMENT_API_URL'
+        value: 'https://account-management.${containerAppsEnvironment.outputs.defaultDomainName}'
+      }
+    ]
+  }
+  dependsOn: [mainAppIdentity]
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId

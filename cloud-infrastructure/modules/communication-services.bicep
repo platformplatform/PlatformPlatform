@@ -55,3 +55,4 @@ resource communicationServiceConnectionStringSecret 'Microsoft.KeyVault/vaults/s
   }
 }
 
+output senderEmailAddress string = '${senderUsername.properties.username}@${azureManagedDomainEmailServices.properties.fromSenderDomain}'
