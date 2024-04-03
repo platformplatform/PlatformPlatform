@@ -39,17 +39,25 @@ public static class InfrastructureCoreConfiguration
     public static IServiceCollection AddBlobStorage(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
-        string connectionName
+        params (string ConnectionName, string EnvironmentVariable)[] connections
     )
     {
         if (IsRunningInAzure)
         {
-            var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable("STORAGE_ACCOUNT_URL")!);
-            services.AddSingleton(_ => new BlobServiceClient(storageEndpointUri, GetDefaultAzureCredential()));
+            foreach (var connection in connections)
+            {
+                // In Azure a container can have multiple storage accounts, so we need to specify the account
+                var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
+                services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
+                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, GetDefaultAzureCredential())));
+            }
         }
         else
         {
-            builder.AddAzureBlobService(connectionName);
+            foreach (var connection in connections)
+            {
+                builder.AddAzureBlobService(connection.ConnectionName);
+            }
         }
 
         services.AddTransient<IBlobStorage, BlobStorage>();
