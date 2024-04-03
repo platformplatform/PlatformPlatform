@@ -292,6 +292,7 @@ module appGateway '../modules/container-app.bicep' = {
     userAssignedIdentityName: appGatewayIdentityName
     domainName: domainName == '' ? '' : domainName
     isDomainConfigured: domainName != '' && isDomainConfigured
+    external: true
     keyVaultName: keyVault.outputs.name
     environmentVariables: [
       {

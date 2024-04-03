@@ -14,6 +14,7 @@ param maxReplicas int = 3
 param userAssignedIdentityName string
 param domainName string = ''
 param isDomainConfigured bool = false
+param external bool = false
 param keyVaultName string
 param environmentVariables object[] = []
 
@@ -121,7 +122,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
         }
       ]
       ingress: {
-        external: true
+        external: external
         targetPort: 8443
         exposedPort: 0
         allowInsecure: false
