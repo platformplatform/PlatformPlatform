@@ -17,7 +17,7 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {
-    private static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("KEYVAULT_URL") is not null;
+    private static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
 
     [UsedImplicitly]
     public static IServiceCollection ConfigureDatabaseContext<T>(
@@ -93,7 +93,8 @@ public static class InfrastructureCoreConfiguration
 
     private static DefaultAzureCredential GetDefaultAzureCredential()
     {
-        var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")!;
+        // Hack. Remove trailing whitespace from the environment variable, Bicep of bug in Bicep
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
         var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
         return new DefaultAzureCredential(credentialOptions);
     }
