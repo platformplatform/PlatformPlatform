@@ -10,8 +10,8 @@ param location string = deployment().location
 param sqlAdminObjectId string
 param domainName string
 param isDomainConfigured bool
-param appGatewayVersion string = ''
-param accountManagementVersion string = ''
+param appGatewayVersion string
+param accountManagementVersion string
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'

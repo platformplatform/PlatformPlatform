@@ -26,11 +26,11 @@ fi
 get_active_version()
 {
    local image=$(az containerapp revision list --name $1 --resource-group $RESOURCE_GROUP_NAME --query "[0].properties.template.containers[0].image" --output tsv 2>/dev/null)
-   local version=${image##*:}
    
-   if [[ -z "$image" ]]; then
-      echo ""
+   if [[ -z "$image" ]] || [[ "$image" = "ghcr.io/platformplatform/quickstart:latest" ]]; then
+      echo "initial"
    else
+      local version=${image##*:}
       echo $version
    fi
 }
