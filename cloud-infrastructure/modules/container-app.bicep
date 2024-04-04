@@ -17,6 +17,7 @@ param isDomainConfigured bool = false
 param external bool = false
 param keyVaultName string
 param environmentVariables object[] = []
+param uniqueSuffix string = substring(newGuid(), 0, 4)
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -81,6 +82,9 @@ var useQuickStartImage = containerImageTag == 'initial'
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
 var image = useQuickStartImage ? 'ghcr.io/platformplatform/quickstart:latest' : '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
 
+// Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
+var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
+
 resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
   location: location
@@ -105,7 +109,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           env: environmentVariables
         }
       ]
-      revisionSuffix: containerImageTag == '' ? 'initial' : null
+      revisionSuffix: revisionSuffix
       scale: {
         minReplicas: minReplicas
         maxReplicas: maxReplicas
