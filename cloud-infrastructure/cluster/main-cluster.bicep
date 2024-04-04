@@ -142,18 +142,6 @@ module keyVault '../modules/key-vault.bicep' = {
   dependsOn: [virtualNetwork]
 }
 
-module serviceBus '../modules/service-bus.bicep' = {
-  scope: clusterResourceGroup
-  name: 'service-bus'
-  params: {
-    location: location
-    name: clusterUniqueName
-    tags: tags
-    storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
-    workspaceId: existingLogAnalyticsWorkspace.id
-  }
-}
-
 var accountManagementIdentityName = 'account-management-${resourceGroupName}'
 module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
   name: 'account-management-managed-identity'
