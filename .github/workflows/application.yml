@@ -75,10 +75,10 @@ jobs:
         run: |
           if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]]; then
             echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
-            dotnet build PlatformPlatform.sln --no-restore
+            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
           else
             dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-            dotnet build PlatformPlatform.sln --no-restore &&
+            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
             dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
@@ -86,7 +86,7 @@ jobs:
       - name: Publish Account Management build
         working-directory: application/account-management
         run: |
-          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
+          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save Account Management artifacts
         uses: actions/upload-artifact@v4
