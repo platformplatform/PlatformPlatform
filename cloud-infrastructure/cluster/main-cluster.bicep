@@ -308,4 +308,14 @@ module appGateway '../modules/container-app.bicep' = {
   dependsOn: [mainAppIdentity]
 }
 
+module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
+  scope: clusterResourceGroup
+  name: '${appGatewayContainerAppName}-blob-reader-role-assignment'
+  params: {
+    storageAccountName: accountManagementStorageAccountName
+    userAssignedIdentityName: appGatewayIdentityName
+  }
+  dependsOn: [ appGateway, accountManagementStorageAccount ]
+}
+
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
