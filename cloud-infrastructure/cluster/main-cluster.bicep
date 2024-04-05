@@ -313,7 +313,7 @@ module appGateway '../modules/container-app.bicep' = {
       }
       {
         name: 'ACCOUNT_MANAGEMENT_API_URL'
-        value: 'https://account-management.${containerAppsEnvironment.outputs.defaultDomainName}'
+        value: 'https://account-management.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
       }
     ]
   }
