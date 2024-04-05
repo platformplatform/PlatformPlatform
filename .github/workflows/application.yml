@@ -38,7 +38,8 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - uses: actions/setup-node@v4
+      - name: Setup Java
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -61,7 +62,7 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Setup-java
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "microsoft"
