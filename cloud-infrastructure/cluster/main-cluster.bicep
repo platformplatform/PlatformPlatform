@@ -11,7 +11,7 @@ param sqlAdminObjectId string
 param domainName string
 param isDomainConfigured bool
 param appGatewayVersion string
-param accountManagementVersion string
+param accountManagementApiVersion string
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
@@ -191,19 +191,19 @@ var publicUrl = isCustomDomainSet
   : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
 var cdnUrl = publicUrl
 
-module accountManagement '../modules/container-app.bicep' = {
-  name: 'account-management-container-app'
+module accountManagementApi '../modules/container-app.bicep' = {
+  name: 'account-management-api-container-app'
   scope: clusterResourceGroup
   params: {
-    name: 'account-management'
+    name: 'account-management-api'
     location: location
     tags: tags
     resourceGroupName: resourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
-    containerImageName: 'account-management'
-    containerImageTag: accountManagementVersion
+    containerImageName: 'account-management-api'
+    containerImageTag: accountManagementApiVersion
     cpu: '0.25'
     memory: '0.5Gi'
     minReplicas: 1
@@ -301,7 +301,7 @@ module appGateway '../modules/container-app.bicep' = {
       }
       {
         name: 'ACCOUNT_MANAGEMENT_API_URL'
-        value: 'https://account-management.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
+        value: 'https://account-management-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
       }
     ]
   }
