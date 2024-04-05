@@ -95,6 +95,17 @@ jobs:
           name: account-management
           path: application/account-management/Api/publish/**/*
 
+      - name: Publish App Gateway build
+        working-directory: application
+        run: |
+          dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save App Gateway artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-gateway
+          path: application/AppGateway/publish/**/*
+
   code-style-and-linting:
     name: Code Style and Linting
     if: github.ref != 'refs/heads/main'
@@ -181,4 +192,26 @@ jobs:
     secrets: inherit
     with:
       image_name: account-management
+      version: ${{ needs.build-and-test.outputs.version }}
+
+  app-gateway-publish:
+    name: App Gateway Publish
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: app-gateway
+      artifacts_path: application/AppGateway/publish
+      image_name: app-gateway
+      version: ${{ needs.build-and-test.outputs.version }}
+      project_file: application/AppGateway/AppGateway.csproj
+
+  app-gateway-deploy:
+    name: App Gateway Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, app-gateway-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: app-gateway
       version: ${{ needs.build-and-test.outputs.version }}
