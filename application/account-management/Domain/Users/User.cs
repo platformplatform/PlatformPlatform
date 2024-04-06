@@ -38,7 +38,7 @@ public sealed class User : AggregateRoot<UserId>
         string? gravatarUrl
     )
     {
-        var avatar = new Avatar(gravatarUrl, 0, gravatarUrl is not null);
+        var avatar = new Avatar(gravatarUrl, IsGravatar: gravatarUrl is not null);
         return new User(tenantId, email, userRole, emailConfirmed) { Avatar = avatar };
     }
 
@@ -48,14 +48,14 @@ public sealed class User : AggregateRoot<UserId>
         UserRole = userRole;
     }
 
-    public void UpdateAvatar(string avatarUrl, int version = 1, bool isGravatar = false)
+    public void UpdateAvatar(string avatarUrl, int version)
     {
-        Avatar = new Avatar(avatarUrl, version, isGravatar);
+        Avatar = new Avatar(avatarUrl, version, false);
     }
 
     public void RemoveAvatar()
     {
-        Avatar = new Avatar();
+        Avatar = new Avatar(Version: Avatar.Version);
     }
 }
 
