@@ -38,7 +38,7 @@ module containerRegistryPermission './role-assignments-container-registry-acr-pu
   }
 }
 
-var certificateName = '${domainName}-certificate'
+var certificateName = '${domainName}-certificate' // Note: The `-certificate` is used to detect if a certificate in deploy-cluster.sh
 var isCustomDomainSet = domainName != ''
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
