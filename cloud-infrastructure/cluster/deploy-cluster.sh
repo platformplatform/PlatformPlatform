@@ -26,11 +26,11 @@ fi
 get_active_version()
 {
    local image=$(az containerapp revision list --name $1 --resource-group $RESOURCE_GROUP_NAME --query "[0].properties.template.containers[0].image" --output tsv 2>/dev/null)
-   local version=${image##*:}
    
-   if [[ -z "$image" ]]; then
-      echo ""
+   if [[ -z "$image" ]] || [[ "$image" = "ghcr.io/platformplatform/quickstart:latest" ]]; then
+      echo "initial"
    else
+      local version=${image##*:}
       echo $version
    fi
 }
@@ -52,16 +52,16 @@ if [[ "$DOMAIN_NAME" == "-" ]]; then
 fi
 
 RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
-ACTIVE_ACCOUNT_MANAGEMENT_VERSION=$(get_active_version account-management)
-ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=$(is_domain_configured "account-management" "$RESOURCE_GROUP_NAME")
+APP_GATEWAY_VERSION=$(get_active_version app-gateway)
+ACTIVE_ACCOUNT_MANAGEMENT_API_VERSION=$(get_active_version account-management-api)
+IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
 
-az extension add --name application-insights
 az extension add --name application-insights --allow-preview true
-APPLICATION_INSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $ENVIRONMENT-application-insights --resource-group $ENVIRONMENT --query connectionString --output tsv)
+APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $ENVIRONMENT-application-insights --resource-group $ENVIRONMENT --query connectionString --output tsv)
 
 DEPLOYMENT_COMMAND="az deployment sub create"
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED applicationInsightsConnectionString=$APPLICATION_INSIGHTS_CONNECTION_STRING"
+DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
@@ -86,8 +86,8 @@ then
 
     # Display instructions for setting up DNS entries
     echo -e "${RED}$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries and then retry:${RESET}"
-    echo -e "${RED}- A TXT record with the name 'asuid.account-management.$DOMAIN_NAME' and the value '$custom_domain_verification_id'.${RESET}"
-    echo -e "${RED}- A CNAME record with the Host name 'account-management.$DOMAIN_NAME' that points to address 'account-management.$default_domain'.${RESET}"
+    echo -e "${RED}- A TXT record with the name 'asuid.$DOMAIN_NAME' and the value '$custom_domain_verification_id'.${RESET}"
+    echo -e "${RED}- A CNAME record with the Host name '$DOMAIN_NAME' that points to address 'account-management.$default_domain'.${RESET}"
     exit 1
   elif [[ $output == "ERROR:"* ]]; then
     echo -e "${RED}$output${RESET}"
@@ -95,10 +95,10 @@ then
   fi
 
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
-  if [[ "$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
+  if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
     echo "Running deployment again to finalize setting up SSL certificate for account-management"
-    ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED=true
-    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION accountManagementDomainConfigured=$ACCOUNT_MANAGEMENT_DOMAIN_CONFIGURED applicationInsightsConnectionString=$APPLICATION_INSIGHTS_CONNECTION_STRING"
+    IS_DOMAIN_CONFIGURED=true
+    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
     . ../deploy.sh
 

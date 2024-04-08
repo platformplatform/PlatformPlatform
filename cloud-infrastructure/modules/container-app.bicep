@@ -11,15 +11,13 @@ param cpu string = '0.25'
 param memory string = '0.5Gi'
 param minReplicas int = 1
 param maxReplicas int = 3
-param emailServicesName string
-param sqlServerName string
-param sqlDatabaseName string
-param storageAccountName string
 param userAssignedIdentityName string
-param domainName string
-param domainConfigured bool
-param applicationInsightsConnectionString string
+param domainName string = ''
+param isDomainConfigured bool = false
+param external bool = false
 param keyVaultName string
+param environmentVariables object[] = []
+param uniqueSuffix string = substring(newGuid(), 0, 4)
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
@@ -28,10 +26,6 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
   name: keyVaultName
-}
-
-resource azureManagedDomainEmailServices 'Microsoft.Communication/emailServices/domains@2023-06-01-preview' existing = {
-  name: '${emailServicesName}/AzureManagedDomain'
 }
 
 var containerRegistryResourceGroupName = 'shared'
@@ -47,6 +41,11 @@ module containerRegistryPermission './role-assignments-container-registry-acr-pu
 var certificateName = '${domainName}-certificate'
 var isCustomDomainSet = domainName != ''
 
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
+  if (isCustomDomainSet) {
+    name: containerAppsEnvironmentName
+  }
+
 module newManagedCertificate './managed-certificate.bicep' =
   if (isCustomDomainSet) {
     name: certificateName
@@ -61,13 +60,8 @@ module newManagedCertificate './managed-certificate.bicep' =
     }
   }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
-  if (isCustomDomainSet) {
-    name: containerAppsEnvironmentName
-  }
-
 resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
-  if (isCustomDomainSet) {
+  if (isDomainConfigured) {
     name: certificateName
     parent: containerAppsEnvironment
   }
@@ -75,21 +69,22 @@ resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCe
 var customDomainConfiguration = isCustomDomainSet
   ? [
       {
-        bindingType: domainConfigured ? 'SniEnabled' : 'Disabled'
+        bindingType: isDomainConfigured ? 'SniEnabled' : 'Disabled'
         name: domainName
-        certificateId: domainConfigured ? existingManagedCertificate.id : null
+        certificateId: isDomainConfigured ? existingManagedCertificate.id : null
       }
     ]
   : []
 
-var publicUrl = isCustomDomainSet
-  ? 'https://${domainName}'
-  : 'https://${name}.${containerAppsEnvironment.properties.defaultDomain}'
-var cdnUrl = publicUrl
-
-var imageTag = containerImageTag != '' ? containerImageTag : 'latest'
-
+// For the initial revision, we use the container image hello world quickstart image.
+// This allows for the container app to be created before the container image is pushed to the registry.
+var useQuickStartImage = containerImageTag == 'initial'
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
+var image = useQuickStartImage ? 'ghcr.io/platformplatform/quickstart:latest' : '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
+
+// Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
+var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
+
 resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
   location: location
@@ -106,48 +101,15 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
       containers: [
         {
           name: name
-          image: '${containerRegistryServerUrl}/${containerImageName}:${imageTag}'
+          image: image
           resources: {
             cpu: json(cpu)
             memory: memory
           }
-          env: [
-            {
-              name: 'MANAGED_IDENTITY_CLIENT_ID'
-              value: userAssignedIdentity.properties.clientId
-            }
-            {
-              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-              value: applicationInsightsConnectionString
-            }
-            {
-              name: 'DATABASE_CONNECTION_STRING'
-              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
-            }
-            {
-              name: 'STORAGE_ACCOUNT_URL'
-              value: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
-            }
-            {
-              name: 'KEYVAULT_URL'
-              value: keyVault.properties.vaultUri
-            }
-            {
-              name: 'PUBLIC_URL'
-              value: publicUrl
-            }
-            {
-              name: 'CDN_URL'
-              value: cdnUrl
-            }
-            {
-              name: 'SENDER_EMAIL_ADDRESS'
-              value: 'no-reply@${azureManagedDomainEmailServices.properties.mailFromSenderDomain}'
-            }
-          ]
+          env: environmentVariables
         }
       ]
-      revisionSuffix: containerImageTag == '' ? 'initial' : null
+      revisionSuffix: revisionSuffix
       scale: {
         minReplicas: minReplicas
         maxReplicas: maxReplicas
@@ -161,8 +123,8 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
         }
       ]
       ingress: {
-        external: true
-        targetPort: 8443
+        external: external
+        targetPort: 8080
         exposedPort: 0
         allowInsecure: false
         traffic: [
