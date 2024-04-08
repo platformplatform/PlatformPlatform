@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
@@ -11,7 +12,7 @@ public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string Con
 [UsedImplicitly]
 public sealed class UpdateAvatarHandler(
     IUserRepository userRepository,
-    IBlobStorage blobStorage,
+    [FromKeyedServices("avatars-storage")] IBlobStorage blobStorage,
     ITelemetryEventsCollector events
 )
     : IRequestHandler<UpdateAvatarCommand, Result>

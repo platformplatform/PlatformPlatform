@@ -4,7 +4,7 @@ using PlatformPlatform.SharedKernel.InfrastructureCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<SharedAccessSignatureRequestTransform>();
-builder.Services.AddBlobStorage(builder, ("account-management-storage", "ACCOUNT_MANAGEMENT_STORAGE_URL"));
+builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.Services
     .AddReverseProxy()
