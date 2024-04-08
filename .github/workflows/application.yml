@@ -170,8 +170,7 @@ jobs:
       artifacts_path: application/account-management/Api/publish
       image_name: account-management
       version: ${{ needs.build-and-test.outputs.version }}
-      docker_context: ./application/account-management
-      docker_file: ./Api/Dockerfile
+      project_file: application/account-management/Api/Api.csproj
 
   account-management-deploy:
     name: Account Management Deploy
