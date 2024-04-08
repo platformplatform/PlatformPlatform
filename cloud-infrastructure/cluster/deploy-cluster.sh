@@ -19,9 +19,9 @@ fi
 if [[ $ENVIRONMENT_VARIABLES_MISSING == true ]]; then
   echo "Please follow the instructions in the README.md for setting up the required environment variables and try again."
   exit 1
-else
-  echo "$(date +"%Y-%m-%dT%H:%M:%S") All environment variables are set."
 fi
+
+echo "$(date +"%Y-%m-%dT%H:%M:%S") All environment variables are set."
 
 get_active_version()
 {
@@ -38,7 +38,7 @@ get_active_version()
 function is_domain_configured() {
   # Get details about the container apps
   local app_details=$(az containerapp show --name "$1" --resource-group "$2" 2>&1)
-  if [[ "$app_details" == *"ResourceNotFound"* ]]; then
+  if [[ "$app_details" == *"ResourceNotFound"* ]] || [[ "$app_details" == *"ResourceGroupNotFound"* ]]; then
     echo "false"
   else
     local result=$(echo "$app_details" | jq -r '.properties.configuration.ingress.customDomains')
@@ -76,7 +76,7 @@ then
   RESET='\033[0m' # Reset formatting
 
   # Check for the specific error message indicating that DNS Records are missing
-  if [[ $output == *"InvalidCustomHostNameValidation"* ]]; then
+  if [[ $output == *"InvalidCustomHostNameValidation"* ]] || [[ $output == *"FailedCnameValidation"* ]] || [[ $output == *"-certificate' under resource group '$RESOURCE_GROUP_NAME' was not found"* ]]; then
     # Get details about the container apps environment. Although the creation of the container app fails, the verification ID on the container apps environment is consistent across all container apps.
     env_details=$(az containerapp env show --name "$LOCATION_PREFIX-container-apps-environment" --resource-group "$RESOURCE_GROUP_NAME")
     
@@ -87,7 +87,7 @@ then
     # Display instructions for setting up DNS entries
     echo -e "${RED}$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries and then retry:${RESET}"
     echo -e "${RED}- A TXT record with the name 'asuid.$DOMAIN_NAME' and the value '$custom_domain_verification_id'.${RESET}"
-    echo -e "${RED}- A CNAME record with the Host name '$DOMAIN_NAME' that points to address 'account-management.$default_domain'.${RESET}"
+    echo -e "${RED}- A CNAME record with the Host name '$DOMAIN_NAME' that points to address 'app-gateway.$default_domain'.${RESET}"
     exit 1
   elif [[ $output == "ERROR:"* ]]; then
     echo -e "${RED}$output${RESET}"
@@ -97,7 +97,7 @@ then
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
     echo "Running deployment again to finalize setting up SSL certificate for account-management"
-    IS_DOMAIN_CONFIGURED=true
+    IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
     DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementApiVersion=$ACTIVE_ACCOUNT_MANAGEMENT_API_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
     . ../deploy.sh
