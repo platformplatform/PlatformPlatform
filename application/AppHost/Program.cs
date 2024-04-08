@@ -48,7 +48,7 @@ return;
 
 void CreateBlobContainer(string containerName)
 {
-    var connectionString = builder.Configuration.GetConnectionString("account-management-storage");
+    var connectionString = builder.Configuration.GetConnectionString("blob-storage");
 
     new Task(() =>
     {
