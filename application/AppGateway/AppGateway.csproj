@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ContainerPort Include="8080" Type="tcp" />
+        <ContainerPort Include="8080" Type="tcp"/>
     </ItemGroup>
 
     <ItemGroup>
