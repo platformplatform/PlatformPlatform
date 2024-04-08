@@ -91,6 +91,9 @@ msgstr ""
 msgid "Please sign in to continue"
 msgstr ""
 
+msgid "Region"
+msgstr ""
+
 msgid "Sign in"
 msgstr ""
 
