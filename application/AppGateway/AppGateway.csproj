@@ -6,7 +6,12 @@
         <RootNamespace>PlatformPlatform.AppGateway</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <ContainerFamily>alpine</ContainerFamily>
     </PropertyGroup>
+
+    <ItemGroup>
+        <ContainerPort Include="8080" Type="tcp" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Yarp.ReverseProxy"/>
