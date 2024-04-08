@@ -38,13 +38,13 @@ module containerRegistryPermission './role-assignments-container-registry-acr-pu
   }
 }
 
+var certificateName = '${domainName}-certificate'
+var isCustomDomainSet = domainName != ''
+
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
   if (isCustomDomainSet) {
     name: containerAppsEnvironmentName
   }
-
-var certificateName = '${domainName}-certificate'
-var isCustomDomainSet = domainName != ''
 
 module newManagedCertificate './managed-certificate.bicep' =
   if (isCustomDomainSet) {
@@ -61,7 +61,7 @@ module newManagedCertificate './managed-certificate.bicep' =
   }
 
 resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
-  if (isCustomDomainSet) {
+  if (isDomainConfigured) {
     name: certificateName
     parent: containerAppsEnvironment
   }
