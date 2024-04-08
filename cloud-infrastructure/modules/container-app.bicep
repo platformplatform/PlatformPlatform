@@ -14,6 +14,7 @@ param maxReplicas int = 3
 param emailServicesName string
 param sqlServerName string
 param sqlDatabaseName string
+param storageAccountName string
 param userAssignedIdentityName string
 param domainName string
 param domainConfigured bool
@@ -34,12 +35,12 @@ resource azureManagedDomainEmailServices 'Microsoft.Communication/emailServices/
 }
 
 var containerRegistryResourceGroupName = 'shared'
-module containerRegistryPermission './container-registry-permission.bicep' = {
+module containerRegistryPermission './role-assignments-container-registry-acr-pull.bicep' = {
   name: 'container-registry-permission'
   scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
-    identityPrincipalId: userAssignedIdentity.properties.principalId
+    principalId: userAssignedIdentity.properties.principalId
   }
 }
 
@@ -112,10 +113,6 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           }
           env: [
             {
-              name: 'ConnectionStrings__${sqlDatabaseName}'
-              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
-            }
-            {
               name: 'MANAGED_IDENTITY_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
             }
@@ -124,16 +121,24 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               value: applicationInsightsConnectionString
             }
             {
+              name: 'DATABASE_CONNECTION_STRING'
+              value: 'Server=tcp:${sqlServerName}${environment().suffixes.sqlServerHostname},1433;Initial Catalog=${sqlDatabaseName};User Id=${userAssignedIdentity.properties.clientId};Authentication=Active Directory Default;TrustServerCertificate=True;'
+            }
+            {
+              name: 'STORAGE_ACCOUNT_URL'
+              value: 'https://${storageAccountName}.blob.${environment().suffixes.storage}'
+            }
+            {
+              name: 'KEYVAULT_URL'
+              value: keyVault.properties.vaultUri
+            }
+            {
               name: 'PUBLIC_URL'
               value: publicUrl
             }
             {
               name: 'CDN_URL'
               value: cdnUrl
-            }
-            {
-              name: 'KEYVAULT_URL'
-              value: keyVault.properties.vaultUri
             }
             {
               name: 'SENDER_EMAIL_ADDRESS'
@@ -175,7 +180,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
 }
 
 var keyVaultSecretsUserRoleDefinitionId = '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User role
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(keyVault.name, name, keyVaultSecretsUserRoleDefinitionId)
   scope: keyVault
   properties: {
