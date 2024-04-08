@@ -118,11 +118,7 @@ public static class ApiCoreConfiguration
         else
         {
             // When running inside a Docker container running as non-root we need to use a port higher than 1024
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenAnyIP(8443, _ => { });
-                options.AddServerHeader = false;
-            });
+            builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
         }
 
         return services;
