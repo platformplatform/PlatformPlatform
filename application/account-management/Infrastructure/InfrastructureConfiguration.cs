@@ -12,7 +12,8 @@ public static class InfrastructureConfiguration
     {
         // Storage is configured separately from other Infrastructure services to allow mocking in tests
         services.ConfigureDatabaseContext<AccountManagementDbContext>(builder, "account-management-database");
-        services.AddBlobStorage(builder, ("account-management-storage", "ACCOUNT_MANAGEMENT_STORAGE_URL"));
+        services.AddDefaultBlobStorage(builder);
+        services.AddNamedBlobStorages(builder, ("avatars-storage", "BLOB_STORAGE_URL"));
 
         return services;
     }

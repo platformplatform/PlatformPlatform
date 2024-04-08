@@ -36,7 +36,32 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection AddBlobStorage(
+    // Register the default storage account for IBlobStorage
+    [UsedImplicitly]
+    public static IServiceCollection AddDefaultBlobStorage(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder
+    )
+    {
+        if (IsRunningInAzure)
+        {
+            var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
+            services.AddSingleton<IBlobStorage>(
+                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, GetDefaultAzureCredential()))
+            );
+        }
+        else
+        {
+            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+        }
+
+        return services;
+    }
+
+    // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
+    [UsedImplicitly]
+    public static IServiceCollection AddNamedBlobStorages(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
         params (string ConnectionName, string EnvironmentVariable)[] connections
@@ -44,23 +69,21 @@ public static class InfrastructureCoreConfiguration
     {
         if (IsRunningInAzure)
         {
+            var defaultAzureCredential = GetDefaultAzureCredential();
             foreach (var connection in connections)
             {
-                // In Azure a container can have multiple storage accounts, so we need to specify the account
                 var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
                 services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
-                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, GetDefaultAzureCredential())));
+                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, defaultAzureCredential))
+                );
             }
         }
         else
         {
-            foreach (var connection in connections)
-            {
-                builder.AddAzureBlobService(connection.ConnectionName);
-            }
+            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
         }
 
-        services.AddTransient<IBlobStorage, BlobStorage>();
         return services;
     }
 
