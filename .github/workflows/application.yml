@@ -38,7 +38,8 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - uses: actions/setup-node@v4
+      - name: Setup Java
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -61,7 +62,7 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Setup-java
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: "microsoft"
@@ -75,24 +76,35 @@ jobs:
         run: |
           if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]]; then
             echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
-            dotnet build PlatformPlatform.sln --no-restore
+            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
           else
             dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-            dotnet build PlatformPlatform.sln --no-restore &&
+            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
             dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
-      - name: Publish Account Management build
+      - name: Publish Account Management API build
         working-directory: application/account-management
         run: |
-          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish --version-suffix ${{ steps.generate_version.outputs.version }}
+          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save Account Management artifacts
+      - name: Save Account Management API artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: account-management
+          name: account-management-api
           path: application/account-management/Api/publish/**/*
+
+      - name: Publish App Gateway build
+        working-directory: application
+        run: |
+          dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save App Gateway artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-gateway
+          path: application/AppGateway/publish/**/*
 
   code-style-and-linting:
     name: Code Style and Linting
@@ -160,24 +172,46 @@ jobs:
         working-directory: application/account-management/WebApp
         run: yarn run typechecking
 
-  account-management-publish:
-    name: Account Management Publish
+  account-management-api-publish:
+    name: Account Management API Publish
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
     with:
-      artifacts_name: account-management
+      artifacts_name: account-management-api
       artifacts_path: application/account-management/Api/publish
-      image_name: account-management
+      image_name: account-management-api
       version: ${{ needs.build-and-test.outputs.version }}
       project_file: application/account-management/Api/Api.csproj
 
   account-management-deploy:
-    name: Account Management Deploy
+    name: Account Management API Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, account-management-publish]
+    needs: [build-and-test, account-management-api-publish]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
-      image_name: account-management
+      image_name: account-management-api
+      version: ${{ needs.build-and-test.outputs.version }}
+
+  app-gateway-publish:
+    name: App Gateway Publish
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: app-gateway
+      artifacts_path: application/AppGateway/publish
+      image_name: app-gateway
+      version: ${{ needs.build-and-test.outputs.version }}
+      project_file: application/AppGateway/AppGateway.csproj
+
+  app-gateway-deploy:
+    name: App Gateway Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, app-gateway-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: app-gateway
       version: ${{ needs.build-and-test.outputs.version }}
