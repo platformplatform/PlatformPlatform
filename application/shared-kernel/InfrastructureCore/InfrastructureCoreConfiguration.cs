@@ -25,7 +25,7 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        var connectionString = builder.Configuration.GetConnectionString("account-management");
+        var connectionString = builder.Configuration.GetConnectionString(connectionName);
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
 

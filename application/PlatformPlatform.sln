@@ -31,6 +31,8 @@ Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "account-managemen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "AppHost\AppHost.csproj", "{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppGateway", "AppGateway\AppGateway.csproj", "{8A9E566E-2DE4-4A60-9030-615C939BC05C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A9E566E-2DE4-4A60-9030-615C939BC05C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A9E566E-2DE4-4A60-9030-615C939BC05C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A9E566E-2DE4-4A60-9030-615C939BC05C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A9E566E-2DE4-4A60-9030-615C939BC05C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{836ABCEF-C16B-4331-B8D5-0EA75E4101FE} = {F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}
