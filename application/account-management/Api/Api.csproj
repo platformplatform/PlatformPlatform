@@ -9,7 +9,7 @@
         <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../WebApp/lib/api/</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
-        <ContainerFamily>alpine</ContainerFamily>
+        <ContainerFamily>jammy-chiseled-extra</ContainerFamily>
     </PropertyGroup>
 
     <ItemGroup>
