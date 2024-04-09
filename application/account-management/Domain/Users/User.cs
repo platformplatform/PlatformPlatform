@@ -48,9 +48,9 @@ public sealed class User : AggregateRoot<UserId>
         UserRole = userRole;
     }
 
-    public void UpdateAvatar(string avatarUrl, int version)
+    public void UpdateAvatar(string avatarUrl)
     {
-        Avatar = new Avatar(avatarUrl, version, false);
+        Avatar = new Avatar(avatarUrl, Avatar.Version + 1);
     }
 
     public void RemoveAvatar()
