@@ -17,7 +17,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -120,19 +120,15 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("bit");
 
+                    b.Property<string>("Avatar")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
-                {
-                    b.HasOne("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", null)
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

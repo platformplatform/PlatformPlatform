@@ -59,7 +59,8 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(30)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(30)", nullable: true),
                     UserRole = table.Column<string>(type: "varchar(20)", nullable: false),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false)
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    Avatar = table.Column<string>(type: "varchar(200)", nullable: false),
                 },
                 constraints: table =>
                 {

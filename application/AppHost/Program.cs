@@ -1,3 +1,5 @@
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -24,6 +26,8 @@ builder
 var accountManagementDatabase = sqlServer
     .AddDatabase("account-management-database", "account-management");
 
+CreateBlobContainer("avatars");
+
 var accountManagementApi = builder
     .AddProject<Api>("account-management-api")
     .WithReference(accountManagementDatabase)
@@ -39,3 +43,17 @@ builder
     .WithReference(accountManagementSpa);
 
 builder.Build().Run();
+
+return;
+
+void CreateBlobContainer(string containerName)
+{
+    var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+
+    new Task(() =>
+    {
+        var blobServiceClient = new BlobServiceClient(connectionString);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        containerClient.CreateIfNotExists();
+    }).Start();
+}

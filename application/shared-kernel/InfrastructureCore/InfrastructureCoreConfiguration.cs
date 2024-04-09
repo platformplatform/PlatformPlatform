@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using Azure.Storage.Blobs;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,7 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 
 public static class InfrastructureCoreConfiguration
 {
-    private static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("KEYVAULT_URL") is not null;
+    public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
 
     [UsedImplicitly]
     public static IServiceCollection ConfigureDatabaseContext<T>(
@@ -25,9 +26,63 @@ public static class InfrastructureCoreConfiguration
         string connectionName
     ) where T : DbContext
     {
-        var connectionString = builder.Configuration.GetConnectionString(connectionName);
+        var connectionString = IsRunningInAzure
+            ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+            : builder.Configuration.GetConnectionString(connectionName);
+
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
+
+        return services;
+    }
+
+    // Register the default storage account for IBlobStorage
+    [UsedImplicitly]
+    public static IServiceCollection AddDefaultBlobStorage(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder
+    )
+    {
+        if (IsRunningInAzure)
+        {
+            var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
+            services.AddSingleton<IBlobStorage>(
+                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, GetDefaultAzureCredential()))
+            );
+        }
+        else
+        {
+            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+        }
+
+        return services;
+    }
+
+    // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
+    [UsedImplicitly]
+    public static IServiceCollection AddNamedBlobStorages(
+        this IServiceCollection services,
+        IHostApplicationBuilder builder,
+        params (string ConnectionName, string EnvironmentVariable)[] connections
+    )
+    {
+        if (IsRunningInAzure)
+        {
+            var defaultAzureCredential = GetDefaultAzureCredential();
+            foreach (var connection in connections)
+            {
+                var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
+                services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
+                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, defaultAzureCredential))
+                );
+            }
+        }
+        else
+        {
+            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+        }
 
         return services;
     }
@@ -46,14 +101,9 @@ public static class InfrastructureCoreConfiguration
 
         if (IsRunningInAzure)
         {
-            services.AddSingleton<SecretClient>(_ =>
-            {
-                var keyVaultUrl = Environment.GetEnvironmentVariable("KEYVAULT_URL")!;
-                var managedIdentityClientId = Environment.GetEnvironmentVariable("MANAGED_IDENTITY_CLIENT_ID")!;
-                var credentialOptions = new DefaultAzureCredentialOptions
-                    { ManagedIdentityClientId = managedIdentityClientId };
-                return new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential(credentialOptions));
-            });
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            services.AddSingleton(_ => new SecretClient(keyVaultUri, GetDefaultAzureCredential()));
+
             services.AddTransient<IEmailService, AzureEmailService>();
         }
         else
@@ -62,6 +112,14 @@ public static class InfrastructureCoreConfiguration
         }
 
         return services;
+    }
+
+    public static DefaultAzureCredential GetDefaultAzureCredential()
+    {
+        // Hack. Remove trailing whitespace from the environment variable, Bicep of bug in Bicep
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
+        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
+        return new DefaultAzureCredential(credentialOptions);
     }
 
     [UsedImplicitly]

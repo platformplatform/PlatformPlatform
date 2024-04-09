@@ -9,5 +9,6 @@ public sealed record UserResponseDto(
     UserRole UserRole,
     string FirstName,
     string LastName,
-    bool EmailConfirmed
+    bool EmailConfirmed,
+    string? AvatarUrl
 );

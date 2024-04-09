@@ -13,8 +13,9 @@ public class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix);
 
-        group.MapGet("/", async Task<ApiResult<SearchUsersDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
-            => await mediator.Send(query));
+        group.MapGet("/",
+            async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
+                => await mediator.Send(query));
 
         group.MapGet("/{id}",
             async Task<ApiResult<UserResponseDto>> ([AsParameters] GetUserQuery query, ISender mediator)
@@ -28,5 +29,15 @@ public class UserEndpoints : IEndpoints
 
         group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteUserCommand command, ISender mediator)
             => await mediator.Send(command));
+
+        // Id should be inferred from the authenticated user
+        group.MapPost("/{id}/update-avatar", async Task<ApiResult> (UserId id, IFormFile file, ISender mediator)
+                => await mediator.Send(new UpdateAvatarCommand(id, file.OpenReadStream(), file.ContentType)))
+            .DisableAntiforgery(); // Disable antiforgery until we implement it
+
+        // Id should be inferred from the authenticated user
+        group.MapPost("/{id}/remove-avatar",
+            async Task<ApiResult> ([AsParameters] RemoveAvatarCommand command, ISender mediator)
+                => await mediator.Send(command));
     }
 }

@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspire.Azure.Storage.Blobs"/>
         <PackageReference Include="Aspire.Hosting.Azure"/>
         <PackageReference Include="Aspire.Hosting"/>
     </ItemGroup>
