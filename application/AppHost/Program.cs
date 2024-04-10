@@ -13,7 +13,7 @@ var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
     {
-        resourceBuilder.WithVolumeMount("azure-storage-data", "/var/opt/azurestorage");
+        resourceBuilder.WithVolumeMount("azure-storage-data", "/data");
         resourceBuilder.UseBlobPort(10000);
     })
     .AddBlobs("blobs");
