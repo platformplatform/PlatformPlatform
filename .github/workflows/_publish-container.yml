@@ -15,7 +15,10 @@ on:
       version:
         required: true
         type: string
-      project_file:
+      docker_context:
+        required: true
+        type: string
+      docker_file:
         required: true
         type: string
 
@@ -43,5 +46,18 @@ jobs:
       - name: Login to ACR
         run: az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
 
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push container image
-        run: dotnet publish ${{ inputs.project_file }} -t:PublishContainer -p ContainerRegistry=${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io -p ContainerImageTags='"${{ inputs.version }};latest"' -p ContainerRepository=${{ inputs.image_name }}
+        working-directory: ${{ inputs.docker_context }}
+        run: |
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION=${{ inputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
+            -t ${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:latest \
+            -f ${{ inputs.docker_file }} \
+            --push .
+          docker buildx rm
