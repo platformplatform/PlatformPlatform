@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CompleteAccountRegistrationForm } from "../components/CompleteAccountRegistrationForm.tsx";
+import { CompleteAccountRegistrationForm } from "../components/CompleteAccountRegistrationForm";
 import { useSearchParams } from "@/lib/router/router";
 import { HeroImage } from "@/ui/images/HeroImage";
 

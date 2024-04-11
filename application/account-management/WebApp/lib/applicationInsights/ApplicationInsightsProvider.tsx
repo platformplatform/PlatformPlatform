@@ -1,6 +1,6 @@
 import { AppInsightsContext, AppInsightsErrorBoundary } from "@microsoft/applicationinsights-react-js";
 import type { ReactNode } from "react";
-import { ErrorFallback } from "./ErrorFallback.tsx";
+import { ErrorFallback } from "./ErrorFallback";
 import { reactPlugin } from "./config";
 
 export interface AppInsightsProviderProps {

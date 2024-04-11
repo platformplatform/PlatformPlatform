@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
-import type { State } from "./actions.ts";
-import { completeAccountRegistration } from "./actions.ts";
+import type { State } from "./actions";
+import { completeAccountRegistration } from "./actions";
 import { Button } from "@/ui/components/Button";
 import { Form } from "@/ui/components/Form";
 import { useExpirationTimeout } from "@/ui/oneTimePassword/useExpiration";
