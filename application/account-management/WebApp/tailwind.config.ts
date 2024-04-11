@@ -1,7 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./**/*.{ts,tsx}", "./public/index.html"],
-  darkMode: ["class"],
+  darkMode: [
+    "variant",
+    [
+      "@media (prefers-color-scheme: dark) { &:not(.light *) }",
+      "&:is(.dark *)",
+    ],
+  ],
+  content: ["./app/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}", "./ui/**/*.{ts,tsx}"],
   theme: {
     container: {
       center: true,
@@ -67,5 +73,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-react-aria-components"), require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-react-aria-components"),
+    require("tailwindcss-animate"),
+  ],
 };
