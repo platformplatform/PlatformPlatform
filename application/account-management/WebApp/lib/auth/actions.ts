@@ -21,14 +21,18 @@ export const UserInfoScheme = z.object({
 });
 export type UserInfo = z.infer<typeof UserInfoScheme>;
 
-const validationResult = UserInfoScheme.safeParse(import.meta.user_info_env);
+/*
+const validationResult = UserInfoScheme.safeParse("import.meta.user_info_env");
 
 if (!validationResult.success) {
   console.error("Invalid user info", validationResult.error.flatten().fieldErrors);
   throw new Error("Invalid user info");
-}
+}*/
 
-export const initialUserInfo: UserInfo = validationResult.data;
+export const initialUserInfo: UserInfo = {
+  isAuthenticated: false,
+  locale: "en-US"
+};
 
 /**
  * Returns the user info if the user is authenticated or null if logged out
