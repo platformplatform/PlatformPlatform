@@ -1,3 +1,4 @@
+"use client";
 import type {
   PopoverProps as AriaPopoverProps,
 } from "react-aria-components";

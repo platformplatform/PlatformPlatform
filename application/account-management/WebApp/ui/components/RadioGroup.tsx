@@ -1,3 +1,4 @@
+"use client";
 import type { ReactNode } from "react";
 import type { RadioGroupProps as RACRadioGroupProps, RadioProps, ValidationResult } from "react-aria-components";
 import { Radio as RACRadio, RadioGroup as RACRadioGroup } from "react-aria-components";

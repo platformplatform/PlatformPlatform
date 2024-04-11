@@ -1,3 +1,4 @@
+"use client";
 import { XIcon } from "lucide-react";
 import { createContext, useContext } from "react";
 import type {

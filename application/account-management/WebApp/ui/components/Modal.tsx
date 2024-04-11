@@ -1,3 +1,4 @@
+"use client";
 import type { ModalOverlayProps } from "react-aria-components";
 import { ModalOverlay, Modal as RACModal } from "react-aria-components";
 import { tv } from "tailwind-variants";

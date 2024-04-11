@@ -1,3 +1,4 @@
+"use client";
 import type {
   ProgressBarProps as AriaProgressBarProps,
 } from "react-aria-components";

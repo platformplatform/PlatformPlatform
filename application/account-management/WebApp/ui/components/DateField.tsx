@@ -1,3 +1,4 @@
+"use client";
 import type {
   DateFieldProps as AriaDateFieldProps,
   DateInputProps,

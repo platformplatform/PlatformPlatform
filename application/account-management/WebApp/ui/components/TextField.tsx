@@ -1,3 +1,4 @@
+"use client";
 import type {
   TextFieldProps as AriaTextFieldProps,
   ValidationResult,

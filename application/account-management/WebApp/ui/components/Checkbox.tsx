@@ -1,3 +1,4 @@
+"use client";
 import { Check, Minus } from "lucide-react";
 import type { ReactNode } from "react";
 import type { CheckboxGroupProps as AriaCheckboxGroupProps, CheckboxProps, ValidationResult } from "react-aria-components";

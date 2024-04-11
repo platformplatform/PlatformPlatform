@@ -1,3 +1,4 @@
+"use client";
 import type { ToolbarProps } from "react-aria-components";
 import { Toolbar as RACToolbar, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";

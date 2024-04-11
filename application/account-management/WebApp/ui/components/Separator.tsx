@@ -1,3 +1,4 @@
+"use client";
 import type { SeparatorProps } from "react-aria-components";
 import { Separator as RACSeparator } from "react-aria-components";
 import { tv } from "tailwind-variants";

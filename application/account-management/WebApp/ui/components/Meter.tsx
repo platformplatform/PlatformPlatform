@@ -1,3 +1,4 @@
+"use client";
 import { AlertTriangle } from "lucide-react";
 import type {
   MeterProps as AriaMeterProps,

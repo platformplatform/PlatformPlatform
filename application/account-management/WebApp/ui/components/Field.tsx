@@ -1,3 +1,4 @@
+"use client";
 import type { FieldErrorProps, GroupProps, InputProps, LabelProps, TextProps } from "react-aria-components";
 import { Group, FieldError as RACFieldError, Input as RACInput, Label as RACLabel, Text, composeRenderProps } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
