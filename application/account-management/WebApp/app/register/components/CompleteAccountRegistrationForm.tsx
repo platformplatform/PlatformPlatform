@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable react/no-unescaped-entities */
 import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
@@ -11,6 +12,7 @@ import { DigitPattern } from "@/ui/oneTimePassword/DigitPattern";
 import { Link } from "@/ui/components/Link";
 import poweredByUrl from "@/ui/images/powered-by.png";
 import logoMarkUrl from "@/ui/images/logo-mark.png";
+import Image from "next/image";
 
 export interface CompleteAccountRegistrationProps {
   accountRegistrationId: string;
@@ -32,7 +34,7 @@ export function CompleteAccountRegistrationForm({
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Image src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
           <Trans>Enter your verification code</Trans>
@@ -57,7 +59,7 @@ export function CompleteAccountRegistrationForm({
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
           </p>
-          <img src={poweredByUrl} alt="powered by" />
+          <Image src={poweredByUrl} alt="powered by" />
         </div>
       </div>
     </Form>

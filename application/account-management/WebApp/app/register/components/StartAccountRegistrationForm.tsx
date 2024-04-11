@@ -1,5 +1,7 @@
+"use client"
 import { useFormState, useFormStatus } from "react-dom";
 import { DotIcon } from "lucide-react";
+import Image from "next/image";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
@@ -22,7 +24,7 @@ export function StartAccountRegistrationForm() {
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Image src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
           Create your account
@@ -73,7 +75,7 @@ export function StartAccountRegistrationForm() {
               <Link href="/privacy" bold>Privacy Policies</Link>
             </div>
           </div>
-          <img src={poweredByUrl} alt="powered by" />
+          <Image src={poweredByUrl} alt="powered by" />
         </div>
       </div>
     </Form>

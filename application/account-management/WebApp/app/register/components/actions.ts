@@ -1,6 +1,6 @@
 import { i18n } from "@lingui/core";
 import { z } from "zod";
-import { navigate } from "@/lib/router/router";
+import { redirect } from "next/navigation";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { accountManagementApi } from "@/lib/api/client";
 
@@ -49,7 +49,7 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
         };
       }
       const accountRegistrationId = location.split("/").pop();
-      await navigate(`/register/${accountRegistrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
+      redirect(`/register/${accountRegistrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
       return {};
     }
 
@@ -102,7 +102,7 @@ export async function completeAccountRegistration(_: State, formData: FormData):
     });
 
     if (result.response.ok) {
-      await navigate("/dashboard");
+      redirect("/dashboard");
       return {};
     }
 

@@ -1,11 +1,12 @@
+"use client";
 import { Trans } from "@lingui/macro";
-import { useNavigate } from "@/lib/router/router";
+import { useRouter } from "next/navigation";
 import AcmeLogo from "@/ui/AcmeLogo";
 import { Button } from "@/ui/components/Button";
 import { HeroImage } from "@/ui/images/HeroImage";
 
 export default function LandingPage() {
-  const navigate = useNavigate();
+  const {push } = useRouter();
   return (
     <main className="flex min-h-screen flex-col">
       <div className="flex h-20 shrink-0 items-end bg-black dark:bg-white p-4 md:h-52">
@@ -24,10 +25,10 @@ export default function LandingPage() {
             </Trans>
           </p>
           <div className="flex justify-center gap-x-4">
-            <Button onPress={() => navigate("/login")} className="w-fit">
+            <Button onPress={() => push("/login")} className="w-fit">
               <Trans>Sign in</Trans>
             </Button>
-            <Button onPress={() => navigate("/register")} className="w-fit">
+            <Button onPress={() => push("/register")} className="w-fit">
               <Trans>Sign up</Trans>
             </Button>
           </div>

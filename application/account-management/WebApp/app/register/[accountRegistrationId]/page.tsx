@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CompleteAccountRegistrationForm } from "../components/CompleteAccountRegistrationForm";
-import { useSearchParams } from "@/lib/router/router";
+import { useSearchParams } from "next/navigation";
 import { HeroImage } from "@/ui/images/HeroImage";
 
 interface CompleteAccountRegistrationPageProps {
@@ -12,7 +12,7 @@ interface CompleteAccountRegistrationPageProps {
 export default function CompleteAccountRegistrationPage({
   params: { accountRegistrationId },
 }: Readonly<CompleteAccountRegistrationPageProps>) {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
 
   const email = z.string().email().parse(searchParams.get("email"));
   const expireAt = z.date().parse(new Date(Number.parseInt(searchParams.get("expireAt") ?? "", 10)));

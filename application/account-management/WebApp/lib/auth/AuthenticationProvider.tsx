@@ -1,3 +1,4 @@
+"use client"
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 import type { State, UserInfo } from "./actions";
