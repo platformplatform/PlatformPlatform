@@ -19,11 +19,7 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 
 public static class ApiCoreConfiguration
 {
-    private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
-    
-    private static readonly string LocalhostUrl =
-        Environment.GetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey)!;
-    
+    [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
@@ -109,15 +105,7 @@ public static class ApiCoreConfiguration
         
         builder.AddServiceDefaults();
         
-        if (builder.Environment.IsDevelopment())
-        {
-            builder.Services.AddCors(options => options.AddPolicy(
-                    LocalhostCorsPolicyName,
-                    policyBuilder => { policyBuilder.WithOrigins(LocalhostUrl).AllowAnyMethod().AllowAnyHeader(); }
-                )
-            );
-        }
-        else
+        if (builder.Environment.IsProduction())
         {
             builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
         }
@@ -131,7 +119,6 @@ public static class ApiCoreConfiguration
         {
             // Enable the developer exception page, which displays detailed information about exceptions that occur
             app.UseDeveloperExceptionPage();
-            app.UseCors(LocalhostCorsPolicyName);
         }
         else
         {

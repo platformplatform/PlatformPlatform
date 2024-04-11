@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
@@ -20,9 +19,6 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
     
     protected BaseApiTests()
     {
-        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey, "https://localhost:9000");
-        Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.CdnUrlKey, "https://localhost:9099");
-        
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
                 builder.ConfigureTestServices(services =>
