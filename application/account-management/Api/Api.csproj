@@ -9,12 +9,7 @@
         <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../WebApp/lib/api/</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
-        <ContainerFamily>jammy-chiseled-extra</ContainerFamily>
     </PropertyGroup>
-
-    <ItemGroup>
-        <ContainerPort Include="8080" Type="tcp"/>
-    </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
