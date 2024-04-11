@@ -39,6 +39,7 @@ var accountManagementApi = builder
 var accountManagementSpa = builder
     .AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
     .WithReference(accountManagementApi)
+    .WithHttpEndpoint(9101, env: "PORT")
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 builder

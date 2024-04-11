@@ -8,6 +8,7 @@ public class ClusterDestinationConfigFilter : IProxyConfigFilter
     {
         return cluster.ClusterId switch
         {
+            "account-management-web-app" => ReplaceDestinationAddress(cluster, "ACCOUNT_MANAGEMENT_WEB_APP_URL"),
             "account-management-api" => ReplaceDestinationAddress(cluster, "ACCOUNT_MANAGEMENT_API_URL"),
             "avatars-storage" => ReplaceDestinationAddress(cluster, "AVATARS_STORAGE_URL"),
             _ => throw new InvalidOperationException($"Unknown Cluster ID {cluster.ClusterId}")
