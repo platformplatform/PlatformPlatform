@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.751930">
 
     <PropertyGroup>
-        <StartupCommand>set BROWSER=none;yarn dev</StartupCommand>
+        <StartupCommand>set BROWSER=none;npm run dev</StartupCommand>
         <JavaScriptTestRoot>.\</JavaScriptTestRoot>
         <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
         <!-- Folder where production build objects will be placed -->
         <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
-        <NpmInstallCheck>$(MSBuildProjectDirectory)\yarn.lock</NpmInstallCheck>
+        <NpmInstallCheck>$(MSBuildProjectDirectory)\package-lock.json</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
         <!-- Command to run on project build -->
-        <BuildCommand>yarn run msbuild</BuildCommand>
+        <BuildCommand>npm run msbuild</BuildCommand>
         <!-- Command to create an optimized build of the project that's ready for publishing -->
-        <ProductionBuildCommand>yarn run msbuild</ProductionBuildCommand>
+        <ProductionBuildCommand>npm run msbuild</ProductionBuildCommand>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(OS)'=='WINDOWS_NT'">
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
-        <Exec Command="yarn install --frozen-lockfile --ignore-engines" WorkingDirectory="$(ProjectDir)"/>
+        <Exec Command="npm install --frozen-lockfile --ignore-engines" WorkingDirectory="$(ProjectDir)"/>
     </Target>
 
     <Target Name="BuildFrontend" AfterTargets="Build">
