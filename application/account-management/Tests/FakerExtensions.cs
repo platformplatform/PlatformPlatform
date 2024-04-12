@@ -1,5 +1,4 @@
 using Bogus;
-using NUlid;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.AccountManagement.Tests;
@@ -35,8 +34,8 @@ public static class FakerExtensions
     }
 
     [UsedImplicitly]
-    public static string RandomUlid(this Faker faker)
+    public static string RandomUserId(this Faker faker)
     {
-        return Ulid.NewUlid().ToString();
+        return UserId.NewId().ToString();
     }
 }
