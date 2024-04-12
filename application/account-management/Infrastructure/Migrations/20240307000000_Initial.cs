@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CodeDom.Compiler;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -17,7 +17,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 name: "AccountRegistrations",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(26)", nullable: false),
+                    Id = table.Column<string>(type: "varchar(33)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: false),
@@ -52,7 +52,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                 columns: table => new
                 {
                     TenantId = table.Column<string>(type: "varchar(30)", nullable: false),
-                    Id = table.Column<long>(type: "char(26)", nullable: false),
+                    Id = table.Column<long>(type: "char(30)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ModifiedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", nullable: false),

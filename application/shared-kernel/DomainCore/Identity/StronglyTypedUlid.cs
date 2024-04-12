@@ -18,19 +18,39 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
     [UsedImplicitly]
     public static bool TryParse(string? value, out T? result)
     {
-        var success = Ulid.TryParse(value ?? "", out var parsedValue);
+        if (value is null)
+        {
+            result = null;
+            return false;
+        }
+
+        var prefix = GetPrefix();
+
+        var idValue = !string.IsNullOrWhiteSpace(prefix) ? value.Replace($"{prefix}_", string.Empty) : value;
+
+        var success = Ulid.TryParse(idValue, out var parsedValue);
         result = success ? FormUlid(parsedValue) : null;
         return success;
     }
 
     private static T FormUlid(Ulid newValue)
     {
+        var prefix = GetPrefix();
         return (T)Activator.CreateInstance(
             typeof(T),
             BindingFlags.Instance | BindingFlags.Public,
             null,
-            [newValue.ToString()],
+            [!string.IsNullOrWhiteSpace(prefix) ? $"{prefix}_{newValue}" : newValue.ToString()],
             null
         )!;
+    }
+
+    private static string GetPrefix()
+    {
+        var idPrefixAttribute = typeof(T).GetCustomAttribute<IdPrefixAttribute>();
+
+        return idPrefixAttribute is null
+            ? throw new InvalidOperationException("The IdPrefix attribute is required for all StronglyTypeUlid objects")
+            : idPrefixAttribute.Prefix;
     }
 }

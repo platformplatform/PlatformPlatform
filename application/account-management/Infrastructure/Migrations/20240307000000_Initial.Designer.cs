@@ -28,7 +28,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
             modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.AccountRegistrations.AccountRegistration", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("varchar(26)");
+                        .HasColumnType("varchar(33)");
 
                     b.Property<bool>("Completed")
                         .IsRequired()
@@ -96,7 +96,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Migrations
                         .HasColumnType("varchar(30)");
 
                     b.Property<long>("Id")
-                        .HasColumnType("char(26)");
+                        .HasColumnType("char(30)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
