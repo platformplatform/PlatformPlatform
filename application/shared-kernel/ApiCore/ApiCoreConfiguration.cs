@@ -130,8 +130,13 @@ public static class ApiCoreConfiguration
         app.UseForwardedHeaders();
         
         // Enable Swagger UI
-        app.UseOpenApi();
-        app.UseSwaggerUi();
+        app.UseOpenApi(c => { c.Path = "/api/swagger/{documentName}/swagger.json"; });
+        app.UseSwaggerUi(c =>
+            {
+                c.DocumentPath = "/api/swagger/{documentName}/swagger.json";
+                c.Path = "/api/swagger";
+            }
+        );
         
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
         
