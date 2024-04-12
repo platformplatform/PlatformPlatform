@@ -45,7 +45,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application/account-management/WebApp
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -120,7 +120,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application/account-management/WebApp
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -166,11 +166,11 @@ jobs:
 
       - name: Run ESLint
         working-directory: application/account-management/WebApp
-        run: yarn run lint
+        run: npm run lint
 
       - name: Run Type Checking
         working-directory: application/account-management/WebApp
-        run: yarn run typechecking
+        run: npm run typechecking
 
   account-management-api-publish:
     name: Account Management API Publish

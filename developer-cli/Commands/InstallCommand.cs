@@ -33,7 +33,7 @@ public class InstallCommand : Command
          [green]How does it work?[/]
          The CLI has several commands that you can run from anywhere on your machine.
          Each command is one C# class that can be customized to automate your own workflows.
-         Each command check for its prerequisites (e.g., Docker, Node, Yarn, .NET Aspire, Azure CLI, etc.)
+         Each command check for its prerequisites (e.g., Docker, Node, .NET Aspire, Azure CLI, etc.)
          To remove the alias, just run [green]{Configuration.AliasName} uninstall[/].
 
          """;
