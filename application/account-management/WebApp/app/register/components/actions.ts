@@ -1,3 +1,4 @@
+"use client";
 import { i18n } from "@lingui/core";
 import { z } from "zod";
 import { redirect } from "next/navigation";
@@ -33,38 +34,30 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
 
   const { subdomain, email } = validatedFields.data;
 
-  try {
-    const result = await accountManagementApi.POST("/api/account-registrations/start", {
-      body: {
-        subdomain,
-        email,
-      },
-    });
+  const result = await accountManagementApi.POST("/api/account-registrations/start", {
+    body: {
+      subdomain,
+      email,
+    },
+  });
 
-    if (result.response.ok) {
-      const location = result.response.headers.get("Location");
-      if (!location) {
-        return {
-          message: i18n.t("Server error: Failed to start account registration."),
-        };
-      }
-      const accountRegistrationId = location.split("/").pop();
-      redirect(`/register/${accountRegistrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
-      return {};
+  if (result.response.ok) {
+    const location = result.response.headers.get("Location");
+    if (!location) {
+      return {
+        message: i18n.t("Server error: Failed to start account registration."),
+      };
     }
-
-    const apiError = getApiError(result);
-
-    return {
-      message: apiError.title,
-      errors: getFieldErrors(apiError.Errors),
-    };
+    const accountRegistrationId = location.split("/").pop();
+    redirect(`/register/${accountRegistrationId}?email=${encodeURIComponent(email)}&expireAt=${Date.now() + VALIDATION_LIFETIME}`);
   }
-  catch (e) {
-    return {
-      message: i18n.t("Server error: Failed to start account registration."),
-    };
-  }
+
+  const apiError = getApiError(result);
+
+  return {
+    message: apiError.title,
+    errors: getFieldErrors(apiError.Errors),
+  };
 }
 
 const CompleteAccountRegistrationSchema = z.object({
@@ -89,33 +82,25 @@ export async function completeAccountRegistration(_: State, formData: FormData):
 
   const { accountRegistrationId, oneTimePassword } = validatedFields.data;
 
-  try {
-    const result = await accountManagementApi.POST("/api/account-registrations/{id}/complete", {
-      params: {
-        path: {
-          id: accountRegistrationId,
-        },
+  const result = await accountManagementApi.POST("/api/account-registrations/{id}/complete", {
+    params: {
+      path: {
+        id: accountRegistrationId,
       },
-      body: {
-        oneTimePassword,
-      },
-    });
+    },
+    body: {
+      oneTimePassword,
+    },
+  });
 
-    if (result.response.ok) {
-      redirect("/dashboard");
-      return {};
-    }
-
-    const apiError = getApiError(result);
-
-    return {
-      message: apiError.title,
-      errors: getFieldErrors(apiError.Errors),
-    };
+  if (result.response.ok) {
+    redirect("/dashboard");
   }
-  catch (e) {
-    return {
-      message: i18n.t("Server error: Failed to complete account registration."),
-    };
-  }
+
+  const apiError = getApiError(result);
+
+  return {
+    message: apiError.title,
+    errors: getFieldErrors(apiError.Errors),
+  };
 }

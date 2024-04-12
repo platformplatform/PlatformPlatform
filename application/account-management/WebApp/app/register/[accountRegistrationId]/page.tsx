@@ -1,3 +1,4 @@
+"use client";
 import { z } from "zod";
 import { CompleteAccountRegistrationForm } from "../components/CompleteAccountRegistrationForm";
 import { useSearchParams } from "next/navigation";
