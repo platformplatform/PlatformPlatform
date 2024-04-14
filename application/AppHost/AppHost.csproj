@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAspireHost>true</IsAspireHost>
+        <UserSecretsId>f817f2a1-ac57-4756-aef2-a57ca864bbd3</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +21,8 @@
         <PackageReference Include="Aspire.Hosting.Azure.Storage"/>
         <PackageReference Include="Aspire.Hosting.NodeJs"/>
         <PackageReference Include="Aspire.Hosting.SqlServer"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets"/>
     </ItemGroup>
 
     <ItemGroup>

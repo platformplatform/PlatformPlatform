@@ -1,11 +1,13 @@
+using AppHost;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var sqlServer = builder
-    .AddSqlServer("sql-server", port: 9002)
+var sqlPassword = builder.CreateStablePassword("sql-server-password");
+Console.WriteLine($"Use the following password for the SQL Server: {sqlPassword.Resource.Value}");
+var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
     .WithVolume("sql-server-data", "/var/opt/mssql");
 
 var azureStorage = builder
