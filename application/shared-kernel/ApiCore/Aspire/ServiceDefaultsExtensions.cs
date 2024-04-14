@@ -26,7 +26,7 @@ public static class ServiceDefaultsExtensions
             http.AddStandardResilienceHandler();
 
             // Turn on service discovery by default
-            http.UseServiceDiscovery();
+            http.AddServiceDiscovery();
         });
 
         return builder;
@@ -54,7 +54,12 @@ public static class ServiceDefaultsExtensions
         });
 
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics => { metrics.AddRuntimeInstrumentation().AddBuiltInMeters(); })
+            .WithMetrics(metrics =>
+            {
+                metrics.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation();
+            })
             .WithTracing(tracing =>
             {
                 // We want to view all traces in development
@@ -66,15 +71,6 @@ public static class ServiceDefaultsExtensions
         builder.AddOpenTelemetryExporters();
 
         return builder;
-    }
-
-    [UsedImplicitly]
-    private static MeterProviderBuilder AddBuiltInMeters(this MeterProviderBuilder meterProviderBuilder)
-    {
-        return meterProviderBuilder.AddMeter(
-            "Microsoft.AspNetCore.Hosting",
-            "Microsoft.AspNetCore.Server.Kestrel",
-            "System.Net.Http");
     }
 
     [UsedImplicitly]

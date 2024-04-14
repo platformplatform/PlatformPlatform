@@ -4,24 +4,23 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var sqlServerPassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
 var sqlServer = builder
-    .AddSqlServer("sql-server", sqlServerPassword, 9002)
-    .WithVolumeMount("sql-server-data", "/var/opt/mssql");
+    .AddSqlServer("sql-server", port: 9002)
+    .WithVolume("sql-server-data", "/var/opt/mssql");
 
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
     {
-        resourceBuilder.WithVolumeMount("azure-storage-data", "/data");
+        resourceBuilder.WithVolume("azure-storage-data", "/data");
         resourceBuilder.UseBlobPort(10000);
     })
     .AddBlobs("blobs");
 
 builder
     .AddContainer("mail-server", "mailhog/mailhog")
-    .WithEndpoint(hostPort: 9003, containerPort: 8025, scheme: "http")
-    .WithEndpoint(hostPort: 9004, containerPort: 1025);
+    .WithHttpEndpoint(9003, 8025)
+    .WithEndpoint(9004, 1025);
 
 var accountManagementDatabase = sqlServer
     .AddDatabase("account-management-database", "account-management");
