@@ -1,4 +1,6 @@
 using FluentAssertions;
+using NetArchTest.Rules;
+using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 using Xunit;
 
@@ -7,17 +9,40 @@ namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;
 public class IdPrefixForAllStronglyTypedUlidTests
 {
     [Fact]
-    public void AllStronglyTypedUlidTests_ShouldContainTheIdPrefixAttribute()
+    public void StronglyTypedUlidsInDomain_ShouldHaveIdPrefixAttribute()
     {
-        // Arrange
         // Act
-        var allStronglyTypedUlidObjects = Assembly.GetAssembly(typeof(User))!
-            .GetTypes()
-            .Where(t => t.BaseType is { IsGenericType: true } &&
-                        t.BaseType.GetGenericTypeDefinition() == typeof(StronglyTypedUlid<>)).ToList();
+        var result = Types
+            .InAssembly(DomainConfiguration.Assembly)
+            .That()
+            .Inherit(typeof(StronglyTypedUlid<>))
+            .Should()
+            .HaveCustomAttribute(typeof(IdPrefixAttribute))
+            .GetResult();
 
         // Assert
-        allStronglyTypedUlidObjects.Should()
-            .AllSatisfy(o => o.GetCustomAttribute<IdPrefixAttribute>().Should().NotBeNull());
+        var idsWithoutPrefix = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
+        result.IsSuccessful.Should()
+            .BeTrue($"The following strongly typed IDs does not have an IdPrefixAttribute: {idsWithoutPrefix}");
+    }
+
+    [Fact]
+    public void StronglyTypedUlidsInDomain_ShouldHaveValidIdPrefix()
+    {
+        // Arrange
+        var stronglyTypedUlidIds = Types
+            .InAssembly(DomainConfiguration.Assembly)
+            .That()
+            .Inherit(typeof(StronglyTypedUlid<>))
+            .GetTypes();
+
+        // Assert
+        foreach (var stronglyTypedId in stronglyTypedUlidIds)
+        {
+            var newId = stronglyTypedId.BaseType?.GetMethod("NewId")?.Invoke(null, null);
+
+            // Ids must follow the pattern: {prefix}_{ULID} where prefix is lowercase and ULID is uppercase
+            newId?.ToString().Should().MatchRegex("^[a-z0-9]+_[A-Z0-9]{26}$");
+        }
     }
 }

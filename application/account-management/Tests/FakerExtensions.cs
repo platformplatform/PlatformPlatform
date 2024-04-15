@@ -32,10 +32,4 @@ public static class FakerExtensions
     {
         return IdGenerator.NewId();
     }
-
-    [UsedImplicitly]
-    public static string RandomUserId(this Faker faker)
-    {
-        return UserId.NewId().ToString();
-    }
 }
