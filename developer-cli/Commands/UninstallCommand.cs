@@ -11,7 +11,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base(
         "uninstall",
-        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD environment variables.")
+        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD environment variable.")
     {
         Handler = CommandHandler.Create(Execute);
     }
@@ -30,8 +30,8 @@ public class UninstallCommand : Command
              Confirm uninstallation:
 
              This will do the following:
-             - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLi from the PATH (Windows)
-             - Remove the CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD environment variables
+             - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLI from the PATH (Windows)
+             - Remove the CERTIFICATE_PASSWORD environment variable
              - Delete the {Configuration.PublishFolder}/{Configuration.AliasName}.* files
              - Remove the {Configuration.PublishFolder} folder if empty
 
@@ -69,7 +69,6 @@ public class UninstallCommand : Command
     private void RemoveEnvironmentVariables()
     {
         RemoveEnvironmentVariable("CERTIFICATE_PASSWORD");
-        RemoveEnvironmentVariable("SQL_SERVER_PASSWORD");
         AnsiConsole.MarkupLine("[green]Environment variables have been removed.[/]");
     }
 

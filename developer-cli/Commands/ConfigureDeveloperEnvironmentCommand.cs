@@ -17,7 +17,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
 
     public ConfigureDeveloperEnvironmentCommand() : base(
         CommandName,
-        "Generate CERTIFICATE_PASSWORD and SQL_SERVER_PASSWORD, create developer certificate for localhost with known password, and store passwords in environment variables"
+        "Generate a developer certificate for localhost with known password, and store passwords it environment variables"
     )
     {
         Handler = CommandHandler.Create(Execute);
@@ -28,9 +28,8 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         PrerequisitesChecker.Check("docker", "aspire", "node", "yarn");
 
         var certificateCreated = EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured();
-        var sqlServerPasswordCreated = CreateSqlServerPasswordIfNotExists();
 
-        if (certificateCreated || sqlServerPasswordCreated)
+        if (certificateCreated)
         {
             AnsiConsole.MarkupLine("[green]Please restart your terminal.[/]");
         }
@@ -41,23 +40,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
 
         return 0;
     }
-
-    private bool CreateSqlServerPasswordIfNotExists()
-    {
-        var certificatePassword = Environment.GetEnvironmentVariable("SQL_SERVER_PASSWORD");
-
-        if (certificatePassword is not null)
-        {
-            AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable already exist.[/]");
-            return false;
-        }
-
-        certificatePassword = GenerateRandomPassword(16);
-        AddEnvironmentVariable("SQL_SERVER_PASSWORD", certificatePassword);
-        AnsiConsole.MarkupLine("[green]SQL_SERVER_PASSWORD environment variable created.[/]");
-        return true;
-    }
-
+    
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
     {
         var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
