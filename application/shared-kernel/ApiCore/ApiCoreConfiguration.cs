@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -15,7 +14,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
@@ -141,18 +139,8 @@ public static class ApiCoreConfiguration
             app.UseExceptionHandler(_ => { });
         }
         
-        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before  other middleware.
+        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
         app.UseForwardedHeaders();
-        
-        if (!app.Environment.IsDevelopment())
-        {
-            // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
-            // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
-            app.UseHsts();
-            
-            // Adds middleware for redirecting HTTP Requests to HTTPS
-            app.UseHttpsRedirection();
-        }
         
         // Enable Swagger UI
         app.UseOpenApi();
