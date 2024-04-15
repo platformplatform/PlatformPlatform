@@ -3,12 +3,15 @@ using NUlid;
 namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 /// <summary>
-///     This is a special version of <see cref="StronglyTypedLongId{T}" /> for longs which is the recommended type to use.
-///     It uses the <see cref="IdGenerator" />  to create IDs that are chronological and guaranteed to be unique.
+///     This is the recommended ID type to use. It uses the <see cref="Ulid" /> to create unique chronological IDs.
+///     IDs are prefixed with the value of the <see cref="IdPrefixAttribute" /> inspired by Stripe's API.
 /// </summary>
 public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<string, T>(Value)
     where T : StronglyTypedUlid<T>
 {
+    private static readonly string Prefix = typeof(T).GetCustomAttribute<IdPrefixAttribute>()?.Prefix
+                                            ?? throw new InvalidOperationException("IdPrefixAttribute is required.");
+
     public static T NewId()
     {
         var newValue = Ulid.NewUlid();
@@ -18,39 +21,30 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
     [UsedImplicitly]
     public static bool TryParse(string? value, out T? result)
     {
-        if (value is null)
+        if (value is null || !value.StartsWith($"{Prefix}_"))
         {
             result = null;
             return false;
         }
 
-        var prefix = GetPrefix();
+        if (!Ulid.TryParse(value.Replace($"{Prefix}_", ""), out var parsedValue))
+        {
+            result = null;
+            return false;
+        }
 
-        var idValue = !string.IsNullOrWhiteSpace(prefix) ? value.Replace($"{prefix}_", string.Empty) : value;
-
-        var success = Ulid.TryParse(idValue, out var parsedValue);
-        result = success ? FormUlid(parsedValue) : null;
-        return success;
+        result = FormUlid(parsedValue);
+        return true;
     }
 
     private static T FormUlid(Ulid newValue)
     {
-        var prefix = GetPrefix();
         return (T)Activator.CreateInstance(
             typeof(T),
             BindingFlags.Instance | BindingFlags.Public,
             null,
-            [!string.IsNullOrWhiteSpace(prefix) ? $"{prefix}_{newValue}" : newValue.ToString()],
+            [$"{Prefix}_{newValue}"],
             null
         )!;
-    }
-
-    private static string GetPrefix()
-    {
-        var idPrefixAttribute = typeof(T).GetCustomAttribute<IdPrefixAttribute>();
-
-        return idPrefixAttribute is null
-            ? throw new InvalidOperationException("The IdPrefix attribute is required for all StronglyTypeUlid objects")
-            : idPrefixAttribute.Prefix;
     }
 }
