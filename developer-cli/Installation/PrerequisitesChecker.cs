@@ -31,7 +31,6 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
         new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.5"""),
-        new Prerequisite(PrerequisiteType.EnvironmentVariable, "SQL_SERVER_PASSWORD"),
         new Prerequisite(PrerequisiteType.EnvironmentVariable, "CERTIFICATE_PASSWORD")
     ];
 
