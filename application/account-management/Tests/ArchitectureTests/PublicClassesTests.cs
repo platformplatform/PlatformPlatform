@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;
 public sealed class PublicClassesTests
 {
     [Fact]
-    public void PublicClassesInDomain_Should_BeSealed()
+    public void PublicClassesInDomain_ShouldBeSealed()
     {
         // Act
         var result = Types
@@ -29,7 +29,7 @@ public sealed class PublicClassesTests
     }
 
     [Fact]
-    public void PublicClassesInApplication_Should_BeSealed()
+    public void PublicClassesInApplication_ShouldBeSealed()
     {
         // Act
         var types = Types
@@ -50,7 +50,7 @@ public sealed class PublicClassesTests
     }
 
     [Fact]
-    public void PublicClassesInInfrastructure_Should_BeSealed()
+    public void PublicClassesInInfrastructure_ShouldBeSealed()
     {
         // Act
         var types = Types

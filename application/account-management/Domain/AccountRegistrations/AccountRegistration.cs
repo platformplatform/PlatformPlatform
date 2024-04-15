@@ -59,6 +59,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, AccountRegistrationId>))]
 [UsedImplicitly]
+[IdPrefix("accreg")]
 public sealed record AccountRegistrationId(string Value) : StronglyTypedUlid<AccountRegistrationId>(Value)
 {
     public override string ToString()
