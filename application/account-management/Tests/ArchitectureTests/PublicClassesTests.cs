@@ -16,11 +16,9 @@ public sealed class PublicClassesTests
         // Act
         var result = Types
             .InAssembly(DomainConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract()
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
         
         // Assert
@@ -34,8 +32,7 @@ public sealed class PublicClassesTests
         // Act
         var types = Types
             .InAssembly(ApplicationConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract()
             .And().DoNotHaveName(typeof(Result<>).Name);
         
@@ -55,13 +52,11 @@ public sealed class PublicClassesTests
         // Act
         var types = Types
             .InAssembly(InfrastructureConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract();
         
         var result = types
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
         
         // Assert

@@ -12,8 +12,7 @@ public sealed record GetUsersQuery(
     SortOrder SortOrder = SortOrder.Ascending,
     int? PageSize = null,
     int? PageOffset = null
-)
-    : IRequest<Result<GetUsersResponseDto>>;
+) : IRequest<Result<GetUsersResponseDto>>;
 
 [UsedImplicitly]
 public sealed class GetUsersHandler(IUserRepository userRepository)

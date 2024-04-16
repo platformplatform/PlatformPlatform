@@ -14,10 +14,8 @@ public class IdPrefixForAllStronglyTypedUlidTests
         // Act
         var result = Types
             .InAssembly(DomainConfiguration.Assembly)
-            .That()
-            .Inherit(typeof(StronglyTypedUlid<>))
-            .Should()
-            .HaveCustomAttribute(typeof(IdPrefixAttribute))
+            .That().Inherit(typeof(StronglyTypedUlid<>))
+            .Should().HaveCustomAttribute(typeof(IdPrefixAttribute))
             .GetResult();
         
         // Assert
@@ -32,8 +30,7 @@ public class IdPrefixForAllStronglyTypedUlidTests
         // Arrange
         var stronglyTypedUlidIds = Types
             .InAssembly(DomainConfiguration.Assembly)
-            .That()
-            .Inherit(typeof(StronglyTypedUlid<>))
+            .That().Inherit(typeof(StronglyTypedUlid<>))
             .GetTypes();
         
         // Assert

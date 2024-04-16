@@ -30,8 +30,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
     
     private static void UpdateEntities(DbContextEventData eventData)
     {
-        var dbContext = eventData.Context ??
-                        throw new UnreachableException("The 'eventData.Context' property is unexpectedly null.");
+        var dbContext = eventData.Context ?? throw new UnreachableException("The 'eventData.Context' property is unexpectedly null.");
         
         var audibleEntities = dbContext.ChangeTracker.Entries<IAuditableEntity>();
         

@@ -38,10 +38,7 @@ public static class InfrastructureCoreConfiguration
     
     // Register the default storage account for IBlobStorage
     [UsedImplicitly]
-    public static IServiceCollection AddDefaultBlobStorage(
-        this IServiceCollection services,
-        IHostApplicationBuilder builder
-    )
+    public static IServiceCollection AddDefaultBlobStorage(this IServiceCollection services, IHostApplicationBuilder builder)
     {
         if (IsRunningInAzure)
         {
@@ -88,10 +85,8 @@ public static class InfrastructureCoreConfiguration
     }
     
     [UsedImplicitly]
-    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
-        this IServiceCollection services,
-        Assembly assembly
-    ) where T : DbContext
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
+        where T : DbContext
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>

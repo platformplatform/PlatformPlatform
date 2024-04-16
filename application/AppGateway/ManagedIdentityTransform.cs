@@ -16,8 +16,7 @@ public class ManagedIdentityTransform(TokenCredential credential)
     }
 }
 
-public class ApiVersionHeaderTransform()
-    : RequestHeaderTransform("x-ms-version", false)
+public class ApiVersionHeaderTransform() : RequestHeaderTransform("x-ms-version", false)
 {
     protected override string? GetValue(RequestTransformContext context)
     {

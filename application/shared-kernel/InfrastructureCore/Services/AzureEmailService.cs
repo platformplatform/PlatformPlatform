@@ -11,12 +11,7 @@ public sealed class AzureEmailService(SecretClient secretClient) : IEmailService
     
     private static readonly string Sender = Environment.GetEnvironmentVariable("SENDER_EMAIL_ADDRESS")!;
     
-    public async Task SendAsync(
-        string recipient,
-        string subject,
-        string htmlContent,
-        CancellationToken cancellationToken
-    )
+    public async Task SendAsync(string recipient, string subject, string htmlContent, CancellationToken cancellationToken)
     {
         var connectionString = await secretClient.GetSecretAsync(SecretName, cancellationToken: cancellationToken);
         

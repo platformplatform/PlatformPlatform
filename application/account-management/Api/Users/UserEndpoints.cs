@@ -13,13 +13,11 @@ public class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix);
         
-        group.MapGet("/",
-            async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
-                => await mediator.Send(query));
+        group.MapGet("/", async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
+            => await mediator.Send(query));
         
-        group.MapGet("/{id}",
-            async Task<ApiResult<UserResponseDto>> ([AsParameters] GetUserQuery query, ISender mediator)
-                => await mediator.Send(query));
+        group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> ([AsParameters] GetUserQuery query, ISender mediator)
+            => await mediator.Send(query));
         
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
@@ -36,8 +34,7 @@ public class UserEndpoints : IEndpoints
             .DisableAntiforgery(); // Disable antiforgery until we implement it
         
         // Id should be inferred from the authenticated user
-        group.MapPost("/{id}/remove-avatar",
-            async Task<ApiResult> ([AsParameters] RemoveAvatarCommand command, ISender mediator)
-                => await mediator.Send(command));
+        group.MapPost("/{id}/remove-avatar", async Task<ApiResult> ([AsParameters] RemoveAvatarCommand command, ISender mediator)
+            => await mediator.Send(command));
     }
 }

@@ -29,13 +29,9 @@ public sealed class StartAccountRegistrationCommandHandler(
     ITelemetryEventsCollector events
 ) : IRequestHandler<StartAccountRegistrationCommand, Result<AccountRegistrationId>>
 {
-    public async Task<Result<AccountRegistrationId>> Handle(
-        StartAccountRegistrationCommand command,
-        CancellationToken cancellationToken
-    )
+    public async Task<Result<AccountRegistrationId>> Handle(StartAccountRegistrationCommand command, CancellationToken cancellationToken)
     {
-        var existingAccountRegistrations =
-            accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
+        var existingAccountRegistrations = accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
         
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
@@ -45,8 +41,7 @@ public sealed class StartAccountRegistrationCommandHandler(
         
         if (existingAccountRegistrations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
         {
-            return Result<AccountRegistrationId>.TooManyRequests(
-                "Too many attempts to register this email address. Please try again later.");
+            return Result<AccountRegistrationId>.TooManyRequests("Too many attempts to register this email address. Please try again later.");
         }
         
         var oneTimePassword = GenerateOneTimePassword(6);

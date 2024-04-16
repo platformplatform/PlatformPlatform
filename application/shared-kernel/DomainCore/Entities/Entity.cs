@@ -19,8 +19,7 @@ public abstract class Entity<T>(T id) : IEquatable<Entity<T>> where T : ICompara
     
     public virtual bool Equals(Entity<T>? other)
     {
-        return !ReferenceEquals(null, other) &&
-               (ReferenceEquals(this, other) || EqualityComparer<T>.Default.Equals(Id, other.Id));
+        return !ReferenceEquals(null, other) && (ReferenceEquals(this, other) || EqualityComparer<T>.Default.Equals(Id, other.Id));
     }
     
     public override bool Equals(object? obj)

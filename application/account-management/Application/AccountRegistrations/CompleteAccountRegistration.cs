@@ -6,8 +6,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 
-public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
-    : ICommand, IRequest<Result>
+public sealed record CompleteAccountRegistrationCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
     [JsonIgnore]
     public AccountRegistrationId Id { get; init; } = null!;
@@ -31,8 +30,8 @@ public sealed class CompleteAccountRegistrationHandler(
             return Result.NotFound($"AccountRegistration with id '{command.Id}' not found.");
         }
         
-        if (passwordHasher.VerifyHashedPassword(this, accountRegistration.OneTimePasswordHash,
-                command.OneTimePassword) == PasswordVerificationResult.Failed)
+        if (passwordHasher.VerifyHashedPassword(this, accountRegistration.OneTimePasswordHash, command.OneTimePassword)
+            == PasswordVerificationResult.Failed)
         {
             accountRegistration.RegisterInvalidPasswordAttempt();
             accountRegistrationRepository.Update(accountRegistration);
@@ -42,10 +41,8 @@ public sealed class CompleteAccountRegistrationHandler(
         
         if (accountRegistration.Completed)
         {
-            logger.LogWarning("AccountRegistration with id '{AccountRegistrationId}' has already been completed.",
-                accountRegistration.Id);
-            return Result.BadRequest(
-                $"The account registration {accountRegistration.Id} for tenant {accountRegistration.TenantId} has already been completed.");
+            logger.LogWarning("AccountRegistration with id '{AccountRegistrationId}' has already been completed.", accountRegistration.Id);
+            return Result.BadRequest($"The account registration {accountRegistration.Id} for tenant {accountRegistration.TenantId} has already been completed.");
         }
         
         if (accountRegistration.RetryCount >= AccountRegistration.MaxAttempts)

@@ -32,8 +32,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
             e.Properties["Event_TenantId"] == subdomain
         ).Should().Be(1);
         
-        await EmailService.Received().SendAsync(email.ToLower(), "Confirm your email address", Arg.Any<string>(),
-            CancellationToken.None);
+        await EmailService.Received().SendAsync(email.ToLower(), "Confirm your email address", Arg.Any<string>(), CancellationToken.None);
     }
     
     [Fact]

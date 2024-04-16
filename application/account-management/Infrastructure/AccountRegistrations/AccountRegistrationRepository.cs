@@ -5,8 +5,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.AccountRegistrations
 
 [UsedImplicitly]
 public sealed class AccountRegistrationRepository(AccountManagementDbContext accountManagementDbContext)
-    : RepositoryBase<AccountRegistration, AccountRegistrationId>(accountManagementDbContext),
-        IAccountRegistrationRepository
+    : RepositoryBase<AccountRegistration, AccountRegistrationId>(accountManagementDbContext), IAccountRegistrationRepository
 {
     public AccountRegistration[] GetByEmailOrTenantId(TenantId tenantId, string email)
     {

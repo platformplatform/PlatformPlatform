@@ -14,11 +14,7 @@ public class ClusterDestinationConfigFilter : IProxyConfigFilter
         };
     }
     
-    public ValueTask<RouteConfig> ConfigureRouteAsync(
-        RouteConfig route,
-        ClusterConfig? cluster,
-        CancellationToken cancel
-    )
+    public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig? cluster, CancellationToken cancel)
     {
         return new ValueTask<RouteConfig>(route);
     }

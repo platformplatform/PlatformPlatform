@@ -10,16 +10,10 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 ///     are successfully handled. If an exception occurs the UnitOfWork.Commit will never be called, and all changes
 ///     will be lost.
 /// </summary>
-public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(
-    IUnitOfWork unitOfWork,
-    ConcurrentCommandCounter concurrentCommandCounter
-) : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
+public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork unitOfWork, ConcurrentCommandCounter concurrentCommandCounter)
+    : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken
-    )
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         concurrentCommandCounter.Increment();
         var response = await next();

@@ -61,8 +61,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
         
-        JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value
-            .SerializerOptions;
+        JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }
     
     protected SqliteConnection Connection { get; }

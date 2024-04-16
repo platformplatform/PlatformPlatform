@@ -32,8 +32,7 @@ public abstract class ResultBase
     
     public string GetErrorSummary()
     {
-        return ErrorMessage?.Message
-               ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
+        return ErrorMessage?.Message ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
     }
 }
 
@@ -61,41 +60,35 @@ public sealed class Result : ResultBase
     
     public static Result BadRequest(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     [UsedImplicitly]
     public static Result Unauthorized(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     public static Result Forbidden(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     public static Result NotFound(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     [UsedImplicitly]
     public static Result Conflict(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     [UsedImplicitly]
     public static Result TooManyRequests(string message, bool commitChanges = false)
     {
-        return new Result(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
 }
 
@@ -130,40 +123,34 @@ public sealed class Result<T> : ResultBase
     
     public static Result<T> BadRequest(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     [UsedImplicitly]
     public static Result<T> Unauthorized(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     [UsedImplicitly]
     public static Result<T> Forbidden(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     public static Result<T> NotFound(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     public static Result<T> Conflict(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     public static Result<T> TooManyRequests(string message, bool commitChanges = false)
     {
-        return new Result<T>(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges,
-            Array.Empty<ErrorDetail>());
+        return new Result<T>(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
     /// <summary>

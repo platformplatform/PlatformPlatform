@@ -13,11 +13,7 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken
-    )
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (validators.Any())
         {
@@ -51,7 +47,6 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
     private static TResult CreateValidationResult<TResult>(ErrorDetail[] errorDetails)
         where TResult : ResultBase
     {
-        return (TResult)Activator.CreateInstance(typeof(TResult), HttpStatusCode.BadRequest, null, false,
-            errorDetails)!;
+        return (TResult)Activator.CreateInstance(typeof(TResult), HttpStatusCode.BadRequest, null, false, errorDetails)!;
     }
 }

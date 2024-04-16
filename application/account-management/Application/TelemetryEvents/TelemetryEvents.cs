@@ -16,8 +16,7 @@ public sealed class AccountRegistrationCompleted(TenantId tenantId, TenantState 
         ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
 
 public sealed class AccountRegistrationExpired(int secondsFromCreation)
-    : TelemetryEvent(nameof(AccountRegistrationExpired),
-        ("SecondsFromCreation", secondsFromCreation.ToString()));
+    : TelemetryEvent(nameof(AccountRegistrationExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
 
 public sealed class AccountRegistrationFailed(int retryCount)
     : TelemetryEvent(nameof(AccountRegistrationFailed), ("RetryCount", retryCount.ToString()));

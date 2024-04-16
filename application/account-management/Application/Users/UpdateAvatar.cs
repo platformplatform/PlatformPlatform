@@ -28,8 +28,7 @@ public sealed class UpdateAvatarHandler(
         
         var fileHash = await GetFileHash(command.FileSteam, cancellationToken);
         var blobName = $"{user.TenantId}/{user.Id}/{fileHash}.jpg";
-        await blobStorage.UploadAsync(ContainerName, blobName, command.ContentType, command.FileSteam,
-            cancellationToken);
+        await blobStorage.UploadAsync(ContainerName, blobName, command.ContentType, command.FileSteam, cancellationToken);
         
         var avatarUrl = $"/{ContainerName}/{blobName}";
         user.UpdateAvatar(avatarUrl);

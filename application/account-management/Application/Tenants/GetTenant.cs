@@ -13,7 +13,6 @@ public sealed class GetTenantHandler(ITenantRepository tenantRepository)
     public async Task<Result<TenantResponseDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return tenant?.Adapt<TenantResponseDto>()
-               ?? Result<TenantResponseDto>.NotFound($"Tenant with id '{request.Id}' not found.");
+        return tenant?.Adapt<TenantResponseDto>() ?? Result<TenantResponseDto>.NotFound($"Tenant with id '{request.Id}' not found.");
     }
 }

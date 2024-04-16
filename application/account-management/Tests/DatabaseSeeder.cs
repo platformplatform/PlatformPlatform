@@ -19,8 +19,7 @@ public sealed class DatabaseSeeder
         OneTimePassword = StartAccountRegistrationCommandHandler.GenerateOneTimePassword(6);
         var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePassword);
         
-        AccountRegistration1 =
-            AccountRegistration.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email(), oneTimePasswordHash);
+        AccountRegistration1 = AccountRegistration.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email(), oneTimePasswordHash);
         
         accountManagementDbContext.AccountRegistrations.AddRange(AccountRegistration1);
         

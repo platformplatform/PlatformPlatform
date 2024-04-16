@@ -30,8 +30,7 @@ public static class WebAppMiddlewareExtensions
         var webAppConfiguration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
         
         return builder
-            .UseStaticFiles(new StaticFileOptions
-                { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
+            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
             .UseRequestLocalization("en-US", "da-DK")
             .UseMiddleware<WebAppMiddleware>();
     }

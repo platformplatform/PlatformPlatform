@@ -38,8 +38,7 @@ public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
     
     public static string GetHttpStatusDisplayName(HttpStatusCode statusCode)
     {
-        return Regex.Replace(statusCode.ToString(), "(?<=[a-z])([A-Z])", " $1", RegexOptions.None,
-            TimeSpan.FromMilliseconds(10)).Trim();
+        return Regex.Replace(statusCode.ToString(), "(?<=[a-z])([A-Z])", " $1", RegexOptions.None, TimeSpan.FromMilliseconds(10)).Trim();
     }
     
     public static implicit operator ApiResult(Result result)

@@ -39,8 +39,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var subdomain = Faker.Subdomain();
         
         // Act
-        var response =
-            await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
+        var response = await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -68,8 +67,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
         
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
-            CancellationToken.None);
+        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
     }
     
     [Fact]
@@ -99,9 +97,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
         
         // Act
-        var response =
-            await TestHttpClient.PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete",
-                command);
+        var response = await TestHttpClient.PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete", command);
         
         // Assert
         await EnsureSuccessPostRequest(response, hasLocation: false);

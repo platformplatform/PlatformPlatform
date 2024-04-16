@@ -11,8 +11,7 @@ public sealed record RemoveAvatarCommand(UserId Id) : ICommand, IRequest<Result>
 public sealed class RemoveAvatarCommandHandler(
     IUserRepository userRepository,
     ITelemetryEventsCollector events
-)
-    : IRequestHandler<RemoveAvatarCommand, Result>
+) : IRequestHandler<RemoveAvatarCommand, Result>
 {
     public async Task<Result> Handle(RemoveAvatarCommand command, CancellationToken cancellationToken)
     {

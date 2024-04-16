@@ -30,13 +30,7 @@ public sealed class User : AggregateRoot<UserId>
     
     public Avatar Avatar { get; private set; } = default!;
     
-    public static User Create(
-        TenantId tenantId,
-        string email,
-        UserRole userRole,
-        bool emailConfirmed,
-        string? gravatarUrl
-    )
+    public static User Create(TenantId tenantId, string email, UserRole userRole, bool emailConfirmed, string? gravatarUrl)
     {
         var avatar = new Avatar(gravatarUrl, IsGravatar: gravatarUrl is not null);
         return new User(tenantId, email, userRole, emailConfirmed) { Avatar = avatar };

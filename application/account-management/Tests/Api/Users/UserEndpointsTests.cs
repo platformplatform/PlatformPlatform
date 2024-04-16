@@ -70,8 +70,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var response = await TestHttpClient.GetAsync($"/api/users/{invalidUserId}");
         
         // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
-            $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
+        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
     }
     
     [Fact]
@@ -122,10 +121,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail(
-                "Email",
-                $"The email '{existingUserEmail}' is already in use by another user on this tenant."
-            )
+            new ErrorDetail("Email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
@@ -135,12 +131,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        var command = new CreateUserCommand(
-            new TenantId(unknownTenantId),
-            Faker.Internet.Email(),
-            UserRole.TenantUser,
-            false
-        );
+        var command = new CreateUserCommand(new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser, false);
         
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
