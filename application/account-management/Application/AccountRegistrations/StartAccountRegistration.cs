@@ -44,7 +44,8 @@ public sealed class StartAccountRegistrationCommandHandler(
 {
     public async Task<Result<AccountRegistrationId>> Handle(StartAccountRegistrationCommand command, CancellationToken cancellationToken)
     {
-        var existingAccountRegistrations = accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
+        var existingAccountRegistrations
+            = accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
         
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {

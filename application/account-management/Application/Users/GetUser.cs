@@ -11,7 +11,6 @@ public sealed class GetUserHandler(IUserRepository userRepository)
     public async Task<Result<UserResponseDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByIdAsync(request.Id, cancellationToken);
-        return user?.Adapt<UserResponseDto>()
-               ?? Result<UserResponseDto>.NotFound($"User with id '{request.Id}' not found.");
+        return user?.Adapt<UserResponseDto>() ?? Result<UserResponseDto>.NotFound($"User with id '{request.Id}' not found.");
     }
 }

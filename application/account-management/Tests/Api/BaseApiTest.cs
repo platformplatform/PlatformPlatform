@@ -96,11 +96,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         response.Headers.Location.Should().BeNull();
     }
     
-    protected Task EnsureErrorStatusCode(
-        HttpResponseMessage response,
-        HttpStatusCode statusCode,
-        IEnumerable<ErrorDetail> expectedErrors
-    )
+    protected Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode, IEnumerable<ErrorDetail> expectedErrors)
     {
         return EnsureErrorStatusCode(response, statusCode, null, expectedErrors);
     }
@@ -131,8 +127,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         if (expectedErrors is not null)
         {
             var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var actualErrors =
-                JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), JsonSerializerOptions);
+            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), JsonSerializerOptions);
             
             actualErrors.Should().BeEquivalentTo(expectedErrors);
         }

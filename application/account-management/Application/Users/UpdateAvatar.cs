@@ -8,7 +8,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;
+public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType)
+    : ICommand, IRequest<Result>;
 
 public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
 {
@@ -28,8 +29,7 @@ public sealed class UpdateAvatarHandler(
     IUserRepository userRepository,
     [FromKeyedServices("avatars-storage")] IBlobStorage blobStorage,
     ITelemetryEventsCollector events
-)
-    : IRequestHandler<UpdateAvatarCommand, Result>
+) : IRequestHandler<UpdateAvatarCommand, Result>
 {
     private const string ContainerName = "avatars";
     

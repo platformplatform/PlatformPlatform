@@ -81,7 +81,10 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
     
-    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
+        this IServiceCollection services,
+        Assembly assembly
+    )
         where T : DbContext
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));

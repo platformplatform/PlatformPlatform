@@ -20,8 +20,7 @@ public class IdPrefixForAllStronglyTypedUlidTests
         
         // Assert
         var idsWithoutPrefix = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
-        result.IsSuccessful.Should()
-            .BeTrue($"The following strongly typed IDs does not have an IdPrefixAttribute: {idsWithoutPrefix}");
+        result.IsSuccessful.Should().BeTrue($"The following strongly typed IDs does not have an IdPrefixAttribute: {idsWithoutPrefix}");
     }
     
     [Fact]

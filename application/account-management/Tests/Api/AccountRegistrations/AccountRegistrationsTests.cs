@@ -97,7 +97,8 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete", command);
+        var response = await TestHttpClient
+            .PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete", command);
         
         // Assert
         await EnsureSuccessPostRequest(response, hasLocation: false);

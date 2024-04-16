@@ -40,7 +40,10 @@ public static class ModelBuilderExtensions
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
     
-    public static void MapStronglyTypedNullableId<T, TId, TValue>(this ModelBuilder modelBuilder, Expression<Func<T, TId?>> idExpression)
+    public static void MapStronglyTypedNullableId<T, TId, TValue>(
+        this ModelBuilder modelBuilder,
+        Expression<Func<T, TId?>> idExpression
+    )
         where T : class
         where TValue : class, IComparable<TValue>
         where TId : StronglyTypedId<TValue, TId>
