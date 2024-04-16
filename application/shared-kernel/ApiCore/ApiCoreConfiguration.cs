@@ -127,8 +127,7 @@ public static class ApiCoreConfiguration
         return services;
     }
     
-    public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
-        where TDbContext : DbContext
+    public static WebApplication AddApiCoreConfiguration(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
@@ -162,16 +161,12 @@ public static class ApiCoreConfiguration
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
         
         // Manually create all endpoints classes to call the MapEndpoints containing the mappings
-        using (var scope = app.Services.CreateScope())
+        using var scope = app.Services.CreateScope();
+        var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
+        foreach (var endpoint in endpointServices)
         {
-            var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
-            foreach (var endpoint in endpointServices)
-            {
-                endpoint.MapEndpoints(app);
-            }
+            endpoint.MapEndpoints(app);
         }
-        
-        app.Services.ApplyMigrations<TDbContext>();
         
         return app;
     }
