@@ -40,10 +40,11 @@ public sealed class UnitOfWorkPipelineBehaviorTests
         // Assert
         await _unitOfWork.Received().CommitAsync(cancellationToken);
         Received.InOrder(() =>
-        {
-            next.Invoke();
-            _unitOfWork.CommitAsync(cancellationToken);
-        });
+            {
+                next.Invoke();
+                _unitOfWork.CommitAsync(cancellationToken);
+            }
+        );
     }
     
     [Fact]

@@ -21,13 +21,14 @@ public static class ServiceDefaultsExtensions
         builder.Services.AddServiceDiscovery();
         
         builder.Services.ConfigureHttpClientDefaults(http =>
-        {
-            // Turn on resilience by default
-            http.AddStandardResilienceHandler();
-            
-            // Turn on service discovery by default
-            http.AddServiceDiscovery();
-        });
+            {
+                // Turn on resilience by default
+                http.AddStandardResilienceHandler();
+                
+                // Turn on service discovery by default
+                http.AddServiceDiscovery();
+            }
+        );
         
         return builder;
     }
@@ -36,37 +37,41 @@ public static class ServiceDefaultsExtensions
     private static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
         builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
-        {
-            // Exclude the following health check endpoints from tracing in OpenTelemetry
-            string[] excludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
-            options.Filter = httpContext =>
             {
-                // Add filtering to exclude health check endpoints
-                var requestPath = httpContext.Request.Path.ToString();
-                return !Array.Exists(excludedPaths, requestPath.StartsWith);
-            };
-        });
+                // Exclude the following health check endpoints from tracing in OpenTelemetry
+                string[] excludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
+                options.Filter = httpContext =>
+                {
+                    // Add filtering to exclude health check endpoints
+                    var requestPath = httpContext.Request.Path.ToString();
+                    return !Array.Exists(excludedPaths, requestPath.StartsWith);
+                };
+            }
+        );
         
         builder.Logging.AddOpenTelemetry(logging =>
-        {
-            logging.IncludeFormattedMessage = true;
-            logging.IncludeScopes = true;
-        });
+            {
+                logging.IncludeFormattedMessage = true;
+                logging.IncludeScopes = true;
+            }
+        );
         
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
-            {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
+                {
+                    metrics.AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddRuntimeInstrumentation();
+                }
+            )
             .WithTracing(tracing =>
-            {
-                // We want to view all traces in development
-                if (builder.Environment.IsDevelopment()) tracing.SetSampler(new AlwaysOnSampler());
-                
-                tracing.AddAspNetCoreInstrumentation().AddGrpcClientInstrumentation().AddHttpClientInstrumentation();
-            });
+                {
+                    // We want to view all traces in development
+                    if (builder.Environment.IsDevelopment()) tracing.SetSampler(new AlwaysOnSampler());
+                    
+                    tracing.AddAspNetCoreInstrumentation().AddGrpcClientInstrumentation().AddHttpClientInstrumentation();
+                }
+            );
         
         builder.AddOpenTelemetryExporters();
         
@@ -86,10 +91,11 @@ public static class ServiceDefaultsExtensions
         }
         
         builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-        {
-            options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
-                                       "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
-        });
+            {
+                options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
+                                           "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
+            }
+        );
         
         return builder;
     }

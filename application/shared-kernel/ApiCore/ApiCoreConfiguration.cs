@@ -38,7 +38,8 @@ public static class ApiCoreConfiguration
             .FromAssemblies(apiAssembly, Assembly.GetExecutingAssembly())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
-            .WithScopedLifetime());
+            .WithScopedLifetime()
+        );
         
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
@@ -58,62 +59,66 @@ public static class ApiCoreConfiguration
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
         
         services.AddOpenApiDocument((settings, serviceProvider) =>
-        {
-            settings.DocumentName = "v1";
-            settings.Title = "PlatformPlatform API";
-            settings.Version = "v1";
-            
-            var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
-            var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
-            options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
-            
-            // Ensure that enums are serialized as strings and use CamelCase
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-            
-            settings.PostProcess = document =>
             {
-                // Find all strongly typed IDs
-                var stronglyTypedIdNames = domainAssembly.GetTypes()
-                    .Where(t => typeof(IStronglyTypedId).IsAssignableFrom(t))
-                    .Select(t => t.Name)
-                    .ToList();
+                settings.DocumentName = "v1";
+                settings.Title = "PlatformPlatform API";
+                settings.Version = "v1";
                 
-                // Ensure the Swagger UI to correctly display strongly typed IDs as plain text instead of complex objects
-                foreach (var stronglyTypedIdName in stronglyTypedIdNames)
+                var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
+                var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+                options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
+                
+                // Ensure that enums are serialized as strings and use CamelCase
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                
+                settings.PostProcess = document =>
                 {
-                    var schema = document.Definitions[stronglyTypedIdName];
-                    schema.Type = JsonObjectType.String;
-                    schema.Properties.Clear();
-                }
-            };
-        });
+                    // Find all strongly typed IDs
+                    var stronglyTypedIdNames = domainAssembly.GetTypes()
+                        .Where(t => typeof(IStronglyTypedId).IsAssignableFrom(t))
+                        .Select(t => t.Name)
+                        .ToList();
+                    
+                    // Ensure the Swagger UI to correctly display strongly typed IDs as plain text instead of complex objects
+                    foreach (var stronglyTypedIdName in stronglyTypedIdNames)
+                    {
+                        var schema = document.Definitions[stronglyTypedIdName];
+                        schema.Type = JsonObjectType.String;
+                        schema.Properties.Clear();
+                    }
+                };
+            }
+        );
         
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
-        {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        });
+            {
+                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            }
+        );
         
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
         services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
+            {
+                // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            }
+        );
         
         builder.AddServiceDefaults();
         
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options => options.AddPolicy(
-                LocalhostCorsPolicyName,
-                policyBuilder => { policyBuilder.WithOrigins(LocalhostUrl).AllowAnyMethod().AllowAnyHeader(); }
-            ));
+                    LocalhostCorsPolicyName,
+                    policyBuilder => { policyBuilder.WithOrigins(LocalhostUrl).AllowAnyMethod().AllowAnyHeader(); }
+                )
+            );
         }
         else
         {

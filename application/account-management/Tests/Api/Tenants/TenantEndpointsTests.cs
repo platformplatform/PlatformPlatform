@@ -37,7 +37,8 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
                 'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state'],
                 'additionalProperties': false
             }
-            """);
+            """
+        );
         
         var responseBody = await response.Content.ReadAsStringAsync();
         schema.Validate(responseBody).Should().BeEmpty();

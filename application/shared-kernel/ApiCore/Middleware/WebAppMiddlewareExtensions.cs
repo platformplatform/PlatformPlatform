@@ -14,11 +14,12 @@ public static class WebAppMiddlewareExtensions
     public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
     {
         return services.AddSingleton<WebAppMiddlewareConfiguration>(serviceProvider =>
-            {
-                var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
-                var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                return new WebAppMiddlewareConfiguration(jsonOptions, environment.IsDevelopment());
-            })
+                {
+                    var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
+                    var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                    return new WebAppMiddlewareConfiguration(jsonOptions, environment.IsDevelopment());
+                }
+            )
             .AddTransient<WebAppMiddleware>();
     }
     

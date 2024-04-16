@@ -36,7 +36,8 @@ public sealed class StartAccountRegistrationCommandHandler(
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
             return Result<AccountRegistrationId>.Conflict(
-                "Account registration for this subdomain/mail has already been started. Please check your spam folder.");
+                "Account registration for this subdomain/mail has already been started. Please check your spam folder."
+            );
         }
         
         if (existingAccountRegistrations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
@@ -56,7 +57,9 @@ public sealed class StartAccountRegistrationCommandHandler(
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>
              <p style="text-align:center;font-family=sans-serif;font-size:40px;background:#f5f4f5">{oneTimePassword}</p>
-             """, cancellationToken);
+             """,
+            cancellationToken
+        );
         
         return accountRegistration.Id;
     }

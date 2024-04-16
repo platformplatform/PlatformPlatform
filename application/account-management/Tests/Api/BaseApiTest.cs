@@ -24,17 +24,19 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         Environment.SetEnvironmentVariable(WebAppMiddlewareConfiguration.CdnUrlKey, "https://localhost:9099");
         
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureTestServices(services =>
             {
-                // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
-                services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
-                services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
-                
-                TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-                services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-            });
-        });
+                builder.ConfigureTestServices(services =>
+                    {
+                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
+                        services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
+                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+                        
+                        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
+                        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
+                    }
+                );
+            }
+        );
         
         TestHttpClient = _webApplicationFactory.CreateClient();
     }

@@ -18,14 +18,16 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
     {
         // Arrange
         var client = _webApplicationFactory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
-            builder.ConfigureAppConfiguration((_, _) =>
             {
-                // Set the environment variable to enable the test-specific /api/throwException endpoint.
-                Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
-            });
-        }).CreateClient();
+                builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
+                builder.ConfigureAppConfiguration((_, _) =>
+                    {
+                        // Set the environment variable to enable the test-specific /api/throwException endpoint.
+                        Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
+                    }
+                );
+            }
+        ).CreateClient();
         
         // Act
         var response = await client.GetAsync("/api/throwException");
@@ -60,14 +62,16 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
     {
         // Arrange
         var client = _webApplicationFactory.WithWebHostBuilder(builder =>
-        {
-            builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
-            builder.ConfigureAppConfiguration((_, _) =>
             {
-                // Set the environment variable to enable the test-specific /api/throwException endpoint.
-                Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
-            });
-        }).CreateClient();
+                builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
+                builder.ConfigureAppConfiguration((_, _) =>
+                    {
+                        // Set the environment variable to enable the test-specific /api/throwException endpoint.
+                        Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
+                    }
+                );
+            }
+        ).CreateClient();
         
         // Act
         var response = await client.GetAsync("/api/throwTimeoutException");

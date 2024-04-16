@@ -41,7 +41,8 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
                 'required': ['id', 'createdAt', 'modifiedAt', 'email', 'userRole'],
                 'additionalProperties': false
             }
-            """);
+            """
+        );
         
         var responseBody = await response.Content.ReadAsStringAsync();
         schema.Validate(responseBody).Should().BeEmpty();

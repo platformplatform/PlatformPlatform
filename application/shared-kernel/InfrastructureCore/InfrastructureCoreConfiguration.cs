@@ -90,7 +90,8 @@ public static class InfrastructureCoreConfiguration
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
-            new DomainEventCollector(provider.GetRequiredService<T>()));
+            new DomainEventCollector(provider.GetRequiredService<T>())
+        );
         
         services.RegisterRepositories(assembly);
         
@@ -125,11 +126,14 @@ public static class InfrastructureCoreConfiguration
         services.Scan(scan => scan
             .FromAssemblies(assembly)
             .AddClasses(classes => classes.Where(type =>
-                type.IsClass && (type.IsNotPublic || type.IsPublic)
-                             && type.BaseType is { IsGenericType: true } &&
-                             type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)))
+                    type.IsClass && (type.IsNotPublic || type.IsPublic)
+                                 && type.BaseType is { IsGenericType: true } &&
+                                 type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
+                )
+            )
             .AsImplementedInterfaces()
-            .WithScopedLifetime());
+            .WithScopedLifetime()
+        );
         
         return services;
     }

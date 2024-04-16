@@ -14,12 +14,15 @@ public class TenantEndpoints : IEndpoints
         var group = routes.MapGroup(RoutesPrefix);
         
         group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> ([AsParameters] GetTenantQuery query, ISender mediator)
-            => await mediator.Send(query));
+            => await mediator.Send(query)
+        );
         
         group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
-            => await mediator.Send(command with { Id = id }));
+            => await mediator.Send(command with { Id = id })
+        );
         
         group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteTenantCommand command, ISender mediator)
-            => await mediator.Send(command));
+            => await mediator.Send(command)
+        );
     }
 }

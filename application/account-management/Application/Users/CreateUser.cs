@@ -52,7 +52,8 @@ public sealed class CreateUserValidator : UserValidator<CreateUserCommand>
         
         RuleFor(x => x)
             .MustAsync((x, cancellationToken)
-                => userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken))
+                => userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken)
+            )
             .WithName("Email")
             .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
             .When(x => !string.IsNullOrEmpty(x.Email));

@@ -83,7 +83,8 @@ public class TrackEndpoints : IEndpoints
                     var exceptionDetailsInfos = GetExceptionDetailsInfos(trackRequestDto);
                     var telemetry = new ExceptionTelemetry(exceptionDetailsInfos,
                         trackRequestDto.Data.BaseData.SeverityLevel, trackRequestDto.Data.BaseType,
-                        trackRequestDto.Data.BaseData.Properties, new Dictionary<string, double>())
+                        trackRequestDto.Data.BaseData.Properties, new Dictionary<string, double>()
+                    )
                     {
                         SeverityLevel = trackRequestDto.Data.BaseData.SeverityLevel,
                         Timestamp = trackRequestDto.Time
@@ -136,20 +137,22 @@ public class TrackEndpoints : IEndpoints
     {
         var exceptionDetailsInfos = trackRequestDto.Data.BaseData.Exceptions
             .Select(exception => new ExceptionDetailsInfo(
-                0,
-                0,
-                exception.TypeName,
-                exception.Message,
-                exception.HasFullStack,
-                exception.Stack,
-                exception.ParsedStack.Select(parsedStack => new StackFrame(
-                    parsedStack.Assembly,
-                    parsedStack.FileName,
-                    parsedStack.Level,
-                    parsedStack.Line,
-                    parsedStack.Method
-                ))
-            ));
+                    0,
+                    0,
+                    exception.TypeName,
+                    exception.Message,
+                    exception.HasFullStack,
+                    exception.Stack,
+                    exception.ParsedStack.Select(parsedStack => new StackFrame(
+                            parsedStack.Assembly,
+                            parsedStack.FileName,
+                            parsedStack.Level,
+                            parsedStack.Line,
+                            parsedStack.Method
+                        )
+                    )
+                )
+            );
         return exceptionDetailsInfos;
     }
     

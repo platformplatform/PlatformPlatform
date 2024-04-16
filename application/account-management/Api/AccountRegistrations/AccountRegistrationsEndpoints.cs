@@ -15,12 +15,15 @@ public class AccountRegistrationsEndpoints : IEndpoints
         var group = routes.MapGroup(RoutesPrefix);
         
         group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, ISender mediator)
-            => await mediator.Send(query));
+            => await mediator.Send(query)
+        );
         
         group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
-            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix));
+            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
+        );
         
         group.MapPost("{id}/complete", async Task<ApiResult> (AccountRegistrationId id, CompleteAccountRegistrationCommand command, ISender mediator)
-            => await mediator.Send(command with { Id = id }));
+            => await mediator.Send(command with { Id = id })
+        );
     }
 }

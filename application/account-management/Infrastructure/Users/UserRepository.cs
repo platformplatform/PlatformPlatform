@@ -34,7 +34,8 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         {
             // We use the null-forgiving (!) operator here because the SQL LIKE operator handles NULL values gracefully
             users = users.Where(u =>
-                u.Email.Contains(search) || u.FirstName!.Contains(search) || u.LastName!.Contains(search));
+                u.Email.Contains(search) || u.FirstName!.Contains(search) || u.LastName!.Contains(search)
+            );
         }
         
         if (userRole is not null)
