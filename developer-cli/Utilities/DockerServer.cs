@@ -17,12 +17,13 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
         var portArguments = port.HasValue ? $"-p {port}:{port}" : "";
         var volumeArguments = volume is not null ? $"-v {instanceName}:{volume}" : "";
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "docker",
-            Arguments = $"run -d {portArguments} {volumeArguments} --name {instanceName} {imageName}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        });
+            {
+                FileName = "docker",
+                Arguments = $"run -d {portArguments} {volumeArguments} --name {instanceName} {imageName}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }
+        );
 
         if (output.Contains("Error"))
         {
@@ -35,12 +36,13 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
         AnsiConsole.MarkupLine($"[green]Stopping {instanceName} server.[/]");
 
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "docker",
-            Arguments = $"rm --force {instanceName}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        });
+            {
+                FileName = "docker",
+                Arguments = $"rm --force {instanceName}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }
+        );
 
         if (output.Contains("Error"))
         {
@@ -53,12 +55,13 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
         AnsiConsole.MarkupLine("[green]Checking for existing Docker image.[/]");
 
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "docker",
-            Arguments = $"image inspect {imageName}",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        });
+            {
+                FileName = "docker",
+                Arguments = $"image inspect {imageName}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            }
+        );
 
         return output.Contains("Digest");
     }

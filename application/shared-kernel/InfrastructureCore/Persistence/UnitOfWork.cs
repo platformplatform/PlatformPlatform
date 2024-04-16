@@ -10,7 +10,6 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 ///     committing any changes to the application specific DbContext and saving them to the database. The UnitOfWork is
 ///     called from the <see cref="UnitOfWorkPipelineBehavior{TRequest,TResponse}" /> in the Application layer.
 /// </summary>
-[UsedImplicitly]
 public sealed class UnitOfWork(DbContext dbContext) : IUnitOfWork
 {
     public async Task CommitAsync(CancellationToken cancellationToken)
@@ -19,7 +18,7 @@ public sealed class UnitOfWork(DbContext dbContext) : IUnitOfWork
         {
             throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
         }
-
+        
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

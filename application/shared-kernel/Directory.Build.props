@@ -1,4 +1,5 @@
 <Project>
+
     <ItemGroup>
         <Using Include="JetBrains.Annotations"/>
         <Using Include="MediatR"/>
@@ -8,4 +9,5 @@
         <Using Include="System.Reflection"/>
         <Using Include="System.Text.Json.Serialization"/>
     </ItemGroup>
+
 </Project>

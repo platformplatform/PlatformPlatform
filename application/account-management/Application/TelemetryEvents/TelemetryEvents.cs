@@ -13,11 +13,11 @@ public sealed class AccountRegistrationBlocked(int retryCount)
 
 public sealed class AccountRegistrationCompleted(TenantId tenantId, TenantState state, int registrationTimeInSeconds)
     : TelemetryEvent(nameof(AccountRegistrationCompleted), ("TenantId", tenantId), ("TenantState", state.ToString()),
-        ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
+        ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString())
+    );
 
 public sealed class AccountRegistrationExpired(int secondsFromCreation)
-    : TelemetryEvent(nameof(AccountRegistrationExpired),
-        ("SecondsFromCreation", secondsFromCreation.ToString()));
+    : TelemetryEvent(nameof(AccountRegistrationExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
 
 public sealed class AccountRegistrationFailed(int retryCount)
     : TelemetryEvent(nameof(AccountRegistrationFailed), ("RetryCount", retryCount.ToString()));
@@ -33,7 +33,8 @@ public sealed class TenantUpdated(TenantId tenantId)
 
 public sealed class UserCreated(TenantId tenantId, bool gravatarProfileFound)
     : TelemetryEvent(nameof(UserCreated), ("TenantId", tenantId),
-        ("GravatarProfileFound", gravatarProfileFound.ToString()));
+        ("GravatarProfileFound", gravatarProfileFound.ToString())
+    );
 
 public sealed class UserDeleted()
     : TelemetryEvent(nameof(UserDeleted));

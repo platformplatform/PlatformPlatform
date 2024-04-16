@@ -3,10 +3,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-[UsedImplicitly]
 public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
-[UsedImplicitly]
 public sealed class GetUserHandler(IUserRepository userRepository)
     : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
 {

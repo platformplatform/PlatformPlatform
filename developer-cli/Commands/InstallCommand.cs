@@ -41,7 +41,8 @@ public class InstallCommand : Command
 
     public InstallCommand() : base(
         "install",
-        $"This will register the alias {Configuration.AliasName} so it will be available everywhere.")
+        $"This will register the alias {Configuration.AliasName} so it will be available everywhere."
+    )
     {
         Handler = CommandHandler.Create(Execute);
     }
@@ -57,15 +58,13 @@ public class InstallCommand : Command
         AnsiConsole.Write(new Markup(Intro));
         AnsiConsole.WriteLine();
 
-        if (AnsiConsole.Confirm(
-                $"This will register the alias '[green]{Configuration.AliasName}[/]', so it will be available everywhere."))
+        if (AnsiConsole.Confirm($"This will register the alias '[green]{Configuration.AliasName}[/]', so it will be available everywhere."))
         {
             AnsiConsole.WriteLine();
             RegisterAlias();
         }
 
-        if (AnsiConsole.Confirm(
-                "PlatformPlatform requires a self-signed certificate with a known password. Do you want to create it now?"))
+        if (AnsiConsole.Confirm("PlatformPlatform requires a self-signed certificate with a known password. Do you want to create it now?"))
         {
             AnsiConsole.WriteLine();
             var command = new ConfigureDeveloperEnvironmentCommand();
@@ -74,13 +73,13 @@ public class InstallCommand : Command
 
         if (Configuration.IsWindows)
         {
-            AnsiConsole.MarkupLine(
-                "Please restart your terminal to update your PATH and environment variables.");
+            AnsiConsole.MarkupLine("Please restart your terminal to update your PATH and environment variables.");
         }
         else
         {
             AnsiConsole.MarkupLine(
-                $"Please restart your terminal to update your PATH and environment variables (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/]).");
+                $"Please restart your terminal to update your PATH and environment variables (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/])."
+            );
         }
     }
 

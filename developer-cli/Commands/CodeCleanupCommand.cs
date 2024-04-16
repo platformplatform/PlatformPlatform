@@ -20,10 +20,7 @@ public class CodeCleanupCommand : Command
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
-        ProcessHelper.StartProcess(
-            "dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"",
-            workingDirectory
-        );
+        ProcessHelper.StartProcess("dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"", workingDirectory);
 
         AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
 

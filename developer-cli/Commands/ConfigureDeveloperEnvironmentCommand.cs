@@ -40,7 +40,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
 
         return 0;
     }
-    
+
     private static bool EnsureValidCertificateForLocalhostWithKnownPasswordIsConfigured()
     {
         var certificatePassword = Environment.GetEnvironmentVariable("CERTIFICATE_PASSWORD");
@@ -54,11 +54,9 @@ public class ConfigureDeveloperEnvironmentCommand : Command
                 return false;
             }
 
-            if (!AnsiConsole.Confirm(
-                    "Existing certificate exists, but the password is unknown. A new developer certificate will be created and the password will be stored in an environment variable."))
+            if (!AnsiConsole.Confirm("Existing certificate exists, but the password is unknown. A new developer certificate will be created and the password will be stored in an environment variable."))
             {
-                AnsiConsole.MarkupLine(
-                    "[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]");
+                AnsiConsole.MarkupLine("[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]");
                 Environment.Exit(1);
             }
 
@@ -79,13 +77,14 @@ public class ConfigureDeveloperEnvironmentCommand : Command
     private static bool IsDeveloperCertificateInstalled()
     {
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "dev-certs https --check",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        });
+            {
+                FileName = "dotnet",
+                Arguments = "dev-certs https --check",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        );
 
         return output.Contains("A valid certificate was found");
     }
@@ -116,13 +115,14 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         {
             var arguments = $"pkcs12 -in {Configuration.LocalhostPfx} -passin pass:{password} -nokeys";
             var certificateValidation = ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = "openssl",
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true
-            });
+                {
+                    FileName = "openssl",
+                    Arguments = arguments,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            );
 
             if (certificateValidation.Contains("--BEGIN CERTIFICATE--"))
             {
@@ -142,13 +142,14 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         }
 
         ProcessHelper.StartProcess(new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "dev-certs https --clean",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        });
+            {
+                FileName = "dotnet",
+                Arguments = "dev-certs https --clean",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            }
+        );
     }
 
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
@@ -191,7 +192,8 @@ public class ConfigureDeveloperEnvironmentCommand : Command
             }
 
             File.AppendAllText(Configuration.MacOs.GetShellInfo().ProfilePath,
-                $"export {variableName}='{variableValue}'{Environment.NewLine}");
+                $"export {variableName}='{variableValue}'{Environment.NewLine}"
+            );
         }
     }
 }

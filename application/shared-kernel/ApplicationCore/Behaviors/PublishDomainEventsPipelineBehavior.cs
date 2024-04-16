@@ -16,35 +16,31 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
     IPublisher mediator
 ) : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken
-    )
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var response = await next();
-
+        
         var domainEvents = new Queue<IDomainEvent>();
-
+        
         EnqueueAndClearDomainEvents(domainEvents);
-
+        
         while (domainEvents.Count > 0)
         {
             var domainEvent = domainEvents.Dequeue();
-
+            
             // Publish the domain event to the MediatR pipeline. Registered event handlers will be invoked immediately
             await mediator.Publish(domainEvent, cancellationToken);
-
+            
             if (domainEvents.Count == 0)
             {
                 // Add any new domain events that were generated during the execution of the event handlers
                 EnqueueAndClearDomainEvents(domainEvents);
             }
         }
-
+        
         return response;
     }
-
+    
     /// <summary>
     ///     Adds any new domain events to the processing queue and clears them from the originating aggregates.
     /// </summary>
@@ -56,7 +52,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
             {
                 domainEvents.Enqueue(domainEvent);
             }
-
+            
             aggregate.ClearDomainEvents();
         }
     }

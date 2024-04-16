@@ -1,6 +1,5 @@
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-[UsedImplicitly]
 public sealed record GetUsersResponseDto(
     int TotalCount,
     int TotalPages,

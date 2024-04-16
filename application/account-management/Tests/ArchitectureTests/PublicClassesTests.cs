@@ -16,54 +16,48 @@ public sealed class PublicClassesTests
         // Act
         var result = Types
             .InAssembly(DomainConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract()
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
-
+        
         // Assert
         var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
         result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
     }
-
+    
     [Fact]
     public void PublicClassesInApplication_ShouldBeSealed()
     {
         // Act
         var types = Types
             .InAssembly(ApplicationConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract()
             .And().DoNotHaveName(typeof(Result<>).Name);
-
+        
         var result = types
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
-
+        
         // Assert
         var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
         result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
     }
-
+    
     [Fact]
     public void PublicClassesInInfrastructure_ShouldBeSealed()
     {
         // Act
         var types = Types
             .InAssembly(InfrastructureConfiguration.Assembly)
-            .That()
-            .ArePublic()
+            .That().ArePublic()
             .And().AreNotAbstract();
-
+        
         var result = types
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
-
+        
         // Assert
         var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
         result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");

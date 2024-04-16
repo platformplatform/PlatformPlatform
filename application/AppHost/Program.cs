@@ -13,10 +13,11 @@ var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
-    {
-        resourceBuilder.WithVolume("azure-storage-data", "/data");
-        resourceBuilder.UseBlobPort(10000);
-    })
+        {
+            resourceBuilder.WithVolume("azure-storage-data", "/data");
+            resourceBuilder.UseBlobPort(10000);
+        }
+    )
     .AddBlobs("blobs");
 
 builder
@@ -50,11 +51,12 @@ return;
 void CreateBlobContainer(string containerName)
 {
     var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-
+    
     new Task(() =>
-    {
-        var blobServiceClient = new BlobServiceClient(connectionString);
-        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-        containerClient.CreateIfNotExists();
-    }).Start();
+        {
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            containerClient.CreateIfNotExists();
+        }
+    ).Start();
 }

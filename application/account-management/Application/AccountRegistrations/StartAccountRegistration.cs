@@ -11,7 +11,6 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 
-[UsedImplicitly]
 public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
     : ICommand, IRequest<Result<AccountRegistrationId>>
 {
@@ -21,7 +20,6 @@ public sealed record StartAccountRegistrationCommand(string Subdomain, string Em
     }
 }
 
-[UsedImplicitly]
 public sealed class StartAccountRegistrationCommandHandler(
     IAccountRegistrationRepository accountRegistrationRepository,
     IEmailService emailService,
@@ -29,43 +27,41 @@ public sealed class StartAccountRegistrationCommandHandler(
     ITelemetryEventsCollector events
 ) : IRequestHandler<StartAccountRegistrationCommand, Result<AccountRegistrationId>>
 {
-    public async Task<Result<AccountRegistrationId>> Handle(
-        StartAccountRegistrationCommand command,
-        CancellationToken cancellationToken
-    )
+    public async Task<Result<AccountRegistrationId>> Handle(StartAccountRegistrationCommand command, CancellationToken cancellationToken)
     {
-        var existingAccountRegistrations =
-            accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
-
+        var existingAccountRegistrations = accountRegistrationRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
+        
         if (existingAccountRegistrations.Any(r => !r.HasExpired()))
         {
             return Result<AccountRegistrationId>.Conflict(
-                "Account registration for this subdomain/mail has already been started. Please check your spam folder.");
+                "Account registration for this subdomain/mail has already been started. Please check your spam folder."
+            );
         }
-
+        
         if (existingAccountRegistrations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
         {
-            return Result<AccountRegistrationId>.TooManyRequests(
-                "Too many attempts to register this email address. Please try again later.");
+            return Result<AccountRegistrationId>.TooManyRequests("Too many attempts to register this email address. Please try again later.");
         }
-
+        
         var oneTimePassword = GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
         var accountRegistration = AccountRegistration.Create(command.GetTenantId(), command.Email, oneTimePasswordHash);
-
+        
         await accountRegistrationRepository.AddAsync(accountRegistration, cancellationToken);
         events.CollectEvent(new AccountRegistrationStarted(command.GetTenantId()));
-
+        
         await emailService.SendAsync(accountRegistration.Email, "Confirm your email address",
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>
              <p style="text-align:center;font-family=sans-serif;font-size:40px;background:#f5f4f5">{oneTimePassword}</p>
-             """, cancellationToken);
-
+             """,
+            cancellationToken
+        );
+        
         return accountRegistration.Id;
     }
-
+    
     public static string GenerateOneTimePassword(int length)
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -74,12 +70,11 @@ public sealed class StartAccountRegistrationCommandHandler(
         {
             oneTimePassword.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
         }
-
+        
         return oneTimePassword.ToString();
     }
 }
 
-[UsedImplicitly]
 public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
 {
     public StartAccountRegistrationValidator(ITenantRepository tenantRepository)

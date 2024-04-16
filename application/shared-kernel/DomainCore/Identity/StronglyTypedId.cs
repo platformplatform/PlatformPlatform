@@ -17,17 +17,17 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value)
     {
         return other is null ? 1 : Value.CompareTo(other.Value);
     }
-
+    
     public virtual bool Equals(StronglyTypedId<TValue, T>? other)
     {
         return other != null && Value.Equals(other.Value);
     }
-
+    
     public override int GetHashCode()
     {
         return Value.GetHashCode();
     }
-
+    
     public static implicit operator TValue(StronglyTypedId<TValue, T> stronglyTypedId)
     {
         return stronglyTypedId.Value;

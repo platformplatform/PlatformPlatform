@@ -19,7 +19,7 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Identity;
 public static class IdGenerator
 {
     private static readonly IdGen.IdGenerator Generator = new(GetUniqueGeneratorIdFromIpAddress());
-
+    
     /// <summary>
     ///     Generates a new unique ID based on the Twitter Snowflake algorithm.
     /// </summary>
@@ -27,18 +27,17 @@ public static class IdGenerator
     {
         return Generator.CreateId();
     }
-
+    
     /// <summary>
     ///     Retrieves a unique generator ID based on the machine's IPv4 address.
     /// </summary>
     private static int GetUniqueGeneratorIdFromIpAddress()
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());
-        const string noNetworkAdapters =
-            "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.";
-        var ipAddress = Array.Find(host.AddressList, ip =>
-            ip.AddressFamily == AddressFamily.InterNetwork) ?? throw new InvalidOperationException(noNetworkAdapters);
-
+        const string noNetworkAdapters = "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.";
+        var ipAddress = Array.Find(host.AddressList, ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                        ?? throw new InvalidOperationException(noNetworkAdapters);
+        
         var lastSegment = ipAddress.ToString().Split('.')[3];
         return int.Parse(lastSegment);
     }

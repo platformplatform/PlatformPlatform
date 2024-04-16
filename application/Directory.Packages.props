@@ -1,4 +1,5 @@
 <Project>
+
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -7,6 +8,7 @@
     <EfCoreVersion>8.0.4</EfCoreVersion>
     <AspireVersion>8.0.0-preview.5.24201.12</AspireVersion>
   </PropertyGroup>
+
   <ItemGroup>
     <!-- PlatformPlatform dependencies - Api -->
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
@@ -61,6 +63,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
   </ItemGroup>
+
   <ItemGroup>
     <!-- Version together with Aspire -->
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
@@ -98,4 +101,5 @@
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="8.0.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.1.0" />
   </ItemGroup>
+
 </Project>

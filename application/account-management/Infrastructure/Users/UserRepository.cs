@@ -4,7 +4,6 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Users;
 
-[UsedImplicitly]
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
@@ -12,12 +11,12 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     {
         return !await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);
     }
-
+    
     public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
     }
-
+    
     public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
@@ -29,19 +28,20 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     )
     {
         IQueryable<User> users = DbSet;
-
+        
         if (search is not null)
         {
             // We use the null-forgiving (!) operator here because the SQL LIKE operator handles NULL values gracefully
             users = users.Where(u =>
-                u.Email.Contains(search) || u.FirstName!.Contains(search) || u.LastName!.Contains(search));
+                u.Email.Contains(search) || u.FirstName!.Contains(search) || u.LastName!.Contains(search)
+            );
         }
-
+        
         if (userRole is not null)
         {
             users = users.Where(u => u.UserRole == userRole);
         }
-
+        
         users = orderBy switch
         {
             SortableUserProperties.CreatedAt => sortOrder == SortOrder.Ascending
@@ -61,13 +61,13 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
                 : users.OrderByDescending(u => u.UserRole),
             _ => users
         };
-
+        
         pageSize ??= 50;
         var itemOffset = (pageOffset ?? 0) * pageSize.Value;
         var result = await users.Skip(itemOffset).Take(pageSize.Value).ToArrayAsync(cancellationToken);
-
+        
         var totalItems = await users.CountAsync(cancellationToken);
-
+        
         var totalPages = (totalItems - 1) / pageSize.Value + 1;
         return (result, totalItems, totalPages);
     }

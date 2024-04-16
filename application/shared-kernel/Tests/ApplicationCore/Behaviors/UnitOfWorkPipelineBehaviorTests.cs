@@ -12,7 +12,7 @@ public sealed class UnitOfWorkPipelineBehaviorTests
 {
     private readonly UnitOfWorkPipelineBehavior<TestCommand, Result<TestAggregate>> _behavior;
     private readonly IUnitOfWork _unitOfWork;
-
+    
     public UnitOfWorkPipelineBehaviorTests()
     {
         var services = new ServiceCollection();
@@ -23,7 +23,7 @@ public sealed class UnitOfWorkPipelineBehaviorTests
             new ConcurrentCommandCounter()
         );
     }
-
+    
     [Fact]
     public async Task Handle_WhenSuccessfulCommand_ShouldCallNextAndCommitChanges()
     {
@@ -33,19 +33,20 @@ public sealed class UnitOfWorkPipelineBehaviorTests
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         var successfulCommandResult = Result<TestAggregate>.Success(TestAggregate.Create("Foo"));
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
-
+        
         // Act
         _ = await _behavior.Handle(command, next, cancellationToken);
-
+        
         // Assert
         await _unitOfWork.Received().CommitAsync(cancellationToken);
         Received.InOrder(() =>
-        {
-            next.Invoke();
-            _unitOfWork.CommitAsync(cancellationToken);
-        });
+            {
+                next.Invoke();
+                _unitOfWork.CommitAsync(cancellationToken);
+            }
+        );
     }
-
+    
     [Fact]
     public async Task Handle_WhenNonSuccessfulCommand_ShouldCallNextButNotCommitChanges()
     {
@@ -55,10 +56,10 @@ public sealed class UnitOfWorkPipelineBehaviorTests
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         var successfulCommandResult = Result<TestAggregate>.BadRequest("Fail");
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
-
+        
         // Act
         _ = await _behavior.Handle(command, next, cancellationToken);
-
+        
         // Assert
         await _unitOfWork.DidNotReceive().CommitAsync(cancellationToken);
         await next.Received().Invoke();

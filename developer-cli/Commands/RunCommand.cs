@@ -22,13 +22,14 @@ public class RunCommand : Command
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
 
         Task.Run(async () =>
-        {
-            // Start a background task that monitors the websites and opens the browser when ready
-            const int aspireDashboardPort = 9001;
-            await StartBrowserWhenSiteIsReady(aspireDashboardPort);
-            const int appPort = 9000;
-            await StartBrowserWhenSiteIsReady(appPort);
-        });
+            {
+                // Start a background task that monitors the websites and opens the browser when ready
+                const int aspireDashboardPort = 9001;
+                await StartBrowserWhenSiteIsReady(aspireDashboardPort);
+                const int appPort = 9000;
+                await StartBrowserWhenSiteIsReady(appPort);
+            }
+        );
 
         ProcessHelper.StartProcess("dotnet run", workingDirectory);
     }

@@ -10,28 +10,26 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public static class WebAppMiddlewareExtensions
 {
-    [UsedImplicitly]
     public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
     {
         return services.AddSingleton<WebAppMiddlewareConfiguration>(serviceProvider =>
-            {
-                var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
-                var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                return new WebAppMiddlewareConfiguration(jsonOptions, environment.IsDevelopment());
-            })
+                {
+                    var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
+                    var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                    return new WebAppMiddlewareConfiguration(jsonOptions, environment.IsDevelopment());
+                }
+            )
             .AddTransient<WebAppMiddleware>();
     }
-
-    [UsedImplicitly]
+    
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder)
     {
         if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return builder;
-
+        
         var webAppConfiguration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
-
+        
         return builder
-            .UseStaticFiles(new StaticFileOptions
-                { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
+            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
             .UseRequestLocalization("en-US", "da-DK")
             .UseMiddleware<WebAppMiddleware>();
     }

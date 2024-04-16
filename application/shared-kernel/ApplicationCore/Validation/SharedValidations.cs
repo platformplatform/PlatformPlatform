@@ -8,7 +8,7 @@ public static class SharedValidations
     {
         // While emails can be longer, we will limit them to 100 characters which should be enough for most cases
         private const int EmailMaxLength = 100;
-
+        
         public Email(string emailName = nameof(Email))
         {
             const string errorMessage = "Email must be in a valid format and no longer than 100 characters.";
@@ -21,14 +21,13 @@ public static class SharedValidations
                 .When(email => !string.IsNullOrEmpty(email));
         }
     }
-
-    [UsedImplicitly]
+    
     public sealed class Phone : AbstractValidator<string?>
     {
         // The ITU-T E.164 standard limits phone numbers to 15 digits (including country code),
         // Additional 5 characters are added to allow for spaces, dashes, parentheses, etc.
         private const int PhoneMaxLength = 20;
-
+        
         public Phone(string phoneName = nameof(Phone))
         {
             const string errorMessage = "Phone must be in a valid format and no longer than 20 characters.";

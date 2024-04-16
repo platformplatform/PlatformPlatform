@@ -3,7 +3,6 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Tenants;
 
-[UsedImplicitly]
 internal sealed class TenantRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<Tenant, TenantId>(accountManagementDbContext), ITenantRepository
 {
