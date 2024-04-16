@@ -22,18 +22,18 @@ public class CodeInspectionsCommand : Command
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
 
         ProcessHelper.StartProcess(
-            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.xml --severity=SUGGESTION",
+            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.json --severity=SUGGESTION",
             workingDirectory
         );
 
-        var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.xml"));
-        if (resultXml.Contains("<Issues />"))
+        var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.json"));
+        if (resultXml.Contains("\"results\": [],"))
         {
             AnsiConsole.MarkupLine("[green]No issues found![/]");
         }
         else
         {
-            ProcessHelper.StartProcess("code result.xml", workingDirectory);
+            ProcessHelper.StartProcess("code result.json", workingDirectory);
         }
 
         return 0;
