@@ -7,11 +7,11 @@
       "commands": ["dotnet-sonarscanner"]
     },
     "jetbrains.dotcover.globaltool": {
-      "version": "2023.2.3",
+      "version": "2023.2.4",
       "commands": ["dotnet-dotcover"]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2023.3.0",
+      "version": "2024.1.0",
       "commands": ["jb"]
     }
   }
