@@ -18,9 +18,13 @@ public static class Configuration
 
     public static readonly string PublishFolder = IsWindows
         ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PlatformPlatform")
+            "PlatformPlatform"
+        )
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".PlatformPlatform");
+            ".PlatformPlatform"
+        );
+
+    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
@@ -62,12 +66,14 @@ public static class Configuration
         {
             Directory.Delete(PublishFolder, true);
             AnsiConsole.MarkupLine(
-                $"[red]Invalid configuration. The {PublishFolder} has been deleted. Please try again.[/]");
+                $"[red]Invalid configuration. The {PublishFolder} has been deleted. Please try again.[/]"
+            );
         }
         else
         {
             AnsiConsole.MarkupLine(
-                "[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]");
+                "[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]"
+            );
         }
 
         Environment.Exit(1);
@@ -124,7 +130,6 @@ public static class Configuration
             Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
 
         private static string AliasLineRepresentation => $"alias {AliasName}='{CliPath}'";
-
 
         internal static bool IsAliasRegisteredMacOs()
         {
@@ -186,8 +191,6 @@ public static class Configuration
             return (shellName, profileName, profilePath);
         }
     }
-
-    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 }
 
 public class ConfigurationSetting

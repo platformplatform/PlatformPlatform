@@ -98,7 +98,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         var githubInfo = new GithubInfo(gitRemoteMatches.Groups["url"].Value);
 
         var githubVariablesJson = ProcessHelper.StartProcess(
-            $"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true);
+            $"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true
+        );
 
         var githubVariables = JsonDocument.Parse(githubVariablesJson);
         foreach (var variable in githubVariables.RootElement.GetProperty("variables").EnumerateArray())
@@ -164,7 +165,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         var title = "[bold]Please select an Azure subscription[/]";
         var selectedDisplayName = AnsiConsole.Prompt(new SelectionPrompt<string>()
             .Title($"{title}")
-            .AddChoices(activeSubscriptions.Select(s => s.Name)));
+            .AddChoices(activeSubscriptions.Select(s => s.Name))
+        );
 
         var selectedSubscriptions = activeSubscriptions.Where(s => s.Name == selectedDisplayName).ToArray();
         if (selectedSubscriptions.Length > 1)
@@ -174,7 +176,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         var subscription = selectedSubscriptions.Single();
-        RunAzureCliCommand($"account set --subscription {subscription.Id}", redirectOutput: false);
+        RunAzureCliCommand($"account set --subscription {subscription.Id}", false);
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
 
@@ -186,19 +188,23 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CollectExistingAppRegistration(AzureInfo azureInfo)
     {
         var appRegistrationId = RunAzureCliCommand(
-            $"""ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""").Trim();
+            $"""ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv"""
+        ).Trim();
 
         var servicePrincipalId = RunAzureCliCommand(
-            $"""ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv""").Trim();
+            $"""ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv"""
+        ).Trim();
 
         var servicePrincipalObjectId = RunAzureCliCommand(
-            $"""ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv""").Trim();
+            $"""ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv"""
+        ).Trim();
 
         if (appRegistrationId != string.Empty && servicePrincipalId != string.Empty)
         {
             azureInfo.AppRegistrationExists = true;
             AnsiConsole.MarkupLine(
-                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {servicePrincipalId}[/]");
+                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {servicePrincipalId}[/]"
+            );
 
             if (AnsiConsole.Confirm("The existing App Registration will be reused. Do you want to continue?"))
             {
@@ -216,7 +222,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         if (appRegistrationId != string.Empty || servicePrincipalId != string.Empty)
         {
             AnsiConsole.MarkupLine(
-                $"[red]The App Registration or Service Principal '{azureInfo.AppRegistrationName}' exists but not both. Please manually delete and retry.[/]");
+                $"[red]The App Registration or Service Principal '{azureInfo.AppRegistrationName}' exists but not both. Please manually delete and retry.[/]"
+            );
             Environment.Exit(1);
         }
     }
@@ -224,7 +231,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
     {
         azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv""")
+                $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
+            )
             .Trim();
 
         if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
@@ -234,7 +242,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         AnsiConsole.MarkupLine(
-            $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]");
+            $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]"
+        );
 
         if (AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?"))
         {
@@ -255,7 +264,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         while (true)
         {
             var registryName = AnsiConsole.Ask("[bold]Please enter a unique name for the Azure Container Registry.[/]",
-                existingContainerRegistryName);
+                existingContainerRegistryName
+            );
 
             //  Check whether the Azure Container Registry name is available
             var checkAvailability = RunAzureCliCommand($"acr check-name --name {registryName}");
@@ -280,7 +290,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureInfo.Subscription.Id) == true)
                 {
                     AnsiConsole.MarkupLine(
-                        $"[yellow]The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]");
+                        $"[yellow]The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]"
+                    );
                     AnsiConsole.WriteLine();
                     azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
                     return;
@@ -288,14 +299,16 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
 
             AnsiConsole.MarkupLine(
-                $"[red]ERROR:[/]The Azure Container Registry {registryName} is invalid or already exists. Please try again.");
+                $"[red]ERROR:[/]The Azure Container Registry {registryName} is invalid or already exists. Please try again."
+            );
         }
     }
 
     private void CollectDomainNames(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         AnsiConsole.MarkupLine(
-            "You can configure a custom domain name for both production and staging environments. During deployment you will be asked to configure DNS records, after which a valid certificate will automatically be generated and configured.");
+            "You can configure a custom domain name for both production and staging environments. During deployment you will be asked to configure DNS records, after which a valid certificate will automatically be generated and configured."
+        );
 
         githubInfo.Variables.TryGetValue("DOMAIN_NAME_PRODUCTION", out var domainNameProduction);
         azureInfo.ProductionDomainName = GetValidDomainName("production", domainNameProduction);
@@ -333,7 +346,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 }
 
                 AnsiConsole.MarkupLine(
-                    $"[red]ERROR:[/]The domain name {domainName} is not a valid host name. Please try again.");
+                    $"[red]ERROR:[/]The domain name {domainName} is not a valid host name. Please try again."
+                );
             }
         }
     }
@@ -343,7 +357,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         githubInfo.Variables.TryGetValue("UNIQUE_CLUSTER_PREFIX", out var uniquePrefix);
 
         AnsiConsole.MarkupLine(
-            "When creating Azure resources like SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'`.");
+            "When creating Azure resources like SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'`."
+        );
 
         var defaultValue = uniquePrefix ?? githubInfo.OrganizationName.ToLower()
             .Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
@@ -363,7 +378,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
             return;
         }
     }
-
 
     private void LoginToGithub()
     {
@@ -422,11 +436,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         RunAzureCliCommand(
             $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
-            redirectOutput: !Configuration.VerboseLogging
+            !Configuration.VerboseLogging
         );
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
+            "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]"
+        );
     }
 
     private void CreateAppRegistrationIfNotExists(AzureInfo azureInfo)
@@ -434,16 +449,20 @@ public class ConfigureContinuousDeploymentsCommand : Command
         if (azureInfo.AppRegistrationExists) return;
 
         azureInfo.AppRegistrationId = RunAzureCliCommand(
-            $"""ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv""").Trim();
+            $"""ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv"""
+        ).Trim();
 
         azureInfo.ServicePrincipalId = RunAzureCliCommand(
-            $"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv").Trim();
+            $"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv"
+        ).Trim();
 
         azureInfo.ServicePrincipalObjectId = RunAzureCliCommand(
-            $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv""").Trim();
+            $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv"""
+        ).Trim();
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created an App Registration {azureInfo.AppRegistrationName} ({azureInfo.AppRegistrationId}).[/]");
+            $"[green]Successfully created an App Registration {azureInfo.AppRegistrationName} ({azureInfo.AppRegistrationId}).[/]"
+        );
     }
 
     private void CreateFederatedCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
@@ -455,27 +474,30 @@ public class ConfigureContinuousDeploymentsCommand : Command
         CreateFederatedCredential("ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]");
+            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]"
+        );
 
         void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
         {
             var parameters = JsonSerializer.Serialize(new
-            {
-                name = displayName,
-                issuer = "https://token.actions.githubusercontent.com",
-                subject = $"""repo:{githubInfo.Path}:{refRefsHeadsMain}""",
-                audiences = new[] { "api://AzureADTokenExchange" }
-            });
+                {
+                    name = displayName,
+                    issuer = "https://token.actions.githubusercontent.com",
+                    subject = $"""repo:{githubInfo.Path}:{refRefsHeadsMain}""",
+                    audiences = new[] { "api://AzureADTokenExchange" }
+                }
+            );
 
             ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
-                Arguments =
-                    $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {azureInfo.AppRegistrationId} --parameters  @-",
-                RedirectStandardInput = true,
-                RedirectStandardOutput = !Configuration.VerboseLogging,
-                RedirectStandardError = !Configuration.VerboseLogging
-            }, parameters);
+                {
+                    FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                    Arguments =
+                        $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {azureInfo.AppRegistrationId} --parameters  @-",
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = !Configuration.VerboseLogging,
+                    RedirectStandardError = !Configuration.VerboseLogging
+                }, parameters
+            );
         }
     }
 
@@ -486,13 +508,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
         GrantAccess("AcrPush");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully granted Service Principal ({azureInfo.ServicePrincipalId}) 'Contributor' and `User Access Administrator` rights to Azure Subscription.[/]");
+            $"[green]Successfully granted Service Principal ({azureInfo.ServicePrincipalId}) 'Contributor' and `User Access Administrator` rights to Azure Subscription.[/]"
+        );
 
         void GrantAccess(string role)
         {
             RunAzureCliCommand(
                 $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
-                redirectOutput: !Configuration.VerboseLogging
+                !Configuration.VerboseLogging
             );
         }
     }
@@ -502,36 +525,47 @@ public class ConfigureContinuousDeploymentsCommand : Command
         if (!azureInfo.SqlAdminsSecurityGroupExists)
         {
             azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                    $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv""")
+                    $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
+                )
                 .Trim();
         }
 
         RunAzureCliCommand(
             $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
-            redirectOutput: !Configuration.VerboseLogging);
+            !Configuration.VerboseLogging
+        );
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]");
+            $"[green]Successfully created AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]"
+        );
     }
 
     private void CreateGithubSecretsAndVariables(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         ProcessHelper.StartProcess(
-            $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}");
+            $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh secret set AZURE_SUBSCRIPTION_ID -b\"{azureInfo.Subscription.Id}\" --repo={githubInfo.Path}");
+            $"gh secret set AZURE_SUBSCRIPTION_ID -b\"{azureInfo.Subscription.Id}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh secret set AZURE_SERVICE_PRINCIPAL_ID -b\"{azureInfo.AppRegistrationId}\" --repo={githubInfo.Path}");
+            $"gh secret set AZURE_SERVICE_PRINCIPAL_ID -b\"{azureInfo.AppRegistrationId}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b\"{azureInfo.SqlAdminsSecurityGroupId}\" --repo={githubInfo.Path}");
+            $"gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b\"{azureInfo.SqlAdminsSecurityGroupId}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh variable set CONTAINER_REGISTRY_NAME -b\"{azureInfo.ContainerRegistry.Name}\" --repo={githubInfo.Path}");
+            $"gh variable set CONTAINER_REGISTRY_NAME -b\"{azureInfo.ContainerRegistry.Name}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}");
+            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}");
+            $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}"
+        );
         ProcessHelper.StartProcess(
-            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}");
+            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}"
+        );
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
     }
@@ -552,7 +586,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]");
+            "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]"
+        );
     }
 
     private void ShowSuccessMessage(GithubInfo githubInfo)
@@ -588,7 +623,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.MarkupLine($"{setupIntroPrompt}");
         AnsiConsole.WriteLine();
     }
-
 
     private void PrintHeader(string heading)
     {

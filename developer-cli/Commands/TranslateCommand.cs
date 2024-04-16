@@ -20,7 +20,8 @@ public class TranslateCommand : Command
 
     public TranslateCommand() : base(
         "translate",
-        $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}")
+        $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}"
+    )
     {
         var languageOption = new Option<string?>(
             ["<language>", "--language", "-l"],
@@ -66,7 +67,8 @@ public class TranslateCommand : Command
             .GetFiles("*.po", SearchOption.AllDirectories)
             .Where(f => !f.FullName.Contains("node_modules") &&
                         !f.FullName.EndsWith("en-US.po") &&
-                        !f.FullName.EndsWith("pseudo.po"))
+                        !f.FullName.EndsWith("pseudo.po")
+            )
             .ToDictionary(s => s.FullName.Replace(workingDirectory.FullName, ""), f => f);
 
         if (language is not null)
@@ -94,21 +96,22 @@ public class TranslateCommand : Command
         );
 
         await AnsiConsole.Status().StartAsync("Checking base model...", async context =>
-        {
-            var models = (await ollamaApiClient.ListLocalModels()).ToArray();
-            var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{ModelName}:"));
-
-            context.Status("Checking base model.");
-            if (baseModel is null)
             {
-                context.Status("Downloading base model.");
-                await ollamaApiClient.PullModel(
-                    ModelName,
-                    status => context.Status($"({status.Percent}%) ## {status.Status}")
-                );
-                AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
+                var models = (await ollamaApiClient.ListLocalModels()).ToArray();
+                var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{ModelName}:"));
+
+                context.Status("Checking base model.");
+                if (baseModel is null)
+                {
+                    context.Status("Downloading base model.");
+                    await ollamaApiClient.PullModel(
+                        ModelName,
+                        status => context.Status($"({status.Percent}%) ## {status.Status}")
+                    );
+                    AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
+                }
             }
-        });
+        );
 
         var poParseResult = await ReadTranslationFile(translationFile);
 
@@ -116,70 +119,72 @@ public class TranslateCommand : Command
         AnsiConsole.MarkupLine($"Language detected: {poCatalog.Language}");
 
         await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
-        {
-            var missingTranslations = new List<POKey>();
-            var messages = new List<Message>
             {
-                new()
+                var missingTranslations = new List<POKey>();
+                var messages = new List<Message>
                 {
-                    Role = "system",
-                    Content = $"""
-                               You are a translation service translating from English to {poCatalog.Language}.
-                               Return only the translation, not the original text or any other information.
-                               """
-                }
-            };
+                    new()
+                    {
+                        Role = "system",
+                        Content = $"""
+                                   You are a translation service translating from English to {poCatalog.Language}.
+                                   Return only the translation, not the original text or any other information.
+                                   """
+                    }
+                };
 
-            foreach (var key in poCatalog.Keys)
-            {
-                var translation = poCatalog.GetTranslation(key);
-                if (translation.Length == 0)
+                foreach (var key in poCatalog.Keys)
                 {
-                    missingTranslations.Add(key);
+                    var translation = poCatalog.GetTranslation(key);
+                    if (translation.Length == 0)
+                    {
+                        missingTranslations.Add(key);
+                    }
+                    else
+                    {
+                        messages.Add(new Message { Role = "user", Content = key.Id });
+                        messages.Add(new Message { Role = "assistant", Content = translation });
+                    }
                 }
-                else
+
+                AnsiConsole.MarkupLine($"Keys missing translation: {missingTranslations.Count}");
+                if (missingTranslations.Count == 0)
                 {
+                    AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
+                    return;
+                }
+
+                for (var index = 0; index < missingTranslations.Count; index++)
+                {
+                    var key = missingTranslations[index];
+                    var content = "";
+
+                    AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
+                    context.Status($"Translating {index + 1}/{missingTranslations.Count} (thinking...)");
+
                     messages.Add(new Message { Role = "user", Content = key.Id });
-                    messages.Add(new Message { Role = "assistant", Content = translation });
+
+                    messages = (await ollamaApiClient.SendChat(new ChatRequest
+                        {
+                            Model = ModelName,
+                            Messages = messages
+                        }, status =>
+                        {
+                            content += status.Message?.Content ?? "";
+                            var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
+
+                            context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
+                        }
+                    )).ToList();
+
+                    UpdateCatalogTranslation(poCatalog, key, messages.Last().Content);
                 }
+
+                AnsiConsole.MarkupLine("[green]Translation completed.[/]");
+
+                await WriteTranslationFile(translationFile, poCatalog);
             }
-
-            AnsiConsole.MarkupLine($"Keys missing translation: {missingTranslations.Count}");
-            if (missingTranslations.Count == 0)
-            {
-                AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
-                return;
-            }
-
-            for (var index = 0; index < missingTranslations.Count; index++)
-            {
-                var key = missingTranslations[index];
-                var content = "";
-
-                AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
-                context.Status($"Translating {index + 1}/{missingTranslations.Count} (thinking...)");
-
-                messages.Add(new Message { Role = "user", Content = key.Id });
-
-                messages = (await ollamaApiClient.SendChat(new ChatRequest
-                {
-                    Model = ModelName,
-                    Messages = messages
-                }, status =>
-                {
-                    content += status.Message?.Content ?? "";
-                    var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
-
-                    context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
-                })).ToList();
-
-                UpdateCatalogTranslation(poCatalog, key, messages.Last().Content);
-            }
-
-            AnsiConsole.MarkupLine("[green]Translation completed.[/]");
-
-            await WriteTranslationFile(translationFile, poCatalog);
-        });
+        );
     }
 
     private static async Task<POParseResult> ReadTranslationFile(string translationFile)

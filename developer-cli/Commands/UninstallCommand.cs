@@ -11,7 +11,8 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base(
         "uninstall",
-        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD environment variable.")
+        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD environment variable."
+    )
     {
         Handler = CommandHandler.Create(Execute);
     }
@@ -21,7 +22,8 @@ public class UninstallCommand : Command
         if (Configuration.IsWindows && !Configuration.IsDebugMode)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]Please run 'dotnet run uninstall' from {Configuration.GetSourceCodeFolder()}.[/]");
+                $"[yellow]Please run 'dotnet run uninstall' from {Configuration.GetSourceCodeFolder()}.[/]"
+            );
             Environment.Exit(0);
         }
 
