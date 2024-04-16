@@ -97,9 +97,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         var githubInfo = new GithubInfo(gitRemoteMatches.Groups["url"].Value);
 
-        var githubVariablesJson = ProcessHelper.StartProcess(
-            $"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true
-        );
+        var githubVariablesJson = ProcessHelper.StartProcess($"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true);
 
         var githubVariables = JsonDocument.Parse(githubVariablesJson);
         foreach (var variable in githubVariables.RootElement.GetProperty("variables").EnumerateArray())
@@ -231,9 +229,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
     {
         azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
-            )
-            .Trim();
+            $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
+        ).Trim();
 
         if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
         {
@@ -263,7 +260,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         while (true)
         {
-            var registryName = AnsiConsole.Ask("[bold]Please enter a unique name for the Azure Container Registry.[/]",
+            var registryName = AnsiConsole.Ask(
+                "[bold]Please enter a unique name for the Azure Container Registry.[/]",
                 existingContainerRegistryName
             );
 
@@ -278,8 +276,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
 
             // Checks if the Azure Container Registry is a resource under the current subscription
-            var showExistingRegistry =
-                RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id}");
+            var showExistingRegistry = RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id}");
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
@@ -319,7 +316,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
             ?? (azureInfo.ProductionDomainName == "-" ? null : $"staging.{azureInfo.ProductionDomainName}")
         );
         azureInfo.StagingDomainName = domainNameStaging;
-        return;
 
         string GetValidDomainName(string displayName, string? defaultDomainName = "")
         {
@@ -360,8 +356,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
             "When creating Azure resources like SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'`."
         );
 
-        var defaultValue = uniquePrefix ?? githubInfo.OrganizationName.ToLower()
-            .Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
+        var defaultValue = uniquePrefix
+                           ?? githubInfo.OrganizationName.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
 
         while (true)
         {
@@ -439,9 +435,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             !Configuration.VerboseLogging
         );
 
-        AnsiConsole.MarkupLine(
-            "[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]"
-        );
+        AnsiConsole.MarkupLine("[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
     }
 
     private void CreateAppRegistrationIfNotExists(AzureInfo azureInfo)
@@ -525,9 +519,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         if (!azureInfo.SqlAdminsSecurityGroupExists)
         {
             azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                    $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
-                )
-                .Trim();
+                $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
+            ).Trim();
         }
 
         RunAzureCliCommand(

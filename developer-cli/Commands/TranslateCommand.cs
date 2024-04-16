@@ -61,8 +61,7 @@ public class TranslateCommand : Command
 
     private string GetTranslationFile(string? language)
     {
-        var workingDirectory =
-            new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
+        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
         var translationFiles = workingDirectory
             .GetFiles("*.po", SearchOption.AllDirectories)
             .Where(f => !f.FullName.Contains("node_modules") &&
@@ -76,8 +75,8 @@ public class TranslateCommand : Command
             var translationFile = translationFiles.Values
                 .FirstOrDefault(f => f.Name.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
 
-            return translationFile?.FullName ??
-                   throw new InvalidOperationException($"Translation file for language '{language}' not found.");
+            return translationFile?.FullName
+                   ?? throw new InvalidOperationException($"Translation file for language '{language}' not found.");
         }
 
         var prompt = new SelectionPrompt<string>()
@@ -164,15 +163,12 @@ public class TranslateCommand : Command
 
                     messages.Add(new Message { Role = "user", Content = key.Id });
 
-                    messages = (await ollamaApiClient.SendChat(new ChatRequest
-                        {
-                            Model = ModelName,
-                            Messages = messages
-                        }, status =>
+                    messages = (await ollamaApiClient.SendChat(
+                        new ChatRequest { Model = ModelName, Messages = messages },
+                        status =>
                         {
                             content += status.Message?.Content ?? "";
                             var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
-
                             context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
                         }
                     )).ToList();
@@ -192,7 +188,7 @@ public class TranslateCommand : Command
         var translationContent = await File.ReadAllTextAsync(translationFile);
         var poParser = new POParser();
         var poParseResult = poParser.Parse(new StringReader(translationContent));
-        if (poParseResult.Success == false)
+        if (!poParseResult.Success)
         {
             throw new InvalidOperationException($"Failed to parse PO file. {poParseResult.Diagnostics}");
         }

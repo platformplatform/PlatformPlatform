@@ -6,13 +6,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
-public record Prerequisite(
-    PrerequisiteType Type,
-    string Name,
-    string? DisplayName = null,
-    Version? Version = null,
-    string? Regex = null
-);
+public record Prerequisite(PrerequisiteType Type, string Name, string? DisplayName = null, Version? Version = null, string? Regex = null);
 
 public enum PrerequisiteType
 {
@@ -93,12 +87,9 @@ public static class PrerequisitesChecker
 
         var possibleFileLocations = checkOutput.Split(Environment.NewLine);
 
-        if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() ||
-            !File.Exists(possibleFileLocations[0]))
+        if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() || !File.Exists(possibleFileLocations[0]))
         {
-            AnsiConsole.MarkupLine(
-                $"[red]{displayName} of minimum version {minVersion} should be installed.[/]"
-            );
+            AnsiConsole.MarkupLine($"[red]{displayName} of minimum version {minVersion} should be installed.[/]");
 
             return false;
         }

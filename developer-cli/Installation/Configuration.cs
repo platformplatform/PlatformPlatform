@@ -11,18 +11,13 @@ public static class Configuration
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
-    private static readonly string UserFolder =
-        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
     public static readonly string LocalhostPfx = IsWindows ? Windows.LocalhostPfxWindows : MacOs.LocalhostPfxMacOs;
 
     public static readonly string PublishFolder = IsWindows
-        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PlatformPlatform"
-        )
-        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".PlatformPlatform"
-        );
+        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PlatformPlatform")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),".PlatformPlatform");
 
     public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 
@@ -65,15 +60,11 @@ public static class Configuration
         if (IsDebugMode)
         {
             Directory.Delete(PublishFolder, true);
-            AnsiConsole.MarkupLine(
-                $"[red]Invalid configuration. The {PublishFolder} has been deleted. Please try again.[/]"
-            );
+            AnsiConsole.MarkupLine($"[red]Invalid configuration. The {PublishFolder} has been deleted. Please try again.[/]");
         }
         else
         {
-            AnsiConsole.MarkupLine(
-                "[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]"
-            );
+            AnsiConsole.MarkupLine("[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]");
         }
 
         Environment.Exit(1);
@@ -126,8 +117,7 @@ public static class Configuration
     {
         public static readonly string LocalhostPfxMacOs = $"{UserFolder}/.aspnet/https/localhost.pfx";
 
-        private static string CliPath =>
-            Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
+        private static string CliPath => Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
 
         private static string AliasLineRepresentation => $"alias {AliasName}='{CliPath}'";
 

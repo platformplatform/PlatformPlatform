@@ -21,10 +21,7 @@ public class CodeInspectionsCommand : Command
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
 
-        ProcessHelper.StartProcess(
-            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.json --severity=SUGGESTION",
-            workingDirectory
-        );
+        ProcessHelper.StartProcess("dotnet jb inspectcode PlatformPlatform.sln --build --output=result.json --severity=SUGGESTION", workingDirectory);
 
         var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.json"));
         if (resultXml.Contains("\"results\": [],"))

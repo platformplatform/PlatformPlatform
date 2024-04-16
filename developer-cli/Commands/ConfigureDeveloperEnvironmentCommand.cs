@@ -54,13 +54,9 @@ public class ConfigureDeveloperEnvironmentCommand : Command
                 return false;
             }
 
-            if (!AnsiConsole.Confirm(
-                    "Existing certificate exists, but the password is unknown. A new developer certificate will be created and the password will be stored in an environment variable."
-                ))
+            if (!AnsiConsole.Confirm("Existing certificate exists, but the password is unknown. A new developer certificate will be created and the password will be stored in an environment variable."))
             {
-                AnsiConsole.MarkupLine(
-                    "[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]"
-                );
+                AnsiConsole.MarkupLine("[red]Debugging PlatformPlatform will not work as the password for the Localhost certificate is unknown.[/]");
                 Environment.Exit(1);
             }
 
