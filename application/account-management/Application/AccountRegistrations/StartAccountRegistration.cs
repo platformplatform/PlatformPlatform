@@ -20,6 +20,21 @@ public sealed record StartAccountRegistrationCommand(string Subdomain, string Em
     }
 }
 
+public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
+{
+    public StartAccountRegistrationValidator(ITenantRepository tenantRepository)
+    {
+        RuleFor(x => x.Subdomain).NotEmpty();
+        RuleFor(x => x.Subdomain)
+            .Matches("^[a-z0-9]{3,30}$")
+            .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
+            .WithMessage("The subdomain is not available.")
+            .When(x => !string.IsNullOrEmpty(x.Subdomain));
+        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+    }
+}
+
 public sealed class StartAccountRegistrationCommandHandler(
     IAccountRegistrationRepository accountRegistrationRepository,
     IEmailService emailService,
@@ -72,20 +87,5 @@ public sealed class StartAccountRegistrationCommandHandler(
         }
         
         return oneTimePassword.ToString();
-    }
-}
-
-public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
-{
-    public StartAccountRegistrationValidator(ITenantRepository tenantRepository)
-    {
-        RuleFor(x => x.Subdomain).NotEmpty();
-        RuleFor(x => x.Subdomain)
-            .Matches("^[a-z0-9]{3,30}$")
-            .WithMessage("Subdomain must be between 3-30 alphanumeric and lowercase characters.")
-            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
-            .WithMessage("The subdomain is not available.")
-            .When(x => !string.IsNullOrEmpty(x.Subdomain));
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }

@@ -14,6 +14,8 @@ public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Res
     public required string Email { get; init; }
 }
 
+public sealed class UpdateUserValidator : UserValidator<UpdateUserCommand>;
+
 public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateUserCommand, Result>
 {
@@ -30,5 +32,3 @@ public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetry
         return Result.Success();
     }
 }
-
-public sealed class UpdateUserValidator : UserValidator<UpdateUserCommand>;

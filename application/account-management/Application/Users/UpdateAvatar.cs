@@ -10,6 +10,20 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;
 
+public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
+{
+    public UpdateAvatarValidator()
+    {
+        RuleFor(x => x.ContentType)
+            .Must(x => x == "image/jpeg")
+            .WithMessage(_ => "Image must be of type Jpeg.");
+        
+        RuleFor(x => x.FileSteam.Length)
+            .LessThanOrEqualTo(1024 * 1024)
+            .WithMessage(_ => "Image must be less than 1MB.");
+    }
+}
+
 public sealed class UpdateAvatarHandler(
     IUserRepository userRepository,
     [FromKeyedServices("avatars-storage")] IBlobStorage blobStorage,
@@ -44,19 +58,5 @@ public sealed class UpdateAvatarHandler(
         fileStream.Position = 0;
         // This just need to be unique for one user, who likely will ever have one avatar, so 16 chars should be enough
         return BitConverter.ToString(hashBytes).Replace("-", "")[..16].ToUpper();
-    }
-}
-
-public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
-{
-    public UpdateAvatarValidator()
-    {
-        RuleFor(x => x.ContentType)
-            .Must(x => x == "image/jpeg")
-            .WithMessage(_ => "Image must be of type Jpeg.");
-        
-        RuleFor(x => x.FileSteam.Length)
-            .LessThanOrEqualTo(1024 * 1024)
-            .WithMessage(_ => "Image must be less than 1MB.");
     }
 }
