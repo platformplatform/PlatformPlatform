@@ -6,6 +6,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using PlatformPlatform.SharedKernel.ApiCore.Filters;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Aspire;
 
@@ -36,13 +37,11 @@ public static class ServiceDefaultsExtensions
     {
         builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
             {
-                // Exclude the following health check endpoints from tracing in OpenTelemetry
-                string[] excludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
                 options.Filter = httpContext =>
                 {
                     // Add filtering to exclude health check endpoints
                     var requestPath = httpContext.Request.Path.ToString();
-                    return !Array.Exists(excludedPaths, requestPath.StartsWith);
+                    return !Array.Exists(EndpointTelemetryFilter.ExcludedPaths, requestPath.StartsWith);
                 };
             }
         );
