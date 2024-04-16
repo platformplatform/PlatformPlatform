@@ -9,9 +9,9 @@ public interface IBlobStorage
         Stream stream,
         CancellationToken cancellationToken
     );
-
+    
     [UsedImplicitly]
     string GetBlobUrl(string container, string blobName);
-
+    
     string GetSharedAccessSignature(string container, TimeSpan expiresIn);
 }

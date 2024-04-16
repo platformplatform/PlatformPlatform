@@ -21,13 +21,13 @@ public static class ApplicationCoreConfiguration
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
         services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
         services.AddScoped<ConcurrentCommandCounter>();
-
+        
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddNonGenericValidators(applicationAssembly);
-
+        
         return services;
     }
-
+    
     /// <summary>
     ///     Registers all non-generic and non-abstract validators in the specified assembly. This is necessary because
     ///     services.AddValidatorsFromAssembly() includes registration of generic and abstract validators.
@@ -39,7 +39,7 @@ public static class ApplicationCoreConfiguration
             .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new { type, interfaceType })
             .Where(t => t.interfaceType.IsGenericType &&
                         t.interfaceType.GetGenericTypeDefinition() == typeof(IValidator<>));
-
+        
         foreach (var validator in validators)
         {
             services.AddTransient(validator.interfaceType, validator.type);

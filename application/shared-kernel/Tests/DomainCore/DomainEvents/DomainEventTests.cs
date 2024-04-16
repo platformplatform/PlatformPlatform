@@ -11,7 +11,7 @@ public sealed class DomainEventTests
     {
         // Act
         var testAggregate = TestAggregate.Create("test");
-
+        
         // Assert
         testAggregate.DomainEvents.Count.Should().Be(1);
         var domainEvent = (TestAggregateCreatedEvent)testAggregate.DomainEvents.Single();

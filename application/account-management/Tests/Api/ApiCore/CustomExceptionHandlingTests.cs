@@ -10,7 +10,7 @@ namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
 public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
-
+    
     [Theory]
     [InlineData("Development")]
     [InlineData("Production")]
@@ -26,10 +26,10 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
                 Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
             });
         }).CreateClient();
-
+        
         // Act
         var response = await client.GetAsync("/api/throwException");
-
+        
         // Assert
         if (environment == "Development")
         {
@@ -50,7 +50,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
             );
         }
     }
-
+    
     [Theory]
     [InlineData("Development")]
     [InlineData("Production")]
@@ -68,10 +68,10 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
                 Environment.SetEnvironmentVariable("TestEndpointsEnabled", "true");
             });
         }).CreateClient();
-
+        
         // Act
         var response = await client.GetAsync("/api/throwTimeoutException");
-
+        
         // Assert
         if (environment == "Development")
         {

@@ -15,9 +15,9 @@ public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler>
             true
         );
         var result = await mediator.Send(createTenantOwnerCommand, cancellationToken);
-
+        
         if (!result.IsSuccess) throw new UnreachableException($"Create Tenant Owner: {result.GetErrorSummary()}");
-
+        
         logger.LogInformation("Raise event to send Welcome mail to tenant.");
     }
 }

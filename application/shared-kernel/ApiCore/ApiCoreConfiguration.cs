@@ -22,10 +22,10 @@ namespace PlatformPlatform.SharedKernel.ApiCore;
 public static class ApiCoreConfiguration
 {
     private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
-
+    
     private static readonly string LocalhostUrl =
         Environment.GetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey)!;
-
+    
     [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(
         this IServiceCollection services,
@@ -39,38 +39,38 @@ public static class ApiCoreConfiguration
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime());
-
+        
         services
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer();
-
+        
         var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
         {
             EnableRequestTrackingTelemetryModule = false,
             EnableDependencyTrackingTelemetryModule = false,
             RequestCollectionOptions = { TrackExceptions = false }
         };
-
+        
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
-
+        
         services.AddOpenApiDocument((settings, serviceProvider) =>
         {
             settings.DocumentName = "v1";
             settings.Title = "PlatformPlatform API";
             settings.Version = "v1";
-
+            
             var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
             var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
             options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
-
+            
             // Ensure that enums are serialized as strings and use CamelCase
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
+            
             settings.PostProcess = document =>
             {
                 // Find all strongly typed IDs
@@ -78,7 +78,7 @@ public static class ApiCoreConfiguration
                     .Where(t => typeof(IStronglyTypedId).IsAssignableFrom(t))
                     .Select(t => t.Name)
                     .ToList();
-
+                
                 // Ensure the Swagger UI to correctly display strongly typed IDs as plain text instead of complex objects
                 foreach (var stronglyTypedIdName in stronglyTypedIdNames)
                 {
@@ -88,14 +88,14 @@ public static class ApiCoreConfiguration
                 }
             };
         });
-
+        
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
         {
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
-
+        
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
         services.Configure<ForwardedHeadersOptions>(options =>
@@ -105,9 +105,9 @@ public static class ApiCoreConfiguration
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
-
+        
         builder.AddServiceDefaults();
-
+        
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options => options.AddPolicy(
@@ -119,10 +119,10 @@ public static class ApiCoreConfiguration
         {
             builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
         }
-
+        
         return services;
     }
-
+    
     [UsedImplicitly]
     public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
         where TDbContext : DbContext
@@ -138,26 +138,26 @@ public static class ApiCoreConfiguration
             // Configure global exception handling for the production environment
             app.UseExceptionHandler(_ => { });
         }
-
+        
         // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before  other middleware.
         app.UseForwardedHeaders();
-
+        
         if (!app.Environment.IsDevelopment())
         {
             // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
             // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
             app.UseHsts();
-
+            
             // Adds middleware for redirecting HTTP Requests to HTTPS
             app.UseHttpsRedirection();
         }
-
+        
         // Enable Swagger UI
         app.UseOpenApi();
         app.UseSwaggerUi();
-
+        
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
-
+        
         // Manually create all endpoints classes to call the MapEndpoints containing the mappings
         using (var scope = app.Services.CreateScope())
         {
@@ -167,9 +167,9 @@ public static class ApiCoreConfiguration
                 endpoint.MapEndpoints(app);
             }
         }
-
+        
         app.Services.ApplyMigrations<TDbContext>();
-
+        
         return app;
     }
 }

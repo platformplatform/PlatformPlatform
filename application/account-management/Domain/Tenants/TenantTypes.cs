@@ -9,7 +9,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
     {
         return Value;
     }
-
+    
     [UsedImplicitly]
     public static bool TryParse(string? value, out TenantId? result)
     {
@@ -18,7 +18,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
             result = new TenantId(value);
             return true;
         }
-
+        
         result = null;
         return false;
     }

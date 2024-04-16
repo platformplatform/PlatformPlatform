@@ -18,12 +18,12 @@ public sealed class RemoveAvatarCommandHandler(
     {
         var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
-
+        
         user.RemoveAvatar();
         userRepository.Update(user);
-
+        
         events.CollectEvent(new UserAvatarRemoved());
-
+        
         return Result.Success();
     }
 }

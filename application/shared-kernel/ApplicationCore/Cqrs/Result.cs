@@ -10,7 +10,7 @@ public abstract class ResultBase
         IsSuccess = true;
         StatusCode = httpStatusCode;
     }
-
+    
     protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
     {
         IsSuccess = false;
@@ -19,17 +19,17 @@ public abstract class ResultBase
         CommitChangesOnFailure = commitChanges;
         Errors = errors;
     }
-
+    
     public bool IsSuccess { get; }
-
+    
     public HttpStatusCode StatusCode { get; }
-
+    
     public ErrorMessage? ErrorMessage { get; }
-
+    
     public bool CommitChangesOnFailure { get; }
-
+    
     public ErrorDetail[]? Errors { get; }
-
+    
     public string GetErrorSummary()
     {
         return ErrorMessage?.Message
@@ -47,50 +47,50 @@ public sealed class Result : ResultBase
     private Result(HttpStatusCode httpStatusCode) : base(httpStatusCode)
     {
     }
-
+    
     [UsedImplicitly]
     public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
         : base(statusCode, errorMessage, commitChanges, errors)
     {
     }
-
+    
     public static Result Success()
     {
         return new Result(HttpStatusCode.NoContent);
     }
-
+    
     public static Result BadRequest(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     [UsedImplicitly]
     public static Result Unauthorized(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     public static Result Forbidden(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     public static Result NotFound(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     [UsedImplicitly]
     public static Result Conflict(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     [UsedImplicitly]
     public static Result TooManyRequests(string message, bool commitChanges = false)
     {
@@ -110,15 +110,15 @@ public sealed class Result<T> : ResultBase
     {
         Value = value;
     }
-
+    
     [UsedImplicitly]
     public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
         : base(statusCode, errorMessage, commitChanges, errors)
     {
     }
-
+    
     public T? Value { get; }
-
+    
     /// <summary>
     ///     Use this to indicate a successful command. There is a implicit conversion from T to
     ///     <see cref="Result{T}" />, so you can also just return T from a command handler.
@@ -127,45 +127,45 @@ public sealed class Result<T> : ResultBase
     {
         return new Result<T>(value, HttpStatusCode.OK);
     }
-
+    
     public static Result<T> BadRequest(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     [UsedImplicitly]
     public static Result<T> Unauthorized(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     [UsedImplicitly]
     public static Result<T> Forbidden(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     public static Result<T> NotFound(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     public static Result<T> Conflict(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     public static Result<T> TooManyRequests(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges,
             Array.Empty<ErrorDetail>());
     }
-
+    
     /// <summary>
     ///     This is an implicit conversion from T to <see cref="Result{T}" />. This is used to easily return a
     ///     successful <see cref="Result{T}" /> from a command handler.

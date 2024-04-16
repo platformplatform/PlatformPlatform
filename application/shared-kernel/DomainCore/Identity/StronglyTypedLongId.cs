@@ -12,7 +12,7 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
         var newValue = IdGenerator.NewId();
         return FormLong(newValue);
     }
-
+    
     [UsedImplicitly]
     public static bool TryParse(string? value, out T? result)
     {
@@ -20,7 +20,7 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
         result = success ? FormLong(parsedValue) : null;
         return success;
     }
-
+    
     private static T FormLong(long newValue)
     {
         return (T)Activator.CreateInstance(

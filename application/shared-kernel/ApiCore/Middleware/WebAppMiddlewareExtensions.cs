@@ -21,14 +21,14 @@ public static class WebAppMiddlewareExtensions
             })
             .AddTransient<WebAppMiddleware>();
     }
-
+    
     [UsedImplicitly]
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder)
     {
         if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return builder;
-
+        
         var webAppConfiguration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
-
+        
         return builder
             .UseStaticFiles(new StaticFileOptions
                 { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })

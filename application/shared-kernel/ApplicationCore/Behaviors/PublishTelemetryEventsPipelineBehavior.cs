@@ -17,7 +17,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
     )
     {
         var response = await next();
-
+        
         if (concurrentCommandCounter.IsZero())
         {
             while (telemetryEventsCollector.HasEvents)
@@ -26,7 +26,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
                 telemetryClient.TrackEvent(telemetryEvent.Name, telemetryEvent.Properties);
             }
         }
-
+        
         return response;
     }
 }

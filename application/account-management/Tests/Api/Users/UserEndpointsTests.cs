@@ -16,13 +16,13 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-
+        
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users/{existingUserId}");
-
+        
         // Assert
         EnsureSuccessGetRequest(response);
-
+        
         var schema = await JsonSchema.FromJsonAsync(
             """
             {
@@ -42,53 +42,53 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
                 'additionalProperties': false
             }
             """);
-
+        
         var responseBody = await response.Content.ReadAsStringAsync();
         schema.Validate(responseBody).Should().BeEmpty();
     }
-
+    
     [Fact]
     public async Task GetUser_WhenUserDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
         var unknownUserId = UserId.NewId();
-
+        
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users/{unknownUserId}");
-
+        
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
-
+    
     [Fact]
     public async Task GetUser_WhenInvalidUserId_ShouldReturnBadRequest()
     {
         // Arrange
         var invalidUserId = Faker.Random.AlphaNumeric(31);
-
+        
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users/{invalidUserId}");
-
+        
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest,
             $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
     }
-
+    
     [Fact]
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser, false);
-
+        
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
+        
         // Assert
         await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
         response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
     }
-
+    
     [Fact]
     public async Task CreateUser_WhenInvalidEmail_ShouldReturnBadRequest()
     {
@@ -96,10 +96,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
         var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.TenantUser, false);
-
+        
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
+        
         // Assert
         var expectedErrors = new[]
         {
@@ -107,7 +107,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
-
+    
     [Fact]
     public async Task CreateUser_WhenUserExists_ShouldReturnBadRequest()
     {
@@ -115,10 +115,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
         var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.TenantUser, false);
-
+        
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
+        
         // Assert
         var expectedErrors = new[]
         {
@@ -129,7 +129,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
-
+    
     [Fact]
     public async Task CreateUser_WhenTenantDoesNotExists_ShouldReturnBadRequest()
     {
@@ -141,10 +141,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
             UserRole.TenantUser,
             false
         );
-
+        
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
-
+        
         // Assert
         var expectedErrors = new[]
         {
@@ -152,21 +152,21 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
-
+    
     [Fact]
     public async Task UpdateUser_WhenValid_ShouldUpdateUser()
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
         var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantOwner };
-
+        
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
-
+        
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
     }
-
+    
     [Fact]
     public async Task UpdateUser_WhenInvalid_ShouldReturnBadRequest()
     {
@@ -174,10 +174,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingUserId = DatabaseSeeder.User1.Id;
         var invalidEmail = Faker.InvalidEmail();
         var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.TenantAdmin };
-
+        
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
-
+        
         // Assert
         var expectedErrors = new[]
         {
@@ -185,43 +185,43 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
-
+    
     [Fact]
     public async Task UpdateUser_WhenUserDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
         var unknownUserId = UserId.NewId();
         var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin };
-
+        
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{unknownUserId}", command);
-
+        
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
-
+    
     [Fact]
     public async Task DeleteUser_WhenUserDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
         var unknownUserId = UserId.NewId();
-
+        
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/users/{unknownUserId}");
-
+        
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
-
+    
     [Fact]
     public async Task DeleteUser_WhenUserExists_ShouldDeleteUser()
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-
+        
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
-
+        
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Users", existingUserId.ToString()).Should().BeFalse();

@@ -19,30 +19,30 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
     where T : AggregateRoot<TId> where TId : IComparable<TId>
 {
     protected readonly DbSet<T> DbSet = context.Set<T>();
-
+    
     public async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken)
     {
         var keyValues = new object?[] { id };
         return await DbSet.FindAsync(keyValues, cancellationToken);
     }
-
+    
     public async Task<bool> ExistsAsync(TId id, CancellationToken cancellationToken)
     {
         return DbSet.Local.Any(e => e.Id.Equals(id)) || await DbSet.AnyAsync(e => e.Id.Equals(id), cancellationToken);
     }
-
+    
     public async Task AddAsync(T aggregate, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
         await DbSet.AddAsync(aggregate, cancellationToken);
     }
-
+    
     public void Update(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
         DbSet.Update(aggregate);
     }
-
+    
     public void Remove(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
