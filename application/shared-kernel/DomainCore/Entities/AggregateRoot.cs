@@ -16,7 +16,7 @@ public interface IAggregateRoot : IAuditableEntity
 {
     IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
     
-    void ClearDomainEvents();
+    IDomainEvent[] GetAndClearDomainEvents();
 }
 
 public abstract class AggregateRoot<T>(T id) : AudibleEntity<T>(id), IAggregateRoot where T : IComparable<T>
@@ -26,9 +26,11 @@ public abstract class AggregateRoot<T>(T id) : AudibleEntity<T>(id), IAggregateR
     [NotMapped]
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
     
-    public void ClearDomainEvents()
+    public IDomainEvent[] GetAndClearDomainEvents()
     {
+        var domainEvents = _domainEvents.ToArray();
         _domainEvents.Clear();
+        return domainEvents;
     }
     
     protected void AddDomainEvent(IDomainEvent domainEvent)

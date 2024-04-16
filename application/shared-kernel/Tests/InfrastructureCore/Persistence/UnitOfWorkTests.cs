@@ -32,7 +32,7 @@ public sealed class UnitOfWorkTests : IDisposable
         
         // Act
         _testDbContext.TestAggregates.Add(newTestAggregate);
-        newTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+        _ = newTestAggregate.GetAndClearDomainEvents(); // Simulate that domain events have been handled
         await _unitOfWork.CommitAsync(CancellationToken.None);
         
         // Assert
@@ -46,7 +46,7 @@ public sealed class UnitOfWorkTests : IDisposable
         // Arrange
         var newTestAggregate = TestAggregate.Create("TestAggregate");
         _testDbContext.TestAggregates.Add(newTestAggregate);
-        newTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+        _ = newTestAggregate.GetAndClearDomainEvents(); // Simulate that domain events have been handled
         await _unitOfWork.CommitAsync(CancellationToken.None);
         var initialCreatedAt = newTestAggregate.CreatedAt;
         
@@ -76,7 +76,7 @@ public sealed class UnitOfWorkTests : IDisposable
     {
         // Arrange
         var nonExistingTestAggregate = TestAggregate.Create("NonExistingTestAggregate");
-        nonExistingTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+        _ = nonExistingTestAggregate.GetAndClearDomainEvents(); // Simulate that domain events have been handled
         
         // Act
         _testDbContext.TestAggregates.Update(nonExistingTestAggregate);
@@ -90,7 +90,7 @@ public sealed class UnitOfWorkTests : IDisposable
     {
         // Arrange
         var nonExistingTestAggregate = TestAggregate.Create("NonExistingTestAggregate");
-        nonExistingTestAggregate.ClearDomainEvents(); // Simulate that domain events have been handled
+        _ = nonExistingTestAggregate.GetAndClearDomainEvents(); // Simulate that domain events have been handled
         
         // Act
         _testDbContext.TestAggregates.Remove(nonExistingTestAggregate);
