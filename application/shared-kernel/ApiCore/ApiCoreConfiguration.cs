@@ -26,7 +26,6 @@ public static class ApiCoreConfiguration
     private static readonly string LocalhostUrl =
         Environment.GetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey)!;
     
-    [UsedImplicitly]
     public static IServiceCollection AddApiCoreServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
@@ -128,7 +127,6 @@ public static class ApiCoreConfiguration
         return services;
     }
     
-    [UsedImplicitly]
     public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
         where TDbContext : DbContext
     {

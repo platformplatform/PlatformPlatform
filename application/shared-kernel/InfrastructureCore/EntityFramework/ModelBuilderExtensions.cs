@@ -11,7 +11,6 @@ public static class ModelBuilderExtensions
     ///     This method is used to tell Entity Framework how to map a strongly typed ID to a SQL column using the
     ///     underlying type of the strongly-typed ID.
     /// </summary>
-    [UsedImplicitly]
     public static void MapStronglyTypedLongId<T, TId>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
         where T : class where TId : StronglyTypedLongId<TId>
     {
@@ -61,7 +60,6 @@ public static class ModelBuilderExtensions
     /// <summary>
     ///     This method is used to tell Entity Framework to store all enum properties as strings in the database.
     /// </summary>
-    [UsedImplicitly]
     public static ModelBuilder UseStringForEnums(this ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())

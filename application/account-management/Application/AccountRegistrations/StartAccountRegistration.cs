@@ -11,7 +11,6 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 
-[UsedImplicitly]
 public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
     : ICommand, IRequest<Result<AccountRegistrationId>>
 {
@@ -21,7 +20,6 @@ public sealed record StartAccountRegistrationCommand(string Subdomain, string Em
     }
 }
 
-[UsedImplicitly]
 public sealed class StartAccountRegistrationCommandHandler(
     IAccountRegistrationRepository accountRegistrationRepository,
     IEmailService emailService,
@@ -77,7 +75,6 @@ public sealed class StartAccountRegistrationCommandHandler(
     }
 }
 
-[UsedImplicitly]
 public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
 {
     public StartAccountRegistrationValidator(ITenantRepository tenantRepository)

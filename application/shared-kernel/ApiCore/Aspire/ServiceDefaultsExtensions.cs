@@ -11,7 +11,6 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Aspire;
 
 public static class ServiceDefaultsExtensions
 {
-    [UsedImplicitly]
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
     {
         builder.ConfigureOpenTelemetry();
@@ -33,7 +32,6 @@ public static class ServiceDefaultsExtensions
         return builder;
     }
     
-    [UsedImplicitly]
     private static IHostApplicationBuilder ConfigureOpenTelemetry(this IHostApplicationBuilder builder)
     {
         builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
@@ -78,7 +76,6 @@ public static class ServiceDefaultsExtensions
         return builder;
     }
     
-    [UsedImplicitly]
     private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
     {
         var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
@@ -100,7 +97,6 @@ public static class ServiceDefaultsExtensions
         return builder;
     }
     
-    [UsedImplicitly]
     private static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
     {
         // Add a default liveness check to ensure app is responsive

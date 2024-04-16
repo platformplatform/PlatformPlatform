@@ -4,7 +4,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
-[UsedImplicitly]
 public class TenantEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/tenants";

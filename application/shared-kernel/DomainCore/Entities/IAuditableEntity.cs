@@ -8,7 +8,6 @@ public interface IAuditableEntity
 {
     DateTimeOffset CreatedAt { get; }
     
-    [UsedImplicitly]
     DateTimeOffset? ModifiedAt { get; }
     
     void UpdateModifiedAt(DateTimeOffset? modifiedAt);

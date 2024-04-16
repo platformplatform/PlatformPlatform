@@ -7,7 +7,6 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore;
 
 public static class ApplicationCoreConfiguration
 {
-    [UsedImplicitly]
     public static IServiceCollection AddApplicationCoreServices(this IServiceCollection services, Assembly applicationAssembly)
     {
         // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.

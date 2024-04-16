@@ -2,7 +2,6 @@ using System.Security.Claims;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public class UserInfo
 {
     public UserInfo(ClaimsPrincipal user, string defaultLocale)

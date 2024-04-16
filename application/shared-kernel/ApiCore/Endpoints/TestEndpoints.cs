@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Routing;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
-[UsedImplicitly]
 public class TestEndpoints : IEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder routes)

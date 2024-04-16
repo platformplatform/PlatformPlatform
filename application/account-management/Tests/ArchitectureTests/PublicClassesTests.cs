@@ -37,8 +37,7 @@ public sealed class PublicClassesTests
             .And().DoNotHaveName(typeof(Result<>).Name);
         
         var result = types
-            .Should()
-            .BeSealed()
+            .Should().BeSealed()
             .GetResult();
         
         // Assert

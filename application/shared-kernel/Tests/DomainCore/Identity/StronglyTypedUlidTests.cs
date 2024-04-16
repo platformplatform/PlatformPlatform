@@ -18,7 +18,7 @@ public class StronglyTypedUlidTests
     }
     
     [Fact]
-    public void TryParse_WhenValidId_ShouldSucced()
+    public void TryParse_WhenValidId_ShouldSucceed()
     {
         // Arrange
         var id = IdWithPrefix.NewId();
@@ -32,6 +32,5 @@ public class StronglyTypedUlidTests
     }
     
     [IdPrefix("prefix")]
-    [UsedImplicitly]
     public record IdWithPrefix(string Value) : StronglyTypedUlid<IdWithPrefix>(Value);
 }

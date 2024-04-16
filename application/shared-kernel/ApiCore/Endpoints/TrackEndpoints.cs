@@ -9,7 +9,6 @@ using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
-[UsedImplicitly]
 public class TrackEndpoints : IEndpoints
 {
     // <summary>
@@ -199,10 +198,8 @@ public class TrackEndpoints : IEndpoints
     }
 }
 
-[UsedImplicitly]
 public record TrackResponseSuccessDto(bool Success, string Message);
 
-[UsedImplicitly]
 public record TrackRequestDto(
     DateTimeOffset Time,
     // ReSharper disable once InconsistentNaming
@@ -212,10 +209,8 @@ public record TrackRequestDto(
     TrackRequestDataDto Data
 );
 
-[UsedImplicitly]
 public record TrackRequestDataDto(string BaseType, TrackRequestBaseDataDto BaseData);
 
-[UsedImplicitly]
 public record TrackRequestBaseDataDto(
     string Name,
     string Url,
@@ -233,10 +228,8 @@ public record TrackRequestBaseDataDto(
     string Id
 );
 
-[UsedImplicitly]
 public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
 
-[UsedImplicitly]
 public record TrackRequestExceptionDto(
     string TypeName,
     string Message,
@@ -245,5 +238,4 @@ public record TrackRequestExceptionDto(
     List<TrackRequestParsedStackDto> ParsedStack
 );
 
-[UsedImplicitly]
 public record TrackRequestParsedStackDto(string Assembly, string FileName, string Method, int Line, int Level);

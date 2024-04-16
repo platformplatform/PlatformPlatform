@@ -5,7 +5,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 
-[UsedImplicitly]
 public class AccountRegistrationsEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-registrations";

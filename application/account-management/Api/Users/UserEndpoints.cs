@@ -4,7 +4,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Users;
 
-[UsedImplicitly]
 public class UserEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/users";

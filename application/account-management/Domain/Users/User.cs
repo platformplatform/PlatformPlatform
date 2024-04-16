@@ -53,5 +53,4 @@ public sealed class User : AggregateRoot<UserId>
     }
 }
 
-[UsedImplicitly]
 public sealed record Avatar(string? Url = null, int Version = 0, bool IsGravatar = false);

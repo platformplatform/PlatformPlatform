@@ -4,7 +4,6 @@ using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-[UsedImplicitly]
 public sealed record GetUsersQuery(
     string? Search = null,
     UserRole? UserRole = null,
@@ -14,7 +13,6 @@ public sealed record GetUsersQuery(
     int? PageOffset = null
 ) : IRequest<Result<GetUsersResponseDto>>;
 
-[UsedImplicitly]
 public sealed class GetUsersHandler(IUserRepository userRepository)
     : IRequestHandler<GetUsersQuery, Result<GetUsersResponseDto>>
 {

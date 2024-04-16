@@ -4,7 +4,6 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.Users;
 
-[UsedImplicitly]
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {

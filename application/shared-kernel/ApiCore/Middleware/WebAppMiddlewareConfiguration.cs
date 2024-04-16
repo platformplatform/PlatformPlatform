@@ -7,7 +7,6 @@ using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
-[UsedImplicitly]
 public class WebAppMiddlewareConfiguration
 {
     public const string PublicUrlKey = "PUBLIC_URL";

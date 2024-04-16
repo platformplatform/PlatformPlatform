@@ -19,7 +19,6 @@ public static class InfrastructureCoreConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
     
-    [UsedImplicitly]
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
@@ -37,7 +36,6 @@ public static class InfrastructureCoreConfiguration
     }
     
     // Register the default storage account for IBlobStorage
-    [UsedImplicitly]
     public static IServiceCollection AddDefaultBlobStorage(this IServiceCollection services, IHostApplicationBuilder builder)
     {
         if (IsRunningInAzure)
@@ -57,7 +55,6 @@ public static class InfrastructureCoreConfiguration
     }
     
     // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
-    [UsedImplicitly]
     public static IServiceCollection AddNamedBlobStorages(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
@@ -84,7 +81,6 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
     
-    [UsedImplicitly]
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
@@ -118,7 +114,6 @@ public static class InfrastructureCoreConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
     
-    [UsedImplicitly]
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository

@@ -3,7 +3,6 @@ using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure.AccountRegistrations;
 
-[UsedImplicitly]
 public sealed class AccountRegistrationRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<AccountRegistration, AccountRegistrationId>(accountManagementDbContext), IAccountRegistrationRepository
 {

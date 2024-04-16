@@ -12,7 +12,6 @@ public sealed record CompleteAccountRegistrationCommand(string OneTimePassword) 
     public AccountRegistrationId Id { get; init; } = null!;
 }
 
-[UsedImplicitly]
 public sealed class CompleteAccountRegistrationHandler(
     ITenantRepository tenantRepository,
     IAccountRegistrationRepository accountRegistrationRepository,

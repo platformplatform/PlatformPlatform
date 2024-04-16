@@ -20,10 +20,7 @@ public sealed class TimeoutExceptionHandler(ILogger<TimeoutExceptionHandler> log
         
         var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
         
-        logger.LogError(
-            exception, "An timeout exception occurred while processing the request. TraceId: {TraceId}.",
-            traceId
-        );
+        logger.LogError(exception, "An timeout exception occurred while processing the request. TraceId: {TraceId}.", traceId);
         
         await Results.Problem(
             title: "Request Timeout",

@@ -11,7 +11,6 @@ namespace PlatformPlatform.AccountManagement.Application.Users;
 public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
     : ICommand, IUserValidation, IRequest<Result<UserId>>;
 
-[UsedImplicitly]
 public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
@@ -40,7 +39,6 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
     }
 }
 
-[UsedImplicitly]
 public sealed class CreateUserValidator : UserValidator<CreateUserCommand>
 {
     public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)

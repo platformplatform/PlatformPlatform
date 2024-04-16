@@ -5,10 +5,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-[UsedImplicitly]
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
-[UsedImplicitly]
 public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteTenantCommand, Result>
 {
@@ -25,7 +23,6 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITel
     }
 }
 
-[UsedImplicitly]
 public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantCommand>
 {
     public DeleteTenantValidator(IUserRepository userRepository)

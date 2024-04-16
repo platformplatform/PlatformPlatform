@@ -13,7 +13,6 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
         return FormLong(newValue);
     }
     
-    [UsedImplicitly]
     public static bool TryParse(string? value, out T? result)
     {
         var success = long.TryParse(value, out var parsedValue);

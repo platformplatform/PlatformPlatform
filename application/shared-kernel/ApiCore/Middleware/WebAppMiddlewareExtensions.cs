@@ -10,7 +10,6 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
 
 public static class WebAppMiddlewareExtensions
 {
-    [UsedImplicitly]
     public static IServiceCollection AddWebAppMiddleware(this IServiceCollection services)
     {
         return services.AddSingleton<WebAppMiddlewareConfiguration>(serviceProvider =>
@@ -23,7 +22,6 @@ public static class WebAppMiddlewareExtensions
             .AddTransient<WebAppMiddleware>();
     }
     
-    [UsedImplicitly]
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder)
     {
         if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return builder;

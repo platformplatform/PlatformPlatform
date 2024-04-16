@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Routing;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
-[UsedImplicitly]
 public class HealthEndpoints : IEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder routes)

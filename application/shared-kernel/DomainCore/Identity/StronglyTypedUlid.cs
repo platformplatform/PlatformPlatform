@@ -18,7 +18,6 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
         return FormUlid(newValue);
     }
     
-    [UsedImplicitly]
     public static bool TryParse(string? value, out T? result)
     {
         if (value is null || !value.StartsWith($"{Prefix}_"))

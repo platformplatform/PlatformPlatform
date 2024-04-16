@@ -2,7 +2,6 @@ using PlatformPlatform.AccountManagement.Application.Users;
 
 namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
-[UsedImplicitly]
 public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger, ISender mediator)
     : INotificationHandler<TenantCreatedEvent>
 {

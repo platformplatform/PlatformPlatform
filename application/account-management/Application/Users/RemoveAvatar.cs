@@ -4,10 +4,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-[UsedImplicitly]
 public sealed record RemoveAvatarCommand(UserId Id) : ICommand, IRequest<Result>;
 
-[UsedImplicitly]
 public sealed class RemoveAvatarCommandHandler(
     IUserRepository userRepository,
     ITelemetryEventsCollector events

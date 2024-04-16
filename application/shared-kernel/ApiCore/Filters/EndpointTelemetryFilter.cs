@@ -7,7 +7,6 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Filters;
 /// <summary>
 ///     Filter out telemetry from requests matching excluded paths
 /// </summary>
-[UsedImplicitly]
 public class EndpointTelemetryFilter(ITelemetryProcessor telemetryProcessor) : ITelemetryProcessor
 {
     private readonly string[] _excludedPaths = { "/swagger", "/health", "/alive", "/api/track" };

@@ -96,7 +96,6 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         response.Headers.Location.Should().BeNull();
     }
     
-    [UsedImplicitly]
     protected Task EnsureErrorStatusCode(
         HttpResponseMessage response,
         HttpStatusCode statusCode,

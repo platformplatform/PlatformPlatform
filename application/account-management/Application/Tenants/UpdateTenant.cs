@@ -13,7 +13,6 @@ public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
     public required string Name { get; init; }
 }
 
-[UsedImplicitly]
 public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateTenantCommand, Result>
 {
@@ -31,7 +30,6 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
     }
 }
 
-[UsedImplicitly]
 public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>
 {
     public UpdateTenantValidator()

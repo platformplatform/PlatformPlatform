@@ -10,7 +10,6 @@ public static class FakerExtensions
         return new string(faker.Company.CompanyName().Take(30).ToArray());
     }
     
-    [UsedImplicitly]
     public static string PhoneNumber(this Faker faker)
     {
         var random = new Random();
@@ -27,7 +26,6 @@ public static class FakerExtensions
         return faker.Internet.ExampleEmail(faker.Random.AlphaNumeric(100));
     }
     
-    [UsedImplicitly]
     public static long RandomId(this Faker faker)
     {
         return IdGenerator.NewId();

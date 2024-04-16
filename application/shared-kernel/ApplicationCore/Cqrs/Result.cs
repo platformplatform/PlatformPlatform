@@ -47,7 +47,6 @@ public sealed class Result : ResultBase
     {
     }
     
-    [UsedImplicitly]
     public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
         : base(statusCode, errorMessage, commitChanges, errors)
     {
@@ -63,7 +62,6 @@ public sealed class Result : ResultBase
         return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
-    [UsedImplicitly]
     public static Result Unauthorized(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
@@ -79,13 +77,11 @@ public sealed class Result : ResultBase
         return new Result(HttpStatusCode.NotFound, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
-    [UsedImplicitly]
     public static Result Conflict(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.Conflict, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
-    [UsedImplicitly]
     public static Result TooManyRequests(string message, bool commitChanges = false)
     {
         return new Result(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
@@ -104,7 +100,6 @@ public sealed class Result<T> : ResultBase
         Value = value;
     }
     
-    [UsedImplicitly]
     public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
         : base(statusCode, errorMessage, commitChanges, errors)
     {
@@ -126,13 +121,11 @@ public sealed class Result<T> : ResultBase
         return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
-    [UsedImplicitly]
     public static Result<T> Unauthorized(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
     }
     
-    [UsedImplicitly]
     public static Result<T> Forbidden(string message, bool commitChanges = false)
     {
         return new Result<T>(HttpStatusCode.Forbidden, new ErrorMessage(message), commitChanges, Array.Empty<ErrorDetail>());
