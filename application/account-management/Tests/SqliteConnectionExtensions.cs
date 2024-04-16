@@ -10,7 +10,7 @@ public static class SqliteConnectionExtensions
         
         foreach (var parameter in parameters)
         {
-            foreach (var property in parameter?.GetType().GetProperties() ?? Array.Empty<PropertyInfo>())
+            foreach (var property in parameter?.GetType().GetProperties() ?? [])
             {
                 command.Parameters.AddWithValue(property.Name, property.GetValue(parameter));
             }

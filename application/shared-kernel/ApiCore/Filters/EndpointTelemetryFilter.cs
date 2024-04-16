@@ -9,7 +9,7 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Filters;
 /// </summary>
 public class EndpointTelemetryFilter(ITelemetryProcessor telemetryProcessor) : ITelemetryProcessor
 {
-    private readonly string[] _excludedPaths = { "/swagger", "/health", "/alive", "/api/track" };
+    private readonly string[] _excludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
     
     public void Process(ITelemetry item)
     {
