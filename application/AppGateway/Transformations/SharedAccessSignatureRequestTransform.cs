@@ -1,7 +1,7 @@
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using Yarp.ReverseProxy.Transforms;
 
-namespace PlatformPlatform.AppGateway;
+namespace PlatformPlatform.AppGateway.Transformations;
 
 public class SharedAccessSignatureRequestTransform([FromKeyedServices("avatars-storage")] IBlobStorage blobStorage)
     : RequestTransform
