@@ -10,7 +10,7 @@ public class UserEndpoints : IEndpoints
     
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix);
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
         
         group.MapGet("/", async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
             => await mediator.Send(query)

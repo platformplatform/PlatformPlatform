@@ -10,7 +10,7 @@ public class TenantEndpoints : IEndpoints
     
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix);
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants");
         
         group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> ([AsParameters] GetTenantQuery query, ISender mediator)
             => await mediator.Send(query)
