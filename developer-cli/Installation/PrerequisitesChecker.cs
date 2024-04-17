@@ -167,7 +167,7 @@ public static class PrerequisitesChecker
         if (Environment.GetEnvironmentVariable(variableName) is not null) return true;
 
 
-        if (Configuration.IsMacOs)
+        if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
 

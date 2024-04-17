@@ -6,7 +6,7 @@ using Spectre.Console;
 var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
 ChangeDetection.EnsureCliIsCompiledWithLatestChanges(isDebugBuild);
 
-if (!Configuration.IsMacOs && !Configuration.IsWindows)
+if (!Configuration.IsMacOs && !Configuration.IsWindows && !Configuration.IsLinux)
 {
     AnsiConsole.MarkupLine($"[red]Your OS [bold]{Environment.OSVersion.Platform}[/] is not supported.[/]");
     Environment.Exit(1);

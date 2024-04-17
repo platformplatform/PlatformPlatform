@@ -111,7 +111,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
                 // Ignore the exception and return false
             }
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             var arguments = $"pkcs12 -in {Configuration.LocalhostPfx} -passin pass:{password} -nokeys";
             var certificateValidation = ProcessHelper.StartProcess(new ProcessStartInfo
@@ -183,7 +183,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         {
             Environment.SetEnvironmentVariable(variableName, variableValue, EnvironmentVariableTarget.User);
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
             if (!fileContent.EndsWith(Environment.NewLine))
