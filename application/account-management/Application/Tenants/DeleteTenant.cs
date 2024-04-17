@@ -7,6 +7,18 @@ namespace PlatformPlatform.AccountManagement.Application.Tenants;
 
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
+public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantCommand>
+{
+    public DeleteTenantValidator(IUserRepository userRepository)
+    {
+        RuleFor(x => x.Id)
+            .MustAsync(async (tenantId, cancellationToken) =>
+                await userRepository.CountTenantUsersAsync(tenantId, cancellationToken) == 0
+            )
+            .WithMessage("All users must be deleted before the tenant can be deleted.");
+    }
+}
+
 public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteTenantCommand, Result>
 {
@@ -20,17 +32,5 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITel
         events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
         
         return Result.Success();
-    }
-}
-
-public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantCommand>
-{
-    public DeleteTenantValidator(IUserRepository userRepository)
-    {
-        RuleFor(x => x.Id)
-            .MustAsync(async (tenantId, cancellationToken) =>
-                await userRepository.CountTenantUsersAsync(tenantId, cancellationToken) == 0
-            )
-            .WithMessage("All users must be deleted before the tenant can be deleted.");
     }
 }

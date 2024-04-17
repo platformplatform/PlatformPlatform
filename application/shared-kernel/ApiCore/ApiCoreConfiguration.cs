@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -15,7 +14,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
@@ -127,8 +125,7 @@ public static class ApiCoreConfiguration
         return services;
     }
     
-    public static WebApplication AddApiCoreConfiguration<TDbContext>(this WebApplication app)
-        where TDbContext : DbContext
+    public static WebApplication AddApiCoreConfiguration(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {
@@ -142,18 +139,8 @@ public static class ApiCoreConfiguration
             app.UseExceptionHandler(_ => { });
         }
         
-        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before  other middleware.
+        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
         app.UseForwardedHeaders();
-        
-        if (!app.Environment.IsDevelopment())
-        {
-            // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
-            // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
-            app.UseHsts();
-            
-            // Adds middleware for redirecting HTTP Requests to HTTPS
-            app.UseHttpsRedirection();
-        }
         
         // Enable Swagger UI
         app.UseOpenApi();
@@ -162,16 +149,12 @@ public static class ApiCoreConfiguration
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
         
         // Manually create all endpoints classes to call the MapEndpoints containing the mappings
-        using (var scope = app.Services.CreateScope())
+        using var scope = app.Services.CreateScope();
+        var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
+        foreach (var endpoint in endpointServices)
         {
-            var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
-            foreach (var endpoint in endpointServices)
-            {
-                endpoint.MapEndpoints(app);
-            }
+            endpoint.MapEndpoints(app);
         }
-        
-        app.Services.ApplyMigrations<TDbContext>();
         
         return app;
     }

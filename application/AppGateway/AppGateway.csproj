@@ -16,4 +16,9 @@
         <ProjectReference Include="..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Remove="publish\**"/>
+        <None Remove="publish\**"/>
+    </ItemGroup>
+
 </Project>

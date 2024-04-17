@@ -8,7 +8,7 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 /// </summary>
 public abstract class AudibleEntity<T>(T id) : Entity<T>(id), IAuditableEntity where T : IComparable<T>
 {
-    public DateTimeOffset CreatedAt { get; } = TimeProvider.System.GetUtcNow();
+    public DateTimeOffset CreatedAt { get; init; } = TimeProvider.System.GetUtcNow();
     
     [ConcurrencyCheck]
     public DateTimeOffset? ModifiedAt { get; private set; }

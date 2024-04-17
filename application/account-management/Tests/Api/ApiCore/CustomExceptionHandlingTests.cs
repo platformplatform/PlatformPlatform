@@ -35,7 +35,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         // Assert
         if (environment == "Development")
         {
-            // In Development we use app.UseDeveloperExceptionPage() which returns a HTML response.
+            // In Development, we use app.UseDeveloperExceptionPage(), which returns a HTML response.
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
             response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
             var errorResponse = await response.Content.ReadAsStringAsync();
@@ -43,7 +43,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         }
         else
         {
-            // In Production we use GlobalExceptionHandler which returns a JSON response.
+            // In Production, we use GlobalExceptionHandler, which returns a JSON response.
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.InternalServerError,
@@ -79,7 +79,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         // Assert
         if (environment == "Development")
         {
-            // In Development we use app.UseDeveloperExceptionPage() which returns a HTML response.
+            // In Development, we use app.UseDeveloperExceptionPage(), which returns a HTML response.
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
             response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
             var errorResponse = await response.Content.ReadAsStringAsync();
@@ -87,7 +87,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         }
         else
         {
-            // In Production we use GlobalExceptionHandlerMiddleware which returns a JSON response.
+            // In Production, we use GlobalExceptionHandlerMiddleware, which returns a JSON response.
             await EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.RequestTimeout,

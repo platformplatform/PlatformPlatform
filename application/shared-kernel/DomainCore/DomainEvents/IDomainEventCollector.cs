@@ -4,5 +4,5 @@ namespace PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 
 public interface IDomainEventCollector
 {
-    IEnumerable<IAggregateRoot> GetAggregatesWithDomainEvents();
+    IAggregateRoot[] GetAggregatesWithDomainEvents();
 }

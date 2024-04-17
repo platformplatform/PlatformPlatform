@@ -22,13 +22,13 @@ public static class WebAppMiddlewareExtensions
             .AddTransient<WebAppMiddleware>();
     }
     
-    public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder app)
     {
-        if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return builder;
+        if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return app;
         
-        var webAppConfiguration = builder.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
+        var webAppConfiguration = app.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
         
-        return builder
+        return app
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
             .UseRequestLocalization("en-US", "da-DK")
             .UseMiddleware<WebAppMiddleware>();

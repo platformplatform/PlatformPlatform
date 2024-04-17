@@ -132,7 +132,9 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        var command = new CreateUserCommand(new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser, false);
+        var command = new CreateUserCommand(
+            new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser, false
+        );
         
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
