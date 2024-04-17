@@ -111,7 +111,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
                 // Ignore the exception and return false
             }
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             var arguments = $"pkcs12 -in {Configuration.LocalhostPfx} -passin pass:{password} -nokeys";
             var certificateValidation = ProcessHelper.StartProcess(new ProcessStartInfo
@@ -155,6 +155,13 @@ public class ConfigureDeveloperEnvironmentCommand : Command
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
         ProcessHelper.StartProcess($"dotnet dev-certs https --trust -ep {Configuration.LocalhostPfx} -p {password}");
+
+        if (Configuration.IsWSL)
+        {
+            string windowsPath = $"\\\\wsl$\\{Configuration.WSLDistroName}{Configuration.LocalhostPfx.Replace('/', '\\')}";
+            AnsiConsole.MarkupLine($"[yellow]To import the certificate to the Windows certificate store, please run the following Powershell command as admin:[/]");
+            AnsiConsole.MarkupLine($"[blue]  \"Import-PfxCertificate -FilePath {windowsPath} -CertStoreLocation Cert:\\LocalMachine\\Root -Password (ConvertTo-SecureString -String '{password}' -Force -AsPlainText)\"[/]");
+        }
     }
 
     private static string GenerateRandomPassword(int passwordLength)
@@ -183,7 +190,7 @@ public class ConfigureDeveloperEnvironmentCommand : Command
         {
             Environment.SetEnvironmentVariable(variableName, variableValue, EnvironmentVariableTarget.User);
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
             if (!fileContent.EndsWith(Environment.NewLine))

@@ -96,7 +96,7 @@ public class InstallCommand : Command
         {
             Configuration.Windows.AddFolderToPath(Configuration.PublishFolder);
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             Configuration.MacOs.RegisterAliasMacOs();
         }

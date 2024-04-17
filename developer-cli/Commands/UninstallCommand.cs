@@ -59,7 +59,7 @@ public class UninstallCommand : Command
                 AnsiConsole.MarkupLine("[green]The PlatformPlatform CLI folder has been removed from the PATH.[/]");
             }
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             Configuration.MacOs.DeleteAlias();
             AnsiConsole.MarkupLine("[green]Alias has been removed.[/]");
@@ -78,7 +78,7 @@ public class UninstallCommand : Command
         {
             Environment.SetEnvironmentVariable(variableName, null, EnvironmentVariableTarget.User);
         }
-        else if (Configuration.IsMacOs)
+        else if (Configuration.IsMacOs || Configuration.IsLinux)
         {
             Configuration.MacOs.DeleteEnvironmentVariable(variableName);
         }

@@ -358,6 +358,9 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 
+# WSL VS Code
+.mono/
+
 # BeatPulse healthcheck temp database
 healthchecksdb
 

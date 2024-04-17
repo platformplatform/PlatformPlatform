@@ -75,6 +75,76 @@ Open a terminal and run the following commands:
 
 </details>
 
+<details>
+
+<summary>Install prerequisites for Linux/WSL2</summary>
+
+# Installing Dependencies on Linux
+
+This guide will walk you through the process of installing the necessary dependencies on a Linux system.
+
+## Prerequisites
+
+Ensure that you have `wget` installed on your system. If not, you can install it using the following command:
+
+```bash
+sudo apt update && sudo apt-get install wget -y
+```
+
+## Steps
+
+1. **Install Microsoft repository**
+
+  ```bash
+  source /etc/os-release
+  wget https://packages.microsoft.com/config/$ID/$VERSION_ID/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+  sudo dpkg -i packages-microsoft-prod.deb
+  rm packages-microsoft-prod.deb
+  ```
+
+2. **Install GitHub Package repository**
+
+  ```bash
+  (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+  && sudo mkdir -p -m 755 /etc/apt/keyrings \
+  && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  ```
+
+3. **Update packages**
+
+  ```bash
+  sudo apt-get update
+  ```
+
+4. **Install .NET SDK 8.0**
+
+  ```bash
+  sudo apt-get install -y dotnet-sdk-8.0 gh
+  ```
+
+5. **Install Azure CLI**
+
+  ```bash
+  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  ```
+
+6. **Install .NET Aspire workload**
+
+  ```bash
+  sudo dotnet workload install aspire
+  ```
+
+7. **Install Yarn**
+
+  ```bash
+  npm install --global yarn
+  ```
+
+</details>
+
+
 ## 2. Fork and clone the repository
 
 Forking is required to configure GitHub repository with continuous deployments to Azure ([step 5](#5-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
