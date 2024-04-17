@@ -5,8 +5,9 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+var certificatePassword = builder.CreateSslCertificateIfNotExists();
+
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
-Console.WriteLine($"Use the following password for the SQL Server: {sqlPassword.Resource.Value}");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
     .WithVolume("sql-server-data", "/var/opt/mssql");
 
@@ -37,7 +38,8 @@ var accountManagementApi = builder
 
 var accountManagementSpa = builder
     .AddNpmApp("account-management-spa", "../account-management/WebApp", "dev")
-    .WithReference(accountManagementApi);
+    .WithReference(accountManagementApi)
+    .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 builder
     .AddProject<AppGateway>("app-gateway")
