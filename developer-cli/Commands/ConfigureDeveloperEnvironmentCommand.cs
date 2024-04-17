@@ -155,6 +155,13 @@ public class ConfigureDeveloperEnvironmentCommand : Command
     private static void CreateNewSelfSignedDeveloperCertificate(string password)
     {
         ProcessHelper.StartProcess($"dotnet dev-certs https --trust -ep {Configuration.LocalhostPfx} -p {password}");
+
+        if (Configuration.IsWSL)
+        {
+            string windowsPath = $"\\\\wsl$\\{Configuration.WSLDistroName}{Configuration.LocalhostPfx.Replace('/', '\\')}";
+            AnsiConsole.MarkupLine($"[yellow]To import the certificate to the Windows certificate store, please run the following Powershell command as admin:[/]");
+            AnsiConsole.MarkupLine($"[blue]  \"Import-PfxCertificate -FilePath {windowsPath} -CertStoreLocation Cert:\\LocalMachine\\Root -Password (ConvertTo-SecureString -String '{password}' -Force -AsPlainText)\"[/]");
+        }
     }
 
     private static string GenerateRandomPassword(int passwordLength)

@@ -11,6 +11,8 @@ public static class Configuration
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    public static readonly string? WSLDistroName = Environment.GetEnvironmentVariable("WSL_DISTRO_NAME");
+    public static readonly bool IsWSL = IsLinux && !string.IsNullOrEmpty(WSLDistroName);
 
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
