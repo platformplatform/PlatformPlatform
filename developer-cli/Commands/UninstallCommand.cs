@@ -11,7 +11,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base(
         "uninstall",
-        $"Will remove the {Configuration.AliasName} CLI alias, and delete the CERTIFICATE_PASSWORD environment variable."
+        $"Will remove the {Configuration.AliasName} CLI alias."
     )
     {
         Handler = CommandHandler.Create(Execute);
@@ -31,7 +31,6 @@ public class UninstallCommand : Command
 
              This will do the following:
              - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLI from the PATH (Windows)
-             - Remove the CERTIFICATE_PASSWORD environment variable
              - Delete the {Configuration.PublishFolder}/{Configuration.AliasName}.* files
              - Remove the {Configuration.PublishFolder} folder if empty
 
@@ -42,7 +41,6 @@ public class UninstallCommand : Command
         {
             DeleteFilesFolder();
             RemoveAlias();
-            RemoveEnvironmentVariables();
 
             AnsiConsole.MarkupLine("[green]Please restart your terminal.[/]");
         }
@@ -63,24 +61,6 @@ public class UninstallCommand : Command
         {
             Configuration.MacOs.DeleteAlias();
             AnsiConsole.MarkupLine("[green]Alias has been removed.[/]");
-        }
-    }
-
-    private void RemoveEnvironmentVariables()
-    {
-        RemoveEnvironmentVariable("CERTIFICATE_PASSWORD");
-        AnsiConsole.MarkupLine("[green]Environment variables have been removed.[/]");
-    }
-
-    private void RemoveEnvironmentVariable(string variableName)
-    {
-        if (Configuration.IsWindows)
-        {
-            Environment.SetEnvironmentVariable(variableName, null, EnvironmentVariableTarget.User);
-        }
-        else if (Configuration.IsMacOs || Configuration.IsLinux)
-        {
-            Configuration.MacOs.DeleteEnvironmentVariable(variableName);
         }
     }
 

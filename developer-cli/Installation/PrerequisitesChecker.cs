@@ -11,8 +11,7 @@ public record Prerequisite(PrerequisiteType Type, string Name, string? DisplayNa
 public enum PrerequisiteType
 {
     CommandLineTool,
-    DotnetWorkload,
-    EnvironmentVariable
+    DotnetWorkload
 }
 
 public static class PrerequisitesChecker
@@ -25,7 +24,6 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
         new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.5"""),
-        new Prerequisite(PrerequisiteType.EnvironmentVariable, "CERTIFICATE_PASSWORD")
     ];
 
     public static void Check(params string[] prerequisiteName)
@@ -52,13 +50,6 @@ public static class PrerequisitesChecker
                     break;
                 case PrerequisiteType.DotnetWorkload:
                     if (!IsDotnetWorkloadValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Regex!))
-                    {
-                        invalid = true;
-                    }
-
-                    break;
-                case PrerequisiteType.EnvironmentVariable:
-                    if (!IsEnvironmentVariableSet(prerequisite.Name))
                     {
                         invalid = true;
                     }
@@ -160,30 +151,5 @@ public static class PrerequisitesChecker
         }
 
         return true;
-    }
-
-    private static bool IsEnvironmentVariableSet(string variableName)
-    {
-        if (Environment.GetEnvironmentVariable(variableName) is not null) return true;
-
-
-        if (Configuration.IsMacOs || Configuration.IsLinux)
-        {
-            var fileContent = File.ReadAllText(Configuration.MacOs.GetShellInfo().ProfilePath);
-
-            if (fileContent.Contains($"export {variableName}"))
-            {
-                AnsiConsole.MarkupLine(
-                    $"[red]'{variableName}' is configured but not available. Please run '[bold]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/] and restart the terminal'[/]"
-                );
-                return false;
-            }
-        }
-
-        AnsiConsole.MarkupLine(
-            $"[red]'{variableName}' is not configured. Please run '[bold]{Configuration.AliasName} {ConfigureDeveloperEnvironmentCommand.CommandName}[/] and restart the terminal'[/]"
-        );
-
-        return false;
     }
 }

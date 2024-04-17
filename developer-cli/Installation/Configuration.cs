@@ -11,12 +11,8 @@ public static class Configuration
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    public static readonly string? WSLDistroName = Environment.GetEnvironmentVariable("WSL_DISTRO_NAME");
-    public static readonly bool IsWSL = IsLinux && !string.IsNullOrEmpty(WSLDistroName);
 
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-    public static readonly string LocalhostPfx = IsWindows ? Windows.LocalhostPfxWindows : MacOs.LocalhostPfxMacOs;
 
     public static readonly string PublishFolder = IsWindows
         ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PlatformPlatform")
@@ -118,8 +114,6 @@ public static class Configuration
 
     public static class MacOs
     {
-        public static readonly string LocalhostPfxMacOs = $"{UserFolder}/.aspnet/https/localhost.pfx";
-
         private static string CliPath => Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
 
         private static string AliasLineRepresentation => $"alias {AliasName}='{CliPath}'";
@@ -148,16 +142,7 @@ public static class Configuration
 
         public static void DeleteAlias()
         {
-            DeleteLineFromProfile(AliasLineRepresentation);
-        }
-
-        public static void DeleteEnvironmentVariable(string variableName)
-        {
-            DeleteLineFromProfile($"export {variableName}='{Environment.GetEnvironmentVariable(variableName)}'");
-        }
-
-        private static void DeleteLineFromProfile(string lineRepresentation)
-        {
+            var lineRepresentation = AliasLineRepresentation;
             var profilePath = GetShellInfo().ProfilePath;
             var tempFilePath = profilePath + ".tmp";
             var linesToKeep = File.ReadLines(profilePath).Where(l => !l.Contains(lineRepresentation)).ToArray();
@@ -199,9 +184,7 @@ public class ConfigurationSetting
         {
             if (string.IsNullOrEmpty(SourceCodeFolder)) return false;
 
-            if (string.IsNullOrEmpty(Hash)) return false;
-
-            return true;
+            return !string.IsNullOrEmpty(Hash);
         }
     }
 }
