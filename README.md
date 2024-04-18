@@ -22,31 +22,29 @@
 
 # 👋 Welcome to PlatformPlatform
 
-Drawing on our expertise building true enterprise-grade products with millions of daily users in highly regulated sectors like healthcare, finance, government, etc., we aim to help you create secure production-ready products.
+Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, clean architecture, automated and fast DevOps, and top-notch security. All in one place – at zero cost.
 
- Still pre-alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+This is int the box:
 
-Building blocks of PlatformPlatform:
-
-* **Backend** - .NET adhering to the principles of Clean Architecture, DDD, CQRS, and clean code
+* **Backend** - .NET and C# adhering to the principles of Clean Architecture, DDD, CQRS, and clean code
 * **Frontend** - React using TypeScript, with a sleek fully localized UI and a mature accessible design system
 * **CI/CD** - GitHub actions for fast passwordless deployments of application (Docker) and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 
-This readme contains the following sections:
-* [Getting Started](#getting-started) - Simple steps to set up local development and continuous deployments to Azure
-* [Inside Our Monorepo](#inside-our-monorepo) - An overview of what's inside this repository
-* [Technologies](#technologies) - Overview of technologies for Backend, Frontend, Azure, etc.
-* [Screenshots](#screenshots) - A few screenshots of the GitHub workflows and Azure resources
+Still pre-alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
 
-**⭐⭐⭐ Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐⭐⭐**
+Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐
 
-# Getting Started 
+# Getting Started 1-2-3
 
-## 1. Check prerequisites
+TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
-For development you need .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
+<img src="https://github.com/tjementum/PlatformPlatformScreenshots/blob/screenhosts/GettingStarted.gif?raw=true" alt="Getting Started" title="Getting Started" width="800"/>
+
+### Prerequisites
+
+For development you need  .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
 
 <details>
 
@@ -56,8 +54,7 @@ Open a PowerShell terminal as Administrator and run the following commands:
 
 - `wsl --install` (Windows Subsystem for Linux, required for Docker)
 - Install [Chocolatey](https://chocolatey.org/install), a package manager for Windows
-- `choco install git dotnet-sdk git docker-desktop nodejs azure-cli gh`
-- `npm install --global yarn`
+- `choco install dotnet-sdk git docker-desktop nodejs yarn azure-cli gh`
 - `dotnet workload update` and `dotnet workload install aspire`
 
 </details>
@@ -72,6 +69,7 @@ Open a terminal and run the following commands:
 - `brew install --cask dotnet-sdk`
 - `brew install git docker node yarn azure-cli gh`
 - `dotnet workload update` and `dotnet workload install aspire`
+- `dotnet dev-certs https --trust`
 
 </details>
 
@@ -79,21 +77,15 @@ Open a terminal and run the following commands:
 
 <summary>Install prerequisites for Linux/WSL2</summary>
 
-# Installing Dependencies on Linux
+Open a terminal and run the following commands:
 
-This guide will walk you through the process of installing the necessary dependencies on a Linux system.
+- Install Wget
 
-## Prerequisites
+  ```bash
+  sudo apt update && sudo apt-get install wget -y
+  ```
 
-Ensure that you have `wget` installed on your system. If not, you can install it using the following command:
-
-```bash
-sudo apt update && sudo apt-get install wget -y
-```
-
-## Steps
-
-1. **Install Microsoft repository**
+- Install Microsoft repository
 
   ```bash
   source /etc/os-release
@@ -102,7 +94,13 @@ sudo apt update && sudo apt-get install wget -y
   rm packages-microsoft-prod.deb
   ```
 
-2. **Install GitHub Package repository**
+- Install Node repository
+
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  ```
+
+- Install GitHub Package repository
 
   ```bash
   (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
@@ -112,91 +110,64 @@ sudo apt update && sudo apt-get install wget -y
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
   ```
 
-3. **Update packages**
+- Update packages
 
   ```bash
   sudo apt-get update
   ```
 
-4. **Install .NET SDK 8.0**
+- Install .NET SDK 8.0, Node, GitHub CLI
 
   ```bash
-  sudo apt-get install -y dotnet-sdk-8.0 gh
+  sudo apt-get install -y dotnet-sdk-8.0 nodejs gh
   ```
 
-5. **Install Azure CLI**
+- Install .NET Aspire workload
 
   ```bash
-  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  sudo dotnet workload update && dotnet workload install aspire
   ```
 
-6. **Install .NET Aspire workload**
-
-  ```bash
-  sudo dotnet workload install aspire
-  ```
-
-7. **Install Yarn**
+- Install Yarn
 
   ```bash
   npm install --global yarn
   ```
 
+- Install Azure CLI
+
+  ```bash
+  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+  ```
+
 </details>
 
+## 1. Fork and clone the repository
 
-## 2. Fork and clone the repository
-
-Forking is required to configure GitHub repository with continuous deployments to Azure ([step 5](#5-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
+Forking is only required to configure GitHub repository with continuous deployments to Azure ([step 3](#4-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
 
 Our clean commit history serves as a great learning and troubleshooting resource. We recommend you keep it 😃
 
-## 3. Install the developer CLI 
+## 2. Run the Aspire AppHost to spin up everything on localhost
 
-PlatformPlatform comes with a lightweight developer CLI `pp` that e.g. will help you set up CI/CD in a few minutes. It's a powerful way for sharing tools on a team - the first step to an internal developer platform.
+To spin up the backend, frontend and all dependencies like SQL Server, Blob Storage, Mail Server in Docker, simply open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
-```bash
-cd developer-cli
-dotnet run install # IMPORTANT: Restart the terminal and run "pp --help" to confirm installation
-```
+With Docker Desktop installed, .NET Aspire will do all the orchestration and spin up everything with a single click. No need to learn Docker, install database and web server, or to learn complicated commands. It just works 🎉
 
-<details>
-
-<summary>Read more about how the Developer CLI works</summary>
-
-The CLI will automatically detect code changes and automatically recompile, ensuring that it is always up to date and in sync with the code base.
-
-Upon installing, you will be offered to set up an SSL certificate and a few environment variables for easy debugging.
-
-The CLI is published to `%LocalAppData%/PlatformPlatform` on Windows and `~/.platformplatform` on MacOS. It designed to run side-by-side, just change the `pp` to another alias in the [DeveloperCli.csproj](developer-cli/DeveloperCli.csproj) file.
-
-If you want to skip installing the CLI you can run the commands manually from the CLI folder like this:
+If you prefer the CLI, you can run the following command:
 
 ```bash
-cd developer-cli
-dotnet run [command-name] # e.g. `dotnet run code-cleanup` instead of `pp code-cleanup`
+cd application/AppHost
+dotnet run
 ```
 
-To uninstall the CLI, simply run `pp uninstall`.
-
-</details>
-
-## 4. Run the application locally
-
-Run the following command to spin up the .NET Minimal API, the React frontend, and an SQL Server in Docker:
-
-```bash
-pp run # The Aspire Dashboard and WebApp will automatically open in your browser when ready
-```
-
-To debug, just open the [PlatformPlatform.sln](/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [AppHost](/application/AppHost/AppHost.csproj) project.
-
-## 5. Set up CI/CD with passwordless deployments from GitHub to Azure
+## 3. Set up CI/CD with passwordless deployments from GitHub to Azure
 
 Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
 
 ```bash
-pp configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
+cd development-cli
+dotnet run configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
 ```
 
 You need to be the owner of the GitHub repository and the Azure Subscription, plus have permissions to create Service Principals and Active Directory Groups.
@@ -215,16 +186,17 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├── .github                # GitHub workflows for CI/CD, etc.
+├── .github                # Separate GitHub workflows for deploying Infrastructure and app
 ├── application            # Contains the application source code
-│   ├── AppHost            # .NET Aspire Project for starting API, WebApp, SQL Server, etc.
-│   ├── account-management # A self-contained system with SaaS features (DDD, CQRS, Clean Architecture)
+│   ├── AppHost            # .NET Aspire project starting app and all dependencies in Docker
+│   ├── AppGateway         # Main entry point for the app using YARP as a reverse proxy 
+│   ├── account-management # Self-contained system with account sign-up, user management, etc.
+│   │   ├── WebApp         # React SPA frontend using TypeScript and React Aria Components
 │   │   ├── Api            # Presentation layer exposing the API to WebApp or other clients
 │   │   ├── Application    # Use Case layer containing CQRS Command and Query handlers 
 │   │   ├── Domain         # Business logic containing DDD aggregates, entities, etc.
 │   │   ├── Infrastructure # Integrations for accessing external resources (e.g., database)
-│   │   ├── Tests          # Tests for the API, Application, Domain, and Infrastructure
-│   │   └── WebApp         # React SPA frontend using TypeScript and React Aria Components
+│   │   └── Tests          # Tests for the API, Application, Domain, and Infrastructure
 │   ├── shared-kernel      # Reusable components for all self-contained systems
 │   ├── [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 │   └── [back-office]      # [Planned] A self-contained system for operations and support
@@ -246,6 +218,7 @@ The backend is built using the most popular, mature, and commonly used technolog
 
 - [.NET 8](https://dotnet.microsoft.com) and [C# 12](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
 - [.NET Aspire](https://aka.ms/dotnet-aspire)
+- [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
 - [Entity Framework](https://learn.microsoft.com/en-us/ef)
 - [MediatR](https://github.com/jbogard/MediatR)
@@ -330,3 +303,5 @@ These are the resource groups created when deploying one staging cluster, and tw
 This is the security score after deploying PlatformPlatform resources to Azure. Achieving a 100% security score in Azure Defender for Cloud without exemptions is not trivial.
 
 ![Azure Security Recommendations](https://platformplatformgithub.blob.core.windows.net/AzureSecurityRecommendations.png)
+
+https://123456789012345678901234.blob.core.windows.net/profileimages/01HS13BVF09A8AYYCMR2T9P7ZN.png
