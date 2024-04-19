@@ -145,7 +145,7 @@ const configuration: Configuration = {
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
-    port: 9099,
+    port: 9101,
     server: {
       type: "http",
     },
