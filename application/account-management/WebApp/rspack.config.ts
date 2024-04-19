@@ -1,6 +1,5 @@
-import os from "node:os";
 import fs from "node:fs";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import process from "node:process";
 import type { Configuration } from "@rspack/core";
 import { CopyRspackPlugin, DefinePlugin, HtmlRspackPlugin } from "@rspack/core";
@@ -148,11 +147,7 @@ const configuration: Configuration = {
     },
     port: 9099,
     server: {
-      type: "https",
-      options: {
-        pfx: join(os.homedir(), ".aspnet", "dev-certs", "https", "platformplatform.pfx"),
-        passphrase: process.env.CERTIFICATE_PASSWORD,
-      },
+      type: "http",
     },
     devMiddleware: {
       writeToDisk: (filename) => {

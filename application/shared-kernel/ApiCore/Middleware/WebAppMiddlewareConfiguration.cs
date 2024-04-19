@@ -121,7 +121,7 @@ public class WebAppMiddlewareConfiguration
         
         if (isDevelopment)
         {
-            var webSocketHost = CdnUrl.Replace("https", "wss");
+            var webSocketHost = CdnUrl.Replace("http", "wss");
             trustedHosts += $" {webSocketHost}";
         }
         
