@@ -1,5 +1,6 @@
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -11,4 +12,8 @@ builder.Services
     .ConfigureStorage(builder);
 
 var host = builder.Build();
+
+// Apply migrations to the database (should be moved to GitHub Actions or similar in production)
+host.Services.ApplyMigrations<AccountManagementDbContext>();
+
 host.Run();
