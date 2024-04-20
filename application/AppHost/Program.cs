@@ -42,6 +42,11 @@ var accountManagementSpa = builder
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 builder
+    .AddProject<Workers>("account-management-workers")
+    .WithReference(accountManagementDatabase)
+    .WithReference(azureStorage);
+
+builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(accountManagementApi)
     .WithReference(accountManagementSpa);
