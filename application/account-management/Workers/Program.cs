@@ -4,6 +4,13 @@ using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.Configure<HostOptions>(options =>
+    {
+        options.ServicesStartConcurrently = true;
+        options.ServicesStopConcurrently = true;
+    }
+);
+
 // Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
