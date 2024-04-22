@@ -51,7 +51,7 @@ public sealed class WebAppMiddleware(
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(userInfo, jsonOptions.Value.SerializerOptions))
         );
         
-        var html = webAppConfiguration.HtmlTemplate;
+        var html = webAppConfiguration.GetHtmlTemplate();
         html = html.Replace("%ENCODED_RUNTIME_ENV%", webAppConfiguration.StaticRuntimeEnvironmentEncoded);
         html = html.Replace("%ENCODED_USER_INFO_ENV%", encodedUserInfo);
         html = html.Replace("%LOCALE%", userInfo.Locale);
