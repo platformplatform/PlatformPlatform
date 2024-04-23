@@ -24,7 +24,7 @@
 
 Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, clean architecture, automated and fast DevOps, and top-notch security. All in one place – at zero cost.
 
-This is int the box:
+This is in the box:
 
 * **Backend** - .NET and C# adhering to the principles of Clean Architecture, DDD, CQRS, and clean code
 * **Frontend** - React using TypeScript, with a sleek fully localized UI and a mature accessible design system
@@ -44,7 +44,7 @@ TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.sln) solution i
 
 ### Prerequisites
 
-For development you need  .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
+For development, you need  .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
 
 <details>
 
