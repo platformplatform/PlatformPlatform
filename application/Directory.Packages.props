@@ -6,7 +6,7 @@
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
     <AspNetCoreVersion>8.0.4</AspNetCoreVersion>
     <EfCoreVersion>8.0.4</EfCoreVersion>
-    <AspireVersion>8.0.0-preview.5.24201.12</AspireVersion>
+    <AspireVersion>8.0.0-preview.6.24214.1</AspireVersion>
   </PropertyGroup>
 
   <ItemGroup>
