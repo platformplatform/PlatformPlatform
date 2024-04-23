@@ -22,7 +22,7 @@ var azureStorage = builder
     .AddBlobs("blobs");
 
 builder
-    .AddContainer("mail-server", "mailhog/mailhog")
+    .AddContainer("mail-server", "axllent/mailpit")
     .WithHttpEndpoint(9003, 8025)
     .WithEndpoint(9004, 1025);
 
