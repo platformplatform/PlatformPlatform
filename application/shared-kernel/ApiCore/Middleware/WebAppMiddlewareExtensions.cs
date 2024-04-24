@@ -24,7 +24,16 @@ public static class WebAppMiddlewareExtensions
     
     public static IApplicationBuilder UseWebAppMiddleware(this IApplicationBuilder app)
     {
-        if (!Path.Exists(WebAppMiddlewareConfiguration.GetHtmlTemplatePath())) return app;
+        if (!File.Exists(WebAppMiddlewareConfiguration.HtmlTemplatePath))
+        {
+            // When running locally, this code might be called while index.html is recreated, give it a few seconds to finish.
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+        }
+        
+        if (!File.Exists(WebAppMiddlewareConfiguration.HtmlTemplatePath))
+        {
+            throw new InvalidOperationException("The index.html file is missing.");
+        }
         
         var webAppConfiguration = app.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
         

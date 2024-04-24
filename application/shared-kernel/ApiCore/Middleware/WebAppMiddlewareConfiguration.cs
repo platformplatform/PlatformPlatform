@@ -13,7 +13,8 @@ public class WebAppMiddlewareConfiguration
     public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
     private const string ApplicationVersionKey = "APPLICATION_VERSION";
-    private readonly string _htmlTemplatePath = GetHtmlTemplatePath();
+    
+    public static readonly string HtmlTemplatePath = Path.Combine(GetWebAppDistRoot("WebApp", "dist"), "index.html");
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
     private string? _htmlTemplate;
     
@@ -62,12 +63,12 @@ public class WebAppMiddlewareConfiguration
             return _htmlTemplate;
         }
         
-        if (!File.Exists(_htmlTemplatePath))
+        if (!File.Exists(HtmlTemplatePath))
         {
-            throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
+            throw new FileNotFoundException("index.html does not exist.", HtmlTemplatePath);
         }
         
-        _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+        _htmlTemplate = File.ReadAllText(HtmlTemplatePath, new UTF8Encoding());
         return _htmlTemplate;
     }
     
@@ -85,22 +86,6 @@ public class WebAppMiddlewareConfiguration
         }
         
         return Path.Join(directoryInfo!.FullName, webAppProjectName, webAppDistRootName);
-    }
-    
-    public static string GetHtmlTemplatePath()
-    {
-        var buildRootPath = GetWebAppDistRoot("WebApp", "dist");
-        var htmlTemplatePath = Path.Combine(buildRootPath, "index.html");
-        
-        for (var i = 0; i < 10; i++)
-        {
-            // Fixing a race condition where this code might be called before the frontend build has created index.html
-            // When generating the Open API (Api.json) using OpenApiGenerateDocuments the index.html is not created yet
-            if (File.Exists(htmlTemplatePath)) break;
-            Thread.Sleep(TimeSpan.FromSeconds(1));
-        }
-        
-        return htmlTemplatePath;
     }
     
     private StringValues GetPermissionsPolicies()
