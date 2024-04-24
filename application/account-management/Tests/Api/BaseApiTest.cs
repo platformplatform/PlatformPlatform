@@ -138,6 +138,13 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         }
     }
     
+    protected async Task<T?> DeserializeResponse<T>(HttpResponseMessage response)
+    {
+        var responseStream = await response.Content.ReadAsStreamAsync();
+        
+        return await JsonSerializer.DeserializeAsync<T>(responseStream, JsonSerializerOptions);
+    }
+    
     private async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
