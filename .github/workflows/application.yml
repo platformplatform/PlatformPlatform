@@ -99,6 +99,17 @@ jobs:
           name: account-management-api
           path: application/account-management/Api/publish/**/*
 
+      - name: Publish Account Management Worker build
+        working-directory: application/account-management
+        run: |
+          dotnet publish ./Workers/Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save Account Management Workers artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: account-management-workers
+          path: application/account-management/Workers/publish/**/*
+
       - name: Publish App Gateway build
         working-directory: application
         run: |
@@ -194,7 +205,7 @@ jobs:
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
 
-  account-management-deploy:
+  account-management-api-deploy:
     name: Account Management API Deploy
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test, account-management-api-publish]
@@ -202,6 +213,29 @@ jobs:
     secrets: inherit
     with:
       image_name: account-management-api
+      version: ${{ needs.build-and-test.outputs.version }}
+
+  account-management-workers-publish:
+    name: Account Management Workers Publish
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: account-management-workers
+      artifacts_path: application/account-management/Workers/publish
+      image_name: account-management-workers
+      version: ${{ needs.build-and-test.outputs.version }}
+      docker_context: ./application/account-management
+      docker_file: ./Workers/Dockerfile
+
+  account-management-workers-deploy:
+    name: Account Management Workers Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, account-management-workers-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: account-management-workers
       version: ${{ needs.build-and-test.outputs.version }}
 
   app-gateway-publish:
