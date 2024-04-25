@@ -84,6 +84,10 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
+      - name: Build solution frontend
+        working-directory: application/account-management/WebApp
+        run: yarn run msbuild
+
       - name: Publish Account Management API build
         working-directory: application/account-management
         run: |
@@ -137,9 +141,13 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Build solution
+      - name: Build solution backend
         working-directory: application
         run: dotnet build PlatformPlatform.sln --no-restore
+
+      - name: Build solution frontend
+        working-directory: application/account-management/WebApp
+        run: yarn run msbuild
 
       - name: Run code inspections
         working-directory: application
