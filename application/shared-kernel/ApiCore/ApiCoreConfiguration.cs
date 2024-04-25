@@ -125,7 +125,7 @@ public static class ApiCoreConfiguration
         return services;
     }
     
-    public static WebApplication AddApiCoreConfiguration(this WebApplication app)
+    public static WebApplication UseApiCoreConfiguration(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {

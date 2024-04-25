@@ -19,7 +19,7 @@ builder.Services.Configure<HostOptions>(options =>
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices()
-    .ConfigureStorage(builder);
+    .AddConfigureStorage(builder);
 
 var host = builder.Build();
 

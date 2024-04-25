@@ -12,13 +12,13 @@ builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices()
     .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
-    .ConfigureStorage(builder)
+    .AddConfigureStorage(builder)
     .AddWebAppMiddleware();
 
 var app = builder.Build();
 
 // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
-app.AddApiCoreConfiguration();
+app.UseApiCoreConfiguration();
 
 // Server the SPA Index.html if no other endpoints are found
 app.UseWebAppMiddleware();
