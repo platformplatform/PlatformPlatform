@@ -109,10 +109,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
     
     [Fact]
-    public async Task GetUsers_WhenSearchingBasedOnUserLastName_ShouldReturnUser()
+    public async Task GetUsers_WhenSearchingBasedOnFullName_ShouldReturnUser()
     {
         // Arrange
-        var searchString = "Gate";
+        var searchString = "William Henry Gates";
         
         // Act
         var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
