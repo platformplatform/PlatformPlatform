@@ -3,11 +3,12 @@
     "Api": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "swagger",
       "applicationUrl": "https://localhost:9100",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "development",
         "PUBLIC_URL": "https://localhost:9000",
-        "CDN_URL": "https://localhost:9099"
+        "CDN_URL": "https://localhost:9101"
       }
     }
   }
