@@ -11,7 +11,7 @@ param sqlAdminObjectId string
 param domainName string
 param isDomainConfigured bool
 param appGatewayVersion string
-param accountManagementApiVersion string
+param accountManagementVersion string
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
@@ -226,30 +226,6 @@ var accountManagementEnvironmentVariables = [
   }
 ]
 
-module accountManagementApi '../modules/container-app.bicep' = {
-  name: 'account-management-api-container-app'
-  scope: clusterResourceGroup
-  params: {
-    name: 'account-management-api'
-    location: location
-    tags: tags
-    resourceGroupName: resourceGroupName
-    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
-    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
-    containerRegistryName: containerRegistryName
-    containerImageName: 'account-management-api'
-    containerImageTag: accountManagementApiVersion
-    cpu: '0.25'
-    memory: '0.5Gi'
-    minReplicas: 1
-    maxReplicas: 3
-    userAssignedIdentityName: accountManagementIdentityName
-    keyVaultName: keyVault.outputs.name
-    environmentVariables: accountManagementEnvironmentVariables
-  }
-  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
-}
-
 module accountManagementWorkers '../modules/container-app.bicep' = {
   name: 'account-management-workers-container-app'
   scope: clusterResourceGroup
@@ -262,7 +238,31 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
     containerImageName: 'account-management-workers'
-    containerImageTag: accountManagementApiVersion
+    containerImageTag: accountManagementVersion
+    cpu: '0.25'
+    memory: '0.5Gi'
+    minReplicas: 0
+    maxReplicas: 3
+    userAssignedIdentityName: accountManagementIdentityName
+    keyVaultName: keyVault.outputs.name
+    environmentVariables: accountManagementEnvironmentVariables
+  }
+  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
+}
+
+module accountManagementApi '../modules/container-app.bicep' = {
+  name: 'account-management-api-container-app'
+  scope: clusterResourceGroup
+  params: {
+    name: 'account-management-api'
+    location: location
+    tags: tags
+    resourceGroupName: resourceGroupName
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
+    containerRegistryName: containerRegistryName
+    containerImageName: 'account-management-api'
+    containerImageTag: accountManagementVersion
     cpu: '0.25'
     memory: '0.5Gi'
     minReplicas: 1
@@ -271,7 +271,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     keyVaultName: keyVault.outputs.name
     environmentVariables: accountManagementEnvironmentVariables
   }
-  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
+  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
 }
 
 var appGatewayIdentityName = 'app-gateway-${resourceGroupName}'
