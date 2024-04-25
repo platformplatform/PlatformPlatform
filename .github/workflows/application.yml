@@ -38,7 +38,7 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node
+      - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -47,7 +47,7 @@ jobs:
         working-directory: application/account-management/WebApp
         run: yarn install --frozen-lockfile
 
-      - name: Setup .NET
+      - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -62,13 +62,13 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Setup Java
+      - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: "microsoft"
           java-version: "17"
 
-      - name: Run Test with dotCover and SonarScanner reporting
+      - name: Run tests with dotCover and SonarScanner reporting
         working-directory: application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,7 +84,7 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
-      - name: Build solution frontend
+      - name: Build frontend artifacts
         working-directory: application/account-management/WebApp
         run: yarn run msbuild
 
@@ -118,7 +118,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -126,7 +127,7 @@ jobs:
         working-directory: application/account-management/WebApp
         run: yarn install --frozen-lockfile
 
-      - name: Setup .NET
+      - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
@@ -141,11 +142,11 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Build solution backend
+      - name: Build backend solution
         working-directory: application
         run: dotnet build PlatformPlatform.sln --no-restore
 
-      - name: Build solution frontend
+      - name: Build frontend artifacts
         working-directory: application/account-management/WebApp
         run: yarn run msbuild
 
