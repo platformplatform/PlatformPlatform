@@ -241,7 +241,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
       }
       {
         name: 'SENDER_EMAIL_ADDRESS'
-        value: communicationService.outputs.senderEmailAddress
+        value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
       }
     ]
   }
