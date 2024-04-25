@@ -150,6 +150,8 @@ module accountManagementIdentity '../modules/user-assigned-managed-identity.bice
     name: accountManagementIdentityName
     location: location
     tags: tags
+    containerRegistryName: containerRegistryName
+    keyVaultName: keyVault.outputs.name
   }
 }
 
@@ -244,7 +246,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     minReplicas: 0
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
-    keyVaultName: keyVault.outputs.name
+    ingress: false
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
@@ -268,7 +270,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     minReplicas: 1
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
-    keyVaultName: keyVault.outputs.name
+    ingress: true
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
@@ -282,6 +284,8 @@ module mainAppIdentity '../modules/user-assigned-managed-identity.bicep' = {
     name: appGatewayIdentityName
     location: location
     tags: tags
+    containerRegistryName: containerRegistryName
+    keyVaultName: keyVault.outputs.name
   }
 }
 
@@ -304,10 +308,10 @@ module appGateway '../modules/container-app.bicep' = {
     minReplicas: 1
     maxReplicas: 3
     userAssignedIdentityName: appGatewayIdentityName
+    ingress: true
     domainName: domainName == '' ? '' : domainName
     isDomainConfigured: domainName != '' && isDomainConfigured
     external: true
-    keyVaultName: keyVault.outputs.name
     environmentVariables: [
       {
         name: 'AZURE_CLIENT_ID'

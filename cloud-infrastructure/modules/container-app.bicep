@@ -12,30 +12,16 @@ param memory string = '0.5Gi'
 param minReplicas int = 1
 param maxReplicas int = 3
 param userAssignedIdentityName string
+param ingress bool
 param domainName string = ''
 param isDomainConfigured bool = false
 param external bool = false
-param keyVaultName string
 param environmentVariables object[] = []
 param uniqueSuffix string = substring(newGuid(), 0, 4)
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   scope: resourceGroup(resourceGroupName)
   name: userAssignedIdentityName
-}
-
-resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
-  name: keyVaultName
-}
-
-var containerRegistryResourceGroupName = 'shared'
-module containerRegistryPermission './role-assignments-container-registry-acr-pull.bicep' = {
-  name: 'container-registry-permission'
-  scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
-  params: {
-    containerRegistryName: containerRegistryName
-    principalId: userAssignedIdentity.properties.principalId
-  }
 }
 
 var certificateName = '${domainName}-certificate' // Note: The `-certificate` is used to detect if a certificate in deploy-cluster.sh
@@ -122,7 +108,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
-      ingress: {
+      ingress: ingress ? {
         external: external
         targetPort: 8080
         exposedPort: 0
@@ -135,18 +121,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
         ]
         customDomains: customDomainConfiguration
         stickySessions: null
-      }
+      } : null
     }
-  }
-  dependsOn: [containerRegistryPermission]
-}
-
-var keyVaultSecretsUserRoleDefinitionId = '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User role
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(keyVault.name, name, keyVaultSecretsUserRoleDefinitionId)
-  scope: keyVault
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', keyVaultSecretsUserRoleDefinitionId)
-    principalId: userAssignedIdentity.properties.principalId
   }
 }
