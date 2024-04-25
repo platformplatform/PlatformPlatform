@@ -202,26 +202,27 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├── .github                # Separate GitHub workflows for deploying Infrastructure and app
-├── application            # Contains the application source code
-│   ├── AppHost            # .NET Aspire project starting app and all dependencies in Docker
-│   ├── AppGateway         # Main entry point for the app using YARP as a reverse proxy 
-│   ├── account-management # Self-contained system with account sign-up, user management, etc.
-│   │   ├── WebApp         # React SPA frontend using TypeScript and React Aria Components
-│   │   ├── Api            # Presentation layer exposing the API to WebApp or other clients
-│   │   ├── Application    # Use Case layer containing CQRS Command and Query handlers 
-│   │   ├── Domain         # Business logic containing DDD aggregates, entities, etc.
-│   │   ├── Infrastructure # Integrations for accessing external resources (e.g., database)
-│   │   └── Tests          # Tests for the API, Application, Domain, and Infrastructure
-│   ├── shared-kernel      # Reusable components for all self-contained systems
-│   ├── [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│   └── [back-office]      # [Planned] A self-contained system for operations and support
-├── cloud-infrastructure   # Contains Bash and Bicep scripts (IaC) for Azure resources
-│   ├── cluster            # Scale units like production-west-eu, production-east-us, etc.
-│   ├── environment        # Shared resources like App Insights for all Production clusters
-│   ├── shared             # Azure Container Registry shared between all environments
-│   └── modules            # Reusable Bicep modules like Container App, SQL Server, etc.
-└── development-cli        # A .NET CLI tool for automating common developer tasks
+├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
+├─ application           # Contains the application source code
+│  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
+│  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
+│  ├─ account-management # Self-contained system with account sign-up, user management, etc.
+│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
+│  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
+│  │   ├─ Application    # Use Case layer containing CQRS Command and Query handlers 
+│  │   ├─ Domain         # Business logic containing DDD aggregates, entities, etc.
+│  │   ├─ Infrastructure # Integrations for accessing external resources (e.g., database)
+│  │   ├─ Workers        # Background workers for long-running tasks and event processing
+│  │   └─ Tests          # Tests for the API, Application, Domain, and Infrastructure
+│  ├─ shared-kernel      # Reusable components for all self-contained systems
+│  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
+│  └─ [back-office]      # [Planned] A self-contained system for operations and support
+├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
+│  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
+│  ├─ environment        # Shared resources like App Insights for all Production clusters
+│  ├─ shared             # Azure Container Registry shared between all environments
+│  └─ modules            # Reusable Bicep modules like Container App, SQL Server, etc.
+└─ development-cli       # A .NET CLI tool for automating common developer tasks
 ```
 
 ** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation.
