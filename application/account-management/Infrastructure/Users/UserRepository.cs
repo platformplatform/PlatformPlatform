@@ -31,8 +31,8 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         
         if (search is not null)
         {
-            // We use the null-forgiving (!) operator here because the SQL LIKE operator handles NULL values gracefully
-            users = users.Where(u => u.Email.Contains(search) || u.FirstName!.Contains(search) || u.LastName!.Contains(search));
+            // Concatenate first and last name to enable searching by full name
+            users = users.Where(u => u.Email.Contains(search) || (u.FirstName + " " + u.LastName).Contains(search));
         }
         
         if (userRole is not null)
@@ -64,7 +64,9 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         var itemOffset = (pageOffset ?? 0) * pageSize.Value;
         var result = await users.Skip(itemOffset).Take(pageSize.Value).ToArrayAsync(cancellationToken);
         
-        var totalItems = await users.CountAsync(cancellationToken);
+        var totalItems = pageOffset == 0 && result.Length < pageSize
+            ? result.Length // If the first page returns fewer items than page size, skip querying the total count
+            : await users.CountAsync(cancellationToken);
         
         var totalPages = (totalItems - 1) / pageSize.Value + 1;
         return (result, totalItems, totalPages);

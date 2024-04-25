@@ -75,6 +75,87 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     }
     
     [Fact]
+    public async Task GetUsers_WhenSearchingBasedOnUserEmail_ShouldReturnUser()
+    {
+        // Arrange
+        var searchString = "willgate";
+        
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        
+        // Assert
+        EnsureSuccessGetRequest(response);
+        var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
+        userResponse.Should().NotBeNull();
+        userResponse!.TotalCount.Should().Be(1);
+        userResponse.Users.First().Email.Should().Be(DatabaseSeeder.User1ForSearching.Email);
+    }
+    
+    [Fact]
+    public async Task GetUsers_WhenSearchingBasedOnUserFirstName_ShouldReturnUser()
+    {
+        // Arrange
+        var searchString = "Will";
+        
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        
+        // Assert
+        EnsureSuccessGetRequest(response);
+        var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
+        userResponse.Should().NotBeNull();
+        userResponse!.TotalCount.Should().Be(1);
+        userResponse.Users.First().FirstName.Should().Be(DatabaseSeeder.User1ForSearching.FirstName);
+    }
+    
+    [Fact]
+    public async Task GetUsers_WhenSearchingBasedOnFullName_ShouldReturnUser()
+    {
+        // Arrange
+        var searchString = "William Henry Gates";
+        
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        
+        // Assert
+        EnsureSuccessGetRequest(response);
+        var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
+        userResponse.Should().NotBeNull();
+        userResponse!.TotalCount.Should().Be(1);
+        userResponse.Users.First().LastName.Should().Be(DatabaseSeeder.User1ForSearching.LastName);
+    }
+    
+    [Fact]
+    public async Task GetUsers_WhenSearchingBasedOnUserRole_ShouldReturnUser()
+    {
+        // Arrange
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/users?userRole={UserRole.TenantUser}");
+        
+        // Assert
+        EnsureSuccessGetRequest(response);
+        var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
+        userResponse.Should().NotBeNull();
+        userResponse!.TotalCount.Should().Be(1);
+        userResponse.Users.First().UserRole.Should().Be(DatabaseSeeder.User1ForSearching.UserRole);
+    }
+    
+    [Fact]
+    public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
+    {
+        // Act
+        var response = await TestHttpClient.GetAsync($"/api/users?orderBy={SortableUserProperties.UserRole}");
+        
+        // Assert
+        EnsureSuccessGetRequest(response);
+        var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
+        userResponse.Should().NotBeNull();
+        userResponse!.TotalCount.Should().Be(3);
+        userResponse.Users.First().UserRole.Should().Be(UserRole.TenantOwner);
+        userResponse.Users.Last().UserRole.Should().Be(UserRole.TenantUser);
+    }
+    
+    [Fact]
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Arrange

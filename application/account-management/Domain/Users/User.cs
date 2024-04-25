@@ -36,9 +36,19 @@ public sealed class User : AggregateRoot<UserId>
         return new User(tenantId, email, userRole, emailConfirmed) { Avatar = avatar };
     }
     
-    public void Update(string email, UserRole userRole)
+    public void Update(string firstName, string lastName)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+    }
+    
+    public void UpdateEmail(string email)
     {
         Email = email;
+    }
+    
+    public void ChangeUserRole(UserRole userRole)
+    {
         UserRole = userRole;
     }
     

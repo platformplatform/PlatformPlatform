@@ -167,7 +167,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserId = DatabaseSeeder.User1.Id;
-        _ = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
+        await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
         TelemetryEventsCollectorSpy.Reset();
         
         // Act
