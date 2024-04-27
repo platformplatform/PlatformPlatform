@@ -9,6 +9,7 @@
         <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../WebApp/lib/api/</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+        <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;Dockerfile</DefaultItemExcludes>
     </PropertyGroup>
 
     <ItemGroup>
@@ -40,11 +41,6 @@
         <Content Update="appsettings.development.json">
             <DependentUpon>appsettings.json</DependentUpon>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Remove="publish\**"/>
-        <None Remove="publish\**"/>
     </ItemGroup>
 
 </Project>
