@@ -9,8 +9,9 @@
     "lingui:compile": "lingui compile --typescript",
     "lint": "eslint .",
     "typechecking": "tsc --noEmit",
-    "msbuild": "yarn run swagger && yarn run build",
+    "msbuild": "yarn run swagger && yarn run build && yarn run publish",
     "swagger": "npx openapi-typescript lib/api/Api.json -o lib/api/api.generated.d.ts && npx prettier lib/api/api.generated.d.ts --write",
+    "publish": "mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/",
     "postinstall": "yarn run lingui:extract && yarn run lingui:compile"
   },
   "dependencies": {
