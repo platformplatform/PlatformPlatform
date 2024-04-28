@@ -1,41 +1,10 @@
 <Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.751930">
 
     <PropertyGroup>
-        <StartupCommand>set BROWSER=none;yarn dev</StartupCommand>
-        <JavaScriptTestRoot>.\</JavaScriptTestRoot>
-        <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
-        <!-- Folder where production build objects will be placed -->
-        <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
-        <NpmInstallCheck>$(MSBuildProjectDirectory)\yarn.lock</NpmInstallCheck>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
-        <!-- When building locally, we just need to build the API contract from the Swagger API.json -->
-        <BuildCommand>yarn run swagger</BuildCommand>
-        <!-- Command to create an optimized build of the project that's ready for publishing -->
-        <ProductionBuildCommand>yarn run msbuild</ProductionBuildCommand>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)'=='WINDOWS_NT'">
+        <BuildCommand>yarn install --frozen-lockfile --ignore-engines</BuildCommand>
         <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
+        <DefaultItemExcludes>$(DefaultItemExcludes);dist\**;*.config.*;*.d.ts</DefaultItemExcludes>
     </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Api\Api.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Script Include="tsconfig.json"/>
-    </ItemGroup>
-
-    <Target Name="FrontendDependencies" BeforeTargets="BeforeBuild">
-        <Exec Command="yarn install --frozen-lockfile --ignore-engines" WorkingDirectory="$(ProjectDir)"/>
-    </Target>
-
-    <Target Name="BuildFrontend" AfterTargets="Build">
-        <ItemGroup>
-            <WebAppSourceFiles Include="$(ProjectDir)dist/**/*.*"/>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(WebAppSourceFiles)" DestinationFolder="$(ProjectDir)../Api/publish/WebApp/dist/%(RecursiveDir)"/>
-    </Target>
 
 </Project>

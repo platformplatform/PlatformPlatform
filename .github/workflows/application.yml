@@ -84,9 +84,9 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
-      - name: Build frontend artifacts
+      - name: Publish frontend artifacts
         working-directory: application/account-management/WebApp
-        run: yarn run msbuild
+        run: yarn run publish
 
       - name: Publish Account Management API build
         working-directory: application/account-management
@@ -146,10 +146,6 @@ jobs:
         working-directory: application
         run: dotnet build PlatformPlatform.sln --no-restore
 
-      - name: Build frontend artifacts
-        working-directory: application/account-management/WebApp
-        run: yarn run msbuild
-
       - name: Run code inspections
         working-directory: application
         run: |
@@ -172,6 +168,10 @@ jobs:
             echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
             exit 1
           }
+
+      - name: Build frontend artifacts
+        working-directory: application/account-management/WebApp
+        run: yarn run build
 
       - name: Run ESLint
         working-directory: application/account-management/WebApp
