@@ -63,6 +63,13 @@ public class WebAppMiddlewareConfiguration
             return _htmlTemplate;
         }
         
+        var retryCount = 0;
+        while (!File.Exists(HtmlTemplatePath) && retryCount++ < 10)
+        {
+            // When running locally, this code might be called while index.html is recreated, give it a few seconds to finish.
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
+        
         if (!File.Exists(HtmlTemplatePath))
         {
             throw new FileNotFoundException("index.html does not exist.", HtmlTemplatePath);
