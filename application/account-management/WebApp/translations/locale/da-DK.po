@@ -91,6 +91,9 @@ msgstr "Tjek venligst din e-mail for en verifikationskode sendt til <0>{email}</
 msgid "Please sign in to continue"
 msgstr "Log ind for at fortsætte"
 
+msgid "Region"
+msgstr ""
+
 msgid "Sign in"
 msgstr "Log ind"
 

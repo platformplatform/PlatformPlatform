@@ -91,6 +91,9 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 msgid "Please sign in to continue"
 msgstr "Please sign in to continue"
 
+msgid "Region"
+msgstr "Region"
+
 msgid "Sign in"
 msgstr "Sign in"
 
