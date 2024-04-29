@@ -27,6 +27,12 @@ const applicationInsights = new ApplicationInsights({
     disableAjaxTracking: true,
     // Disable the unload event as it is not best practice
     disablePageUnloadEvents: ["unload"],
+    extensionConfig: {
+      AppInsightsCfgSyncPlugin: {
+        // this will block fetching from default cdn
+        cfgUrl: "",
+      },
+    },
   },
 });
 
