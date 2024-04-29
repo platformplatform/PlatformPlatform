@@ -166,7 +166,7 @@ dotnet run
 Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
 
 ```bash
-cd development-cli
+cd developer-cli
 dotnet run configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
 ```
 
