@@ -1,4 +1,4 @@
-import { StartAccountRegistrationForm } from "./components/StartAccountRegistrationForm.tsx";
+import { StartAccountRegistrationForm } from "./components/StartAccountRegistrationForm";
 import { HeroImage } from "@/ui/images/HeroImage";
 
 export default function AccountRegistrationPage() {
