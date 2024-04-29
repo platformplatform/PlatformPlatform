@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "yarn run update-translations && yarn run swagger && rspack serve",
+    "dev": "rm ./dist/*.* && yarn run update-translations && yarn run swagger && rspack serve",
     "build": "yarn run update-translations && yarn run swagger && rspack build && yarn run typechecking",
     "update-translations": "yarn run lingui extract && yarn run lingui compile --typescript",
     "lint": "eslint .",
