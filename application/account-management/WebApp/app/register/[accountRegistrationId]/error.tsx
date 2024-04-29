@@ -24,6 +24,7 @@ export default function ErrorPage({ error, reset, params: { accountRegistrationI
       <h2>Something went wrong!</h2>
       <p>There was an error verifying your registration code.</p>
       <button
+        type="button"
         onClick={
           // Attempt to recover by trying to re-render the segment
           () => reset()
@@ -39,13 +40,13 @@ interface VerificationExpiredProps {
   accountRegistrationId: string;
 }
 
-function VerificationExpired({ accountRegistrationId }: VerificationExpiredProps) {
+function VerificationExpired({ accountRegistrationId }: Readonly<VerificationExpiredProps>) {
   return (
     <div className="flex flex-col text-center p-8">
       <h2>Verification code expired</h2>
       <p>The verification code you are trying to use has expired.</p>
       <p>Account Registration ID: {accountRegistrationId}</p>
-      <button className="font-semibold">
+      <button type="button" className="font-semibold">
         Try again
       </button>
     </div>
