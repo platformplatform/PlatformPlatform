@@ -11,7 +11,7 @@ export interface OneTimeCodeInputProps {
 }
 
 export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "code" }: OneTimeCodeInputProps) {
-  const [digits, setDigits] = useState(Array(length).fill(""));
+  const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const id = useId();
   const digitRefs = useMemo(() => Array(length).fill(id).map((id, i) => `${id}_${i}`), [id, length]);
   const inputValue = digits.join("");
@@ -47,6 +47,7 @@ export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "c
     <div className="flex flex-row gap-4">
       {digits.map((digit, i) => (
         <Digit
+          // eslint-disable-next-line react/no-array-index-key
           key={i}
           id={digitRefs[i]}
           tabIndex={i + 1}

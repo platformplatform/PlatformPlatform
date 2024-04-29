@@ -13,7 +13,7 @@ const ApiErrorSchema = z.object({
 });
 type ApiError = z.infer<typeof ApiErrorSchema>;
 
-export function getApiError(response: FetchResponse<any>): ApiError {
+export function getApiError(response: FetchResponse<any, any, any>): ApiError {
   const { error = null } = response;
   const validatedApiError = ApiErrorSchema.safeParse(error);
   if (!validatedApiError.success) {

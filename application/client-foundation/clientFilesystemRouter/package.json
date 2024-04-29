@@ -5,14 +5,14 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@rspack/core": "^0.3.11",
-    "react-router-dom": "^6.21.2"
+    "@rspack/core": "^0.6.3",
+    "react-router-dom": "^6.23.0"
   },
   "devDependencies": {
     "bun-types": "latest"
   },
   "peerDependencies": {
-    "@rspack/core": "^0.3.x",
-    "typescript": "^5.0.0"
+    "@rspack/core": "^0.6.x",
+    "typescript": "^5.4.5"
   }
 }

@@ -57,6 +57,7 @@ export function Slider<T extends number | number[]>(
           <>
             <div className={trackStyles(renderProps)} />
             {state.values.map((_, i) =>
+              // eslint-disable-next-line react/no-array-index-key
               <SliderThumb key={i} index={i} aria-label={thumbLabels?.[i]} className={thumbStyles} />)}
           </>
         )}

@@ -49,6 +49,12 @@ module.exports = antfu({
     }],
   },
 }, {
+  // Allow disabling eslint rules with comments for React Aria Components
+  files: ["**/ui/components/*.tsx", "**/stories/*.tsx"],
+  rules: {
+    "react/prefer-destructuring-assignment": "off",
+  },
+}, {
   // Allow disabling eslint rules with comments for generated files
   files: ["**/locale/*.ts"],
   rules: {

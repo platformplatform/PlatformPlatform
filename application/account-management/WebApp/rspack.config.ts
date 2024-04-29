@@ -26,7 +26,11 @@ const configuration: Configuration = {
     filename: process.env.NODE_ENV === "production" ? "[name].[contenthash].bundle.js" : undefined,
   },
   resolve: {
-    tsConfigPath: resolve(__dirname, "tsconfig.json"),
+    tsConfig: {
+      configFile: resolve(__dirname, "./tsconfig.json"),
+      references: "auto",
+    },
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
   },
   module: {
     rules: [

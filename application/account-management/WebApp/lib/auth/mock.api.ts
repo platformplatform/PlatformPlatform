@@ -36,7 +36,7 @@ export const accountManagementApi = {
           response: {
             ok: true,
           },
-        } as FetchResponse<UserInfo>;
+        } as FetchResponse<UserInfo, any, any>;
       case "/api/auth/logout":
         return {
           data: {
@@ -45,7 +45,7 @@ export const accountManagementApi = {
           response: {
             ok: true,
           },
-        } as FetchResponse<UserInfo>;
+        } as FetchResponse<UserInfo, any, any>;
     }
   },
 };

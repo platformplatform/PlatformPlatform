@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
 import type { State } from "./actions.ts";
