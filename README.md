@@ -140,6 +140,22 @@ Open a terminal and run the following commands:
   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
   ```
 
+- Install Certificate
+  ```bash
+  dotnet tool update -g linux-dev-certs
+  dotnet linux-dev-certs install
+  ```
+
+- Trust Certificates
+
+  ```bash
+  cd /usr/local/share/ca-certificates/aspnet-dev-{Environment.UserName}.crt && explorer.exe .
+  # Install self signed root certificate
+
+  # Open the windows certificate manager and import root certificate
+  # "\\wsl.localhost\Ubuntu-20.04\home\maximus\.aspnet\dev-certs\https\platformplatform.pfx"
+  ```
+
 </details>
 
 ## 1. Fork and clone the repository
