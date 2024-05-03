@@ -66,24 +66,19 @@
 
     --ring: 0 0% 14.9%;
   }
+
+  @media (prefers-color-scheme: dark) {
+    html:not(.light) {
+      @apply dark;
+    }
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-@layer base {
-  html,
-  body,
-  #root {
-    height: 100%;
-    margin: 0;
-    padding: 0;
   }
 }

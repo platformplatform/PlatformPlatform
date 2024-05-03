@@ -1,41 +1,32 @@
-import { Trans } from "@lingui/macro";
-import { useNavigate } from "@/lib/router/router";
-import AcmeLogo from "@/ui/AcmeLogo";
-import { Button } from "@/ui/components/Button";
-import { HeroImage } from "@/ui/images/HeroImage";
+"use client";
+import { CtaSection } from "./_landing/sections/CtaSection";
+import { FeatureSection } from "./_landing/sections/FeatureSection";
+import { FeatureSection2 } from "./_landing/sections/FeatureSection2";
+import { HeroSection } from "./_landing/sections/HeroSection";
+import { FeatureSection3 } from "./_landing/sections/FeatureSection3";
+import { TechnologySection } from "./_landing/sections/TechnologySection";
+import { TechnologySection2 } from "./_landing/sections/TechnologySection2";
+import { CommunitySection } from "./_landing/sections/CommunitySection";
+import { FeatureSection4 } from "./_landing/sections/FeatureSection4";
+import { CtaSection2 } from "./_landing/sections/CtaSection2";
+import { CtaSection3 } from "./_landing/sections/CtaSection3";
+import { FooterSection } from "./_landing/sections/FooterSection";
 
 export default function LandingPage() {
-  const navigate = useNavigate();
   return (
-    <main className="flex min-h-screen flex-col">
-      <div className="flex h-20 shrink-0 items-end bg-black dark:bg-white p-4 md:h-52">
-        <AcmeLogo />
-      </div>
-      <div className="flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col justify-center gap-6 md:w-2/5 md:px-20 p-6">
-          <p className="text-xl text-neutral-800 md:text-2xl md:leading-normal">
-            <strong><Trans>Welcome to Acme.</Trans></strong> <Trans>This is the example for the
-              {" "}
-              <a href="https://platformplatform.net/" className="text-neutral-800 font-semibold mx-2">
-                Acme
-              </a>
-              {" "}
-              demo product, brought to you by PlatformPlatform
-            </Trans>
-          </p>
-          <div className="flex justify-center gap-x-4">
-            <Button onPress={() => navigate("/login")} className="w-fit">
-              <Trans>Sign in</Trans>
-            </Button>
-            <Button onPress={() => navigate("/register")} className="w-fit">
-              <Trans>Sign up</Trans>
-            </Button>
-          </div>
-        </div>
-        <div className="flex items-center justify-center p-6 bg-gray-50 md:w-3/5 md:px-28 md:py-12">
-          <HeroImage />
-        </div>
-      </div>
+    <main className="flex w-full flex-col">
+      <HeroSection />
+      <FeatureSection />
+      <CtaSection />
+      <FeatureSection2 />
+      <FeatureSection3 />
+      <TechnologySection />
+      <TechnologySection2 />
+      <CommunitySection />
+      <FeatureSection4 />
+      <CtaSection2 />
+      <CtaSection3 />
+      <FooterSection />
     </main>
   );
 }

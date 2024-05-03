@@ -71,7 +71,7 @@ const configuration: Configuration = {
       {
         test: /\.svg$/i,
         issuer: /\.tsx?$/,
-        resourceQuery: "", // exclude react component if *.svg?url
+        resourceQuery: { not: [/url/] }, // exclude react component if *.svg?url
         use: [
           {
             loader: "@svgr/webpack",

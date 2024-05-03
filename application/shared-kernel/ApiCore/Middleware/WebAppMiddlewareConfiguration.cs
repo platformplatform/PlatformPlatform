@@ -114,7 +114,8 @@ public class WebAppMiddlewareConfiguration
     
     private string GetContentSecurityPolicies(bool isDevelopment)
     {
-        var trustedHosts = $"{PublicUrl} {CdnUrl}";
+        var trustedCdnHosts = "https://platformplatformgithub.blob.core.windows.net";
+        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHosts}";
         
         if (isDevelopment)
         {

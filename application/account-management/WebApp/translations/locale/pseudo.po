@@ -109,11 +109,11 @@ msgstr ""
 msgid "Subdomain"
 msgstr ""
 
-msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
-msgstr ""
+#~ msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+#~ msgstr ""
 
 msgid "Verify"
 msgstr ""
 
-msgid "Welcome to Acme."
-msgstr ""
+#~ msgid "Welcome to Acme."
+#~ msgstr ""
