@@ -19,9 +19,9 @@
     "@microsoft/applicationinsights-web": "^3.2.0",
     "lucide-react": "^0.376.0",
     "openapi-fetch": "^0.9.5",
-    "react": "18.3.1",
+    "react": "18.3.0-canary-c47c306a7-20231109",
     "react-aria-components": "^1.1.1",
-    "react-dom": "18.3.1",
+    "react-dom": "18.3.0-canary-c47c306a7-20231109",
     "react-dom-confetti": "^0.2.0",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.2.1",
@@ -55,6 +55,14 @@
     "tailwindcss-react-aria-components": "^1.1.1",
     "tslib": "2.6.2",
     "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
+  "resolutions": {
+    "react": "18.3.0-canary-c47c306a7-20231109",
+    "react-dom": "18.3.0-canary-c47c306a7-20231109"
   },
   "browserslist": [
     "last 1 version",
