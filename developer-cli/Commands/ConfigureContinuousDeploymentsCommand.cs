@@ -140,7 +140,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CollectAzureSubscriptionInfo(AzureInfo azureInfo, bool skipAzureLogin, GithubInfo githubInfo)
     {
         // Both `az login` and `az account list` will return a JSON array of subscriptions
-        var subscriptionListJson = RunAzureCliCommand($"{(skipAzureLogin ? "account list" : "login")}");
+        var subscriptionListJson = RunAzureCliCommand($"{(skipAzureLogin ? "account list --output json" : "login")}");
 
         // Regular expression to match JSON part
         var jsonRegex = new Regex(@"\[.*\]", RegexOptions.Singleline);
@@ -266,9 +266,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
             );
 
             //  Check whether the Azure Container Registry name is available
-            var checkAvailability = RunAzureCliCommand($"acr check-name --name {registryName}");
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {registryName} --query \"nameAvailable\" -o tsv");
 
-            if (JsonDocument.Parse(checkAvailability).RootElement.GetProperty("nameAvailable").GetBoolean())
+            if (bool.Parse(checkAvailability))
             {
                 AnsiConsole.WriteLine();
                 azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
@@ -276,7 +276,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
 
             // Checks if the Azure Container Registry is a resource under the current subscription
-            var showExistingRegistry = RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id}");
+            var showExistingRegistry = RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id} --output json");
 
             var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
             var match = jsonRegex.Match(showExistingRegistry);
