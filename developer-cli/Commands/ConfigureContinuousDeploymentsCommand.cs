@@ -87,7 +87,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         var gitRemotes = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
 
-        var gitRemoteRegex = new Regex(@"(?<url>https://github\.com/.*\.git)");
+        var gitRemoteRegex = new Regex(@"(?<url>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git))");
         var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);
         if (!gitRemoteMatches.Success)
         {
@@ -626,11 +626,26 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
 public class GithubInfo
 {
-    public GithubInfo(string gitUrl)
+    public GithubInfo(string gitUri)
     {
-        GithubUrl = gitUrl.Replace(".git", "");
-        OrganizationName = GithubUrl.Split("/")[3];
-        RepositoryName = GithubUrl.Split("/")[4];
+        string remote;
+        if (gitUri.StartsWith("https://github.com/"))
+        {
+            remote = gitUri.Replace("https://github.com/", "").Replace(".git", "");
+        }
+        else if (gitUri.StartsWith("git@github.com:"))
+        {
+            remote = gitUri.Replace("git@github.com:", "").Replace(".git", "");
+        }
+        else
+        {
+            throw new ArgumentException($"Invalid Git URI: {gitUri}. Only https:// and git@ formatted is supported.", nameof(gitUri));
+        }
+
+        var parts = remote.Split("/");
+        OrganizationName = parts[0];
+        RepositoryName = parts[1];
+
         Path = $"{OrganizationName}/{RepositoryName}";
     }
 
@@ -638,7 +653,7 @@ public class GithubInfo
 
     public string RepositoryName { get; }
 
-    public string GithubUrl { get; }
+    public string GithubUrl => $"https://github.com/{OrganizationName}/{RepositoryName}";
 
     public string Path { get; }
 
