@@ -392,40 +392,38 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        var appRegistrationInto = azureInfo.AppRegistrationExists ? "Update" : "Create";
-        var reuseSqlAdminsSecurityGroupIntro = azureInfo.SqlAdminsSecurityGroupExists ? "Update" : "Create";
+        var appRegistrationAction = azureInfo.AppRegistrationExists ? "updated" : "created";
+        var reuseSqlAdminsSecurityGroupAction = azureInfo.SqlAdminsSecurityGroupExists ? "updated" : "created";
 
         var setupConfirmPrompt =
             $"""
-             [bold]If you continue the following changes will be made:[/]
+             [bold]If you continue the following will happen:[/]
 
-             1. Ensure deployment of Azure Container Apps Environment is enabled on Azure Subscription: [blue]{azureInfo.Subscription.Name} ({azureInfo.Subscription.Id})[/]
+             1. The App Registration named [blue]{azureInfo.AppRegistrationName}[/] will be {appRegistrationAction} allowing GitHub to do passwordless deployments to Azure.
 
-             2. {appRegistrationInto} [blue]{azureInfo.AppRegistrationName}[/] App Registration with Federated Credentials and trust deployments from Github
+             2. The App Registration will be granted the 'Contributor' and 'User Access Administrator' roles in the Azure Subscription.
 
-             3. Grant the App Registration 'Contributor' and 'User Access Administrator' role to the Azure Subscription
+             3. The AD Security Group [blue]{azureInfo.SqlAdminsSecurityGroupName}[/] will be {reuseSqlAdminsSecurityGroupAction}, with the App Registration set as the owner.
 
-             4. {reuseSqlAdminsSecurityGroupIntro} [blue]{azureInfo.SqlAdminsSecurityGroupName}[/] AD Security Group and make the App Registration owner
-
-             5. Configure GitHub Repository [blue]{githubInfo.GithubUrl}[/] with the following
+             4. The GitHub Repository [blue]{githubInfo.GithubUrl}[/] will be configured with the following secrets and variables:
              
-                GitHub Secrets:
+                GitHub Secrets (soft secrets):
                 * AZURE_TENANT_ID: [blue]{azureInfo.Subscription.TenantId}[/]
                 * AZURE_SUBSCRIPTION_ID: [blue]{azureInfo.Subscription.Id}[/]
                 * AZURE_SERVICE_PRINCIPAL_ID: [blue]{azureInfo.AppRegistrationId ?? "will be generated"}[/]
                 * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId ?? "will be generated"}[/]
-                
+             
                 GitHub Variables:
                 * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
-                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/]
-                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/]
+                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/] (can be changed later)
+                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/] (can be changed later)
                 * UNIQUE_CLUSTER_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
 
-             6. Create [blue]shared[/], [blue]staging[/], and [blue]production[/] environments in GitHub repository
+             5. The following environments will be created in the GitHub repository [blue]shared[/], [blue]staging[/], and [blue]production[/] if they do not exist.
 
-             7. Provide instructions on how to do the first deployment of infrastructure and application to Azure, and make recommendations configuring to GitHub
+             6. You will receive instructions for initial infrastructure and application deployment to Azure, as well as GitHub configuration recommendations.
 
-             Please note that you can run this command multiple times to update the configuration.
+             Please note that this command can be run again update the configuration. Use the [yellow]--skip-azure-login[/] flag to avoid logging in to Azure again.
 
              [bold]Would you like to continue?[/]
              """;
