@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Commands;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
@@ -18,12 +17,13 @@ public static class PrerequisitesChecker
 {
     private static readonly List<Prerequisite> Dependencies =
     [
+        new Prerequisite(PrerequisiteType.CommandLineTool, "dotnet", "dotnet", new Version(8, 0, 200)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(24, 0)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(21, 0)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "yarn", "Yarn", new Version(1, 22)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
-        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.7"""),
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.7""")
     ];
 
     public static void Check(params string[] prerequisiteName)
@@ -131,11 +131,11 @@ public static class PrerequisitesChecker
 
         /*
            The output is on the form:
-           
+
            Installed Workload Id      Manifest Version                      Installation Source
            ------------------------------------------------------------------------------------
            aspire                     8.0.0-preview.7.24251.11/8.0.100      SDK 8.0.200
-           
+
            Use `dotnet workload search` to find additional workloads to install.
          */
         var regex = new Regex(workloadRegex);

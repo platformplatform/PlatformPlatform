@@ -24,6 +24,8 @@ public class TestCommand : Command
 
     private int Execute(string? solutionName)
     {
+        PrerequisitesChecker.Check("dotnet");
+
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         var solutionsFiles = Directory

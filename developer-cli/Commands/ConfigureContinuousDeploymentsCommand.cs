@@ -28,7 +28,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private int Execute(bool skipAzureLogin = false, bool verboseLogging = false)
     {
-        PrerequisitesChecker.Check("az", "gh");
+        PrerequisitesChecker.Check("dotnet", "az", "gh");
 
         AzureInfo azureInfo = new();
 

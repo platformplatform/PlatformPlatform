@@ -35,7 +35,7 @@ public class TranslateCommand : Command
 
     private async Task<int> Execute(string? language)
     {
-        PrerequisitesChecker.Check("docker");
+        PrerequisitesChecker.Check("dotnet", "docker");
 
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try

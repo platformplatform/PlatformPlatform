@@ -15,8 +15,8 @@ public static class Configuration
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
     public static readonly string PublishFolder = IsWindows
-        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PlatformPlatform")
-        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),".PlatformPlatform");
+        ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlatformPlatform")
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".PlatformPlatform");
 
     public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
 
