@@ -41,7 +41,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         // Create connection and add DbContext to the service collection
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
-        Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+        Services.AddDbContextPool<TContext>(options => { options.UseSqlite(Connection); });
         
         Services
             .AddApplicationServices()

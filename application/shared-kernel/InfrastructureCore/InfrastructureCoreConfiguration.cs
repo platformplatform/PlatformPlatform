@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 
@@ -29,7 +30,13 @@ public static class InfrastructureCoreConfiguration
             ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
             : builder.Configuration.GetConnectionString(connectionName);
         
-        builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
+        builder.AddSqlServerDbContext<T>(connectionName, null,
+            dbContextOptionsBuilder => dbContextOptionsBuilder
+                .UseSqlServer(connectionString, sqlServerDbContextOptionsBuilder => sqlServerDbContextOptionsBuilder.UseAzureSqlDefaults())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .AddInterceptors(new UpdateAuditableEntitiesInterceptor())
+        );
+        
         builder.EnrichSqlServerDbContext<T>();
         
         return services;

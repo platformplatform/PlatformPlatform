@@ -29,7 +29,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
                     {
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
                         services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
-                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+                        services.AddDbContextPool<TContext>(options => { options.UseSqlite(Connection); });
                         
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
