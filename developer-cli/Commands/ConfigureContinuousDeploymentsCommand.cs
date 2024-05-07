@@ -260,9 +260,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         while (true)
         {
-            var registryName = AnsiConsole.Ask(
-                "[bold]Please enter a unique name for the Azure Container Registry.[/]",
-                existingContainerRegistryName
+            var registryName = AnsiConsole.Prompt(
+                new TextPrompt<string>("[bold]Please enter a unique name for the Azure Container Registry (ACR) that will store your container images[/]")
+                    .DefaultValue(existingContainerRegistryName)
+                    .Validate(input =>
+                        Regex.IsMatch(input, "^[a-z0-9]{5,50}$")
+                            ? ValidationResult.Success()
+                            : ValidationResult.Error("[red]ERROR:[/]The name must be 5-50 characters and contain only lowercase characters a-z or 0-9.")
+                    )
             );
 
             //  Check whether the Azure Container Registry name is available
@@ -296,7 +301,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
 
             AnsiConsole.MarkupLine(
-                $"[red]ERROR:[/]The Azure Container Registry {registryName} is invalid or already exists. Please try again."
+                $"[red]ERROR:[/]The Azure Container Registry name [blue]{registryName}[/] is already in use, possibly in another subscription. Please enter a unique name."
             );
         }
     }
@@ -359,20 +364,20 @@ public class ConfigureContinuousDeploymentsCommand : Command
         var defaultValue = uniquePrefix
                            ?? githubInfo.OrganizationName.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
 
-        while (true)
-        {
-            uniquePrefix = AnsiConsole.Ask(
-                "[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]",
-                defaultValue
-            ).ToLower();
 
-            if (uniquePrefix.Length is < 2 or > 6) continue;
+        uniquePrefix = AnsiConsole.Prompt(
+            new TextPrompt<string>("[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]")
+                .DefaultValue(defaultValue)
+                .Validate(input =>
+                    Regex.IsMatch(input, "^[a-z0-9]{2,6}$")
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]ERROR:[/]The unique prefix must be 2-6 characters and contain only lowercase characters a-z or 0-9.")
+                )
+        );
 
-            azureInfo.UniquePrefix = uniquePrefix;
+        azureInfo.UniquePrefix = uniquePrefix;
 
-            AnsiConsole.WriteLine();
-            return;
-        }
+        AnsiConsole.WriteLine();
     }
 
     private void LoginToGithub()
