@@ -156,12 +156,6 @@ public static class InfrastructureCoreConfiguration
                 var dbContext = scope.ServiceProvider.GetService<T>() ??
                                 throw new UnreachableException("Missing DbContext.");
                 
-                if (dbContext.Database.GetConnectionString() is null)
-                {
-                    logger.LogCritical("Missing connection string in DbContext. Aborting migration.");
-                    return; // When OpenApiGenerateDocumentsOnBuild the connection string is not available
-                }
-                
                 var strategy = dbContext.Database.CreateExecutionStrategy();
                 
                 strategy.Execute(() => dbContext.Database.Migrate());

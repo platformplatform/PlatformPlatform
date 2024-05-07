@@ -1,12 +1,11 @@
 ﻿{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "Api": {
+    "Workers": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "applicationUrl": "https://localhost:9000",
+      "dotnetRunMessages": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "development"
+        "DOTNET_ENVIRONMENT": "development"
       }
     }
   }

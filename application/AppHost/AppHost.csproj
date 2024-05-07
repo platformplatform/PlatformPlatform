@@ -12,6 +12,7 @@
     <ItemGroup>
         <ProjectReference Include="..\account-management\Api\Api.csproj"/>
         <ProjectReference Include="..\account-management\WebApp\WebApp.esproj"/>
+        <ProjectReference Include="..\account-management\Workers\Workers.csproj"/>
         <ProjectReference Include="..\AppGateway\AppGateway.csproj"/>
     </ItemGroup>
 
