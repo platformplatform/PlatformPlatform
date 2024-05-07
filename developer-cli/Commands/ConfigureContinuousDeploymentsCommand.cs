@@ -308,49 +308,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CollectDomainNames(GithubInfo githubInfo, AzureInfo azureInfo)
     {
-        AnsiConsole.MarkupLine(
-            "You can configure a custom domain name for both production and staging environments. During deployment you will be asked to configure DNS records, after which a valid certificate will automatically be generated and configured."
-        );
-
         githubInfo.Variables.TryGetValue("DOMAIN_NAME_PRODUCTION", out var domainNameProduction);
-        azureInfo.ProductionDomainName = GetValidDomainName("production", domainNameProduction);
+        azureInfo.ProductionDomainName = domainNameProduction ?? "-";
 
         githubInfo.Variables.TryGetValue("DOMAIN_NAME_STAGING", out var domainNameStaging);
-        domainNameStaging = GetValidDomainName("staging",
-            domainNameStaging
-            ?? (azureInfo.ProductionDomainName == "-" ? null : $"staging.{azureInfo.ProductionDomainName}")
-        );
-        azureInfo.StagingDomainName = domainNameStaging;
-
-        string GetValidDomainName(string displayName, string? defaultDomainName = "")
-        {
-            while (true)
-            {
-                if (defaultDomainName == "-") defaultDomainName = "";
-                var domainName =
-                    AnsiConsole.Ask(
-                        $"[bold]Please enter a domain name for [blue]{displayName}[/]. Use [blue]-[/] or leave blank to configure later.[/]",
-                        defaultDomainName
-                    );
-
-                if (string.IsNullOrWhiteSpace(domainName))
-                {
-                    AnsiConsole.WriteLine();
-                    return "-";
-                }
-
-                if (Uri.CheckHostName(domainName) == UriHostNameType.Dns || !domainName.Contains('.'))
-                {
-                    AnsiConsole.WriteLine();
-
-                    return domainName;
-                }
-
-                AnsiConsole.MarkupLine(
-                    $"[red]ERROR:[/]The domain name {domainName} is not a valid host name. Please try again."
-                );
-            }
-        }
+        azureInfo.StagingDomainName = domainNameStaging ?? "-";
     }
 
     private void CollectUniquePrefix(GithubInfo githubInfo, AzureInfo azureInfo)
@@ -590,30 +552,31 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         var setupIntroPrompt =
             $"""
-             We are almost done.
+             We're almost done.
 
-             [yellow]Please read and follow the following instructions to complete the configuration:[/]
+             [yellow]Please follow the instructions below to complete configuration:[/]
 
-             1. To avoid automated deployments to Staging and Production, please go to [blue]{githubInfo.GithubUrl}/settings/environments[/] and check [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. This will ensure manual approval before deployment of changes to infrastructure to Staging and Production.
+             1. Run the [blue]Cloud Infrastructure - Deployment[/] to deploy Azure Infrastructure. Navigate to [blue]{githubInfo.GithubUrl}/actions/workflows/cloud-infrastructure.yml[/] and click ""Run workflow"". The process usually takes approximately 30-45 minutes to complete initially.
 
-             2. Azure Infrastructure needs to be created before we can deploy Docker images to the Azure Container Registry. But deployment of Azure Container Apps requires a Docker image to be available in the Azure Container Registry. The solution is to follow these steps carefully:
+             2. Run the [blue]Application - Build and Deploy[/] to deploy the create and deploy container images. Navigate to [blue]{githubInfo.GithubUrl}/actions/workflows/application.yml[/] and click ""Run workflow"". This process should be completed in less than 5 minutes.
 
-             - Run the [blue]Cloud Infrastructure - Deployment[/] GitHub workflow to deploy the Azure Infrastructure to the Shared environment, [yellow]but do not approve infrastructure changes to Staging and Production yet.[/]
-             - Run the [blue]Application - Build and Deploy[/] GitHub workflow to build and deploy the Docker images to the Azure Container Registry, [yellow]but do not deploy the application to Staging and Production yet.[/]
-             - Complete the deployment of the Azure Infrastructure to Staging and Production - [yellow]please see step 3.[/]
-             - Complete the deployment of the application to Staging and Production.
+             [bold]Optional but recommended configurations:[/]
 
-             3. If you configured a domain a DNS record needs to be created before the Azure Container App can be fully created. The GitHub action deployment of infrastructure will fail with clear instructions on how to create the DNS record, after which you can [yellow]click the "Re-run failed jobs" in the GitHub UI[/], to complete the deployment.
+             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{githubInfo.GithubUrl}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch.
 
-             TIP: If the GitHub workflow fails, you can always rerun the workflow. Knowing these issues will help you understand the error messages more easily.
+             - To add a step for manual approval during infrastructure deployment to the Staging and Production environments, set up required reviewers on GitHub environments. This requires a GitHub Teams or Enterprise Cloud subscription for private repositories. Visit [blue]{githubInfo.GithubUrl}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments.
 
-             [bold]Optionally, but recommended:[/]
+             - Configure the Domain Name for the Staging and Production environments. This involves two steps:
+                 
+                 a. Go to [blue]{githubInfo.GithubUrl}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
+                 
+                 b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, rerun the failed jobs.
 
-             - Set up branch protection rules for the [blue]main[/] branch to require pull request reviews before merging.
-             - Set up SonarCloud for code quality and security analysis. Workflows are already configured to run SonarCloud analysis. Just go to [blue]https://sonarcloud.io[/] and connect your GitHub account, and add [blue]SONAR_TOKEN[/] secret, and [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository.
-             - Enable Microsoft Defender for Cloud (aka Azure Security Center). PlatformPlatform is built following all security recommendations, but as the system evolves, new security recommendations will be added. Microsoft Defender for Cloud will help you keep track of these recommendations and help you fix them.
+             - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.
 
-             Also, note that you can run this command multiple times to update the configuration.
+             - Enable Microsoft Defender for Cloud (also known as Azure Security Center) once the system evolves for added security recommendations. This costs about $10-15 per month per cluster.
+
+             You can rerun this command to update the configuration. Use the [yellow]--skip-azure-login[/] flag to bypass Azure login.
              """;
 
         AnsiConsole.MarkupLine($"{setupIntroPrompt}");
