@@ -16,6 +16,7 @@ param ingress bool
 param domainName string = ''
 param isDomainConfigured bool = false
 param external bool = false
+param hasProbes bool = false
 param environmentVariables object[] = []
 param uniqueSuffix string = substring(newGuid(), 0, 4)
 
@@ -93,6 +94,27 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             memory: memory
           }
           env: environmentVariables
+          probes: hasProbes ? [{
+            type: 'liveness'
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket: {
+              port: 80
+            }
+            timeoutSeconds: 1
+           }
+           {
+             type: 'readiness'
+             failureThreshold: 48
+             initialDelaySeconds: 3
+             periodSeconds: 5
+             successThreshold: 1
+             tcpSocket: {
+               port: 80
+              }
+              timeoutSeconds: 5
+           }] : []
         }
       ]
       revisionSuffix: revisionSuffix
