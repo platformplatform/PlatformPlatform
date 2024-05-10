@@ -109,11 +109,11 @@ msgstr "Noget gik galt, prøv igen"
 msgid "Subdomain"
 msgstr "Subdomæne"
 
-msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
-msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"
+#~ msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
+#~ msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"
 
 msgid "Verify"
 msgstr "Bekræft"
 
-msgid "Welcome to Acme."
-msgstr "Velkommen til Acme."
+#~ msgid "Welcome to Acme."
+#~ msgstr "Velkommen til Acme."

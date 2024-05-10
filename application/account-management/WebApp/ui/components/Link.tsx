@@ -4,7 +4,7 @@ import { tv } from "tailwind-variants";
 import { focusRing } from "./utils";
 
 interface LinkProps extends AriaLinkProps {
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "neutral";
   bold?: boolean;
 }
 
