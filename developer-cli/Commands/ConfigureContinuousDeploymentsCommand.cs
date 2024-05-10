@@ -76,6 +76,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CreateGithubEnvironments(githubInfo);
 
+
+        TriggerAndMonitorWorkflows();
+
         PrintHeader("Configuration of GitHub and Azure completed 🎉");
 
         ShowSuccessMessage(githubInfo);
@@ -383,7 +386,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
              5. The following environments will be created in the GitHub repository [blue]shared[/], [blue]staging[/], and [blue]production[/] if they do not exist.
 
-             6. You will receive instructions for initial infrastructure and application deployment to Azure, as well as GitHub configuration recommendations.
+             6. The [blue]Cloud Infrastructure - Deployment[/] GitHub Action will be triggered to deploy Azure Infrastructure. This will take [yellow]between 30-45 minutes[/].
+
+             7. The [blue]Application - Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]less than 5 minutes[/].
+
+             8. You will receive recommendations on how to further secure and optimize your setup.
 
              Please note that this command can be run again update the configuration. Use the [yellow]--skip-azure-login[/] flag to avoid logging in to Azure again.
 
@@ -548,19 +555,56 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
     }
 
+    private void TriggerAndMonitorWorkflows()
+    {
+        StartGitHubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
+        StartGitHubWorkflow("Application - Build and Deploy", "application.yml");
+    }
+
+    private void StartGitHubWorkflow(string workflowName, string workflowFileName)
+    {
+        AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
+
+        var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
+        ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
+
+        // Wait briefly to ensure the run has started
+        Thread.Sleep(TimeSpan.FromSeconds(15));
+
+        // Fetch and filter the workflows to find a "running" one
+        var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
+        var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
+
+        long? workflowId = null;
+        using (var jsonDocument = JsonDocument.Parse(workflowsJson))
+        {
+            foreach (var element in jsonDocument.RootElement.EnumerateArray())
+            {
+                var status = element.GetProperty("status").GetString()!;
+                workflowId = element.GetProperty("databaseId").GetInt64();
+
+                if (status.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
+                {
+                    break;
+                }
+            }
+        }
+
+        if (workflowId is null)
+        {
+            AnsiConsole.MarkupLine("[red]Failed to retrieve a running workflow ID.[/]");
+            Environment.Exit(1);
+        }
+
+        var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+        ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+    }
+
     private void ShowSuccessMessage(GithubInfo githubInfo)
     {
         var setupIntroPrompt =
             $"""
-             We're almost done.
-
-             [yellow]Please follow the instructions below to complete configuration:[/]
-
-             1. Run the [blue]Cloud Infrastructure - Deployment[/] to deploy Azure Infrastructure. Navigate to [blue]{githubInfo.GithubUrl}/actions/workflows/cloud-infrastructure.yml[/] and click ""Run workflow"". The process usually takes approximately 30-45 minutes to complete initially.
-
-             2. Run the [blue]Application - Build and Deploy[/] to deploy the create and deploy container images. Navigate to [blue]{githubInfo.GithubUrl}/actions/workflows/application.yml[/] and click ""Run workflow"". This process should be completed in less than 5 minutes.
-
-             [bold]Optional but recommended configurations:[/]
+             So far so good. The configuration of GitHub and Azure is now complete. Here are some recommendations to further secure and optimize your setup:
 
              - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{githubInfo.GithubUrl}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch.
 
