@@ -8,9 +8,9 @@ using PlatformPlatform.DeveloperCli.Utilities;
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class RunCommand : Command
+public class DevCommand : Command
 {
-    public RunCommand() : base("run", "Run the Aspire AppHost with all self-contained systems")
+    public DevCommand() : base("dev", "Run the Aspire AppHost with all self-contained systems")
     {
         Handler = CommandHandler.Create(Execute);
     }
