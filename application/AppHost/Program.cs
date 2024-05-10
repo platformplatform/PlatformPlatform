@@ -16,7 +16,7 @@ var azureStorage = builder
     .RunAsEmulator(resourceBuilder =>
         {
             resourceBuilder.WithVolume("azure-storage-data", "/data");
-            resourceBuilder.UseBlobPort(10000);
+            resourceBuilder.WithBlobPort(10000);
         }
     )
     .AddBlobs("blobs");

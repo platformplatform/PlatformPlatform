@@ -23,7 +23,7 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "yarn", "Yarn", new Version(1, 22)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
-        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.6"""),
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.0-preview.7"""),
     ];
 
     public static void Check(params string[] prerequisiteName)
@@ -131,11 +131,11 @@ public static class PrerequisitesChecker
 
         /*
            The output is on the form:
-
-           Installed Workload Id      Manifest Version                     Installation Source
-           -----------------------------------------------------------------------------------
-           aspire                     8.0.0-preview.6.24214.1/8.0.100      SDK 8.0.200
-
+           
+           Installed Workload Id      Manifest Version                      Installation Source
+           ------------------------------------------------------------------------------------
+           aspire                     8.0.0-preview.7.24251.11/8.0.100      SDK 8.0.200
+           
            Use `dotnet workload search` to find additional workloads to install.
          */
         var regex = new Regex(workloadRegex);
