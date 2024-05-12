@@ -597,7 +597,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
-        ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+        ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
     }
 
     private void ShowSuccessMessage(GithubInfo githubInfo)
