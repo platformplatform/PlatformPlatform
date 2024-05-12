@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "rm ./dist/*.* && yarn run update-translations && yarn run swagger && rspack serve",
+    "dev": "rimraf ./dist && yarn run update-translations && yarn run swagger && rspack serve",
     "build": "yarn run update-translations && yarn run swagger && rspack build && yarn run typechecking",
     "update-translations": "yarn run lingui extract && yarn run lingui compile --typescript",
     "lint": "eslint .",
@@ -49,6 +49,7 @@
     "openapi-typescript": "6.7.5",
     "postcss": "^8.4.38",
     "postcss-loader": "^8.1.1",
+    "rimraf": "^5.0.7",
     "swc-loader": "0.2.6",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
