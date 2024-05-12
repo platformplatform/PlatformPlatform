@@ -4,6 +4,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
+using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -21,6 +22,21 @@ public class DevCommand : Command
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
 
+        if (!ProcessHelper.IsProcessRunning("Docker"))
+        {
+            AnsiConsole.MarkupLine("[green]Starting Docker Desktop[/]");
+            ProcessHelper.StartProcess("open -a Docker", waitForExit: true);
+        }
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for SQL Server is up to date ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull mcr.microsoft.com/mssql/server:2022-latest");
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for Azure Blob Storage Emulator ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull mcr.microsoft.com/azure-storage/azurite:latest");
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for Mail Server and Web Client is up to date ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull axllent/mailpit:latest");
+
         Task.Run(async () =>
             {
                 // Start a background task that monitors the websites and opens the browser when ready
@@ -31,6 +47,7 @@ public class DevCommand : Command
             }
         );
 
+        AnsiConsole.MarkupLine("\n[green]Starting the Aspire AppHost...[/]");
         ProcessHelper.StartProcess("dotnet run", workingDirectory);
     }
 

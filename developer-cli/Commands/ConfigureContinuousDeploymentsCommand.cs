@@ -579,14 +579,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
             var state = element.GetProperty("state").GetString()!;
 
             if (name != workflowName || state != "active") continue;
-            
+
             // Disable the workflow if it is active
             var workflowId = element.GetProperty("id").GetInt64();
             var disableCommand = $"gh workflow disable {workflowId}";
             ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
 
             AnsiConsole.MarkupLine($"[green]Workflow {workflowName} has been disabled.[/]");
-            
+
             break;
         }
     }
