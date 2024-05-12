@@ -76,6 +76,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CreateGithubEnvironments(githubInfo);
 
+        DisableReusableWorkflows();
 
         TriggerAndMonitorWorkflows();
 
@@ -388,9 +389,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
              6. The [blue]Cloud Infrastructure - Deployment[/] GitHub Action will be triggered to deploy Azure Infrastructure. This will take [yellow]between 30-45 minutes[/].
 
-             7. The [blue]Application - Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]less than 5 minutes[/].
+             7. Disable the reusable workflows [blue]Deploy container[/] and [blue]Publish container[/].
 
-             8. You will receive recommendations on how to further secure and optimize your setup.
+             8. The [blue]Application - Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]less than 5 minutes[/].
+
+             9. You will receive recommendations on how to further secure and optimize your setup.
 
              Please note that this command can be run again update the configuration. Use the [yellow]--skip-azure-login[/] flag to avoid logging in to Azure again.
 
@@ -553,6 +556,39 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.MarkupLine(
             "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]"
         );
+    }
+
+    private void DisableReusableWorkflows()
+    {
+        // Disable reusable workflows
+        DisableActiveWorkflow("Deploy container");
+        DisableActiveWorkflow("Publish container");
+    }
+
+    private void DisableActiveWorkflow(string workflowName)
+    {
+        // Command to list workflows
+        var listWorkflowsCommand = "gh workflow list --json name,state,id";
+        var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+
+        // Parse JSON to find the specific workflow and check if it's active
+        using var jsonDocument = JsonDocument.Parse(workflowsJson);
+        foreach (var element in jsonDocument.RootElement.EnumerateArray())
+        {
+            var name = element.GetProperty("name").GetString()!;
+            var state = element.GetProperty("state").GetString()!;
+
+            if (name != workflowName || state != "active") continue;
+            
+            // Disable the workflow if it is active
+            var workflowId = element.GetProperty("id").GetInt64();
+            var disableCommand = $"gh workflow disable {workflowId}";
+            ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
+
+            AnsiConsole.MarkupLine($"[green]Workflow {workflowName} has been disabled.[/]");
+            
+            break;
+        }
     }
 
     private void TriggerAndMonitorWorkflows()
