@@ -34,13 +34,17 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         Configuration.VerboseLogging = verboseLogging;
 
-        PrintHeader("Introduction");
-
         var githubInfo = GetGithubInfo();
 
-        ShowIntroPrompt();
+        PrintHeader("Introduction");
+
+        ShowIntroPrompt(githubInfo, skipAzureLogin);
 
         PrintHeader("Collecting data");
+
+        LoginToGithub(githubInfo);
+
+        PublishGithubVariables(githubInfo);
 
         CollectAzureSubscriptionInfo(azureInfo, skipAzureLogin, githubInfo);
 
@@ -53,8 +57,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
         CollectDomainNames(githubInfo, azureInfo);
 
         CollectUniquePrefix(githubInfo, azureInfo);
-
-        LoginToGithub();
 
         PrintHeader("Confirm changes");
 
@@ -93,14 +95,29 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         var gitRemoteRegex = new Regex(@"(?<url>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git))");
         var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);
+
         if (!gitRemoteMatches.Success)
         {
-            AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. This tool only works with GitHub remotes.[/]");
+            AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. Please ensure you are within a Git repository with a GitHub.com as remote origin.[/]");
             Environment.Exit(0);
         }
 
-        var githubInfo = new GithubInfo(gitRemoteMatches.Groups["url"].Value);
+        return new GithubInfo(gitRemoteMatches.Groups["url"].Value);
+    }
 
+    private void LoginToGithub(GithubInfo githubInfo)
+    {
+        if (githubInfo.IsLoggedIn()) return;
+
+        ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
+
+        if (!githubInfo.IsLoggedIn()) Environment.Exit(0);
+
+        AnsiConsole.WriteLine();
+    }
+
+    private static void PublishGithubVariables(GithubInfo githubInfo)
+    {
         var githubVariablesJson = ProcessHelper.StartProcess($"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true);
 
         var githubVariables = JsonDocument.Parse(githubVariablesJson);
@@ -110,27 +127,25 @@ public class ConfigureContinuousDeploymentsCommand : Command
             var variableValue = variable.GetProperty("value").GetString()!;
             githubInfo.Variables.Add(variableName, variableValue);
         }
-
-        return githubInfo;
     }
 
-    private void ShowIntroPrompt()
+    private void ShowIntroPrompt(GithubInfo githubInfo, bool skipAzureLogin)
     {
+        var loginToAzure = skipAzureLogin ? "" : "\n * Prompt you to log in to Azure and select a subscription";
+        var loginToGitHub = githubInfo.IsLoggedIn() ? "" : "\n * Prompt you to log in to GitHub";
+
         var setupIntroPrompt =
-            """
-            This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
+            $"""
+             This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
 
-            * Prompt you to log in to Azure and select a subscription
-            * Prompt you to log in to GitHub
-            * Confirm before you continue
+             {loginToAzure}{loginToGitHub}
+              * Collect information about your Azure subscription and other settings for setting up continuous deployments
+              * Confirm before you continue
+              
+             [bold]Would you like to continue?[/]
+             """;
 
-            You need owner permissions on the Azure subscription and GitHub repository. Plus you need permissions to create Directory Groups and App Registrations (aka Service Principals) in Microsoft Entra ID.
-
-            [bold]Would you like to continue?[/]
-            """;
-
-        if (!AnsiConsole.Confirm(setupIntroPrompt, false)) Environment.Exit(0);
-
+        if (!AnsiConsole.Confirm(setupIntroPrompt.Replace("\n\n", "\n"))) Environment.Exit(0);
         AnsiConsole.WriteLine();
     }
 
@@ -343,16 +358,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         azureInfo.UniquePrefix = uniquePrefix;
 
-        AnsiConsole.WriteLine();
-    }
-
-    private void LoginToGithub()
-    {
-        ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
-
-        var output = ProcessHelper.StartProcess("gh auth status", redirectOutput: true);
-
-        if (!output.Contains("Logged in to github.com")) Environment.Exit(0);
         AnsiConsole.WriteLine();
     }
 
@@ -706,6 +711,13 @@ public class GithubInfo
     public Dictionary<string, string> Secrets { get; set; } = new();
 
     public Dictionary<string, string> Variables { get; set; } = new();
+
+    public bool IsLoggedIn()
+    {
+        var githubAuthStatus = ProcessHelper.StartProcess("gh auth status", redirectOutput: true);
+
+        return githubAuthStatus.Contains("Logged in to github.com");
+    }
 }
 
 public class AzureInfo
