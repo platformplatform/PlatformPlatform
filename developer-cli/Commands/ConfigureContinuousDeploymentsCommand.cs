@@ -107,13 +107,25 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void LoginToGithub(GithubInfo githubInfo)
     {
-        if (githubInfo.IsLoggedIn()) return;
+        if (!githubInfo.IsLoggedIn())
+        {
+            ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
 
-        ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
+            if (!githubInfo.IsLoggedIn()) Environment.Exit(0);
 
-        if (!githubInfo.IsLoggedIn()) Environment.Exit(0);
+            AnsiConsole.WriteLine();
+        }
 
-        AnsiConsole.WriteLine();
+        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{githubInfo.Path}", redirectOutput: true);
+
+        using var githubApi = JsonDocument.Parse(githubApiJson);
+
+        githubApi.RootElement.TryGetProperty("permissions", out var githubRepositoryPermissions);
+        if (!githubRepositoryPermissions.GetProperty("admin").GetBoolean())
+        {
+            AnsiConsole.MarkupLine("[red]ERROR: You do not have admin permissions on the repository. Please ensure you have the required permissions and try again. Run 'gh auth logout' to log in with a different account.[/]");
+            Environment.Exit(0);
+        }
     }
 
     private static void PublishGithubVariables(GithubInfo githubInfo)
