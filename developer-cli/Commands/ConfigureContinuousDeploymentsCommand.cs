@@ -91,6 +91,32 @@ public class ConfigureContinuousDeploymentsCommand : Command
         return 0;
     }
 
+    private void PrintHeader(string heading)
+    {
+        var separator = new string('-', Console.WindowWidth - heading.Length - 1);
+        AnsiConsole.MarkupLine($"\n[bold][green]{heading}[/] {separator}[/]\n");
+    }
+
+    private void ShowIntroPrompt(GithubInfo githubInfo, bool skipAzureLogin)
+    {
+        var loginToAzure = skipAzureLogin ? "" : "\n * Prompt you to log in to Azure and select a subscription";
+        var loginToGitHub = githubInfo.IsLoggedIn() ? "" : "\n * Prompt you to log in to GitHub";
+
+        var setupIntroPrompt =
+            $"""
+             This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
+
+             {loginToAzure}{loginToGitHub}
+              * Collect information about your Azure subscription and other settings for setting up continuous deployments
+              * Confirm before you continue
+              
+             [bold]Would you like to continue?[/]
+             """;
+
+        if (!AnsiConsole.Confirm(setupIntroPrompt.Replace("\n\n", "\n"))) Environment.Exit(0);
+        AnsiConsole.WriteLine();
+    }
+
     private void SetGithubInfo(GithubInfo githubInfo)
     {
         var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
@@ -158,33 +184,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
             var variableValue = variable.GetProperty("value").GetString()!;
             githubInfo.Variables.Add(variableName, variableValue);
         }
-    }
-
-    private void ShowIntroPrompt(GithubInfo githubInfo, bool skipAzureLogin)
-    {
-        var loginToAzure = skipAzureLogin ? "" : "\n * Prompt you to log in to Azure and select a subscription";
-        var loginToGitHub = githubInfo.IsLoggedIn() ? "" : "\n * Prompt you to log in to GitHub";
-
-        var setupIntroPrompt =
-            $"""
-             This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
-
-             {loginToAzure}{loginToGitHub}
-              * Collect information about your Azure subscription and other settings for setting up continuous deployments
-              * Confirm before you continue
-              
-             [bold]Would you like to continue?[/]
-             """;
-
-        if (!AnsiConsole.Confirm(setupIntroPrompt.Replace("\n\n", "\n"))) Environment.Exit(0);
-        AnsiConsole.WriteLine();
-    }
-
-    private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
-    {
-        var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
-
-        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
     }
 
     private void CollectAzureSubscriptionInfo(AzureInfo azureInfo, bool skipAzureLogin, GithubInfo githubInfo)
@@ -599,31 +598,32 @@ public class ConfigureContinuousDeploymentsCommand : Command
         // Disable reusable workflows
         DisableActiveWorkflow("Deploy container");
         DisableActiveWorkflow("Publish container");
-    }
+        return;
 
-    private void DisableActiveWorkflow(string workflowName)
-    {
-        // Command to list workflows
-        var listWorkflowsCommand = "gh workflow list --json name,state,id";
-        var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
-
-        // Parse JSON to find the specific workflow and check if it's active
-        using var jsonDocument = JsonDocument.Parse(workflowsJson);
-        foreach (var element in jsonDocument.RootElement.EnumerateArray())
+        void DisableActiveWorkflow(string workflowName)
         {
-            var name = element.GetProperty("name").GetString()!;
-            var state = element.GetProperty("state").GetString()!;
+            // Command to list workflows
+            var listWorkflowsCommand = "gh workflow list --json name,state,id";
+            var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
 
-            if (name != workflowName || state != "active") continue;
+            // Parse JSON to find the specific workflow and check if it's active
+            using var jsonDocument = JsonDocument.Parse(workflowsJson);
+            foreach (var element in jsonDocument.RootElement.EnumerateArray())
+            {
+                var name = element.GetProperty("name").GetString()!;
+                var state = element.GetProperty("state").GetString()!;
 
-            // Disable the workflow if it is active
-            var workflowId = element.GetProperty("id").GetInt64();
-            var disableCommand = $"gh workflow disable {workflowId}";
-            ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
+                if (name != workflowName || state != "active") continue;
 
-            AnsiConsole.MarkupLine($"[green]Workflow {workflowName} has been disabled.[/]");
+                // Disable the workflow if it is active
+                var workflowId = element.GetProperty("id").GetInt64();
+                var disableCommand = $"gh workflow disable {workflowId}";
+                ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
 
-            break;
+                AnsiConsole.MarkupLine($"[green]Workflow {workflowName} has been disabled.[/]");
+
+                break;
+            }
         }
     }
 
@@ -631,45 +631,46 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         StartGitHubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
         StartGitHubWorkflow("Application - Build and Deploy", "application.yml");
-    }
+        return;
 
-    private void StartGitHubWorkflow(string workflowName, string workflowFileName)
-    {
-        AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
-
-        var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
-        ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
-
-        // Wait briefly to ensure the run has started
-        Thread.Sleep(TimeSpan.FromSeconds(15));
-
-        // Fetch and filter the workflows to find a "running" one
-        var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
-        var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
-
-        long? workflowId = null;
-        using (var jsonDocument = JsonDocument.Parse(workflowsJson))
+        void StartGitHubWorkflow(string workflowName, string workflowFileName)
         {
-            foreach (var element in jsonDocument.RootElement.EnumerateArray())
-            {
-                var status = element.GetProperty("status").GetString()!;
-                workflowId = element.GetProperty("databaseId").GetInt64();
+            AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
-                if (status.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
+            var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
+            ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
+
+            // Wait briefly to ensure the run has started
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+
+            // Fetch and filter the workflows to find a "running" one
+            var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
+            var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
+
+            long? workflowId = null;
+            using (var jsonDocument = JsonDocument.Parse(workflowsJson))
+            {
+                foreach (var element in jsonDocument.RootElement.EnumerateArray())
                 {
-                    break;
+                    var status = element.GetProperty("status").GetString()!;
+                    workflowId = element.GetProperty("databaseId").GetInt64();
+
+                    if (status.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
+                    {
+                        break;
+                    }
                 }
             }
-        }
 
-        if (workflowId is null)
-        {
-            AnsiConsole.MarkupLine("[red]Failed to retrieve a running workflow ID.[/]");
-            Environment.Exit(1);
-        }
+            if (workflowId is null)
+            {
+                AnsiConsole.MarkupLine("[red]Failed to retrieve a running workflow ID.[/]");
+                Environment.Exit(1);
+            }
 
-        var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
-        ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+            var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+            ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+        }
     }
 
     private void ShowSuccessMessage(GithubInfo githubInfo)
@@ -699,10 +700,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.WriteLine();
     }
 
-    private void PrintHeader(string heading)
+    private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
     {
-        var separator = new string('-', Console.WindowWidth - heading.Length - 1);
-        AnsiConsole.MarkupLine($"\n[bold][green]{heading}[/] {separator}[/]\n");
+        var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
+
+        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
     }
 }
 
@@ -716,9 +718,7 @@ public class GithubInfo
 
     public string GithubUrl => $"https://github.com/{OrganizationName}/{RepositoryName}";
 
-    public Dictionary<string, string> Secrets { get; set; } = new();
-
-    public Dictionary<string, string> Variables { get; set; } = new();
+    public Dictionary<string, string> Variables { get; } = new();
 
     public void InitializeFromUri(string gitUri)
     {
