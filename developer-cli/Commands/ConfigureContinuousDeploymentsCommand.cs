@@ -34,13 +34,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         Configuration.VerboseLogging = verboseLogging;
 
-        var githubInfo = GetGithubInfo();
+        var githubInfo = new GithubInfo();
 
         PrintHeader("Introduction");
 
         ShowIntroPrompt(githubInfo, skipAzureLogin);
 
         PrintHeader("Collecting data");
+
+        SetGithubInfo(githubInfo);
 
         LoginToGithub(githubInfo);
 
@@ -89,20 +91,37 @@ public class ConfigureContinuousDeploymentsCommand : Command
         return 0;
     }
 
-    private GithubInfo GetGithubInfo()
+    private void SetGithubInfo(GithubInfo githubInfo)
     {
-        var gitRemotes = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
+        var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
 
-        var gitRemoteRegex = new Regex(@"(?<url>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git))");
-        var gitRemoteMatches = gitRemoteRegex.Match(gitRemotes);
+        // Sort the output lines so that the "origin" is at the top
+        output = string.Join('\n', output.Split('\n').OrderBy(line => line.Contains("origin") ? 0 : 1));
 
-        if (!gitRemoteMatches.Success)
+        var regex = new Regex(@"(?<githubUri>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git)) \(push\)");
+        var matches = regex.Matches(output);
+
+        var gitRemoteMatches = matches.Select(m => m.Groups["githubUri"].Value).ToArray();
+
+        var githubUri = string.Empty;
+        switch (gitRemoteMatches.Length)
         {
-            AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. Please ensure you are within a Git repository with a GitHub.com as remote origin.[/]");
-            Environment.Exit(0);
+            case 0:
+                AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. Please ensure you are within a Git repository with a GitHub.com as remote origin.[/]");
+                Environment.Exit(0);
+                break;
+            case 1:
+                githubUri = gitRemoteMatches.Single();
+                break;
+            case > 1:
+                githubUri = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    .Title("Select the GitHub remote")
+                    .AddChoices(gitRemoteMatches)
+                );
+                break;
         }
 
-        return new GithubInfo(gitRemoteMatches.Groups["url"].Value);
+        githubInfo.InitializeFromUri(githubUri);
     }
 
     private void LoginToGithub(GithubInfo githubInfo)
@@ -287,7 +306,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CollectAzureContainerRegistryName(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         githubInfo.Variables.TryGetValue("CONTAINER_REGISTRY_NAME", out var existingContainerRegistryName);
-        existingContainerRegistryName ??= githubInfo.OrganizationName.ToLower();
+        existingContainerRegistryName ??= githubInfo.OrganizationName!.ToLower();
 
         while (true)
         {
@@ -355,7 +374,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
 
         var defaultValue = uniquePrefix
-                           ?? githubInfo.OrganizationName.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
+                           ?? githubInfo.OrganizationName!.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
 
 
         uniquePrefix = AnsiConsole.Prompt(
@@ -689,7 +708,19 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
 public class GithubInfo
 {
-    public GithubInfo(string gitUri)
+    public string? OrganizationName { get; private set; }
+
+    public string? RepositoryName { get; private set; }
+
+    public string? Path { get; private set; }
+
+    public string GithubUrl => $"https://github.com/{OrganizationName}/{RepositoryName}";
+
+    public Dictionary<string, string> Secrets { get; set; } = new();
+
+    public Dictionary<string, string> Variables { get; set; } = new();
+
+    public void InitializeFromUri(string gitUri)
     {
         string remote;
         if (gitUri.StartsWith("https://github.com/"))
@@ -711,18 +742,6 @@ public class GithubInfo
 
         Path = $"{OrganizationName}/{RepositoryName}";
     }
-
-    public string OrganizationName { get; }
-
-    public string RepositoryName { get; }
-
-    public string GithubUrl => $"https://github.com/{OrganizationName}/{RepositoryName}";
-
-    public string Path { get; }
-
-    public Dictionary<string, string> Secrets { get; set; } = new();
-
-    public Dictionary<string, string> Variables { get; set; } = new();
 
     public bool IsLoggedIn()
     {
