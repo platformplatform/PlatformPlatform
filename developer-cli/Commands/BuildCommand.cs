@@ -24,7 +24,7 @@ public class BuildCommand : Command
 
     private int Execute(string? solutionName)
     {
-        PrerequisitesChecker.Check("aspire", "node", "yarn");
+        PrerequisitesChecker.Check("dotnet", "aspire", "node", "yarn");
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 

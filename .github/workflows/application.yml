@@ -62,7 +62,7 @@ jobs:
         working-directory: application
         run: dotnet restore
 
-      - name: Setup Java JDK
+      - name: Setup Java JDK for SonarScanner
         uses: actions/setup-java@v4
         with:
           distribution: "microsoft"

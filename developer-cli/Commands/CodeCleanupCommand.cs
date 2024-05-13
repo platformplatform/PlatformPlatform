@@ -17,6 +17,8 @@ public class CodeCleanupCommand : Command
 
     private int Execute()
     {
+        PrerequisitesChecker.Check("dotnet");
+
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
 
         ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);

@@ -166,16 +166,14 @@ Our clean commit history serves as a great learning and troubleshooting resource
 
 ## 2. Run the Aspire AppHost to spin up everything on localhost
 
-To spin up the backend, frontend and all dependencies like SQL Server, Blob Storage, Mail Server in Docker, simply open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
-
-With Docker Desktop installed, .NET Aspire will do all the orchestration and spin up everything with a single click. No need to learn Docker, install database and web server, or to learn complicated commands. It just works 🎉
-
-If you prefer the CLI, you can run the following command:
+Using .NET Aspire, docker images with SQL Server, Blob Storage, and mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 ```bash
-cd application/AppHost
-dotnet run
+cd developer-cli
+dotnet run dev # First run will be slow as Docker images are downloaded
 ```
+
+Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
 ## 3. Set up CI/CD with passwordless deployments from GitHub to Azure
 

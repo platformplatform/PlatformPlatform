@@ -48,6 +48,8 @@ public class InstallCommand : Command
 
     private void Execute()
     {
+        PrerequisitesChecker.Check("dotnet");
+
         if (IsAliasRegistered())
         {
             AnsiConsole.MarkupLine($"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]");

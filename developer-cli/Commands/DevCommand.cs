@@ -4,22 +4,38 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
+using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
 [UsedImplicitly]
-public class RunCommand : Command
+public class DevCommand : Command
 {
-    public RunCommand() : base("run", "Run the Aspire AppHost with all self-contained systems")
+    public DevCommand() : base("dev", "Run the Aspire AppHost with all self-contained systems")
     {
         Handler = CommandHandler.Create(Execute);
     }
 
     private void Execute()
     {
-        PrerequisitesChecker.Check("docker", "aspire", "node", "yarn");
+        PrerequisitesChecker.Check("dotnet", "docker", "aspire", "node", "yarn");
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
+
+        if (!ProcessHelper.IsProcessRunning("Docker"))
+        {
+            AnsiConsole.MarkupLine("[green]Starting Docker Desktop[/]");
+            ProcessHelper.StartProcess("open -a Docker", waitForExit: true);
+        }
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for SQL Server is up to date ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull mcr.microsoft.com/mssql/server:2022-latest");
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for Azure Blob Storage Emulator ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull mcr.microsoft.com/azure-storage/azurite:latest");
+
+        AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for Mail Server and Web Client is up to date ...[/]");
+        ProcessHelper.StartProcessWithSystemShell("docker pull axllent/mailpit:latest");
 
         Task.Run(async () =>
             {
@@ -31,6 +47,7 @@ public class RunCommand : Command
             }
         );
 
+        AnsiConsole.MarkupLine("\n[green]Starting the Aspire AppHost...[/]");
         ProcessHelper.StartProcess("dotnet run", workingDirectory);
     }
 
