@@ -1,7 +1,4 @@
 {
-  // Enable the ESlint flat config support
-  "eslint.experimental.useFlatConfig": true,
-
   // Disable the default formatter, use eslint instead
   "prettier.enable": false,
   "editor.formatOnSave": false,
@@ -48,9 +45,5 @@
   },
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}",
-  "eslint.workingDirectories": [
-    "./application/account-management/WebApp",
-    "./application/back-office/WebApp"
-
-  ]
+  "eslint.workingDirectories": [{"mode": "auto"}]
 }
