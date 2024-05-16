@@ -15,8 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DomainCore\DomainCore.csproj"/>
-        <ProjectReference Include="..\InfrastructureCore\InfrastructureCore.csproj"/>
+        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj"/>
+        <ProjectReference Include="..\InfrastructureCore\SharedKernel.InfrastructureCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

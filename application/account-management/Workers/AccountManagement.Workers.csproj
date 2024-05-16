@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Application\Application.csproj"/>
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+        <ProjectReference Include="..\Application\AccountManagement.Application.csproj"/>
+        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -13,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
-        <ProjectReference Include="..\Application\Application.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj"/>
+        <ProjectReference Include="..\Application\AccountManagement.Application.csproj"/>
     </ItemGroup>
 
 </Project>

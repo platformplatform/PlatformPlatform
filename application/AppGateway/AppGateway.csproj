@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\shared-kernel\InfrastructureCore\InfrastructureCore.csproj"/>
+        <ProjectReference Include="..\shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj"/>
     </ItemGroup>
 
 </Project>

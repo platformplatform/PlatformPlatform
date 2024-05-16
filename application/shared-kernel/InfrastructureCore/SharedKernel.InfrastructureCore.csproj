@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ApplicationCore\ApplicationCore.csproj"/>
-        <ProjectReference Include="..\DomainCore\DomainCore.csproj"/>
+        <ProjectReference Include="..\ApplicationCore\SharedKernel.ApplicationCore.csproj"/>
+        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

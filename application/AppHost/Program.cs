@@ -32,7 +32,7 @@ var accountManagementDatabase = sqlServer
 CreateBlobContainer("avatars");
 
 var accountManagementApi = builder
-    .AddProject<Api>("account-management-api")
+    .AddProject<AccountManagement_Api>("account-management-api")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 
@@ -42,7 +42,7 @@ var accountManagementSpa = builder
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 builder
-    .AddProject<Workers>("account-management-workers")
+    .AddProject<AccountManagement_Workers>("account-management-workers")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.AccountManagement.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.AccountManagement.Tests</RootNamespace>
+        <AssemblyName>PlatformPlatform.SharedKernel.Tests</AssemblyName>
+        <RootNamespace>PlatformPlatform.SharedKernel.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -12,29 +12,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Api\Api.csproj"/>
-        <ProjectReference Include="..\Application\Application.csproj"/>
-        <ProjectReference Include="..\Domain\Domain.csproj"/>
-        <ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\shared-kernel\Tests\Tests.csproj"/>
+        <ProjectReference Include="..\ApiCore\SharedKernel.ApiCore.csproj"/>
+        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj"/>
+        <ProjectReference Include="..\InfrastructureCore\SharedKernel.InfrastructureCore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bogus"/>
-        <PackageReference Include="coverlet.collector">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="FluentAssertions"/>
         <PackageReference Include="Meziantou.Xunit.ParallelTestFramework"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="NetArchTest.Rules"/>
-        <PackageReference Include="NJsonSchema"/>
         <PackageReference Include="NSubstitute"/>
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.runner.visualstudio">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.collector">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>

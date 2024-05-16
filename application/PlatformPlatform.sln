@@ -1,35 +1,35 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared-kernel", "shared-kernel", "{F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCore", "shared-kernel\ApiCore\ApiCore.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.ApiCore", "shared-kernel\ApiCore\SharedKernel.ApiCore.csproj", "{836ABCEF-C16B-4331-B8D5-0EA75E4101FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationCore", "shared-kernel\ApplicationCore\ApplicationCore.csproj", "{9F41C6BD-7DF5-46AD-B0E7-4E4CECA2B9BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.ApplicationCore", "shared-kernel\ApplicationCore\SharedKernel.ApplicationCore.csproj", "{9F41C6BD-7DF5-46AD-B0E7-4E4CECA2B9BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainCore", "shared-kernel\DomainCore\DomainCore.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.DomainCore", "shared-kernel\DomainCore\SharedKernel.DomainCore.csproj", "{9781DA05-517E-46D7-9F8B-2C01AA74F1E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfrastructureCore", "shared-kernel\InfrastructureCore\InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.InfrastructureCore", "shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj", "{2B5B1AC7-7254-4527-B0F0-8F0A203CB625}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E2EF0B0-2A92-489B-8910-070C871197B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "shared-kernel\Tests\Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Tests", "shared-kernel\Tests\SharedKernel.Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "account-management", "account-management", "{EEA1463E-71F8-44E6-8055-787DAA5E62D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "account-management\Api\Api.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "account-management\Api\AccountManagement.Api.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "account-management\Application\Application.csproj", "{B155D1D9-4F6E-42AE-A8F0-92CD50BF182D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "account-management\Application\AccountManagement.Application.csproj", "{B155D1D9-4F6E-42AE-A8F0-92CD50BF182D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Workers", "account-management\Workers\Workers.csproj", "{25F28E3C-84F0-44D6-8EB2-259398C2D14A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Workers", "account-management\Workers\AccountManagement.Workers.csproj", "{25F28E3C-84F0-44D6-8EB2-259398C2D14A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "account-management\Domain\Domain.csproj", "{32C5BCAB-FC18-4C32-B008-E0FD125C5E98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "account-management\Domain\AccountManagement.Domain.csproj", "{32C5BCAB-FC18-4C32-B008-E0FD125C5E98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "account-management\Infrastructure\Infrastructure.csproj", "{CB9BAD74-4362-4646-B653-3CB5FCAC74BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "account-management\Infrastructure\AccountManagement.Infrastructure.csproj", "{CB9BAD74-4362-4646-B653-3CB5FCAC74BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{92101687-8181-4543-84F9-E702DD874619}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "account-management\Tests\Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "account-management\Tests\AccountManagement.Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "account-management\WebApp\WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "account-management\WebApp\AccountManagement.WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppHost", "AppHost\AppHost.csproj", "{2D6D4E5B-983A-4AAB-A91E-5492F7FD52E8}"
 EndProject

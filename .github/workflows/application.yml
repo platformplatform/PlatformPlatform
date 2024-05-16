@@ -91,7 +91,7 @@ jobs:
       - name: Publish Account Management API build
         working-directory: application/account-management
         run: |
-          dotnet publish ./Api/Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
+          dotnet publish ./Api/AccountManagement.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save Account Management API artifacts
         uses: actions/upload-artifact@v4
@@ -102,7 +102,7 @@ jobs:
       - name: Publish Account Management Worker build
         working-directory: application/account-management
         run: |
-          dotnet publish ./Workers/Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
+          dotnet publish ./Workers/AccountManagement.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save Account Management Workers artifacts
         uses: actions/upload-artifact@v4
