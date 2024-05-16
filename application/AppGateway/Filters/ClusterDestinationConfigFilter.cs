@@ -10,6 +10,7 @@ public class ClusterDestinationConfigFilter : IProxyConfigFilter
         {
             "account-management-api" => ReplaceDestinationAddress(cluster, "ACCOUNT_MANAGEMENT_API_URL"),
             "avatars-storage" => ReplaceDestinationAddress(cluster, "AVATARS_STORAGE_URL"),
+            "back-office-api" => ReplaceDestinationAddress(cluster, "BACK_OFFICE_API_URL"),
             _ => throw new InvalidOperationException($"Unknown Cluster ID {cluster.ClusterId}")
         };
     }
