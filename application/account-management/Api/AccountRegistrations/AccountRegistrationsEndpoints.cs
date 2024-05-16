@@ -7,7 +7,7 @@ namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations;
 
 public class AccountRegistrationsEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/account-registrations";
+    private const string RoutesPrefix = "/api/account-management/account-registrations";
     
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {

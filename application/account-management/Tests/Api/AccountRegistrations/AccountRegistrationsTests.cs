@@ -20,7 +20,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var command = new StartAccountRegistrationCommand(subdomain, email);
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-registrations/start", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
         
         // Assert
         var expectedErrors = new[]
@@ -39,7 +39,8 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var subdomain = Faker.Subdomain();
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
+        var response = await TestHttpClient
+            .GetAsync($"/api/account-management/account-registrations/is-subdomain-free?subdomain={subdomain}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -57,7 +58,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var command = new StartAccountRegistrationCommand(invalidSubdomain, email);
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-registrations/start", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
         
         // Assert
         var expectedErrors = new[]
@@ -78,7 +79,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         
         // Act
         var response =
-            await TestHttpClient.GetAsync($"/api/account-registrations/is-subdomain-free?subdomain={subdomain}");
+            await TestHttpClient.GetAsync($"/api/account-management/account-registrations/is-subdomain-free?subdomain={subdomain}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -98,7 +99,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         
         // Act
         var response = await TestHttpClient
-            .PostAsJsonAsync($"/api/account-registrations/{accountRegistrationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/account-registrations/{accountRegistrationId}/complete", command);
         
         // Assert
         await EnsureSuccessPostRequest(response, hasLocation: false);

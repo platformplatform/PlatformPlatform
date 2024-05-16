@@ -6,7 +6,7 @@ namespace PlatformPlatform.AccountManagement.Api.Tenants;
 
 public class TenantEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/tenants";
+    private const string RoutesPrefix = "/api/account-management/tenants";
     
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {

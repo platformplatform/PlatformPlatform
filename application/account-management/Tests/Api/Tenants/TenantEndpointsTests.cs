@@ -18,7 +18,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{existingTenantId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{existingTenantId}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -51,7 +51,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var unknownTenantId = Faker.Subdomain();
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{unknownTenantId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{unknownTenantId}");
         
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
@@ -64,7 +64,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var invalidTenantId = Faker.Random.AlphaNumeric(31);
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/tenants/{invalidTenantId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{invalidTenantId}");
         
         // Assert
         await EnsureErrorStatusCode(response,
@@ -81,7 +81,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var command = new UpdateTenantCommand { Name = Faker.TenantName() };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{existingTenantId}", command);
         
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
@@ -100,7 +100,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var command = new UpdateTenantCommand { Name = invalidName };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{existingTenantId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{existingTenantId}", command);
         
         // Assert
         var expectedErrors = new[]
@@ -120,7 +120,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var command = new UpdateTenantCommand { Name = Faker.TenantName() };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/tenants/{unknownTenantId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{unknownTenantId}", command);
         
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
@@ -135,7 +135,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var unknownTenantId = Faker.Subdomain();
         
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{unknownTenantId}");
+        var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{unknownTenantId}");
         
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
@@ -148,7 +148,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Act
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
+        var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
         TelemetryEventsCollectorSpy.Reset();
         
         // Assert
@@ -167,11 +167,11 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserId = DatabaseSeeder.User1.Id;
-        await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
+        await TestHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
         TelemetryEventsCollectorSpy.Reset();
         
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/tenants/{existingTenantId}");
+        var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
         
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);

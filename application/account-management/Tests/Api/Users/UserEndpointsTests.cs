@@ -18,7 +18,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingUserId = DatabaseSeeder.User1.Id;
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users/{existingUserId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{existingUserId}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -55,7 +55,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var unknownUserId = UserId.NewId();
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users/{unknownUserId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{unknownUserId}");
         
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -68,7 +68,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var invalidUserId = Faker.Random.AlphaNumeric(31);
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users/{invalidUserId}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
         
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
@@ -81,7 +81,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "willgate";
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -98,7 +98,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "Will";
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -115,7 +115,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "William Henry Gates";
         
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users?search={searchString}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -130,7 +130,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users?userRole={UserRole.TenantUser}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.TenantUser}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -144,7 +144,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
     {
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/users?orderBy={SortableUserProperties.UserRole}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.UserRole}");
         
         // Assert
         EnsureSuccessGetRequest(response);
@@ -163,11 +163,11 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser, false);
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
         
         // Assert
-        await EnsureSuccessPostRequest(response, startsWith: "/api/users/");
-        response.Headers.Location!.ToString().Length.Should().Be($"/api/users/{UserId.NewId()}".Length);
+        await EnsureSuccessPostRequest(response, startsWith: "/api/account-management/users/");
+        response.Headers.Location!.ToString().Length.Should().Be($"/api/account-management/users/{UserId.NewId()}".Length);
     }
     
     [Fact]
@@ -179,7 +179,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.TenantUser, false);
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
         
         // Assert
         var expectedErrors = new[]
@@ -198,7 +198,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.TenantUser, false);
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
         
         // Assert
         var expectedErrors = new[]
@@ -218,7 +218,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         );
         
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/users", command);
+        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
         
         // Assert
         var expectedErrors = new[]
@@ -236,7 +236,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantOwner };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
         
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
@@ -251,7 +251,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.TenantAdmin };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{existingUserId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
         
         // Assert
         var expectedErrors = new[]
@@ -269,7 +269,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin };
         
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/users/{unknownUserId}", command);
+        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
         
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -282,7 +282,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var unknownUserId = UserId.NewId();
         
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/users/{unknownUserId}");
+        var response = await TestHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
         
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -295,7 +295,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingUserId = DatabaseSeeder.User1.Id;
         
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/users/{existingUserId}");
+        var response = await TestHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
         
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
