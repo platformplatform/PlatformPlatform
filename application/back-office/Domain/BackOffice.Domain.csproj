@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.BackOffice.Domain</AssemblyName>
+        <RootNamespace>PlatformPlatform.BackOffice.Domain</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared-kernel\DomainCore\SharedKernel.DomainCore.csproj"/>
+    </ItemGroup>
+
+</Project>

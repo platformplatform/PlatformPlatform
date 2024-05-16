@@ -1,0 +1,73 @@
+{
+  "name": "back-office-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "del-cli \"dist/**\" && yarn run update-translations && yarn run swagger && rspack serve",
+    "build": "yarn run update-translations && yarn run swagger && rspack build && yarn run typechecking",
+    "update-translations": "yarn run lingui extract && yarn run lingui compile --typescript",
+    "lint": "eslint .",
+    "typechecking": "tsc --noEmit",
+    "swagger": "npx openapi-typescript lib/api/BackOffice.Api.json -o lib/api/api.generated.d.ts && npx prettier lib/api/api.generated.d.ts --write",
+    "publish": "yarn run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"
+  },
+  "dependencies": {
+    "@lingui/core": "^4.10.0",
+    "@lingui/macro": "^4.10.0",
+    "@lingui/react": "^4.10.0",
+    "@microsoft/applicationinsights-react-js": "^17.1.2",
+    "@microsoft/applicationinsights-web": "^3.2.0",
+    "lucide-react": "^0.376.0",
+    "openapi-fetch": "^0.9.5",
+    "react": "18.3.0-canary-c47c306a7-20231109",
+    "react-aria-components": "^1.1.1",
+    "react-dom": "18.3.0-canary-c47c306a7-20231109",
+    "react-dom-confetti": "^0.2.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwind-variants": "^0.2.1",
+    "zod": "^3.23.4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.16.0",
+    "@eslint-react/eslint-plugin": "^1.5.10",
+    "@lingui/cli": "^4.10.0",
+    "@lingui/format-po": "^4.10.0",
+    "@lingui/swc-plugin": "^4.0.7",
+    "@platformplatform/client-filesystem-router": "0.0.0",
+    "@rspack/cli": "^0.6.3",
+    "@rspack/core": "^0.6.3",
+    "@svgr/webpack": "^8.1.0",
+    "@swc/core": "^1.4.17",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "^10.4.19",
+    "del-cli": "^5.1.0",
+    "eslint": "^9.1.1",
+    "eslint-plugin-format": "^0.1.1",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "openapi-typescript": "6.7.5",
+    "postcss": "^8.4.38",
+    "postcss-loader": "^8.1.1",
+    "swc-loader": "0.2.6",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-animate": "^1.0.7",
+    "tailwindcss-react-aria-components": "^1.1.1",
+    "tslib": "2.6.2",
+    "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
+  "resolutions": {
+    "react": "18.3.0-canary-c47c306a7-20231109",
+    "react-dom": "18.3.0-canary-c47c306a7-20231109"
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "not dead"
+  ]
+}

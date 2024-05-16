@@ -1,0 +1,21 @@
+{
+  "solution": {
+    "path": "..\\PlatformPlatform.sln",
+    "projects": [
+      "AppHost\\AppHost.csproj",
+      "AppGateway\\AppGateway.csproj",
+      "shared-kernel\\DomainCore\\SharedKernel.DomainCore.csproj",
+      "shared-kernel\\ApplicationCore\\SharedKernel.ApplicationCore.csproj",
+      "shared-kernel\\InfrastructureCore\\SharedKernel.InfrastructureCore.csproj",
+      "shared-kernel\\ApiCore\\SharedKernel.ApiCore.csproj",
+      "shared-kernel\\Tests\\SharedKernel.Tests.csproj",
+      "back-office\\Domain\\BackOffice.Domain.csproj",
+      "back-office\\Application\\BackOffice.Application.csproj",
+      "back-office\\Infrastructure\\BackOffice.Infrastructure.csproj",
+      "back-office\\Workers\\BackOffice.Workers.csproj",
+      "back-office\\Api\\BackOffice.Api.csproj",
+      "back-office\\WebApp\\BackOffice.WebApp.esproj",
+      "back-office\\Tests\\BackOffice.Tests.csproj"
+    ]
+  }
+}
