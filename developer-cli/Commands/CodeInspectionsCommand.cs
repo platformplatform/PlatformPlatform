@@ -12,30 +12,37 @@ public class CodeInspectionsCommand : Command
 {
     public CodeInspectionsCommand() : base("code-inspections", "Run JetBrains Code Inspections")
     {
+        var solutionNameOption = new Option<string?>(
+            ["<solution-name>", "--solution-name", "-s"],
+            "The name of the self-contained system to build"
+        );
+
+        AddOption(solutionNameOption);
+
         Handler = CommandHandler.Create(Execute);
     }
 
-    private int Execute()
+    private int Execute(string? solutionName)
     {
         PrerequisitesChecker.Check("dotnet");
 
-        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
+        var solutionFile = SolutionHelper.GetSolution(solutionName);
 
-        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
+        ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
         ProcessHelper.StartProcess(
-            "dotnet jb inspectcode PlatformPlatform.sln --build --output=result.json --severity=SUGGESTION",
-            workingDirectory
+            $"dotnet jb inspectcode {solutionFile.Name} --build --output=result.json --severity=SUGGESTION",
+            solutionFile.Directory!.FullName
         );
 
-        var resultXml = File.ReadAllText(Path.Combine(workingDirectory, "result.json"));
+        var resultXml = File.ReadAllText(Path.Combine(solutionFile.Directory!.FullName, "result.json"));
         if (resultXml.Contains("\"results\": [],"))
         {
             AnsiConsole.MarkupLine("[green]No issues found![/]");
         }
         else
         {
-            ProcessHelper.StartProcess("code result.json", workingDirectory);
+            ProcessHelper.StartProcess("code result.json", solutionFile.Directory!.FullName);
         }
 
         return 0;
