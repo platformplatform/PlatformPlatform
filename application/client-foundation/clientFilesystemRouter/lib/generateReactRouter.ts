@@ -67,15 +67,15 @@ function generateReactRouterCode(routeItem: RouteType, indent = "  "): string {
 
 export type GenerateReactRouterOptions = {
   appPath: string;
-  assetPrefix?: string;
   importPrefix: string;
+  basename: string;
   outputPath: string;
 };
 
-export function generateReactRouter({ appPath, importPrefix, assetPrefix }: GenerateReactRouterOptions) {
+export function generateReactRouter({ appPath, importPrefix, basename }: GenerateReactRouterOptions) {
   return createBrowserRouterCode(
     generateReactRouterCode(getRouteDetails([""], { appPath, importPrefix })),
-    assetPrefix,
+    basename,
   );
 }
 

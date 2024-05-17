@@ -26,28 +26,9 @@ public class TestCommand : Command
     {
         PrerequisitesChecker.Check("dotnet");
 
-        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
-
-        var solutionsFiles = Directory
-            .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)
-            .ToDictionary(s => new FileInfo(s).Name.Replace(".sln", ""), s => s);
-
-        if (solutionName is not null && !solutionsFiles.ContainsKey(solutionName))
-        {
-            AnsiConsole.MarkupLine($"[red]ERROR:[/] Solution [yellow]{solutionName}[/] not found.");
-            return 1;
-        }
-
-        if (solutionName is null)
-        {
-            var prompt = new SelectionPrompt<string>()
-                .Title("Please select an option")
-                .AddChoices(solutionsFiles.Keys);
-
-            solutionName = AnsiConsole.Prompt(prompt);
-        }
-
-        ProcessHelper.StartProcess($"dotnet test {solutionsFiles[solutionName]}");
+        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        
+        ProcessHelper.StartProcess($"dotnet test {solutionFile.Name}", solutionFile.Directory?.FullName);
 
         return 0;
     }

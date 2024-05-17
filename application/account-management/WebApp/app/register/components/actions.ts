@@ -34,7 +34,7 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
   const { subdomain, email } = validatedFields.data;
 
   try {
-    const result = await accountManagementApi.POST("/api/account-registrations/start", {
+    const result = await accountManagementApi.POST("/api/account-management/account-registrations/start", {
       body: {
         subdomain,
         email,
@@ -90,7 +90,7 @@ export async function completeAccountRegistration(_: State, formData: FormData):
   const { accountRegistrationId, oneTimePassword } = validatedFields.data;
 
   try {
-    const result = await accountManagementApi.POST("/api/account-registrations/{id}/complete", {
+    const result = await accountManagementApi.POST("/api/account-management/account-registrations/{id}/complete", {
       params: {
         path: {
           id: accountRegistrationId,

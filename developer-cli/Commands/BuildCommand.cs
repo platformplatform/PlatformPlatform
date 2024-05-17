@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -26,28 +27,9 @@ public class BuildCommand : Command
     {
         PrerequisitesChecker.Check("dotnet", "aspire", "node", "yarn");
 
-        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
+        var solutionFile = SolutionHelper.GetSolution(solutionName);
 
-        var solutionsFiles = Directory
-            .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)
-            .ToDictionary(s => new FileInfo(s).Name.Replace(".sln", ""), s => s);
-
-        if (solutionName is not null && !solutionsFiles.ContainsKey(solutionName))
-        {
-            AnsiConsole.MarkupLine($"[red]ERROR:[/] Solution [yellow]{solutionName}[/] not found.");
-            return 1;
-        }
-
-        if (solutionName is null)
-        {
-            var prompt = new SelectionPrompt<string>()
-                .Title("Please select an option")
-                .AddChoices(solutionsFiles.Keys);
-
-            solutionName = AnsiConsole.Prompt(prompt);
-        }
-
-        ProcessHelper.StartProcess($"dotnet build {solutionsFiles[solutionName]}");
+        ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
 
         return 0;
     }

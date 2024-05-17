@@ -6,7 +6,7 @@ namespace PlatformPlatform.AccountManagement.Api.Users;
 
 public class UserEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/users";
+    private const string RoutesPrefix = "/api/account-management/users";
     
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {

@@ -9,13 +9,13 @@ var certificatePassword = builder.CreateSslCertificateIfNotExists();
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
-    .WithVolume("sql-server-data", "/var/opt/mssql");
+    .WithVolume("platform-platform-sql-server-data", "/var/opt/mssql");
 
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
         {
-            resourceBuilder.WithVolume("azure-storage-data", "/data");
+            resourceBuilder.WithVolume("platform-platform-azure-storage-data", "/data");
             resourceBuilder.WithBlobPort(10000);
         }
     )
@@ -32,7 +32,7 @@ var accountManagementDatabase = sqlServer
 CreateBlobContainer("avatars");
 
 var accountManagementApi = builder
-    .AddProject<Api>("account-management-api")
+    .AddProject<AccountManagement_Api>("account-management-api")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 
@@ -42,7 +42,7 @@ var accountManagementSpa = builder
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 builder
-    .AddProject<Workers>("account-management-workers")
+    .AddProject<AccountManagement_Workers>("account-management-workers")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 

@@ -1,0 +1,16 @@
+{
+  "solution": {
+    "path": "PlatformPlatform.sln",
+    "projects": [
+      "AppHost\\AppHost.csproj",
+      "AppGateway\\AppGateway.csproj",
+      "account-management\\Domain\\AccountManagement.Domain.csproj",
+      "account-management\\Application\\AccountManagement.Application.csproj",
+      "account-management\\Infrastructure\\AccountManagement.Infrastructure.csproj",
+      "account-management\\Workers\\AccountManagement.Workers.csproj",
+      "account-management\\Api\\AccountManagement.Api.csproj",
+      "account-management\\WebApp\\AccountManagement.WebApp.esproj",
+      "account-management\\Tests\\AccountManagement.Tests.csproj"
+    ]
+  }
+}

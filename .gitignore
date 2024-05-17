@@ -387,9 +387,21 @@ FodyWeavers.xsd
 **/*.generated.d.ts
 **/*.generated.ts
 **/Api/swagger.json
-**/lib/api/Api.json
+**/lib/api/*.Api.json
 
 # Frontend builds
 .swc/
-dist/
+**/WebApp/dist/*.js*
+**/WebApp/dist/*.css
+**/WebApp/dist/*.json
+**/WebApp/dist/*.ts*
+**/WebApp/dist/*.ico
+**/WebApp/dist/*.jpg
+**/WebApp/dist/*.jpeg
+**/WebApp/dist/*.png
+**/WebApp/dist/*.svg
+**/WebApp/dist/*.webm
+**/WebApp/dist/*.webp
+**/WebApp/dist/*.txt
+
 **/translations/locale/*.ts

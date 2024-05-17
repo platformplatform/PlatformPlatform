@@ -12,21 +12,32 @@ public class CodeCoverageCommand : Command
 {
     public CodeCoverageCommand() : base("code-coverage", "Run JetBrains Code Coverage")
     {
+        var solutionNameOption = new Option<string?>(
+            ["<solution-name>", "--solution-name", "-s"],
+            "The name of the self-contained system to build"
+        );
+
+        AddOption(solutionNameOption);
+        
         Handler = CommandHandler.Create(Execute);
     }
 
-    private int Execute()
+    private int Execute(string? solutionName)
     {
         PrerequisitesChecker.Check("dotnet");
 
         var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application")).FullName;
 
-        ProcessHelper.StartProcess("dotnet tool restore", workingDirectory);
+        var solutionFile = SolutionHelper.GetSolution(solutionName);
 
-        ProcessHelper.StartProcess("dotnet build", workingDirectory);
+        ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
+        ProcessHelper.StartProcess("dotnet build", solutionFile.Directory!.FullName);
+        
+        var solutionFileWithoutExtentsion = solutionFile.Name.Replace(solutionFile.Extension, "");
+        
         ProcessHelper.StartProcess(
-            "dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*\"",
+            $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:{solutionFileWithoutExtentsion}.*;-:*.Tests;-:type=*.AppHost.*\"",
             workingDirectory
         );
 
