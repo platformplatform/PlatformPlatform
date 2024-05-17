@@ -142,6 +142,14 @@ module keyVault '../modules/key-vault.bicep' = {
   dependsOn: [virtualNetwork]
 }
 
+var isCustomDomainSet = domainName != ''
+var publicUrl = isCustomDomainSet
+  ? 'https://${domainName}'
+  : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
+var cdnUrl = publicUrl
+
+// Account Management
+
 var accountManagementIdentityName = 'account-management-${resourceGroupName}'
 module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
   name: 'account-management-managed-identity'
@@ -186,12 +194,6 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
   }
   dependsOn: [accountManagementIdentity]
 }
-
-var isCustomDomainSet = domainName != ''
-var publicUrl = isCustomDomainSet
-  ? 'https://${domainName}'
-  : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
-var cdnUrl = publicUrl
 
 var accountManagementEnvironmentVariables = [
   {
@@ -275,6 +277,9 @@ module accountManagementApi '../modules/container-app.bicep' = {
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
 }
+
+
+// App Gateway
 
 var appGatewayIdentityName = 'app-gateway-${resourceGroupName}'
 module mainAppIdentity '../modules/user-assigned-managed-identity.bicep' = {
