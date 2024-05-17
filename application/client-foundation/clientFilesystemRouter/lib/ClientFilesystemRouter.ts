@@ -22,10 +22,10 @@ export type ClientFilesystemRouterOptions = {
    */
   importPrefix?: string;
   /**
-   * The prefix to use for the asset path.
+   * The base path to use, e.g. /back-office
    * @default ""
    */
-  assetPrefix?: string;
+  basename?: string;
   /**
    * The origin to use for the asset path.
    * @default "auto"
@@ -52,13 +52,13 @@ export class ClientFilesystemRouter {
   constructor({
     dir = "app",
     importPrefix = "@",
-    assetPrefix,
+    basename,
     outputPath,
   }: ClientFilesystemRouterOptions = {}) {
     this.generateOptions = {
       appPath: path.join(process.cwd(), dir),
       importPrefix,
-      assetPrefix,
+      basename: basename || "/",
       outputPath: outputPath ?? path.join(process.cwd(), "lib", "router", "router.generated.ts"),
     };
 

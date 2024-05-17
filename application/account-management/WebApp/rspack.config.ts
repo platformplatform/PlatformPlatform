@@ -143,6 +143,7 @@ const configuration: Configuration = {
     }),
     new ClientFilesystemRouterPlugin({
       dir: "app",
+      basename: "/",
     }),
   ],
   devServer: {
