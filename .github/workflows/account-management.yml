@@ -1,17 +1,19 @@
-name: Application - Build and Deploy
+name: Account Managment - Build and Deploy
 
 on:
   push:
     branches:
       - main
     paths:
-      - "application/**"
-      - ".github/workflows/application.yml"
+      - "application/shared-kernel/**"
+      - "application/account-management/**"
+      - ".github/workflows/app-gateway.yml"
       - "!**.md"
   pull_request:
     paths:
-      - "application/**"
-      - ".github/workflows/application.yml"
+      - "application/shared-kernel/**"
+      - "application/account-management/**"
+      - ".github/workflows/app-gateway.yml"
       - "!**.md"
   workflow_dispatch:
 
@@ -109,17 +111,6 @@ jobs:
         with:
           name: account-management-workers
           path: application/account-management/Workers/publish/**/*
-
-      - name: Publish App Gateway build
-        working-directory: application
-        run: |
-          dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
-
-      - name: Save App Gateway artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-gateway
-          path: application/AppGateway/publish/**/*
 
   code-style-and-linting:
     name: Code Style and Linting
@@ -236,27 +227,4 @@ jobs:
     secrets: inherit
     with:
       image_name: account-management-workers
-      version: ${{ needs.build-and-test.outputs.version }}
-
-  app-gateway-publish:
-    name: App Gateway Publish
-    needs: [build-and-test]
-    uses: ./.github/workflows/_publish-container.yml
-    secrets: inherit
-    with:
-      artifacts_name: app-gateway
-      artifacts_path: application/AppGateway/publish
-      image_name: app-gateway
-      version: ${{ needs.build-and-test.outputs.version }}
-      docker_context: ./application
-      docker_file: ./AppGateway/Dockerfile
-
-  app-gateway-deploy:
-    name: App Gateway Deploy
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, app-gateway-publish]
-    uses: ./.github/workflows/_deploy-container.yml
-    secrets: inherit
-    with:
-      image_name: app-gateway
       version: ${{ needs.build-and-test.outputs.version }}

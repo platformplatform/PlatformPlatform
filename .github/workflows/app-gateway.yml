@@ -1,0 +1,145 @@
+name: App Gateway - Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "application/shared-kernel/**"
+      - "application/AppGateway/**"
+      - ".github/workflows/app-gateway.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "application/shared-kernel/**"
+      - "application/AppGateway/**"
+      - ".github/workflows/app-gateway.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate version
+        id: generate_version
+        run: |
+          # Strip leading 0s of Hours and Minutes after midnight
+          MINUTE=$(printf "%s" $(date +"%-H%M") | sed 's/^0*//')
+          VERSION=$(date +"%Y.%-m.%-d.")$MINUTE
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: |
+          dotnet tool restore &&
+          dotnet workload install aspire
+
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build backend solution
+        working-directory: application
+        run: |
+          dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Publish App Gateway build
+        working-directory: application
+        run: |
+          dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save App Gateway artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-gateway
+          path: application/AppGateway/publish/**/*
+
+  code-style-and-linting:
+    name: Code Style and Linting
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: |
+          dotnet tool restore &&
+          dotnet workload install aspire
+
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build backend solution
+        working-directory: application
+        run: dotnet build PlatformPlatform.sln --no-restore
+
+      - name: Run code inspections
+        working-directory: application
+        run: |
+          dotnet jb inspectcode PlatformPlatform.sln --no-build --output=result.json --severity=SUGGESTION
+
+          # Check if there are any issues. <Issues /> indicates no issues found.
+          if ! grep -q '\"results\": \[\],' result.json; then
+            cat result.json
+            echo "Code inspection issues found."
+            exit 1
+          fi
+
+      - name: Check for code formatting issues
+        working-directory: application
+        run: |
+          dotnet jb cleanupcode PlatformPlatform.sln --no-build --profile=".NET only"
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
+            exit 1
+          }
+
+  app-gateway-publish:
+    name: App Gateway Publish
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: app-gateway
+      artifacts_path: application/AppGateway/publish
+      image_name: app-gateway
+      version: ${{ needs.build-and-test.outputs.version }}
+      docker_context: ./application
+      docker_file: ./AppGateway/Dockerfile
+
+  app-gateway-deploy:
+    name: App Gateway Deploy
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, app-gateway-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: app-gateway
+      version: ${{ needs.build-and-test.outputs.version }}
