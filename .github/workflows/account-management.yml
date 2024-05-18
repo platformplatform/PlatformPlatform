@@ -78,11 +78,11 @@ jobs:
         run: |
           if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]]; then
             echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
-            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
+            dotnet build AccountManagement.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
           else
             dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
-            dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
-            dotnet dotcover test PlatformPlatform.sln --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+            dotnet build AccountManagement.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
+            dotnet dotcover test AccountManagement.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
@@ -146,12 +146,12 @@ jobs:
 
       - name: Build backend solution
         working-directory: application
-        run: dotnet build PlatformPlatform.sln --no-restore
+        run: dotnet build AccountManagement.slnf --no-restore
 
       - name: Run code inspections
         working-directory: application
         run: |
-          dotnet jb inspectcode PlatformPlatform.sln --no-build --output=result.json --severity=SUGGESTION
+          dotnet jb inspectcode AccountManagement.slnf --no-build --output=result.json --severity=SUGGESTION
 
           # Check if there are any issues. <Issues /> indicates no issues found.
           if ! grep -q '\"results\": \[\],' result.json; then
@@ -163,11 +163,11 @@ jobs:
       - name: Check for code formatting issues
         working-directory: application
         run: |
-          dotnet jb cleanupcode PlatformPlatform.sln --no-build --profile=".NET only"
+          dotnet jb cleanupcode AccountManagement.slnf --no-build --profile=".NET only"
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode AccountManagement.slnf --profile=\".NET only\"' locally and commit the formatted code."
             exit 1
           }
 
