@@ -483,3 +483,4 @@ module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
+output backOfficeIdentityClientId string = backOfficeIdentity.outputs.clientId
