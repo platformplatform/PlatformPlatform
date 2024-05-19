@@ -7,7 +7,8 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION -n "$CURRENT_DATE-$ENVIRONMENT" --output tab
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
-if [[ $output == "ERROR:"* ]]; then
+cleaned_output=$(echo "$output" | sed '/^WARNING/d')
+if [[ $cleaned_output == "ERROR:"* ]]; then
   echo -e "${RED}$output"
   exit 1
 fi
