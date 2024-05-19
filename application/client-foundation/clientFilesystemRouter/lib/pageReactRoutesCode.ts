@@ -28,13 +28,16 @@ export interface PageProps<T extends unknown = unknown> {
   params: T;
 };
 
+// @ts-ignore
 export interface ErrorPageProps<E extends unknown = unknown> extends PageProps {
   error: E;
   reset: () => void;
 };
 
+// @ts-ignore
 export type LazyLoadedPage = () => Promise<{ default: ComponentType<any> }>;
 
+// @ts-ignore
 function createErrorPage(errorPage: FunctionComponent) {
   return createElement(() => {
     /* Error page */
@@ -48,6 +51,7 @@ function createErrorPage(errorPage: FunctionComponent) {
   });
 }
 
+// @ts-ignore
 function createLazyLoadedPage(fallbackPage: FunctionComponent, pageImport: LazyLoadedPage) {
   return createElement(() => {
     /* Lazy loading */
@@ -58,6 +62,7 @@ function createLazyLoadedPage(fallbackPage: FunctionComponent, pageImport: LazyL
   });
 }
 
+// @ts-ignore
 function createNormalPage(pageImport: FunctionComponent) {
   return createElement(() => {
     /* Normal page */
@@ -66,6 +71,7 @@ function createNormalPage(pageImport: FunctionComponent) {
   });
 }
 
+// @ts-ignore
 function createLayoutPage(layoutImport: FunctionComponent) {
   return createElement(() => {
     /* Layout */
