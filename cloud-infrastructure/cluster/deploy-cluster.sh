@@ -98,7 +98,7 @@ then
 
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
-    echo "Running deployment again to finalize setting up SSL certificate for account-management"
+    echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
     IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
     DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
