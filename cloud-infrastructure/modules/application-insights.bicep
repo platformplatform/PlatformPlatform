@@ -25,7 +25,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource applicationInsightsSmartDetection 'Microsoft.Insights/actionGroups@2023-01-01' = {
-  name: 'Application Insights Smart Detection'
+  name: '${name}-smart-detection'
   location: 'Global'
   tags: tags
   properties: {
