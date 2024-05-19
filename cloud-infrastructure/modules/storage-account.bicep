@@ -55,7 +55,7 @@ resource blobContainers 'Microsoft.Storage/storageAccounts/blobServices/containe
 }]
 
 module storageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (userAssignedIdentityName != '') {
-  name: '${name}-blob-contributer-role-assignment'
+  name: '${name}-blob-contributer'
   params: {
     storageAccountName: name
     userAssignedIdentityName: userAssignedIdentityName

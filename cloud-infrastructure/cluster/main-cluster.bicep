@@ -474,7 +474,7 @@ module appGateway '../modules/container-app.bicep' = {
 
 module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
   scope: clusterResourceGroup
-  name: '${clusterUniqueName}-${appGatewayContainerAppName}-blob-reader-role-assignment'
+  name: '${clusterUniqueName}-${appGatewayContainerAppName}-blob-reader'
   params: {
     storageAccountName: accountManagementStorageAccountName
     userAssignedIdentityName: appGatewayIdentityName
