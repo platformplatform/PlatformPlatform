@@ -391,17 +391,18 @@ FodyWeavers.xsd
 
 # Frontend builds
 .swc/
-**/WebApp/dist/*.js*
-**/WebApp/dist/*.css
-**/WebApp/dist/*.json
-**/WebApp/dist/*.ts*
-**/WebApp/dist/*.ico
-**/WebApp/dist/*.jpg
-**/WebApp/dist/*.jpeg
-**/WebApp/dist/*.png
-**/WebApp/dist/*.svg
-**/WebApp/dist/*.webm
-**/WebApp/dist/*.webp
-**/WebApp/dist/*.txt
+**/WebApp/dist/**/*.js*
+**/WebApp/dist/**/*.css
+**/WebApp/dist/**/*.map
+**/WebApp/dist/**/*.json
+**/WebApp/dist/**/*.ts*
+**/WebApp/dist/**/*.ico
+**/WebApp/dist/**/*.jpg
+**/WebApp/dist/**/*.jpeg
+**/WebApp/dist/**/*.png
+**/WebApp/dist/**/*.svg
+**/WebApp/dist/**/*.webm
+**/WebApp/dist/**/*.webp
+**/WebApp/dist/**/*.txt
 
 **/translations/locale/*.ts
