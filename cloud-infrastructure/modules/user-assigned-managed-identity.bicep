@@ -12,14 +12,13 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 var containerRegistryResourceGroupName = 'shared'
 module containerRegistryPermission './role-assignments-container-registry-acr-pull.bicep' = {
-  name: 'container-registry-permission'
+  name: '${name}-permission'
   scope: resourceGroup(subscription().subscriptionId, containerRegistryResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
     principalId: userAssignedIdentity.properties.principalId
   }
 }
-
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
   name: keyVaultName
