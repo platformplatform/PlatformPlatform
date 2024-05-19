@@ -76,8 +76,9 @@ then
   RED='\033[0;31m'
   RESET='\033[0m' # Reset formatting
 
+  cleaned_output=$(echo "$output" | sed '/^WARNING/d')
   # Check for the specific error message indicating that DNS Records are missing
-  if [[ $output == *"InvalidCustomHostNameValidation"* ]] || [[ $output == *"FailedCnameValidation"* ]] || [[ $output == *"-certificate' under resource group '$RESOURCE_GROUP_NAME' was not found"* ]]; then
+  if [[ $cleaned_output == *"InvalidCustomHostNameValidation"* ]] || [[ $cleaned_output == *"FailedCnameValidation"* ]] || [[ $cleaned_output == *"-certificate' under resource group '$RESOURCE_GROUP_NAME' was not found"* ]]; then
     # Get details about the container apps environment. Although the creation of the container app fails, the verification ID on the container apps environment is consistent across all container apps.
     env_details=$(az containerapp env show --name "$LOCATION_PREFIX-container-apps-environment" --resource-group "$RESOURCE_GROUP_NAME")
     
@@ -90,27 +91,28 @@ then
     echo -e "${RED}- A TXT record with the name 'asuid.$DOMAIN_NAME' and the value '$custom_domain_verification_id'.${RESET}"
     echo -e "${RED}- A CNAME record with the Host name '$DOMAIN_NAME' that points to address 'app-gateway.$default_domain'.${RESET}"
     exit 1
-  elif [[ $output == "ERROR:"* ]]; then
+  elif [[ $cleaned_output == *"ERROR:"* && $cleaned_output == *'"status": "Failed"'* ]]; then
     echo -e "${RED}$output${RESET}"
     exit 1
   fi
 
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
-    echo "Running deployment again to finalize setting up SSL certificate for account-management"
+    echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
     IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
     DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p environment=$ENVIRONMENT locationPrefix=$LOCATION_PREFIX resourceGroupName=$RESOURCE_GROUP_NAME clusterUniqueName=$CLUSTER_UNIQUE_NAME useMssqlElasticPool=$USE_MSSQL_ELASTIC_POOL containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
     . ../deploy.sh
 
-    if [[ $output == "ERROR:"* ]]; then
+    cleaned_output=$(echo "$output" | sed '/^WARNING/d')
+    if [[ $cleaned_output == "ERROR:"* ]]; then
       echo -e "${RED}$output"
       exit 1
     fi
   fi
 
   # Extract the ID of the Managed Identities, which can be used to grant access to SQL Database
-  ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
+  ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
   if [[ -n "$GITHUB_OUTPUT" ]]; then
     echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
   else

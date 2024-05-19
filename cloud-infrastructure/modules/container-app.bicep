@@ -34,7 +34,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-
 
 module newManagedCertificate './managed-certificate.bicep' =
   if (isCustomDomainSet) {
-    name: certificateName
+    name: '${resourceGroupName}-${name}-managed-certificate'
     scope: resourceGroup(resourceGroupName)
     dependsOn: [containerApp]
     params: {
