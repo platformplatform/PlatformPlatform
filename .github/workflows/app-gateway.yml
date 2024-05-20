@@ -60,12 +60,14 @@ jobs:
         run: |
           dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish App Gateway build
+      - name: Publish build
+        if: github.ref != 'refs/heads/main'
         working-directory: application
         run: |
           dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save App Gateway artifacts
+      - name: Save artifacts
+        if: github.ref != 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: app-gateway
@@ -121,8 +123,9 @@ jobs:
             exit 1
           }
 
-  app-gateway-publish:
-    name: App Gateway Publish
+  publish:
+    name: Publish
+    if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
@@ -134,10 +137,10 @@ jobs:
       docker_context: ./application
       docker_file: ./AppGateway/Dockerfile
 
-  app-gateway-deploy:
-    name: App Gateway Deploy
+  deploy:
+    name: Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, app-gateway-publish]
+    needs: [build-and-test, publish]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
