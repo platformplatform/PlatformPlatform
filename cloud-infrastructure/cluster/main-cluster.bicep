@@ -348,7 +348,7 @@ var backOfficeEnvironmentVariables = [
   }
   {
     name: 'CDN_URL'
-    value: cdnUrl
+    value: '${cdnUrl}/back-office'
   }
   {
     name: 'SENDER_EMAIL_ADDRESS'
