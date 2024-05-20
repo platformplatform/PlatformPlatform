@@ -46,10 +46,30 @@ builder
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 
+var backOfficeDatabase = sqlServer
+    .AddDatabase("back-office-database", "back-office");
+
+var backOfficeApi = builder
+    .AddProject<BackOffice_Api>("back-office-api")
+    .WithReference(backOfficeDatabase)
+    .WithReference(azureStorage);
+
+var backOfficeSpa = builder
+    .AddNpmApp("back-office-spa", "../back-office/WebApp", "dev")
+    .WithReference(backOfficeApi)
+    .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
+
+builder
+    .AddProject<BackOffice_Workers>("back-office-workers")
+    .WithReference(backOfficeDatabase)
+    .WithReference(azureStorage);
+
 builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(accountManagementApi)
-    .WithReference(accountManagementSpa);
+    .WithReference(accountManagementSpa)
+    .WithReference(backOfficeApi)
+    .WithReference(backOfficeSpa);
 
 builder.Build().Run();
 

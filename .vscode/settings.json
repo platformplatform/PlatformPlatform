@@ -49,6 +49,8 @@
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}",
   "eslint.workingDirectories": [
-    "./application/account-management/WebApp"
+    "./application/account-management/WebApp",
+    "./application/back-office/WebApp"
+
   ]
 }

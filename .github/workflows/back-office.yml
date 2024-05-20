@@ -1,0 +1,238 @@
+name: Back Office - Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "application/shared-kernel/**"
+      - "application/back-office/**"
+      - ".github/workflows/back-office.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "application/shared-kernel/**"
+      - "application/back-office/**"
+      - ".github/workflows/back-office.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate version
+        id: generate_version
+        run: |
+          # Strip leading 0s of Hours and Minutes after midnight
+          MINUTE=$(printf "%s" $(date +"%-H%M") | sed 's/^0*//')
+          VERSION=$(date +"%Y.%-m.%-d.")$MINUTE
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node modules
+        working-directory: application
+        run: yarn install --frozen-lockfile
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: |
+          dotnet tool restore &&
+          dotnet workload install aspire
+
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Setup Java JDK for SonarScanner
+        uses: actions/setup-java@v4
+        with:
+          distribution: "microsoft"
+          java-version: "17"
+
+      - name: Run tests with dotCover and SonarScanner reporting
+        working-directory: application
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]]; then
+            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
+            dotnet build back-office/BackOffice.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
+            dotnet dotcover test back-office/BackOffice.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*"
+          else
+            dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
+            dotnet build back-office/BackOffice.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
+            dotnet dotcover test back-office/BackOffice.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+            dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
+          fi
+
+      - name: Publish frontend artifacts
+        if:   github.ref == 'refs/heads/main'
+        working-directory: application/back-office/WebApp
+        run: yarn run publish
+
+      - name: Publish API build
+        if:   github.ref == 'refs/heads/main'
+        working-directory: application/back-office
+        run: |
+          dotnet publish ./Api/BackOffice.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save API artifacts
+        if:   github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-office-api
+          path: application/back-office/Api/publish/**/*
+
+      - name: Publish Worker build
+        if:   github.ref == 'refs/heads/main'
+        working-directory: application/back-office
+        run: |
+          dotnet publish ./Workers/BackOffice.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save Workers artifacts
+        if:   github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-office-workers
+          path: application/back-office/Workers/publish/**/*
+
+  code-style-and-linting:
+    name: Code Style and Linting
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node modules
+        working-directory: application
+        run: yarn install --frozen-lockfile
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: |
+          dotnet tool restore &&
+          dotnet workload install aspire
+
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build backend solution
+        working-directory: application
+        run: dotnet build back-office/BackOffice.slnf --no-restore
+
+      - name: Run code inspections
+        working-directory: application
+        run: |
+          dotnet jb inspectcode back-office/BackOffice.slnf --no-build --output=result.json --severity=SUGGESTION
+
+          # Check if there are any issues. <Issues /> indicates no issues found.
+          if ! grep -q '\"results\": \[\],' result.json; then
+            cat result.json
+            echo "Code inspection issues found."
+            exit 1
+          fi
+
+      - name: Check for code formatting issues
+        working-directory: application
+        run: |
+          dotnet jb cleanupcode back-office/BackOffice.slnf --no-build --profile=".NET only"
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode back-office/BackOffice.slnf --profile=\".NET only\"' locally and commit the formatted code."
+            exit 1
+          }
+
+      - name: Build frontend artifacts
+        working-directory: application/back-office/WebApp
+        run: yarn run build
+
+      - name: Run ESLint
+        working-directory: application/back-office/WebApp
+        run: yarn run lint
+
+      - name: Run Type Checking
+        working-directory: application/back-office/WebApp
+        run: yarn run typechecking
+
+  api-publish:
+    name: Publish API
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: back-office-api
+      artifacts_path: application/back-office/Api/publish
+      image_name: back-office-api
+      version: ${{ needs.build-and-test.outputs.version }}
+      docker_context: ./application/back-office
+      docker_file: ./Api/Dockerfile
+
+  api-deploy:
+    name: Deploy API
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, api-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: back-office-api
+      version: ${{ needs.build-and-test.outputs.version }}
+
+  workers-publish:
+    name: Publish Workers
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test]
+    uses: ./.github/workflows/_publish-container.yml
+    secrets: inherit
+    with:
+      artifacts_name: back-office-workers
+      artifacts_path: application/back-office/Workers/publish
+      image_name: back-office-workers
+      version: ${{ needs.build-and-test.outputs.version }}
+      docker_context: ./application/back-office
+      docker_file: ./Workers/Dockerfile
+
+  workers-deploy:
+    name: Deploy Workers
+    if: github.ref == 'refs/heads/main'
+    needs: [build-and-test, workers-publish]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: back-office-workers
+      version: ${{ needs.build-and-test.outputs.version }}

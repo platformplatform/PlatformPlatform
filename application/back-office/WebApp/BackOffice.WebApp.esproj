@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.751930">
+
+    <PropertyGroup>
+        <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+        <BuildCommand>yarn install --frozen-lockfile --ignore-engines</BuildCommand>
+        <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
+        <DefaultItemExcludes>$(DefaultItemExcludes);dist\**;*.config.*;*.d.ts</DefaultItemExcludes>
+    </PropertyGroup>
+
+</Project>
