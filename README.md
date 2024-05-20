@@ -215,7 +215,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  │   └─ Tests          # Tests for the API, Application, Domain, and Infrastructure
 │  ├─ shared-kernel      # Reusable components for all self-contained systems
 │  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│  └─ [back-office]      # A self-contained system for operations and support (empty for now)
+│  └─ back-office        # A self-contained system for operations and support (empty for now)
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
 │  ├─ environment        # Shared resources like App Insights for all Production clusters
