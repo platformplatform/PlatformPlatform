@@ -45,10 +45,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Node modules
-        working-directory: application/account-management/WebApp
-        run: yarn install --frozen-lockfile
-
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -124,10 +120,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Install Node modules
-        working-directory: application/account-management/WebApp
-        run: yarn install --frozen-lockfile
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
