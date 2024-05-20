@@ -40,6 +40,15 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node modules
+        working-directory: application
+        run: yarn install --frozen-lockfile
+
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -80,6 +89,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node modules
+        working-directory: application
+        run: yarn install --frozen-lockfile
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
