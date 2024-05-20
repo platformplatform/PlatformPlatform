@@ -87,23 +87,23 @@ jobs:
         working-directory: application/account-management/WebApp
         run: yarn run publish
 
-      - name: Publish Account Management API build
+      - name: Publish API build
         working-directory: application/account-management
         run: |
           dotnet publish ./Api/AccountManagement.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save Account Management API artifacts
+      - name: Save API artifacts
         uses: actions/upload-artifact@v4
         with:
           name: account-management-api
           path: application/account-management/Api/publish/**/*
 
-      - name: Publish Account Management Worker build
+      - name: Publish Worker build
         working-directory: application/account-management
         run: |
           dotnet publish ./Workers/AccountManagement.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save Account Management Workers artifacts
+      - name: Save Workers artifacts
         uses: actions/upload-artifact@v4
         with:
           name: account-management-workers
@@ -176,8 +176,8 @@ jobs:
         working-directory: application/account-management/WebApp
         run: yarn run typechecking
 
-  account-management-api-publish:
-    name: Account Management API Publish
+  api-publish:
+    name: Publish API
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
@@ -189,18 +189,18 @@ jobs:
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
 
-  account-management-api-deploy:
-    name: Account Management API Deploy
+  api-deploy:
+    name: Deploy API
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, account-management-api-publish]
+    needs: [build-and-test, api-publish]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
       image_name: account-management-api
       version: ${{ needs.build-and-test.outputs.version }}
 
-  account-management-workers-publish:
-    name: Account Management Workers Publish
+  workers-publish:
+    name: Publish Workers
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
@@ -212,10 +212,10 @@ jobs:
       docker_context: ./application/account-management
       docker_file: ./Workers/Dockerfile
 
-  account-management-workers-deploy:
-    name: Account Management Workers Deploy
+  workers-deploy:
+    name: Deploy Workers
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, account-management-workers-publish]
+    needs: [build-and-test, workers-publish]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
