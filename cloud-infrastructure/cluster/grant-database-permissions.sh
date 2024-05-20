@@ -1,7 +1,8 @@
-RESOURCE_GROUP_NAME="$ENVIRONMENT-$LOCATION_PREFIX"
-MANAGED_IDENTITY="$1-$RESOURCE_GROUP_NAME"
+RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT-$LOCATION_ACRONYM"
+MANAGED_IDENTITY="$1"
+MANAGEMENT_IDENTITY_CLIENT_ID="$2"
 SQL_DATABASE=$1
-SQL_SERVER_NAME=$CLUSTER_UNIQUE_NAME
+SQL_SERVER_NAME="$RESOURCE_GROUP_NAME"
 SQL_SERVER="$SQL_SERVER_NAME.database.windows.net"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -10,7 +11,7 @@ trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter
 
 # Convert the ClientId of the Managed Identity to the binary version. The following bash script is equivalent to this PowerShell:
 #   $SID = "0x" + [System.BitConverter]::ToString(([guid]$SID).ToByteArray()).Replace("-", "")
-SID=$(echo $2 | tr 'a-f' 'A-F' | tr -d '-') # Convert to uppercase and remove hyphens
+SID=$(echo $MANAGEMENT_IDENTITY_CLIENT_ID | tr 'a-f' 'A-F' | tr -d '-') # Convert to uppercase and remove hyphens
 SID=$(awk -v id="$SID" 'BEGIN {
   printf "0x%s%s%s%s\n",
     substr(id,7,2) substr(id,5,2) substr(id,3,2) substr(id,1,2),

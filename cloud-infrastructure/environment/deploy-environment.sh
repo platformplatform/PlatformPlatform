@@ -1,14 +1,14 @@
-RESOURCE_GROUP_NAME="$ENVIRONMENT"
-DEPLOYMENT_COMMAND="az deployment sub create"
+RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
+CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
-
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n "$CURRENT_DATE-$ENVIRONMENT" --output table -f ./main-environment.bicep -p environment=$ENVIRONMENT resourceGroupName=$RESOURCE_GROUP_NAME"
+DEPLOYMENT_COMMAND="az deployment sub create"
+DEPLOYMENT_PARAMETERS="-l $LOCATION -n "$CURRENT_DATE-$UNIQUE_PREFIX-$ENVIRONMENT" --output table -f ./main-environment.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
 cleaned_output=$(echo "$output" | sed '/^WARNING/d')
-if [[ $cleaned_output == "ERROR:"* ]]; then
+if [[ $cleaned_output == *"ERROR:"* ]]; then
   echo -e "${RED}$output"
   exit 1
 fi
