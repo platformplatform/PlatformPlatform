@@ -1,4 +1,4 @@
-name: "Deploy container"
+name: "Deploy Container"
 
 on:
   workflow_call:
@@ -26,7 +26,7 @@ jobs:
       - name: Deploy Staging West Europe cluster
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group staging-west-europe --image "${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-stage-weu" --image "${{ vars.UNIQUE_PREFIX }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
 
   production-west-europe-deploy:
     name: Production
@@ -45,4 +45,4 @@ jobs:
       - name: Deploy Production West Europe cluster
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group production-west-europe --image "${{ vars.CONTAINER_REGISTRY_NAME }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-prod-weu" --image "${{ vars.UNIQUE_PREFIX }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
