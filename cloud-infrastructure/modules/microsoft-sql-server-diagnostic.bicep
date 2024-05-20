@@ -5,7 +5,7 @@ param dianosticStorageAccountSubscriptionId string
 param dianosticStorageAccountBlobEndpoint string
 
 module diagnosticStorageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (principalId != '') {
-  name: '${microsoftSqlServerName}-sql-server-blob-contributer'
+  name: '${microsoftSqlServerName}-microsoft-sql-server-blob-contributer'
   params: {
     storageAccountName: diagnosticStorageAccountName
     principalId: principalId
