@@ -84,26 +84,31 @@ jobs:
           fi
 
       - name: Publish frontend artifacts
+        if: github.ref != 'refs/heads/main'
         working-directory: application/account-management/WebApp
         run: yarn run publish
 
       - name: Publish API build
+        if: github.ref != 'refs/heads/main'
         working-directory: application/account-management
         run: |
           dotnet publish ./Api/AccountManagement.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save API artifacts
+        if: github.ref != 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: account-management-api
           path: application/account-management/Api/publish/**/*
 
       - name: Publish Worker build
+        if: github.ref != 'refs/heads/main'
         working-directory: application/account-management
         run: |
           dotnet publish ./Workers/AccountManagement.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save Workers artifacts
+        if: github.ref != 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: account-management-workers
@@ -178,6 +183,7 @@ jobs:
 
   api-publish:
     name: Publish API
+    if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
@@ -201,6 +207,7 @@ jobs:
 
   workers-publish:
     name: Publish Workers
+    if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
     uses: ./.github/workflows/_publish-container.yml
     secrets: inherit
