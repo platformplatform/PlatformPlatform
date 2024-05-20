@@ -7,13 +7,13 @@ on:
     paths:
       - "application/shared-kernel/**"
       - "application/account-management/**"
-      - ".github/workflows/app-gateway.yml"
+      - ".github/workflows/account-management.yml"
       - "!**.md"
   pull_request:
     paths:
       - "application/shared-kernel/**"
       - "application/account-management/**"
-      - ".github/workflows/app-gateway.yml"
+      - ".github/workflows/account-management.yml"
       - "!**.md"
   workflow_dispatch:
 
