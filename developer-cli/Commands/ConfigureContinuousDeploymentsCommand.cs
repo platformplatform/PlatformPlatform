@@ -50,15 +50,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CollectAzureSubscriptionInfo(azureInfo, skipAzureLogin, githubInfo);
 
+        CollectUniquePrefix(githubInfo, azureInfo);
+
         CollectExistingAppRegistration(azureInfo);
 
         CollectExistingSqlAdminSecurityGroup(azureInfo);
 
-        CollectAzureContainerRegistryName(githubInfo, azureInfo);
-
         CollectDomainNames(githubInfo, azureInfo);
-
-        CollectUniquePrefix(githubInfo, azureInfo);
 
         PrintHeader("Confirm changes");
 
@@ -70,7 +68,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CreateAppRegistrationIfNotExists(azureInfo);
 
-        CreateFederatedCredentials(azureInfo, githubInfo);
+        CreateAppRegistrationCredentials(azureInfo, githubInfo);
 
         GrantSubscriptionPermissionsToServicePrincipal(azureInfo);
 
@@ -144,6 +142,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     .Title("Select the GitHub remote")
                     .AddChoices(gitRemoteMatches)
                 );
+                ProcessHelper.StartProcess($"gh repo set-default {githubUri}");
                 break;
         }
 
@@ -227,9 +226,48 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
 
-        azureInfo.AppRegistrationName = $"GitHub Azure - {githubInfo.OrganizationName} - {githubInfo.RepositoryName}";
+        azureInfo.AppRegistrationName = $"GitHub - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
         azureInfo.Subscription = subscription;
+    }
+
+    private void CollectUniquePrefix(GithubInfo githubInfo, AzureInfo azureInfo)
+    {
+        githubInfo.Variables.TryGetValue("UNIQUE_PREFIX", out var uniquePrefix);
+
+        AnsiConsole.MarkupLine(
+            "When creating Azure resources like Azure Container Registry, SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'."
+        );
+
+        var defaultValue = uniquePrefix
+                           ?? githubInfo.OrganizationName!.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
+
+        while (true)
+        {
+            uniquePrefix = AnsiConsole.Prompt(
+                new TextPrompt<string>("[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]")
+                    .DefaultValue(defaultValue)
+                    .Validate(input =>
+                        Regex.IsMatch(input, "^[a-z0-9]{2,6}$")
+                            ? ValidationResult.Success()
+                            : ValidationResult.Error("[red]ERROR:[/]The unique prefix must be 2-6 characters and contain only lowercase characters a-z or 0-9.")
+                    )
+            );
+
+            //  Check whether the Azure Container Registry name is available
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {uniquePrefix} --query \"nameAvailable\" -o tsv");
+
+            if (bool.Parse(checkAvailability))
+            {
+                AnsiConsole.WriteLine();
+                azureInfo.UniquePrefix = uniquePrefix;
+                return;
+            }
+
+            AnsiConsole.MarkupLine(
+                $"[red]ERROR:[/]An Azure Container Registry name [blue]{uniquePrefix}[/] is already in use, possibly in another subscription. Please enter a unique name."
+            );
+        }
     }
 
     private void CollectExistingAppRegistration(AzureInfo azureInfo)
@@ -302,59 +340,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
         Environment.Exit(1);
     }
 
-    private void CollectAzureContainerRegistryName(GithubInfo githubInfo, AzureInfo azureInfo)
-    {
-        githubInfo.Variables.TryGetValue("CONTAINER_REGISTRY_NAME", out var existingContainerRegistryName);
-        existingContainerRegistryName ??= githubInfo.OrganizationName!.ToLower();
-
-        while (true)
-        {
-            var registryName = AnsiConsole.Prompt(
-                new TextPrompt<string>("[bold]Please enter a unique name for the Azure Container Registry (ACR) that will store your container images[/]")
-                    .DefaultValue(existingContainerRegistryName)
-                    .Validate(input =>
-                        Regex.IsMatch(input, "^[a-z0-9]{5,50}$")
-                            ? ValidationResult.Success()
-                            : ValidationResult.Error("[red]ERROR:[/]The name must be 5-50 characters and contain only lowercase characters a-z or 0-9.")
-                    )
-            );
-
-            //  Check whether the Azure Container Registry name is available
-            var checkAvailability = RunAzureCliCommand($"acr check-name --name {registryName} --query \"nameAvailable\" -o tsv");
-
-            if (bool.Parse(checkAvailability))
-            {
-                AnsiConsole.WriteLine();
-                azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
-                return;
-            }
-
-            // Checks if the Azure Container Registry is a resource under the current subscription
-            var showExistingRegistry = RunAzureCliCommand($"acr show --name {registryName} --subscription {azureInfo.Subscription.Id} --output json");
-
-            var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
-            var match = jsonRegex.Match(showExistingRegistry);
-
-            if (match.Success)
-            {
-                var jsonDocument = JsonDocument.Parse(match.Value);
-                if (jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureInfo.Subscription.Id) == true)
-                {
-                    AnsiConsole.MarkupLine(
-                        $"[yellow]The Azure Container Registry {registryName} exists on the selected subscription and will be reused.[/]"
-                    );
-                    AnsiConsole.WriteLine();
-                    azureInfo.ContainerRegistry = new ContainerRegistry(registryName);
-                    return;
-                }
-            }
-
-            AnsiConsole.MarkupLine(
-                $"[red]ERROR:[/]The Azure Container Registry name [blue]{registryName}[/] is already in use, possibly in another subscription. Please enter a unique name."
-            );
-        }
-    }
-
     private void CollectDomainNames(GithubInfo githubInfo, AzureInfo azureInfo)
     {
         githubInfo.Variables.TryGetValue("DOMAIN_NAME_PRODUCTION", out var domainNameProduction);
@@ -362,33 +347,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         githubInfo.Variables.TryGetValue("DOMAIN_NAME_STAGING", out var domainNameStaging);
         azureInfo.StagingDomainName = domainNameStaging ?? "-";
-    }
-
-    private void CollectUniquePrefix(GithubInfo githubInfo, AzureInfo azureInfo)
-    {
-        githubInfo.Variables.TryGetValue("UNIQUE_CLUSTER_PREFIX", out var uniquePrefix);
-
-        AnsiConsole.MarkupLine(
-            "When creating Azure resources like SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'`."
-        );
-
-        var defaultValue = uniquePrefix
-                           ?? githubInfo.OrganizationName!.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
-
-
-        uniquePrefix = AnsiConsole.Prompt(
-            new TextPrompt<string>("[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]")
-                .DefaultValue(defaultValue)
-                .Validate(input =>
-                    Regex.IsMatch(input, "^[a-z0-9]{2,6}$")
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("[red]ERROR:[/]The unique prefix must be 2-6 characters and contain only lowercase characters a-z or 0-9.")
-                )
-        );
-
-        azureInfo.UniquePrefix = uniquePrefix;
-
-        AnsiConsole.WriteLine();
     }
 
     private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
@@ -415,16 +373,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId ?? "will be generated"}[/]
              
                 GitHub Variables:
-                * CONTAINER_REGISTRY_NAME: [blue]{azureInfo.ContainerRegistry.Name}[/]
-                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/] (can be changed later)
-                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/] (can be changed later)
-                * UNIQUE_CLUSTER_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
+                * UNIQUE_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
+                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/] ([yellow]set this manually in GitHub to add the production domain[/])
+                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/] ([yellow]set this manually in GitHub to add the staging domain[/])
 
-             5. The following environments will be created in the GitHub repository [blue]shared[/], [blue]staging[/], and [blue]production[/] if they do not exist.
+             5. The following environments will be created in the GitHub repository [blue]staging[/] and [blue]production[/] if they do not exist.
 
              6. The [blue]Cloud Infrastructure - Deployment[/] GitHub Action will be triggered to deploy Azure Infrastructure. This will take [yellow]between 30-45 minutes[/].
 
-             7. Disable the reusable workflows [blue]Deploy container[/] and [blue]Publish container[/].
+             7. Disable the reusable workflow [blue]Deploy Container[/].
 
              8. The [blue]Application - Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]less than 5 minutes[/].
 
@@ -469,16 +426,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
     }
 
-    private void CreateFederatedCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
+    private void CreateAppRegistrationCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
     {
         CreateFederatedCredential("MainBranch", "ref:refs/heads/main");
-        CreateFederatedCredential("PullRequests", "pull_request");
-        CreateFederatedCredential("SharedEnvironment", "environment:shared");
         CreateFederatedCredential("StagingEnvironment", "environment:staging");
         CreateFederatedCredential("ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]"
+            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]"
         );
 
         void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
@@ -558,16 +513,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
             $"gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b\"{azureInfo.SqlAdminsSecurityGroupId}\" --repo={githubInfo.Path}"
         );
         ProcessHelper.StartProcess(
-            $"gh variable set CONTAINER_REGISTRY_NAME -b\"{azureInfo.ContainerRegistry.Name}\" --repo={githubInfo.Path}"
+            $"gh variable set UNIQUE_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}"
         );
         ProcessHelper.StartProcess(
             $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}"
         );
         ProcessHelper.StartProcess(
             $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh variable set UNIQUE_CLUSTER_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}"
         );
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
@@ -576,28 +528,24 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CreateGithubEnvironments(GithubInfo githubInfo)
     {
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/shared""",
-            redirectOutput: true
-        );
-        ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/staging""",
             redirectOutput: true
         );
+
         ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/production""",
             redirectOutput: true
         );
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully created [bold]shared[/], [bold]staging[/], and [bold]production[/] environments in GitHub repository.[/]"
+            "[green]Successfully created [bold]staging[/] and [bold]production[/] environments in GitHub repository.[/]"
         );
     }
 
     private void DisableReusableWorkflows()
     {
         // Disable reusable workflows
-        DisableActiveWorkflow("Deploy container");
-        DisableActiveWorkflow("Publish container");
+        DisableActiveWorkflow("Deploy Container");
         return;
 
         void DisableActiveWorkflow(string workflowName)
@@ -756,8 +704,6 @@ public class AzureInfo
 {
     public Subscription Subscription { get; set; } = default!;
 
-    public ContainerRegistry ContainerRegistry { get; set; } = default!;
-
     public string AppRegistrationName { get; set; } = default!;
 
     public string? AppRegistrationId { get; set; }
@@ -768,9 +714,9 @@ public class AzureInfo
 
     public bool AppRegistrationExists { get; set; }
 
-    public string SqlAdminsSecurityGroupName => "Azure SQL Server Admins";
+    public string SqlAdminsSecurityGroupName => $"Azure SQL Server Admins - {UniquePrefix}";
 
-    public string SqlAdminsSecurityGroupNickName => "AzureSQLServerAdmins";
+    public string SqlAdminsSecurityGroupNickName => $"AzureSQLServerAdmins{UniquePrefix}";
 
     public string? SqlAdminsSecurityGroupId { get; set; }
 
@@ -785,5 +731,3 @@ public class AzureInfo
 
 [UsedImplicitly]
 public record Subscription(string Id, string Name, string TenantId, string State);
-
-public record ContainerRegistry(string Name);

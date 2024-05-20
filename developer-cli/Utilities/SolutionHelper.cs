@@ -4,7 +4,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
 
-public class SolutionHelper(string imageName, string instanceName, int? port, string? volume)
+public class SolutionHelper
 {
     public static FileInfo GetSolution(string? solutionName)
     {
