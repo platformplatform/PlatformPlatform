@@ -4,8 +4,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
-    <AspNetCoreVersion>8.0.4</AspNetCoreVersion>
-    <EfCoreVersion>8.0.4</EfCoreVersion>
+    <AspNetCoreVersion>8.0.5</AspNetCoreVersion>
+    <EfCoreVersion>8.0.5</EfCoreVersion>
     <AspireVersion>8.0.1</AspireVersion>
   </PropertyGroup>
 
@@ -30,7 +30,7 @@
     <PackageVersion Include="IdGen" Version="3.0.5" />
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.0.7" />
     <PackageVersion Include="NSwag.MSBuild" Version="14.0.7" />
@@ -85,7 +85,7 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.4.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.5.0" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <!-- Open Telemetry -->
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.1.1" />
@@ -94,7 +94,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.8.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.8.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.8.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.8.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.8.1" />
     <!-- VS Test -->
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <!-- Miscellaneous -->
