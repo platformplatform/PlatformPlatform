@@ -1,16 +1,18 @@
-name: Account Managment - Build and Deploy
+name: Account Management - Build and Deploy
 
 on:
   push:
     branches:
       - main
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
       - "!**.md"
   pull_request:
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"

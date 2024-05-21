@@ -578,7 +578,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void TriggerAndMonitorWorkflows()
     {
         StartGitHubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
-        StartGitHubWorkflow("AccountManagement - Build and Deploy", "account-management.yml");
+        StartGitHubWorkflow("Account Management - Build and Deploy", "account-management.yml");
         StartGitHubWorkflow("AppGateway - Build and Deploy", "app-gateway.yml");
         return;
 

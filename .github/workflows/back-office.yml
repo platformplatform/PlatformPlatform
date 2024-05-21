@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/back-office/**"
       - ".github/workflows/back-office.yml"
       - "!**.md"
   pull_request:
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/back-office/**"
       - ".github/workflows/back-office.yml"
