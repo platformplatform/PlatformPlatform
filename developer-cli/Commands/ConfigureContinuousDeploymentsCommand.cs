@@ -468,7 +468,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         GrantAccess("Contributor");
         GrantAccess("User Access Administrator");
-        GrantAccess("AcrPush");
 
         AnsiConsole.MarkupLine(
             $"[green]Successfully granted Service Principal ({azureInfo.ServicePrincipalId}) 'Contributor' and `User Access Administrator` rights to Azure Subscription.[/]"
