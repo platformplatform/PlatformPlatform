@@ -9,6 +9,18 @@ on:
       version:
         required: true
         type: string
+      artifacts_name:
+        required: true
+        type: string
+      artifacts_path:
+        required: true
+        type: string
+      docker_context:
+        required: true
+        type: string
+      docker_file:
+        required: true
+        type: string
 
 jobs:
   staging-west-europe-deploy:
@@ -16,6 +28,15 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifacts_name }}
+          path: ${{ inputs.artifacts_path }}
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -23,10 +44,29 @@ jobs:
           client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Login to ACR
+        run: az acr login --name ${{ vars.UNIQUE_PREFIX }}stage
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push container image
+        working-directory: ${{ inputs.docker_context }}
+        run: |
+          docker buildx create --use
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg VERSION=${{ inputs.version }} \
+            -t ${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
+            -t ${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:latest \
+            -f ${{ inputs.docker_file }} \
+            --push .
+          docker buildx rm
+
       - name: Deploy Staging West Europe cluster
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-stage-weu" --image "${{ vars.UNIQUE_PREFIX }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-stage-weu" --image "${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
 
   production-west-europe-deploy:
     name: Production
@@ -45,4 +85,4 @@ jobs:
       - name: Deploy Production West Europe cluster
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-prod-weu" --image "${{ vars.UNIQUE_PREFIX }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-prod-weu" --image "${{ vars.UNIQUE_PREFIX }}prod.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX

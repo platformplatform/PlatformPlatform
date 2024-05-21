@@ -141,26 +141,16 @@ jobs:
             exit 1
           }
 
-  publish:
-    name: Publish
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
-    uses: ./.github/workflows/_publish-container.yml
-    secrets: inherit
-    with:
-      artifacts_name: app-gateway
-      artifacts_path: application/AppGateway/publish
-      image_name: app-gateway
-      version: ${{ needs.build-and-test.outputs.version }}
-      docker_context: ./application
-      docker_file: ./AppGateway/Dockerfile
-
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, publish]
+    needs: [build-and-test]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
       image_name: app-gateway
       version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: app-gateway
+      artifacts_path: application/AppGateway/publish
+      docker_context: ./application
+      docker_file: ./AppGateway/Dockerfile

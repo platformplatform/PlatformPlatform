@@ -42,6 +42,8 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Plan Changes to Shared Staging Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
       - name: Plan Changes to Staging West Europe Cluster
@@ -96,6 +98,8 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Shared Staging Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
       - name: Deploy Staging West Europe Cluster
@@ -155,6 +159,8 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Shared Production Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
       - name: Deploy Production West Europe Cluster
