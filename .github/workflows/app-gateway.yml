@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/AppGateway/**"
       - ".github/workflows/app-gateway.yml"
       - "!**.md"
   pull_request:
     paths:
+      - "application/*"
       - "application/shared-kernel/**"
       - "application/AppGateway/**"
       - ".github/workflows/app-gateway.yml"
