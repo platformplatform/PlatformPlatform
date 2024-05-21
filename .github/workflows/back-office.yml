@@ -188,51 +188,31 @@ jobs:
       - name: Run Type Checking
         working-directory: application/back-office/WebApp
         run: yarn run typechecking
-
-  api-publish:
-    name: Publish API
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
-    uses: ./.github/workflows/_publish-container.yml
-    secrets: inherit
-    with:
-      artifacts_name: back-office-api
-      artifacts_path: application/back-office/Api/publish
-      image_name: back-office-api
-      version: ${{ needs.build-and-test.outputs.version }}
-      docker_context: ./application/back-office
-      docker_file: ./Api/Dockerfile
-
+  
   api-deploy:
     name: Deploy API
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, api-publish]
+    needs: [build-and-test]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
       image_name: back-office-api
       version: ${{ needs.build-and-test.outputs.version }}
-
-  workers-publish:
-    name: Publish Workers
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
-    uses: ./.github/workflows/_publish-container.yml
-    secrets: inherit
-    with:
-      artifacts_name: back-office-workers
-      artifacts_path: application/back-office/Workers/publish
-      image_name: back-office-workers
-      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: back-office-api
+      artifacts_path: application/back-office/Api/publish
       docker_context: ./application/back-office
-      docker_file: ./Workers/Dockerfile
+      docker_file: ./Api/Dockerfile
 
   workers-deploy:
     name: Deploy Workers
     if: github.ref == 'refs/heads/main'
-    needs: [build-and-test, workers-publish]
+    needs: [build-and-test]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
       image_name: back-office-workers
       version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: back-office-workers
+      artifacts_path: application/back-office/Workers/publish
+      docker_context: ./application/back-office
+      docker_file: ./Workers/Dockerfile

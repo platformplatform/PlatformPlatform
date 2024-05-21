@@ -41,19 +41,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Plan Changes to Shared Resources
-        env:
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        run: bash ./cloud-infrastructure/shared/config/shared.sh --plan
-
       - name: Plan Changes to Shared Staging Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
 
       - name: Plan Changes to Staging West Europe Cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
 
@@ -65,44 +61,14 @@ jobs:
         if: false ## Disable production for now
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
-
-  shared:
-    name: Shared
-    if: github.ref == 'refs/heads/main'
-    needs: plan
-    runs-on: ubuntu-latest
-    environment: "shared" ## Force a manual approval
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Login to Azure Subscription
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Shared Resources
-        env:
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-        run: bash ./cloud-infrastructure/shared/config/shared.sh --apply
 
   staging:
     name: Staging
     if: github.ref == 'refs/heads/main'
-    needs: shared
+    needs: plan
     runs-on: ubuntu-latest
     environment: "staging" ## Force a manual approval
     steps:
@@ -132,14 +98,15 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Shared Staging Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
 
       - name: Deploy Staging West Europe Cluster
         id: deploy_cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
         run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
 
@@ -152,9 +119,9 @@ jobs:
 
       - name: Grant Database Permissions
         env:
-          ENVIRONMENT: "staging"
-          LOCATION_PREFIX: "west-europe"
-          CLUSTER_UNIQUE_NAME: ${{ vars.UNIQUE_CLUSTER_PREFIX }}stageweu
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+          ENVIRONMENT: "stage"
+          LOCATION_ACRONYM: "weu"
         run: |
           ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
@@ -192,14 +159,15 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Shared Production Environment Resources
+        env:
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
         run: bash ./cloud-infrastructure/environment/config/production.sh --apply
 
       - name: Deploy Production West Europe Cluster
         id: deploy_cluster
         env:
           ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          CONTAINER_REGISTRY_NAME: ${{ vars.CONTAINER_REGISTRY_NAME }}
-          UNIQUE_CLUSTER_PREFIX: ${{ vars.UNIQUE_CLUSTER_PREFIX }}
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
         run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
 
@@ -212,9 +180,9 @@ jobs:
 
       - name: Grant Database Permissions
         env:
-          ENVIRONMENT: "production"
-          LOCATION_PREFIX: "west-europe"
-          CLUSTER_UNIQUE_NAME: ${{ vars.UNIQUE_CLUSTER_PREFIX }}prodweu
+          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+          ENVIRONMENT: "prod"
+          LOCATION_ACRONYM: "weu"
         run: |
           ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID

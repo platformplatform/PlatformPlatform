@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ENVIRONMENT="staging"
+ENVIRONMENT="stage"
 LOCATION="WestEurope"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
