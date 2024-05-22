@@ -15,76 +15,75 @@ public class ConfigureContinuousDeploymentsCommand : Command
 {
     private static readonly JsonSerializerOptions? JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
+    private static readonly Config Config = new();
+
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
-        "Set up trust between Azure and GitHub for passwordless deployments using Azure App Registration with OpenID (aka Federated Credentials)."
+        "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
     )
     {
-        AddOption(new Option<bool>(["--skip-azure-login"], "Skip Azure login"));
-        AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and Github CLI commands and output"));
+        AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and GitHub CLI commands and output"));
 
-        Handler = CommandHandler.Create<bool, bool>(Execute);
+        Handler = CommandHandler.Create<bool>(Execute);
     }
 
-    private int Execute(bool skipAzureLogin = false, bool verboseLogging = false)
+    private int Execute(bool verboseLogging = false)
     {
         PrerequisitesChecker.Check("dotnet", "az", "gh");
 
-        AzureInfo azureInfo = new();
-
         Configuration.VerboseLogging = verboseLogging;
-
-        var githubInfo = new GithubInfo();
 
         PrintHeader("Introduction");
 
-        ShowIntroPrompt(githubInfo, skipAzureLogin);
+        ShowIntroPrompt();
 
         PrintHeader("Collecting data");
 
-        SetGithubInfo(githubInfo);
+        SetGithubInfo();
 
-        LoginToGithub(githubInfo);
+        LoginToGithub();
 
-        PublishGithubVariables(githubInfo);
+        PublishExistingGithubVariables();
 
-        CollectAzureSubscriptionInfo(azureInfo, skipAzureLogin, githubInfo);
+        ShowWarningIfGithubRepositoryIsAlreadyInitialized();
 
-        CollectUniquePrefix(githubInfo, azureInfo);
+        SelectAzureSubscriptions();
 
-        CollectExistingAppRegistration(azureInfo);
+        CollectUniquePrefix();
 
-        CollectExistingSqlAdminSecurityGroup(azureInfo, githubInfo);
+        ConfirmReuseIfAppRegistrationsExists();
 
-        CollectDomainNames(githubInfo, azureInfo);
+        ConfirmReuseIfSqlAdminSecurityGroupsExists();
 
         PrintHeader("Confirm changes");
 
-        ConfirmChangesPrompt(githubInfo, azureInfo);
+        ConfirmChangesPrompt();
+
+        var startNew = Stopwatch.StartNew();
 
         PrintHeader("Configuring Azure and GitHub");
 
-        PrepareSubscriptionForContainerAppsEnvironment(azureInfo.Subscription.Id);
+        PrepareSubscriptionsForContainerAppsEnvironment();
 
-        CreateAppRegistrationIfNotExists(azureInfo);
+        CreateAppRegistrationsIfNotExists();
 
-        CreateAppRegistrationCredentials(azureInfo, githubInfo);
+        CreateAppRegistrationCredentials();
 
-        GrantSubscriptionPermissionsToServicePrincipal(azureInfo);
+        GrantSubscriptionPermissionsToServicePrincipals();
 
-        CreateAzureSqlServerSecurityGroup(azureInfo, githubInfo);
+        CreateAzureSqlServerSecurityGroups();
 
-        CreateGithubSecretsAndVariables(githubInfo, azureInfo);
+        CreateGithubEnvironments();
 
-        CreateGithubEnvironments(githubInfo);
+        CreateGithubSecretsAndVariables();
 
         DisableReusableWorkflows();
 
         TriggerAndMonitorWorkflows();
 
-        PrintHeader("Configuration of GitHub and Azure completed 🎉");
+        PrintHeader($"Configuration of GitHub and Azure completed in {startNew.Elapsed:g} 🎉");
 
-        ShowSuccessMessage(githubInfo);
+        ShowSuccessMessage();
 
         return 0;
     }
@@ -95,16 +94,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.MarkupLine($"\n[bold][green]{heading}[/] {separator}[/]\n");
     }
 
-    private void ShowIntroPrompt(GithubInfo githubInfo, bool skipAzureLogin)
+    private void ShowIntroPrompt()
     {
-        var loginToAzure = skipAzureLogin ? "" : "\n * Prompt you to log in to Azure and select a subscription";
-        var loginToGitHub = githubInfo.IsLoggedIn() ? "" : "\n * Prompt you to log in to GitHub";
+        var loginToGitHub = Config.IsLoggedIn() ? "" : " * Prompt you to log in to GitHub\n";
 
         var setupIntroPrompt =
             $"""
              This command will configure passwordless deployments from GitHub to Azure. If you continue, this command will do the following:
-
-             {loginToAzure}{loginToGitHub}
+              
+             {loginToGitHub} * Prompt you to log in to Azure and select a subscription
               * Collect information about your Azure subscription and other settings for setting up continuous deployments
               * Confirm before you continue
               
@@ -115,8 +113,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.WriteLine();
     }
 
-    private void SetGithubInfo(GithubInfo githubInfo)
+    private void SetGithubInfo()
     {
+        // Get all Git remotes
         var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
 
         // Sort the output lines so that the "origin" is at the top
@@ -146,21 +145,21 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 break;
         }
 
-        githubInfo.InitializeFromUri(githubUri);
+        Config.InitializeFromUri(githubUri);
     }
 
-    private void LoginToGithub(GithubInfo githubInfo)
+    private void LoginToGithub()
     {
-        if (!githubInfo.IsLoggedIn())
+        if (!Config.IsLoggedIn())
         {
             ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
 
-            if (!githubInfo.IsLoggedIn()) Environment.Exit(0);
+            if (!Config.IsLoggedIn()) Environment.Exit(0);
 
             AnsiConsole.WriteLine();
         }
 
-        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{githubInfo.Path}", redirectOutput: true);
+        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{Config.GithubInfo?.Path}", redirectOutput: true);
 
         using var githubApi = JsonDocument.Parse(githubApiJson);
 
@@ -172,32 +171,53 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private static void PublishGithubVariables(GithubInfo githubInfo)
+    private static void PublishExistingGithubVariables()
     {
-        var githubVariablesJson = ProcessHelper.StartProcess($"gh api repos/{githubInfo.Path}/actions/variables", redirectOutput: true);
+        var githubVariablesJson = ProcessHelper.StartProcess(
+            $"gh api repos/{Config.GithubInfo?.Path}/actions/variables --paginate",
+            redirectOutput: true
+        );
 
-        var githubVariables = JsonDocument.Parse(githubVariablesJson);
-        foreach (var variable in githubVariables.RootElement.GetProperty("variables").EnumerateArray())
+        var configGithubVariables = JsonDocument.Parse(githubVariablesJson).RootElement.GetProperty("variables").EnumerateArray();
+        foreach (var variable in configGithubVariables)
         {
             var variableName = variable.GetProperty("name").GetString()!;
             var variableValue = variable.GetProperty("value").GetString()!;
-            githubInfo.Variables.Add(variableName, variableValue);
+
+            Config.GithubVariables.Add(variableName, variableValue);
         }
     }
 
-    private void CollectAzureSubscriptionInfo(AzureInfo azureInfo, bool skipAzureLogin, GithubInfo githubInfo)
+    private static void ShowWarningIfGithubRepositoryIsAlreadyInitialized()
     {
-        // Both `az login` and `az account list` will return a JSON array of subscriptions
-        var subscriptionListJson = RunAzureCliCommand($"{(skipAzureLogin ? "account list --output json" : "login")}");
+        if (Config.GithubVariables.Count(variable => Enum.GetNames(typeof(VariableNames)).Contains(variable.Key)) == 0)
+        {
+            return;
+        }
+
+        AnsiConsole.MarkupLine("[yellow]This Github Repository has already been initialized. If you continue existing GitHub variables will be overridden.[/]");
+        if (AnsiConsole.Confirm("Do you want to continue, and override existing GitHub variables?"))
+        {
+            AnsiConsole.WriteLine();
+            return;
+        }
+
+        Environment.Exit(0);
+    }
+
+    private void SelectAzureSubscriptions()
+    {
+        // `az login` returns a JSON array of subscriptions
+        var subscriptionListJson = RunAzureCliCommand("login");
 
         // Regular expression to match JSON part
         var jsonRegex = new Regex(@"\[.*\]", RegexOptions.Singleline);
         var match = jsonRegex.Match(subscriptionListJson);
 
-        List<Subscription>? azureSubscriptions = null;
+        List<AzureSubscription>? azureSubscriptions = null;
         if (match.Success)
         {
-            azureSubscriptions = JsonSerializer.Deserialize<List<Subscription>>(match.Value, JsonSerializerOptions);
+            azureSubscriptions = JsonSerializer.Deserialize<List<AzureSubscription>>(match.Value, JsonSerializerOptions);
         }
 
         if (azureSubscriptions == null)
@@ -206,205 +226,231 @@ public class ConfigureContinuousDeploymentsCommand : Command
             Environment.Exit(1);
         }
 
-        var activeSubscriptions = azureSubscriptions.Where(s => s.State == "Enabled").ToList();
+        Config.StagingSubscription = SelectSubscription("Staging");
+        Config.ProductionSubscription = SelectSubscription("Production");
 
-        var title = "[bold]Please select an Azure subscription[/]";
-        var selectedDisplayName = AnsiConsole.Prompt(new SelectionPrompt<string>()
-            .Title($"{title}")
-            .AddChoices(activeSubscriptions.Select(s => s.Name))
-        );
+        return;
 
-        var selectedSubscriptions = activeSubscriptions.Where(s => s.Name == selectedDisplayName).ToArray();
-        if (selectedSubscriptions.Length > 1)
+        Subscription SelectSubscription(string environmentName)
         {
-            AnsiConsole.MarkupLine($"[red]ERROR:[/] Found two subscriptions with the name {selectedDisplayName}.");
-            Environment.Exit(1);
+            var activeSubscriptions = azureSubscriptions.Where(s => s.State == "Enabled").ToList();
+
+            var selectedDisplayName = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title($"[bold]Please select an Azure subscription for [yellow]{environmentName}[/][/]")
+                .AddChoices(activeSubscriptions.Select(s => s.Name))
+            );
+
+            var selectedSubscriptions = activeSubscriptions.Where(s => s.Name == selectedDisplayName).ToArray();
+            if (selectedSubscriptions.Length > 1)
+            {
+                AnsiConsole.MarkupLine($"[red]ERROR:[/] Found two subscriptions with the name {selectedDisplayName}.");
+                Environment.Exit(1);
+            }
+
+            var azureSubscription = selectedSubscriptions.Single();
+
+            return new Subscription(
+                azureSubscription.Id,
+                azureSubscription.Name,
+                azureSubscription.TenantId,
+                Config.GithubInfo!,
+                environmentName
+            );
         }
-
-        var subscription = selectedSubscriptions.Single();
-        RunAzureCliCommand($"account set --subscription {subscription.Id}", false);
-
-        AnsiConsole.MarkupLine($"{title}: {subscription.Name}\n");
-
-        azureInfo.AppRegistrationName = $"GitHub - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
-
-        azureInfo.Subscription = subscription;
     }
 
-    private void CollectUniquePrefix(GithubInfo githubInfo, AzureInfo azureInfo)
+    private void CollectUniquePrefix()
     {
-        githubInfo.Variables.TryGetValue("UNIQUE_PREFIX", out var uniquePrefix);
-
-        AnsiConsole.MarkupLine(
-            "When creating Azure resources like Azure Container Registry, SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'."
-        );
-
-        var defaultValue = uniquePrefix
-                           ?? githubInfo.OrganizationName!.ToLower().Substring(0, Math.Min(6, githubInfo.OrganizationName.Length));
+        var defaultValue = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX))
+                           ?? Config.GithubInfo!.OrganizationName.ToLower().Substring(0, Math.Min(6, Config.GithubInfo.OrganizationName.Length));
 
         while (true)
         {
-            uniquePrefix = AnsiConsole.Prompt(
+            Config.UniquePrefix = AnsiConsole.Prompt(
                 new TextPrompt<string>("[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]")
                     .DefaultValue(defaultValue)
                     .Validate(input =>
                         Regex.IsMatch(input, "^[a-z0-9]{2,6}$")
                             ? ValidationResult.Success()
-                            : ValidationResult.Error("[red]ERROR:[/]The unique prefix must be 2-6 characters and contain only lowercase characters a-z or 0-9.")
+                            : ValidationResult.Error("[red]ERROR:[/]The unique prefix must be 2-6 characters and contain only lowercase letters a-z or numbers 0-9.")
                     )
             );
 
-            if (IsContainerRegistryInUseOnAnotherSubscription($"{uniquePrefix}stage") ||
-                IsContainerRegistryInUseOnAnotherSubscription($"{uniquePrefix}prod"))
+            // Do a simple check to see if the container registry using the same naming convention is already in use
+            if (!IsContainerRegistryAvailable($"{Config.UniquePrefix}stage")) continue;
+            if (!IsContainerRegistryAvailable($"{Config.UniquePrefix}prod")) continue;
+
+            AnsiConsole.WriteLine();
+            return;
+        }
+
+        bool IsContainerRegistryAvailable(string containerRegistryName)
+        {
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {containerRegistryName} --query \"nameAvailable\" -o tsv");
+            if (bool.Parse(checkAvailability)) return true;
+
+            AnsiConsole.MarkupLine(
+                $"[red]ERROR:[/]An Azure Container Registry with the name '[bold]{containerRegistryName}[/]' is already in use, possibly in another subscription. Please enter a unique name."
+            );
+
+            return false;
+        }
+    }
+
+    private void ConfirmReuseIfAppRegistrationsExists()
+    {
+        ConfirmReuseIfAppRegistrationExist(Config.StagingSubscription.AppRegistration);
+        ConfirmReuseIfAppRegistrationExist(Config.ProductionSubscription.AppRegistration);
+        return;
+
+        void ConfirmReuseIfAppRegistrationExist(AppRegistration appRegistration)
+        {
+            appRegistration.AppRegistrationId = RunAzureCliCommand(
+                $"""ad app list --display-name "{appRegistration.Name}" --query "[].appId" -o tsv"""
+            ).Trim();
+
+            appRegistration.ServicePrincipalId = RunAzureCliCommand(
+                $"""ad sp list --display-name "{appRegistration.Name}" --query "[].appId" -o tsv"""
+            ).Trim();
+
+            appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
+                $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
+            ).Trim();
+
+            if (appRegistration.AppRegistrationId != string.Empty && appRegistration.ServicePrincipalId != string.Empty)
             {
                 AnsiConsole.MarkupLine(
-                    "[red]ERROR:[/]Azure resources conflicting with this prefix is already in use, possibly in another subscription. Please enter a unique name."
+                    $"[yellow]The App Registration '{appRegistration.Name}' already exists with App ID: {appRegistration.ServicePrincipalId}[/]"
                 );
-                continue;
+
+                if (AnsiConsole.Confirm("The existing App Registration will be reused. Do you want to continue?"))
+                {
+                    AnsiConsole.WriteLine();
+                    return;
+                }
+
+                AnsiConsole.MarkupLine("[red]Please delete the existing App Registration and try again.[/]");
+                Environment.Exit(1);
             }
 
-            AnsiConsole.WriteLine();
-            azureInfo.UniquePrefix = uniquePrefix;
-            return;
-        }
-
-        bool IsContainerRegistryInUseOnAnotherSubscription(string azureContainerRegistryName)
-        {
-            var checkAvailability = RunAzureCliCommand($"acr check-name --name {azureContainerRegistryName} --query \"nameAvailable\" -o tsv");
-            if (bool.Parse(checkAvailability)) return false;
-
-            var showExistingRegistry = RunAzureCliCommand($"acr show --name {azureContainerRegistryName} --subscription {azureInfo.Subscription.Id} --output json");
-
-            var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
-            var match = jsonRegex.Match(showExistingRegistry);
-
-            if (!match.Success) return true;
-            var jsonDocument = JsonDocument.Parse(match.Value);
-            return jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureInfo.Subscription.Id) == false;
-        }
-    }
-
-    private void CollectExistingAppRegistration(AzureInfo azureInfo)
-    {
-        var appRegistrationId = RunAzureCliCommand(
-            $"""ad app list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv"""
-        ).Trim();
-
-        var servicePrincipalId = RunAzureCliCommand(
-            $"""ad sp list --display-name "{azureInfo.AppRegistrationName}" --query "[].appId" -o tsv"""
-        ).Trim();
-
-        var servicePrincipalObjectId = RunAzureCliCommand(
-            $"""ad sp list --filter "appId eq '{appRegistrationId}'" --query "[].id" -o tsv"""
-        ).Trim();
-
-        if (appRegistrationId != string.Empty && servicePrincipalId != string.Empty)
-        {
-            azureInfo.AppRegistrationExists = true;
-            AnsiConsole.MarkupLine(
-                $"[yellow]The App Registration '{azureInfo.AppRegistrationName}' already exists with App ID: {servicePrincipalId}[/]"
-            );
-
-            if (AnsiConsole.Confirm("The existing App Registration will be reused. Do you want to continue?"))
+            if (appRegistration.AppRegistrationId != string.Empty || appRegistration.ServicePrincipalId != string.Empty)
             {
-                azureInfo.AppRegistrationId = appRegistrationId;
-                azureInfo.ServicePrincipalId = servicePrincipalId;
-                azureInfo.ServicePrincipalObjectId = servicePrincipalObjectId;
-                AnsiConsole.WriteLine();
-                return;
+                AnsiConsole.MarkupLine($"[red]The App Registration or Service Principal '{appRegistration}' exists, but not both. Please manually delete and retry.[/]");
+                Environment.Exit(1);
+            }
+        }
+    }
+
+    private void ConfirmReuseIfSqlAdminSecurityGroupsExists()
+    {
+        Config.StagingSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.StagingSubscription.SqlAdminsGroup.Name);
+        Config.ProductionSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.ProductionSubscription.SqlAdminsGroup.Name);
+
+        string? ConfirmReuseIfSqlAdminSecurityGroupExist(string sqlAdminsSecurityGroupName)
+        {
+            var sqlAdminsObjectId = RunAzureCliCommand(
+                $"""ad group list --display-name "{sqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
+            ).Trim();
+
+            if (sqlAdminsObjectId == string.Empty)
+            {
+                return null;
             }
 
-            AnsiConsole.MarkupLine("[red]Please delete the existing App Registration and try again.[/]");
-            Environment.Exit(1);
-        }
-
-        if (appRegistrationId != string.Empty || servicePrincipalId != string.Empty)
-        {
             AnsiConsole.MarkupLine(
-                $"[red]The App Registration or Service Principal '{azureInfo.AppRegistrationName}' exists but not both. Please manually delete and retry.[/]"
+                $"[yellow]The AD Security Group '{sqlAdminsSecurityGroupName}' already exists with ID: {sqlAdminsObjectId}[/]"
             );
-            Environment.Exit(1);
-        }
-    }
 
-    private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo, GithubInfo githubInfo)
-    {
-        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
+            if (AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?") == false)
+            {
+                AnsiConsole.MarkupLine("[red]Please delete the existing AD Security Group and try again.[/]");
+                Environment.Exit(0);
+            }
 
-        azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-            $"""ad group list --display-name "{sqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
-        ).Trim();
-
-        if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
-        {
-            azureInfo.SqlAdminsSecurityGroupId = null;
-            return;
-        }
-
-        AnsiConsole.MarkupLine(
-            $"[yellow]The AD Security Group '{sqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]"
-        );
-
-        if (AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?"))
-        {
             AnsiConsole.WriteLine();
-            azureInfo.SqlAdminsSecurityGroupExists = true;
-            return;
+
+            return sqlAdminsObjectId;
         }
-
-        AnsiConsole.MarkupLine("[red]Please delete the existing AD Security Group and try again.[/]");
-        Environment.Exit(1);
     }
 
-    private void CollectDomainNames(GithubInfo githubInfo, AzureInfo azureInfo)
+    private void ConfirmChangesPrompt()
     {
-        githubInfo.Variables.TryGetValue("DOMAIN_NAME_PRODUCTION", out var domainNameProduction);
-        azureInfo.ProductionDomainName = domainNameProduction ?? "-";
-
-        githubInfo.Variables.TryGetValue("DOMAIN_NAME_STAGING", out var domainNameStaging);
-        azureInfo.StagingDomainName = domainNameStaging ?? "-";
-    }
-
-    private void ConfirmChangesPrompt(GithubInfo githubInfo, AzureInfo azureInfo)
-    {
-        var appRegistrationAction = azureInfo.AppRegistrationExists ? "updated" : "created";
-        var reuseSqlAdminsSecurityGroupAction = azureInfo.SqlAdminsSecurityGroupExists ? "updated" : "created";
-        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
+        var stagingServicePrincipal = Config.StagingSubscription.AppRegistration.Exists
+            ? Config.StagingSubscription.AppRegistration.ServicePrincipalId
+            : "Will be generated";
+        var productionServicePrincipal = Config.ProductionSubscription.AppRegistration.Exists
+            ? Config.ProductionSubscription.AppRegistration.ServicePrincipalId
+            : "Will be generated";
+        var stagingSqlAdminObject = Config.StagingSubscription.SqlAdminsGroup.Exists
+            ? Config.StagingSubscription.SqlAdminsGroup.ObjectId
+            : "Will be generated";
+        var productionSqlAdminObject = Config.ProductionSubscription.SqlAdminsGroup.Exists
+            ? Config.ProductionSubscription.SqlAdminsGroup.ObjectId
+            : "Will be generated";
 
         var setupConfirmPrompt =
             $"""
-             [bold]If you continue the following will happen:[/]
+             [bold]Please review planned changes before continuing.[/]
 
-             1. The App Registration named [blue]{azureInfo.AppRegistrationName}[/] will be {appRegistrationAction} allowing GitHub to do passwordless deployments to Azure.
-
-             2. The App Registration will be granted the 'Contributor' and 'User Access Administrator' roles in the Azure Subscription.
-
-             3. The AD Security Group [blue]{sqlAdminsSecurityGroupName}[/] will be {reuseSqlAdminsSecurityGroupAction}, with the App Registration set as the owner.
-
-             4. The GitHub Repository [blue]{githubInfo.GithubUrl}[/] will be configured with the following secrets and variables:
+             1. The following will be created or updated in Azure:
              
-                GitHub Secrets (soft secrets):
-                * AZURE_TENANT_ID: [blue]{azureInfo.Subscription.TenantId}[/]
-                * AZURE_SUBSCRIPTION_ID: [blue]{azureInfo.Subscription.Id}[/]
-                * AZURE_SERVICE_PRINCIPAL_ID: [blue]{azureInfo.AppRegistrationId ?? "will be generated"}[/]
-                * ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: [blue]{azureInfo.SqlAdminsSecurityGroupId ?? "will be generated"}[/]
+                [bold]Active Directory App Registrations/Service Principals:[/]
+                * [blue]{Config.StagingSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.StagingSubscription.Name}[/] subscription.
+                * [blue]{Config.ProductionSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.ProductionSubscription.Name}[/] subscription.
+                
+                [yellow]** The Service Principals will get 'Contributor' and 'User Access Administrator' role on the Azure Subscriptions.[/]
+                
+                [bold]Active Directory Security Groups:[/]
+                * [blue]{Config.StagingSubscription.SqlAdminsGroup.Name}[/]
+                * [blue]{Config.ProductionSubscription.SqlAdminsGroup.Name}[/]
+                
+                [yellow]** The SQL Admins Security Groups are used to grant Managed Identities and CI/CD permissions to SQL Databases.[/]
+
+             2. The following GitHub environments will be created if not exists:
+                * [blue]staging[/]
+                * [blue]production[/]
              
-                GitHub Variables:
-                * UNIQUE_PREFIX: [blue]{azureInfo.UniquePrefix}[/]
-                * DOMAIN_NAME_PRODUCTION: [blue]{azureInfo.ProductionDomainName}[/] ([yellow]set this manually in GitHub to add the production domain[/])
-                * DOMAIN_NAME_STAGING: [blue]{azureInfo.StagingDomainName}[/] ([yellow]set this manually in GitHub to add the staging domain[/])
+                [yellow]** Environments are used to require approval when infrastructure is deployed. In private GitHub repositories, this requires a paid plan.[/]
 
-             5. The following environments will be created in the GitHub repository [blue]staging[/] and [blue]production[/] if they do not exist.
+             3. The following GitHub repository variables will be created:
+             
+                [bold]Shared Variables:[/]
+                * TENANT_ID: [blue]{Config.TenantId}[/]
+                * UNIQUE_PREFIX: [blue]{Config.UniquePrefix}[/]
+              
+                [bold]Staging Shared Variables:[/]
+                * STAGING_SUBSCRIPTION_ID: [blue]{Config.StagingSubscription.Id}[/]
+                * STAGING_SHARED_LOCATION: [blue]westeurope[/]
+                * STAGING_SERVICE_PRINCIPAL_ID: [blue]{stagingServicePrincipal}[/]
+                * STAGING_SQL_ADMIN_OBJECT_ID: [blue]{stagingSqlAdminObject}[/] 
+                * STAGING_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
+              
+                [bold]Staging Cluster Variables:[/]
+                * STAGING_CLUSTER_ENABLED: [blue]true[/]
+                * STAGING_CLUSTER_LOCATION: [blue]"westeurope"[/]
+                * STAGING_CLUSTER_LOCATION_ACRONYM: [blue]weu[/]
+              
+                [bold]Production Shared Variables:[/]
+                * PRODUCTION_SUBSCRIPTION_ID: [blue]{Config.ProductionSubscription.Id}[/]
+                * PRODUCTION_SHARED_LOCATION: [blue]westeurope[/]
+                * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
+                * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/] 
+                * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
+                
+                [bold]Production Cluster 1 Variables:[/]
+                * PRODUCTION_CLUSTER1_ENABLED: [blue]false[/] ([yellow]Change this to 'true' when ready to deploy to production[/])
+                * PRODUCTION_CLUSTER1_LOCATION: [blue]westeurope[/]
+                * PRODUCTION_CLUSTER1_LOCATION_ACRONYM: [blue]weu[/]
+                 
+                [yellow]** All variables can be changed on the GitHub Settings page. For example, if you want to deploy production or staging to different locations.[/]
 
-             6. The [blue]Cloud Infrastructure - Deployment[/] GitHub Action will be triggered to deploy Azure Infrastructure. This will take [yellow]between 30-45 minutes[/].
+             4. Disable the reusable GitHub workflows [blue]Deploy Container[/] and [blue]Plan and Deploy Infrastructure[/].
 
-             7. Disable the reusable workflow [blue]Deploy Container[/].
+             5. The [blue]Cloud Infrastructure - Deployment[/] GitHub Actions will be triggered deployment of Azure Infrastructure. This will take [yellow]between 15 and 45 minutes[/].
 
-             8. The [blue]Application - Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]less than 5 minutes[/].
+             6. The [blue]Build and Deploy[/] GitHub Action will be triggered to deploy the Application Code. This will take [yellow]between 5 and 10 minutes[/].
 
-             9. You will receive recommendations on how to further secure and optimize your setup.
-
-             Please note that this command can be run again update the configuration. Use the [yellow]--skip-azure-login[/] flag to avoid logging in to Azure again.
+             7. You will receive recommendations on how to further secure and optimize your setup.
 
              [bold]Would you like to continue?[/]
              """;
@@ -412,55 +458,79 @@ public class ConfigureContinuousDeploymentsCommand : Command
         if (!AnsiConsole.Confirm($"{setupConfirmPrompt}", false)) Environment.Exit(0);
     }
 
-    private void PrepareSubscriptionForContainerAppsEnvironment(string subscriptionId)
+    private void PrepareSubscriptionsForContainerAppsEnvironment()
     {
-        RunAzureCliCommand(
-            $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
-            !Configuration.VerboseLogging
-        );
+        PrepareSubscription(Config.StagingSubscription.Id);
+        PrepareSubscription(Config.ProductionSubscription.Id);
 
-        AnsiConsole.MarkupLine("[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscription.[/]");
+        AnsiConsole.MarkupLine("[green]Successfully ensured deployment of Azure Container Apps Environment is enabled on Azure Subscriptions.[/]");
+        return;
+
+        void PrepareSubscription(string subscriptionId)
+        {
+            RunAzureCliCommand(
+                $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
+                !Configuration.VerboseLogging
+            );
+        }
     }
 
-    private void CreateAppRegistrationIfNotExists(AzureInfo azureInfo)
+    private void CreateAppRegistrationsIfNotExists()
     {
-        if (azureInfo.AppRegistrationExists) return;
+        if (!Config.StagingSubscription.AppRegistration.Exists)
+        {
+            CreateAppRegistration(Config.StagingSubscription.AppRegistration);
+        }
 
-        azureInfo.AppRegistrationId = RunAzureCliCommand(
-            $"""ad app create --display-name "{azureInfo.AppRegistrationName}" --query appId -o tsv"""
-        ).Trim();
+        if (!Config.ProductionSubscription.AppRegistration.Exists)
+        {
+            CreateAppRegistration(Config.ProductionSubscription.AppRegistration);
+        }
 
-        azureInfo.ServicePrincipalId = RunAzureCliCommand(
-            $"ad sp create --id {azureInfo.AppRegistrationId} --query appId -o tsv"
-        ).Trim();
+        return;
 
-        azureInfo.ServicePrincipalObjectId = RunAzureCliCommand(
-            $"""ad sp list --filter "appId eq '{azureInfo.AppRegistrationId}'" --query "[].id" -o tsv"""
-        ).Trim();
+        void CreateAppRegistration(AppRegistration appRegistration)
+        {
+            appRegistration.AppRegistrationId = RunAzureCliCommand(
+                $"""ad app create --display-name "{appRegistration.Name}" --query appId -o tsv"""
+            ).Trim();
 
-        AnsiConsole.MarkupLine(
-            $"[green]Successfully created an App Registration {azureInfo.AppRegistrationName} ({azureInfo.AppRegistrationId}).[/]"
-        );
+            appRegistration.ServicePrincipalId = RunAzureCliCommand(
+                $"ad sp create --id {appRegistration.AppRegistrationId} --query appId -o tsv"
+            ).Trim();
+
+            appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
+                $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
+            ).Trim();
+
+            AnsiConsole.MarkupLine(
+                $"[green]Successfully created an App Registration {appRegistration} ({appRegistration.AppRegistrationId}).[/]"
+            );
+        }
     }
 
-    private void CreateAppRegistrationCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
+    private void CreateAppRegistrationCredentials()
     {
-        CreateFederatedCredential("MainBranch", "ref:refs/heads/main");
-        CreateFederatedCredential("PullRequests", "pull_request");
-        CreateFederatedCredential("StagingEnvironment", "environment:staging");
-        CreateFederatedCredential("ProductionEnvironment", "environment:production");
+        // Staging
+        CreateFederatedCredential(Config.StagingSubscription.AppRegistration.AppRegistrationId!, "MainBranch", "ref:refs/heads/main");
+        CreateFederatedCredential(Config.StagingSubscription.AppRegistration.AppRegistrationId!, "StagingEnvironment", "environment:staging");
+        CreateFederatedCredential(Config.StagingSubscription.AppRegistration.AppRegistrationId!, "PullRequests", "pull_request");
+
+        // Production
+        CreateFederatedCredential(Config.ProductionSubscription.AppRegistration.AppRegistrationId!, "MainBranch", "ref:refs/heads/main");
+        CreateFederatedCredential(Config.ProductionSubscription.AppRegistration.AppRegistrationId!, "ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {githubInfo.GithubUrl}.[/]"
+            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {Config.GithubInfo?.Url}.[/]"
         );
 
-        void CreateFederatedCredential(string displayName, string refRefsHeadsMain)
+        void CreateFederatedCredential(string appRegistrationId, string displayName, string refRefsHeadsMain)
         {
             var parameters = JsonSerializer.Serialize(new
                 {
                     name = displayName,
                     issuer = "https://token.actions.githubusercontent.com",
-                    subject = $"""repo:{githubInfo.Path}:{refRefsHeadsMain}""",
+                    subject = $"""repo:{Config.GithubInfo?.Path}:{refRefsHeadsMain}""",
                     audiences = new[] { "api://AzureADTokenExchange" }
                 }
             );
@@ -469,7 +539,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 {
                     FileName = Configuration.IsWindows ? "cmd.exe" : "az",
                     Arguments =
-                        $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {azureInfo.AppRegistrationId} --parameters  @-",
+                        $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
                     RedirectStandardInput = true,
                     RedirectStandardOutput = !Configuration.VerboseLogging,
                     RedirectStandardError = !Configuration.VerboseLogging
@@ -478,80 +548,64 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void GrantSubscriptionPermissionsToServicePrincipal(AzureInfo azureInfo)
+    private void GrantSubscriptionPermissionsToServicePrincipals()
     {
-        GrantAccess("Contributor");
-        GrantAccess("User Access Administrator");
+        GrantAccess(Config.StagingSubscription, Config.StagingSubscription.AppRegistration.Name);
+        GrantAccess(Config.ProductionSubscription, Config.ProductionSubscription.AppRegistration.Name);
 
-        AnsiConsole.MarkupLine(
-            $"[green]Successfully granted Service Principal ({azureInfo.ServicePrincipalId}) 'Contributor' and `User Access Administrator` rights to Azure Subscription.[/]"
-        );
-
-        void GrantAccess(string role)
+        void GrantAccess(Subscription subscription, string appRegistrationName)
         {
+            var servicePrincipalId = subscription.AppRegistration.ServicePrincipalId!;
+
             RunAzureCliCommand(
-                $"role assignment create --assignee {azureInfo.ServicePrincipalId} --role \"{role}\" --scope /subscriptions/{azureInfo.Subscription.Id}",
+                $"role assignment create --assignee {servicePrincipalId} --role \"Contributor\" --scope /subscriptions/{subscription.Id}",
                 !Configuration.VerboseLogging
+            );
+            RunAzureCliCommand(
+                $"role assignment create --assignee {servicePrincipalId} --role \"User Access Administrator\" --scope /subscriptions/{subscription.Id}",
+                !Configuration.VerboseLogging
+            );
+
+            AnsiConsole.MarkupLine(
+                $"[green]Successfully granted Service Principal ({appRegistrationName}) 'Contributor' and `User Access Administrator` rights to Azure Subscription {subscription.Name}.[/]"
             );
         }
     }
 
-    private void CreateAzureSqlServerSecurityGroup(AzureInfo azureInfo, GithubInfo githubInfo)
+    private void CreateAzureSqlServerSecurityGroups()
     {
-        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
-        if (!azureInfo.SqlAdminsSecurityGroupExists)
+        CreateAzureSqlServerSecurityGroup(Config.StagingSubscription.SqlAdminsGroup, Config.StagingSubscription.AppRegistration);
+        CreateAzureSqlServerSecurityGroup(Config.ProductionSubscription.SqlAdminsGroup, Config.ProductionSubscription.AppRegistration);
+
+        void CreateAzureSqlServerSecurityGroup(SqlAdminsGroup sqlAdminGroup, AppRegistration appRegistration)
         {
-            azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                $"""ad group create --display-name "{sqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
-            ).Trim();
+            if (!sqlAdminGroup.Exists)
+            {
+                sqlAdminGroup.ObjectId = RunAzureCliCommand(
+                    $"""ad group create --display-name "{sqlAdminGroup.Name}" --mail-nickname "{sqlAdminGroup.NickName}" --query "id" -o tsv"""
+                ).Trim();
+            }
+
+            RunAzureCliCommand(
+                $"ad group member add --group {sqlAdminGroup.ObjectId} --member-id {appRegistration.ServicePrincipalObjectId}",
+                !Configuration.VerboseLogging
+            );
+
+            AnsiConsole.MarkupLine(
+                $"[green]Successfully created AD Security Group '{sqlAdminGroup.Name}' and granted the App Registration {appRegistration.Name} owner.[/]"
+            );
         }
-
-        RunAzureCliCommand(
-            $"ad group member add --group {azureInfo.SqlAdminsSecurityGroupId} --member-id {azureInfo.ServicePrincipalObjectId}",
-            !Configuration.VerboseLogging
-        );
-
-        AnsiConsole.MarkupLine(
-            $"[green]Successfully created AD Security Group '{sqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]"
-        );
     }
 
-    private void CreateGithubSecretsAndVariables(GithubInfo githubInfo, AzureInfo azureInfo)
+    private void CreateGithubEnvironments()
     {
         ProcessHelper.StartProcess(
-            $"gh secret set AZURE_TENANT_ID -b\"{azureInfo.Subscription.TenantId}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh secret set AZURE_SUBSCRIPTION_ID -b\"{azureInfo.Subscription.Id}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh secret set AZURE_SERVICE_PRINCIPAL_ID -b\"{azureInfo.AppRegistrationId}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh secret set ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID -b\"{azureInfo.SqlAdminsSecurityGroupId}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh variable set UNIQUE_PREFIX -b\"{azureInfo.UniquePrefix}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_PRODUCTION -b\"{azureInfo.ProductionDomainName}\" --repo={githubInfo.Path}"
-        );
-        ProcessHelper.StartProcess(
-            $"gh variable set DOMAIN_NAME_STAGING -b\"{azureInfo.StagingDomainName}\" --repo={githubInfo.Path}"
-        );
-
-        AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
-    }
-
-    private void CreateGithubEnvironments(GithubInfo githubInfo)
-    {
-        ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/staging""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/staging""",
             redirectOutput: true
         );
 
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{githubInfo.Path}/environments/production""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/production""",
             redirectOutput: true
         );
 
@@ -560,10 +614,45 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
     }
 
+    private void CreateGithubSecretsAndVariables()
+    {
+        SetGithubVariable(VariableNames.TENANT_ID, Config.TenantId);
+        SetGithubVariable(VariableNames.UNIQUE_PREFIX, Config.UniquePrefix);
+
+        SetGithubVariable(VariableNames.STAGING_SUBSCRIPTION_ID, Config.StagingSubscription.Id);
+        SetGithubVariable(VariableNames.STAGING_SERVICE_PRINCIPAL_ID, Config.StagingSubscription.AppRegistration.ServicePrincipalId!);
+        SetGithubVariable(VariableNames.STAGING_SHARED_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.STAGING_SQL_ADMIN_OBJECT_ID, Config.StagingSubscription.SqlAdminsGroup.ObjectId!);
+        SetGithubVariable(VariableNames.STAGING_DOMAIN_NAME, "-");
+
+        SetGithubVariable(VariableNames.STAGING_CLUSTER_ENABLED, "true");
+        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION_ACRONYM, "weu");
+
+        SetGithubVariable(VariableNames.PRODUCTION_SUBSCRIPTION_ID, Config.ProductionSubscription.Id);
+        SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalId!);
+        SetGithubVariable(VariableNames.PRODUCTION_SHARED_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.PRODUCTION_SQL_ADMIN_OBJECT_ID, Config.ProductionSubscription.SqlAdminsGroup.ObjectId!);
+        SetGithubVariable(VariableNames.PRODUCTION_DOMAIN_NAME, "-");
+
+        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_ENABLED, "false");
+        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION_ACRONYM, "weu");
+
+        AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
+        return;
+
+        void SetGithubVariable(VariableNames name, string value)
+        {
+            ProcessHelper.StartProcess($"gh variable set {Enum.GetName(name)} -b\"{value}\" --repo={Config.GithubInfo?.Path}");
+        }
+    }
+
     private void DisableReusableWorkflows()
     {
         // Disable reusable workflows
         DisableActiveWorkflow("Deploy Container");
+        DisableActiveWorkflow("Plan and Deploy Infrastructure");
         return;
 
         void DisableActiveWorkflow(string workflowName)
@@ -595,7 +684,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void TriggerAndMonitorWorkflows()
     {
-        AnsiConsole.Status().Start("Begin d eployment.", ctx =>
+        AnsiConsole.Status().Start("Begin deployment.", ctx =>
             {
                 for (var i = 60; i >= 0; i--)
                 {
@@ -604,7 +693,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                         break;
                     }
 
-                    ctx.Status($"Deployment of Cloud Infrastructure and Application code will automatically start in {i} seconds. Press 'ctrl+c` to exit or Enter to continue.");
+                    ctx.Status($"Deployment of Cloud Infrastructure and Application code will automatically start in {i} seconds. Press 'Ctrl+C' to exit or 'Enter' to continue.");
                     Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
             }
@@ -650,32 +739,30 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 Environment.Exit(1);
             }
 
-            var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+            var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --exit-status";
             ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
         }
     }
 
-    private void ShowSuccessMessage(GithubInfo githubInfo)
+    private void ShowSuccessMessage()
     {
         var setupIntroPrompt =
             $"""
              So far so good. The configuration of GitHub and Azure is now complete. Here are some recommendations to further secure and optimize your setup:
 
-             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{githubInfo.GithubUrl}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch.
+             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{Config.GithubInfo?.Url}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch. Requires a paid GitHub plan for private repositories.
 
-             - To add a step for manual approval during infrastructure deployment to the Staging and Production environments, set up required reviewers on GitHub environments. This requires a GitHub Teams or Enterprise Cloud subscription for private repositories. Visit [blue]{githubInfo.GithubUrl}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments.
+             - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo?.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
 
-             - Configure the Domain Name for the Staging and Production environments. This involves two steps:
+             - Configure the Domain Name for the staging and production environments. This involves two steps:
                  
-                 a. Go to [blue]{githubInfo.GithubUrl}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
+                 a. Go to [blue]{Config.GithubInfo?.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
                  
-                 b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, rerun the failed jobs.
+                 b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, re-run the failed jobs.
 
              - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.
 
-             - Enable Microsoft Defender for Cloud (also known as Azure Security Center) once the system evolves for added security recommendations. This costs about $10-15 per month per cluster.
-
-             You can rerun this command to update the configuration. Use the [yellow]--skip-azure-login[/] flag to bypass Azure login.
+             - Enable Microsoft Defender for Cloud (also known as Azure Security Center) once the system evolves for added security recommendations.
              """;
 
         AnsiConsole.MarkupLine($"{setupIntroPrompt}");
@@ -690,17 +777,19 @@ public class ConfigureContinuousDeploymentsCommand : Command
     }
 }
 
-public class GithubInfo
+public class Config
 {
-    public string? OrganizationName { get; private set; }
+    public string TenantId => StagingSubscription.TenantId;
 
-    public string? RepositoryName { get; private set; }
+    public string UniquePrefix { get; set; } = default!;
 
-    public string? Path { get; private set; }
+    public GithubInfo? GithubInfo { get; private set; }
 
-    public string GithubUrl => $"https://github.com/{OrganizationName}/{RepositoryName}";
+    public Subscription StagingSubscription { get; set; } = default!;
 
-    public Dictionary<string, string> Variables { get; } = new();
+    public Subscription ProductionSubscription { get; set; } = default!;
+
+    public Dictionary<string, string> GithubVariables { get; set; } = new();
 
     public void InitializeFromUri(string gitUri)
     {
@@ -719,10 +808,7 @@ public class GithubInfo
         }
 
         var parts = remote.Split("/");
-        OrganizationName = parts[0];
-        RepositoryName = parts[1];
-
-        Path = $"{OrganizationName}/{RepositoryName}";
+        GithubInfo = new GithubInfo(parts[0], parts[1]);
     }
 
     public bool IsLoggedIn()
@@ -733,37 +819,81 @@ public class GithubInfo
     }
 }
 
-public class AzureInfo
+public class GithubInfo(string organizationName, string repositoryName)
 {
-    public Subscription Subscription { get; set; } = default!;
+    public string OrganizationName { get; } = organizationName;
 
-    public string AppRegistrationName { get; set; } = default!;
+    public string RepositoryName { get; } = repositoryName;
+
+    public string Path => $"{OrganizationName}/{RepositoryName}";
+
+    public string Url => $"https://github.com/{Path}";
+}
+
+public record AzureSubscription(string Id, string Name, string TenantId, string State);
+
+public class Subscription(string id, string name, string tenantId, GithubInfo githubInfo, string environmentName)
+{
+    public string Id { get; } = id;
+
+    public string Name { get; } = name;
+
+    public string TenantId { get; } = tenantId;
+
+    public AppRegistration AppRegistration { get; } = new(githubInfo, environmentName);
+
+    public SqlAdminsGroup SqlAdminsGroup { get; } = new(githubInfo, environmentName);
+}
+
+public class AppRegistration(GithubInfo githubInfo, string environmentName)
+{
+    public string Name => $"GitHub - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {environmentName}";
+
+    public bool Exists => !string.IsNullOrEmpty(AppRegistrationId);
 
     public string? AppRegistrationId { get; set; }
 
-    public string ServicePrincipalId { get; set; } = default!;
+    public string? ServicePrincipalId { get; set; }
 
-    public string ServicePrincipalObjectId { get; set; } = default!;
-
-    public bool AppRegistrationExists { get; set; }
-
-    public string SqlAdminsSecurityGroupNickName => $"AzureSQLServerAdmins{UniquePrefix}";
-
-    public string? SqlAdminsSecurityGroupId { get; set; }
-
-    public bool SqlAdminsSecurityGroupExists { get; set; }
-
-    public string ProductionDomainName { get; set; } = "-";
-
-    public string StagingDomainName { get; set; } = "-";
-
-    public string UniquePrefix { get; set; } = default!;
-
-    public string GetSqlAdminsSecurityGroupName(GithubInfo githubInfo)
-    {
-        return $"Azure SQL Server Admins - {githubInfo.RepositoryName}";
-    }
+    public string? ServicePrincipalObjectId { get; set; }
 }
 
-[UsedImplicitly]
-public record Subscription(string Id, string Name, string TenantId, string State);
+public class SqlAdminsGroup(GithubInfo githubInfo, string enviromentName)
+{
+    public string Name => $"SQL Admins - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {enviromentName}";
+
+    public string NickName => $"SQLServerAdmins{githubInfo.OrganizationName}{githubInfo.RepositoryName}{enviromentName}";
+
+    public bool Exists => !string.IsNullOrEmpty(ObjectId);
+
+    public string? ObjectId { get; set; }
+}
+
+public enum VariableNames
+{
+    // ReSharper disable InconsistentNaming
+    TENANT_ID,
+    UNIQUE_PREFIX,
+
+    STAGING_SUBSCRIPTION_ID,
+    STAGING_SERVICE_PRINCIPAL_ID,
+    STAGING_SHARED_LOCATION,
+    STAGING_SQL_ADMIN_OBJECT_ID,
+    STAGING_DOMAIN_NAME,
+
+    STAGING_CLUSTER_ENABLED,
+    STAGING_CLUSTER_LOCATION,
+    STAGING_CLUSTER_LOCATION_ACRONYM,
+
+    PRODUCTION_SUBSCRIPTION_ID,
+    PRODUCTION_SERVICE_PRINCIPAL_ID,
+    PRODUCTION_SHARED_LOCATION,
+    PRODUCTION_SQL_ADMIN_OBJECT_ID,
+    PRODUCTION_DOMAIN_NAME,
+
+    PRODUCTION_CLUSTER1_ENABLED,
+    PRODUCTION_CLUSTER1_LOCATION,
+
+    PRODUCTION_CLUSTER1_LOCATION_ACRONYM
+    // ReSharper restore InconsistentNaming
+}
