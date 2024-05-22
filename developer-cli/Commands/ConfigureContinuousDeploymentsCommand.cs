@@ -54,7 +54,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CollectExistingAppRegistration(azureInfo);
 
-        CollectExistingSqlAdminSecurityGroup(azureInfo);
+        CollectExistingSqlAdminSecurityGroup(azureInfo, githubInfo);
 
         CollectDomainNames(githubInfo, azureInfo);
 
@@ -72,7 +72,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         GrantSubscriptionPermissionsToServicePrincipal(azureInfo);
 
-        CreateAzureSqlServerSecurityGroup(azureInfo);
+        CreateAzureSqlServerSecurityGroup(azureInfo, githubInfo);
 
         CreateGithubSecretsAndVariables(githubInfo, azureInfo);
 
@@ -255,9 +255,10 @@ public class ConfigureContinuousDeploymentsCommand : Command
             );
 
             //  Check whether the Azure Container Registry name is available
-            var checkAvailability = RunAzureCliCommand($"acr check-name --name {uniquePrefix} --query \"nameAvailable\" -o tsv");
+            var checkAvailabilityStaging = RunAzureCliCommand($"acr check-name --name {uniquePrefix}stage --query \"nameAvailable\" -o tsv");
+            var checkAvailabilityProduction = RunAzureCliCommand($"acr check-name --name {uniquePrefix}prod --query \"nameAvailable\" -o tsv");
 
-            if (bool.Parse(checkAvailability))
+            if (bool.Parse(checkAvailabilityStaging) && bool.Parse(checkAvailabilityProduction))
             {
                 AnsiConsole.WriteLine();
                 azureInfo.UniquePrefix = uniquePrefix;
@@ -313,10 +314,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo)
+    private void CollectExistingSqlAdminSecurityGroup(AzureInfo azureInfo, GithubInfo githubInfo)
     {
+        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
+
         azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-            $"""ad group list --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
+            $"""ad group list --display-name "{sqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
         ).Trim();
 
         if (azureInfo.SqlAdminsSecurityGroupId == string.Empty)
@@ -326,7 +329,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         AnsiConsole.MarkupLine(
-            $"[yellow]The AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]"
+            $"[yellow]The AD Security Group '{sqlAdminsSecurityGroupName}' already exists with ID: {azureInfo.SqlAdminsSecurityGroupId}[/]"
         );
 
         if (AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?"))
@@ -353,6 +356,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         var appRegistrationAction = azureInfo.AppRegistrationExists ? "updated" : "created";
         var reuseSqlAdminsSecurityGroupAction = azureInfo.SqlAdminsSecurityGroupExists ? "updated" : "created";
+        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
 
         var setupConfirmPrompt =
             $"""
@@ -362,7 +366,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
              2. The App Registration will be granted the 'Contributor' and 'User Access Administrator' roles in the Azure Subscription.
 
-             3. The AD Security Group [blue]{azureInfo.SqlAdminsSecurityGroupName}[/] will be {reuseSqlAdminsSecurityGroupAction}, with the App Registration set as the owner.
+             3. The AD Security Group [blue]{sqlAdminsSecurityGroupName}[/] will be {reuseSqlAdminsSecurityGroupAction}, with the App Registration set as the owner.
 
              4. The GitHub Repository [blue]{githubInfo.GithubUrl}[/] will be configured with the following secrets and variables:
              
@@ -464,7 +468,6 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         GrantAccess("Contributor");
         GrantAccess("User Access Administrator");
-        GrantAccess("AcrPush");
 
         AnsiConsole.MarkupLine(
             $"[green]Successfully granted Service Principal ({azureInfo.ServicePrincipalId}) 'Contributor' and `User Access Administrator` rights to Azure Subscription.[/]"
@@ -479,12 +482,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void CreateAzureSqlServerSecurityGroup(AzureInfo azureInfo)
+    private void CreateAzureSqlServerSecurityGroup(AzureInfo azureInfo, GithubInfo githubInfo)
     {
+        var sqlAdminsSecurityGroupName = azureInfo.GetSqlAdminsSecurityGroupName(githubInfo);
         if (!azureInfo.SqlAdminsSecurityGroupExists)
         {
             azureInfo.SqlAdminsSecurityGroupId = RunAzureCliCommand(
-                $"""ad group create --display-name "{azureInfo.SqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
+                $"""ad group create --display-name "{sqlAdminsSecurityGroupName}" --mail-nickname "{azureInfo.SqlAdminsSecurityGroupNickName}" --query "id" -o tsv"""
             ).Trim();
         }
 
@@ -494,7 +498,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created AD Security Group '{azureInfo.SqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]"
+            $"[green]Successfully created AD Security Group '{sqlAdminsSecurityGroupName}' and granted the App Registration {azureInfo.AppRegistrationName} owner.[/]"
         );
     }
 
@@ -714,8 +718,6 @@ public class AzureInfo
 
     public bool AppRegistrationExists { get; set; }
 
-    public string SqlAdminsSecurityGroupName => $"Azure SQL Server Admins - {UniquePrefix}";
-
     public string SqlAdminsSecurityGroupNickName => $"AzureSQLServerAdmins{UniquePrefix}";
 
     public string? SqlAdminsSecurityGroupId { get; set; }
@@ -727,6 +729,11 @@ public class AzureInfo
     public string StagingDomainName { get; set; } = "-";
 
     public string UniquePrefix { get; set; } = default!;
+
+    public string GetSqlAdminsSecurityGroupName(GithubInfo githubInfo)
+    {
+        return $"Azure SQL Server Admins - {githubInfo.RepositoryName}";
+    }
 }
 
 [UsedImplicitly]
