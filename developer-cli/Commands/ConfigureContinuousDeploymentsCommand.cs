@@ -595,12 +595,27 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void TriggerAndMonitorWorkflows()
     {
-        StartGitHubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
-        StartGitHubWorkflow("Account Management - Build and Deploy", "account-management.yml");
-        StartGitHubWorkflow("AppGateway - Build and Deploy", "app-gateway.yml");
+        AnsiConsole.Status().Start("Begin d eployment.", ctx =>
+            {
+                for (var i = 60; i >= 0; i--)
+                {
+                    if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Enter)
+                    {
+                        break;
+                    }
+
+                    ctx.Status($"Deployment of Cloud Infrastructure and Application code will automatically start in {i} seconds. Press 'ctrl+c` to exit or Enter to continue.");
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
+            }
+        );
+
+        StartGithubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
+        StartGithubWorkflow("Account Management - Build and Deploy", "account-management.yml");
+        StartGithubWorkflow("AppGateway - Build and Deploy", "app-gateway.yml");
         return;
 
-        void StartGitHubWorkflow(string workflowName, string workflowFileName)
+        void StartGithubWorkflow(string workflowName, string workflowFileName)
         {
             AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
