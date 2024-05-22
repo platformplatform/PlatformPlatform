@@ -125,6 +125,8 @@ jobs:
         run: |
           ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
+          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
 
   production:
     name: Production
@@ -186,3 +188,5 @@ jobs:
         run: |
           ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
+          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
