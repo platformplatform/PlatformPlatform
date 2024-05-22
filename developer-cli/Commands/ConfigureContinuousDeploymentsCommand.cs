@@ -433,6 +433,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CreateAppRegistrationCredentials(AzureInfo azureInfo, GithubInfo githubInfo)
     {
         CreateFederatedCredential("MainBranch", "ref:refs/heads/main");
+        CreateFederatedCredential("PullRequests", "pull_request");
         CreateFederatedCredential("StagingEnvironment", "environment:staging");
         CreateFederatedCredential("ProductionEnvironment", "environment:production");
 
