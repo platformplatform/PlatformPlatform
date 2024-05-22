@@ -254,20 +254,33 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     )
             );
 
-            //  Check whether the Azure Container Registry name is available
-            var checkAvailabilityStaging = RunAzureCliCommand($"acr check-name --name {uniquePrefix}stage --query \"nameAvailable\" -o tsv");
-            var checkAvailabilityProduction = RunAzureCliCommand($"acr check-name --name {uniquePrefix}prod --query \"nameAvailable\" -o tsv");
-
-            if (bool.Parse(checkAvailabilityStaging) && bool.Parse(checkAvailabilityProduction))
+            if (IsContainerRegistryInUseOnAnotherSubscription($"{uniquePrefix}stage") ||
+                IsContainerRegistryInUseOnAnotherSubscription($"{uniquePrefix}prod"))
             {
-                AnsiConsole.WriteLine();
-                azureInfo.UniquePrefix = uniquePrefix;
-                return;
+                AnsiConsole.MarkupLine(
+                    "[red]ERROR:[/]Azure resources conflicting with this prefix is already in use, possibly in another subscription. Please enter a unique name."
+                );
+                continue;
             }
 
-            AnsiConsole.MarkupLine(
-                $"[red]ERROR:[/]An Azure Container Registry name [blue]{uniquePrefix}[/] is already in use, possibly in another subscription. Please enter a unique name."
-            );
+            AnsiConsole.WriteLine();
+            azureInfo.UniquePrefix = uniquePrefix;
+            return;
+        }
+
+        bool IsContainerRegistryInUseOnAnotherSubscription(string azureContainerRegistryName)
+        {
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {azureContainerRegistryName} --query \"nameAvailable\" -o tsv");
+            if (bool.Parse(checkAvailability)) return false;
+
+            var showExistingRegistry = RunAzureCliCommand($"acr show --name {azureContainerRegistryName} --subscription {azureInfo.Subscription.Id} --output json");
+
+            var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
+            var match = jsonRegex.Match(showExistingRegistry);
+
+            if (!match.Success) return true;
+            var jsonDocument = JsonDocument.Parse(match.Value);
+            return jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(azureInfo.Subscription.Id) == false;
         }
     }
 
