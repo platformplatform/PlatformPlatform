@@ -1,4 +1,4 @@
-name: "Deploy Container"
+name: Deploy Container
 
 on:
   workflow_call:
@@ -23,10 +23,19 @@ on:
         type: string
 
 jobs:
-  staging-west-europe-deploy:
+  stage:
     name: Staging
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # environment: "staging"  # Manual approval disabled
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "stage"
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,12 +49,12 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
       - name: Login to ACR
-        run: az acr login --name ${{ vars.UNIQUE_PREFIX }}stage
+        run: az acr login --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -57,32 +66,40 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --build-arg VERSION=${{ inputs.version }} \
-            -t ${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
-            -t ${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:latest \
+            -t ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
+            -t ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:latest \
             -f ${{ inputs.docker_file }} \
             --push .
           docker buildx rm
 
-      - name: Deploy Staging West Europe cluster
+      - name: Deploy Container
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-stage-weu" --image "${{ vars.UNIQUE_PREFIX }}stage.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
 
-  production-west-europe-deploy:
+  prod1:
     name: Production
-    if: false && github.ref == 'refs/heads/main' ## Disable production for now
-    needs: staging-west-europe-deploy
+    needs: stage
+    environment: "production" # Force a manual approval
     runs-on: ubuntu-latest
-    environment: "production" ## Force a manual approval
+    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "prod"
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+
     steps:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
-      - name: Deploy Production West Europe cluster
+      - name: Deploy Container
         run: |
           SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ vars.UNIQUE_PREFIX }}-prod-weu" --image "${{ vars.UNIQUE_PREFIX }}prod.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX

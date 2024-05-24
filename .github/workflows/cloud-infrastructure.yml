@@ -20,9 +20,21 @@ permissions:
   contents: read
 
 jobs:
-  plan:
-    name: Plan Changes
+  plan-stage:
+    name: Plan Changes Staging
     runs-on: ubuntu-latest
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "stage"
+      SHARED_LOCATION: ${{ vars.STAGING_SHARED_LOCATION }}
+      CLUSTER_LOCATION: ${{ vars.STAGING_CLUSTER_LOCATION }}
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      SQL_ADMIN_OBJECT_ID: ${{ vars.STAGING_SQL_ADMIN_OBJECT_ID }}
+      DOMAIN_NAME: ${{ vars.STAGING_DOMAIN_NAME }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -34,106 +46,37 @@ jobs:
           sudo mv ./bicep /usr/local/bin/bicep &&
           bicep --version
 
-      - name: Login to Azure subscription
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
-      - name: Plan Changes to Shared Staging Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
+      - name: Plan Changes to Shared Environment Resources
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.SHARED_LOCATION }} --plan
 
-      - name: Plan Changes to Staging West Europe Cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
-        run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
+      - name: Plan Changes to Cluster
+        run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION }} ${{ env.CLUSTER_LOCATION_ACRONYM }} ${{ env.SQL_ADMIN_OBJECT_ID }} ${{ env.DOMAIN_NAME }} --plan
 
-      - name: Plan Changes to Shared Production Environment Resources
-        if: false ## Disable production for now
-        run: bash ./cloud-infrastructure/environment/config/production.sh --plan
-
-      - name: Plan Changes to Production West Europe Cluster
-        if: false ## Disable production for now
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
-        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
-
-  staging:
-    name: Staging
-    if: github.ref == 'refs/heads/main'
-    needs: plan
+  deploy-stage:
+    name: Deploy Staging
+    needs: plan-stage
     runs-on: ubuntu-latest
-    environment: "staging" ## Force a manual approval
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    environment: "staging" # Force a manual approval
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "stage"
+      SHARED_LOCATION: ${{ vars.STAGING_SHARED_LOCATION }}
+      CLUSTER_LOCATION: ${{ vars.STAGING_CLUSTER_LOCATION }}
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      SQL_ADMIN_OBJECT_ID: ${{ vars.STAGING_SQL_ADMIN_OBJECT_ID }}
+      DOMAIN_NAME: ${{ vars.STAGING_DOMAIN_NAME }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
 
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
-        run: |
-          sudo apt-get remove -y mssql-tools &&
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
-          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
-          sudo apt-get update &&
-          sudo apt-get install -y sqlcmd
-
-      - name: Login to Azure Subscription
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Shared Staging Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
-
-      - name: Deploy Staging West Europe Cluster
-        id: deploy_cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
-        run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
-
-      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Grant Database Permissions
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          ENVIRONMENT: "stage"
-          LOCATION_ACRONYM: "weu"
-        run: |
-          ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
-
-  production:
-    name: Production
-    if: false && github.ref == 'refs/heads/main' ## Disable production for now
-    needs: staging
-    runs-on: ubuntu-latest
-    environment: "production" ## Force a manual approval
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -153,40 +96,131 @@ jobs:
           sudo apt-get update &&
           sudo apt-get install -y sqlcmd
 
-      - name: Login to Azure Subscription
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
-      - name: Deploy Shared Production Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/production.sh --apply
+      - name: Deploy Shared Environment Resources
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.SHARED_LOCATION }} --apply
 
-      - name: Deploy Production West Europe Cluster
+      - name: Deploy Cluster Resources
         id: deploy_cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
-        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
+        run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION }} ${{ env.CLUSTER_LOCATION_ACRONYM }} ${{ env.SQL_ADMIN_OBJECT_ID }} ${{ env.DOMAIN_NAME }} --apply
 
-      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
+      - name: Refresh Azure Tokens # The previous step may take a while, so we refresh the token to avoid timeouts
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
 
       - name: Grant Database Permissions
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          ENVIRONMENT: "prod"
-          LOCATION_ACRONYM: "weu"
         run: |
-          ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION_ACRONYM }} 'account-management' ${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION_ACRONYM }} 'back-office' ${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
+
+  plan-prod1:
+    name: Plan Changes Production
+    needs: deploy-stage
+    runs-on: ubuntu-latest
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "prod"
+      SHARED_LOCATION: ${{ vars.PRODUCTION_SHARED_LOCATION }}
+      CLUSTER_LOCATION: ${{ vars.PRODUCTION_CLUSTER1_LOCATION }}
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      SQL_ADMIN_OBJECT_ID: ${{ vars.PRODUCTION_SQL_ADMIN_OBJECT_ID }}
+      DOMAIN_NAME: ${{ vars.PRODUCTION_DOMAIN_NAME }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+          chmod +x ./bicep &&
+          sudo mv ./bicep /usr/local/bin/bicep &&
+          bicep --version
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.SUBSCRIPTION_ID }}
+
+      - name: Plan Changes to Shared Environment Resources
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.SHARED_LOCATION }} --plan
+
+      - name: Plan Changes to Cluster
+        run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION }} ${{ env.CLUSTER_LOCATION_ACRONYM }} ${{ env.SQL_ADMIN_OBJECT_ID }} ${{ env.DOMAIN_NAME }} --plan
+
+  deploy-prod1:
+    name: Deploy Production
+    needs: plan-prod1
+    runs-on: ubuntu-latest
+    environment: "production" # Force a manual approval
+    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      ENVIRONMENT: "prod"
+      SHARED_LOCATION: ${{ vars.PRODUCTION_SHARED_LOCATION }}
+      CLUSTER_LOCATION: ${{ vars.PRODUCTION_CLUSTER1_LOCATION }}
+      CLUSTER_LOCATION_ACRONYM: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      SQL_ADMIN_OBJECT_ID: ${{ vars.PRODUCTION_SQL_ADMIN_OBJECT_ID }}
+      DOMAIN_NAME: ${{ vars.PRODUCTION_DOMAIN_NAME }}
+      SERVICE_PRINCIPAL_ID: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      SUBSCRIPTION_ID: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Bicep CLI
+        run: |
+          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
+          chmod +x ./bicep &&
+          sudo mv ./bicep /usr/local/bin/bicep &&
+          bicep --version
+
+      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
+        run: |
+          sudo apt-get remove -y mssql-tools &&
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+          sudo apt-get update &&
+          sudo apt-get install -y sqlcmd
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{env.SUBSCRIPTION_ID }}
+
+      - name: Deploy Shared Environment Resources
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.SHARED_LOCATION }} --apply
+
+      - name: Deploy Cluster Resources
+        id: deploy_cluster
+        run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION }} ${{ env.CLUSTER_LOCATION_ACRONYM }} ${{ env.SQL_ADMIN_OBJECT_ID }} ${{ env.DOMAIN_NAME }} --apply
+
+      - name: Refresh Azure Tokens # The previous step may take a while, so we refresh the token to avoid timeouts
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{env.SUBSCRIPTION_ID }}
+
+      - name: Grant Database Permissions
+        run: |
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION_ACRONYM }} 'account-management' ${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ env.UNIQUE_PREFIX }} ${{ env.ENVIRONMENT }} ${{ env.CLUSTER_LOCATION_ACRONYM }} 'back-office' ${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
