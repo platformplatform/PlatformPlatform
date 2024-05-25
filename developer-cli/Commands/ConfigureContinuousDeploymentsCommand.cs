@@ -17,6 +17,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private static readonly Config Config = new();
 
+    private static readonly Dictionary<string, string> AzureLocations = GetAzureLocations();
+
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
@@ -48,6 +50,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         ShowWarningIfGithubRepositoryIsAlreadyInitialized();
 
         SelectAzureSubscriptions();
+
+        CollectLocations();
 
         CollectUniquePrefix();
 
@@ -259,6 +263,26 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void CollectLocations()
+    {
+        var location = CollectLocation();
+
+        Config.StagingLocation = location;
+        Config.ProductionLocation = location;
+
+        Location CollectLocation()
+        {
+            var locationDisplayName = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                .Title("[bold]Please select a location where Azure Resource can be deployed [/]")
+                .AddChoices(AzureLocations.Keys)
+            );
+
+            var locationAcronym = AzureLocations[locationDisplayName];
+            var locationCode = locationDisplayName.Replace(" ", "").ToLower();
+            return new Location(locationCode, locationCode, locationAcronym);
+        }
+    }
+
     private void CollectUniquePrefix()
     {
         var defaultValue = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX))
@@ -420,27 +444,27 @@ public class ConfigureContinuousDeploymentsCommand : Command
               
                 [bold]Staging Shared Variables:[/]
                 * STAGING_SUBSCRIPTION_ID: [blue]{Config.StagingSubscription.Id}[/]
-                * STAGING_SHARED_LOCATION: [blue]westeurope[/]
+                * STAGING_SHARED_LOCATION: [blue]{Config.StagingLocation.SharedLocation}[/]
                 * STAGING_SERVICE_PRINCIPAL_ID: [blue]{stagingServicePrincipal}[/]
                 * STAGING_SQL_ADMIN_OBJECT_ID: [blue]{stagingSqlAdminObject}[/] 
                 * STAGING_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
               
                 [bold]Staging Cluster Variables:[/]
                 * STAGING_CLUSTER_ENABLED: [blue]true[/]
-                * STAGING_CLUSTER_LOCATION: [blue]"westeurope"[/]
-                * STAGING_CLUSTER_LOCATION_ACRONYM: [blue]weu[/]
+                * STAGING_CLUSTER_LOCATION: [blue]{Config.StagingLocation.ClusterLocation}[/]
+                * STAGING_CLUSTER_LOCATION_ACRONYM: [blue]{Config.StagingLocation.ClusterLocationAcronym}[/]
               
                 [bold]Production Shared Variables:[/]
                 * PRODUCTION_SUBSCRIPTION_ID: [blue]{Config.ProductionSubscription.Id}[/]
-                * PRODUCTION_SHARED_LOCATION: [blue]westeurope[/]
+                * PRODUCTION_SHARED_LOCATION: [blue]{Config.ProductionLocation.SharedLocation}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
                 * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/] 
                 * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
                 
                 [bold]Production Cluster 1 Variables:[/]
                 * PRODUCTION_CLUSTER1_ENABLED: [blue]false[/] ([yellow]Change this to 'true' when ready to deploy to production[/])
-                * PRODUCTION_CLUSTER1_LOCATION: [blue]westeurope[/]
-                * PRODUCTION_CLUSTER1_LOCATION_ACRONYM: [blue]weu[/]
+                * PRODUCTION_CLUSTER1_LOCATION: [blue]{Config.ProductionLocation.ClusterLocation}[/]
+                * PRODUCTION_CLUSTER1_LOCATION_ACRONYM: [blue]{Config.ProductionLocation.ClusterLocationAcronym}[/]
                  
                 [yellow]** All variables can be changed on the GitHub Settings page. For example, if you want to deploy production or staging to different locations.[/]
 
@@ -621,23 +645,23 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         SetGithubVariable(VariableNames.STAGING_SUBSCRIPTION_ID, Config.StagingSubscription.Id);
         SetGithubVariable(VariableNames.STAGING_SERVICE_PRINCIPAL_ID, Config.StagingSubscription.AppRegistration.ServicePrincipalId!);
-        SetGithubVariable(VariableNames.STAGING_SHARED_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.STAGING_SHARED_LOCATION, Config.StagingLocation.SharedLocation);
         SetGithubVariable(VariableNames.STAGING_SQL_ADMIN_OBJECT_ID, Config.StagingSubscription.SqlAdminsGroup.ObjectId!);
         SetGithubVariable(VariableNames.STAGING_DOMAIN_NAME, "-");
 
         SetGithubVariable(VariableNames.STAGING_CLUSTER_ENABLED, "true");
-        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION, "westeurope");
-        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION_ACRONYM, "weu");
+        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION, Config.StagingLocation.ClusterLocation);
+        SetGithubVariable(VariableNames.STAGING_CLUSTER_LOCATION_ACRONYM, Config.StagingLocation.ClusterLocationAcronym);
 
         SetGithubVariable(VariableNames.PRODUCTION_SUBSCRIPTION_ID, Config.ProductionSubscription.Id);
         SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalId!);
-        SetGithubVariable(VariableNames.PRODUCTION_SHARED_LOCATION, "westeurope");
+        SetGithubVariable(VariableNames.PRODUCTION_SHARED_LOCATION, Config.ProductionLocation.SharedLocation);
         SetGithubVariable(VariableNames.PRODUCTION_SQL_ADMIN_OBJECT_ID, Config.ProductionSubscription.SqlAdminsGroup.ObjectId!);
         SetGithubVariable(VariableNames.PRODUCTION_DOMAIN_NAME, "-");
 
         SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_ENABLED, "false");
-        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION, "westeurope");
-        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION_ACRONYM, "weu");
+        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION, Config.ProductionLocation.ClusterLocation);
+        SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_LOCATION_ACRONYM, Config.ProductionLocation.ClusterLocationAcronym);
 
         AnsiConsole.MarkupLine("[green]Successfully created secrets in GitHub.[/]");
         return;
@@ -775,6 +799,61 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
     }
+
+    private static Dictionary<string, string> GetAzureLocations()
+    {
+        // List of global available regions extracted by running:
+        //  "az account list-locations --query "[?metadata.regionType == 'Physical'].{DisplayName:displayName}" --output table
+        // Location Acronyms are taken from here https://learn.microsoft.com/en-us/azure/backup/scripts/geo-code-list
+        return new Dictionary<string, string>
+        {
+            { "Australia Central", "acl" },
+            { "Australia Central 2", "acl2" },
+            { "Australia East", "ae" },
+            { "Australia Southeast", "ase" },
+            { "Brazil South", "brs" },
+            { "Brazil Southeast", "bse" },
+            { "Canada Central", "cnc" },
+            { "Canada East", "cne" },
+            { "Central India", "inc" },
+            { "Central US", "cus" },
+            { "East Asia", "ea" },
+            { "East US", "eus" },
+            { "East US 2", "eus2" },
+            { "France Central", "frc" },
+            { "France South", "frs" },
+            { "Germany North", "gn" },
+            { "Germany West Central", "gwc" },
+            { "Japan East", "jpe" },
+            { "Japan West", "jpw" },
+            { "Jio India Central", "jic" },
+            { "Jio India West", "jiw" },
+            { "Korea Central", "krc" },
+            { "Korea South", "krs" },
+            { "North Central US", "ncus" },
+            { "North Europe", "ne" },
+            { "Norway East", "nwe" },
+            { "Norway West", "nww" },
+            { "South Africa North", "san" },
+            { "South Africa West", "saw" },
+            { "South Central US", "scus" },
+            { "South India", "ins" },
+            { "Southeast Asia", "sea" },
+            { "Sweden Central", "sdc" },
+            { "Switzerland North", "szn" },
+            { "Switzerland West", "szw" },
+            { "UAE Central", "uac" },
+            { "UAE North", "uan" },
+            { "UK South", "uks" },
+            { "UK West", "ukw" },
+            { "West Central US", "wcus" },
+            { "West Europe", "we" },
+            { "West India", "inw" },
+            { "West US", "wus" },
+            { "West US 2", "wus2" },
+            { "West US 3", "wus3" }
+        };
+    }
 }
 
 public class Config
@@ -787,7 +866,11 @@ public class Config
 
     public Subscription StagingSubscription { get; set; } = default!;
 
+    public Location StagingLocation { get; set; } = default!;
+
     public Subscription ProductionSubscription { get; set; } = default!;
+
+    public Location ProductionLocation { get; set; } = default!;
 
     public Dictionary<string, string> GithubVariables { get; set; } = new();
 
@@ -868,6 +951,8 @@ public class SqlAdminsGroup(GithubInfo githubInfo, string enviromentName)
 
     public string? ObjectId { get; set; }
 }
+
+public record Location(string SharedLocation, string ClusterLocation, string ClusterLocationAcronym);
 
 public enum VariableNames
 {
