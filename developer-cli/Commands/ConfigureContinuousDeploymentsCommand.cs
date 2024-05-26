@@ -285,14 +285,26 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CollectUniquePrefix()
     {
-        var defaultValue = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX))
-                           ?? Config.GithubInfo!.OrganizationName.ToLower().Substring(0, Math.Min(6, Config.GithubInfo.OrganizationName.Length));
+        var uniquePrefix = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX));
+
+        AnsiConsole.MarkupLine(
+            "When creating Azure resources like Azure Container Registry, SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'."
+        );
+
+        if (uniquePrefix is not null)
+        {
+            AnsiConsole.MarkupLine($"[yellow]The unique prefix '{uniquePrefix}' already specified. Changing this will recreate all Azure resources![/]");
+        }
+        else
+        {
+            uniquePrefix = Config.GithubInfo!.OrganizationName.ToLower().Substring(0, Math.Min(6, Config.GithubInfo.OrganizationName.Length));
+        }
 
         while (true)
         {
-            Config.UniquePrefix = AnsiConsole.Prompt(
+            uniquePrefix = AnsiConsole.Prompt(
                 new TextPrompt<string>("[bold]Please enter a unique prefix between 2-6 characters (e.g. an acronym for your product or company).[/]")
-                    .DefaultValue(defaultValue)
+                    .DefaultValue(uniquePrefix)
                     .Validate(input =>
                         Regex.IsMatch(input, "^[a-z0-9]{2,6}$")
                             ? ValidationResult.Success()
@@ -300,24 +312,37 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     )
             );
 
-            // Do a simple check to see if the container registry using the same naming convention is already in use
-            if (!IsContainerRegistryAvailable($"{Config.UniquePrefix}stage")) continue;
-            if (!IsContainerRegistryAvailable($"{Config.UniquePrefix}prod")) continue;
+            if (IsContainerRegistryConflicting(Config.StagingSubscription.Id, Config.StagingLocation.SharedLocation, $"{uniquePrefix}-stage", $"{uniquePrefix}stage") ||
+                IsContainerRegistryConflicting(Config.ProductionSubscription.Id, Config.ProductionLocation.SharedLocation, $"{uniquePrefix}-prod", $"{uniquePrefix}prod"))
+            {
+                AnsiConsole.MarkupLine(
+                    "[red]ERROR:[/]Azure resources conflicting with this prefix is already in use, possibly in [bold]another subscription[/] or in [bold]another location[/]. Please enter a unique name."
+                );
+                continue;
+            }
 
             AnsiConsole.WriteLine();
+            Config.UniquePrefix = uniquePrefix;
             return;
         }
 
-        bool IsContainerRegistryAvailable(string containerRegistryName)
+        bool IsContainerRegistryConflicting(string subscriptionId, string location, string resourceGroup, string azureContainerRegistryName)
         {
-            var checkAvailability = RunAzureCliCommand($"acr check-name --name {containerRegistryName} --query \"nameAvailable\" -o tsv");
-            if (bool.Parse(checkAvailability)) return true;
+            var checkAvailability = RunAzureCliCommand($"acr check-name --name {azureContainerRegistryName} --query \"nameAvailable\" -o tsv");
+            if (bool.Parse(checkAvailability)) return false;
 
-            AnsiConsole.MarkupLine(
-                $"[red]ERROR:[/]An Azure Container Registry with the name '[bold]{containerRegistryName}[/]' is already in use, possibly in another subscription. Please enter a unique name."
-            );
+            var showExistingRegistry = RunAzureCliCommand($"acr show --name {azureContainerRegistryName} --subscription {subscriptionId} --output json");
 
-            return false;
+            var jsonRegex = new Regex(@"\{.*\}", RegexOptions.Singleline);
+            var match = jsonRegex.Match(showExistingRegistry);
+
+            if (!match.Success) return true;
+            var jsonDocument = JsonDocument.Parse(match.Value);
+            var sameSubscription = jsonDocument.RootElement.GetProperty("id").GetString()?.Contains(subscriptionId) == true;
+            var sameResourceGroup = jsonDocument.RootElement.GetProperty("resourceGroup").GetString() == resourceGroup;
+            var sameLocation = jsonDocument.RootElement.GetProperty("location").GetString() == location;
+
+            return !(sameSubscription && sameResourceGroup && sameLocation);
         }
     }
 
