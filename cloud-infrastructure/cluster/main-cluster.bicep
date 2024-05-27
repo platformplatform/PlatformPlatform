@@ -71,32 +71,6 @@ module containerAppsEnvironment '../modules/container-apps-environment.bicep' = 
   dependsOn: [virtualNetwork]
 }
 
-module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
-  scope: clusterResourceGroup
-  name: '${resourceGroupName}-microsoft-sql-server'
-  params: {
-    location: location
-    name: resourceGroupName
-    tags: tags
-    subnetId: subnetId
-    tenantId: subscription().tenantId
-    sqlAdminObjectId: sqlAdminObjectId
-  }
-  dependsOn: [virtualNetwork]
-}
-
-module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
-  scope: clusterResourceGroup
-  name: '${resourceGroupName}-microsoft-sql-server-diagnostic'
-  params: {
-    diagnosticStorageAccountName: diagnosticStorageAccountName
-    microsoftSqlServerName: resourceGroupName
-    principalId: microsoftSqlServer.outputs.principalId
-    dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
-    dianosticStorageAccountSubscriptionId: subscription().subscriptionId
-  }
-}
-
 module keyVault '../modules/key-vault.bicep' = {
   scope: clusterResourceGroup
   name: '${resourceGroupName}-key-vault'
@@ -121,6 +95,32 @@ module communicationService '../modules/communication-services.bicep' = {
     dataLocation: communicatoinServicesDataLocation
     mailSenderDisplayName: mailSenderDisplayName
     keyVaultName: keyVault.outputs.name
+  }
+}
+
+module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
+  scope: clusterResourceGroup
+  name: '${resourceGroupName}-microsoft-sql-server'
+  params: {
+    location: location
+    name: resourceGroupName
+    tags: tags
+    subnetId: subnetId
+    tenantId: subscription().tenantId
+    sqlAdminObjectId: sqlAdminObjectId
+  }
+  dependsOn: [virtualNetwork]
+}
+
+module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
+  scope: clusterResourceGroup
+  name: '${resourceGroupName}-microsoft-sql-server-diagnostic'
+  params: {
+    diagnosticStorageAccountName: diagnosticStorageAccountName
+    microsoftSqlServerName: resourceGroupName
+    principalId: microsoftSqlServer.outputs.principalId
+    dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
+    dianosticStorageAccountSubscriptionId: subscription().subscriptionId
   }
 }
 
