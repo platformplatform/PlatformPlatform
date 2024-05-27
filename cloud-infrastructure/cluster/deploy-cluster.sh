@@ -1,3 +1,12 @@
+#!/bin/bash
+
+UNIQUE_PREFIX=$1
+ENVIRONMENT=$2
+CLUSTER_LOCATION=$3
+CLUSTER_LOCATION_ACRONYM=$4
+SQL_ADMIN_OBJECT_ID=$5
+DOMAIN_NAME=$6
+
 get_active_version()
 {
    local image=$(az containerapp revision list --name "$1" --resource-group "$2" --query "[0].properties.template.containers[0].image" --output tsv 2>/dev/null)
@@ -21,11 +30,6 @@ function is_domain_configured() {
   fi
 }
 
-if [[ -z "$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID" ]]; then
-  echo "ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID is not set."
-  exit 1
-fi
-
 if [[ "$DOMAIN_NAME" == "-" ]]; then
   # "-" is used to indicate that the domain is not configured
   DOMAIN_NAME=""
@@ -33,7 +37,7 @@ fi
 
 CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
 ENVIRONMENT_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
-RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$LOCATION_ACRONYM"
+RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$CLUSTER_LOCATION_ACRONYM"
 IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
 
 APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NAME)
@@ -45,7 +49,7 @@ APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show -
 
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
 DEPLOYMENT_COMMAND="az deployment sub create"
-DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
+DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
@@ -63,7 +67,7 @@ then
   # Check for the specific error message indicating that DNS Records are missing
   if [[ $cleaned_output == *"InvalidCustomHostNameValidation"* ]] || [[ $cleaned_output == *"FailedCnameValidation"* ]] || [[ $cleaned_output == *"-certificate' under resource group '$RESOURCE_GROUP_NAME' was not found"* ]]; then
     # Get details about the container apps environment. Although the creation of the container app fails, the verification ID on the container apps environment is consistent across all container apps.
-    env_details=$(az containerapp env show --name "$RESOURCE_GROUP_NAME" --resource-group "$RESOURCE_GROUP_NAME")
+    env_details=$(az containerapp env show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME)
     
     # Extract the customDomainVerificationId and defaultDomain from the container apps environment
     custom_domain_verification_id=$(echo "$env_details" | jq -r '.properties.customDomainConfiguration.customDomainVerificationId')
@@ -82,8 +86,8 @@ then
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
     echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
-    IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
-    DEPLOYMENT_PARAMETERS="-l $LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
+    IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" $RESOURCE_GROUP_NAME)
+    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
     . ../deploy.sh
 
     cleaned_output=$(echo "$output" | sed '/^WARNING/d')

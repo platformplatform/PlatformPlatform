@@ -20,173 +20,43 @@ permissions:
   contents: read
 
 jobs:
-  plan:
-    name: Plan Changes
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Login to Azure subscription
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Plan Changes to Shared Staging Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/staging.sh --plan
-
-      - name: Plan Changes to Staging West Europe Cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
-        run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --plan
-
-      - name: Plan Changes to Shared Production Environment Resources
-        if: false ## Disable production for now
-        run: bash ./cloud-infrastructure/environment/config/production.sh --plan
-
-      - name: Plan Changes to Production West Europe Cluster
-        if: false ## Disable production for now
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
-        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --plan
-
-  staging:
+  stage:
     name: Staging
-    if: github.ref == 'refs/heads/main'
-    needs: plan
-    runs-on: ubuntu-latest
-    environment: "staging" ## Force a manual approval
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+    uses: ./.github/workflows/_deploy-infrastructure.yml
+    secrets: inherit
+    with:
+      github_environment: "staging"
+      include_shared_environment_resources: true
+      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
+      azure_environment: "stage"
+      shared_location: ${{ vars.STAGING_SHARED_LOCATION }}
+      cluster_location: ${{ vars.STAGING_CLUSTER_LOCATION }}
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      sql_admin_object_id: ${{ vars.STAGING_SQL_ADMIN_OBJECT_ID }}
+      domain_name: ${{ vars.STAGING_DOMAIN_NAME }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      tenant_id: ${{ vars.TENANT_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      deployment_enabled: ${{ vars.STAGING_CLUSTER_ENABLED }}
 
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
-        run: |
-          sudo apt-get remove -y mssql-tools &&
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
-          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
-          sudo apt-get update &&
-          sudo apt-get install -y sqlcmd
-
-      - name: Login to Azure Subscription
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Shared Staging Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/staging.sh --apply
-
-      - name: Deploy Staging West Europe Cluster
-        id: deploy_cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_STAGING }}
-        run: bash ./cloud-infrastructure/cluster/config/staging-west-europe.sh --apply
-
-      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Grant Database Permissions
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          ENVIRONMENT: "stage"
-          LOCATION_ACRONYM: "weu"
-        run: |
-          ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
-
-  production:
+  prod1:
     name: Production
-    if: false && github.ref == 'refs/heads/main' ## Disable production for now
-    needs: staging
-    runs-on: ubuntu-latest
-    environment: "production" ## Force a manual approval
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Bicep CLI
-        run: |
-          curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 &&
-          chmod +x ./bicep &&
-          sudo mv ./bicep /usr/local/bin/bicep &&
-          bicep --version
-
-      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
-        run: |
-          sudo apt-get remove -y mssql-tools &&
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
-          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
-          sudo apt-get update &&
-          sudo apt-get install -y sqlcmd
-
-      - name: Login to Azure Subscription
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Deploy Shared Production Environment Resources
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-        run: bash ./cloud-infrastructure/environment/config/production.sh --apply
-
-      - name: Deploy Production West Europe Cluster
-        id: deploy_cluster
-        env:
-          ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID: ${{ secrets.ACTIVE_DIRECTORY_SQL_ADMIN_OBJECT_ID }}
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          DOMAIN_NAME: ${{ vars.DOMAIN_NAME_PRODUCTION }}
-        run: bash ./cloud-infrastructure/cluster/config/production-west-europe.sh --apply
-
-      - name: Refresh Azure Tokens ## The previous step may take a while, so we refresh the token to avoid timeouts
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Grant Database Permissions
-        env:
-          UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-          ENVIRONMENT: "prod"
-          LOCATION_ACRONYM: "weu"
-        run: |
-          ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-          BACK_OFFICE_IDENTITY_CLIENT_ID=${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
+    needs: stage
+    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/_deploy-infrastructure.yml
+    secrets: inherit
+    with:
+      github_environment: "production"
+      include_shared_environment_resources: true
+      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
+      azure_environment: "prod"
+      shared_location: ${{ vars.PRODUCTION_SHARED_LOCATION }}
+      cluster_location: ${{ vars.PRODUCTION_CLUSTER1_LOCATION }}
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      sql_admin_object_id: ${{ vars.PRODUCTION_SQL_ADMIN_OBJECT_ID }}
+      domain_name: ${{ vars.PRODUCTION_DOMAIN_NAME }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      tenant_id: ${{ vars.TENANT_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      deployment_enabled: ${{ vars.PRODUCTION_CLUSTER1_ENABLED }}
