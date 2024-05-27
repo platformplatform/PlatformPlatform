@@ -755,41 +755,57 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         void StartGithubWorkflow(string workflowName, string workflowFileName)
         {
-            AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
-
-            var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
-            ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
-
-            // Wait briefly to ensure the run has started
-            Thread.Sleep(TimeSpan.FromSeconds(15));
-
-            // Fetch and filter the workflows to find a "running" one
-            var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
-            var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
-
-            long? workflowId = null;
-            using (var jsonDocument = JsonDocument.Parse(workflowsJson))
+            try
             {
-                foreach (var element in jsonDocument.RootElement.EnumerateArray())
-                {
-                    var status = element.GetProperty("status").GetString()!;
-                    workflowId = element.GetProperty("databaseId").GetInt64();
+                AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
-                    if (status.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
+                var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
+                ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
+
+                // Wait briefly to ensure the run has started
+                Thread.Sleep(TimeSpan.FromSeconds(15));
+
+                // Fetch and filter the workflows to find a "running" one
+                var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
+                var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
+
+                long? workflowId = null;
+                using (var jsonDocument = JsonDocument.Parse(workflowsJson))
+                {
+                    foreach (var element in jsonDocument.RootElement.EnumerateArray())
                     {
-                        break;
+                        var status = element.GetProperty("status").GetString()!;
+
+                        if (status.Equals("in_progress", StringComparison.OrdinalIgnoreCase))
+                        {
+                            workflowId = element.GetProperty("databaseId").GetInt64();
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (workflowId is null)
-            {
-                AnsiConsole.MarkupLine("[red]Failed to retrieve a running workflow ID.[/]");
+                if (workflowId is null)
+                {
+                    AnsiConsole.MarkupLine("[red]Failed to retrieve a running workflow ID. Please check the GitHub Actions page for more info.[/]");
+                    Environment.Exit(1);
+                }
+
+                var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+                ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+                
+                // Run the command one more time to get the result
+                var runResult = ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder(), true);
+                if (runResult.Contains("completed") && runResult.Contains("success")) return;
+
+                AnsiConsole.MarkupLine($"[red]Error: Failed to run the {workflowName} GitHub workflow.[/]");
+                AnsiConsole.MarkupLine($"[red]{runResult}[/]");
                 Environment.Exit(1);
             }
-
-            var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --exit-status";
-            ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+            catch (Exception)
+            {
+                AnsiConsole.MarkupLine($"[red]Error: Failed to run the {workflowName} GitHub workflow.[/]");
+                Environment.Exit(1);
+            }
         }
     }
 
