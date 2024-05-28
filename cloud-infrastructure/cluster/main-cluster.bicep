@@ -67,6 +67,7 @@ module containerAppsEnvironment '../modules/container-apps-environment.bicep' = 
     name: resourceGroupName
     tags: tags
     subnetId: subnetId
+    environmentResourceGroupName: environmentResourceGroupName
   }
   dependsOn: [virtualNetwork]
 }

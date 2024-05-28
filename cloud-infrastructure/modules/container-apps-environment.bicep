@@ -2,6 +2,16 @@ param name string
 param location string
 param tags object
 param subnetId string
+param environmentResourceGroupName string
+
+
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  scope: resourceGroup('${environmentResourceGroupName}')
+  name: environmentResourceGroupName
+}
+
+var logAnalyticsCustomerId = existingLogAnalyticsWorkspace.properties.customerId
+var logAnalyticsSharedKey = existingLogAnalyticsWorkspace.listKeys().primarySharedKey
 
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' = {
   name: name
@@ -16,7 +26,11 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-
       platformReservedDnsIP: '10.1.0.2'
     }
     appLogsConfiguration: {
-      destination: 'azure-monitor'
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: logAnalyticsCustomerId
+        sharedKey: logAnalyticsSharedKey
+      }
     }
     peerAuthentication: {
       mtls: {
