@@ -26,4 +26,4 @@ var host = builder.Build();
 // Apply migrations to the database (should be moved to GitHub Actions or similar in production)
 host.Services.ApplyMigrations<AccountManagementDbContext>();
 
-host.Run();
+// host.Run(); is disabled for now, as the worker is only doing database migrations, which is a one-time operation, so we just let the host finish
