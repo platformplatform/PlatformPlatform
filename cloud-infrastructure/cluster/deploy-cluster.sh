@@ -104,7 +104,7 @@ then
     echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
     echo "BACK_OFFICE_IDENTITY_CLIENT_ID=$BACK_OFFICE_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
   else
-    . ./grant-database-permissions.sh 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-    . ./grant-database-permissions.sh 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
+    . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
+    . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
   fi
 fi
