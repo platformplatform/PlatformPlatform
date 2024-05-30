@@ -553,7 +553,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             ).Trim();
 
             AnsiConsole.MarkupLine(
-                $"[green]Successfully created an App Registration {appRegistration} ({appRegistration.AppRegistrationId}).[/]"
+                $"[green]Successfully created an App Registration '{appRegistration.Name}' ({appRegistration.AppRegistrationId}).[/]"
             );
         }
     }
@@ -616,7 +616,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             );
 
             AnsiConsole.MarkupLine(
-                $"[green]Successfully granted Service Principal ({appRegistrationName}) 'Contributor' and `User Access Administrator` rights to Azure Subscription {subscription.Name}.[/]"
+                $"[green]Successfully granted Service Principal ('{appRegistrationName}') 'Contributor' and `User Access Administrator` rights to Azure Subscription '{subscription.Name}'.[/]"
             );
         }
     }
@@ -641,7 +641,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             );
 
             AnsiConsole.MarkupLine(
-                $"[green]Successfully created AD Security Group '{sqlAdminGroup.Name}' and granted the App Registration {appRegistration.Name} owner.[/]"
+                $"[green]Successfully created AD Security Group '{sqlAdminGroup.Name}' and assigned the App Registration '{appRegistration.Name}' owner role.[/]"
             );
         }
     }
@@ -659,7 +659,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         );
 
         AnsiConsole.MarkupLine(
-            "[green]Successfully created [bold]staging[/] and [bold]production[/] environments in GitHub repository.[/]"
+            "[green]Successfully created 'staging' and 'production' environments in the GitHub repository.[/]"
         );
     }
 
@@ -724,7 +724,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 var disableCommand = $"gh workflow disable {workflowId}";
                 ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
 
-                AnsiConsole.MarkupLine($"[green]Workflow {workflowName} has been disabled.[/]");
+                AnsiConsole.MarkupLine($"[green]Reusable Git Workflow '{workflowName}' has been disabled.[/]");
 
                 break;
             }
@@ -803,7 +803,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             }
             catch (Exception)
             {
-                AnsiConsole.MarkupLine($"[red]Error: Failed to run the {workflowName} GitHub workflow.[/]");
+                AnsiConsole.MarkupLine($"[red]Error: Failed to run the '{workflowName}' GitHub workflow.[/]");
                 Environment.Exit(1);
             }
         }
