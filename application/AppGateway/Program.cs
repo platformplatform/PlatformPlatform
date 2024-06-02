@@ -1,5 +1,6 @@
 using Azure.Core;
 using PlatformPlatform.AppGateway.Filters;
+using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
@@ -32,7 +33,10 @@ else
     );
 }
 
-builder.Services.AddSingleton<BlockInternalApiTransform>();
+builder.Services
+    .AddSingleton<BlockInternalApiTransform>()
+    .AddSingleton<AuthenticationCookieMiddleware>();
+
 reverseProxyBuilder.AddTransforms(context =>
     context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
 );
@@ -44,5 +48,7 @@ builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 var app = builder.Build();
 
 app.MapReverseProxy();
+
+app.UseMiddleware<AuthenticationCookieMiddleware>();
 
 app.Run();
