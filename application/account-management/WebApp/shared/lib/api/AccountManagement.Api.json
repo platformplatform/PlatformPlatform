@@ -382,6 +382,19 @@
         }
       }
     },
+    "/api/account-management/authentication": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthentication",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/account-registrations/is-subdomain-free": {
       "get": {
         "tags": [
