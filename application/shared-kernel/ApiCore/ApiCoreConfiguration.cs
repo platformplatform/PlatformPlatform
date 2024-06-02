@@ -73,6 +73,10 @@ public static class ApiCoreConfiguration
             }
         );
 
+        // Add Authentication and Authorization services (This is new code, that has just been added)
+        services.AddAuthentication().AddBearerToken();
+        services.AddAuthorization();
+
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
             {
@@ -141,6 +145,10 @@ public static class ApiCoreConfiguration
 
         // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
         app.UseForwardedHeaders();
+
+        // Add Authentication and Authorization middleware (This is new code, that has just been added)
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         // Enable Swagger UI
         app.UseOpenApi();
