@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -19,6 +21,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private static readonly Dictionary<string, string> AzureLocations = GetAzureLocations();
 
+    private static List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
+
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
@@ -35,13 +39,21 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         Configuration.VerboseLogging = verboseLogging;
 
+        _configureContinuousDeploymentsExtensions = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ConfigureContinuousDeployments)))
+            .Select(t => Activator.CreateInstance(t) as ConfigureContinuousDeployments)
+            .Where(t => t != null)
+            .ToList()!;
+
         PrintHeader("Introduction");
 
         ShowIntroPrompt();
 
         PrintHeader("Collecting data");
 
-        SetupToGithub();
+        SetGithubInfo();
+
+        LoginToGithub();
 
         PublishExistingGithubVariables();
 
@@ -56,6 +68,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         ConfirmReuseIfAppRegistrationsExists();
 
         ConfirmReuseIfSqlAdminSecurityGroupsExists();
+
+        CollectAdditionalInfo();
 
         PrintHeader("Confirm changes");
 
@@ -82,6 +96,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         DisableReusableWorkflows();
 
         TriggerAndMonitorWorkflows();
+
+        ApplyAdditionalConfigurations();
 
         PrintHeader($"Configuration of GitHub and Azure completed in {startNew.Elapsed:g} 🎉");
 
@@ -115,10 +131,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
         AnsiConsole.WriteLine();
     }
 
-    private void SetupToGithub()
+    private void SetGithubInfo()
     {
         Config.SetGithubInfo();
+    }
 
+    private void LoginToGithub()
+    {
         if (!Config.IsLoggedIn())
         {
             ProcessHelper.StartProcess("gh auth login --git-protocol https --web");
@@ -387,6 +406,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void CollectAdditionalInfo()
+    {
+        foreach (var instance in _configureContinuousDeploymentsExtensions!)
+        {
+            var method = instance.GetType().GetMethod("CollectDetails");
+            method?.Invoke(instance, [Config]);
+        }
+    }
+
     private void ConfirmChangesPrompt()
     {
         var stagingServicePrincipal = Config.StagingSubscription.AppRegistration.Exists
@@ -466,10 +494,26 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
              7. You will receive recommendations on how to further secure and optimize your setup.
 
+             {ConfirmAdditionalInfo()}
              [bold]Would you like to continue?[/]
              """;
 
         if (!AnsiConsole.Confirm($"{setupConfirmPrompt}", false)) Environment.Exit(0);
+
+        return;
+
+        string ConfirmAdditionalInfo()
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var instance in _configureContinuousDeploymentsExtensions!)
+            {
+                var method = instance.GetType().GetMethod("ConfirmChanges");
+                var result = method?.Invoke(instance, [Config]);
+                stringBuilder.AppendLine(result?.ToString());
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
     private void PrepareSubscriptionsForContainerAppsEnvironment()
@@ -774,6 +818,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void ApplyAdditionalConfigurations()
+    {
+        foreach (var instance in _configureContinuousDeploymentsExtensions!)
+        {
+            var method = instance.GetType().GetMethod("ApplyConfigure");
+            method?.Invoke(instance, [Config]);
+        }
+    }
+
     private void ShowSuccessMessage()
     {
         var setupIntroPrompt =
@@ -793,10 +846,25 @@ public class ConfigureContinuousDeploymentsCommand : Command
              - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.
 
              - Enable Microsoft Defender for Cloud (also known as Azure Security Center) once the system evolves for added security recommendations.
+
+             {ShowAdditionalInfoSuccessMessage()}
              """;
 
         AnsiConsole.MarkupLine($"{setupIntroPrompt}");
         AnsiConsole.WriteLine();
+
+        string ShowAdditionalInfoSuccessMessage()
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var instance in _configureContinuousDeploymentsExtensions!)
+            {
+                var method = instance.GetType().GetMethod("ShowSuccessMessage");
+                var result = method?.Invoke(instance, [Config]);
+                stringBuilder.AppendLine(result?.ToString());
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
     private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
@@ -962,4 +1030,25 @@ public enum VariableNames
 
     PRODUCTION_CLUSTER1_LOCATION_ACRONYM
     // ReSharper restore InconsistentNaming
+}
+
+public abstract class ConfigureContinuousDeployments
+{
+    public virtual void CollectDetails(Config? config)
+    {
+    }
+
+    public virtual string ConfirmChanges(Config? config)
+    {
+        return string.Empty;
+    }
+
+    public virtual void ApplyConfigure(Config? config)
+    {
+    }
+
+    public virtual string ShowSuccessMessage(Config? config = null)
+    {
+        return string.Empty;
+    }
 }
