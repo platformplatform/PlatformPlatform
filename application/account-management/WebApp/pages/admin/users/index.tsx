@@ -43,7 +43,7 @@ export default function UsersPage() {
       <div className="flex flex-col gap-4 pl-1 pr-6 py-3 w-full">
         <TopMenu />
         <UserInvite />
-        <UserTabs />
+        <UserTabs usersPromise={usersPromise} />
         <UserQuerying />
         <Suspense fallback={<div>Loading data...</div>}>
           <UserTable usersPromise={usersPromise} />
