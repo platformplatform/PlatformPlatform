@@ -11,7 +11,7 @@ public class AccountRegistrationsEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations");
+        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations").AllowAnonymous();
 
         group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, ISender mediator)
             => await mediator.Send(query)

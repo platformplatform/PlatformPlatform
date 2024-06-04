@@ -10,7 +10,7 @@ public class AuthenticationEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication");
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").AllowAnonymous();
 
         group.MapPost("/", Task<ApiResult> (HttpContext http) =>
             {
