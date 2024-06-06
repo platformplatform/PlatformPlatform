@@ -14,7 +14,7 @@ var reverseProxyBuilder = builder.Services
 
 if (InfrastructureCoreConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.GetDefaultAzureCredential());
+    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.DefaultAzureCredential);
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
