@@ -19,6 +19,16 @@ public static class InfrastructureCoreConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
 
+    public static DefaultAzureCredential DefaultAzureCredential => GetDefaultAzureCredential();
+
+    private static DefaultAzureCredential GetDefaultAzureCredential()
+    {
+        // Hack: Remove trailing whitespace from the environment variable, added in Bicep to workaround issue #157.
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
+        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
+        return new DefaultAzureCredential(credentialOptions);
+    }
+
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
@@ -42,7 +52,7 @@ public static class InfrastructureCoreConfiguration
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
             services.AddSingleton<IBlobStorage>(
-                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, GetDefaultAzureCredential()))
+                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
             );
         }
         else
@@ -63,12 +73,11 @@ public static class InfrastructureCoreConfiguration
     {
         if (IsRunningInAzure)
         {
-            var defaultAzureCredential = GetDefaultAzureCredential();
             foreach (var connection in connections)
             {
                 var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
                 services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
-                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, defaultAzureCredential))
+                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                 );
             }
         }
@@ -97,7 +106,7 @@ public static class InfrastructureCoreConfiguration
         if (IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            services.AddSingleton(_ => new SecretClient(keyVaultUri, GetDefaultAzureCredential()));
+            services.AddSingleton(_ => new SecretClient(keyVaultUri, DefaultAzureCredential));
 
             services.AddTransient<IEmailService, AzureEmailService>();
         }
@@ -107,14 +116,6 @@ public static class InfrastructureCoreConfiguration
         }
 
         return services;
-    }
-
-    public static DefaultAzureCredential GetDefaultAzureCredential()
-    {
-        // Hack. Remove trailing whitespace from the environment variable, Bicep of bug in Bicep
-        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
-        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
-        return new DefaultAzureCredential(credentialOptions);
     }
 
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
