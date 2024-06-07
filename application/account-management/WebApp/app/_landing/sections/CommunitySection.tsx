@@ -22,7 +22,7 @@ function FeatureBlock({ title, content, image, linker, linkText, arrow }: Featur
       </div>
       <div className="text-gray-900 text-xl font-semibold text-center">{title}</div>
       <div className="text-slate-600 text-base font-normal text-center">{content}</div>
-      <a href={linker} className="text-gray-700 text-base font-semibold hover:underline flex gap-2">
+      <a href={linker} className="text-gray-700 text-base font-semibold text-nowrap hover:underline flex gap-2">
         {linkText} {arrow && <img src={arrow} alt="Arrow" />}
       </a>
     </div>
