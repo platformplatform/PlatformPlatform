@@ -22,7 +22,7 @@ get_active_version()
 function is_domain_configured() {
   # Get details about the container apps
   local app_details=$(az containerapp show --name "$1" --resource-group "$2" 2>&1)
-  if [[ "$app_details" == *"ResourceNotFound"* ]] || [[ "$app_details" == *"ResourceGroupNotFound"* ]]; then
+  if [[ "$app_details" == *"ResourceNotFound"* ]] || [[ "$app_details" == *"ResourceGroupNotFound"* ]] || [[ "$app_details" == *"ERROR"* ]] ; then
     echo "false"
   else
     local result=$(echo "$app_details" | jq -r '.properties.configuration.ingress.customDomains')
