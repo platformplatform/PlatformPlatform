@@ -25,7 +25,7 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
         new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.1""")
     ];
-
+    
     public static void Check(params string[] prerequisiteName)
     {
         var invalid = false;
@@ -38,7 +38,7 @@ public static class PrerequisitesChecker
                 invalid = true;
                 continue;
             }
-
+            
             switch (prerequisite.Type)
             {
                 case PrerequisiteType.CommandLineTool:
@@ -46,24 +46,24 @@ public static class PrerequisitesChecker
                     {
                         invalid = true;
                     }
-
+                    
                     break;
                 case PrerequisiteType.DotnetWorkload:
                     if (!IsDotnetWorkloadValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Regex!))
                     {
                         invalid = true;
                     }
-
+                    
                     break;
             }
         }
-
+        
         if (invalid)
         {
             Environment.Exit(1);
         }
     }
-
+    
     private static bool IsCommandLineToolValid(string command, string displayName, Version minVersion)
     {
         // Check if the command line tool is installed
@@ -75,16 +75,16 @@ public static class PrerequisitesChecker
                 RedirectStandardError = true
             }
         );
-
+        
         var possibleFileLocations = checkOutput.Split(Environment.NewLine);
-
+        
         if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() || !File.Exists(possibleFileLocations[0]))
         {
             AnsiConsole.MarkupLine($"[red]{displayName} of minimum version {minVersion} should be installed.[/]");
-
+            
             return false;
         }
-
+        
         // Get the version of the command line tool
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
             {
@@ -94,7 +94,7 @@ public static class PrerequisitesChecker
                 RedirectStandardError = true
             }
         );
-
+        
         var versionRegex = new Regex(@"\d+\.\d+\.\d+(\.\d+)?");
         var match = versionRegex.Match(output);
         if (match.Success)
@@ -104,38 +104,38 @@ public static class PrerequisitesChecker
             AnsiConsole.MarkupLine(
                 $"[red]Please update '[bold]{displayName}[/]' from version [bold]{version}[/] to [bold]{minVersion}[/] or later.[/]"
             );
-
+            
             return false;
         }
-
+        
         // If the version could not be determined please change the logic here to check for the correct version
         AnsiConsole.MarkupLine(
             $"[red]Command '[bold]{command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]"
         );
-
+        
         return false;
     }
-
+    
     private static bool IsDotnetWorkloadValid(string workloadName, string displayName, string workloadRegex)
     {
         var output = ProcessHelper.StartProcess("dotnet workload list", redirectOutput: true);
-
+        
         if (!output.Contains(workloadName))
         {
             AnsiConsole.MarkupLine(
                 $"[red].NET '[bold]{displayName}[/]' should be installed. Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {workloadName}[/]'.[/]"
             );
-
+            
             return false;
         }
-
+        
         /*
            The output is on the form:
-
+        
            Installed Workload Id      Manifest Version      Installation Source
            --------------------------------------------------------------------
            aspire                     8.0.1/8.0.100         SDK 8.0.300
-
+        
            Use `dotnet workload search` to find additional workloads to install.
          */
         var regex = new Regex(workloadRegex);
@@ -146,10 +146,10 @@ public static class PrerequisitesChecker
             AnsiConsole.MarkupLine(
                 $"[red].NET '[bold]{displayName}[/]' is installed but not in the expected version. Please run '[bold]dotnet workload update[/]'.[/]"
             );
-
+            
             return false;
         }
-
+        
         return true;
     }
 }

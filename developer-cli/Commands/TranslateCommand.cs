@@ -17,7 +17,7 @@ public class TranslateCommand : Command
     private const string DockerImageName = "ollama/ollama";
     private const int Port = 11434;
     private const string ModelName = "llama2";
-
+    
     public TranslateCommand() : base(
         "translate",
         $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}"
@@ -27,25 +27,25 @@ public class TranslateCommand : Command
             ["<language>", "--language", "-l"],
             "The name of the language to translate (e.g `da-DK`)"
         );
-
+        
         AddOption(languageOption);
-
+        
         Handler = CommandHandler.Create<string?>(Execute);
     }
-
+    
     private async Task<int> Execute(string? language)
     {
         PrerequisitesChecker.Check("dotnet", "docker");
-
+        
         var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try
         {
             var translationFile = GetTranslationFile(language);
-
+            
             dockerServer.StartServer();
-
+            
             await RunTranslation(translationFile);
-
+            
             return 0;
         }
         catch (Exception e)
@@ -58,7 +58,7 @@ public class TranslateCommand : Command
             dockerServer.StopServer();
         }
     }
-
+    
     private string GetTranslationFile(string? language)
     {
         var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
@@ -69,36 +69,36 @@ public class TranslateCommand : Command
                         !f.FullName.EndsWith("pseudo.po")
             )
             .ToDictionary(s => s.FullName.Replace(workingDirectory.FullName, ""), f => f);
-
+        
         if (language is not null)
         {
             var translationFile = translationFiles.Values
                 .FirstOrDefault(f => f.Name.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
-
+            
             return translationFile?.FullName
                    ?? throw new InvalidOperationException($"Translation file for language '{language}' not found.");
         }
-
+        
         var prompt = new SelectionPrompt<string>()
             .Title("Please select the file to translate")
             .AddChoices(translationFiles.Keys);
-
+        
         var selection = AnsiConsole.Prompt(prompt);
         return translationFiles[selection].FullName;
     }
-
+    
     private async Task RunTranslation(string translationFile)
     {
         AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
         var ollamaApiClient = new OllamaApiClient(
             new HttpClient { BaseAddress = new Uri($"http://localhost:{Port}"), Timeout = TimeSpan.FromMinutes(15) }
         );
-
+        
         await AnsiConsole.Status().StartAsync("Checking base model...", async context =>
             {
                 var models = (await ollamaApiClient.ListLocalModels()).ToArray();
                 var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{ModelName}:"));
-
+                
                 context.Status("Checking base model.");
                 if (baseModel is null)
                 {
@@ -111,12 +111,12 @@ public class TranslateCommand : Command
                 }
             }
         );
-
+        
         var poParseResult = await ReadTranslationFile(translationFile);
-
+        
         var poCatalog = poParseResult.Catalog;
         AnsiConsole.MarkupLine($"Language detected: {poCatalog.Language}");
-
+        
         await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
             {
                 var missingTranslations = new List<POKey>();
@@ -131,7 +131,7 @@ public class TranslateCommand : Command
                                    """
                     }
                 };
-
+                
                 foreach (var key in poCatalog.Keys)
                 {
                     var translation = poCatalog.GetTranslation(key);
@@ -145,24 +145,24 @@ public class TranslateCommand : Command
                         messages.Add(new Message { Role = "assistant", Content = translation });
                     }
                 }
-
+                
                 AnsiConsole.MarkupLine($"Keys missing translation: {missingTranslations.Count}");
                 if (missingTranslations.Count == 0)
                 {
                     AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
                     return;
                 }
-
+                
                 for (var index = 0; index < missingTranslations.Count; index++)
                 {
                     var key = missingTranslations[index];
                     var content = "";
-
+                    
                     AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
                     context.Status($"Translating {index + 1}/{missingTranslations.Count} (thinking...)");
-
+                    
                     messages.Add(new Message { Role = "user", Content = key.Id });
-
+                    
                     messages = (await ollamaApiClient.SendChat(
                         new ChatRequest { Model = ModelName, Messages = messages },
                         status =>
@@ -172,17 +172,17 @@ public class TranslateCommand : Command
                             context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
                         }
                     )).ToList();
-
+                    
                     UpdateCatalogTranslation(poCatalog, key, messages.Last().Content);
                 }
-
+                
                 AnsiConsole.MarkupLine("[green]Translation completed.[/]");
-
+                
                 await WriteTranslationFile(translationFile, poCatalog);
             }
         );
     }
-
+    
     private static async Task<POParseResult> ReadTranslationFile(string translationFile)
     {
         var translationContent = await File.ReadAllTextAsync(translationFile);
@@ -192,15 +192,15 @@ public class TranslateCommand : Command
         {
             throw new InvalidOperationException($"Failed to parse PO file. {poParseResult.Diagnostics}");
         }
-
+        
         if (poParseResult.Catalog.Language is null)
         {
             throw new InvalidOperationException($"Failed to parse PO file {translationFile}. Language not found.");
         }
-
+        
         return poParseResult;
     }
-
+    
     private static async Task WriteTranslationFile(string translationFile, POCatalog poCatalog)
     {
         var poGenerator = new POGenerator(new POGeneratorSettings { IgnoreEncoding = true });
@@ -208,11 +208,11 @@ public class TranslateCommand : Command
         poGenerator.Generate(fileStream, poCatalog);
         await fileStream.FlushAsync();
         fileStream.Close();
-
+        
         AnsiConsole.MarkupLine($"[green]Translated file saved to {translationFile}[/]");
         AnsiConsole.MarkupLine("[yellow]WARNING: Please proofread to make sure the language is inclusive.[/]");
     }
-
+    
     private static void UpdateCatalogTranslation(POCatalog poCatalog, POKey key, string translation)
     {
         var poEntry = poCatalog[key];

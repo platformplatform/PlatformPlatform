@@ -465,7 +465,7 @@ module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules
     storageAccountName: accountManagementStorageAccountName
     userAssignedIdentityName: appGatewayIdentityName
   }
-  dependsOn: [ appGateway, accountManagementStorageAccount ]
+  dependsOn: [appGateway, accountManagementStorageAccount]
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId

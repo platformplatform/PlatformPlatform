@@ -26,6 +26,14 @@ public static class WebAppMiddlewareExtensions
     {
         var webAppConfiguration = app.ApplicationServices.GetRequiredService<WebAppMiddlewareConfiguration>();
         
+        // loop for max 10 seconds until the file webAppConfiguration.BuildRootPath exists
+        var timeout = DateTime.UtcNow.AddSeconds(10);
+        while (!Directory.Exists(webAppConfiguration.BuildRootPath) && DateTime.UtcNow < timeout)
+        {
+            if (File.Exists(webAppConfiguration.BuildRootPath)) break;
+            Thread.Sleep(100);
+        }
+        
         return app
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
             .UseRequestLocalization("en-US", "da-DK")

@@ -12,7 +12,7 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
             AnsiConsole.MarkupLine($"[green]Pulling {imageName} Docker Image.[/]");
             ProcessHelper.StartProcess(new ProcessStartInfo { FileName = "docker", Arguments = $"pull {imageName}" });
         }
-
+        
         AnsiConsole.MarkupLine($"[green]Starting {instanceName} server.[/]");
         var portArguments = port.HasValue ? $"-p {port}:{port}" : "";
         var volumeArguments = volume is not null ? $"-v {instanceName}:{volume}" : "";
@@ -24,17 +24,17 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
                 RedirectStandardError = true
             }
         );
-
+        
         if (output.Contains("Error"))
         {
             throw new InvalidOperationException($"Failed to start {instanceName} server. {output}");
         }
     }
-
+    
     public void StopServer()
     {
         AnsiConsole.MarkupLine($"[green]Stopping {instanceName} server.[/]");
-
+        
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "docker",
@@ -43,17 +43,17 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
                 RedirectStandardError = true
             }
         );
-
+        
         if (output.Contains("Error"))
         {
             AnsiConsole.MarkupLine($"[red]Failed to stop {instanceName} server. {output}[/]");
         }
     }
-
+    
     private bool DockerImageExists()
     {
         AnsiConsole.MarkupLine("[green]Checking for existing Docker image.[/]");
-
+        
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = "docker",
@@ -62,7 +62,7 @@ internal class DockerServer(string imageName, string instanceName, int? port, st
                 RedirectStandardError = true
             }
         );
-
+        
         return output.Contains("Digest");
     }
 }
