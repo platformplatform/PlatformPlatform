@@ -1,8 +1,6 @@
-using System.Net.Sockets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,45 +144,14 @@ public static class InfrastructureCoreConfiguration
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
         logger.LogInformation("Applying database migrations. Version: {Version}.", version);
         
-        var retryCount = 1;
-        while (retryCount <= 20)
-        {
-            try
-            {
-                if (retryCount % 5 == 0) logger.LogInformation("Waiting for databases to be ready...");
-                
-                var dbContext = scope.ServiceProvider.GetService<T>() ??
-                                throw new UnreachableException("Missing DbContext.");
-                
-                var strategy = dbContext.Database.CreateExecutionStrategy();
-                
-                strategy.Execute(() => dbContext.Database.Migrate());
-                
-                logger.LogInformation("Finished migrating database.");
-                
-                break;
-            }
-            catch (SqlException ex) when (ex.Message.Contains("an error occurred during the pre-login handshake"))
-            {
-                // Known error in Aspire, when SQL Server is not ready
-                retryCount++;
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-            catch (SocketException ex) when (ex.Message.Contains("Invalid argument"))
-            {
-                // Known error in Aspire, when SQL Server is not ready
-                retryCount++;
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while applying migrations.");
-                
-                // Wait for the logger to flush
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-                
-                break;
-            }
-        }
+        var dbContext = scope.ServiceProvider.GetRequiredService<T>();
+        
+        var errorNumbersToAdd = new[] { 0 }; // On macOS and Linux exceptions with Error Number 0 are thrown when SQL Server is starting up
+        var maxRetryDelay = TimeSpan.FromSeconds(20);
+        var strategy = new SqlServerRetryingExecutionStrategy(dbContext, 10, maxRetryDelay, errorNumbersToAdd);
+        
+        strategy.Execute(() => dbContext.Database.Migrate());
+        
+        logger.LogInformation("Finished migrating database.");
     }
 }
