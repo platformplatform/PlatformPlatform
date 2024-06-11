@@ -16,7 +16,7 @@ public class UninstallCommand : Command
     {
         Handler = CommandHandler.Create(Execute);
     }
-
+    
     private void Execute()
     {
         if (Configuration.IsWindows && !Configuration.IsDebugMode)
@@ -24,28 +24,28 @@ public class UninstallCommand : Command
             AnsiConsole.MarkupLine($"[yellow]Please run 'dotnet run uninstall' from {Configuration.GetSourceCodeFolder()}.[/]");
             Environment.Exit(0);
         }
-
+        
         var prompt =
             $"""
              Confirm uninstallation:
-
+             
              This will do the following:
              - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLI from the PATH (Windows)
              - Delete the {Configuration.PublishFolder}/{Configuration.AliasName}.* files
              - Remove the {Configuration.PublishFolder} folder if empty
-
+             
              Are you sure you want to uninstall the PlatformPlatform Developer CLI?
              """;
-
+        
         if (AnsiConsole.Confirm(prompt))
         {
             DeleteFilesFolder();
             RemoveAlias();
-
+            
             AnsiConsole.MarkupLine("[green]Please restart your terminal.[/]");
         }
     }
-
+    
     private void RemoveAlias()
     {
         if (Configuration.IsWindows)
@@ -63,17 +63,17 @@ public class UninstallCommand : Command
             AnsiConsole.MarkupLine("[green]Alias has been removed.[/]");
         }
     }
-
+    
     private void DeleteFilesFolder()
     {
         if (!Directory.Exists(Configuration.PublishFolder)) return;
-
+        
         // Multiple CLIs can be running side by side. Only delete the files belonging to the current version.
         foreach (var file in Directory.GetFiles(Configuration.PublishFolder, $"{Configuration.AliasName}.*"))
         {
             File.Delete(file);
         }
-
+        
         // Delete the Configuration.PublishFolder if empty
         if (!Directory.EnumerateFileSystemEntries(Configuration.PublishFolder).Any())
         {
