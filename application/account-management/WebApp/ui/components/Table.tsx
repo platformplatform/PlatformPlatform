@@ -27,7 +27,7 @@ import { composeTailwindRenderProps, focusRing } from "./utils";
 
 export function Table(props: Readonly<TableProps>) {
   return (
-    <ResizableTableContainer className="w-full relative border border-gray-300 dark:border-gray-100 rounded-lg">
+    <ResizableTableContainer className="w-full relative">
       <AriaTable {...props} className="border-separate border-spacing-0" />
     </ResizableTableContainer>
   );
@@ -45,7 +45,7 @@ const resizerStyles = tv({
 
 export function Column(props: Readonly<ColumnProps>) {
   return (
-    <AriaColumn {...props} className={composeTailwindRenderProps(props.className, "[&:hover]:z-20 [&:focus-within]:z-20 text-start text-sm font-semibold text-gray-700 dark:text-zinc-300 cursor-default")}>
+    <AriaColumn {...props} className={composeTailwindRenderProps(props.className, "[&:hover]:z-20 [&:focus-within]:z-20 text-start text-xs font-semibold text-gray-700 dark:text-zinc-300 cursor-default")}>
       {composeRenderProps(props.children, (children, { allowsSorting, sortDirection }) => (
         <div className="flex items-center">
           <Group

@@ -32,57 +32,67 @@ export function UserTable() {
   }, [sortedRows, currentPage]);
 
   return (
-    <div className="flex gap-4 flex-col">
-      <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor} className="w-full min-w-fit">
-        <TableHeader>
-          <Column allowsSorting id="name" isRowHeader>
-            Name
-          </Column>
-          <Column allowsSorting id="date">
-            Added
-          </Column>
-          <Column allowsSorting id="lastSeen">
-            Last Seen
-          </Column>
-          <Column allowsSorting id="type">
-            Role
-          </Column>
-          <Column>
-            Actions
-          </Column>
-        </TableHeader>
-        <TableBody>
-          {paginatedRows.map(user => (
-            <Row key={user.email}>
-              <Cell>
-                <div className="flex items-center">
-                  {user.profilePicture
-                    ? (
-                      <img src={user.profilePicture} alt="User avatar" className="mr-2" />
-                      )
-                    : (
-                      <div className="w-8 h-8 rounded-full bg-gray-200 mr-2 flex items-center justify-center text-sm font-semibold uppercase">AB</div>
-                      )}
-                  <span>{user.name}</span>
-                </div>
-              </Cell>
-              <Cell>{user.added.toLocaleDateString()}</Cell>
-              <Cell>{user.lastSeen.toLocaleDateString()}</Cell>
-              <Cell><Badge>{user.role}</Badge></Cell>
-              <Cell>
-                <div className="flex gap-8">
-                  <button type="button" className="group-hover:visible invisible">
-                    <TrashIcon size={16} />
-                  </button>
-                  <button type="button">
-                    <EllipsisVerticalIcon size={16} />
-                  </button>
-                </div>
-              </Cell>
-            </Row>
-          ))}
-        </TableBody>
-      </Table>
+    <div>
+      <div className="mb-4 w-full min-w-64 overflow-x-auto">
+        <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
+          <TableHeader>
+            <Column minWidth={100} allowsSorting id="name" isRowHeader>
+              Name
+            </Column>
+            <Column minWidth={100} allowsSorting id="email">
+              Email
+            </Column>
+            <Column defaultWidth={130} allowsSorting id="date">
+              Added
+            </Column>
+            <Column defaultWidth={130} allowsSorting id="lastSeen">
+              Last Seen
+            </Column>
+            <Column defaultWidth={100} allowsSorting id="type">
+              Role
+            </Column>
+            <Column width={80}>
+              Actions
+            </Column>
+          </TableHeader>
+          <TableBody>
+            {paginatedRows.map(user => (
+              <Row key={user.email}>
+                <Cell>
+                  <div className="flex h-14 items-center">
+                    {user.profilePicture
+                      ? (
+                        <img src={user.profilePicture} alt="User avatar" className="mr-2 w-10 h-10 rounded-full bg-transparent" />
+                        )
+                      : (
+                        <div className="w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] rounded-full bg-gray-200 mr-2 flex items-center justify-center text-sm font-semibold uppercase">AB</div>
+                        )}
+                    <div className="truncate">
+                      {user.name}
+                      <br />
+                      <span className="text-gray-500">{user.title}</span>
+                    </div>
+                  </div>
+                </Cell>
+                <Cell><span className="text-gray-500">{user.email}</span></Cell>
+                <Cell><span className="text-gray-500">{user.added.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</span></Cell>
+                <Cell><span className="text-gray-500">{user.lastSeen.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</span></Cell>
+                <Cell><Badge>{user.role}</Badge></Cell>
+                <Cell>
+                  <div className="flex gap-8">
+                    <button type="button" className="group-hover:visible invisible">
+                      <TrashIcon size={16} />
+                    </button>
+                    <button type="button">
+                      <EllipsisVerticalIcon size={16} />
+                    </button>
+                  </div>
+                </Cell>
+              </Row>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <Pagination
         total={rows.length}
         itemsPerPage={itemsPerPage}

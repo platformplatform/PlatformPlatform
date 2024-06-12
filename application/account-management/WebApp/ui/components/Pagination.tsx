@@ -23,14 +23,14 @@ const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPag
   };
 
   return (
-    <div className="flex justify-between items-center">
-      <Button variant="secondary" type="button" className="flex items-center gap-1" onPress={handlePrevious} isDisabled={currentPage === 1}>
+    <div className="flex justify-between items-center space-x-2 md:space-x-4">
+      <Button variant="secondary" className="flex text-slate-700 text-sm items-center" onPress={handlePrevious} isDisabled={currentPage === 1}>
         <ArrowLeftIcon size={16} />Previous
       </Button>
-      <span className="text-black">
+      <span className="hidden text-gray-500 sm:block">
         Page {currentPage} of {totalPages}
       </span>
-      <Button variant="secondary" type="button" className="flex items-center gap-1" onPress={handleNext} isDisabled={currentPage === totalPages}>
+      <Button variant="secondary" className="flex text-slate-700 text-sm items-center" onPress={handleNext} isDisabled={currentPage === totalPages}>
         Next <ArrowRightIcon size={16} />
       </Button>
     </div>

@@ -23,7 +23,7 @@ export function SideMenu() {
         <CircleUserIcon />
         Account
       </div>
-      <div className="flex text-gray-600 text-base font-normal gap-4">
+      <div className="flex text-black text-base font-semibold gap-4">
         <UsersRoundIcon />
         Users
       </div>

@@ -7,16 +7,14 @@ import { SideMenu } from "@/ui/components/SideMenu";
 
 export default function UsersPage() {
   return (
-    <div className="flex gap-4 h-full bg-gray-50 overflow-x-auto">
+    <div className="flex gap-4 h-full bg-gray-50">
       <SideMenu />
-      <div className="flex-grow pr-8 py-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-8">
-          <UserHeader />
-          <UserInvite />
-          <UserTabs />
-          <UserQuerying />
-          <UserTable />
-        </div>
+      <div className="flex-grow flex flex-col gap-4 pr-8 py-4 overflow-x-auto">
+        <UserHeader />
+        <UserInvite />
+        <UserTabs />
+        <UserQuerying />
+        <UserTable />
       </div>
     </div>
   );
