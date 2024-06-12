@@ -4,7 +4,7 @@ const profileEditDarkUrl = "https://platformplatformgithub.blob.core.windows.net
 const profileEditLightUrl = "https://platformplatformgithub.blob.core.windows.net/profile-edit.png";
 const editProfileUrl = "https://platformplatformgithub.blob.core.windows.net/edit-profile.png";
 const accountSettingsUrl = "https://platformplatformgithub.blob.core.windows.net/account-setting.png";
-const dashboardUsersUrl = "https://platformplatformgithub.blob.core.windows.net/dashboard-user.png";
+const usersUrl = "https://platformplatformgithub.blob.core.windows.net/users.png";
 const darkModeUrl = "https://platformplatformgithub.blob.core.windows.net/dark-mode.png";
 const lightModeUrl = "https://platformplatformgithub.blob.core.windows.net/light-mode.png";
 
@@ -79,8 +79,8 @@ export function FeatureSection() {
         <div className="flex-col gap-4 hidden md:flex">
           <img
             className="shadow-xl shadow-gray-400 rounded-lg"
-            src={dashboardUsersUrl}
-            alt="Dashboard Users"
+            src={usersUrl}
+            alt="Users"
           />
         </div>
       </div>
