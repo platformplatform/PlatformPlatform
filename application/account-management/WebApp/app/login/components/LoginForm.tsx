@@ -66,7 +66,7 @@ export default function LoginForm() {
           </TextField>
         </div>
         <LoginButton />
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs text-neutral-500">
             <Trans>Don't have an account?</Trans>
             {" "}

@@ -102,7 +102,7 @@ export async function completeAccountRegistration(_: State, formData: FormData):
     });
 
     if (result.response.ok) {
-      await navigate("/dashboard");
+      await navigate("/admin/users");
       return {};
     }
 

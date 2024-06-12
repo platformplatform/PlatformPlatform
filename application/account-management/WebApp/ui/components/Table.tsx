@@ -27,7 +27,7 @@ import { composeTailwindRenderProps, focusRing } from "./utils";
 
 export function Table(props: Readonly<TableProps>) {
   return (
-    <ResizableTableContainer className="max-h-[280px] w-[550px] overflow-auto scroll-pt-[2.281rem] relative border dark:border-zinc-600 rounded-lg">
+    <ResizableTableContainer className="w-full relative">
       <AriaTable {...props} className="border-separate border-spacing-0" />
     </ResizableTableContainer>
   );
@@ -40,12 +40,12 @@ const columnStyles = tv({
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "w-px px-[8px] translate-x-[8px] box-content py-1 h-5 bg-clip-content bg-gray-400 dark:bg-zinc-500 forced-colors:bg-[ButtonBorder] cursor-col-resize rounded resizing:bg-blue-600 forced-colors:resizing:bg-[Highlight] resizing:w-[2px] resizing:pl-[7px] -outline-offset-2",
+  base: "w-px px-[8px] translate-x-[8px] box-content py-2 h-5 bg-clip-content forced-colors:bg-[ButtonBorder] cursor-col-resize rounded resizing:bg-blue-600 forced-colors:resizing:bg-[Highlight] resizing:w-[2px] resizing:pl-[7px] -outline-offset-2",
 });
 
 export function Column(props: Readonly<ColumnProps>) {
   return (
-    <AriaColumn {...props} className={composeTailwindRenderProps(props.className, "[&:hover]:z-20 [&:focus-within]:z-20 text-start text-sm font-semibold text-gray-700 dark:text-zinc-300 cursor-default")}>
+    <AriaColumn {...props} className={composeTailwindRenderProps(props.className, "[&:hover]:z-20 [&:focus-within]:z-20 text-start text-xs font-semibold text-gray-700 dark:text-zinc-300 cursor-default")}>
       {composeRenderProps(props.children, (children, { allowsSorting, sortDirection }) => (
         <div className="flex items-center">
           <Group
@@ -75,7 +75,7 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
   const { selectionBehavior, selectionMode, allowsDragging } = useTableOptions();
 
   return (
-    <AriaTableHeader {...props} className={twMerge("sticky top-0 z-10 bg-gray-100/60 dark:bg-zinc-700/60 backdrop-blur-md supports-[-moz-appearance:none]:bg-gray-100 dark:supports-[-moz-appearance:none]:bg-zinc-700 forced-colors:bg-[Canvas] rounded-t-lg border-b dark:border-b-zinc-700", props.className)}>
+    <AriaTableHeader {...props} className={twMerge("shadow bg-gray-50 border-b", props.className)}>
       {/* Add extra columns for drag and drop and selection. */}
       {allowsDragging && <Column />}
       {selectionBehavior === "toggle" && (
@@ -92,7 +92,7 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "group/row relative cursor-default select-none -outline-offset-2 text-gray-900 disabled:text-gray-300 dark:text-zinc-200 dark:disabled:text-zinc-600 text-sm hover:bg-gray-100 dark:hover:bg-zinc-700/60 selected:bg-blue-100 selected:hover:bg-blue-200 dark:selected:bg-blue-700/30 dark:selected:hover:bg-blue-700/40",
+  base: "group group/row relative cursor-default select-none -outline-offset-2 text-gray-900 disabled:text-gray-300 dark:text-zinc-200 dark:disabled:text-zinc-600 text-sm hover:bg-white dark:hover:bg-zinc-700/60 selected:bg-blue-100 dark:selected:hover:bg-blue-700/40 dark:selected:bg-blue-700/30 dark:selected:hover:bg-blue-700/40",
 });
 
 export function Row<T extends object>(
@@ -121,7 +121,7 @@ export function Row<T extends object>(
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "border-b dark:border-b-zinc-700 group-last/row:border-b-0 [--selected-border:theme(colors.blue.200)] dark:[--selected-border:theme(colors.blue.900)] group-selected/row:border-[--selected-border] [:has(+[data-selected])_&]:border-[--selected-border] p-2 truncate -outline-offset-2",
+  base: "border-b border-b-gray-200 group-last/row:border-b-0 [--selected-border:theme(colors.blue.200)] dark:[--selected-border:theme(colors.blue.900)] group-selected/row:border-[--selected-border] [:has(+[data-selected])_&]:border-[--selected-border] p-2 truncate -outline-offset-2",
 });
 
 export function Cell(props: Readonly<CellProps>) {
