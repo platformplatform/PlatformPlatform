@@ -17,6 +17,6 @@ public sealed class AzureEmailService(SecretClient secretClient) : IEmailService
         
         var emailClient = new EmailClient(connectionString.Value.Value);
         EmailMessage message = new(Sender, recipient, new EmailContent(subject) { Html = htmlContent });
-        await emailClient.SendAsync(WaitUntil.Completed, message, cancellationToken);
+        await emailClient.SendAsync(WaitUntil.Started, message, cancellationToken);
     }
 }
