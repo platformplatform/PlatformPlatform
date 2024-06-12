@@ -11,7 +11,7 @@ export default function Root({ children }: Readonly<LayoutProps>) {
   const navigate = useNavigate();
   return (
     <RouterProvider navigate={navigate}>
-      <AuthenticationProvider navigate={navigate} afterSignIn="/admin/users" afterSignOut="/login">
+      <AuthenticationProvider navigate={navigate} afterSignIn="/admin/users" afterSignOut="/">
         {children}
       </AuthenticationProvider>
     </RouterProvider>

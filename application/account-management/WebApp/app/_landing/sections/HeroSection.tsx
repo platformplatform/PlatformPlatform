@@ -30,7 +30,7 @@ export function HeroSection() {
           </Link>
         </div>
         <div className="flex flex-col md:gap-8 md:flex-row items-center">
-          <Button onPress={() => navigate("/login")} variant="secondary" className="text-nowrap">
+          <Button onPress={() => navigate("/register")} variant="secondary" className="text-nowrap">
             Get started
           </Button>
         </div>
@@ -168,7 +168,7 @@ function ActionButtons() {
       <Button variant="ghost" className="text-nowrap">
         Book a demo
       </Button>
-      <Button onPress={() => navigate("/login")} variant="secondary" className="text-nowrap">
+      <Button onPress={() => navigate("/register")} variant="secondary" className="text-nowrap">
         Get started today
       </Button>
     </div>
