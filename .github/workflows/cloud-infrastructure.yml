@@ -6,11 +6,13 @@ on:
       - main
     paths:
       - "cloud-infrastructure/**"
+      - ".github/workflows/_deploy-infrastructure.yml"
       - ".github/workflows/cloud-infrastructure.yml"
       - "!**.md"
   pull_request:
     paths:
       - "cloud-infrastructure/**"
+      - ".github/workflows/_deploy-infrastructure.yml"
       - ".github/workflows/cloud-infrastructure.yml"
       - "!**.md"
   workflow_dispatch:
