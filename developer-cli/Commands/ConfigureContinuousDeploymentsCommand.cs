@@ -911,7 +911,7 @@ public class Subscription(string id, string name, string tenantId, GithubInfo gi
 
 public class AppRegistration(GithubInfo githubInfo, string environmentName)
 {
-    public string Name => $"GitHub - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {environmentName}";
+    public string Name => $"GitHub - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
     public bool Exists => !string.IsNullOrEmpty(AppRegistrationId);
 
@@ -922,11 +922,11 @@ public class AppRegistration(GithubInfo githubInfo, string environmentName)
     public string? ServicePrincipalObjectId { get; set; }
 }
 
-public class SqlAdminsGroup(GithubInfo githubInfo, string enviromentName)
+public class SqlAdminsGroup(GithubInfo githubInfo, string environmentName)
 {
-    public string Name => $"SQL Admins - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {enviromentName}";
+    public string Name => $"SQL Admins - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
-    public string NickName => $"SQLServerAdmins{githubInfo.OrganizationName}{githubInfo.RepositoryName}{enviromentName}";
+    public string NickName => $"SQLServerAdmins{environmentName}{githubInfo.OrganizationName}{githubInfo.RepositoryName}";
 
     public bool Exists => !string.IsNullOrEmpty(ObjectId);
 
