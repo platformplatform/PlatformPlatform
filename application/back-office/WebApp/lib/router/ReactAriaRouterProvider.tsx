@@ -20,7 +20,7 @@ interface ReactAriaRouterProviderProps {
   children: React.ReactNode;
 }
 
-export function ReactAriaRouterProvider({ children }: ReactAriaRouterProviderProps) {
+export function ReactAriaRouterProvider({ children }: Readonly<ReactAriaRouterProviderProps>) {
   const router = useRouter();
 
   return (
