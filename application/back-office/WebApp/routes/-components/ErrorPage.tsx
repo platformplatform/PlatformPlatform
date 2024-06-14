@@ -1,11 +1,7 @@
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-interface ErrorProps {
-  error: Error;
-  reset: () => void;
-}
-
-export default function ErrorPage({ error, reset }: Readonly<ErrorProps>) {
+export function ErrorPage({ error, reset }: ErrorComponentProps) {
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
@@ -23,6 +19,10 @@ export default function ErrorPage({ error, reset }: Readonly<ErrorProps>) {
       >
         Try again
       </button>
+      <div>
+        <h3>Error details:</h3>
+        <pre>{error.message}</pre>
+      </div>
     </div>
   );
 }
