@@ -1,21 +1,23 @@
 import { z } from "zod";
-import { CompleteAccountRegistrationForm } from "../components/CompleteAccountRegistrationForm";
-import { useSearchParams } from "@/lib/router/router";
+import { createFileRoute } from "@tanstack/react-router";
+import { CompleteAccountRegistrationForm } from "../-components/CompleteAccountRegistrationForm";
+import { ErrorPage } from "./-components/ErrorPage";
 import { HeroImage } from "@/ui/images/HeroImage";
 
-interface CompleteAccountRegistrationPageProps {
-  params: {
-    accountRegistrationId: string,
-  };
-}
+const validateSearchSchema = z.object({
+  email: z.string().email(),
+  expireAt: z.date(),
+});
 
-export default function CompleteAccountRegistrationPage({
-  params: { accountRegistrationId },
-}: Readonly<CompleteAccountRegistrationPageProps>) {
-  const [searchParams] = useSearchParams();
+export const Route = createFileRoute("/register/$accountRegistrationId/")({
+  component: CompleteAccountRegistrationPage,
+  validateSearch: validateSearchSchema,
+  errorComponent: ErrorPage,
+});
 
-  const email = z.string().email().parse(searchParams.get("email"));
-  const expireAt = z.date().parse(new Date(Number.parseInt(searchParams.get("expireAt") ?? "", 10)));
+function CompleteAccountRegistrationPage() {
+  const { accountRegistrationId } = Route.useParams();
+  const { email, expireAt } = Route.useSearch();
 
   return (
     <main className="flex min-h-screen flex-col">

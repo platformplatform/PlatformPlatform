@@ -85,9 +85,9 @@ export function StartAccountRegistrationForm() {
           <div className="text-sm text-neutral-500">
             By continuing, you agree to our policies
             <div className="flex items-center justify-center">
-              <Link href="/terms" bold>Terms of use</Link>
+              <Link href="/" bold>Terms of use</Link>
               <DotIcon className="w-4 h-4" />
-              <Link href="/privacy" bold>Privacy Policies</Link>
+              <Link href="/" bold>Privacy Policies</Link>
             </div>
           </div>
           <img src={poweredByUrl} alt="powered by" />

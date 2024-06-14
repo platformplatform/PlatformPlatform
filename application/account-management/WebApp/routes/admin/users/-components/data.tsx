@@ -1,4 +1,4 @@
-import avatarUrl from "../images/avatar.png";
+import avatarUrl from "../../images/avatar.png";
 
 export interface User {
   name: string;

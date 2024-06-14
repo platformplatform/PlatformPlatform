@@ -1,22 +1,17 @@
 import { useEffect } from "react";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { VerificationExpirationError } from "@/ui/oneTimePassword/VerificationExpirationError";
 
-interface ErrorProps {
-  params: {
-    accountRegistrationId: string,
-  };
-  error: Error;
-  reset: () => void;
-}
-
-export default function ErrorPage({ error, reset, params: { accountRegistrationId } }: Readonly<ErrorProps>) {
+export function ErrorPage({ error, reset, info }: ErrorComponentProps) {
+  // eslint-disable-next-line no-console
+  console.log("ErrorPage", error, info);
   useEffect(() => {
     // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   if (error instanceof VerificationExpirationError)
-    return <VerificationExpired accountRegistrationId={accountRegistrationId} />;
+    return <VerificationExpired accountRegistrationId={error.accountRegistrationId} />;
 
   // Generic error message
   return (

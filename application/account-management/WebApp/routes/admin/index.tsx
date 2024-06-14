@@ -1,3 +1,9 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/admin/")({
+  component: CreatedTenantSuccessPage,
+});
+
 export default function CreatedTenantSuccessPage() {
   return (
     <div className="items-center flex flex-col justify-center h-full">

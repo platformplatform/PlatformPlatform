@@ -1,10 +1,10 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/ui/components/Button";
 import { Popover } from "@/ui/components/Popover";
 import { Dialog } from "@/ui/components/Dialog";
 import { Link } from "@/ui/components/Link";
-import { navigate } from "@/lib/router/router";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
@@ -12,17 +12,17 @@ const heroimgMobile = "https://platformplatformgithub.blob.core.windows.net/hero
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col bg-gray-900">
       <div className="flex flex-col gap-2 md:flex-row justify-between pt-8 pb-24 xl:px-24 px-2">
         <div className="flex flex-col grow justify-start gap-2 md:gap-4 lg:gap-8 lg:justify-start md:flex-row items-center ">
-          <img src={logoWrap} alt="Picture of the author" />
+          <img src={logoWrap} alt="author" />
           <ProductLink />
           <ResourcesLink />
           <DocumentationLink />
           <Link
             className="flex gap-1 items-center decoration-transparent"
-            variant="neutral"
             href="https://github.com/platformplatform/PlatformPlatform"
           >
             <GithubIcon className="wmax-5 h-5" />
@@ -30,7 +30,7 @@ export function HeroSection() {
           </Link>
         </div>
         <div className="flex flex-col md:gap-8 md:flex-row items-center">
-          <Button onPress={() => navigate("/register")} variant="secondary" className="text-nowrap">
+          <Button onPress={() => navigate({ to: "/register" })} variant="secondary" className="text-nowrap">
             Get started
           </Button>
         </div>
@@ -63,10 +63,10 @@ function ProductLink() {
       </Button>
       <Popover>
         <Dialog className="flex flex-col">
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
         </Dialog>
       </Popover>
     </DialogTrigger>
@@ -82,10 +82,10 @@ function ResourcesLink() {
       </Button>
       <Popover>
         <Dialog className="flex flex-col">
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
         </Dialog>
       </Popover>
     </DialogTrigger>
@@ -101,10 +101,10 @@ function DocumentationLink() {
       </Button>
       <Popover>
         <Dialog className="flex flex-col">
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
-          <Link href="/product">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
+          <Link href="/">Product</Link>
         </Dialog>
       </Popover>
     </DialogTrigger>
@@ -163,12 +163,13 @@ function ProductDescription() {
 }
 
 function ActionButtons() {
+  const navigate = useNavigate();
   return (
     <div className="flex justify-center gap-4">
       <Button variant="ghost" className="text-nowrap">
         Book a demo
       </Button>
-      <Button onPress={() => navigate("/register")} variant="secondary" className="text-nowrap">
+      <Button onPress={() => navigate({ to: "/register" })} variant="secondary" className="text-nowrap">
         Get started today
       </Button>
     </div>

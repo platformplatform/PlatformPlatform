@@ -23,7 +23,7 @@ export function CompleteAccountRegistrationForm({
   accountRegistrationId,
 }: Readonly<CompleteAccountRegistrationProps>) {
   const initialState: State = { message: null, errors: {} };
-  const { expiresInString } = useExpirationTimeout(expireAt);
+  const { expiresInString } = useExpirationTimeout(expireAt, accountRegistrationId);
 
   const [state, action] = useFormState(completeAccountRegistration, initialState);
 

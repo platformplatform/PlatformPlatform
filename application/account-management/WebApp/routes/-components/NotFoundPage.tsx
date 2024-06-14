@@ -1,6 +1,6 @@
 import { Link } from "@/ui/components/Link";
 
-export default function NotFound() {
+export function NotFound() {
   return (
     <div>
       <h2>Not Found</h2>
