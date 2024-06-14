@@ -1,7 +1,8 @@
 import { useFormState, useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
+import { Navigate } from "@tanstack/react-router";
 import type { State } from "./actions.ts";
-import { completeAccountRegistration } from "./actions.ts";
+import { completeAccountRegistration, registration } from "./actions.ts";
 import { Button } from "@/ui/components/Button";
 import { Form } from "@/ui/components/Form";
 import { useExpirationTimeout } from "@/ui/oneTimePassword/useExpiration";
@@ -11,21 +12,23 @@ import { Link } from "@/ui/components/Link";
 import poweredByUrl from "@/ui/images/powered-by.png";
 import logoMarkUrl from "@/ui/images/logo-mark.png";
 
-export interface CompleteAccountRegistrationProps {
-  accountRegistrationId: string;
-  email: string;
-  expireAt: Date;
-}
-
-export function CompleteAccountRegistrationForm({
-  email,
-  expireAt,
-  accountRegistrationId,
-}: Readonly<CompleteAccountRegistrationProps>) {
+export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
-  const { expiresInString } = useExpirationTimeout(expireAt, accountRegistrationId);
+
+  if (!registration.current)
+    throw new Error("Account registration ID is missing.");
+
+  const { email, accountRegistrationId, expireAt } = registration.current;
+
+  const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
   const [state, action] = useFormState(completeAccountRegistration, initialState);
+
+  if (isExpired)
+    return <Navigate to="/register/expired" />;
+
+  if (state.success)
+    return <Navigate to="/admin/users" />;
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
@@ -44,7 +47,7 @@ export function CompleteAccountRegistrationForm({
         <div className="w-full flex flex-col gap-4">
           <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} />
           <div className="text-xs text-neutral-500 text-center">
-            <Link href="/resend-verification" bold>
+            <Link href="/" bold>
               <Trans>Did't receive the code? Resend</Trans>
             </Link>{" "}
             <span className="font-normal leading-none tabular-nums">({expiresInString})</span>

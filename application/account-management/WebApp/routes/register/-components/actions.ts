@@ -1,14 +1,28 @@
 import { i18n } from "@lingui/core";
 import { z } from "zod";
-import { router } from "@/lib/router/router";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { accountManagementApi } from "@/lib/api/client";
 
-const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
+const VALIDATION_LIFETIME = 10000; // 1000 * 60 * 5; // 5 minutes
+
+interface CurrentRegistration {
+  accountRegistrationId: string;
+  email: string;
+  expireAt: Date;
+}
+
+interface Registration {
+  current: CurrentRegistration | undefined;
+}
+
+export const registration: Registration = {
+  current: undefined,
+};
 
 export interface State {
   errors?: { [key: string]: string | string[], };
   message?: string | null;
+  success?: boolean;
 }
 
 const StartAccountRegistrationSchema = z.object({
@@ -17,6 +31,7 @@ const StartAccountRegistrationSchema = z.object({
 });
 
 export async function startAccountRegistration(_: State, formData: FormData): Promise<State> {
+  registration.current = undefined;
   const validatedFields = StartAccountRegistrationSchema.safeParse({
     subdomain: formData.get("subdomain"),
     email: formData.get("email"),
@@ -41,32 +56,34 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
       },
     });
 
-    if (result.response.ok) {
-      const location = result.response.headers.get("Location");
-      if (!location) {
-        return {
-          message: i18n.t("Server error: Failed to start account registration."),
-        };
-      }
-      const accountRegistrationId = location.split("/").pop();
-      await router.navigate({
-        to: "/register",
-        params: {
-          accountRegistrationId,
-        },
-        search: {
-          email,
-          expireAt: new Date(Date.now() + VALIDATION_LIFETIME),
-        },
-      });
-      return {};
+    if (!result.response.ok) {
+      const apiError = getApiError(result);
+
+      return {
+        message: apiError.title,
+        errors: getFieldErrors(apiError.Errors),
+      };
     }
 
-    const apiError = getApiError(result);
+    const location = result.response.headers.get("Location");
+    if (!location) {
+      return {
+        message: i18n.t("Server error: Failed to start account registration."),
+      };
+    }
 
-    return {
-      message: apiError.title,
-      errors: getFieldErrors(apiError.Errors),
+    const accountRegistrationId = location.split("/").pop();
+
+    if (!accountRegistrationId) {
+      return {
+        message: i18n.t("Server error: Failed to start account registration."),
+      };
+    }
+
+    registration.current = {
+      accountRegistrationId,
+      email,
+      expireAt: new Date(Date.now() + VALIDATION_LIFETIME),
     };
   }
   catch (e) {
@@ -74,18 +91,26 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
       message: i18n.t("Server error: Failed to start account registration."),
     };
   }
+
+  return {
+    success: true,
+  };
 }
 
 const CompleteAccountRegistrationSchema = z.object({
-  accountRegistrationId: z.string().min(1, "Please enter your account registration id"),
   oneTimePassword: z.string().min(6, "Please enter your verification code"),
 });
 
 export async function completeAccountRegistration(_: State, formData: FormData): Promise<State> {
   const validatedFields = CompleteAccountRegistrationSchema.safeParse({
-    accountRegistrationId: formData.get("accountRegistrationId"),
     oneTimePassword: formData.get("oneTimePassword"),
   });
+
+  if (!registration.current) {
+    return {
+      message: i18n.t("Account registration ID is missing."),
+    };
+  }
 
   if (!validatedFields.success) {
     // eslint-disable-next-line no-console
@@ -96,7 +121,8 @@ export async function completeAccountRegistration(_: State, formData: FormData):
     };
   }
 
-  const { accountRegistrationId, oneTimePassword } = validatedFields.data;
+  const { oneTimePassword } = validatedFields.data;
+  const { accountRegistrationId } = registration.current;
 
   try {
     const result = await accountManagementApi.POST("/api/account-management/account-registrations/{id}/complete", {
@@ -110,21 +136,22 @@ export async function completeAccountRegistration(_: State, formData: FormData):
       },
     });
 
-    if (result.response.ok) {
-      await router.navigate({ to: "/admin/users" });
-      return {};
+    if (!result.response.ok) {
+      const apiError = getApiError(result);
+
+      return {
+        message: apiError.title,
+        errors: getFieldErrors(apiError.Errors),
+      };
     }
-
-    const apiError = getApiError(result);
-
-    return {
-      message: apiError.title,
-      errors: getFieldErrors(apiError.Errors),
-    };
   }
   catch (e) {
     return {
       message: i18n.t("Server error: Failed to complete account registration."),
     };
   }
+
+  return {
+    success: true,
+  };
 }

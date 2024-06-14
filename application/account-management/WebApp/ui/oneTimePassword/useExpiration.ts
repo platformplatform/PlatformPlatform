@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { VerificationExpirationError } from "./VerificationExpirationError";
 
-export function useExpirationTimeout(expiresAt: Date, accountRegistrationId: string) {
+export function useExpirationTimeout(expiresAt: Date) {
   const [expiresInSeconds, setExpiresInSeconds] = useState(
     getExpiresInSeconds(expiresAt)
   );
@@ -12,9 +11,6 @@ export function useExpirationTimeout(expiresAt: Date, accountRegistrationId: str
     }, 1000);
     return () => clearInterval(interval);
   }, [expiresAt]);
-
-  if (expiresAt.getTime() < Date.now())
-    throw new VerificationExpirationError(accountRegistrationId);
 
   return {
     expiresInSeconds,

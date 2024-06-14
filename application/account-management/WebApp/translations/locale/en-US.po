@@ -42,6 +42,10 @@ msgid "Server error: Failed to start account registration."
 msgstr "Server error: Failed to start account registration."
 
 #. js-lingui-explicit-id
+msgid "Account registration ID is missing."
+msgstr "Account registration ID is missing."
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to complete account registration."
 msgstr "Missing Fields. Failed to complete account registration."
 

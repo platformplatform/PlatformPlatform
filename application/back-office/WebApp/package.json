@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "del-cli \"dist/**\" && yarn run update-translations && yarn run swagger && concurrently 'yarn:watch:*'",
+    "dev": "yarn run update-translations && yarn run swagger && concurrently 'yarn:watch:*'",
     "watch:rspack": "rspack serve",
     "watch:tsr": "tsr watch",
     "build": "yarn run update-translations && yarn run swagger && rspack build && yarn run typechecking",
@@ -46,7 +46,6 @@
     "@types/react-dom": "18.3.0",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",
-    "del-cli": "^5.1.0",
     "eslint": "^9.2.0",
     "eslint-plugin-format": "^0.1.1",
     "eslint-plugin-react": "^7.34.1",

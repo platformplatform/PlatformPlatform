@@ -3,6 +3,7 @@ import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
+import { Navigate } from "@tanstack/react-router";
 import type { State } from "./actions.ts";
 import { startAccountRegistration } from "./actions.ts";
 import { Button } from "@/ui/components/Button";
@@ -19,6 +20,12 @@ export function StartAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
 
   const [state, action] = useFormState(startAccountRegistration, initialState);
+
+  if (state.success) {
+    return (
+      <Navigate to="/register/verify" />
+    );
+  }
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
