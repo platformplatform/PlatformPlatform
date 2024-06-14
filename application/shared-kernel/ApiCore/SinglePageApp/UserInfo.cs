@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
+namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 
 public class UserInfo
 {

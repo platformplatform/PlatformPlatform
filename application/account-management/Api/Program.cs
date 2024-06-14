@@ -2,7 +2,7 @@ using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Domain;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.ApiCore.Middleware;
+using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +13,14 @@ builder.Services
     .AddInfrastructureServices()
     .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
     .AddConfigureStorage(builder)
-    .AddWebAppMiddleware();
+    .AddSinglePageAppFallback();
 
 var app = builder.Build();
 
 // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
 app.UseApiCoreConfiguration();
 
-// Server the SPA Index.html if no other endpoints are found
-app.UseWebAppMiddleware();
+// Server the SPA and static files if no other endpoints are found
+app.UseSinglePageAppFallback();
 
 app.Run();
