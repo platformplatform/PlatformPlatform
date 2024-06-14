@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getApiError, getFieldErrors } from "@/shared/apiErrorListSchema";
 import { accountManagementApi } from "@/lib/api/client";
 
-const VALIDATION_LIFETIME = 10000; // 1000 * 60 * 5; // 5 minutes
+const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
 
 interface CurrentRegistration {
   accountRegistrationId: string;
