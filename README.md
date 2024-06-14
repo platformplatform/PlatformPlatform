@@ -268,6 +268,7 @@ The frontend is built with these technologies:
 - [React](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
+- [Tanstack Router](https://tanstack.com)
 - [Node](https://nodejs.org/en)
 
 ### Azure Cloud Infrastructure With Enterprise-Grade Security and Zero Secrets
