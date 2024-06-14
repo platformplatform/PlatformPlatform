@@ -6,7 +6,7 @@
     "dev": "yarn run update-translations && yarn run swagger && concurrently 'yarn:watch:*'",
     "watch:rspack": "rspack serve",
     "watch:tsr": "tsr watch",
-    "build": "yarn run update-translations && yarn run swagger && rspack build && yarn run typechecking",
+    "build": "yarn run update-translations && yarn run swagger && tsr generate && rspack build && yarn run typechecking",
     "update-translations": "yarn run lingui extract && yarn run lingui compile --typescript",
     "lint": "eslint .",
     "typechecking": "tsc --noEmit",
