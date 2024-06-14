@@ -15,7 +15,7 @@ export function Example(args: any) {
   return (
     <Breadcrumbs {...args}>
       <Breadcrumb href="/">Home</Breadcrumb>
-      <Breadcrumb href="/react-aria">React Aria</Breadcrumb>
+      <Breadcrumb href="/">React Aria</Breadcrumb>
       <Breadcrumb>Breadcrumbs</Breadcrumb>
     </Breadcrumbs>
   );

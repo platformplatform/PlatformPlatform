@@ -14,6 +14,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to login."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed login."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed logout."
+msgstr ""
+
+#. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr ""
 
@@ -30,6 +42,10 @@ msgid "Server error: Failed to start account registration."
 msgstr ""
 
 #. js-lingui-explicit-id
+msgid "Account registration ID is missing."
+msgstr ""
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to complete account registration."
 msgstr ""
 
@@ -39,18 +55,6 @@ msgstr ""
 
 #. js-lingui-explicit-id
 msgid "subdomain"
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to login."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed login."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed logout."
 msgstr ""
 
 #. js-lingui-explicit-id

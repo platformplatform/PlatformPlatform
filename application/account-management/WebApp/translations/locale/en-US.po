@@ -14,6 +14,18 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
+msgid "Missing Fields. Failed to login."
+msgstr "Missing Fields. Failed to login."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed login."
+msgstr "Server error: Failed login."
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed logout."
+msgstr "Server error: Failed logout."
+
+#. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr "yourname@example.com"
 
@@ -30,6 +42,10 @@ msgid "Server error: Failed to start account registration."
 msgstr "Server error: Failed to start account registration."
 
 #. js-lingui-explicit-id
+msgid "Account registration ID is missing."
+msgstr "Account registration ID is missing."
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to complete account registration."
 msgstr "Missing Fields. Failed to complete account registration."
 
@@ -40,18 +56,6 @@ msgstr "Server error: Failed to complete account registration."
 #. js-lingui-explicit-id
 msgid "subdomain"
 msgstr "subdomain"
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to login."
-msgstr "Missing Fields. Failed to login."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed login."
-msgstr "Server error: Failed login."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed logout."
-msgstr "Server error: Failed logout."
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"

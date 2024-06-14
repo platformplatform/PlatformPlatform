@@ -1,4 +1,5 @@
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
+import type { NavigateOptions } from "@tanstack/react-router";
 import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 import type { State, UserInfo } from "./actions";
 
@@ -18,9 +19,9 @@ export const AuthenticationContext = createContext<AuthenticationContextType>({
 
 export interface AuthenticationProviderProps {
   children: React.ReactNode;
-  navigate?: (path: string) => void;
-  afterSignOut?: string;
-  afterSignIn?: string;
+  navigate?: (navigateOptions: NavigateOptions) => void;
+  afterSignOut?: NavigateOptions["to"];
+  afterSignIn?: NavigateOptions["to"];
 };
 
 /**
@@ -53,7 +54,8 @@ export function AuthenticationProvider({
     const result = await logout();
     setUserInfo(null);
     if (navigate && afterSignOut)
-      navigate(afterSignOut);
+      navigate({ to: afterSignOut });
+
     return result;
   }, [setUserInfo, navigate, afterSignOut]);
 
@@ -63,7 +65,7 @@ export function AuthenticationProvider({
       setUserInfo(await getUserInfo());
 
     if (result.success && navigate && afterSignIn)
-      navigate(afterSignIn);
+      navigate({ to: afterSignIn });
     return result;
   }, [navigate, afterSignIn]);
 

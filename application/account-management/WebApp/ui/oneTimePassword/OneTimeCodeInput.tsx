@@ -1,4 +1,3 @@
-"use client";
 import { useCallback, useId, useMemo, useState } from "react";
 import { Digit } from "./Digit";
 import type { DigitPattern } from "./DigitPattern";

@@ -4,7 +4,6 @@ import { join, resolve } from "node:path";
 import process from "node:process";
 import type { Configuration } from "@rspack/core";
 import { CopyRspackPlugin, DefinePlugin, HtmlRspackPlugin } from "@rspack/core";
-import { ClientFilesystemRouterPlugin } from "@platformplatform/client-filesystem-router/rspack-plugin";
 
 const buildEnv: BuildEnv = {};
 
@@ -140,10 +139,6 @@ const configuration: Configuration = {
       "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
       "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",
       "import.meta.env": "getApplicationEnvironment().env",
-    }),
-    new ClientFilesystemRouterPlugin({
-      dir: "app",
-      basename: "/back-office",
     }),
   ],
   devServer: {
