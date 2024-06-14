@@ -23,7 +23,7 @@
     "lucide-react": "^0.376.0",
     "openapi-fetch": "^0.9.5",
     "react": "18.3.0-canary-c47c306a7-20231109",
-    "react-aria-components": "^1.1.1",
+    "react-aria-components": "^1.2.1",
     "react-dom": "18.3.0-canary-c47c306a7-20231109",
     "react-dom-confetti": "^0.2.0",
     "tailwind-merge": "^2.3.0",
