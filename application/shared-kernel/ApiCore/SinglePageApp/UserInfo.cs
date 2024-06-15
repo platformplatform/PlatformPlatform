@@ -8,7 +8,7 @@ public class UserInfo
     {
         IsAuthenticated = user.Identity?.IsAuthenticated ?? false;
         Locale = user.FindFirst("locale")?.Value ?? defaultLocale;
-        
+
         if (IsAuthenticated)
         {
             Email = user.Identity?.Name;
@@ -17,16 +17,16 @@ public class UserInfo
             TenantId = user.FindFirst("tenantId")?.Value;
         }
     }
-    
+
     public bool IsAuthenticated { get; init; }
-    
+
     public string Locale { get; init; }
-    
+
     public string? Email { get; init; }
-    
+
     public string? Name { get; init; }
-    
+
     public string? Role { get; init; }
-    
+
     public string? TenantId { get; init; }
 }

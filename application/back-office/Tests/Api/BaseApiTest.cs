@@ -17,12 +17,12 @@ namespace PlatformPlatform.BackOffice.Tests.Api;
 public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
-    
+
     protected BaseApiTests()
     {
         Environment.SetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey, "https://localhost:9000");
         Environment.SetEnvironmentVariable(SinglePageAppConfiguration.CdnUrlKey, "https://localhost:9201");
-        
+
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
                 builder.ConfigureTestServices(services =>
@@ -30,32 +30,32 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
                         services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                         services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
-                        
+
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
                     }
                 );
             }
         );
-        
+
         TestHttpClient = _webApplicationFactory.CreateClient();
     }
-    
+
     protected HttpClient TestHttpClient { get; }
-    
+
     protected override void Dispose(bool disposing)
     {
         _webApplicationFactory.Dispose();
         base.Dispose(disposing);
     }
-    
+
     protected static void EnsureSuccessGetRequest(HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
         response.Headers.Location.Should().BeNull();
     }
-    
+
     protected static async Task EnsureSuccessPostRequest(
         HttpResponseMessage response,
         string? exact = null,
@@ -65,10 +65,10 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
     {
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().BeEmpty();
-        
+
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();
-        
+
         if (hasLocation)
         {
             response.Headers.Location.Should().NotBeNull();
@@ -77,30 +77,30 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         {
             response.Headers.Location.Should().BeNull();
         }
-        
+
         if (exact is not null)
         {
             response.Headers.Location!.ToString().Should().Be(exact);
         }
-        
+
         if (startsWith is not null)
         {
             response.Headers.Location!.ToString().StartsWith(startsWith).Should().BeTrue();
         }
     }
-    
+
     protected static void EnsureSuccessWithEmptyHeaderAndLocation(HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
         response.Content.Headers.ContentType.Should().BeNull();
         response.Headers.Location.Should().BeNull();
     }
-    
+
     protected Task EnsureErrorStatusCode(HttpResponseMessage response, HttpStatusCode statusCode, IEnumerable<ErrorDetail> expectedErrors)
     {
         return EnsureErrorStatusCode(response, statusCode, null, expectedErrors);
     }
-    
+
     protected async Task EnsureErrorStatusCode(
         HttpResponseMessage response,
         HttpStatusCode statusCode,
@@ -111,44 +111,44 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
     {
         response.StatusCode.Should().Be(statusCode);
         response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
-        
+
         var problemDetails = await DeserializeProblemDetails(response);
-        
+
         problemDetails.Should().NotBeNull();
         problemDetails!.Status.Should().Be((int)statusCode);
         problemDetails.Type.Should().StartWith("https://tools.ietf.org/html/rfc9110#section-15.");
         problemDetails.Title.Should().Be(ApiResult.GetHttpStatusDisplayName(statusCode));
-        
+
         if (expectedDetail is not null)
         {
             problemDetails.Detail.Should().Be(expectedDetail);
         }
-        
+
         if (expectedErrors is not null)
         {
             var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
             var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), JsonSerializerOptions);
-            
+
             actualErrors.Should().BeEquivalentTo(expectedErrors);
         }
-        
+
         if (hasTraceId)
         {
             problemDetails.Extensions["traceId"]!.ToString().Should().NotBeEmpty();
         }
     }
-    
+
     protected async Task<T?> DeserializeResponse<T>(HttpResponseMessage response)
     {
         var responseStream = await response.Content.ReadAsStreamAsync();
-        
+
         return await JsonSerializer.DeserializeAsync<T>(responseStream, JsonSerializerOptions);
     }
-    
+
     private async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
-        
+
         return JsonSerializer.Deserialize<ProblemDetails>(content, JsonSerializerOptions);
     }
 }

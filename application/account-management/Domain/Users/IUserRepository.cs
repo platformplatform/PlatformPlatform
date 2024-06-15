@@ -6,9 +6,9 @@ namespace PlatformPlatform.AccountManagement.Domain.Users;
 public interface IUserRepository : ICrudRepository<User, UserId>
 {
     Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken);
-    
+
     Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken);
-    
+
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,

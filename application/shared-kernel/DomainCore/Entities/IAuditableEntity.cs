@@ -7,8 +7,8 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 public interface IAuditableEntity
 {
     DateTimeOffset CreatedAt { get; }
-    
+
     DateTimeOffset? ModifiedAt { get; }
-    
+
     void UpdateModifiedAt(DateTimeOffset? modifiedAt);
 }

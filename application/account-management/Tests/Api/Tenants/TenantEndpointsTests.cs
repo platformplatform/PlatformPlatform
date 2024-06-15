@@ -16,13 +16,13 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        
+
         // Act
         var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{existingTenantId}");
-        
+
         // Assert
         EnsureSuccessGetRequest(response);
-        
+
         var schema = await JsonSchema.FromJsonAsync(
             """
             {
@@ -39,58 +39,58 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
             }
             """
         );
-        
+
         var responseBody = await response.Content.ReadAsStringAsync();
         schema.Validate(responseBody).Should().BeEmpty();
     }
-    
+
     [Fact]
     public async Task GetTenant_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        
+
         // Act
         var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{unknownTenantId}");
-        
+
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
     }
-    
+
     [Fact]
     public async Task GetTenant_WhenTenantInvalidTenantId_ShouldReturnBadRequest()
     {
         // Arrange
         var invalidTenantId = Faker.Random.AlphaNumeric(31);
-        
+
         // Act
         var response = await TestHttpClient.GetAsync($"/api/account-management/tenants/{invalidTenantId}");
-        
+
         // Assert
         await EnsureErrorStatusCode(response,
             HttpStatusCode.BadRequest,
             $"""Failed to bind parameter "TenantId Id" from "{invalidTenantId}"."""
         );
     }
-    
+
     [Fact]
     public async Task UpdateTenant_WhenValid_ShouldUpdateTenant()
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var command = new UpdateTenantCommand { Name = Faker.TenantName() };
-        
+
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{existingTenantId}", command);
-        
+
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
-        
+
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantUpdated").Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
-    
+
     [Fact]
     public async Task UpdateTenant_WhenInvalid_ShouldReturnBadRequest()
     {
@@ -98,51 +98,51 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidName = Faker.Random.String2(31);
         var command = new UpdateTenantCommand { Name = invalidName };
-        
+
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{existingTenantId}", command);
-        
+
         // Assert
         var expectedErrors = new[]
         {
             new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-        
+
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task UpdateTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
         var command = new UpdateTenantCommand { Name = Faker.TenantName() };
-        
+
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{unknownTenantId}", command);
-        
+
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
-        
+
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task DeleteTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
         var unknownTenantId = Faker.Subdomain();
-        
+
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{unknownTenantId}");
-        
+
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
-        
+
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task DeleteTenant_WhenTenantHasUsers_ShouldReturnBadRequest()
     {
@@ -150,17 +150,17 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
         TelemetryEventsCollectorSpy.Reset();
-        
+
         // Assert
         var expectedErrors = new[]
         {
             new ErrorDetail("Id", "All users must be deleted before the tenant can be deleted.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
-        
+
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task DeleteTenant_WhenTenantHasNoUsers_ShouldDeleteTenant()
     {
@@ -169,14 +169,14 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var existingUserId = DatabaseSeeder.User1.Id;
         await TestHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
         TelemetryEventsCollectorSpy.Reset();
-        
+
         // Act
         var response = await TestHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
-        
+
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
-        
+
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantDeleted").Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();

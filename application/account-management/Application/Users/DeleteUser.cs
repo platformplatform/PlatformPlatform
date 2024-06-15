@@ -13,11 +13,11 @@ public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetry
     {
         var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
-        
+
         userRepository.Remove(user);
-        
+
         events.CollectEvent(new UserDeleted());
-        
+
         return Result.Success();
     }
 }

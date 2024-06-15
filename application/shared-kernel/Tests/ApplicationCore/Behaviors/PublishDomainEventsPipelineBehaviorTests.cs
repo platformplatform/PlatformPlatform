@@ -24,16 +24,16 @@ public sealed class PublishDomainEventsPipelineBehaviorTests
         var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         next.Invoke().Returns(TestAggregate.Create("Test"));
-        
+
         var testAggregate = TestAggregate.Create("TestAggregate");
         var domainEvent = testAggregate.DomainEvents.Single(); // Get the domain events that were created
         domainEventCollector.GetAggregatesWithDomainEvents().Returns(
             _ => testAggregate.DomainEvents.Count == 0 ? [] : [testAggregate]
         );
-        
+
         // Act
         await behavior.Handle(request, next, cancellationToken);
-        
+
         // Assert
         await publisher.Received(1).Publish(domainEvent, cancellationToken);
         testAggregate.DomainEvents.Should().BeEmpty();

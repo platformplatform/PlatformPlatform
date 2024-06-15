@@ -18,7 +18,7 @@ public sealed class UnitOfWork(DbContext dbContext) : IUnitOfWork
         {
             throw new InvalidOperationException("Domain events must be handled before committing the UnitOfWork.");
         }
-        
+
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

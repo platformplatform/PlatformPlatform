@@ -8,22 +8,22 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
     : SharedKernelDbContext<AccountManagementDbContext>(options)
 {
     public DbSet<AccountRegistration> AccountRegistrations => Set<AccountRegistration>();
-    
+
     public DbSet<Tenant> Tenants => Set<Tenant>();
-    
+
     public DbSet<User> Users => Set<User>();
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         // AccountRegistration
         modelBuilder.MapStronglyTypedUuid<AccountRegistration, AccountRegistrationId>(a => a.Id);
         modelBuilder.MapStronglyTypedNullableId<AccountRegistration, TenantId, string>(u => u.TenantId);
-        
+
         // Tenant
         modelBuilder.MapStronglyTypedId<Tenant, TenantId, string>(t => t.Id);
-        
+
         // User
         modelBuilder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
         modelBuilder.MapStronglyTypedId<User, TenantId, string>(u => u.TenantId);

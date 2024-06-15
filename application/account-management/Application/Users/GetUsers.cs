@@ -27,7 +27,7 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
             query.PageOffset,
             cancellationToken
         );
-        
+
         var userResponseDtos = users.Adapt<UserResponseDto[]>();
         return new GetUsersResponseDto(count, totalPages, query.PageOffset ?? 0, userResponseDtos);
     }

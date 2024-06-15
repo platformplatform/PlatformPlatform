@@ -19,7 +19,7 @@ public sealed class CreateUserValidator : UserValidator<CreateUserCommand>
             .MustAsync(tenantRepository.ExistsAsync)
             .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")
             .When(x => !string.IsNullOrEmpty(x.Email));
-        
+
         RuleFor(x => x)
             .MustAsync((x, cancellationToken)
                 => userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken)
@@ -34,20 +34,20 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
     : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     private static readonly HttpClient Client = new();
-    
+
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
-        
+
         var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
-        
+
         await userRepository.AddAsync(user, cancellationToken);
-        
+
         events.CollectEvent(new UserCreated(command.TenantId, gravatarUrl is not null));
-        
+
         return user.Id;
     }
-    
+
     private async Task<string?> GetGravatarProfileUrlIfExists(string email)
     {
         var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));

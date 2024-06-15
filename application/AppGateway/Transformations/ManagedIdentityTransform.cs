@@ -9,7 +9,7 @@ public class ManagedIdentityTransform(TokenCredential credential)
     protected override string? GetValue(RequestTransformContext context)
     {
         if (!context.HttpContext.Request.Path.StartsWithSegments("/avatars")) return null;
-        
+
         var tokenRequestContext = new TokenRequestContext(["https://storage.azure.com/.default"]);
         var token = credential.GetToken(tokenRequestContext, context.HttpContext.RequestAborted);
         return $"Bearer {token.Token}";
@@ -21,7 +21,7 @@ public class ApiVersionHeaderTransform() : RequestHeaderTransform("x-ms-version"
     protected override string? GetValue(RequestTransformContext context)
     {
         if (!context.HttpContext.Request.Path.StartsWithSegments("/avatars")) return null;
-        
+
         return "2023-11-03";
     }
 }

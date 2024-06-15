@@ -17,13 +17,13 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var response = await next();
-        
+
         while (true)
         {
             var aggregatesWithDomainEvents = domainEventCollector.GetAggregatesWithDomainEvents();
-            
+
             if (aggregatesWithDomainEvents.Length == 0) break;
-            
+
             foreach (var aggregate in aggregatesWithDomainEvents)
             {
                 var domainEvents = aggregate.GetAndClearDomainEvents();
@@ -34,7 +34,7 @@ public sealed class PublishDomainEventsPipelineBehavior<TRequest, TResponse>(
                 }
             }
         }
-        
+
         return response;
     }
 }

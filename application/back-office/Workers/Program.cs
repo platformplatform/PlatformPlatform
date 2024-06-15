@@ -8,7 +8,7 @@ builder.Services.Configure<HostOptions>(options =>
     {
         options.ServicesStartConcurrently = true;
         options.StartupTimeout = TimeSpan.FromSeconds(60);
-        
+
         options.ServicesStopConcurrently = true;
         options.ShutdownTimeout = TimeSpan.FromSeconds(10);
     }

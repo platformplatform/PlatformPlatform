@@ -7,11 +7,11 @@ public sealed class TestDbContext(DbContextOptions<TestDbContext> options)
     : SharedKernelDbContext<TestDbContext>(options)
 {
     public DbSet<TestAggregate> TestAggregates => Set<TestAggregate>();
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         modelBuilder.UseStringForEnums();
     }
 }

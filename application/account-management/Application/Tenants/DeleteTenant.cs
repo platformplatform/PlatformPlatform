@@ -26,11 +26,11 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITel
     {
         var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
-        
+
         tenantRepository.Remove(tenant);
-        
+
         events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
-        
+
         return Result.Success();
     }
 }

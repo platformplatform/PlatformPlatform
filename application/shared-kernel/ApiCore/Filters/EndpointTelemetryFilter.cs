@@ -10,17 +10,17 @@ namespace PlatformPlatform.SharedKernel.ApiCore.Filters;
 public class EndpointTelemetryFilter(ITelemetryProcessor telemetryProcessor) : ITelemetryProcessor
 {
     public static readonly string[] ExcludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
-    
+
     public void Process(ITelemetry item)
     {
         if (item is RequestTelemetry requestTelemetry && IsExcludedPath(requestTelemetry))
         {
             return;
         }
-        
+
         telemetryProcessor.Process(item);
     }
-    
+
     private bool IsExcludedPath(RequestTelemetry requestTelemetry)
     {
         return Array.Exists(ExcludedPaths, excludePath => requestTelemetry.Url.AbsolutePath.StartsWith(excludePath));

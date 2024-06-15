@@ -13,68 +13,68 @@ public class SinglePageAppConfiguration
     public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
     private const string ApplicationVersionKey = "APPLICATION_VERSION";
-    
+
     private readonly string _htmlTemplatePath;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
     private string? _htmlTemplate;
-    
+
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;
         CdnUrl = Environment.GetEnvironmentVariable(CdnUrlKey) ?? string.Empty;
         var applicationVersion = Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
-        
+
         StaticRuntimeEnvironment = new Dictionary<string, string>
         {
             { PublicUrlKey, PublicUrl },
             { CdnUrlKey, CdnUrl },
             { ApplicationVersionKey, applicationVersion }
         };
-        
+
         var json = JsonSerializer.Serialize(StaticRuntimeEnvironment, jsonOptions.Value.SerializerOptions);
         StaticRuntimeEnvironmentEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
-        
+
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
-        
+
         BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
         _htmlTemplatePath = Path.Combine(GetWebAppDistRoot("WebApp", "dist"), "index.html");
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies(isDevelopment);
     }
-    
+
     private string CdnUrl { get; }
-    
+
     private string PublicUrl { get; }
-    
+
     public string BuildRootPath { get; }
-    
+
     public Dictionary<string, string> StaticRuntimeEnvironment { get; }
-    
+
     public string StaticRuntimeEnvironmentEncoded { get; }
-    
+
     public StringValues PermissionPolicies { get; }
-    
+
     public string ContentSecurityPolicies { get; }
-    
+
     public string GetHtmlTemplate()
     {
         if (_htmlTemplate is not null)
         {
             return _htmlTemplate;
         }
-        
+
         AwaitSinglePageAppGeneration();
-        
+
         if (!File.Exists(_htmlTemplatePath))
         {
             throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
         }
-        
+
         _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
         return _htmlTemplate;
     }
-    
+
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
@@ -87,16 +87,16 @@ public class SinglePageAppConfiguration
                 // We check for the HTML file to be created and then wait an additional 2 seconds to allow for the JavaScript and CSS files to be created
                 break;
             }
-            
+
             Console.WriteLine($"{DateTime.Now.ToLocalTime()} !!!!Waiting for the SPA to be generated...");
             Thread.Sleep(TimeSpan.FromSeconds(1));
         }
     }
-    
+
     private static string GetWebAppDistRoot(string webAppProjectName, string webAppDistRootName)
     {
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-        
+
         var directoryInfo = new DirectoryInfo(assemblyPath);
         while (directoryInfo!.GetDirectories(webAppProjectName).Length == 0 &&
                !Path.Exists(Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName))
@@ -104,10 +104,10 @@ public class SinglePageAppConfiguration
         {
             directoryInfo = directoryInfo.Parent;
         }
-        
+
         return Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName);
     }
-    
+
     private StringValues GetPermissionsPolicies()
     {
         var permissionsPolicies = new Dictionary<string, string[]>
@@ -121,21 +121,21 @@ public class SinglePageAppConfiguration
             { "web-share", [] },
             { "identity-credentials-get", [] }
         };
-        
+
         return string.Join(", ", permissionsPolicies.Select(p => $"{p.Key}=({string.Join(", ", p.Value)})"));
     }
-    
+
     private string GetContentSecurityPolicies(bool isDevelopment)
     {
         var trustedCdnHosts = "https://platformplatformgithub.blob.core.windows.net";
         var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHosts}";
-        
+
         if (isDevelopment)
         {
             var webSocketHost = CdnUrl.Replace("https", "wss");
             trustedHosts += $" {webSocketHost}";
         }
-        
+
         var contentSecurityPolicies = new[]
         {
             $"script-src {trustedHosts} 'strict-dynamic' https:",
@@ -147,16 +147,16 @@ public class SinglePageAppConfiguration
             "base-uri 'none'"
             // "require-trusted-types-for 'script'"
         };
-        
+
         return string.Join(";", contentSecurityPolicies);
     }
-    
+
     private void VerifyRuntimeEnvironment(Dictionary<string, string> environmentVariables)
     {
         foreach (var key in environmentVariables.Keys)
         {
             if (key.StartsWith(PublicKeyPrefix) || _publicAllowedKeys.Contains(key)) continue;
-            
+
             throw new SecurityException($"Environment variable '{key}' is not allowed to be public.");
         }
     }

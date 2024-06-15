@@ -11,7 +11,7 @@ public sealed class DatabaseMigrations : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
     }
-    
+
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
         modelBuilder.UseIdentityColumns();

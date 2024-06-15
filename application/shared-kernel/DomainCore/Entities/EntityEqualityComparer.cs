@@ -10,7 +10,7 @@ public sealed class EntityEqualityComparer<T> : IEqualityComparer<Entity<T>> whe
                 EqualityComparer<T>.Default.Equals(x.Id, y.Id)
                );
     }
-    
+
     public int GetHashCode(Entity<T> obj)
     {
         return EqualityComparer<T>.Default.GetHashCode(obj.Id);
