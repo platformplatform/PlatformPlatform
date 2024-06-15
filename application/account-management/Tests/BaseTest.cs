@@ -25,49 +25,49 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
-    
+
     protected BaseTest()
     {
         Environment.SetEnvironmentVariable(
             "APPLICATIONINSIGHTS_CONNECTION_STRING",
             "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost"
         );
-        
+
         Services = new ServiceCollection();
-        
+
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
-        
+
         // Create connection and add DbContext to the service collection
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
-        
+
         Services
             .AddApplicationServices()
             .AddInfrastructureServices();
-        
+
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-        
+
         EmailService = Substitute.For<IEmailService>();
         Services.AddScoped<IEmailService>(_ => EmailService);
-        
+
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
-        
+
         // Make sure database is created
         using var serviceScope = Services.BuildServiceProvider().CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-        
+
         JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }
-    
+
     protected SqliteConnection Connection { get; }
-    
+
     protected DatabaseSeeder DatabaseSeeder { get; }
-    
+
     protected ServiceProvider Provider
     {
         get
@@ -77,13 +77,13 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
             return _provider ??= Services.BuildServiceProvider();
         }
     }
-    
+
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    
+
     protected virtual void Dispose(bool disposing)
     {
         if (!disposing) return;

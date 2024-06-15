@@ -78,7 +78,7 @@ return;
 void CreateBlobContainer(string containerName)
 {
     var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-    
+
     new Task(() =>
         {
             var blobServiceClient = new BlobServiceClient(connectionString);

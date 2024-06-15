@@ -17,7 +17,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork 
     {
         concurrentCommandCounter.Increment();
         var response = await next();
-        
+
         if (response is ResultBase { IsSuccess: true } || response.CommitChangesOnFailure)
         {
             concurrentCommandCounter.Decrement();
@@ -26,7 +26,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork 
                 await unitOfWork.CommitAsync(cancellationToken);
             }
         }
-        
+
         return response;
     }
 }

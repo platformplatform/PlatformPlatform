@@ -15,24 +15,24 @@ namespace PlatformPlatform.SharedKernel.DomainCore.Entities;
 public interface IAggregateRoot : IAuditableEntity
 {
     IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
-    
+
     IDomainEvent[] GetAndClearDomainEvents();
 }
 
 public abstract class AggregateRoot<T>(T id) : AudibleEntity<T>(id), IAggregateRoot where T : IComparable<T>
 {
     private readonly List<IDomainEvent> _domainEvents = [];
-    
+
     [NotMapped]
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
-    
+
     public IDomainEvent[] GetAndClearDomainEvents()
     {
         var domainEvents = _domainEvents.ToArray();
         _domainEvents.Clear();
         return domainEvents;
     }
-    
+
     protected void AddDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);

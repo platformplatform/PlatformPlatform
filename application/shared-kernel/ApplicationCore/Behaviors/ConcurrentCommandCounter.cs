@@ -11,17 +11,17 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 public sealed class ConcurrentCommandCounter
 {
     private int _concurrentCount;
-    
+
     public void Increment()
     {
         Interlocked.Increment(ref _concurrentCount);
     }
-    
+
     public void Decrement()
     {
         Interlocked.Decrement(ref _concurrentCount);
     }
-    
+
     public bool IsZero()
     {
         return _concurrentCount == 0;

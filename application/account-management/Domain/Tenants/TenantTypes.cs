@@ -9,7 +9,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
     {
         return Value;
     }
-    
+
     public static bool TryParse(string? value, out TenantId? result)
     {
         if (value is { Length: >= 3 and <= 30 } && value.All(c => char.IsLower(c) || char.IsDigit(c)))
@@ -17,7 +17,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
             result = new TenantId(value);
             return true;
         }
-        
+
         result = null;
         return false;
     }

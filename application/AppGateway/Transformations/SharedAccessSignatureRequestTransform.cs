@@ -9,10 +9,10 @@ public class SharedAccessSignatureRequestTransform([FromKeyedServices("avatars-s
     public override ValueTask ApplyAsync(RequestTransformContext context)
     {
         if (!context.Path.StartsWithSegments("/avatars")) return ValueTask.CompletedTask;
-        
+
         var sharedAccessSignature = blobStorage.GetSharedAccessSignature("avatars", TimeSpan.FromMinutes(10));
         context.HttpContext.Request.QueryString = new QueryString(sharedAccessSignature);
-        
+
         return ValueTask.CompletedTask;
     }
 }

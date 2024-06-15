@@ -7,7 +7,7 @@ public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator
 {
     // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
     public string Name { get; set; } = name;
-    
+
     public static TestAggregate Create(string name)
     {
         var testAggregate = new TestAggregate(name);

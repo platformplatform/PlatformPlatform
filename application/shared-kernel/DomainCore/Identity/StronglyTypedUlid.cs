@@ -11,13 +11,13 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
 {
     private static readonly string Prefix = typeof(T).GetCustomAttribute<IdPrefixAttribute>()?.Prefix
                                             ?? throw new InvalidOperationException("IdPrefixAttribute is required.");
-    
+
     public static T NewId()
     {
         var newValue = Ulid.NewUlid();
         return FormUlid(newValue);
     }
-    
+
     public static bool TryParse(string? value, out T? result)
     {
         if (value is null || !value.StartsWith($"{Prefix}_"))
@@ -25,17 +25,17 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
             result = null;
             return false;
         }
-        
+
         if (!Ulid.TryParse(value.Replace($"{Prefix}_", ""), out var parsedValue))
         {
             result = null;
             return false;
         }
-        
+
         result = FormUlid(parsedValue);
         return true;
     }
-    
+
     private static T FormUlid(Ulid newValue)
     {
         return (T)Activator.CreateInstance(

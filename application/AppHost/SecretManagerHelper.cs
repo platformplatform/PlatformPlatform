@@ -9,16 +9,16 @@ public static class SecretManagerHelper
 {
     private static string UserSecretsId =>
         Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
-    
+
     public static IResourceBuilder<ParameterResource> CreateStablePassword(
         this IDistributedApplicationBuilder builder,
         string secretName
     )
     {
         var config = new ConfigurationBuilder().AddUserSecrets(UserSecretsId).Build();
-        
+
         var password = config[secretName];
-        
+
         if (string.IsNullOrEmpty(password))
         {
             var passwordGenerator = new GenerateParameterDefault
@@ -28,10 +28,10 @@ public static class SecretManagerHelper
             password = passwordGenerator.GetDefaultValue();
             SavePasswordToUserSecrets(secretName, password);
         }
-        
+
         return builder.CreateResourceBuilder(new ParameterResource(secretName, _ => password, true));
     }
-    
+
     private static void SavePasswordToUserSecrets(string key, string value)
     {
         var args = $"user-secrets set {key} {value} --id {UserSecretsId}";
@@ -41,7 +41,7 @@ public static class SecretManagerHelper
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        
+
         using var process = Process.Start(startInfo)!;
         process.WaitForExit();
     }

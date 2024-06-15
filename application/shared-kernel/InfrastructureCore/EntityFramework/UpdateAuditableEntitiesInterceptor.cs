@@ -13,10 +13,10 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         UpdateEntities(eventData);
-        
+
         return base.SavingChanges(eventData, result);
     }
-    
+
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -24,16 +24,16 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
     )
     {
         UpdateEntities(eventData);
-        
+
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
-    
+
     private static void UpdateEntities(DbContextEventData eventData)
     {
         var dbContext = eventData.Context ?? throw new UnreachableException("The 'eventData.Context' property is unexpectedly null.");
-        
+
         var audibleEntities = dbContext.ChangeTracker.Entries<IAuditableEntity>();
-        
+
         foreach (var entityEntry in audibleEntities)
         {
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault

@@ -18,7 +18,7 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 public static class InfrastructureCoreConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
-    
+
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
@@ -28,13 +28,13 @@ public static class InfrastructureCoreConfiguration
         var connectionString = IsRunningInAzure
             ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
             : builder.Configuration.GetConnectionString(connectionName);
-        
+
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
-        
+
         return services;
     }
-    
+
     // Register the default storage account for IBlobStorage
     public static IServiceCollection AddDefaultBlobStorage(this IServiceCollection services, IHostApplicationBuilder builder)
     {
@@ -50,10 +50,10 @@ public static class InfrastructureCoreConfiguration
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
             services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
         }
-        
+
         return services;
     }
-    
+
     // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
     public static IServiceCollection AddNamedBlobStorages(
         this IServiceCollection services,
@@ -77,10 +77,10 @@ public static class InfrastructureCoreConfiguration
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
             services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
         }
-        
+
         return services;
     }
-    
+
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
         this IServiceCollection services,
         Assembly assembly
@@ -91,24 +91,24 @@ public static class InfrastructureCoreConfiguration
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
-        
+
         services.RegisterRepositories(assembly);
-        
+
         if (IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
             services.AddSingleton(_ => new SecretClient(keyVaultUri, GetDefaultAzureCredential()));
-            
+
             services.AddTransient<IEmailService, AzureEmailService>();
         }
         else
         {
             services.AddTransient<IEmailService, DevelopmentEmailService>();
         }
-        
+
         return services;
     }
-    
+
     public static DefaultAzureCredential GetDefaultAzureCredential()
     {
         // Hack. Remove trailing whitespace from the environment variable, Bicep of bug in Bicep
@@ -116,7 +116,7 @@ public static class InfrastructureCoreConfiguration
         var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
         return new DefaultAzureCredential(credentialOptions);
     }
-    
+
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
@@ -132,36 +132,36 @@ public static class InfrastructureCoreConfiguration
             .AsImplementedInterfaces()
             .WithScopedLifetime()
         );
-        
+
         return services;
     }
-    
+
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
     {
         using var scope = services.CreateScope();
-        
+
         var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger(nameof(InfrastructureCoreConfiguration));
-        
+
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
         logger.LogInformation("Applying database migrations. Version: {Version}.", version);
-        
+
         var retryCount = 1;
         while (retryCount <= 20)
         {
             try
             {
                 if (retryCount % 5 == 0) logger.LogInformation("Waiting for databases to be ready...");
-                
+
                 var dbContext = scope.ServiceProvider.GetService<T>() ??
                                 throw new UnreachableException("Missing DbContext.");
-                
+
                 var strategy = dbContext.Database.CreateExecutionStrategy();
-                
+
                 strategy.Execute(() => dbContext.Database.Migrate());
-                
+
                 logger.LogInformation("Finished migrating database.");
-                
+
                 break;
             }
             catch (SqlException ex) when (ex.Message.Contains("an error occurred during the pre-login handshake"))
@@ -179,10 +179,10 @@ public static class InfrastructureCoreConfiguration
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred while applying migrations.");
-                
+
                 // Wait for the logger to flush
                 Thread.Sleep(TimeSpan.FromSeconds(1));
-                
+
                 break;
             }
         }

@@ -22,7 +22,7 @@ public class TrackEndpoints : IEndpoints
     {
         routes.MapPost("/api/track", Track);
     }
-    
+
     [OpenApiIgnore]
     private static TrackResponseSuccessDto Track(
         HttpContext context,
@@ -46,11 +46,11 @@ public class TrackEndpoints : IEndpoints
                         Timestamp = trackRequestDto.Time,
                         Id = trackRequestDto.Data.BaseData.Id
                     };
-                    
+
                     CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
-                    
+
                     telemetryClient.TrackPageView(telemetry);
                     break;
                 }
@@ -69,11 +69,11 @@ public class TrackEndpoints : IEndpoints
                         ReceivedResponse = trackRequestDto.Data.BaseData.ReceivedResponse,
                         DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
                     };
-                    
+
                     CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
-                    
+
                     telemetryClient.Track(telemetry);
                     break;
                 }
@@ -88,11 +88,11 @@ public class TrackEndpoints : IEndpoints
                         SeverityLevel = trackRequestDto.Data.BaseData.SeverityLevel,
                         Timestamp = trackRequestDto.Time
                     };
-                    
+
                     CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                     CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
                     CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
-                    
+
                     telemetryClient.TrackException(telemetry);
                     break;
                 }
@@ -107,13 +107,13 @@ public class TrackEndpoints : IEndpoints
                             Count = metric.Count,
                             Timestamp = trackRequestDto.Time
                         };
-                        
+
                         CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
                         CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
-                        
+
                         telemetryClient.TrackMetric(telemetry);
                     }
-                    
+
                     break;
                 }
                 case "RemoteDependencyData":
@@ -128,10 +128,10 @@ public class TrackEndpoints : IEndpoints
                 }
             }
         }
-        
+
         return new TrackResponseSuccessDto(true, "Telemetry sent.");
     }
-    
+
     private static IEnumerable<ExceptionDetailsInfo> GetExceptionDetailsInfos(TrackRequestDto trackRequestDto)
     {
         var exceptionDetailsInfos = trackRequestDto.Data.BaseData.Exceptions
@@ -154,42 +154,42 @@ public class TrackEndpoints : IEndpoints
             );
         return exceptionDetailsInfos;
     }
-    
+
     private static void CopyContextTags(TelemetryContext context, Dictionary<string, string> tags, string? ip)
     {
         context.Cloud.RoleInstance = tags.GetValueOrDefault("ai.cloud.roleInstance");
         context.Cloud.RoleName = tags.GetValueOrDefault("ai.cloud.roleName");
-        
+
         context.Component.Version = tags.GetValueOrDefault("ai.application.ver");
-        
+
         context.Device.Id = tags.GetValueOrDefault("ai.device.id");
         context.Device.Type = tags.GetValueOrDefault("ai.device.type");
         context.Device.Model = tags.GetValueOrDefault("ai.device.model");
         context.Device.OemName = tags.GetValueOrDefault("ai.device.oemName");
         context.Device.OperatingSystem = tags.GetValueOrDefault("ai.device.osVersion");
-        
+
         context.Location.Ip = ip;
-        
+
         context.User.Id = tags.GetValueOrDefault("ai.user.id");
         context.User.AccountId = tags.GetValueOrDefault("ai.user.accountId");
-        
+
         context.Session.Id = tags.GetValueOrDefault("ai.session.id");
-        
+
         context.Operation.Id = tags.GetValueOrDefault("ai.operation.id");
         context.Operation.Name = tags.GetValueOrDefault("ai.operation.name");
         context.Operation.ParentId = tags.GetValueOrDefault("ai.operation.parentId");
         context.Operation.CorrelationVector = tags.GetValueOrDefault("ai.operation.correlationVector");
         context.Operation.SyntheticSource = tags.GetValueOrDefault("ai.operation.syntheticSource");
-        
+
         context.GetInternalContext().SdkVersion = tags.GetValueOrDefault("ai.internal.sdkVersion");
         context.GetInternalContext().AgentVersion = tags.GetValueOrDefault("ai.internal.agentVersion");
         context.GetInternalContext().NodeName = tags.GetValueOrDefault("ai.internal.nodeName");
     }
-    
+
     private static void CopyDictionary<TValue>(IDictionary<string, TValue>? source, IDictionary<string, TValue> target)
     {
         if (source == null) return;
-        
+
         foreach (var pair in source)
         {
             if (string.IsNullOrEmpty(pair.Key) || target.ContainsKey(pair.Key)) continue;

@@ -11,21 +11,21 @@ public static class Configuration
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    
+
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-    
+
     public static readonly string PublishFolder = IsWindows
         ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlatformPlatform")
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".PlatformPlatform");
-    
+
     public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
-    
+
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
-    
+
     public static bool VerboseLogging { get; set; }
-    
+
     public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
-    
+
     public static string GetSourceCodeFolder()
     {
         if (IsDebugMode)
@@ -33,29 +33,29 @@ public static class Configuration
             // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
             return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
         }
-        
+
         return GetConfigurationSetting().SourceCodeFolder!;
     }
-    
+
     public static ConfigurationSetting GetConfigurationSetting()
     {
         if (!File.Exists(ConfigFile) && IsDebugMode)
         {
             return new ConfigurationSetting();
         }
-        
+
         try
         {
             var readAllText = File.ReadAllText(ConfigFile);
             var configurationSetting = JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
-            
+
             if (configurationSetting.IsValid) return configurationSetting;
         }
         catch (Exception e)
         {
             AnsiConsole.MarkupLine($"[red]Error: {e.Message}[/]");
         }
-        
+
         if (IsDebugMode)
         {
             Directory.Delete(PublishFolder, true);
@@ -65,30 +65,30 @@ public static class Configuration
         {
             AnsiConsole.MarkupLine("[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]");
         }
-        
+
         Environment.Exit(1);
         return null;
     }
-    
+
     public static void SaveConfigurationSetting(ConfigurationSetting configurationSetting)
     {
         var jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
         var configuration = JsonSerializer.Serialize(configurationSetting, jsonSerializerOptions);
         File.WriteAllText(ConfigFile, configuration);
     }
-    
+
     public static class Windows
     {
         private const char PathDelimiter = ';';
         private const string PathName = "PATH";
         public static readonly string LocalhostPfxWindows = $"{UserFolder}/.aspnet/https/localhost.pfx";
-        
+
         internal static bool IsFolderInPath(string folder)
         {
             var paths = Environment.GetEnvironmentVariable(PathName)!.Split(PathDelimiter);
             return paths.Contains(folder);
         }
-        
+
         public static void AddFolderToPath(string folder)
         {
             if (IsFolderInPath(folder)) return;
@@ -96,28 +96,28 @@ public static class Configuration
             var newPath = existingPath.EndsWith(PathDelimiter)
                 ? $"{existingPath}{folder}{PathDelimiter}"
                 : $"{existingPath}{PathDelimiter}{folder}{PathDelimiter}";
-            
+
             Environment.SetEnvironmentVariable(PathName, newPath, EnvironmentVariableTarget.User);
         }
-        
+
         public static void RemoveFolderFromPath(string folder)
         {
             // Get existing PATH on Windows
             var existingPath = Environment.GetEnvironmentVariable(PathName);
-            
+
             // Remove the from the PATH environment variable and replace any double ;; left behind
             var newPath = existingPath!.Replace(folder, string.Empty).Replace(";;", ";");
-            
+
             Environment.SetEnvironmentVariable(PathName, newPath, EnvironmentVariableTarget.User);
         }
     }
-    
+
     public static class MacOs
     {
         private static string CliPath => Path.Combine(PublishFolder, new FileInfo(Environment.ProcessPath!).Name);
-        
+
         private static string AliasLineRepresentation => $"alias {AliasName}='{CliPath}'";
-        
+
         internal static bool IsAliasRegisteredMacOs()
         {
             if (!File.Exists(GetShellInfo().ProfilePath))
@@ -125,10 +125,10 @@ public static class Configuration
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return false;
             }
-            
+
             return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line => line == AliasLineRepresentation);
         }
-        
+
         internal static void RegisterAliasMacOs()
         {
             if (!File.Exists(GetShellInfo().ProfilePath))
@@ -136,10 +136,10 @@ public static class Configuration
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return;
             }
-            
+
             File.AppendAllLines(GetShellInfo().ProfilePath, new[] { AliasLineRepresentation });
         }
-        
+
         public static void DeleteAlias()
         {
             var lineRepresentation = AliasLineRepresentation;
@@ -149,12 +149,12 @@ public static class Configuration
             File.WriteAllLines(tempFilePath, linesToKeep);
             File.Replace(tempFilePath, profilePath, null);
         }
-        
+
         public static (string ShellName, string ProfileName, string ProfilePath) GetShellInfo()
         {
             var shellName = Environment.GetEnvironmentVariable("SHELL")!;
             var profileName = string.Empty;
-            
+
             if (shellName.Contains("zsh"))
             {
                 profileName = ".zshrc";
@@ -163,9 +163,9 @@ public static class Configuration
             {
                 profileName = ".bashrc";
             }
-            
+
             var profilePath = profileName == string.Empty ? string.Empty : Path.Combine(UserFolder, profileName);
-            
+
             return (shellName, profileName, profilePath);
         }
     }
@@ -174,16 +174,16 @@ public static class Configuration
 public class ConfigurationSetting
 {
     public string? SourceCodeFolder { get; set; }
-    
+
     public string? Hash { get; set; }
-    
+
     [JsonIgnore]
     public bool IsValid
     {
         get
         {
             if (string.IsNullOrEmpty(SourceCodeFolder)) return false;
-            
+
             return !string.IsNullOrEmpty(Hash);
         }
     }

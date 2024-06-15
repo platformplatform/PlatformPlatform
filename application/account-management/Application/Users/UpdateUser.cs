@@ -8,9 +8,9 @@ public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Res
 {
     [JsonIgnore] // Removes the Id from the API contract
     public UserId Id { get; init; } = null!;
-    
+
     public required UserRole UserRole { get; init; }
-    
+
     public required string Email { get; init; }
 }
 
@@ -23,13 +23,13 @@ public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetry
     {
         var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
-        
+
         user.UpdateEmail(command.Email);
         user.ChangeUserRole(command.UserRole);
         userRepository.Update(user);
-        
+
         events.CollectEvent(new UserUpdated());
-        
+
         return Result.Success();
     }
 }

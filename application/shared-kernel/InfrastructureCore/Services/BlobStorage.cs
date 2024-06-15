@@ -14,12 +14,12 @@ public class BlobStorage(BlobServiceClient blobServiceClient) : IBlobStorage
         var blobHttpHeaders = new BlobHttpHeaders { ContentType = contentType };
         await blobClient.UploadAsync(stream, blobHttpHeaders, cancellationToken: cancellationToken);
     }
-    
+
     public string GetBlobUrl(string container, string blobName)
     {
         return $"{blobServiceClient.Uri}/{container}/{blobName}";
     }
-    
+
     public string GetSharedAccessSignature(string container, TimeSpan expiresIn)
     {
         var blobContainerClient = blobServiceClient.GetBlobContainerClient(container);

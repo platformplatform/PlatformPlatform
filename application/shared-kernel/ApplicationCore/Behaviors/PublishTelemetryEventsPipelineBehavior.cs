@@ -13,7 +13,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var response = await next();
-        
+
         if (concurrentCommandCounter.IsZero())
         {
             while (telemetryEventsCollector.HasEvents)
@@ -22,7 +22,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
                 telemetryClient.TrackEvent(telemetryEvent.Name, telemetryEvent.Properties);
             }
         }
-        
+
         return response;
     }
 }

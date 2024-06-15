@@ -12,25 +12,25 @@ public class StronglyTypedUlidTests
         // Arrange
         // Act
         var id = IdWithPrefix.NewId();
-        
+
         // Assert
         id.Value.Should().StartWith("prefix_");
     }
-    
+
     [Fact]
     public void TryParse_WhenValidId_ShouldSucceed()
     {
         // Arrange
         var id = IdWithPrefix.NewId();
-        
+
         // Act
         var isParsedSuccessfully = IdWithPrefix.TryParse(id, out var result);
-        
+
         // Assert
         isParsedSuccessfully.Should().BeTrue();
         result.Should().NotBeNull();
     }
-    
+
     [IdPrefix("prefix")]
     public record IdWithPrefix(string Value) : StronglyTypedUlid<IdWithPrefix>(Value);
 }
