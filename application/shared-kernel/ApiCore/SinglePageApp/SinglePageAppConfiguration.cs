@@ -5,20 +5,20 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
+namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 
-public class WebAppMiddlewareConfiguration
+public class SinglePageAppConfiguration
 {
     public const string PublicUrlKey = "PUBLIC_URL";
     public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
     private const string ApplicationVersionKey = "APPLICATION_VERSION";
     
-    public static readonly string HtmlTemplatePath = Path.Combine(GetWebAppDistRoot("WebApp", "dist"), "index.html");
+    private readonly string _htmlTemplatePath;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
     private string? _htmlTemplate;
     
-    public WebAppMiddlewareConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
+    public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;
@@ -38,6 +38,7 @@ public class WebAppMiddlewareConfiguration
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
         
         BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
+        _htmlTemplatePath = Path.Combine(GetWebAppDistRoot("WebApp", "dist"), "index.html");
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies(isDevelopment);
     }
@@ -63,20 +64,33 @@ public class WebAppMiddlewareConfiguration
             return _htmlTemplate;
         }
         
-        var retryCount = 0;
-        while (!File.Exists(HtmlTemplatePath) && retryCount++ < 10)
+        AwaitSinglePageAppGeneration();
+        
+        if (!File.Exists(_htmlTemplatePath))
         {
-            // When running locally, this code might be called while index.html is recreated, give it a few seconds to finish.
+            throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
+        }
+        
+        _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+        return _htmlTemplate;
+    }
+    
+    [Conditional("DEBUG")]
+    private void AwaitSinglePageAppGeneration()
+    {
+        var startNew = Stopwatch.StartNew();
+        while (startNew.Elapsed < TimeSpan.FromSeconds(10))
+        {
+            var fileInfo = new FileInfo(_htmlTemplatePath);
+            if (fileInfo.Exists && fileInfo.CreationTimeUtc > DateTime.UtcNow.AddSeconds(-2))
+            {
+                // We check for the HTML file to be created and then wait an additional 2 seconds to allow for the JavaScript and CSS files to be created
+                break;
+            }
+            
+            Console.WriteLine($"{DateTime.Now.ToLocalTime()} !!!!Waiting for the SPA to be generated...");
             Thread.Sleep(TimeSpan.FromSeconds(1));
         }
-        
-        if (!File.Exists(HtmlTemplatePath))
-        {
-            throw new FileNotFoundException("index.html does not exist.", HtmlTemplatePath);
-        }
-        
-        _htmlTemplate = File.ReadAllText(HtmlTemplatePath, new UTF8Encoding());
-        return _htmlTemplate;
     }
     
     private static string GetWebAppDistRoot(string webAppProjectName, string webAppDistRootName)
@@ -84,15 +98,14 @@ public class WebAppMiddlewareConfiguration
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
         
         var directoryInfo = new DirectoryInfo(assemblyPath);
-        while (directoryInfo is not null &&
-               directoryInfo.GetDirectories(webAppProjectName).Length == 0 &&
+        while (directoryInfo!.GetDirectories(webAppProjectName).Length == 0 &&
                !Path.Exists(Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName))
               )
         {
             directoryInfo = directoryInfo.Parent;
         }
         
-        return Path.Join(directoryInfo!.FullName, webAppProjectName, webAppDistRootName);
+        return Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName);
     }
     
     private StringValues GetPermissionsPolicies()

@@ -13,6 +13,7 @@ using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
+using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -22,7 +23,7 @@ public static class ApiCoreConfiguration
     private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
     
     private static readonly string LocalhostUrl =
-        Environment.GetEnvironmentVariable(WebAppMiddlewareConfiguration.PublicUrlKey)!;
+        Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
     
     public static IServiceCollection AddApiCoreServices(
         this IServiceCollection services,
