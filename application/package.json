@@ -5,7 +5,6 @@
   "private": true,
   "workspaces": [
     "account-management/WebApp",
-    "back-office/WebApp",
-    "client-foundation/*"
+    "back-office/WebApp"
   ]
 }
