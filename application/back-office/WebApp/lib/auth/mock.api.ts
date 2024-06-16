@@ -36,6 +36,7 @@ export const backOfficeApi = {
           response: {
             ok: true
           }
+          // biome-ignore lint/suspicious/noExplicitAny: This is a mock API
         } as FetchResponse<UserInfo, any, any>;
       case "/api/auth/logout":
         return {
@@ -45,6 +46,7 @@ export const backOfficeApi = {
           response: {
             ok: true
           }
+          // biome-ignore lint/suspicious/noExplicitAny: This is a mock API
         } as FetchResponse<UserInfo, any, any>;
     }
   }

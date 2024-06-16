@@ -1,7 +1,7 @@
-import { z } from "zod";
 import { i18n } from "@lingui/core";
-import { backOfficeApi } from "./mock.api";
 import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
+import { z } from "zod";
+import { backOfficeApi } from "./mock.api";
 
 export const tenantInfoScheme = z.object({
   value: z.string()

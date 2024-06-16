@@ -49,6 +49,7 @@ export function Digit({
       }}
       autoComplete={autoComplete}
       className="h-14 w-10 rounded border border-gray-400 bg-transparent text-center text-black dark:text-white"
+      // biome-ignore lint/a11y/noAutofocus: The autofocus attribute is used to focus the first digit input
       autoFocus={autoFocus}
       disabled={disabled}
     />

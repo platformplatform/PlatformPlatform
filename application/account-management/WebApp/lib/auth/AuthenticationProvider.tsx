@@ -1,5 +1,5 @@
-import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import type { NavigateOptions } from "@tanstack/react-router";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 import type { State, UserInfo } from "./actions";
 
@@ -46,7 +46,7 @@ export function AuthenticationProvider({
       setUserInfo(null);
     }
     fetching.current = false;
-  }, [setUserInfo]);
+  }, []);
 
   const signOutAction = useCallback(async () => {
     const result = await logout();
@@ -54,7 +54,7 @@ export function AuthenticationProvider({
     if (navigate && afterSignOut) navigate({ to: afterSignOut });
 
     return result;
-  }, [setUserInfo, navigate, afterSignOut]);
+  }, [navigate, afterSignOut]);
 
   const signInAction = useCallback(
     async (state: State, formData: FormData) => {

@@ -1,7 +1,7 @@
-import path from "path";
-import { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import path from "node:path";
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
-export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): RsbuildPlugin {
+export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(buildEnv: E): RsbuildPlugin {
   return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {

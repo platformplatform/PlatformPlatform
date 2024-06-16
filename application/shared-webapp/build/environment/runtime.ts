@@ -30,14 +30,12 @@ try {
 
   // eslint-disable-next-line ts/ban-ts-comment
   // @ts-expect-error
-  window.getApplicationEnvironment = function () {
-    return {
-      buildEnv: import.meta.build_env,
-      runtimeEnv,
-      userInfoEnv,
-      env: environment
-    };
-  };
+  window.getApplicationEnvironment = () => ({
+    buildEnv: import.meta.build_env,
+    runtimeEnv,
+    userInfoEnv,
+    env: environment
+  });
 } catch (e) {
   throw new Error("Could not read runtime environment.");
 }

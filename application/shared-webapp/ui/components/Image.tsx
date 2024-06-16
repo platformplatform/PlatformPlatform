@@ -43,6 +43,7 @@ export function Image(props: Readonly<ImageProps>) {
   }, [handleLoad, isLoaded]);
 
   const image = (
+    // biome-ignore lint/a11y/useAltText: The alt text is provided by the user
     <img
       ref={imageRef}
       src={imageUrl}

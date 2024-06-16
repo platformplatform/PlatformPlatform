@@ -1,7 +1,7 @@
-import os from "os";
-import fs from "fs";
-import path from "path";
-import { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
 export type DevelopmentServerPluginOptions = {
   /**

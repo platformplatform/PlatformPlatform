@@ -52,7 +52,7 @@ export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "c
     <div className="flex flex-row gap-4">
       {digits.map((digit, i) => (
         <Digit
-          // eslint-disable-next-line react/no-array-index-key
+          // biome-ignore lint/suspicious/noArrayIndexKey: The index is used as a unique key for the digit
           key={i}
           id={digitRefs[i]}
           tabIndex={i + 1}

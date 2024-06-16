@@ -1,5 +1,5 @@
-import React from "react";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import type React from "react";
 import { Button } from "./Button";
 
 interface PaginationProps {

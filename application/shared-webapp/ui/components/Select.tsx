@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import React from "react";
+import type React from "react";
 import type { SelectProps as AriaSelectProps, ListBoxItemProps, ValidationResult } from "react-aria-components";
 import { Select as AriaSelect, Button, ListBox, SelectValue } from "react-aria-components";
 import { tv } from "tailwind-variants";

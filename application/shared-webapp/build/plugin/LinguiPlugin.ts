@@ -1,4 +1,4 @@
-import { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
 /**
  * For now there's not a lingui plugin for rsbuild, so we need to configure the
