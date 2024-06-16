@@ -1,0 +1,23 @@
+{
+  "name": "@repo/ui",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js",
+    "./components/*": "./dist/components/*.js",
+    "./tailwind.css": "./tailwind.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "dev": "tsc -p . -w",
+    "build": "rm -rf ./dist && tsc -p .",
+    "check": "biome check",
+    "format": "biome format"
+  },
+  "devDependencies": {
+    "@repo/config": "*",
+    "@repo/build": "*"
+  }
+}

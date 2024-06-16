@@ -1,6 +1,13 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./**/*.{ts,tsx}", "./public/index.html"],
+import path from 'path';
+import type { Config } from 'tailwindcss';
+
+export default {
+  content: [
+    "./**/*.{ts,tsx}",
+    "./public/index.html",
+    path.join(path.dirname(require.resolve('@repo/ui')), "components", '*.js'),
+    path.join(path.dirname(require.resolve('@repo/ui')), "components", '**/*.js'),
+  ],
   darkMode: ["class"],
   theme: {
     container: {
@@ -53,12 +60,12 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" },
         },
       },
       animation: {
@@ -68,4 +75,5 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-react-aria-components"), require("tailwindcss-animate")],
-};
+} satisfies Config
+

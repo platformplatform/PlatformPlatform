@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "@repo/build": "*",
-    "@repo/config": "*"
+    "@repo/config": "*",
+    "@repo/ui": "*"
   },
   "postcss": {
     "plugins": {
