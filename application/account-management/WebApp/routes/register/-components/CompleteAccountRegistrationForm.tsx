@@ -1,6 +1,7 @@
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { Navigate } from "@tanstack/react-router";
+import { useActionState } from "react";
 import type { State } from "./actions.ts";
 import { completeAccountRegistration, registration } from "./actions.ts";
 import { Button } from "@/ui/components/Button";
@@ -22,7 +23,7 @@ export function CompleteAccountRegistrationForm() {
 
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const [state, action] = useFormState(completeAccountRegistration, initialState);
+  const [state, action] = useActionState(completeAccountRegistration, initialState);
 
   if (isExpired)
     return <Navigate to="/register/expired" />;

@@ -1,9 +1,10 @@
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
 import { Navigate } from "@tanstack/react-router";
+import { useActionState } from "react";
 import type { State } from "./actions.ts";
 import { startAccountRegistration } from "./actions.ts";
 import { Button } from "@/ui/components/Button";
@@ -19,7 +20,7 @@ export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
-  const [state, action] = useFormState(startAccountRegistration, initialState);
+  const [state, action] = useActionState(startAccountRegistration, initialState);
 
   if (state.success) {
     return (

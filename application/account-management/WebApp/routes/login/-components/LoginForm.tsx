@@ -1,7 +1,8 @@
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
 import { TextField } from "react-aria-components";
+import { useActionState } from "react";
 import { Button } from "@/ui/components/Button";
 import { Form } from "@/ui/components/Form";
 import { Link } from "@/ui/components/Link";
@@ -16,7 +17,7 @@ export default function LoginForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
-  const [state, action] = useFormState(signInAction, initialState);
+  const [state, action] = useActionState(signInAction, initialState);
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
