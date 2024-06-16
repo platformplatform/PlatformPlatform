@@ -28,7 +28,6 @@ try {
     ...runtimeEnv
   };
 
-  // eslint-disable-next-line ts/ban-ts-comment
   // @ts-expect-error
   window.getApplicationEnvironment = () => ({
     buildEnv: import.meta.build_env,

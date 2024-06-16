@@ -10,7 +10,6 @@ export type Language = (typeof i18nConfig.languages)["en-US"];
 export type Locale = keyof typeof i18nConfig.languages | typeof pseudoLocale;
 export const locales = [...Object.keys(i18nConfig.languages)] as Array<Locale>;
 
-// eslint-disable-next-line node/prefer-global/process
 if (process.env.NODE_ENV !== "production") locales.push(pseudoLocale);
 
 export function getLanguage(locale: Locale): Language {

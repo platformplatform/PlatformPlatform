@@ -69,7 +69,6 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
   });
 
   if (!validatedFields.success) {
-    // eslint-disable-next-line no-console
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,

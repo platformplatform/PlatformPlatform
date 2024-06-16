@@ -16,7 +16,6 @@ export function UserTable() {
   const itemsPerPage = 10;
 
   const sortedRows = useMemo(() => {
-    // eslint-disable-next-line ts/ban-ts-comment
     // @ts-expect-error
     const items = rows.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
     if (sortDescriptor.direction === "descending") items.reverse();

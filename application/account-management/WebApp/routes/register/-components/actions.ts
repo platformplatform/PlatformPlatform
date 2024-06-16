@@ -42,7 +42,6 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
   });
 
   if (!validatedFields.success) {
-    // eslint-disable-next-line no-console
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -116,7 +115,6 @@ export async function completeAccountRegistration(_: State, formData: FormData):
   }
 
   if (!validatedFields.success) {
-    // eslint-disable-next-line no-console
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
