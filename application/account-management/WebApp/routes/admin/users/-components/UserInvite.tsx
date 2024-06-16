@@ -1,5 +1,5 @@
 import { PlusIcon } from "lucide-react";
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 export function UserInvite() {
   return (

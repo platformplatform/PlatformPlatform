@@ -1,4 +1,4 @@
-import { Link } from "@/ui/components/Link";
+import { Link } from "@repo/ui/components/Link";
 
 export function NotFound() {
   return (

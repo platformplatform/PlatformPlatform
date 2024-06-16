@@ -1,4 +1,4 @@
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 // CtaSection: A functional component that displays a call to action
 export function CtaSection() {

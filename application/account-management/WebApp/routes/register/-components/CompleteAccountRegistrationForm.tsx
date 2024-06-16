@@ -4,12 +4,12 @@ import { Navigate } from "@tanstack/react-router";
 import { useActionState } from "react";
 import type { State } from "./actions";
 import { completeAccountRegistration, registration } from "./actions";
-import { Button } from "@/ui/components/Button";
-import { Form } from "@/ui/components/Form";
+import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
 import { useExpirationTimeout } from "@/ui/oneTimePassword/useExpiration";
 import { OneTimeCodeInput } from "@/ui/oneTimePassword/OneTimeCodeInput";
 import { DigitPattern } from "@/ui/oneTimePassword/DigitPattern";
-import { Link } from "@/ui/components/Link";
+import { Link } from "@repo/ui/components/Link";
 import poweredByUrl from "@/ui/images/powered-by.png";
 import logoMarkUrl from "@/ui/images/logo-mark.png";
 

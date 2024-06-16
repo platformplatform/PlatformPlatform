@@ -1,5 +1,5 @@
-import Badge from "@/ui/components/Badge";
-import { Tab, TabList, Tabs } from "@/ui/components/Tabs";
+import Badge from "@repo/ui/components/Badge";
+import { Tab, TabList, Tabs } from "@repo/ui/components/Tabs";
 
 export function UserTabs() {
   return (

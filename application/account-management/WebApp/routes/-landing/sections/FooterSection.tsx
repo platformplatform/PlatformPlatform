@@ -1,4 +1,4 @@
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 const twitterLogo = "https://platformplatformgithub.blob.core.windows.net/twitter-x.svg?url";

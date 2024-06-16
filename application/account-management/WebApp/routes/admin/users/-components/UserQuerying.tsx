@@ -1,6 +1,6 @@
 import { ListFilterIcon, Search } from "lucide-react";
 import React from "react";
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 export function UserQuerying() {
   const [searchTerm, setSearchTerm] = React.useState<string>("");

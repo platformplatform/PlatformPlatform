@@ -1,5 +1,5 @@
 import { useLingui } from "@lingui/react";
-import { Image } from "@/ui/components/Image";
+import { Image } from "@repo/ui/components/Image";
 import heroMobileBlurImage from "@/public/images/hero-mobile-blur.webp";
 import heroDesktopBlurImage from "@/public/images/hero-desktop-blur.webp";
 

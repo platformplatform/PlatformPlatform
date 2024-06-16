@@ -1,4 +1,4 @@
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 const calenderMockupUrl = "https://platformplatformgithub.blob.core.windows.net/mockup-calender.png";
 

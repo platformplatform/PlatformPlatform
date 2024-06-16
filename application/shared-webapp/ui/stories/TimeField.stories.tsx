@@ -1,0 +1,32 @@
+import { Form } from "react-aria-components";
+import type { Meta } from "./Meta";
+import { Button } from "../components/Button";
+import { TimeField } from "../components/TimeField";
+
+const meta: Meta<typeof TimeField> = {
+  component: TimeField,
+  parameters: {
+    layout: "centered",
+  },
+  tags: ["autodocs"],
+  args: {
+    label: "Event time",
+  },
+};
+
+export default meta;
+
+export const Example = (args: any) => <TimeField {...args} />;
+
+export function Validation(args: any) {
+  return (
+    <Form className="flex flex-col gap-2 items-start">
+      <TimeField {...args} />
+      <Button type="submit" variant="secondary">Submit</Button>
+    </Form>
+  );
+}
+
+Validation.args = {
+  isRequired: true,
+};

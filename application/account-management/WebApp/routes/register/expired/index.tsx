@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { registration } from "../-components/actions";
-import { Link } from "@/ui/components/Link";
+import { Link } from "@repo/ui/components/Link";
 
 export const Route = createFileRoute("/register/expired/")({
   component: VerificationExpired,

@@ -1,4 +1,4 @@
-import { Button } from "@/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 
 const createAccountUrl = "https://platformplatformgithub.blob.core.windows.net/create-account-s3.png";
 const darkmodeUrl = "https://platformplatformgithub.blob.core.windows.net/darkmode-button.svg?url";

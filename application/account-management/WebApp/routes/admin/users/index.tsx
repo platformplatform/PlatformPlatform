@@ -4,7 +4,7 @@ import { UserTabs } from "./-components/UserTabs";
 import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
 import { UserInvite } from "./-components/UserInvite";
-import { SideMenu } from "@/ui/components/SideMenu";
+import { SideMenu } from "@repo/ui/components/SideMenu";
 
 export const Route = createFileRoute("/admin/users/")({
   component: UsersPage,

@@ -7,14 +7,14 @@ import { Navigate } from "@tanstack/react-router";
 import { useActionState } from "react";
 import type { State } from "./actions";
 import { startAccountRegistration } from "./actions";
-import { Button } from "@/ui/components/Button";
-import { Form } from "@/ui//components/Form";
-import { Link } from "@/ui/components/Link";
-import { FieldError, Input, Label } from "@/ui/components/Field";
+import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
+import { Link } from "@repo/ui/components/Link";
+import { FieldError, Input, Label } from "@repo/ui/components/Field";
 import poweredByUrl from "@/ui/images/powered-by.png";
 import logoMarkUrl from "@/ui/images/logo-mark.png";
 import { DomainInput } from "@/ui/DomainInput";
-import { Select, SelectItem } from "@/ui/components/Select";
+import { Select, SelectItem } from "@repo/ui/components/Select";
 
 export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();

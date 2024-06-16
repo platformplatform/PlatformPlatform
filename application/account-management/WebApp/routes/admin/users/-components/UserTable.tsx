@@ -3,9 +3,9 @@ import type { SortDescriptor } from "react-aria-components";
 import { TableBody } from "react-aria-components";
 import { useMemo, useState } from "react";
 import { rows } from "./data";
-import { Cell, Column, Row, Table, TableHeader } from "@/ui/components/Table";
-import Badge from "@/ui/components/Badge";
-import Pagination from "@/ui/components/Pagination";
+import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import Badge from "@repo/ui/components/Badge";
+import Pagination from "@repo/ui/components/Pagination";
 
 export function UserTable() {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({

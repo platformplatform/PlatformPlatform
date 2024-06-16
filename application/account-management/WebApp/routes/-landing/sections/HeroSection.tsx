@@ -1,10 +1,10 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { Button } from "@/ui/components/Button";
-import { Popover } from "@/ui/components/Popover";
-import { Dialog } from "@/ui/components/Dialog";
-import { Link } from "@/ui/components/Link";
+import { Button } from "@repo/ui/components/Button";
+import { Popover } from "@repo/ui/components/Popover";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { Link } from "@repo/ui/components/Link";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
