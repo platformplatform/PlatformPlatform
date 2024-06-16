@@ -12,7 +12,9 @@
   },
   "scripts": {
     "dev": "tsc -p . -w",
-    "build": "rm -rf ./dist && tsc -p ."
+    "build": "rm -rf ./dist && tsc -p .",
+    "check": "biome check",
+    "format": "biome format"
   },
   "devDependencies": {
     "@repo/config": "*"
