@@ -16,6 +16,7 @@ public class SinglePageAppConfiguration
 
     private readonly string _htmlTemplatePath;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
+    private readonly DateTime _startUpTime = DateTime.UtcNow;
     private string? _htmlTemplate;
 
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
@@ -75,21 +76,21 @@ public class SinglePageAppConfiguration
         return _htmlTemplate;
     }
 
+    /// <summary>
+    ///     When debugging locally, the SPA and API are built in parallel, so we give the SPA 10 seconds to be ready.
+    ///     It takes a few seconds from when the index.html is written to disk, until the JS and CSS are ready.
+    /// </summary>
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
         var startNew = Stopwatch.StartNew();
         while (startNew.Elapsed < TimeSpan.FromSeconds(10))
         {
-            var fileInfo = new FileInfo(_htmlTemplatePath);
-            if (fileInfo.Exists && fileInfo.CreationTimeUtc > DateTime.UtcNow.AddSeconds(-2))
+            var spaCreationTimeUtc = new FileInfo(_htmlTemplatePath).CreationTimeUtc;
+            if (spaCreationTimeUtc > _startUpTime.AddSeconds(-10) && spaCreationTimeUtc < DateTime.UtcNow.AddSeconds(-2))
             {
-                // We check for the HTML file to be created and then wait an additional 2 seconds to allow for the JavaScript and CSS files to be created
                 break;
             }
-
-            Console.WriteLine($"{DateTime.Now.ToLocalTime()} !!!!Waiting for the SPA to be generated...");
-            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
     }
 
