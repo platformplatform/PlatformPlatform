@@ -3,66 +3,27 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "yarn run update-translations && yarn run swagger && concurrently 'yarn:watch:*'",
-    "watch:rspack": "rspack serve",
+    "dev": "npm run update-translations && npm run swagger && concurrently 'npm:watch:*'",
+    "watch:rsbuild": "rsbuild dev",
     "watch:tsr": "tsr watch",
-    "build": "yarn run update-translations && yarn run swagger && tsr generate && rspack build && yarn run typechecking",
-    "update-translations": "yarn run lingui extract && yarn run lingui compile --typescript",
-    "lint": "eslint .",
-    "typechecking": "tsc --noEmit",
-    "swagger": "npx openapi-typescript lib/api/BackOffice.Api.json -o lib/api/api.generated.d.ts && npx prettier lib/api/api.generated.d.ts --write",
-    "publish": "yarn run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"
+    "build": "npm run update-translations && npm run swagger && tsr generate && rsbuild build",
+    "update-translations": "lingui extract && lingui compile --typescript",
+    "check": "biome check",
+    "format": "biome format",
+    "swagger": "openapi-typescript lib/api/BackOffice.Api.json -o lib/api/api.generated.d.ts && biome format --write lib/api/api.generated.d.ts",
+    "publish": "npm run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"
   },
   "dependencies": {
-    "@lingui/core": "^4.11.1",
-    "@lingui/macro": "^4.11.1",
-    "@lingui/react": "^4.11.1",
-    "@microsoft/applicationinsights-react-js": "^17.1.2",
-    "@microsoft/applicationinsights-web": "^3.2.0",
-    "@tanstack/react-router": "^1.36.3",
-    "lucide-react": "^0.376.0",
-    "openapi-fetch": "^0.9.5",
-    "react": "19.0.0-rc-fb9a90fa48-20240614",
     "react-aria-components": "^1.2.1",
-    "react-dom": "19.0.0-rc-fb9a90fa48-20240614",
-    "react-dom-confetti": "^0.2.0",
-    "tailwind-merge": "^2.3.0",
-    "tailwind-variants": "^0.2.1",
-    "zod": "^3.23.8"
+    "react-dom-confetti": "^0.2.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.18.0",
-    "@eslint-react/eslint-plugin": "^1.5.11",
-    "@lingui/cli": "^4.11.1",
-    "@lingui/format-po": "^4.11.1",
-    "@lingui/swc-plugin": "^4.0.8",
-    "@rspack/cli": "^0.6.3",
-    "@rsbuild/core": "^0.7.7",
-    "@svgr/webpack": "^8.1.0",
-    "@swc/core": "^1.4.17",
-    "@tanstack/router-cli": "^1.37.0",
-    "@tanstack/router-devtools": "^1.36.3",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "18.3.0",
-    "autoprefixer": "^10.4.19",
-    "concurrently": "^8.2.2",
-    "eslint": "^9.2.0",
-    "eslint-plugin-format": "^0.1.1",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "openapi-typescript": "^6.7.6",
-    "postcss": "^8.4.38",
-    "postcss-loader": "^8.1.1",
-    "swc-loader": "0.2.6",
-    "tailwindcss": "^3.4.4",
-    "tailwindcss-animate": "^1.0.7",
-    "tailwindcss-react-aria-components": "^1.1.3",
-    "tslib": "2.6.2",
-    "typescript": "^5.4.5"
+    "@repo/build": "*",
+    "@repo/config": "*"
   },
-  "overrides": {
-    "react": "$react",
-    "react-dom": "$react-dom"
-  }
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "not dead"
+  ]
 }

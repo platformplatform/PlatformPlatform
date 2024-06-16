@@ -50,7 +50,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
@@ -93,7 +93,7 @@ jobs:
       - name: Publish frontend artifacts
         if:   github.ref == 'refs/heads/main'
         working-directory: application/back-office/WebApp
-        run: yarn run publish
+        run: npm run publish
 
       - name: Publish API build
         if:   github.ref == 'refs/heads/main'
@@ -137,7 +137,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
@@ -182,16 +182,16 @@ jobs:
           }
 
       - name: Build frontend artifacts
-        working-directory: application/back-office/WebApp
-        run: yarn run build
+        working-directory: application
+        run: npm run build
 
       - name: Run ESLint
         working-directory: application/back-office/WebApp
-        run: yarn run lint
+        run: npm run lint
 
       - name: Run Type Checking
         working-directory: application/back-office/WebApp
-        run: yarn run typechecking
+        run: npm run typechecking
   
   api-deploy:
     name: Deploy API

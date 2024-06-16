@@ -2,9 +2,10 @@
 
     <PropertyGroup>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
-        <BuildCommand>yarn install --frozen-lockfile --ignore-engines</BuildCommand>
+        <ShouldRunBuildScript>false</ShouldRunBuildScript>
         <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
         <DefaultItemExcludes>$(DefaultItemExcludes);dist\**;*.config.*;*.d.ts</DefaultItemExcludes>
+        <NpmInstallCheck>$(MSBuildProjectDirectory)\..\..\package-lock.json</NpmInstallCheck>
     </PropertyGroup>
 
 </Project>

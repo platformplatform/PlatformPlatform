@@ -50,7 +50,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
@@ -101,7 +101,7 @@ jobs:
 
       - name: Install Node modules
         working-directory: application
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
