@@ -12,8 +12,7 @@ export interface SignedInProps {
  */
 export function SignedIn({ children, requiredRoles }: SignedInProps) {
   const userInfo = useUserInfo();
-  if (userInfo == null)
-    return null;
+  if (userInfo == null) return null;
   if (requiredRoles != null && (userInfo.userRole == null || requiredRoles.includes(userInfo.userRole) === false))
     return null;
   return children;

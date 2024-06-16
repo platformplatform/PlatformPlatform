@@ -3,9 +3,7 @@ export function FeatureSection2() {
   return (
     <div className="flex flex-col md:flex-row gap-8 bg-white py-24 px-8 md:px-32">
       <div className="flex flex-col md:w-1/3 grow gap-4 text-gray-900 text-4xl font-semibold text-start pr-8">
-        <h1 className="text-amber-600 text-base font-semibold text-start">
-          FEATURES
-        </h1>
+        <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
         All the features you need to build anything you want
       </div>
       <div className="flex md:flex-row flex-col gap-16 w-2/3">
@@ -40,18 +38,17 @@ export function FeatureSection2() {
   );
 }
 
-interface FeatureBlockProps { title: string, content: string, }
+interface FeatureBlockProps {
+  title: string;
+  content: string;
+}
 
 // FeatureBlock: Displays a single feature
 function FeatureBlock({ title, content }: FeatureBlockProps) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
-      <div className="text-gray-900 text-xl font-semibold text-start">
-        {title}
-      </div>
-      <div className="text-slate-600 text-base font-normal text-start">
-        {content}
-      </div>
+      <div className="text-gray-900 text-xl font-semibold text-start">{title}</div>
+      <div className="text-slate-600 text-base font-normal text-start">{content}</div>
     </div>
   );
 }

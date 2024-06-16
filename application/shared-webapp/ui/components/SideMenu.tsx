@@ -16,9 +16,7 @@ export function SideMenu() {
         <HomeIcon />
         Home
       </div>
-      <div className="text-gray-400 text-xs font-semibold pt-4 uppercase">
-        Organisation
-      </div>
+      <div className="text-gray-400 text-xs font-semibold pt-4 uppercase">Organisation</div>
       <div className="flex text-gray-600 text-base font-normal gap-4">
         <CircleUserIcon />
         Account

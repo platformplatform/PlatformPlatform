@@ -12,19 +12,27 @@ export interface OneTimeCodeInputProps {
 export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "code" }: OneTimeCodeInputProps) {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const id = useId();
-  const digitRefs = useMemo(() => Array(length).fill(id).map((id, i) => `${id}_${i}`), [id, length]);
+  const digitRefs = useMemo(
+    () =>
+      Array(length)
+        .fill(id)
+        .map((id, i) => `${id}_${i}`),
+    [id, length]
+  );
   const inputValue = digits.join("");
 
-  const setFocus = useCallback((i: number) => {
-    if (i >= digitRefs.length) {
-      const el = document.querySelectorAll("button[type=submit]")[0] as HTMLInputElement | null;
-      el?.focus();
-    }
-    else {
-      const el = document.getElementById(digitRefs[i]) as HTMLInputElement | null;
-      el?.focus();
-    }
-  }, [digitRefs]);
+  const setFocus = useCallback(
+    (i: number) => {
+      if (i >= digitRefs.length) {
+        const el = document.querySelectorAll("button[type=submit]")[0] as HTMLInputElement | null;
+        el?.focus();
+      } else {
+        const el = document.getElementById(digitRefs[i]) as HTMLInputElement | null;
+        el?.focus();
+      }
+    },
+    [digitRefs]
+  );
 
   const onChangeHandler = (value: string, i: number): void => {
     if (value.length > 1) {
@@ -37,9 +45,7 @@ export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "c
     const newDigits = [...digits];
     newDigits[i] = value;
     setDigits(newDigits);
-    const nextFocusIndex = value.length > 0
-      ? Math.min(digits.length, i + 1)
-      : Math.max(0, i - 1);
+    const nextFocusIndex = value.length > 0 ? Math.min(digits.length, i + 1) : Math.max(0, i - 1);
     setFocus(nextFocusIndex);
   };
   return (
@@ -53,7 +59,7 @@ export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "c
           value={digit}
           digitPattern={digitPattern}
           autoComplete={i === 0 ? "one-time-code" : undefined}
-          onChange={value => onChangeHandler(value, i)}
+          onChange={(value) => onChangeHandler(value, i)}
           autoFocus={i === inputValue.length}
           disabled={disabled}
         />

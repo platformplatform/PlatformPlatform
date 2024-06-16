@@ -4,9 +4,9 @@ import { Breadcrumb, Breadcrumbs } from "../components/Breadcrumbs";
 const meta: Meta<typeof Breadcrumbs> = {
   component: Breadcrumbs,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;

@@ -1,10 +1,6 @@
 import React from "react";
-import type {
-  SwitchProps as AriaSwitchProps,
-} from "react-aria-components";
-import {
-  Switch as AriaSwitch,
-} from "react-aria-components";
+import type { SwitchProps as AriaSwitchProps } from "react-aria-components";
+import { Switch as AriaSwitch } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { composeTailwindRenderProps, focusRing } from "./utils";
 
@@ -18,12 +14,12 @@ const track = tv({
   variants: {
     isSelected: {
       false: "bg-gray-400 dark:bg-zinc-400 group-pressed:bg-gray-500 dark:group-pressed:bg-zinc-300",
-      true: "bg-gray-700 dark:bg-zinc-300 forced-colors:!bg-[Highlight] group-pressed:bg-gray-800 dark:group-pressed:bg-zinc-200",
+      true: "bg-gray-700 dark:bg-zinc-300 forced-colors:!bg-[Highlight] group-pressed:bg-gray-800 dark:group-pressed:bg-zinc-200"
     },
     isDisabled: {
-      true: "bg-gray-200 dark:bg-zinc-700 forced-colors:group-selected:!bg-[GrayText] forced-colors:border-[GrayText]",
-    },
-  },
+      true: "bg-gray-200 dark:bg-zinc-700 forced-colors:group-selected:!bg-[GrayText] forced-colors:border-[GrayText]"
+    }
+  }
 });
 
 const handle = tv({
@@ -31,18 +27,24 @@ const handle = tv({
   variants: {
     isSelected: {
       false: "translate-x-0",
-      true: "translate-x-[100%]",
+      true: "translate-x-[100%]"
     },
     isDisabled: {
-      true: "forced-colors:outline-[GrayText]",
-    },
-  },
+      true: "forced-colors:outline-[GrayText]"
+    }
+  }
 });
 
 export function Switch({ children, ...props }: Readonly<SwitchProps>) {
   return (
-    <AriaSwitch {...props} className={composeTailwindRenderProps(props.className, "group flex gap-2 items-center text-gray-800 disabled:text-gray-300 dark:text-zinc-200 dark:disabled:text-zinc-600 forced-colors:disabled:text-[GrayText] text-sm transition")}>
-      {renderProps => (
+    <AriaSwitch
+      {...props}
+      className={composeTailwindRenderProps(
+        props.className,
+        "group flex gap-2 items-center text-gray-800 disabled:text-gray-300 dark:text-zinc-200 dark:disabled:text-zinc-600 forced-colors:disabled:text-[GrayText] text-sm transition"
+      )}
+    >
+      {(renderProps) => (
         <>
           <div className={track(renderProps)}>
             <span className={handle(renderProps)} />

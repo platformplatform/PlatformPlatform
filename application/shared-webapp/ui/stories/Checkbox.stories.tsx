@@ -4,16 +4,16 @@ export default {
   title: "Checkbox",
   component: Checkbox,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   argTypes: {},
   args: {
     isDisabled: false,
-    children: "Checkbox",
-  },
+    children: "Checkbox"
+  }
 };
 
 export const Default = {
-  args: {},
+  args: {}
 };

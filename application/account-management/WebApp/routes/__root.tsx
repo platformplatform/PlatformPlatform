@@ -7,14 +7,14 @@ import { AuthenticationProvider } from "@/lib/auth/AuthenticationProvider";
 export const Route = createRootRoute({
   component: Root,
   errorComponent: ErrorPage,
-  notFoundComponent: NotFound,
+  notFoundComponent: NotFound
 });
 
 function Root() {
   const navigate = useNavigate();
   return (
     <ReactAriaRouterProvider>
-      <AuthenticationProvider navigate={options => navigate(options)} afterSignIn="/admin/users" afterSignOut="/">
+      <AuthenticationProvider navigate={(options) => navigate(options)} afterSignIn="/admin/users" afterSignOut="/">
         <Outlet />
       </AuthenticationProvider>
     </ReactAriaRouterProvider>

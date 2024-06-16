@@ -1,4 +1,4 @@
-import TailwindPreset from '@repo/ui/tailwind-preset';
+import TailwindPreset from "@repo/ui/tailwind-preset";
 
 export default {
   presets: [TailwindPreset]

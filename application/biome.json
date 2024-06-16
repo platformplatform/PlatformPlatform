@@ -10,20 +10,7 @@
     }
   },
   "files": {
-    "ignore": [
-      "node_modules",
-      ".swc",
-      ".turbo",
-      "dist",
-      "coverage",
-      "obj",
-      "package-lock.json"
-    ],
-    "include": [
-      "*.ts",
-      "**/*.ts",
-      "*.tsx",
-      "**/*.tsx"
-    ]
+    "ignore": ["node_modules", ".swc", ".turbo", "dist", "coverage", "obj", "package-lock.json"],
+    "include": ["*.ts", "**/*.ts", "*.tsx", "**/*.tsx"]
   }
 }

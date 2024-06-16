@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 export function useExpirationTimeout(expiresAt: Date) {
-  const [expiresInSeconds, setExpiresInSeconds] = useState(
-    getExpiresInSeconds(expiresAt)
-  );
+  const [expiresInSeconds, setExpiresInSeconds] = useState(getExpiresInSeconds(expiresAt));
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -15,7 +13,7 @@ export function useExpirationTimeout(expiresAt: Date) {
   return {
     expiresInSeconds,
     expiresInString: getExpiresInString(expiresInSeconds),
-    isExpired: expiresInSeconds === 0,
+    isExpired: expiresInSeconds === 0
   };
 }
 

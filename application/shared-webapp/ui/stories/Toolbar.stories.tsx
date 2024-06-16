@@ -10,9 +10,9 @@ import { Toolbar } from "../components/Toolbar";
 const meta: Meta<typeof Toolbar> = {
   component: Toolbar,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;

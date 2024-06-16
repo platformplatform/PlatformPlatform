@@ -4,35 +4,35 @@ export default {
   title: "Button",
   component: Button,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "destructive"],
-    },
+      options: ["primary", "secondary", "destructive"]
+    }
   },
   args: {
     isDisabled: false,
-    children: "Button",
-  },
+    children: "Button"
+  }
 };
 
 export const Primary = {
   args: {
-    variant: "primary",
-  },
+    variant: "primary"
+  }
 };
 
 export const Secondary = {
   args: {
-    variant: "secondary",
-  },
+    variant: "secondary"
+  }
 };
 
 export const Destructive = {
   args: {
-    variant: "destructive",
-  },
+    variant: "destructive"
+  }
 };

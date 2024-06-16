@@ -7,9 +7,9 @@ import { TextField } from "../components/TextField";
 const meta: Meta<typeof Form> = {
   component: Form,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;
@@ -21,7 +21,9 @@ export function Example(args: any) {
       <DateField label="Birth date" isRequired />
       <div className="flex gap-2">
         <Button type="submit">Submit</Button>
-        <Button type="reset" variant="secondary">Reset</Button>
+        <Button type="reset" variant="secondary">
+          Reset
+        </Button>
       </div>
     </Form>
   );

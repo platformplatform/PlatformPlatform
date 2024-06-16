@@ -10,7 +10,6 @@ export interface SignedOutProps {
  */
 export function SignedOut({ children }: SignedOutProps) {
   const isAuthenticated = useIsAuthenticated();
-  if (isAuthenticated)
-    return null;
+  if (isAuthenticated) return null;
   return children;
 }

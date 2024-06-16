@@ -6,12 +6,12 @@ import { Select, SelectItem, SelectSection } from "../components/Select";
 const meta: Meta<typeof Select> = {
   component: Select,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   args: {
-    label: "Ice cream flavor",
-  },
+    label: "Ice cream flavor"
+  }
 };
 
 export default meta;
@@ -29,7 +29,7 @@ export function Example(args: any) {
 
 export const DisabledItems = (args: any) => <Example {...args} />;
 DisabledItems.args = {
-  disabledKeys: ["mint"],
+  disabledKeys: ["mint"]
 };
 
 export function Sections(args: any) {
@@ -60,18 +60,20 @@ export function Sections(args: any) {
 }
 
 Sections.args = {
-  label: "Preferred fruit or vegetable",
+  label: "Preferred fruit or vegetable"
 };
 
 export function Validation(args: any) {
   return (
     <Form className="flex flex-col gap-2 items-start">
       <Example {...args} />
-      <Button type="submit" variant="secondary">Submit</Button>
+      <Button type="submit" variant="secondary">
+        Submit
+      </Button>
     </Form>
   );
 }
 
 Validation.args = {
-  isRequired: true,
+  isRequired: true
 };

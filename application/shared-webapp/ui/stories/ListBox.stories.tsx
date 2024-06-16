@@ -4,9 +4,9 @@ import { ListBox, ListBoxItem } from "../components/ListBox";
 const meta: Meta<typeof ListBox> = {
   component: ListBox,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;
@@ -24,11 +24,11 @@ export function Example(args: any) {
 
 Example.args = {
   onAction: null,
-  selectionMode: "multiple",
+  selectionMode: "multiple"
 };
 
 export const DisabledItems = (args: any) => <Example {...args} />;
 DisabledItems.args = {
   ...Example.args,
-  disabledKeys: ["mint"],
+  disabledKeys: ["mint"]
 };

@@ -12,9 +12,7 @@ export function UserHeader() {
           Users
           <ChevronRightIcon className="text-slate-600" size={20} />
         </div>
-        <div className="flex gap-4 text-gray-400 text-sm font-semibold whitespace-nowrap">
-          All Users
-        </div>
+        <div className="flex gap-4 text-gray-400 text-sm font-semibold whitespace-nowrap">All Users</div>
       </div>
       <div className="flex flex-row gap-6 items-center">
         <MoonIcon size={20} />

@@ -16,8 +16,7 @@ import logoMarkUrl from "@/ui/images/logo-mark.png";
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
 
-  if (!registration.current)
-    throw new Error("Account registration ID is missing.");
+  if (!registration.current) throw new Error("Account registration ID is missing.");
 
   const { email, accountRegistrationId, expireAt } = registration.current;
 
@@ -25,11 +24,9 @@ export function CompleteAccountRegistrationForm() {
 
   const [state, action] = useActionState(completeAccountRegistration, initialState);
 
-  if (isExpired)
-    return <Navigate to="/register/expired" />;
+  if (isExpired) return <Navigate to="/register/expired" />;
 
-  if (state.success)
-    return <Navigate to="/admin/users" />;
+  if (state.success) return <Navigate to="/admin/users" />;
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">

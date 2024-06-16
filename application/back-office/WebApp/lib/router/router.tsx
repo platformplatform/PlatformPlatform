@@ -4,7 +4,7 @@ import { routeTree } from "./routeTree.generated";
 // Set up a Router instance
 export const router = createRouter({
   routeTree,
-  defaultPreload: "intent",
+  defaultPreload: "intent"
 });
 
 export type RouterType = typeof router;

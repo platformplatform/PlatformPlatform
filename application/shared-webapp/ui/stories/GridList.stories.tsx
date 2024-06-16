@@ -4,9 +4,9 @@ import { GridList, GridListItem } from "../components/GridList";
 const meta: Meta<typeof GridList> = {
   component: GridList,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;
@@ -24,11 +24,11 @@ export function Example(args: any) {
 
 Example.args = {
   onAction: null,
-  selectionMode: "multiple",
+  selectionMode: "multiple"
 };
 
 export const DisabledItems = (args: any) => <Example {...args} />;
 DisabledItems.args = {
   ...Example.args,
-  disabledKeys: ["mint"],
+  disabledKeys: ["mint"]
 };

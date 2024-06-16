@@ -11,8 +11,7 @@ export type Locale = keyof typeof i18nConfig.languages | typeof pseudoLocale;
 export const locales = [...Object.keys(i18nConfig.languages)] as Array<Locale>;
 
 // eslint-disable-next-line node/prefer-global/process
-if (process.env.NODE_ENV !== "production")
-  locales.push(pseudoLocale);
+if (process.env.NODE_ENV !== "production") locales.push(pseudoLocale);
 
 export function getLanguage(locale: Locale): Language {
   if (locale === pseudoLocale) {
@@ -20,7 +19,7 @@ export function getLanguage(locale: Locale): Language {
       label: "Pseudo",
       locale: pseudoLocale,
       territory: pseudoLocale,
-      rtl: false,
+      rtl: false
     };
   }
   return i18nConfig.languages[locale];
@@ -36,7 +35,7 @@ const messageCache = new Map<string, Messages>();
 export async function loadCatalog(locale: string) {
   if (messageCache.has(locale) === false) {
     const { messages } = (await import(`@/translations/locale/${locale}.ts`)) as {
-      messages: Messages,
+      messages: Messages;
     };
     messageCache.set(locale, messages);
   }

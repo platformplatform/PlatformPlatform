@@ -8,7 +8,7 @@ import { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
  */
 
 export function LinguiPlugin(): RsbuildPlugin {
-  return ({
+  return {
     name: "LinguiPlugin",
     setup(api) {
       api.modifyRsbuildConfig((userConfig, { mergeRsbuildConfig }) => {
@@ -18,14 +18,14 @@ export function LinguiPlugin(): RsbuildPlugin {
             swc: {
               jsc: {
                 experimental: {
-                  plugins: [["@lingui/swc-plugin", {}]],
-                },
-              },
-            },
-          },
+                  plugins: [["@lingui/swc-plugin", {}]]
+                }
+              }
+            }
+          }
         };
         return mergeRsbuildConfig(userConfig, extraConfig);
       });
-    },
-  });
+    }
+  };
 }

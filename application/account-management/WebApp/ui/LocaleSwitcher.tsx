@@ -22,7 +22,7 @@ export function LocaleSwitcher() {
       </Button>
       <Popover className="border border-border rounded p-2 w-52 backdrop-blur-sm">
         <ListBox>
-          {locales.map(locale => (
+          {locales.map((locale) => (
             <ListBoxItem key={locale} id={locale} className="cursor-pointer p-2">
               {getLanguage(locale).label}
             </ListBoxItem>

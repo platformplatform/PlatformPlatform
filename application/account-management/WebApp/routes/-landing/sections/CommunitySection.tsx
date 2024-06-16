@@ -37,8 +37,8 @@ export function CommunitySection() {
         <h1 className="text-amber-600 text-base font-semibold">COMMUNITY</h1>
         <h2 className="text-gray-900 text-4xl md:text-6xl font-semibold">Join builders on PlatformPlatform</h2>
         <p className="text-slate-600 text-xl font-normal">
-          Our community is full of developers, designers and founders -
-          just like you, to get your going, sharing ideas and experiences. Join us now.
+          Our community is full of developers, designers and founders - just like you, to get your going, sharing ideas
+          and experiences. Join us now.
         </p>
       </div>
       <div className="grid grid-row-3 md:grid-cols-3 px-32 gap-16">

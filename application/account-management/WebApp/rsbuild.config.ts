@@ -9,5 +9,12 @@ import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentP
 const buildEnv: BuildEnv = {};
 
 export default defineConfig({
-  plugins: [pluginReact(), pluginTypeCheck(), pluginSvgr(), RunTimeEnvironmentPlugin(buildEnv), LinguiPlugin(), DevelopmentServerPlugin({ port: 9101 })],
+  plugins: [
+    pluginReact(),
+    pluginTypeCheck(),
+    pluginSvgr(),
+    RunTimeEnvironmentPlugin(buildEnv),
+    LinguiPlugin(),
+    DevelopmentServerPlugin({ port: 9101 })
+  ]
 });

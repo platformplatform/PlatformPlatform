@@ -3,7 +3,7 @@ import { CompleteAccountRegistrationForm } from "../-components/CompleteAccountR
 import { HeroImage } from "@/ui/images/HeroImage";
 
 export const Route = createFileRoute("/register/verify/")({
-  component: CompleteAccountRegistrationPage,
+  component: CompleteAccountRegistrationPage
 });
 
 function CompleteAccountRegistrationPage() {

@@ -4,13 +4,13 @@ import { Tag, TagGroup } from "../components/TagGroup";
 const meta: Meta<typeof Example> = {
   component: TagGroup,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   args: {
     label: "Ice cream flavor",
-    selectionMode: "single",
-  },
+    selectionMode: "single"
+  }
 };
 
 export default meta;

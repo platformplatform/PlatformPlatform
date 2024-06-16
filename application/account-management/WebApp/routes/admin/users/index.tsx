@@ -7,7 +7,7 @@ import { UserInvite } from "./-components/UserInvite";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 
 export const Route = createFileRoute("/admin/users/")({
-  component: UsersPage,
+  component: UsersPage
 });
 
 export default function UsersPage() {

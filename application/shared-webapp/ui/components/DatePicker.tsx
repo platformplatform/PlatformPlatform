@@ -1,12 +1,6 @@
 import { CalendarIcon } from "lucide-react";
-import type {
-  DatePickerProps as AriaDatePickerProps,
-  DateValue,
-  ValidationResult,
-} from "react-aria-components";
-import {
-  DatePicker as AriaDatePicker,
-} from "react-aria-components";
+import type { DatePickerProps as AriaDatePickerProps, DateValue, ValidationResult } from "react-aria-components";
+import { DatePicker as AriaDatePicker } from "react-aria-components";
 import { Button } from "./Button";
 import { Calendar } from "./Calendar";
 import { DateInput } from "./DateField";
@@ -15,16 +9,18 @@ import { Description, FieldError, FieldGroup, Label } from "./Field";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";
 
-export interface DatePickerProps<T extends DateValue>
-  extends AriaDatePickerProps<T> {
+export interface DatePickerProps<T extends DateValue> extends AriaDatePickerProps<T> {
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
 }
 
-export function DatePicker<T extends DateValue>(
-  { label, description, errorMessage, ...props }: Readonly<DatePickerProps<T>>
-) {
+export function DatePicker<T extends DateValue>({
+  label,
+  description,
+  errorMessage,
+  ...props
+}: Readonly<DatePickerProps<T>>) {
   return (
     <AriaDatePicker {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}

@@ -9,7 +9,7 @@ const ApiErrorSchema = z.object({
   title: z.string(),
   type: z.string(),
   status: z.number(),
-  Errors: ApiErrorListSchema,
+  Errors: ApiErrorListSchema
 });
 type ApiError = z.infer<typeof ApiErrorSchema>;
 
@@ -21,7 +21,7 @@ export function getApiError(response: FetchResponse<any, any, any>): ApiError {
       title: "Unknown server error response",
       status: 0,
       type: "0",
-      Errors: [],
+      Errors: []
     };
   }
   return validatedApiError.data;
@@ -31,8 +31,7 @@ export function getFieldErrors(apiErrorList: ApiErrorList): Record<string, strin
   const fieldErrors: Record<string, string[]> = {};
   apiErrorList.forEach((error) => {
     const key = getCamelCase(error.code);
-    if (fieldErrors[key] == null)
-      fieldErrors[key] = [];
+    if (fieldErrors[key] == null) fieldErrors[key] = [];
 
     fieldErrors[key].push(error.message);
   });

@@ -14,7 +14,7 @@ export const AuthenticationContext = createContext<AuthenticationContextType>({
   userInfo: initialUserInfo,
   reloadUserInfo: () => {},
   signInAction: async () => ({}),
-  signOutAction: async () => ({}),
+  signOutAction: async () => ({})
 });
 
 export interface AuthenticationProviderProps {
@@ -22,7 +22,7 @@ export interface AuthenticationProviderProps {
   navigate?: (navigateOptions: NavigateOptions) => void;
   afterSignOut?: NavigateOptions["to"];
   afterSignIn?: NavigateOptions["to"];
-};
+}
 
 /**
  * Provide authentication context to the application.
@@ -31,20 +31,18 @@ export function AuthenticationProvider({
   children,
   navigate,
   afterSignIn,
-  afterSignOut,
+  afterSignOut
 }: Readonly<AuthenticationProviderProps>) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(initialUserInfo);
   const fetching = useRef(false);
 
   const reloadUserInfo = useCallback(async () => {
-    if (fetching.current)
-      return;
+    if (fetching.current) return;
     fetching.current = true;
     try {
       const newUserInfo = await getUserInfo();
       setUserInfo(newUserInfo);
-    }
-    catch (error) {
+    } catch (error) {
       setUserInfo(null);
     }
     fetching.current = false;
@@ -53,33 +51,31 @@ export function AuthenticationProvider({
   const signOutAction = useCallback(async () => {
     const result = await logout();
     setUserInfo(null);
-    if (navigate && afterSignOut)
-      navigate({ to: afterSignOut });
+    if (navigate && afterSignOut) navigate({ to: afterSignOut });
 
     return result;
   }, [setUserInfo, navigate, afterSignOut]);
 
-  const signInAction = useCallback(async (state: State, formData: FormData) => {
-    const result = await authenticate(state, formData);
-    if (result.success)
-      setUserInfo(await getUserInfo());
+  const signInAction = useCallback(
+    async (state: State, formData: FormData) => {
+      const result = await authenticate(state, formData);
+      if (result.success) setUserInfo(await getUserInfo());
 
-    if (result.success && navigate && afterSignIn)
-      navigate({ to: afterSignIn });
-    return result;
-  }, [navigate, afterSignIn]);
+      if (result.success && navigate && afterSignIn) navigate({ to: afterSignIn });
+      return result;
+    },
+    [navigate, afterSignIn]
+  );
 
-  const authenticationContext = useMemo(() =>
-    ({
+  const authenticationContext = useMemo(
+    () => ({
       userInfo,
       reloadUserInfo,
       signInAction,
-      signOutAction,
-    }), [userInfo, reloadUserInfo, signInAction, signOutAction]);
-
-  return (
-    <AuthenticationContext.Provider value={authenticationContext}>
-      {children}
-    </AuthenticationContext.Provider>
+      signOutAction
+    }),
+    [userInfo, reloadUserInfo, signInAction, signOutAction]
   );
-};
+
+  return <AuthenticationContext.Provider value={authenticationContext}>{children}</AuthenticationContext.Provider>;
+}

@@ -43,11 +43,7 @@ export function HeroSection() {
         <ActionButtons />
       </div>
       <div className=" px-24 justify-center flex">
-        <img
-          className="hidden md:block"
-          src={heroimgDesktop}
-          alt="Footer"
-        />
+        <img className="hidden md:block" src={heroimgDesktop} alt="Footer" />
         <img className="md:hidden" src={heroimgMobile} alt="Footer" />
       </div>
     </div>
@@ -123,9 +119,7 @@ function FeatureTag() {
 function FeatureLabel() {
   return (
     <div className="px-2 py-0.5 bg-gray-900 rounded-md border border-slate-50 justify-start items-center flex text-nowrap">
-      <div className="text-center text-slate-50 text-sm font-medium leading-tight">
-        New feature
-      </div>
+      <div className="text-center text-slate-50 text-sm font-medium leading-tight">New feature</div>
     </div>
   );
 }
@@ -156,8 +150,7 @@ function ProductSubtitle() {
 function ProductDescription() {
   return (
     <p className="text-gray-300 text-xl">
-      Free, Open-Source .NET, React and Infrastructure kit for Startup and
-      Enterprise.
+      Free, Open-Source .NET, React and Infrastructure kit for Startup and Enterprise.
     </p>
   );
 }

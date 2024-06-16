@@ -10,16 +10,10 @@ const config: LinguiConfig = {
     {
       path: "<rootDir>/translations/locale/{locale}",
       include: ["<rootDir>"],
-      exclude: [
-        "**/node_modules/**",
-        "**/dist",
-        "**/*.d.ts",
-        "**/*.test.*",
-        "**/.*",
-      ],
-    },
+      exclude: ["**/node_modules/**", "**/dist", "**/*.d.ts", "**/*.test.*", "**/.*"]
+    }
   ],
-  format: formatter({ origins: false }),
+  format: formatter({ origins: false })
 };
 
 export default config;

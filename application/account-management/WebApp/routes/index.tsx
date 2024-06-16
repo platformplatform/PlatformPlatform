@@ -13,7 +13,7 @@ import { CtaSection3 } from "./-landing/sections/CtaSection3";
 import { FooterSection } from "./-landing/sections/FooterSection";
 
 export const Route = createFileRoute("/")({
-  component: LandingPage,
+  component: LandingPage
 });
 
 function LandingPage() {

@@ -7,19 +7,16 @@ const styles = tv({
   variants: {
     orientation: {
       horizontal: "flex-row",
-      vertical: "flex-col items-start",
-    },
-  },
+      vertical: "flex-col items-start"
+    }
+  }
 });
 
 export function Toolbar(props: Readonly<ToolbarProps>) {
   return (
     <RACToolbar
       {...props}
-      className={composeRenderProps(
-        props.className,
-        (className, renderProps) => styles({ ...renderProps, className })
-      )}
+      className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className }))}
     />
   );
 }

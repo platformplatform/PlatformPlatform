@@ -6,7 +6,7 @@ export default {
   title: "RadioGroup",
   component: RadioGroup,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   argTypes: {},
@@ -15,27 +15,31 @@ export default {
     isDisabled: false,
     isRequired: false,
     description: "",
-    children: <>
-      <Radio value="soccer">Soccer</Radio>
-      <Radio value="baseball">Baseball</Radio>
-      <Radio value="basketball">Basketball</Radio>
-    </>,
-  },
+    children: (
+      <>
+        <Radio value="soccer">Soccer</Radio>
+        <Radio value="baseball">Baseball</Radio>
+        <Radio value="basketball">Basketball</Radio>
+      </>
+    )
+  }
 };
 
 export const Default = {
-  args: {},
+  args: {}
 };
 
 export function Validation(args: any) {
   return (
     <Form className="flex flex-col gap-2 items-start">
       <RadioGroup {...args} />
-      <Button type="submit" variant="secondary">Submit</Button>
+      <Button type="submit" variant="secondary">
+        Submit
+      </Button>
     </Form>
   );
 }
 
 Validation.args = {
-  isRequired: true,
+  isRequired: true
 };

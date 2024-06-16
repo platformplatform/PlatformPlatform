@@ -12,9 +12,7 @@ export interface AccessDeniedProps {
  */
 export function AccessDenied({ children, requiredRoles }: AccessDeniedProps) {
   const userInfo = useUserInfo();
-  if (userInfo == null)
-    return null;
-  if (userInfo.userRole && requiredRoles.includes(userInfo.userRole))
-    return null;
+  if (userInfo == null) return null;
+  if (userInfo.userRole && requiredRoles.includes(userInfo.userRole)) return null;
   return children;
 }

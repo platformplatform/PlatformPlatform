@@ -31,8 +31,7 @@ export function Image(props: Readonly<ImageProps>) {
 
   useEffect(() => {
     const image = imageRef.current;
-    if (!image || isLoaded)
-      return;
+    if (!image || isLoaded) return;
 
     if (image.complete && image.naturalWidth > 0) {
       handleLoad();
@@ -57,25 +56,24 @@ export function Image(props: Readonly<ImageProps>) {
         color: "transparent", // Hide the broken image icon
         maxWidth: "100%", // Make sure the image doesn't overflow its container
         height: "auto",
-        objectFit: "cover",
+        objectFit: "cover"
       }}
       className={className}
       {...imageProps}
     />
   );
 
-  if (blurDataURL == null)
-    return image;
+  if (blurDataURL == null) return image;
 
   const blurBackground: CSSProperties = !isLoaded
     ? {
         filter: "blur(15px)",
         backgroundImage: `url(${blurDataURL})`,
-        backgroundSize: "100% 100%",
+        backgroundSize: "100% 100%"
       }
     : {
         filter: "blur(0px)",
-        transition: "filter 0.3s",
+        transition: "filter 0.3s"
       };
 
   return (
@@ -86,7 +84,7 @@ export function Image(props: Readonly<ImageProps>) {
         width,
         maxWidth: "100%",
         aspectRatio: `${width} / ${height}`,
-        ...blurBackground,
+        ...blurBackground
       }}
       className={className}
     >
@@ -101,7 +99,7 @@ export function Image(props: Readonly<ImageProps>) {
           display: "block",
           alignItems: "center",
           justifyContent: "center",
-          color: "transparent",
+          color: "transparent"
         }}
       />
     </div>
@@ -109,7 +107,6 @@ export function Image(props: Readonly<ImageProps>) {
 }
 
 function defaultLoader({ src }: ImageLoaderOptions) {
-  if (src.startsWith("/"))
-    return import.meta.env.CDN_URL + src;
+  if (src.startsWith("/")) return import.meta.env.CDN_URL + src;
   return src;
 }

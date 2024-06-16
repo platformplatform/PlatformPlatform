@@ -1,15 +1,10 @@
-import type {
-  TabListProps,
-  TabPanelProps,
-  TabProps,
-  TabsProps,
-} from "react-aria-components";
+import type { TabListProps, TabPanelProps, TabProps, TabsProps } from "react-aria-components";
 import {
   Tab as RACTab,
   TabList as RACTabList,
   TabPanel as RACTabPanel,
   Tabs as RACTabs,
-  composeRenderProps,
+  composeRenderProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./utils";
@@ -19,18 +14,17 @@ const tabsStyles = tv({
   variants: {
     orientation: {
       horizontal: "flex-col",
-      vertical: "flex-row w-[800px]",
-    },
-  },
+      vertical: "flex-row w-[800px]"
+    }
+  }
 });
 
 export function Tabs(props: Readonly<TabsProps>) {
   return (
     <RACTabs
       {...props}
-      className={composeRenderProps(
-        props.className,
-        (className, renderProps) => tabsStyles({ ...renderProps, className })
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        tabsStyles({ ...renderProps, className })
       )}
     />
   );
@@ -41,18 +35,17 @@ const tabListStyles = tv({
   variants: {
     orientation: {
       horizontal: "flex-row",
-      vertical: "flex-col items-start",
-    },
-  },
+      vertical: "flex-col items-start"
+    }
+  }
 });
 
 export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
   return (
     <RACTabList
       {...props}
-      className={composeRenderProps(
-        props.className,
-        (className, renderProps) => tabListStyles({ ...renderProps, className })
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        tabListStyles({ ...renderProps, className })
       )}
     />
   );
@@ -63,22 +56,22 @@ const tabProps = tv({
   base: "flex items-center cursor-default px-4 py-1.5 text-sm font-medium transition forced-color-adjust-none border-b-2 border-transparent",
   variants: {
     isSelected: {
-      false: "text-gray-600 dark:text-zinc-300 hover:text-gray-700 pressed:text-gray-700 dark:hover:text-zinc-200 dark:pressed:text-zinc-200 hover:bg-gray-200 dark:hover:bg-zinc-800 pressed:bg-gray-200 dark:pressed:bg-zinc-800",
-      true: "text-black dark:text-black forced-colors:text-[HighlightText] dark:bg-zinc-200 forced-colors:bg-[Highlight] border-black",
+      false:
+        "text-gray-600 dark:text-zinc-300 hover:text-gray-700 pressed:text-gray-700 dark:hover:text-zinc-200 dark:pressed:text-zinc-200 hover:bg-gray-200 dark:hover:bg-zinc-800 pressed:bg-gray-200 dark:pressed:bg-zinc-800",
+      true: "text-black dark:text-black forced-colors:text-[HighlightText] dark:bg-zinc-200 forced-colors:bg-[Highlight] border-black"
     },
     isDisabled: {
-      true: "text-gray-200 dark:text-zinc-600 forced-colors:text-[GrayText] selected:text-gray-300 dark:selected:text-zinc-500 forced-colors:selected:text-[HighlightText] selected:bg-gray-200 dark:selected:bg-zinc-600 forced-colors:selected:bg-[GrayText]",
-    },
-  },
+      true: "text-gray-200 dark:text-zinc-600 forced-colors:text-[GrayText] selected:text-gray-300 dark:selected:text-zinc-500 forced-colors:selected:text-[HighlightText] selected:bg-gray-200 dark:selected:bg-zinc-600 forced-colors:selected:bg-[GrayText]"
+    }
+  }
 });
 
 export function Tab(props: Readonly<TabProps>) {
   return (
     <RACTab
       {...props}
-      className={composeRenderProps(
-        props.className,
-        (className, renderProps) => tabProps({ ...renderProps, className })
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        tabProps({ ...renderProps, className })
       )}
     />
   );
@@ -86,16 +79,15 @@ export function Tab(props: Readonly<TabProps>) {
 
 const tabPanelStyles = tv({
   extend: focusRing,
-  base: "flex-1 p-4 text-sm text-gray-900 dark:text-zinc-100",
+  base: "flex-1 p-4 text-sm text-gray-900 dark:text-zinc-100"
 });
 
 export function TabPanel(props: Readonly<TabPanelProps>) {
   return (
     <RACTabPanel
       {...props}
-      className={composeRenderProps(
-        props.className,
-        (className, renderProps) => tabPanelStyles({ ...renderProps, className })
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        tabPanelStyles({ ...renderProps, className })
       )}
     />
   );

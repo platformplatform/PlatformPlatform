@@ -13,12 +13,8 @@ export function FooterSection() {
     <>
       <div className="w-full bg-gray-50 flex items-center gap-8 py-16 px-16 md:px-24">
         <div className="flex-grow flex flex-col gap-4">
-          <div className="text-gray-900 text-xl font-semibold">
-            Join our newsletter
-          </div>
-          <div className="text-slate-600 text-base font-normal">
-            technology that has your back.
-          </div>
+          <div className="text-gray-900 text-xl font-semibold">Join our newsletter</div>
+          <div className="text-slate-600 text-base font-normal">technology that has your back.</div>
         </div>
         <div className="flex items-center gap-4 md:flex-row flex-col right">
           <input
@@ -35,8 +31,7 @@ export function FooterSection() {
           <div className="flex gap-8 flex-col">
             <img src={logoWrap} alt="Logo Wrap" />
             <div className="text-slate-600 text-base font-normal">
-              Build amazing products on enterprise grade and open source
-              technology.
+              Build amazing products on enterprise grade and open source technology.
             </div>
           </div>
         </div>

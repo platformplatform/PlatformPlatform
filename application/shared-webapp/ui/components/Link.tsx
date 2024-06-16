@@ -13,17 +13,20 @@ const styles = tv({
   base: "underline disabled:no-underline disabled:cursor-default forced-colors:disabled:text-[GrayText] transition rounded",
   variants: {
     variant: {
-      primary: "text-blue-600 dark:text-blue-500 underline decoration-blue-600/60 hover:decoration-blue-600 dark:decoration-blue-500/60 dark:hover:decoration-blue-500",
-      secondary: "text-gray-700 dark:text-zinc-300 underline decoration-gray-700/50 hover:decoration-gray-700 dark:decoration-zinc-300/70 dark:hover:decoration-zinc-300",
-      neutral: "text-neutral-600 dark:text-neutral-500 underline decoration-neutral-600/60 hover:decoration-neutral-600 dark:decoration-neutral-500/60 dark:hover:decoration-neutral-500",
+      primary:
+        "text-blue-600 dark:text-blue-500 underline decoration-blue-600/60 hover:decoration-blue-600 dark:decoration-blue-500/60 dark:hover:decoration-blue-500",
+      secondary:
+        "text-gray-700 dark:text-zinc-300 underline decoration-gray-700/50 hover:decoration-gray-700 dark:decoration-zinc-300/70 dark:hover:decoration-zinc-300",
+      neutral:
+        "text-neutral-600 dark:text-neutral-500 underline decoration-neutral-600/60 hover:decoration-neutral-600 dark:decoration-neutral-500/60 dark:hover:decoration-neutral-500"
     },
     bold: {
-      true: "font-semibold",
-    },
+      true: "font-semibold"
+    }
   },
   defaultVariants: {
-    variant: "neutral",
-  },
+    variant: "neutral"
+  }
 });
 
 export function Link(props: Readonly<LinkProps>) {

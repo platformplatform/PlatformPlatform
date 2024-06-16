@@ -4,7 +4,7 @@ import { backOfficeApi } from "./mock.api";
 import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
 
 export const tenantInfoScheme = z.object({
-  value: z.string(),
+  value: z.string()
 });
 export type TenantInfo = z.infer<typeof tenantInfoScheme>;
 
@@ -17,7 +17,7 @@ export const UserInfoScheme = z.object({
   email: z.string().email().nullable().optional(),
   tenantId: z.string().nullable().optional(),
   userRole: userRoleScheme.nullable().optional(),
-  userName: z.string().nullable().optional(),
+  userName: z.string().nullable().optional()
 });
 export type UserInfo = z.infer<typeof UserInfoScheme>;
 
@@ -36,12 +36,10 @@ export const initialUserInfo: UserInfo = validationResult.data;
  */
 export async function getUserInfo(): Promise<UserInfo | null> {
   const { data, response } = await backOfficeApi.GET("/api/auth/user-info");
-  if (!response.ok)
-    return null;
+  if (!response.ok) return null;
 
   const validationResult = UserInfoScheme.safeParse(data);
-  if (!validationResult.success)
-    throw new Error("Invalid user info");
+  if (!validationResult.success) throw new Error("Invalid user info");
 
   return validationResult.data;
 }
@@ -49,15 +47,15 @@ export async function getUserInfo(): Promise<UserInfo | null> {
 export interface State {
   success?: boolean;
   errors?: {
-    email?: string[],
-    password?: string[],
+    email?: string[];
+    password?: string[];
   };
   message?: string | null;
 }
 
 export const AuthenticateSchema = z.object({
   email: z.string().min(1, "Please enter your email").email("Please enter a valid email"),
-  password: z.string().min(1, "Please enter your password"),
+  password: z.string().min(1, "Please enter your password")
 });
 
 /**
@@ -67,7 +65,7 @@ export const AuthenticateSchema = z.object({
 export async function authenticate(_: State, formData: FormData): Promise<State> {
   const validatedFields = AuthenticateSchema.safeParse({
     email: formData.get("email"),
-    password: formData.get("password"),
+    password: formData.get("password")
   });
 
   if (!validatedFields.success) {
@@ -75,7 +73,7 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
     console.log("validation errors", validatedFields.error.flatten().fieldErrors);
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: i18n.t("Missing Fields. Failed to login."),
+      message: i18n.t("Missing Fields. Failed to login.")
     };
   }
 
@@ -85,13 +83,13 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
     const result = await backOfficeApi.POST("/api/auth/login", {
       body: {
         email,
-        password,
-      },
+        password
+      }
     });
 
     if (result.response.ok) {
       return {
-        success: true,
+        success: true
       };
     }
 
@@ -99,12 +97,11 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
 
     return {
       message: apiError.title,
-      errors: getFieldErrors(apiError.Errors),
+      errors: getFieldErrors(apiError.Errors)
     };
-  }
-  catch (e) {
+  } catch (e) {
     return {
-      message: i18n.t("Server error: Failed login."),
+      message: i18n.t("Server error: Failed login.")
     };
   }
 }
@@ -117,12 +114,11 @@ export async function logout(): Promise<State> {
   try {
     await backOfficeApi.POST("/api/auth/logout");
     return {
-      success: true,
+      success: true
     };
-  }
-  catch (error) {
+  } catch (error) {
     return {
-      message: i18n.t("Server error: Failed logout."),
+      message: i18n.t("Server error: Failed logout.")
     };
   }
 }

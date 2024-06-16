@@ -6,9 +6,9 @@ import { Cell, Column, Row, Table, TableHeader } from "../components/Table";
 const meta: Meta<typeof Table> = {
   component: Table,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;
@@ -22,21 +22,20 @@ const rows = [
   { id: 6, name: "Taxes.pdf", date: "12/6/2023", type: "PDF Document" },
   { id: 7, name: "Photos", date: "8/2/2021", type: "File folder" },
   { id: 8, name: "Documents", date: "3/18/2023", type: "File folder" },
-  { id: 9, name: "Budget.xls", date: "1/6/2024", type: "Excel file" },
+  { id: 9, name: "Budget.xls", date: "1/6/2024", type: "Excel file" }
 ];
 
 export function Example(args: any) {
   const [sortDescriptor, setSortDescriptor] = useState({
     column: "name",
-    direction: "ascending",
+    direction: "ascending"
   });
 
   const items = useMemo(() => {
     // eslint-disable-next-line ts/ban-ts-comment
     // @ts-expect-error
     const items = rows.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
-    if (sortDescriptor.direction === "descending")
-      items.reverse();
+    if (sortDescriptor.direction === "descending") items.reverse();
 
     return items;
   }, [sortDescriptor]);
@@ -44,12 +43,18 @@ export function Example(args: any) {
   return (
     <Table aria-label="Files" {...args} sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
       <TableHeader>
-        <Column id="name" isRowHeader allowsSorting>Name</Column>
-        <Column id="type" allowsSorting>Type</Column>
-        <Column id="date" allowsSorting>Date Modified</Column>
+        <Column id="name" isRowHeader allowsSorting>
+          Name
+        </Column>
+        <Column id="type" allowsSorting>
+          Type
+        </Column>
+        <Column id="date" allowsSorting>
+          Date Modified
+        </Column>
       </TableHeader>
       <TableBody items={items}>
-        {row => (
+        {(row) => (
           <Row>
             <Cell>{row.name}</Cell>
             <Cell>{row.type}</Cell>
@@ -59,10 +64,10 @@ export function Example(args: any) {
       </TableBody>
     </Table>
   );
-};
+}
 
 Example.args = {
   onRowAction: null,
   onCellAction: null,
-  selectionMode: "multiple",
+  selectionMode: "multiple"
 };

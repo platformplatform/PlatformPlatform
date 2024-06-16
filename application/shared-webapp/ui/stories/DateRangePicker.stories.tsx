@@ -6,12 +6,12 @@ import { DateRangePicker } from "../components/DateRangePicker";
 const meta: Meta<typeof DateRangePicker> = {
   component: DateRangePicker,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
   tags: ["autodocs"],
   args: {
-    label: "Trip dates",
-  },
+    label: "Trip dates"
+  }
 };
 
 export default meta;
@@ -22,11 +22,13 @@ export function Validation(args: any) {
   return (
     <Form className="flex flex-col gap-2 items-start">
       <DateRangePicker {...args} />
-      <Button type="submit" variant="secondary">Submit</Button>
+      <Button type="submit" variant="secondary">
+        Submit
+      </Button>
     </Form>
   );
 }
 
 Validation.args = {
-  isRequired: true,
+  isRequired: true
 };

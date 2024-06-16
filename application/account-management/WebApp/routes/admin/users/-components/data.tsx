@@ -18,7 +18,7 @@ export const rows: User[] = [
     added: new Date("2023-09-10"),
     lastSeen: new Date("2024-01-10"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Jane Doe",
@@ -27,7 +27,7 @@ export const rows: User[] = [
     added: new Date("2023-09-10"),
     lastSeen: new Date("2024-01-10"),
     role: "User",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Elena Rivera",
@@ -36,7 +36,7 @@ export const rows: User[] = [
     added: new Date("2023-09-15"),
     lastSeen: new Date("2023-10-01"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Mohamed Al-Farsi",
@@ -44,7 +44,7 @@ export const rows: User[] = [
     email: "mohamed@example.com",
     added: new Date("2023-10-10"),
     lastSeen: new Date("2024-01-10"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Anika Patel",
@@ -53,7 +53,7 @@ export const rows: User[] = [
     added: new Date("2023-12-01"),
     lastSeen: new Date("2024-02-15"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Lucas Smith",
@@ -61,7 +61,7 @@ export const rows: User[] = [
     email: "lucas@example.com",
     added: new Date("2023-11-20"),
     lastSeen: new Date("2024-03-30"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Sophia Turner",
@@ -70,7 +70,7 @@ export const rows: User[] = [
     added: new Date("2023-09-18"),
     lastSeen: new Date("2024-01-18"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Andre Silva",
@@ -78,7 +78,7 @@ export const rows: User[] = [
     email: "andre@example.com",
     added: new Date("2024-03-22"),
     lastSeen: new Date("2024-05-22"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Ling Chen",
@@ -87,7 +87,7 @@ export const rows: User[] = [
     added: new Date("2023-10-05"),
     lastSeen: new Date("2024-03-05"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Carlos Garcia",
@@ -95,7 +95,7 @@ export const rows: User[] = [
     email: "carlos@example.com",
     added: new Date("2023-11-01"),
     lastSeen: new Date("2024-02-01"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Olivia Johnson",
@@ -104,7 +104,7 @@ export const rows: User[] = [
     added: new Date("2024-01-20"),
     lastSeen: new Date("2024-04-25"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Haruto Tanaka",
@@ -112,7 +112,7 @@ export const rows: User[] = [
     email: "haruto@example.com",
     added: new Date("2023-10-25"),
     lastSeen: new Date("2024-01-25"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Ibrahim Nasser",
@@ -121,7 +121,7 @@ export const rows: User[] = [
     added: new Date("2024-04-15"),
     lastSeen: new Date("2024-06-05"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Samantha Paul",
@@ -129,7 +129,7 @@ export const rows: User[] = [
     email: "samantha@example.com",
     added: new Date("2023-09-22"),
     lastSeen: new Date("2024-01-10"),
-    role: "User",
+    role: "User"
   },
   {
     name: "Natalia Romanova",
@@ -138,7 +138,7 @@ export const rows: User[] = [
     added: new Date("2024-01-05"),
     lastSeen: new Date("2024-05-10"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Alice Doe",
@@ -147,7 +147,7 @@ export const rows: User[] = [
     added: new Date("2023-09-10"),
     lastSeen: new Date("2024-01-10"),
     role: "Admin",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Bob Doe",
@@ -155,7 +155,7 @@ export const rows: User[] = [
     email: "bob@example.com",
     added: new Date("2024-01-25"),
     lastSeen: new Date("2024-05-25"),
-    role: "User",
+    role: "User"
   },
   {
     name: "James Doe",
@@ -164,7 +164,7 @@ export const rows: User[] = [
     added: new Date("2023-10-05"),
     lastSeen: new Date("2024-03-05"),
     role: "User",
-    profilePicture: avatarUrl,
+    profilePicture: avatarUrl
   },
   {
     name: "Mary Doe",
@@ -173,6 +173,6 @@ export const rows: User[] = [
     added: new Date("2024-02-12"),
     lastSeen: new Date("2024-06-02"),
     role: "User",
-    profilePicture: avatarUrl,
-  },
+    profilePicture: avatarUrl
+  }
 ];

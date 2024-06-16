@@ -30,10 +30,10 @@ const applicationInsights = new ApplicationInsights({
     extensionConfig: {
       AppInsightsCfgSyncPlugin: {
         // this will block fetching from default cdn
-        cfgUrl: "",
-      },
-    },
-  },
+        cfgUrl: ""
+      }
+    }
+  }
 });
 
 // Load the Application Insights script

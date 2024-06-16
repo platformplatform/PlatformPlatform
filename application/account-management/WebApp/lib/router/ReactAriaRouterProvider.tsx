@@ -26,7 +26,7 @@ export function ReactAriaRouterProvider({ children }: Readonly<ReactAriaRouterPr
   return (
     <RouterProvider
       navigate={(to, options) => router.navigate({ to, ...options })}
-      useHref={to => /^https?:/.test(to) ? to : router.buildLocation({ to }).href}
+      useHref={(to) => (/^https?:/.test(to) ? to : router.buildLocation({ to }).href)}
     >
       {children}
     </RouterProvider>

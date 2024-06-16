@@ -3,14 +3,13 @@ import { StartAccountRegistrationForm } from "./-components/StartAccountRegistra
 import { HeroImage } from "@/ui/images/HeroImage";
 
 export const Route = createFileRoute("/register/")({
-  component: AccountRegistrationPage,
+  component: AccountRegistrationPage
 });
 
 function AccountRegistrationPage() {
   return (
     <main className="flex min-h-screen flex-col">
       <div className="flex grow flex-col gap-4 md:flex-row">
-
         <div className="flex flex-col items-center justify-center gap-6 md:w-2/5 p-6">
           <StartAccountRegistrationForm />
         </div>

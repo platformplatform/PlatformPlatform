@@ -7,9 +7,9 @@ import { Menu, MenuItem, MenuSection, MenuSeparator } from "../components/Menu";
 const meta: Meta<typeof Menu> = {
   component: Menu,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;
@@ -35,7 +35,7 @@ export function Example(args: any) {
 
 export const DisabledItems = (args: any) => <Example {...args} />;
 DisabledItems.args = {
-  disabledKeys: ["save"],
+  disabledKeys: ["save"]
 };
 
 export function Sections(args: any) {

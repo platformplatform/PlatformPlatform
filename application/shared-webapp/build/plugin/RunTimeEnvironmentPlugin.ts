@@ -1,9 +1,8 @@
 import path from "path";
 import { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
-
 export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): RsbuildPlugin {
-  return ({
+  return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {
       api.modifyRsbuildConfig((userConfig, { mergeRsbuildConfig }) => {
@@ -11,10 +10,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): Rsbuil
           source: {
             entry: {
               // Add the runtime environment file as the first entry point
-              index: [
-                path.join(__dirname, "..", "environment", "runtime.js"),
-                "./main.tsx",
-              ],
+              index: [path.join(__dirname, "..", "environment", "runtime.js"), "./main.tsx"]
             },
             // Define the runtime environment variables as part of import.meta.*
             // The method getApplicationEnvironment() is defined in the runtime
@@ -23,14 +19,14 @@ export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): Rsbuil
               "import.meta.build_env": JSON.stringify(buildEnv ?? {}),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
               "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",
-              "import.meta.env": "getApplicationEnvironment().env",
-            },
+              "import.meta.env": "getApplicationEnvironment().env"
+            }
           },
           output: {
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",
             // Clean the dist folder before building
-            cleanDistPath: true,
+            cleanDistPath: true
           },
           html: {
             // Use the template file from the public directory
@@ -38,7 +34,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): Rsbuil
             // Define the runtime environment variables as part of the template
             meta: {
               runtimeEnv: "%ENCODED_RUNTIME_ENV%",
-              userInfoEnv: "%ENCODED_USER_INFO_ENV%",
+              userInfoEnv: "%ENCODED_USER_INFO_ENV%"
             },
             // Add the CDN URL placeholder to the script and link tags in the
             // template file
@@ -52,12 +48,12 @@ export function RunTimeEnvironmentPlugin<E extends {} = {}>(buildEnv: E): Rsbuil
                 }
                 return tag;
               });
-            },
-          },
+            }
+          }
         };
 
         return mergeRsbuildConfig(userConfig, extraConfig);
       });
-    },
-  });
+    }
+  };
 }

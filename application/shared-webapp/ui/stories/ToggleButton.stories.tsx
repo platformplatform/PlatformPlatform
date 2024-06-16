@@ -4,9 +4,9 @@ import { ToggleButton } from "../components/ToggleButton";
 const meta: Meta<typeof ToggleButton> = {
   component: ToggleButton,
   parameters: {
-    layout: "centered",
+    layout: "centered"
   },
-  tags: ["autodocs"],
+  tags: ["autodocs"]
 };
 
 export default meta;

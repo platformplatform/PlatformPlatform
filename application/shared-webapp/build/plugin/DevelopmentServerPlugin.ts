@@ -18,11 +18,11 @@ export type DevelopmentServerPluginOptions = {
  */
 
 export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions): RsbuildPlugin {
-  return ({
-    name: 'DevelopmentServerPlugin',
+  return {
+    name: "DevelopmentServerPlugin",
     setup(api) {
       api.modifyRsbuildConfig((userConfig, { mergeRsbuildConfig }) => {
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_ENV === "production") {
           // Do not modify the rsbuild config in production
           return userConfig;
         }
@@ -45,14 +45,14 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             strictPort: true,
             // Allow CORS for the platformplatform server
             headers: {
-              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Origin": "*"
             },
             // Start the server on the specified port with the platformplatform.pfx certificate
             port: options.port,
             https: {
               pfx: fs.readFileSync(pfxPath),
-              passphrase,
-            },
+              passphrase
+            }
           },
           dev: {
             // Set publicPath to auto to enable the server to serve the files
@@ -60,20 +60,20 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             // Write files to "dist" folder enabling the Api to serve them
             writeToDisk: (filename: string) => {
               return /index.html$/.test(filename) || /robots.txt$/.test(filename) || /favicon.ico$/.test(filename);
-            },
+            }
           },
           tools: {
             rspack: {
               watchOptions: {
                 // Ignore the dist folder to prevent infinite loop as we are writing files to dist
-                ignored: /dist\//,
-              },
-            },
-          },
+                ignored: /dist\//
+              }
+            }
+          }
         };
 
         return mergeRsbuildConfig(userConfig, extraConfig);
       });
-    },
-  });
+    }
+  };
 }

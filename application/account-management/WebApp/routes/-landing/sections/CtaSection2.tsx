@@ -11,18 +11,11 @@ export function CtaSection2() {
           <div className="text-white text-4xl font-semibold">
             Get lightyears ahead and get your product in the hands of your customers
           </div>
-          <div className="text-slate-200 text-xl font-normal">
-            No credit cards or hidden fees. Just Open Source.
-          </div>
-          <Button className="bg-gray-600 rounded-lg shadow whitespace-nowrap">
-            Get started today - it’s free
-          </Button>
+          <div className="text-slate-200 text-xl font-normal">No credit cards or hidden fees. Just Open Source.</div>
+          <Button className="bg-gray-600 rounded-lg shadow whitespace-nowrap">Get started today - it’s free</Button>
         </div>
         <div className="w-min-6xl">
-          <img
-            src={calenderMockupUrl}
-            alt="Create Account"
-          />
+          <img src={calenderMockupUrl} alt="Create Account" />
         </div>
       </div>
     </div>

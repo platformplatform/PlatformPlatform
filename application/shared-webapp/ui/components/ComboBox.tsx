@@ -1,14 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import React from "react";
-import type {
-  ComboBoxProps as AriaComboBoxProps,
-  ListBoxItemProps,
-  ValidationResult,
-} from "react-aria-components";
-import {
-  ComboBox as AriaComboBox,
-  ListBox,
-} from "react-aria-components";
+import type { ComboBoxProps as AriaComboBoxProps, ListBoxItemProps, ValidationResult } from "react-aria-components";
+import { ComboBox as AriaComboBox, ListBox } from "react-aria-components";
 import { Button } from "./Button";
 import { Description, FieldError, FieldGroup, Input, Label } from "./Field";
 import type { DropdownSectionProps } from "./ListBox";
@@ -23,9 +16,14 @@ export interface ComboBoxProps<T extends object> extends Omit<AriaComboBoxProps<
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
-export function ComboBox<T extends object>(
-  { label, description, errorMessage, children, items, ...props }: Readonly<ComboBoxProps<T>>
-) {
+export function ComboBox<T extends object>({
+  label,
+  description,
+  errorMessage,
+  children,
+  items,
+  ...props
+}: Readonly<ComboBoxProps<T>>) {
   return (
     <AriaComboBox {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       <Label>{label}</Label>
@@ -38,7 +36,10 @@ export function ComboBox<T extends object>(
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
       <Popover className="w-[--trigger-width]">
-        <ListBox items={items} className="outline-0 p-1 max-h-[inherit] overflow-auto [clip-path:inset(0_0_0_0_round_.75rem)]">
+        <ListBox
+          items={items}
+          className="outline-0 p-1 max-h-[inherit] overflow-auto [clip-path:inset(0_0_0_0_round_.75rem)]"
+        >
           {children}
         </ListBox>
       </Popover>

@@ -3,12 +3,11 @@ import { registration } from "../-components/actions";
 import { Link } from "@repo/ui/components/Link";
 
 export const Route = createFileRoute("/register/expired/")({
-  component: VerificationExpired,
+  component: VerificationExpired
 });
 
 function VerificationExpired() {
-  if (!registration.current)
-    throw new Error("Expected registration to be active");
+  if (!registration.current) throw new Error("Expected registration to be active");
 
   const { accountRegistrationId } = registration.current;
   return (

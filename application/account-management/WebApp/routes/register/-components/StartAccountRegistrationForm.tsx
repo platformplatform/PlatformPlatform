@@ -23,9 +23,7 @@ export function StartAccountRegistrationForm() {
   const [state, action] = useActionState(startAccountRegistration, initialState);
 
   if (state.success) {
-    return (
-      <Navigate to="/register/verify" />
-    );
+    return <Navigate to="/register/verify" />;
   }
 
   return (
@@ -34,9 +32,7 @@ export function StartAccountRegistrationForm() {
         <div className="flex justify-center">
           <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
         </div>
-        <h1 className="mb-3 text-2xl w-full text-center">
-          Create your account
-        </h1>
+        <h1 className="mb-3 text-2xl w-full text-center">Create your account</h1>
         <div className="text-gray-500 text-sm text-center">
           Sign up in seconds to get started building on PlatformPlatform - just like thousands of other developers.
         </div>
@@ -72,30 +68,30 @@ export function StartAccountRegistrationForm() {
             <Label>
               <Trans>Region</Trans>
             </Label>
-            <Select
-              name="region"
-              selectedKey="europe"
-              key="europe"
-            >
+            <Select name="region" selectedKey="europe" key="europe">
               <SelectItem id="europe">Europe</SelectItem>
             </Select>
             <FieldError />
           </TextField>
-
         </div>
         <StartAccountRegistrationButton />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
-            <Trans>Already have an account?</Trans>
-            {" "}
-            <Link href="/login" bold><Trans>Sign in</Trans></Link>
+            <Trans>Already have an account?</Trans>{" "}
+            <Link href="/login" bold>
+              <Trans>Sign in</Trans>
+            </Link>
           </p>
           <div className="text-sm text-neutral-500">
             By continuing, you agree to our policies
             <div className="flex items-center justify-center">
-              <Link href="/" bold>Terms of use</Link>
+              <Link href="/" bold>
+                Terms of use
+              </Link>
               <DotIcon className="w-4 h-4" />
-              <Link href="/" bold>Privacy Policies</Link>
+              <Link href="/" bold>
+                Privacy Policies
+              </Link>
             </div>
           </div>
           <img src={poweredByUrl} alt="powered by" />

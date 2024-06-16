@@ -10,7 +10,7 @@ import Pagination from "@repo/ui/components/Pagination";
 export function UserTable() {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "name",
-    direction: "ascending",
+    direction: "ascending"
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -19,8 +19,7 @@ export function UserTable() {
     // eslint-disable-next-line ts/ban-ts-comment
     // @ts-expect-error
     const items = rows.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
-    if (sortDescriptor.direction === "descending")
-      items.reverse();
+    if (sortDescriptor.direction === "descending") items.reverse();
 
     return items;
   }, [sortDescriptor]);
@@ -51,22 +50,24 @@ export function UserTable() {
             <Column defaultWidth={100} allowsSorting id="type">
               Role
             </Column>
-            <Column width={80}>
-              Actions
-            </Column>
+            <Column width={80}>Actions</Column>
           </TableHeader>
           <TableBody>
-            {paginatedRows.map(user => (
+            {paginatedRows.map((user) => (
               <Row key={user.email}>
                 <Cell>
                   <div className="flex h-14 items-center">
-                    {user.profilePicture
-                      ? (
-                        <img src={user.profilePicture} alt="User avatar" className="mr-2 w-10 h-10 rounded-full bg-transparent" />
-                        )
-                      : (
-                        <div className="w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] rounded-full bg-gray-200 mr-2 flex items-center justify-center text-sm font-semibold uppercase">AB</div>
-                        )}
+                    {user.profilePicture ? (
+                      <img
+                        src={user.profilePicture}
+                        alt="User avatar"
+                        className="mr-2 w-10 h-10 rounded-full bg-transparent"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] rounded-full bg-gray-200 mr-2 flex items-center justify-center text-sm font-semibold uppercase">
+                        AB
+                      </div>
+                    )}
                     <div className="truncate">
                       {user.name}
                       <br />
@@ -74,10 +75,22 @@ export function UserTable() {
                     </div>
                   </div>
                 </Cell>
-                <Cell><span className="text-gray-500">{user.email}</span></Cell>
-                <Cell><span className="text-gray-500">{user.added.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</span></Cell>
-                <Cell><span className="text-gray-500">{user.lastSeen.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}</span></Cell>
-                <Cell><Badge>{user.role}</Badge></Cell>
+                <Cell>
+                  <span className="text-gray-500">{user.email}</span>
+                </Cell>
+                <Cell>
+                  <span className="text-gray-500">
+                    {user.added.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                </Cell>
+                <Cell>
+                  <span className="text-gray-500">
+                    {user.lastSeen.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                </Cell>
+                <Cell>
+                  <Badge>{user.role}</Badge>
+                </Cell>
                 <Cell>
                   <div className="flex gap-8">
                     <button type="button" className="group-hover:visible invisible">

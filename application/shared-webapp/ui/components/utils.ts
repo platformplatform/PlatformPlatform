@@ -7,13 +7,13 @@ export const focusRing = tv({
   variants: {
     isFocusVisible: {
       false: "outline-0",
-      true: "outline-2",
-    },
-  },
+      true: "outline-2"
+    }
+  }
 });
 
 export type ComposeClass<T> = string | ((v: T) => string);
 
 export function composeTailwindRenderProps<T>(className: ComposeClass<T> | undefined, tw: string): ComposeClass<T> {
-  return composeRenderProps(className, className => twMerge(tw, className));
+  return composeRenderProps(className, (className) => twMerge(tw, className));
 }

@@ -26,14 +26,12 @@ export default function LoginForm() {
           <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
-          <Trans>
-            Please sign in to continue
-          </Trans>
+          <Trans>Please sign in to continue</Trans>
         </h1>
         <div className="text-gray-500 text-sm text-center">
           <Trans>
-            Sign in with your company email address to get started building on PlatformPlatform -
-            just like thousands of other developers.
+            Sign in with your company email address to get started building on PlatformPlatform - just like thousands of
+            other developers.
           </Trans>
         </div>
         <div className="w-full flex flex-col gap-4">
@@ -69,9 +67,10 @@ export default function LoginForm() {
         <LoginButton />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs text-neutral-500">
-            <Trans>Don't have an account?</Trans>
-            {" "}
-            <Link href="/register" bold><Trans>Sign up</Trans></Link>
+            <Trans>Don't have an account?</Trans>{" "}
+            <Link href="/register" bold>
+              <Trans>Sign up</Trans>
+            </Link>
           </p>
           <img src={poweredByUrl} alt="powered by" />
         </div>

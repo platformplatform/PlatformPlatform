@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/")({
-  component: CreatedTenantSuccessPage,
+  component: CreatedTenantSuccessPage
 });
 
 export default function CreatedTenantSuccessPage() {
