@@ -38,18 +38,11 @@ public static class SinglePageAppFallbackExtensions
             }
         );
 
-        var webAppConfiguration = app.GetSinglePageAppConfiguration();
-
-        Directory.CreateDirectory(webAppConfiguration.BuildRootPath);
+        Directory.CreateDirectory(SinglePageAppConfiguration.BuildRootPath);
 
         return app
-            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(webAppConfiguration.BuildRootPath) })
+            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) })
             .UseRequestLocalization("en-US", "da-DK");
-    }
-
-    public static SinglePageAppConfiguration GetSinglePageAppConfiguration(this IApplicationBuilder app)
-    {
-        return app.ApplicationServices.GetRequiredService<SinglePageAppConfiguration>();
     }
 
     private static void SetResponseHttpHeaders(SinglePageAppConfiguration singlePageAppConfiguration, IHeaderDictionary responseHeaders)
