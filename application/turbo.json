@@ -21,6 +21,11 @@
       "persistent": true,
       "env": ["CERTIFICATE_PASSWORD"]
     },
+    "lint": {
+      "dependsOn": [
+        "^lint"
+      ]
+    },
     "format": {
       "dependsOn": [
         "^format"

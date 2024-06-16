@@ -15,6 +15,7 @@
     "build": "turbo build",
     "test": "turbo test",
     "check": "turbo check",
+    "lint": "turbo lint",
     "format": "turbo format"
   },
   "dependencies": {

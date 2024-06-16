@@ -9,6 +9,7 @@
     "build": "npm run update-translations && npm run swagger && tsr generate && rsbuild build",
     "update-translations": "lingui extract && lingui compile --typescript",
     "check": "biome check",
+    "lint": "biome lint --write",
     "format": "biome format --write",
     "swagger": "openapi-typescript lib/api/AccountManagement.Api.json -o lib/api/api.generated.d.ts && biome format --write lib/api/api.generated.d.ts",
     "publish": "npm run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"

@@ -12,6 +12,7 @@
     "dev": "tsc -p . -w",
     "build": "rm -rf ./dist && tsc -p .",
     "check": "biome check",
+    "lint": "biome lint --write",
     "format": "biome format --write"
   },
   "devDependencies": {
