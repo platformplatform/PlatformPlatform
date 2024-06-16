@@ -1,5 +1,14 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.8.1/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "organizeImports": {
+    "enabled": false
+  },
   "formatter": {
     "indentStyle": "space",
     "lineWidth": 120
@@ -10,7 +19,6 @@
     }
   },
   "files": {
-    "ignore": ["node_modules", ".swc", ".turbo", "dist", "coverage", "obj", "package-lock.json"],
-    "include": ["*.ts", "**/*.ts", "*.tsx", "**/*.tsx"]
+    "ignore": ["*.Api.json"]
   }
 }

@@ -3,18 +3,11 @@
   "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
-      "outputs": [
-        "dist/**",
-        "storybook-static/**"
-      ],
-      "dependsOn": [
-        "^build"
-      ]
+      "outputs": ["dist/**", "storybook-static/**"],
+      "dependsOn": ["^build"]
     },
     "check": {
-      "dependsOn": [
-        "^check"
-      ]
+      "dependsOn": ["^check"]
     },
     "dev": {
       "cache": false,
@@ -22,14 +15,10 @@
       "env": ["CERTIFICATE_PASSWORD"]
     },
     "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+      "dependsOn": ["^lint"]
     },
     "format": {
-      "dependsOn": [
-        "^format"
-      ]
+      "dependsOn": ["^format"]
     },
     "clean": {
       "cache": false

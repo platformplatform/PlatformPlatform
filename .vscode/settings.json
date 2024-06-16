@@ -13,5 +13,6 @@
   },
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}",
-  "dotnet.defaultSolution": "application/PlatformPlatform.sln"
+  "dotnet.defaultSolution": "application/PlatformPlatform.sln",
+  "biome.lspBin": "./application/node_modules/.bin/biome"
 }

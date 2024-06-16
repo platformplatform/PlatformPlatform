@@ -4,11 +4,7 @@
   "description": "Application",
   "private": true,
   "packageManager": "npm@10.2.4",
-  "workspaces": [
-    "account-management/WebApp",
-    "back-office/WebApp",
-    "shared-webapp/*"
-  ],
+  "workspaces": ["account-management/WebApp", "back-office/WebApp", "shared-webapp/*"],
   "scripts": {
     "start": "npm install && npm run dev",
     "dev": "turbo dev",
