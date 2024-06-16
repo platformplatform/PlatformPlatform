@@ -8,7 +8,6 @@
     "moduleResolution": "Node",
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationDir": "dist"
+    "declaration": true
   }
 }

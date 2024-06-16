@@ -4,7 +4,6 @@
   "extends": "@repo/config/typescript/node-library.json",
   "compilerOptions": {
     "rootDir": ".",
-    "declarationDir": "dist",
     "outDir": "dist"
   },
   "exclude": ["node_modules", "dist"]
