@@ -5,7 +5,7 @@ import { routeTree } from "./routeTree.generated";
 export const router = createRouter({
   routeTree,
   defaultPreload: "intent",
-  basepath: "/back-office",
+  basepath: "/back-office"
 });
 
 export type RouterType = typeof router;

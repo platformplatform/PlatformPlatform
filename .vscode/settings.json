@@ -1,9 +1,24 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
     "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[bicep]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-bicep"
@@ -14,5 +29,7 @@
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}",
   "dotnet.defaultSolution": "application/PlatformPlatform.sln",
-  "biome.lspBin": "./application/node_modules/.bin/biome"
+  "biome.lspBin": "./application/node_modules/.bin/workspace-biome",
+  "biome.searchInPath": false,
+  "biome.enabled": true,
 }
