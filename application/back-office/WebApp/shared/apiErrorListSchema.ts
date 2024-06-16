@@ -1,6 +1,6 @@
 import type { FetchResponse } from "openapi-fetch";
 import { z } from "zod";
-import { getCamelCase } from "./getCamelCase.ts";
+import { getCamelCase } from "./getCamelCase";
 
 const ApiErrorListSchema = z.array(z.object({ code: z.string(), message: z.string() }));
 type ApiErrorList = z.infer<typeof ApiErrorListSchema>;

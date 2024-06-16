@@ -1,0 +1,10 @@
+{
+  "name": "@repo/config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "exports": {
+    "./*": "./*",
+    "./package.json": "./package.json"
+  }
+}
