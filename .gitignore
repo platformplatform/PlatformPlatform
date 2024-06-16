@@ -390,6 +390,7 @@ FodyWeavers.xsd
 
 # Frontend builds
 .swc/
-**/WebApp/dist/
+dist/
+.turbo/
 
 **/translations/locale/*.ts
