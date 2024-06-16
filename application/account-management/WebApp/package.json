@@ -21,6 +21,11 @@
     "@repo/build": "*",
     "@repo/config": "*"
   },
+  "postcss": {
+    "plugins": {
+      "tailwindcss": {}
+    }
+  },
   "browserslist": [
     "last 1 version",
     "> 1%",

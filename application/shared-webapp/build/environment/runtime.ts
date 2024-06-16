@@ -1,3 +1,6 @@
+/// <reference types="typescript/lib/lib.dom.d.ts" />
+/// <reference path="../environment.d.ts" />
+
 /**
  * This runtime is automatically added as part of the build setup!
  * This file enables runtime environment configuration of the client.
