@@ -185,13 +185,9 @@ jobs:
         working-directory: application
         run: npm run build
 
-      - name: Run ESLint
+      - name: Run check
         working-directory: application/account-management/WebApp
-        run: npm run lint
-
-      - name: Run Type Checking
-        working-directory: application/account-management/WebApp
-        run: npm run typechecking
+        run: npm run check
 
   api-deploy:
     name: Deploy API

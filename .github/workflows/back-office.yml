@@ -185,14 +185,10 @@ jobs:
         working-directory: application
         run: npm run build
 
-      - name: Run ESLint
+      - name: Run check
         working-directory: application/back-office/WebApp
-        run: npm run lint
+        run: npm run check
 
-      - name: Run Type Checking
-        working-directory: application/back-office/WebApp
-        run: npm run typechecking
-  
   api-deploy:
     name: Deploy API
     if: github.ref == 'refs/heads/main'

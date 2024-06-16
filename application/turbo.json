@@ -11,15 +11,20 @@
         "^build"
       ]
     },
-    "lint": {
+    "check": {
       "dependsOn": [
-        "^lint"
+        "^check"
       ]
     },
     "dev": {
       "cache": false,
       "persistent": true,
       "env": ["CERTIFICATE_PASSWORD"]
+    },
+    "format": {
+      "dependsOn": [
+        "^format"
+      ]
     },
     "clean": {
       "cache": false

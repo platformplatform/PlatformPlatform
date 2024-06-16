@@ -2,8 +2,7 @@
   "recommendations": [
     "bradlc.vscode-tailwindcss",
     "ms-azuretools.vscode-bicep",
-    "dbaeumer.vscode-eslint",
     "github.vscode-github-actions",
-    "esbenp.prettier-vscode",
+    "biomejs.biome",
   ]
 }

@@ -14,7 +14,7 @@
     "dev": "tsc -p . -w",
     "build": "rm -rf ./dist && tsc -p .",
     "check": "biome check",
-    "format": "biome format"
+    "format": "biome format --write"
   },
   "devDependencies": {
     "@repo/config": "*",
