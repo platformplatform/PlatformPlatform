@@ -55,7 +55,7 @@ public class DevCommand : Command
     {
         var url = $"https://localhost:{port}";
 
-        var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        HttpClient httpClient = new();
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("PlatformPlatform Developer CLI");
 
         while (true)
