@@ -56,7 +56,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
     [InlineData("Subdomain too short", "ab")]
     [InlineData("Subdomain too long", "1234567890123456789012345678901")]
     [InlineData("Subdomain with uppercase", "Tenant2")]
-    [InlineData("Subdomain special characters", "tenant-2")]
+    [InlineData("Subdomain special characters", "tenant%2")]
     [InlineData("Subdomain with spaces", "tenant 2")]
     public async Task StartAccountRegistration_WhenInvalidSubDomain_ShouldFail(string scenario, string subdomain)
     {
@@ -74,7 +74,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task CompleteAccountRegistrationTests_WhenSucceded_ShouldLogCorrectInformation()
+    public async Task CompleteAccountRegistrationTests_WhenSucceeds_ShouldLogCorrectInformation()
     {
         // Arrange
         var mockLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
