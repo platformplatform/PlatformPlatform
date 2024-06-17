@@ -45,7 +45,7 @@ TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.sln) solution i
 
 ### Prerequisites
 
-For development, you need  .NET, Aspire, Docker, Node, and Yarn. And GitHub and Azure CLI for setting up CI/CD.
+For development, you need .NET, Aspire, Docker, and Node. And GitHub and Azure CLI for setting up CI/CD.
 
 <details>
 
@@ -55,7 +55,7 @@ Open a PowerShell terminal as Administrator and run the following commands:
 
 - `wsl --install` (Windows Subsystem for Linux, required for Docker)
 - Install [Chocolatey](https://chocolatey.org/install), a package manager for Windows
-- `choco install dotnet-sdk git docker-desktop nodejs yarn azure-cli gh`
+- `choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
 - `dotnet workload update` and `dotnet workload install aspire`
 
 </details>
@@ -68,7 +68,7 @@ Open a terminal and run the following commands:
 
 - Install [Homebrew](https://brew.sh/), a package manager for Mac
 - `brew install --cask dotnet-sdk`
-- `brew install git docker node yarn azure-cli gh`
+- `brew install git docker node azure-cli gh`
 - `dotnet workload update` and `dotnet workload install aspire`
 - `dotnet dev-certs https --trust`
 
@@ -127,12 +127,6 @@ Open a terminal and run the following commands:
 
   ```bash
   sudo dotnet workload update && dotnet workload install aspire
-  ```
-
-- Install Yarn
-
-  ```bash
-  npm install --global yarn
   ```
 
 - Install Azure CLI

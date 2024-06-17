@@ -1,16 +1,22 @@
+import "@repo/ui/tailwind.css";
+import { router } from "@/shared/lib/router/router";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
+import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "@tanstack/react-router";
-import { ApplicationInsightsProvider } from "./lib/applicationInsights/ApplicationInsightsProvider";
-import "./main.css";
-import { dynamicActivate, getInitialLocale } from "./translations/i18n";
-import { router } from "@/lib/router/router";
+import { ApplicationInsightsProvider } from "./shared/lib/applicationInsights/ApplicationInsightsProvider";
+import { dynamicActivate, getInitialLocale } from "./shared/translations/i18n";
 
 await dynamicActivate(i18n, getInitialLocale());
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <I18nProvider i18n={i18n}>
       <ApplicationInsightsProvider>

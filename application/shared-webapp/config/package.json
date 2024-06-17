@@ -1,0 +1,13 @@
+{
+  "name": "@repo/config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "bin": {
+    "workspace-biome": "./biome/workspace-biome"
+  },
+  "exports": {
+    "./*": "./*",
+    "./package.json": "./package.json"
+  }
+}

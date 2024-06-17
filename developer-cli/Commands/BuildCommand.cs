@@ -23,7 +23,7 @@ public class BuildCommand : Command
 
     private int Execute(string? solutionName)
     {
-        PrerequisitesChecker.Check("dotnet", "aspire", "node", "yarn");
+        PrerequisitesChecker.Check("dotnet", "aspire", "node");
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 

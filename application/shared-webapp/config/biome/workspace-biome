@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+/**
+ * This script is used to run the Biome binary from VS Code until workspaces are supported.
+ *
+ * ref: https://github.com/biomejs/biome-vscode/issues/201
+ */
+
+const fs = require("node:fs");
+const path = require("node:path");
+
+// Get the path of the application
+const applicationPath = path.join(__dirname, "..", "..", "..");
+
+// Set the BIOME_CONFIG_PATH environment variable to the path of the biome.json file
+const configPath = path.join(applicationPath, "biome.json");
+
+if (!fs.existsSync(configPath)) {
+  console.error(`biome.json not found in ${applicationPath}. Please run \`biome init\` to create the file.`);
+  process.exit(1);
+}
+
+// Get the path of the biome module
+const biomePath = path.join(applicationPath, "node_modules", ".bin", "biome");
+
+// Check if the biome module exists
+if (!fs.existsSync(biomePath)) {
+  console.error("Biome module not found. Please run `npm install` to install the module. ");
+  process.exit(1);
+}
+
+// Set the BIOME_CONFIG_PATH environment variable pointing to the directory of the biome.json file
+process.env.BIOME_CONFIG_PATH = path.dirname(configPath);
+
+// Load the biome module
+require(biomePath);

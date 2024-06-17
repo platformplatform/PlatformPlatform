@@ -387,10 +387,10 @@ FodyWeavers.xsd
 **/*.generated.d.ts
 **/*.generated.ts
 **/Api/swagger.json
-**/lib/api/*.Api.json
 
 # Frontend builds
 .swc/
-**/WebApp/dist/
+dist/
+.turbo/
 
 **/translations/locale/*.ts

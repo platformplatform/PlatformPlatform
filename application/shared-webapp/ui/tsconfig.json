@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "PlatformPlatform build configuration",
+  "extends": "@repo/config/typescript/react-library.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "exclude": ["node_modules", "dist"]
+}

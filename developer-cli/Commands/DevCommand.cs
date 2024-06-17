@@ -18,7 +18,7 @@ public class DevCommand : Command
 
     private void Execute()
     {
-        PrerequisitesChecker.Check("dotnet", "docker", "aspire", "node", "yarn");
+        PrerequisitesChecker.Check("dotnet", "docker", "aspire", "node");
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
 
