@@ -37,7 +37,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
         if (userRole is not null)
         {
-            users = users.Where(u => u.UserRole == userRole);
+            users = users.Where(u => u.Role == userRole);
         }
 
         users = orderBy switch
@@ -54,9 +54,9 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
             SortableUserProperties.Email => sortOrder == SortOrder.Ascending
                 ? users.OrderBy(u => u.Email)
                 : users.OrderByDescending(u => u.Email),
-            SortableUserProperties.UserRole => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.UserRole)
-                : users.OrderByDescending(u => u.UserRole),
+            SortableUserProperties.Role => sortOrder == SortOrder.Ascending
+                ? users.OrderBy(u => u.Role)
+                : users.OrderByDescending(u => u.Role),
             _ => users
         };
 

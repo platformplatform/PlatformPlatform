@@ -26,7 +26,7 @@ export const rows: User[] = [
     email: "jane@example.com",
     added: new Date("2023-09-10"),
     lastSeen: new Date("2024-01-10"),
-    role: "User",
+    role: "Member",
     profilePicture: avatarUrl
   },
   {
@@ -44,7 +44,7 @@ export const rows: User[] = [
     email: "mohamed@example.com",
     added: new Date("2023-10-10"),
     lastSeen: new Date("2024-01-10"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Anika Patel",
@@ -61,7 +61,7 @@ export const rows: User[] = [
     email: "lucas@example.com",
     added: new Date("2023-11-20"),
     lastSeen: new Date("2024-03-30"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Sophia Turner",
@@ -78,7 +78,7 @@ export const rows: User[] = [
     email: "andre@example.com",
     added: new Date("2024-03-22"),
     lastSeen: new Date("2024-05-22"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Ling Chen",
@@ -95,7 +95,7 @@ export const rows: User[] = [
     email: "carlos@example.com",
     added: new Date("2023-11-01"),
     lastSeen: new Date("2024-02-01"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Olivia Johnson",
@@ -112,7 +112,7 @@ export const rows: User[] = [
     email: "haruto@example.com",
     added: new Date("2023-10-25"),
     lastSeen: new Date("2024-01-25"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Ibrahim Nasser",
@@ -129,7 +129,7 @@ export const rows: User[] = [
     email: "samantha@example.com",
     added: new Date("2023-09-22"),
     lastSeen: new Date("2024-01-10"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "Natalia Romanova",
@@ -155,7 +155,7 @@ export const rows: User[] = [
     email: "bob@example.com",
     added: new Date("2024-01-25"),
     lastSeen: new Date("2024-05-25"),
-    role: "User"
+    role: "Member"
   },
   {
     name: "James Doe",
@@ -163,7 +163,7 @@ export const rows: User[] = [
     email: "james@example.com",
     added: new Date("2023-10-05"),
     lastSeen: new Date("2024-03-05"),
-    role: "User",
+    role: "Member",
     profilePicture: avatarUrl
   },
   {
@@ -172,7 +172,7 @@ export const rows: User[] = [
     email: "mary@example.com",
     added: new Date("2024-02-12"),
     lastSeen: new Date("2024-06-02"),
-    role: "User",
+    role: "Member",
     profilePicture: avatarUrl
   }
 ];

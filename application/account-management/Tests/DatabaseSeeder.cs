@@ -29,16 +29,16 @@ public sealed class DatabaseSeeder
         Tenant1 = Tenant.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email());
         accountManagementDbContext.Tenants.AddRange(Tenant1);
 
-        User1 = User.Create(Tenant1.Id, _faker.Internet.Email(), UserRole.TenantOwner, true, null);
+        User1 = User.Create(Tenant1.Id, _faker.Internet.Email(), UserRole.Owner, true, null);
         accountManagementDbContext.Users.AddRange(User1);
 
         TenantForSearching = Tenant.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email());
         accountManagementDbContext.Tenants.AddRange(TenantForSearching);
 
-        User1ForSearching = User.Create(TenantForSearching.Id, "willgates@email.com", UserRole.TenantUser, true, null);
+        User1ForSearching = User.Create(TenantForSearching.Id, "willgates@email.com", UserRole.Member, true, null);
         User1ForSearching.Update("William Henry", "Gates");
 
-        User2ForSearching = User.Create(TenantForSearching.Id, _faker.Internet.Email(), UserRole.TenantOwner, true, null);
+        User2ForSearching = User.Create(TenantForSearching.Id, _faker.Internet.Email(), UserRole.Owner, true, null);
 
         accountManagementDbContext.Users.AddRange(User1);
         accountManagementDbContext.Users.AddRange(User1ForSearching);

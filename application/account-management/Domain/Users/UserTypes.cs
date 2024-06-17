@@ -15,9 +15,9 @@ public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
-    TenantUser,
-    TenantAdmin,
-    TenantOwner
+    Member,
+    Admin,
+    Owner
 }
 
 public enum SortableUserProperties
@@ -26,5 +26,5 @@ public enum SortableUserProperties
     ModifiedAt,
     Name,
     Email,
-    UserRole
+    Role
 }

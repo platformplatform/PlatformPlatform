@@ -419,14 +419,14 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "TenantUser",
-          "TenantAdmin",
-          "TenantOwner"
+          "Member",
+          "Admin",
+          "Owner"
         ],
         "enum": [
-          "TenantUser",
-          "TenantAdmin",
-          "TenantOwner"
+          "Member",
+          "Admin",
+          "Owner"
         ]
       },
       "SortableUserProperties": {
@@ -437,14 +437,14 @@
           "ModifiedAt",
           "Name",
           "Email",
-          "UserRole"
+          "Role"
         ],
         "enum": [
           "CreatedAt",
           "ModifiedAt",
           "Name",
           "Email",
-          "UserRole"
+          "Role"
         ]
       },
       "SortOrder": {
