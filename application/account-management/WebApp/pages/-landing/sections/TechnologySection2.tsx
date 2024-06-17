@@ -24,6 +24,7 @@ export function TechnologySection2() {
     </div>
   );
 }
+
 export default TechnologySection2;
 
 // FeatureTitle: A functional component that displays the section title

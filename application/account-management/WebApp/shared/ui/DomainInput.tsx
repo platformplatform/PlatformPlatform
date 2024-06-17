@@ -1,5 +1,5 @@
-import { Input as RACInput } from "react-aria-components";
 import type { InputProps } from "react-aria-components";
+import { Input as RACInput } from "react-aria-components";
 import { AlertCircleIcon } from "lucide-react";
 import { composeTailwindRenderProps } from "@repo/ui/components/utils";
 

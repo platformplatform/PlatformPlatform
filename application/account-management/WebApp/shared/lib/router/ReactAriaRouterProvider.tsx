@@ -1,6 +1,6 @@
+import type { NavigateOptions, RegisteredRouter, RoutePaths, ToOptions, ToPathOption } from "@tanstack/react-router";
 import { useRouter } from "@tanstack/react-router";
 import { RouterProvider } from "react-aria-components";
-import type { NavigateOptions, RegisteredRouter, RoutePaths, ToOptions, ToPathOption } from "@tanstack/react-router";
 import type { RouterType } from "./router";
 
 // Router Types
