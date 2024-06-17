@@ -3,7 +3,6 @@
   "profiles": {
     "Workers": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "development"
       }
