@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\ApplicationCore\SharedKernel.ApplicationCore.csproj"/>
-        <ProjectReference Include="..\Domain\BackOffice.Domain.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\ApplicationCore\SharedKernel.ApplicationCore.csproj" />
+        <ProjectReference Include="..\Domain\BackOffice.Domain.csproj" />
     </ItemGroup>
 
 </Project>

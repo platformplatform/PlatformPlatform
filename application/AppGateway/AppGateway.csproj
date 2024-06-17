@@ -10,11 +10,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Yarp.ReverseProxy"/>
+        <PackageReference Include="Yarp.ReverseProxy" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj"/>
+        <ProjectReference Include="..\shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj" />
     </ItemGroup>
 
 </Project>

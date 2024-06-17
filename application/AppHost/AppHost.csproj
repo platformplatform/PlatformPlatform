@@ -10,23 +10,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\account-management\Api\AccountManagement.Api.csproj"/>
-        <ProjectReference Include="..\account-management\WebApp\AccountManagement.WebApp.esproj"/>
-        <ProjectReference Include="..\account-management\Workers\AccountManagement.Workers.csproj"/>
-        <ProjectReference Include="..\AppGateway\AppGateway.csproj"/>
-        <ProjectReference Include="..\back-office\Api\BackOffice.Api.csproj"/>
-        <ProjectReference Include="..\back-office\WebApp\BackOffice.WebApp.esproj"/>
-        <ProjectReference Include="..\back-office\Workers\BackOffice.Workers.csproj"/>
+        <ProjectReference Include="..\account-management\Api\AccountManagement.Api.csproj" />
+        <ProjectReference Include="..\account-management\WebApp\AccountManagement.WebApp.esproj" />
+        <ProjectReference Include="..\account-management\Workers\AccountManagement.Workers.csproj" />
+        <ProjectReference Include="..\AppGateway\AppGateway.csproj" />
+        <ProjectReference Include="..\back-office\Api\BackOffice.Api.csproj" />
+        <ProjectReference Include="..\back-office\WebApp\BackOffice.WebApp.esproj" />
+        <ProjectReference Include="..\back-office\Workers\BackOffice.Workers.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Azure.Storage.Blobs"/>
-        <PackageReference Include="Aspire.Hosting.AppHost"/>
-        <PackageReference Include="Aspire.Hosting.Azure.Storage"/>
-        <PackageReference Include="Aspire.Hosting.NodeJs"/>
-        <PackageReference Include="Aspire.Hosting.SqlServer"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets"/>
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" />
+        <PackageReference Include="Aspire.Hosting.AppHost" />
+        <PackageReference Include="Aspire.Hosting.Azure.Storage" />
+        <PackageReference Include="Aspire.Hosting.NodeJs" />
+        <PackageReference Include="Aspire.Hosting.SqlServer" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     </ItemGroup>
 
     <ItemGroup>

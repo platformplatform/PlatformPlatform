@@ -9,22 +9,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ApplicationCore\SharedKernel.ApplicationCore.csproj"/>
-        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj"/>
+        <ProjectReference Include="..\ApplicationCore\SharedKernel.ApplicationCore.csproj" />
+        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Azure.Storage.Blobs"/>
-        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer"/>
-        <PackageReference Include="Azure.Communication.Email"/>
-        <PackageReference Include="Azure.Security.KeyVault.Secrets"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" />
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
+        <PackageReference Include="Azure.Communication.Email" />
+        <PackageReference Include="Azure.Security.KeyVault.Secrets" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Scrutor"/>
+        <PackageReference Include="Scrutor" />
     </ItemGroup>
 
 </Project>

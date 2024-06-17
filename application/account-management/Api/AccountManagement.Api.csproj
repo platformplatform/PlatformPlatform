@@ -13,13 +13,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
+        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\ApiCore\SharedKernel.ApiCore.csproj"/>
-        <ProjectReference Include="..\Application\AccountManagement.Application.csproj"/>
-        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\ApiCore\SharedKernel.ApiCore.csproj" />
+        <ProjectReference Include="..\Application\AccountManagement.Application.csproj" />
+        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

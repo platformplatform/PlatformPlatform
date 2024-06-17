@@ -5,15 +5,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="JetBrains.Annotations"/>
-        <Using Include="MediatR"/>
-        <Using Include="Microsoft.Extensions.Logging"/>
-        <Using Include="PlatformPlatform.AccountManagement.Domain.Tenants"/>
-        <Using Include="PlatformPlatform.AccountManagement.Domain.Users"/>
-        <Using Include="System.ComponentModel"/>
-        <Using Include="System.Diagnostics"/>
-        <Using Include="System.Reflection"/>
-        <Using Include="System.Text.Json.Serialization"/>
+        <Using Include="JetBrains.Annotations" />
+        <Using Include="MediatR" />
+        <Using Include="Microsoft.Extensions.Logging" />
+        <Using Include="PlatformPlatform.AccountManagement.Domain.Tenants" />
+        <Using Include="PlatformPlatform.AccountManagement.Domain.Users" />
+        <Using Include="System.ComponentModel" />
+        <Using Include="System.Diagnostics" />
+        <Using Include="System.Reflection" />
+        <Using Include="System.Text.Json.Serialization" />
     </ItemGroup>
 
 </Project>
