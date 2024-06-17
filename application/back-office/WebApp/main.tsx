@@ -6,7 +6,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ApplicationInsightsProvider } from "./lib/applicationInsights/ApplicationInsightsProvider";
-import { dynamicActivate, getInitialLocale } from "./translations/i18n";
+import { dynamicActivate, getInitialLocale } from "./shared/translations/i18n";
 
 await dynamicActivate(i18n, getInitialLocale());
 

@@ -33,7 +33,7 @@ const messageCache = new Map<string, Messages>();
 
 export async function loadCatalog(locale: string) {
   if (messageCache.has(locale) === false) {
-    const { messages } = (await import(`@/translations/locale/${locale}.ts`)) as {
+    const { messages } = (await import(`@/shared/translations/locale/${locale}.ts`)) as {
       messages: Messages;
     };
     messageCache.set(locale, messages);
