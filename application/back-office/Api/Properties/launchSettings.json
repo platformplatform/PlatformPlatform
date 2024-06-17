@@ -3,9 +3,6 @@
   "profiles": {
     "Api": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:9200",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "development",
         "PUBLIC_URL": "https://localhost:9000",
