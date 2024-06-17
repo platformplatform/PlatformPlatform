@@ -9,8 +9,8 @@ import { Link } from "@repo/ui/components/Link";
 import { FieldError, Input, Label } from "@repo/ui/components/Field";
 import poweredByUrl from "@/shared/ui/images/powered-by.png";
 import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
-import { useSignInAction } from "@/lib/auth/hooks";
-import type { State } from "@/lib/auth/actions";
+import { useSignInAction } from "@/shared/lib/auth/hooks";
+import type { State } from "@/shared/lib/auth/actions";
 
 export default function LoginForm() {
   const signInAction = useSignInAction();

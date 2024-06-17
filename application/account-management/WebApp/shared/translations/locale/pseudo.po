@@ -14,18 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to login."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed login."
-msgstr ""
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed logout."
-msgstr ""
-
-#. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr ""
 
@@ -55,6 +43,18 @@ msgstr ""
 
 #. js-lingui-explicit-id
 msgid "subdomain"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Missing Fields. Failed to login."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed login."
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "Server error: Failed logout."
 msgstr ""
 
 #. js-lingui-explicit-id

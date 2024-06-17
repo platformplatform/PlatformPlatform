@@ -1,7 +1,7 @@
 import { i18n } from "@lingui/core";
 import { z } from "zod";
 import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
-import { accountManagementApi } from "@/lib/api/client";
+import { accountManagementApi } from "@/shared/lib/api/client";
 
 const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
 

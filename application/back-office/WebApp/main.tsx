@@ -1,11 +1,11 @@
 import "@repo/ui/tailwind.css";
-import { router } from "@/lib/router/router";
+import { router } from "@/shared/lib/router/router";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ApplicationInsightsProvider } from "./lib/applicationInsights/ApplicationInsightsProvider";
+import { ApplicationInsightsProvider } from "./shared/lib/applicationInsights/ApplicationInsightsProvider";
 import { dynamicActivate, getInitialLocale } from "./shared/translations/i18n";
 
 await dynamicActivate(i18n, getInitialLocale());

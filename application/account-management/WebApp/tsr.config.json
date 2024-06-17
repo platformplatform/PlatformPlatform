@@ -1,6 +1,6 @@
 {
   "routesDirectory": "./routes",
-  "generatedRouteTree": "./lib/router/routeTree.generated.ts",
+  "generatedRouteTree": "./shared/lib/router/routeTree.generated.ts",
   "routeFileIgnorePrefix": "-",
   "quoteStyle": "double",
   "semicolons": true
