@@ -6,12 +6,12 @@ import type { State } from "./actions";
 import { completeAccountRegistration, registration } from "./actions";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { useExpirationTimeout } from "@/ui/oneTimePassword/useExpiration";
-import { OneTimeCodeInput } from "@/ui/oneTimePassword/OneTimeCodeInput";
-import { DigitPattern } from "@/ui/oneTimePassword/DigitPattern";
+import { useExpirationTimeout } from "@/shared/ui/oneTimePassword/useExpiration";
+import { OneTimeCodeInput } from "@/shared/ui/oneTimePassword/OneTimeCodeInput";
+import { DigitPattern } from "@/shared/ui/oneTimePassword/DigitPattern";
 import { Link } from "@repo/ui/components/Link";
-import poweredByUrl from "@/ui/images/powered-by.png";
-import logoMarkUrl from "@/ui/images/logo-mark.png";
+import poweredByUrl from "@/shared/ui/images/powered-by.png";
+import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
 
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };

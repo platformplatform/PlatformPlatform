@@ -11,9 +11,9 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { FieldError, Input, Label } from "@repo/ui/components/Field";
-import poweredByUrl from "@/ui/images/powered-by.png";
-import logoMarkUrl from "@/ui/images/logo-mark.png";
-import { DomainInput } from "@/ui/DomainInput";
+import poweredByUrl from "@/shared/ui/images/powered-by.png";
+import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
+import { DomainInput } from "@/shared/ui/DomainInput";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 
 export function StartAccountRegistrationForm() {

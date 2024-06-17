@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CompleteAccountRegistrationForm } from "../-components/CompleteAccountRegistrationForm";
-import { HeroImage } from "@/ui/images/HeroImage";
+import { HeroImage } from "@/shared/ui/images/HeroImage";
 
 export const Route = createFileRoute("/register/verify/")({
   component: CompleteAccountRegistrationPage

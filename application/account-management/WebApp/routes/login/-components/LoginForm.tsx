@@ -7,8 +7,8 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { FieldError, Input, Label } from "@repo/ui/components/Field";
-import poweredByUrl from "@/ui/images/powered-by.png";
-import logoMarkUrl from "@/ui/images/logo-mark.png";
+import poweredByUrl from "@/shared/ui/images/powered-by.png";
+import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
 import { useSignInAction } from "@/lib/auth/hooks";
 import type { State } from "@/lib/auth/actions";
 
