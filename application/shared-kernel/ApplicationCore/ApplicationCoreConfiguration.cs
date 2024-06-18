@@ -19,25 +19,8 @@ public static class ApplicationCoreConfiguration
         services.AddScoped<ConcurrentCommandCounter>();
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
-        services.AddNonGenericValidators(applicationAssembly);
+        services.AddValidatorsFromAssembly(applicationAssembly);
 
         return services;
-    }
-
-    /// <summary>
-    ///     Registers all non-generic and non-abstract validators in the specified assembly. This is necessary because
-    ///     services.AddValidatorsFromAssembly() includes registration of generic and abstract validators.
-    /// </summary>
-    private static void AddNonGenericValidators(this IServiceCollection services, Assembly assembly)
-    {
-        var validators = assembly.GetTypes()
-            .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false })
-            .SelectMany(type => type.GetInterfaces(), (type, interfaceType) => new { type, interfaceType })
-            .Where(t => t.interfaceType.IsGenericType && t.interfaceType.GetGenericTypeDefinition() == typeof(IValidator<>));
-
-        foreach (var validator in validators)
-        {
-            services.AddTransient(validator.interfaceType, validator.type);
-        }
     }
 }

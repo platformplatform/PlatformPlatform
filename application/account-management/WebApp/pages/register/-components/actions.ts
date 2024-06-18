@@ -26,7 +26,7 @@ export interface State {
 }
 
 const StartAccountRegistrationSchema = z.object({
-  subdomain: z.string().min(3, "Subdomain must be between 3-30 alphanumeric and lowercase characters").max(30),
+  subdomain: z.string().min(3, "Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.").max(30),
   email: z
     .string()
     .min(5, "Please enter your email")

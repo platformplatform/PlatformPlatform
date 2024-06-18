@@ -14,6 +14,8 @@ public class SinglePageAppConfiguration
     private const string PublicKeyPrefix = "PUBLIC_";
     private const string ApplicationVersionKey = "APPLICATION_VERSION";
 
+    public static readonly string BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
+
     private readonly string _htmlTemplatePath;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
     private readonly DateTime _startUpTime = DateTime.UtcNow;
@@ -38,8 +40,7 @@ public class SinglePageAppConfiguration
 
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
 
-        BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
-        _htmlTemplatePath = Path.Combine(GetWebAppDistRoot("WebApp", "dist"), "index.html");
+        _htmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies(isDevelopment);
     }
@@ -47,8 +48,6 @@ public class SinglePageAppConfiguration
     private string CdnUrl { get; }
 
     private string PublicUrl { get; }
-
-    public string BuildRootPath { get; }
 
     public Dictionary<string, string> StaticRuntimeEnvironment { get; }
 

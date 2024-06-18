@@ -63,7 +63,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Subdomain", "Subdomain must be between 3-30 alphanumeric and lowercase characters.")
+            new ErrorDetail("Subdomain", "Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 

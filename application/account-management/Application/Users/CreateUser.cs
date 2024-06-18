@@ -5,16 +5,19 @@ using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
 public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
-    : ICommand, IUserValidation, IRequest<Result<UserId>>;
+    : ICommand, IRequest<Result<UserId>>;
 
-public sealed class CreateUserValidator : UserValidator<CreateUserCommand>
+public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
     {
+        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+
         RuleFor(x => x.TenantId)
             .MustAsync(tenantRepository.ExistsAsync)
             .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")

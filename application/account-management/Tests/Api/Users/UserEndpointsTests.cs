@@ -34,11 +34,11 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
                     'email': {'type': 'string', 'maxLength': 100},
                     'firstName': {'type': ['null', 'string'], 'maxLength': 30},
                     'lastName': {'type': ['null', 'string'], 'maxLength': 30},
-                    'userRole': {'type': 'string', 'minLength': 1, 'maxLength': 20},
+                    'role': {'type': 'string', 'minLength': 1, 'maxLength': 20},
                     'emailConfirmed': {'type': 'boolean'},
                     'avatarUrl': {'type': ['null', 'string'], 'maxLength': 100},
                 },
-                'required': ['id', 'createdAt', 'modifiedAt', 'email', 'userRole'],
+                'required': ['id', 'createdAt', 'modifiedAt', 'email', 'role'],
                 'additionalProperties': false
             }
             """
@@ -130,29 +130,29 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.TenantUser}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
 
         // Assert
         EnsureSuccessGetRequest(response);
         var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
-        userResponse.Users.First().UserRole.Should().Be(DatabaseSeeder.User1ForSearching.UserRole);
+        userResponse.Users.First().Role.Should().Be(DatabaseSeeder.User1ForSearching.Role);
     }
 
     [Fact]
     public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
     {
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.UserRole}");
+        var response = await TestHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
 
         // Assert
         EnsureSuccessGetRequest(response);
         var userResponse = await DeserializeResponse<GetUsersResponseDto>(response);
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(3);
-        userResponse.Users.First().UserRole.Should().Be(UserRole.TenantOwner);
-        userResponse.Users.Last().UserRole.Should().Be(UserRole.TenantUser);
+        userResponse.Users.First().Role.Should().Be(UserRole.Member);
+        userResponse.Users.Last().Role.Should().Be(UserRole.Owner);
     }
 
     [Fact]
@@ -160,7 +160,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.TenantUser, false);
+        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.Member, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -176,7 +176,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.TenantUser, false);
+        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.Member, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -195,7 +195,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
-        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.TenantUser, false);
+        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.Member, false);
 
         // Act
         var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -214,7 +214,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var unknownTenantId = Faker.Subdomain();
         var command = new CreateUserCommand(
-            new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.TenantUser, false
+            new TenantId(unknownTenantId), Faker.Internet.Email(), UserRole.Member, false
         );
 
         // Act
@@ -233,7 +233,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantOwner };
+        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.Owner };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
@@ -248,7 +248,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.TenantAdmin };
+        var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.Admin };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
@@ -266,7 +266,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var unknownUserId = UserId.NewId();
-        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.TenantAdmin };
+        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.Admin };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);

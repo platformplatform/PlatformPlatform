@@ -5,7 +5,7 @@ public sealed record UserResponseDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
     string Email,
-    UserRole UserRole,
+    UserRole Role,
     string FirstName,
     string LastName,
     bool EmailConfirmed,

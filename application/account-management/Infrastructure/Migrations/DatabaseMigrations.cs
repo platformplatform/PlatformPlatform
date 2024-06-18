@@ -161,7 +161,7 @@ public sealed class DatabaseMigrations : Migration
                 b.Property<string>("LastName")
                     .HasColumnType("nvarchar(30)");
 
-                b.Property<string>("UserRole")
+                b.Property<string>("Role")
                     .IsRequired()
                     .HasColumnType("varchar(20)");
 

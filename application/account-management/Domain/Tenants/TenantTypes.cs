@@ -12,14 +12,26 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
 
     public static bool TryParse(string? value, out TenantId? result)
     {
-        if (value is { Length: >= 3 and <= 30 } && value.All(c => char.IsLower(c) || char.IsDigit(c)))
+        if (value is not { Length: >= 3 and <= 30 })
         {
-            result = new TenantId(value);
-            return true;
+            result = null;
+            return false;
         }
 
-        result = null;
-        return false;
+        if (!value.All(c => char.IsLower(c) || char.IsDigit(c) || char.IsDigit('-')))
+        {
+            result = null;
+            return false;
+        }
+
+        if (value.StartsWith('-') || value.EndsWith('-'))
+        {
+            result = null;
+            return false;
+        }
+
+        result = new TenantId(value);
+        return true;
     }
 }
 

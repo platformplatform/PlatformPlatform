@@ -1,10 +1,12 @@
+using FluentValidation;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Result>
+public sealed record UpdateUserCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes the Id from the API contract
     public UserId Id { get; init; } = null!;
@@ -14,7 +16,13 @@ public sealed record UpdateUserCommand : ICommand, IUserValidation, IRequest<Res
     public required string Email { get; init; }
 }
 
-public sealed class UpdateUserValidator : UserValidator<UpdateUserCommand>;
+public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
+{
+    public UpdateUserValidator()
+    {
+        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+    }
+}
 
 public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateUserCommand, Result>
