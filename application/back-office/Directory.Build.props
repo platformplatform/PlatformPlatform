@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Using Include="JetBrains.Annotations" />
         <Using Include="MediatR" />
         <Using Include="Microsoft.Extensions.Logging" />
         <Using Include="System.ComponentModel" />

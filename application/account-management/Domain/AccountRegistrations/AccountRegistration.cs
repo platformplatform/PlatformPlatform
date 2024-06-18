@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 

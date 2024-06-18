@@ -17,15 +17,12 @@ public sealed class User : AggregateRoot<UserId>
 
     public string Email { get; private set; }
 
-    [UsedImplicitly]
     public string? FirstName { get; private set; }
 
-    [UsedImplicitly]
     public string? LastName { get; private set; }
 
     public UserRole Role { get; private set; }
 
-    [UsedImplicitly]
     public bool EmailConfirmed { get; private set; }
 
     public Avatar Avatar { get; private set; } = default!;
