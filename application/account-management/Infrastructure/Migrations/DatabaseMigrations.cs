@@ -51,7 +51,7 @@ public sealed class DatabaseMigrations : Migration
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
                 FirstName = table.Column<string>("nvarchar(30)", nullable: true),
                 LastName = table.Column<string>("nvarchar(30)", nullable: true),
-                UserRole = table.Column<string>("varchar(20)", nullable: false),
+                Role = table.Column<string>("varchar(20)", nullable: false),
                 EmailConfirmed = table.Column<bool>("bit", nullable: false),
                 Avatar = table.Column<string>("varchar(200)", nullable: false)
             },
