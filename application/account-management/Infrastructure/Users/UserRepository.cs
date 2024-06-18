@@ -32,7 +32,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         if (search is not null)
         {
             // Concatenate first and last name to enable searching by full name
-            users = users.Where(u => u.Email.Contains(search) || (u.FirstName + " " + u.LastName).Contains(search));
+            users = users.Where(u =>
+                u.Email.Contains(search) ||
+                (u.FirstName + " " + u.LastName).Contains(search) ||
+                (u.Title ?? "").Contains(search)
+            );
         }
 
         if (userRole is not null)

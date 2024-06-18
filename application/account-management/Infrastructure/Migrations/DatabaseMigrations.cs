@@ -51,6 +51,7 @@ public sealed class DatabaseMigrations : Migration
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
                 FirstName = table.Column<string>("nvarchar(30)", nullable: true),
                 LastName = table.Column<string>("nvarchar(30)", nullable: true),
+                Title = table.Column<string>("nvarchar(50)", nullable: true),
                 Role = table.Column<string>("varchar(20)", nullable: false),
                 EmailConfirmed = table.Column<bool>("bit", nullable: false),
                 Avatar = table.Column<string>("varchar(200)", nullable: false)
@@ -160,6 +161,9 @@ public sealed class DatabaseMigrations : Migration
 
                 b.Property<string>("LastName")
                     .HasColumnType("nvarchar(30)");
+
+                b.Property<string>("Title")
+                    .HasColumnType("nvarchar(50)");
 
                 b.Property<string>("Role")
                     .IsRequired()

@@ -8,6 +8,7 @@ public sealed record UserResponseDto(
     UserRole Role,
     string FirstName,
     string LastName,
+    string Title,
     bool EmailConfirmed,
     string? AvatarUrl
 );
