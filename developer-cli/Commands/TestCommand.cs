@@ -1,12 +1,10 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class TestCommand : Command
 {
     public TestCommand() : base("test", "Runs tests from a solution")

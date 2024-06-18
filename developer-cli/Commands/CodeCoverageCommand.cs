@@ -1,13 +1,11 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class CodeCoverageCommand : Command
 {
     public CodeCoverageCommand() : base("code-coverage", "Run JetBrains Code Coverage")

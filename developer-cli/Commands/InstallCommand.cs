@@ -1,12 +1,10 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class InstallCommand : Command
 {
     private static readonly string Intro =

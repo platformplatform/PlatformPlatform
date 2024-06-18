@@ -1,14 +1,12 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class DevCommand : Command
 {
     public DevCommand() : base("dev", "Run the Aspire AppHost with all self-contained systems")
