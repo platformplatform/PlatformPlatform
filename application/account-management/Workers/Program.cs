@@ -1,25 +1,18 @@
 using PlatformPlatform.AccountManagement.Application;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
-var builder = Host.CreateApplicationBuilder(args);
-
-builder.Services.Configure<HostOptions>(options =>
-    {
-        options.ServicesStartConcurrently = true;
-        options.StartupTimeout = TimeSpan.FromSeconds(60);
-
-        options.ServicesStopConcurrently = true;
-        options.ShutdownTimeout = TimeSpan.FromSeconds(10);
-    }
-);
+// Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
+var builder = WebApplication.CreateBuilder(args);
 
 // Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices()
-    .AddConfigureStorage(builder);
+    .AddConfigureStorage(builder)
+    .ServeOnPort(builder, 9199);
 
 var host = builder.Build();
 
