@@ -1,12 +1,10 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using JetBrains.Annotations;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds a self-contained system")

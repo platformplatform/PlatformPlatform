@@ -36,7 +36,7 @@ public sealed class DatabaseSeeder
         accountManagementDbContext.Tenants.AddRange(TenantForSearching);
 
         User1ForSearching = User.Create(TenantForSearching.Id, "willgates@email.com", UserRole.Member, true, null);
-        User1ForSearching.Update("William Henry", "Gates");
+        User1ForSearching.Update("William Henry", "Gates", "Philanthropist & Innovator");
 
         User2ForSearching = User.Create(TenantForSearching.Id, _faker.Internet.Email(), UserRole.Owner, true, null);
 

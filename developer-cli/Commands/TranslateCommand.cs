@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using JetBrains.Annotations;
 using Karambolo.PO;
 using OllamaSharp;
 using OllamaSharp.Models;
@@ -10,7 +9,6 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-[UsedImplicitly]
 public class TranslateCommand : Command
 {
     private const string InstanceName = "platform-platform-ollama";

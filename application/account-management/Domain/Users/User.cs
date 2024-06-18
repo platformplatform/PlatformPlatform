@@ -17,15 +17,14 @@ public sealed class User : AggregateRoot<UserId>
 
     public string Email { get; private set; }
 
-    [UsedImplicitly]
     public string? FirstName { get; private set; }
 
-    [UsedImplicitly]
     public string? LastName { get; private set; }
+
+    public string? Title { get; private set; }
 
     public UserRole Role { get; private set; }
 
-    [UsedImplicitly]
     public bool EmailConfirmed { get; private set; }
 
     public Avatar Avatar { get; private set; } = default!;
@@ -36,10 +35,11 @@ public sealed class User : AggregateRoot<UserId>
         return new User(tenantId, email, role, emailConfirmed) { Avatar = avatar };
     }
 
-    public void Update(string firstName, string lastName)
+    public void Update(string firstName, string lastName, string title)
     {
         FirstName = firstName;
         LastName = lastName;
+        Title = title;
     }
 
     public void UpdateEmail(string email)
