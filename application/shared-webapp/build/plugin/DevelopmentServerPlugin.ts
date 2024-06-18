@@ -3,6 +3,11 @@ import os from "node:os";
 import path from "node:path";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
+/**
+ * Files to write to disk for the development server to serve
+ */
+const writeToDisk = ["index.html", "robots.txt", "favicon.ico"];
+
 export type DevelopmentServerPluginOptions = {
   /**
    * The port to start the development server on
@@ -16,7 +21,6 @@ export type DevelopmentServerPluginOptions = {
  *
  * @param options - The options for the plugin
  */
-
 export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions): RsbuildPlugin {
   return {
     name: "DevelopmentServerPlugin",
@@ -58,15 +62,13 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",
             // Write files to "dist" folder enabling the Api to serve them
-            writeToDisk: (filename: string) => {
-              return /index.html$/.test(filename) || /robots.txt$/.test(filename) || /favicon.ico$/.test(filename);
-            }
+            writeToDisk: (filename: string) => writeToDisk.some((file) => filename.endsWith(file))
           },
           tools: {
             rspack: {
               watchOptions: {
                 // Ignore the dist folder to prevent infinite loop as we are writing files to dist
-                ignored: /dist\//
+                ignored: writeToDisk.map((f) => `**/dist/${f}"`)
               }
             }
           }
