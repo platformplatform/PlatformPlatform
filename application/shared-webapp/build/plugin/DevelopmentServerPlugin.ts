@@ -1,7 +1,15 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { logger } from "@rsbuild/core";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+
+/**
+ * Build ignore pattern for the dist folder
+ */
+const applicationRoot = path.resolve(process.cwd(), "..", "..");
+const distFolder = path.join(process.cwd(), "dist");
+const ignoreDistPattern = `**/${path.relative(applicationRoot, distFolder)}/**`;
 
 /**
  * Files to write to disk for the development server to serve
@@ -43,6 +51,8 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
           throw new Error("CERTIFICATE_PASSWORD environment variable is not set");
         }
 
+        logger.info(`Using ignore pattern: ${ignoreDistPattern}`);
+
         const extraConfig: RsbuildConfig = {
           server: {
             // If the port is occupied the server will exit with an error
@@ -68,7 +78,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             rspack: {
               watchOptions: {
                 // Ignore the dist folder to prevent infinite loop as we are writing files to dist
-                ignored: writeToDisk.map((f) => `**/dist/${f}"`)
+                ignored: ignoreDistPattern
               }
             }
           }
