@@ -6,6 +6,7 @@ import { reactPlugin } from "./config";
 export interface AppInsightsProviderProps {
   children: ReactNode;
 }
+
 export function ApplicationInsightsProvider({ children }: Readonly<AppInsightsProviderProps>) {
   return (
     <AppInsightsErrorBoundary onError={ErrorFallback} appInsights={reactPlugin}>

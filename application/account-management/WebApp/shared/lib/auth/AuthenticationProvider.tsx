@@ -1,7 +1,7 @@
 import type { NavigateOptions } from "@tanstack/react-router";
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
-import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 import type { State, UserInfo } from "./actions";
+import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 
 export interface AuthenticationContextType {
   userInfo: UserInfo | null;

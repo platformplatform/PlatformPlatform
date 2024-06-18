@@ -1,4 +1,4 @@
-import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { ErrorPage } from "./-components/ErrorPage";
 import { NotFound } from "./-components/NotFoundPage";
 import { ReactAriaRouterProvider } from "@/shared/lib/router/ReactAriaRouterProvider";

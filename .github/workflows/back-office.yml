@@ -90,32 +90,37 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
+      - name: Build frontend artifacts
+        if: github.ref == 'refs/heads/main'
+        working-directory: application
+        run: npm run build
+
       - name: Publish frontend artifacts
-        if:   github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         working-directory: application/back-office/WebApp
         run: npm run publish
 
       - name: Publish API build
-        if:   github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         working-directory: application/back-office
         run: |
           dotnet publish ./Api/BackOffice.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save API artifacts
-        if:   github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: back-office-api
           path: application/back-office/Api/publish/**/*
 
       - name: Publish Worker build
-        if:   github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         working-directory: application/back-office
         run: |
           dotnet publish ./Workers/BackOffice.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Save Workers artifacts
-        if:   github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: back-office-workers
