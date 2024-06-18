@@ -9,14 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj"/>
+        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
-        <PackageReference Include="Mapster"/>
-        <PackageReference Include="MediatR"/>
-        <PackageReference Include="Microsoft.ApplicationInsights"/>
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+        <PackageReference Include="Mapster" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="Microsoft.ApplicationInsights" />
     </ItemGroup>
 
 </Project>

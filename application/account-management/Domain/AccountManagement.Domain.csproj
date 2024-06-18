@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\DomainCore\SharedKernel.DomainCore.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\DomainCore\SharedKernel.DomainCore.csproj" />
     </ItemGroup>
 
 </Project>

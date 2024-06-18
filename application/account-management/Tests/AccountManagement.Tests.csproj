@@ -12,28 +12,28 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Api\AccountManagement.Api.csproj"/>
-        <ProjectReference Include="..\Application\AccountManagement.Application.csproj"/>
-        <ProjectReference Include="..\Domain\AccountManagement.Domain.csproj"/>
-        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj"/>
-        <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj"/>
+        <ProjectReference Include="..\Api\AccountManagement.Api.csproj" />
+        <ProjectReference Include="..\Application\AccountManagement.Application.csproj" />
+        <ProjectReference Include="..\Domain\AccountManagement.Domain.csproj" />
+        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bogus"/>
+        <PackageReference Include="Bogus" />
         <PackageReference Include="coverlet.collector">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="FluentAssertions"/>
-        <PackageReference Include="Meziantou.Xunit.ParallelTestFramework"/>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="NetArchTest.Rules"/>
-        <PackageReference Include="NJsonSchema"/>
-        <PackageReference Include="NSubstitute"/>
-        <PackageReference Include="xunit"/>
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Meziantou.Xunit.ParallelTestFramework" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="NetArchTest.Rules" />
+        <PackageReference Include="NJsonSchema" />
+        <PackageReference Include="NSubstitute" />
+        <PackageReference Include="xunit" />
         <PackageReference Include="xunit.runner.visualstudio">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
