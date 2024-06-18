@@ -1,5 +1,9 @@
 import { Check } from "lucide-react";
-import type { MenuProps as AriaMenuProps, MenuItemProps, SeparatorProps } from "react-aria-components";
+import type {
+  MenuItemProps as AriaMenuItemProps,
+  MenuProps as AriaMenuProps,
+  SeparatorProps
+} from "react-aria-components";
 import { Menu as AriaMenu, MenuItem as AriaMenuItem, Separator, composeRenderProps } from "react-aria-components";
 import type { DropdownSectionProps } from "./ListBox";
 import { DropdownSection, dropdownItemStyles } from "./ListBox";
@@ -21,15 +25,24 @@ export function Menu<T extends object>(props: Readonly<MenuProps<T>>) {
   );
 }
 
+interface MenuItemProps extends AriaMenuItemProps {
+  variant?: "primary" | "secondary" | "destructive" | "icon";
+}
+
 export function MenuItem(props: Readonly<MenuItemProps>) {
   return (
-    <AriaMenuItem {...props} className={dropdownItemStyles}>
+    <AriaMenuItem
+      {...props}
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        dropdownItemStyles({ ...renderProps, variant: props.variant, className })
+      )}
+    >
       {composeRenderProps(props.children, (children, { selectionMode, isSelected }) => (
         <>
           {selectionMode !== "none" && (
             <span className="w-4 flex items-center">{isSelected && <Check aria-hidden className="w-4 h-4" />}</span>
           )}
-          <span className="flex-1 flex items-center gap-2 truncate font-normal group-selected:font-semibold">
+          <span className="flex-1 px-1 flex items-center gap-2 truncate font-normal group-selected:font-semibold">
             {children}
           </span>
         </>
@@ -39,7 +52,7 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
 }
 
 export function MenuSeparator(props: Readonly<SeparatorProps>) {
-  return <Separator {...props} className="border-b border-gray-300 dark:border-zinc-700 mx-3 my-1" />;
+  return <Separator {...props} className="border-b border-gray-300 dark:border-zinc-700 " />;
 }
 
 export function MenuSection<T extends object>(props: Readonly<DropdownSectionProps<T>>) {

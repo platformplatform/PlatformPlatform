@@ -56,15 +56,24 @@ export function ListBoxItem(props: Readonly<ListBoxItemProps>) {
 }
 
 export const dropdownItemStyles = tv({
-  base: "group flex items-center gap-4 cursor-default select-none py-2 pl-3 pr-1 rounded-lg outline outline-0 text-sm forced-color-adjust-none",
+  base: "text-gray-900 group flex items-center gap-4 cursor-default select-none py-2 pl-3 pr-1 rounded-lg outline outline-0 text-sm forced-color-adjust-none",
   variants: {
+    variant: {
+      primary: "bg-white dark:bg-zinc-800",
+      secondary: "bg-gray-100 dark:bg-zinc-700",
+      destructive: "text-white hover:text-white bg-red-700 hover:bg-red-800",
+      icon: "bg-transparent"
+    },
     isDisabled: {
-      false: "text-gray-900 dark:text-zinc-100",
+      false: "dark:text-zinc-100",
       true: "text-gray-300 dark:text-zinc-600 forced-colors:text-[GrayText]"
     },
     isFocused: {
-      true: "bg-blue-600 text-white forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+      true: "bg-gray-100 text-gray-900 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     }
+  },
+  defaultVariants: {
+    variant: "primary"
   }
 });
 

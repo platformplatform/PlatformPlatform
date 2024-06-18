@@ -1,11 +1,14 @@
-import { EllipsisVerticalIcon, TrashIcon } from "lucide-react";
+import { EllipsisVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
-import { TableBody } from "react-aria-components";
+import { MenuTrigger, TableBody } from "react-aria-components";
 import { useMemo, useState } from "react";
 import { rows } from "./data";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import Badge from "@repo/ui/components/Badge";
 import Pagination from "@repo/ui/components/Pagination";
+import { Popover } from "@repo/ui/components/Popover";
+import { Menu, MenuItem } from "@repo/ui/components/Menu";
+import { Button } from "@repo/ui/components/Button";
 
 export function UserTable() {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -92,12 +95,26 @@ export function UserTable() {
                 </Cell>
                 <Cell>
                   <div className="flex gap-8">
-                    <button type="button" className="group-hover:visible invisible">
+                    <Button variant="icon">
                       <TrashIcon size={16} />
-                    </button>
-                    <button type="button">
-                      <EllipsisVerticalIcon size={16} />
-                    </button>
+                    </Button>
+                    <MenuTrigger>
+                      <Button variant="icon" aria-label="Menu">
+                        <EllipsisVerticalIcon size={16} />
+                      </Button>
+                      <Popover>
+                        <Menu>
+                          <MenuItem onAction={() => alert("open")}>
+                            <UserIcon size={16} />
+                            View Profile
+                          </MenuItem>
+                          <MenuItem variant="destructive" onAction={() => alert("rename")}>
+                            <TrashIcon size={16} />
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </Popover>
+                    </MenuTrigger>
                   </div>
                 </Cell>
               </Row>

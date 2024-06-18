@@ -1,4 +1,18 @@
-import { ChevronRightIcon, CircleUserIcon, Languages, LifeBuoyIcon, MoonIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  CircleUserIcon,
+  Languages,
+  LifeBuoyIcon,
+  LogOutIcon,
+  MoonIcon,
+  SettingsIcon,
+  UserIcon
+} from "lucide-react";
+import { MenuTrigger } from "react-aria-components";
+import ProfileData from "./data";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { Popover } from "@repo/ui/components/Popover";
 
 export function UserHeader() {
   return (
@@ -18,7 +32,31 @@ export function UserHeader() {
         <MoonIcon size={20} />
         <LifeBuoyIcon size={20} />
         <Languages size={20} />
-        <CircleUserIcon size={30} />
+        <MenuTrigger>
+          <Button aria-label="Menu" variant="icon">
+            <CircleUserIcon size={30} />
+          </Button>
+          <Popover>
+            <Menu>
+              <MenuItem onAction={() => alert("open")}>
+                <ProfileData />
+              </MenuItem>
+              <MenuSeparator />
+              <MenuItem onAction={() => alert("open")}>
+                <UserIcon size={16} />
+                Edit profile
+              </MenuItem>
+              <MenuItem onAction={() => alert("rename")}>
+                <SettingsIcon size={16} />
+                Account settings
+              </MenuItem>
+              <MenuSeparator />
+              <MenuItem onAction={() => alert("rename")}>
+                <LogOutIcon size={16} /> Sign out
+              </MenuItem>
+            </Menu>
+          </Popover>
+        </MenuTrigger>
       </div>
     </div>
   );
