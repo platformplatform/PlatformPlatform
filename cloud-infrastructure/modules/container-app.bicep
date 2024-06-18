@@ -125,3 +125,5 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
     }
   }
 }
+
+output containerAppUrl string = containerApp.properties.configuration.ingress != null ? containerApp.properties.configuration.ingress.fqdn : ''
