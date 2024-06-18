@@ -90,6 +90,11 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
+      - name: Build frontend artifacts
+        if: github.ref == 'refs/heads/main'
+        working-directory: application
+        run: npm run build
+
       - name: Publish frontend artifacts
         if:   github.ref == 'refs/heads/main'
         working-directory: application/back-office/WebApp
