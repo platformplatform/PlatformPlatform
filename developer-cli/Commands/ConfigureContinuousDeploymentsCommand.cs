@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -19,6 +21,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private static readonly Dictionary<string, string> AzureLocations = GetAzureLocations();
 
+    private static List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
+
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
@@ -34,6 +38,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
         PrerequisitesChecker.Check("dotnet", "az", "gh");
 
         Configuration.VerboseLogging = verboseLogging;
+
+        _configureContinuousDeploymentsExtensions = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsSubclassOf(typeof(ConfigureContinuousDeployments)))
+            .Select(t => Activator.CreateInstance(t) as ConfigureContinuousDeployments)
+            .Where(t => t != null)
+            .ToList()!;
 
         PrintHeader("Introduction");
 
@@ -58,6 +68,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         ConfirmReuseIfAppRegistrationsExists();
 
         ConfirmReuseIfSqlAdminSecurityGroupsExists();
+
+        CollectAdditionalInfo();
 
         PrintHeader("Confirm changes");
 
@@ -84,6 +96,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         DisableReusableWorkflows();
 
         TriggerAndMonitorWorkflows();
+
+        ApplyAdditionalConfigurations();
 
         PrintHeader($"Configuration of GitHub and Azure completed in {startNew.Elapsed:g} 🎉");
 
@@ -119,37 +133,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void SetGithubInfo()
     {
-        // Get all Git remotes
-        var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
-
-        // Sort the output lines so that the "origin" is at the top
-        output = string.Join('\n', output.Split('\n').OrderBy(line => line.Contains("origin") ? 0 : 1));
-
-        var regex = new Regex(@"(?<githubUri>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git)) \(push\)");
-        var matches = regex.Matches(output);
-
-        var gitRemoteMatches = matches.Select(m => m.Groups["githubUri"].Value).ToArray();
-
-        var githubUri = string.Empty;
-        switch (gitRemoteMatches.Length)
-        {
-            case 0:
-                AnsiConsole.MarkupLine("[red]ERROR: No GitHub remote found. Please ensure you are within a Git repository with a GitHub.com as remote origin.[/]");
-                Environment.Exit(0);
-                break;
-            case 1:
-                githubUri = gitRemoteMatches.Single();
-                break;
-            case > 1:
-                githubUri = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title("Select the GitHub remote")
-                    .AddChoices(gitRemoteMatches)
-                );
-                ProcessHelper.StartProcess($"gh repo set-default {githubUri}");
-                break;
-        }
-
-        Config.InitializeFromUri(githubUri);
+        Config.SetGithubInfo();
     }
 
     private void LoginToGithub()
@@ -422,6 +406,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void CollectAdditionalInfo()
+    {
+        foreach (var instance in _configureContinuousDeploymentsExtensions!)
+        {
+            var method = instance.GetType().GetMethod("CollectDetails");
+            method?.Invoke(instance, [Config]);
+        }
+    }
+
     private void ConfirmChangesPrompt()
     {
         var stagingServicePrincipal = Config.StagingSubscription.AppRegistration.Exists
@@ -501,10 +494,26 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
              7. You will receive recommendations on how to further secure and optimize your setup.
 
+             {ConfirmAdditionalInfo()}
              [bold]Would you like to continue?[/]
              """;
 
         if (!AnsiConsole.Confirm($"{setupConfirmPrompt}", false)) Environment.Exit(0);
+
+        return;
+
+        string ConfirmAdditionalInfo()
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var instance in _configureContinuousDeploymentsExtensions!)
+            {
+                var method = instance.GetType().GetMethod("ConfirmChanges");
+                var result = method?.Invoke(instance, [Config]);
+                stringBuilder.AppendLine(result?.ToString());
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
     private void PrepareSubscriptionsForContainerAppsEnvironment()
@@ -809,6 +818,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void ApplyAdditionalConfigurations()
+    {
+        foreach (var instance in _configureContinuousDeploymentsExtensions!)
+        {
+            var method = instance.GetType().GetMethod("ApplyConfigure");
+            method?.Invoke(instance, [Config]);
+        }
+    }
+
     private void ShowSuccessMessage()
     {
         var setupIntroPrompt =
@@ -828,10 +846,25 @@ public class ConfigureContinuousDeploymentsCommand : Command
              - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.
 
              - Enable Microsoft Defender for Cloud (also known as Azure Security Center) once the system evolves for added security recommendations.
+
+             {ShowAdditionalInfoSuccessMessage()}
              """;
 
         AnsiConsole.MarkupLine($"{setupIntroPrompt}");
         AnsiConsole.WriteLine();
+
+        string ShowAdditionalInfoSuccessMessage()
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var instance in _configureContinuousDeploymentsExtensions!)
+            {
+                var method = instance.GetType().GetMethod("ShowSuccessMessage");
+                var result = method?.Invoke(instance, [Config]);
+                stringBuilder.AppendLine(result?.ToString());
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
     private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
@@ -915,24 +948,10 @@ public class Config
 
     public Dictionary<string, string> GithubVariables { get; set; } = new();
 
-    public void InitializeFromUri(string gitUri)
+    public void SetGithubInfo()
     {
-        string remote;
-        if (gitUri.StartsWith("https://github.com/"))
-        {
-            remote = gitUri.Replace("https://github.com/", "").Replace(".git", "");
-        }
-        else if (gitUri.StartsWith("git@github.com:"))
-        {
-            remote = gitUri.Replace("git@github.com:", "").Replace(".git", "");
-        }
-        else
-        {
-            throw new ArgumentException($"Invalid Git URI: {gitUri}. Only https:// and git@ formatted is supported.", nameof(gitUri));
-        }
-
-        var parts = remote.Split("/");
-        GithubInfo = new GithubInfo(parts[0], parts[1]);
+        var githubUri = GithubHelper.GetGithubUri();
+        GithubInfo = GithubHelper.GetGithubInfo(githubUri);
     }
 
     public bool IsLoggedIn()
@@ -941,17 +960,6 @@ public class Config
 
         return githubAuthStatus.Contains("Logged in to github.com");
     }
-}
-
-public class GithubInfo(string organizationName, string repositoryName)
-{
-    public string OrganizationName { get; } = organizationName;
-
-    public string RepositoryName { get; } = repositoryName;
-
-    public string Path => $"{OrganizationName}/{RepositoryName}";
-
-    public string Url => $"https://github.com/{Path}";
 }
 
 public record AzureSubscription(string Id, string Name, string TenantId, string State);
@@ -971,7 +979,7 @@ public class Subscription(string id, string name, string tenantId, GithubInfo gi
 
 public class AppRegistration(GithubInfo githubInfo, string environmentName)
 {
-    public string Name => $"GitHub - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {environmentName}";
+    public string Name => $"GitHub - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
     public bool Exists => !string.IsNullOrEmpty(AppRegistrationId);
 
@@ -982,11 +990,11 @@ public class AppRegistration(GithubInfo githubInfo, string environmentName)
     public string? ServicePrincipalObjectId { get; set; }
 }
 
-public class SqlAdminsGroup(GithubInfo githubInfo, string enviromentName)
+public class SqlAdminsGroup(GithubInfo githubInfo, string environmentName)
 {
-    public string Name => $"SQL Admins - {githubInfo.OrganizationName}/{githubInfo.RepositoryName} - {enviromentName}";
+    public string Name => $"SQL Admins - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
-    public string NickName => $"SQLServerAdmins{githubInfo.OrganizationName}{githubInfo.RepositoryName}{enviromentName}";
+    public string NickName => $"SQLServerAdmins{environmentName}{githubInfo.OrganizationName}{githubInfo.RepositoryName}";
 
     public bool Exists => !string.IsNullOrEmpty(ObjectId);
 
@@ -1022,4 +1030,25 @@ public enum VariableNames
 
     PRODUCTION_CLUSTER1_LOCATION_ACRONYM
     // ReSharper restore InconsistentNaming
+}
+
+public abstract class ConfigureContinuousDeployments
+{
+    public virtual void CollectDetails(Config? config)
+    {
+    }
+
+    public virtual string ConfirmChanges(Config? config)
+    {
+        return string.Empty;
+    }
+
+    public virtual void ApplyConfigure(Config? config)
+    {
+    }
+
+    public virtual string ShowSuccessMessage(Config? config = null)
+    {
+        return string.Empty;
+    }
 }
