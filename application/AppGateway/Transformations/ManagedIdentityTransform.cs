@@ -20,8 +20,6 @@ public class ApiVersionHeaderTransform() : RequestHeaderTransform("x-ms-version"
 {
     protected override string? GetValue(RequestTransformContext context)
     {
-        if (!context.HttpContext.Request.Path.StartsWithSegments("/avatars")) return null;
-
-        return "2023-11-03";
+        return !context.HttpContext.Request.Path.StartsWithSegments("/avatars") ? null : "2023-11-03";
     }
 }
