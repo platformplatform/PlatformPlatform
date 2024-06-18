@@ -15,10 +15,12 @@ if (InfrastructureCoreConfiguration.IsRunningInAzure)
     builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.GetDefaultAzureCredential());
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
+    builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
     reverseProxyBuilder.AddTransforms(context =>
         {
             context.RequestTransforms.Add(context.Services.GetRequiredService<ManagedIdentityTransform>());
             context.RequestTransforms.Add(context.Services.GetRequiredService<ApiVersionHeaderTransform>());
+            context.ResponseTransforms.Add(context.Services.GetRequiredService<HttpStrictTransportSecurityTransform>());
         }
     );
 }
@@ -35,16 +37,6 @@ builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STOR
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
 var app = builder.Build();
-
-// Adds middleware for redirecting HTTP Requests to HTTPS
-app.UseHttpsRedirection();
-
-if (!app.Environment.IsDevelopment())
-{
-    // Adds middleware for using HSTS, which adds the Strict-Transport-Security header
-    // Defaults to 30 days. See https://aka.ms/aspnetcore-hsts, so be careful during development
-    app.UseHsts();
-}
 
 app.MapReverseProxy();
 
