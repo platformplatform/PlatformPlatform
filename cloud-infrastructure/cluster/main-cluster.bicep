@@ -131,7 +131,6 @@ var publicUrl = isCustomDomainSet
   : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
 var cdnUrl = publicUrl
 
-
 // Account Management
 
 var accountManagementIdentityName = '${resourceGroupName}-account-management'
@@ -233,7 +232,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     minReplicas: 0
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
-    ingress: false
+    ingress: true
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
@@ -262,7 +261,6 @@ module accountManagementApi '../modules/container-app.bicep' = {
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
 }
-
 
 // Back Office
 
@@ -359,7 +357,7 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
     minReplicas: 0
     maxReplicas: 1
     userAssignedIdentityName: backOfficeIdentityName
-    ingress: false
+    ingress: true
     environmentVariables: backOfficeEnvironmentVariables
   }
   dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService]
