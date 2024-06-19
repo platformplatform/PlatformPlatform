@@ -1,14 +1,14 @@
 import "@repo/ui/tailwind.css";
 import { router } from "@/shared/lib/router/router";
-import { i18n } from "@lingui/core";
-import { I18nProvider } from "@lingui/react";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ApplicationInsightsProvider } from "./shared/lib/applicationInsights/ApplicationInsightsProvider";
-import { dynamicActivate, getInitialLocale } from "./shared/translations/i18n";
+import { Translation } from "@repo/infrastructure/translations/Translation";
+import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 
-await dynamicActivate(i18n, getInitialLocale());
+const { TranslationProvider } = await Translation.create(
+  (locale) => import(`@/shared/translations/locale/${locale}.ts`)
+);
 
 const rootElement = document.getElementById("root");
 
@@ -18,10 +18,10 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <I18nProvider i18n={i18n}>
+    <TranslationProvider>
       <ApplicationInsightsProvider>
         <RouterProvider router={router} />
       </ApplicationInsightsProvider>
-    </I18nProvider>
+    </TranslationProvider>
   </React.StrictMode>
 );

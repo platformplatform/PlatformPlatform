@@ -9,13 +9,12 @@ import { Link } from "@repo/ui/components/Link";
 import { FieldError, Input, Label } from "@repo/ui/components/Field";
 import poweredByUrl from "@/shared/ui/images/powered-by.png";
 import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
-import { useSignInAction } from "@/shared/lib/auth/hooks";
-import type { State } from "@/shared/lib/auth/actions";
+import { type AuthenticationState, useSignInAction } from "@repo/infrastructure/auth/hooks";
 
 export default function LoginForm() {
   const signInAction = useSignInAction();
   const { i18n } = useLingui();
-  const initialState: State = { message: null, errors: {} };
+  const initialState: AuthenticationState = { message: null, errors: {} };
 
   const [state, action] = useActionState(signInAction, initialState);
 

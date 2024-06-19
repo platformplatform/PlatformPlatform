@@ -1,12 +1,26 @@
-import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
+import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import type { ReactNode } from "react";
 
-export const reactPlugin = new ReactPlugin();
+const reactPlugin = new ReactPlugin();
+const ErrorFallback = () => <h1>Something went wrong, please try again</h1>;
+
+export interface AppInsightsProviderProps {
+  children: ReactNode;
+}
+
+export function ApplicationInsightsProvider({ children }: Readonly<AppInsightsProviderProps>) {
+  return (
+    <AppInsightsErrorBoundary onError={ErrorFallback} appInsights={reactPlugin}>
+      <AppInsightsContext.Provider value={reactPlugin}>{children}</AppInsightsContext.Provider>
+    </AppInsightsErrorBoundary>
+  );
+}
 
 const applicationInsights = new ApplicationInsights({
   config: {
     // Set the application ID to the webapp and application
-    appId: "back-office/webapp",
+    appId: import.meta.build_env.APPLICATION_ID,
     // Set the instrumentation key to a dummy value as we are not using the default endpoint
     instrumentationKey: "webapp",
     disableInstrumentationKeyValidation: true,

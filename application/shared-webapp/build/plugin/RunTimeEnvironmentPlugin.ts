@@ -1,7 +1,16 @@
 import path from "node:path";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
-export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(buildEnv: E): RsbuildPlugin {
+/**
+ * The application ID is the relative path from the root of the repository to the
+ * current working directory. This is used to identify the application in the
+ * Application Insights telemetry.
+ *
+ * @example "account-management/webapp"
+ */
+const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
+
+export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(customBuildEnv: E): RsbuildPlugin {
   return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {
@@ -16,7 +25,10 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             // The method getApplicationEnvironment() is defined in the runtime
             // environment file loaded as the first entry point
             define: {
-              "import.meta.build_env": JSON.stringify(buildEnv ?? {}),
+              "import.meta.build_env": JSON.stringify({
+                APPLICATION_ID,
+                ...customBuildEnv
+              }),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
               "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",
               "import.meta.env": "getApplicationEnvironment().env"

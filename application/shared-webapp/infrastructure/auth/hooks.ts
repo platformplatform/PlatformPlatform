@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { AuthenticationContext } from "./AuthenticationProvider";
+export type { AuthenticationState } from "./actions";
 
 /**
  * Get the authentication context.

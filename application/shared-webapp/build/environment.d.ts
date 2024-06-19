@@ -1,35 +1,64 @@
 export declare global {
   /**
+   * Custom build environment variables
+   */
+  interface CustomBuildEnv {}
+  /**
    * Build Environment Variables
    */
-  interface BuildEnv {}
+  interface BuildEnv extends CustomBuildEnv {
+    /**
+     * Application ID e.g. "account-management/webapp"
+     **/
+    APPLICATION_ID: string;
+  }
 
   /**
    * Runtime Environment Variables
    */
   interface RuntimeEnv {
-    /* Public url / base url */
+    /**
+     * Public url / base url
+     **/
     PUBLIC_URL: string;
-    /* CDN url / location of client bundle files */
+    /**
+     * CDN url / location of client bundle files
+     **/
     CDN_URL: string;
-    /* Application version */
+    /**
+     * Application version
+     **/
     APPLICATION_VERSION: string;
-    /* Culture locale */
+    /**
+     * Culture locale
+     **/
     LOCALE: string;
   }
 
   interface UserInfoEnv {
-    /* Is user authenticated */
+    /**
+     * Is user authenticated
+     **/
     isAuthenticated: boolean;
-    /* User locale */
+    /**
+     * User locale
+     **/
     locale: string;
-    /* User email */
+    /**
+     * User email
+     **/
     email?: string;
-    /* User name */
+    /**
+     * User name
+     **/
     name?: string;
-    /* User role */
+    /**
+     * User role
+     **/
     role?: string;
-    /* Tenant id */
+    /**
+     * Tenant id
+     **/
     tenantId?: string;
   }
 
