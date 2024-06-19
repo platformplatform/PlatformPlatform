@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { ErrorPage } from "./-components/ErrorPage";
 import { NotFound } from "./-components/NotFoundPage";
-import { AuthenticationProvider } from "@/shared/lib/auth/AuthenticationProvider";
+import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 
 export const Route = createRootRoute({

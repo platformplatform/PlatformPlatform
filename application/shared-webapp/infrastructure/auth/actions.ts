@@ -1,7 +1,7 @@
-import { i18n } from "@lingui/core";
-import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
 import { z } from "zod";
-import { backOfficeApi } from "./mock.api";
+import { i18n } from "@lingui/core";
+import { accountManagementApi } from "./mock.api";
+import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
 
 export const tenantInfoScheme = z.object({
   value: z.string()
@@ -35,7 +35,7 @@ export const initialUserInfo: UserInfo = validationResult.data;
  * If user data is invalid, it will throw an error
  */
 export async function getUserInfo(): Promise<UserInfo | null> {
-  const { data, response } = await backOfficeApi.GET("/api/auth/user-info");
+  const { data, response } = await accountManagementApi.GET("/api/auth/user-info");
   if (!response.ok) return null;
 
   const validationResult = UserInfoScheme.safeParse(data);
@@ -44,7 +44,7 @@ export async function getUserInfo(): Promise<UserInfo | null> {
   return validationResult.data;
 }
 
-export interface State {
+export interface AuthenticationState {
   success?: boolean;
   errors?: {
     email?: string[];
@@ -62,7 +62,7 @@ export const AuthenticateSchema = z.object({
  * Authenticates the user and returns a success state if successful
  * [FormAction]
  */
-export async function authenticate(_: State, formData: FormData): Promise<State> {
+export async function authenticate(_: AuthenticationState, formData: FormData): Promise<AuthenticationState> {
   const validatedFields = AuthenticateSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password")
@@ -79,7 +79,7 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
   const { email, password } = validatedFields.data;
 
   try {
-    const result = await backOfficeApi.POST("/api/auth/login", {
+    const result = await accountManagementApi.POST("/api/auth/login", {
       body: {
         email,
         password
@@ -109,9 +109,9 @@ export async function authenticate(_: State, formData: FormData): Promise<State>
  * Logs the user out and returns a success state if successful
  * [FormAction]
  */
-export async function logout(): Promise<State> {
+export async function logout(): Promise<AuthenticationState> {
   try {
-    await backOfficeApi.POST("/api/auth/logout");
+    await accountManagementApi.POST("/api/auth/logout");
     return {
       success: true
     };

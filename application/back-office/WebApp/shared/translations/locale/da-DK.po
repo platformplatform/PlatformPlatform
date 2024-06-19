@@ -14,13 +14,13 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to login."
-msgstr ""
+#~ msgid "Missing Fields. Failed to login."
+#~ msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed login."
-msgstr ""
+#~ msgid "Server error: Failed login."
+#~ msgstr ""
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed logout."
-msgstr ""
+#~ msgid "Server error: Failed logout."
+#~ msgstr ""

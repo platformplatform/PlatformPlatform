@@ -46,24 +46,24 @@ msgid "subdomain"
 msgstr "subdomain"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to login."
-msgstr "Missing Fields. Failed to login."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed login."
-msgstr "Server error: Failed login."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed logout."
-msgstr "Server error: Failed logout."
-
-#. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"
 msgstr "Screenshots of the dashboard project showing mobile versions"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
+
+#. js-lingui-explicit-id
+#~ msgid "Missing Fields. Failed to login."
+#~ msgstr "Missing Fields. Failed to login."
+
+#. js-lingui-explicit-id
+#~ msgid "Server error: Failed login."
+#~ msgstr "Server error: Failed login."
+
+#. js-lingui-explicit-id
+#~ msgid "Server error: Failed logout."
+#~ msgstr "Server error: Failed logout."
 
 msgid "Already have an account?"
 msgstr "Already have an account?"

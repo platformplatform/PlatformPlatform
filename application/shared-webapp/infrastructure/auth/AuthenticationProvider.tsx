@@ -1,13 +1,13 @@
 import type { NavigateOptions } from "@tanstack/react-router";
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
-import type { State, UserInfo } from "./actions";
+import type { AuthenticationState, UserInfo } from "./actions";
 import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 
 export interface AuthenticationContextType {
   userInfo: UserInfo | null;
   reloadUserInfo: () => void;
-  signInAction: (_: State, formData: FormData) => Promise<State>;
-  signOutAction: () => Promise<State>;
+  signInAction: (_: AuthenticationState, formData: FormData) => Promise<AuthenticationState>;
+  signOutAction: () => Promise<AuthenticationState>;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
@@ -57,7 +57,7 @@ export function AuthenticationProvider({
   }, [navigate, afterSignOut]);
 
   const signInAction = useCallback(
-    async (state: State, formData: FormData) => {
+    async (state: AuthenticationState, formData: FormData) => {
       const result = await authenticate(state, formData);
       if (result.success) setUserInfo(await getUserInfo());
 
