@@ -107,9 +107,6 @@ msgstr "Log ind med din virksomheds e-mail-adresse for at komme i gang med at by
 msgid "Sign up"
 msgstr "Opret"
 
-msgid "Something went wrong, please try again"
-msgstr "Noget gik galt, prøv igen"
-
 msgid "Subdomain"
 msgstr "Subdomæne"
 

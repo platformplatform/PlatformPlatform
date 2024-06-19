@@ -24,6 +24,3 @@ msgstr "Server error: Failed login."
 #. js-lingui-explicit-id
 msgid "Server error: Failed logout."
 msgstr "Server error: Failed logout."
-
-msgid "Something went wrong, please try again"
-msgstr "Something went wrong, please try again"

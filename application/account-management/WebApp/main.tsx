@@ -3,8 +3,8 @@ import { router } from "@/shared/lib/router/router";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ApplicationInsightsProvider } from "./shared/lib/applicationInsights/ApplicationInsightsProvider";
 import { Translation } from "@repo/infrastructure/translations/Translation";
+import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 
 const { TranslationProvider } = await Translation.create(
   (locale) => import(`@/shared/translations/locale/${locale}.ts`)
