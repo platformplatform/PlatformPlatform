@@ -1,8 +1,12 @@
 export declare global {
   /**
+   * Custom build environment variables
+   */
+  interface CustomBuildEnv {}
+  /**
    * Build Environment Variables
    */
-  interface BuildEnv {
+  interface BuildEnv extends CustomBuildEnv {
     /**
      * Application ID e.g. "account-management/webapp"
      **/

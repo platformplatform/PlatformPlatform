@@ -10,7 +10,7 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
  */
 const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
 
-export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(buildEnv: E): RsbuildPlugin {
+export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(customBuildEnv: E): RsbuildPlugin {
   return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {
@@ -27,7 +27,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             define: {
               "import.meta.build_env": JSON.stringify({
                 APPLICATION_ID,
-                ...buildEnv
+                ...customBuildEnv
               }),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
               "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",

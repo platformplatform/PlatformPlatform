@@ -6,14 +6,14 @@ import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlu
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
 import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentPlugin";
 
-const buildEnv: BuildEnv = {};
+const customBuildEnv: CustomBuildEnv = {};
 
 export default defineConfig({
   plugins: [
     pluginReact(),
     pluginTypeCheck(),
     pluginSvgr(),
-    RunTimeEnvironmentPlugin(buildEnv),
+    RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
     DevelopmentServerPlugin({ port: 9201 })
   ]
