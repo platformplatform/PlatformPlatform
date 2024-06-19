@@ -1,14 +1,19 @@
-import { useLingui } from "@lingui/react";
 import { ChevronDownIcon, LanguagesIcon } from "lucide-react";
 import { Button, type Key, Label, ListBox, ListBoxItem, Popover, Select } from "react-aria-components";
-import { dynamicActivate, getLanguage, type Locale, locales } from "@/shared/translations/i18n";
+import { translationContext, type Locale } from "@repo/infrastructure/translations/TranslationContext";
+import { use, useCallback } from "react";
+import { useLingui } from "@lingui/react";
 
 export function LocaleSwitcher() {
+  const { setLocale, getLocaleInfo, locales } = use(translationContext);
   const { i18n } = useLingui();
 
-  const handleLocaleChange = (newLocale: Key): void => {
-    void dynamicActivate(i18n, newLocale as Locale);
-  };
+  const handleLocaleChange = useCallback(
+    (newLocale: Key): void => {
+      setLocale(newLocale as Locale);
+    },
+    [setLocale]
+  );
 
   const currentLocale = i18n.locale as Locale;
 
@@ -17,14 +22,14 @@ export function LocaleSwitcher() {
       <Label>Language</Label>
       <Button className="flex flex-row border border-border rounded p-2 justify-between">
         <LanguagesIcon />
-        {getLanguage(currentLocale).label}
+        {getLocaleInfo(currentLocale).label}
         <ChevronDownIcon />
       </Button>
       <Popover className="border border-border rounded p-2 w-52 backdrop-blur-sm">
         <ListBox>
           {locales.map((locale) => (
             <ListBoxItem key={locale} id={locale} className="cursor-pointer p-2">
-              {getLanguage(locale).label}
+              {getLocaleInfo(locale).label}
             </ListBoxItem>
           ))}
         </ListBox>
