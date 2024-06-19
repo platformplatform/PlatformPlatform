@@ -382,12 +382,23 @@
         }
       }
     },
-    "/api/account-management/authentication": {
+    "/api/account-management/authentication/{email}": {
       "post": {
         "tags": [
           "Authentication"
         ],
         "operationId": "PostApiAccountManagementAuthentication",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
