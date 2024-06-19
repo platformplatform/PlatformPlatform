@@ -1,5 +1,7 @@
+using System.Text;
 using System.Text.Json;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
@@ -74,7 +77,26 @@ public static class ApiCoreConfiguration
         );
 
         // Add Authentication and Authorization services (This is new code, that has just been added)
-        services.AddAuthentication().AddBearerToken();
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }
+        ).AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = true
+                };
+            }
+        );
         services.AddAuthorization();
 
         // Ensure that enums are serialized as strings
@@ -106,10 +128,8 @@ public static class ApiCoreConfiguration
                 )
             );
         }
-        else
-        {
-            builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
-        }
+
+        builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
         return services;
     }
