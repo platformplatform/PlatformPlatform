@@ -8,8 +8,6 @@ export const router = createRouter({
   basepath: "/back-office"
 });
 
-export type RouterType = typeof router;
-
 // Register router with tanstack/react-router
 declare module "@tanstack/react-router" {
   interface Register {
