@@ -6,7 +6,7 @@
   "packageManager": "npm@10.2.4",
   "workspaces": ["account-management/WebApp", "back-office/WebApp", "shared-webapp/*"],
   "scripts": {
-    "start": "npm install && npm run dev",
+    "start": "npm install && turbo dev",
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",

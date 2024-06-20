@@ -5,6 +5,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
+import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
@@ -28,6 +29,7 @@ export function HeroSection() {
             <GithubIcon className="wmax-5 h-5" />
             <span className="md:hidden lg:inline">Github</span>
           </Link>
+          <ThemeModeSelector />
         </div>
         <div className="flex flex-col md:gap-8 md:flex-row items-center">
           <Button onPress={() => navigate({ to: "/register" })} variant="secondary" className="text-nowrap">

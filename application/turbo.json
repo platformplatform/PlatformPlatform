@@ -3,7 +3,7 @@
   "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**", "storybook-static/**"],
+      "outputs": ["dist/**"],
       "dependsOn": ["^build"]
     },
     "check": {
@@ -12,7 +12,12 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["CERTIFICATE_PASSWORD"]
+      "env": ["CERTIFICATE_PASSWORD"],
+      "dependsOn": ["^dev:setup"]
+    },
+    "dev:setup": {
+      "dependsOn": ["^dev:setup"],
+      "outputs": ["dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
