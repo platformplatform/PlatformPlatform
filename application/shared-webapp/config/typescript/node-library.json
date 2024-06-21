@@ -5,7 +5,8 @@
   "compilerOptions": {
     "lib": ["ES2023"],
     "noEmit": false,
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true

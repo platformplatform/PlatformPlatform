@@ -1,4 +1,3 @@
-/// <reference types="typescript/lib/lib.dom.d.ts" />
 /// <reference path="../environment.d.ts" />
 
 /**

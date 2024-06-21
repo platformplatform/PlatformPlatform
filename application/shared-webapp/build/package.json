@@ -11,9 +11,9 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "dev": "tsc -p . -w",
-    "dev:setup": "tsc -p .",
-    "build": "rm -rf ./dist && tsc -p .",
+    "dev": "tsc -b . environment -w",
+    "dev:setup": "tsc -b . environment",
+    "build": "rm -rf ./dist && tsc -b . environment",
     "check": "biome check",
     "lint": "biome lint --write",
     "format": "biome format --write"
