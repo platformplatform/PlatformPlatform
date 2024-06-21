@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run update-translations && npm run swagger && concurrently 'npm:watch:*'",
-    "watch:rsbuild": "rsbuild dev",
-    "watch:tsr": "tsr watch",
-    "build": "npm run update-translations && npm run swagger && tsr generate && rsbuild build",
+    "dev": "npm run update-translations && npm run swagger && rsbuild dev",
+    "build": "npm run update-translations && npm run swagger && rsbuild build",
     "update-translations": "lingui extract && lingui compile --typescript",
     "check": "biome check",
     "lint": "biome lint --write",
