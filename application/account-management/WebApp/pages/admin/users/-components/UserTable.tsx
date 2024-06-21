@@ -94,7 +94,7 @@ export function UserTable() {
                   <Badge>{user.role}</Badge>
                 </Cell>
                 <Cell>
-                  <div className="flex gap-8">
+                  <div className="flex gap-2">
                     <Button variant="icon">
                       <TrashIcon size={16} />
                     </Button>

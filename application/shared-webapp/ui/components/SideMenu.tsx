@@ -30,8 +30,8 @@ export function SideMenu() {
       <div className="flex items-center self-end">
         <Button variant="icon" className="flex size-10" onPress={toggleCollapse}>
           {isCollapsed ? <ChevronsRightIcon size={20} /> : <ChevronsLeftIcon size={20} />}
-          <div className="border border-gray-200 h-8" />
         </Button>
+        <div className="border border-gray-200 h-8" />
       </div>
       {!isCollapsed && <img src={logoWrap} alt="Logo Wrap" className="self-start" />}
       <MenuButton icon={<HomeIcon />} label="Home" isCollapsed={isCollapsed} />
