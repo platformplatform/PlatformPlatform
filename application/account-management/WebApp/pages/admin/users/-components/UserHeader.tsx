@@ -9,7 +9,7 @@ import {
   UserIcon
 } from "lucide-react";
 import { MenuTrigger } from "react-aria-components";
-import ProfileData from "./data";
+import ProfileMenuItem from "./profileMenuItem";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Popover } from "@repo/ui/components/Popover";
@@ -39,7 +39,7 @@ export function UserHeader() {
           <Popover>
             <Menu>
               <MenuItem onAction={() => alert("open")}>
-                <ProfileData />
+                <ProfileMenuItem />
               </MenuItem>
               <MenuSeparator />
               <MenuItem onAction={() => alert("open")}>
