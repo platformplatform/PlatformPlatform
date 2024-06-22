@@ -1,13 +1,5 @@
-import {
-  ChevronRightIcon,
-  CircleUserIcon,
-  Languages,
-  LifeBuoyIcon,
-  LogOutIcon,
-  MoonIcon,
-  SettingsIcon,
-  UserIcon
-} from "lucide-react";
+import { ChevronRightIcon, Languages, LifeBuoyIcon, LogOutIcon, MoonIcon, SettingsIcon, UserIcon } from "lucide-react";
+import avatarUrl from "../../images/avatar.png";
 import { MenuTrigger } from "react-aria-components";
 import ProfileMenuItem from "./profileMenuItem";
 import { Button } from "@repo/ui/components/Button";
@@ -33,8 +25,8 @@ export function UserHeader() {
         <LifeBuoyIcon size={20} />
         <Languages size={20} />
         <MenuTrigger>
-          <Button aria-label="Menu" variant="icon">
-            <CircleUserIcon size={30} />
+          <Button aria-label="Menu" variant="icon" className="w-12 h-12 rounded-full bg-transparent">
+            <img src={avatarUrl} alt="Profile menu" />
           </Button>
           <Popover>
             <Menu>
