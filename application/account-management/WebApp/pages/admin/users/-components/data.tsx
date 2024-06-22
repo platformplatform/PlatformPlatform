@@ -176,3 +176,23 @@ export const rows: User[] = [
     profilePicture: avatarUrl
   }
 ];
+
+const ProfileData: React.FC = () => {
+  const name = "Mary Doe";
+  const title = "DevOps Engineer";
+  const profilePicture = avatarUrl;
+
+  return (
+    <div className="flex flex-row items-center gap-2">
+      <div>
+        <img src={profilePicture} alt={name} className="h-12 w-12" />
+      </div>
+      <div className="flex flex-col">
+        <h2>{name}</h2>
+        <p className=" text-slate-600 text-sm font-normal">{title}</p>
+      </div>
+    </div>
+  );
+};
+
+export default ProfileData;
