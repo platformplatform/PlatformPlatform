@@ -38,20 +38,20 @@ export function UserHeader() {
           </Button>
           <Popover>
             <Menu>
-              <MenuItem onAction={() => alert("open")}>
+              <MenuItem className="h-16 w-60" onAction={() => alert("open")}>
                 <ProfileMenuItem />
               </MenuItem>
               <MenuSeparator />
-              <MenuItem onAction={() => alert("open")}>
+              <MenuItem className="h-11 w-60" onAction={() => alert("open")}>
                 <UserIcon size={16} />
                 Edit profile
               </MenuItem>
-              <MenuItem onAction={() => alert("rename")}>
+              <MenuItem className="h-11 w-60" onAction={() => alert("rename")}>
                 <SettingsIcon size={16} />
                 Account settings
               </MenuItem>
               <MenuSeparator />
-              <MenuItem onAction={() => alert("rename")}>
+              <MenuItem className="h-12 w-60" onAction={() => alert("rename")}>
                 <LogOutIcon size={16} /> Sign out
               </MenuItem>
             </Menu>
