@@ -12,9 +12,9 @@ export const Route = createFileRoute("/admin/users/")({
 
 export default function UsersPage() {
   return (
-    <div className="flex gap-4 h-full bg-gray-50">
+    <div className="flex gap-4 h-screen bg-gray-50">
       <SideMenu />
-      <div className="flex-grow flex flex-col gap-4 pl-1 pr-6 py-3 overflow-x-auto">
+      <div className="flex flex-grow flex-col gap-4 pl-1 pr-6 py-3 overflow-x-auto">
         <UserHeader />
         <UserInvite />
         <UserTabs />
