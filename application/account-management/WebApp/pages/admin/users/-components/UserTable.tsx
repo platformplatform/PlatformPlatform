@@ -95,7 +95,7 @@ export function UserTable() {
                 </Cell>
                 <Cell>
                   <div className="flex gap-2">
-                    <Button variant="icon">
+                    <Button variant="icon" className="group-hover:visible invisible">
                       <TrashIcon size={16} />
                     </Button>
                     <MenuTrigger>
