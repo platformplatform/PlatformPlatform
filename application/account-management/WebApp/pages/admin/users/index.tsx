@@ -15,11 +15,15 @@ export default function UsersPage() {
     <div className="flex gap-4 h-screen bg-gray-50">
       <SideMenu />
       <div className="flex flex-grow flex-col gap-4 pl-1 pr-6 py-3 overflow-x-auto">
-        <UserHeader />
-        <UserInvite />
-        <UserTabs />
-        <UserQuerying />
-        <UserTable />
+        <div className="z-10">
+          <UserHeader />
+          <UserInvite />
+          <UserTabs />
+          <UserQuerying />
+        </div>
+        <div className="flex-grow z-0 overflow-auto min-h-48">
+          <UserTable />
+        </div>
       </div>
     </div>
   );

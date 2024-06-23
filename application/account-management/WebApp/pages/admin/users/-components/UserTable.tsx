@@ -34,7 +34,7 @@ export function UserTable() {
 
   return (
     <div>
-      <div className="mb-4 w-full min-w-64 overflow-x-auto">
+      <div className="overflow-auto">
         <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
           <TableHeader>
             <Column minWidth={100} allowsSorting id="name" isRowHeader>
@@ -123,12 +123,14 @@ export function UserTable() {
           </TableBody>
         </Table>
       </div>
-      <Pagination
-        total={rows.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
+      <div className="sticky bottom-0 bg-gray-50 w-full py-2">
+        <Pagination
+          total={rows.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
     </div>
   );
 }
