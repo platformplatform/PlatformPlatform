@@ -43,13 +43,13 @@ export function UserTable() {
             <Column minWidth={100} allowsSorting id="email">
               Email
             </Column>
-            <Column defaultWidth={130} allowsSorting id="date">
+            <Column defaultWidth={130} id="date">
               Added
             </Column>
-            <Column defaultWidth={130} allowsSorting id="lastSeen">
+            <Column defaultWidth={130} id="lastSeen">
               Last Seen
             </Column>
-            <Column defaultWidth={100} allowsSorting id="type">
+            <Column defaultWidth={100} id="role">
               Role
             </Column>
             <Column width={80}>Actions</Column>
