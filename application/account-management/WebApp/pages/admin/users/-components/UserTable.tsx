@@ -7,7 +7,7 @@ import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table
 import Badge from "@repo/ui/components/Badge";
 import Pagination from "@repo/ui/components/Pagination";
 import { Popover } from "@repo/ui/components/Popover";
-import { Menu, MenuItem } from "@repo/ui/components/Menu";
+import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 
 export function UserTable() {
@@ -104,13 +104,14 @@ export function UserTable() {
                       </Button>
                       <Popover>
                         <Menu>
-                          <MenuItem onAction={() => alert("open")}>
+                          <MenuItem onAction={() => alert("open")} className="h-12">
                             <UserIcon size={16} />
                             View Profile
                           </MenuItem>
-                          <MenuItem variant="destructive" onAction={() => alert("rename")}>
+                          <MenuSeparator />
+                          <MenuItem onAction={() => alert("rename")} className="h-12">
                             <TrashIcon size={16} />
-                            Delete
+                            <span className="text-red-600">Delete</span>
                           </MenuItem>
                         </Menu>
                       </Popover>
