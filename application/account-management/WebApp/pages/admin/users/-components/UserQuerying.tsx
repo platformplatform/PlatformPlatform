@@ -12,7 +12,7 @@ export function UserQuerying() {
           placeholder="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border px-4 py-2 rounded pl-10 border-gray-300"
+          className="border px-4 py-2 rounded-lg pl-10 border-gray-300"
         />
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>

@@ -7,7 +7,7 @@ import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table
 import Badge from "@repo/ui/components/Badge";
 import Pagination from "@repo/ui/components/Pagination";
 import { Popover } from "@repo/ui/components/Popover";
-import { Menu, MenuItem } from "@repo/ui/components/Menu";
+import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 
 export function UserTable() {
@@ -34,7 +34,7 @@ export function UserTable() {
 
   return (
     <div>
-      <div className="mb-4 w-full min-w-64 overflow-x-auto">
+      <div className="overflow-auto">
         <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
           <TableHeader>
             <Column minWidth={100} allowsSorting id="name" isRowHeader>
@@ -43,13 +43,13 @@ export function UserTable() {
             <Column minWidth={100} allowsSorting id="email">
               Email
             </Column>
-            <Column defaultWidth={130} allowsSorting id="date">
+            <Column defaultWidth={130} id="date">
               Added
             </Column>
-            <Column defaultWidth={130} allowsSorting id="lastSeen">
+            <Column defaultWidth={130} id="lastSeen">
               Last Seen
             </Column>
-            <Column defaultWidth={100} allowsSorting id="type">
+            <Column defaultWidth={100} id="role">
               Role
             </Column>
             <Column width={80}>Actions</Column>
@@ -95,7 +95,7 @@ export function UserTable() {
                 </Cell>
                 <Cell>
                   <div className="flex gap-2">
-                    <Button variant="icon">
+                    <Button variant="icon" className="group-hover:visible invisible">
                       <TrashIcon size={16} />
                     </Button>
                     <MenuTrigger>
@@ -104,13 +104,14 @@ export function UserTable() {
                       </Button>
                       <Popover>
                         <Menu>
-                          <MenuItem onAction={() => alert("open")}>
+                          <MenuItem onAction={() => alert("open")} className="h-12">
                             <UserIcon size={16} />
                             View Profile
                           </MenuItem>
-                          <MenuItem variant="destructive" onAction={() => alert("rename")}>
+                          <MenuSeparator />
+                          <MenuItem onAction={() => alert("rename")} className="h-12">
                             <TrashIcon size={16} />
-                            Delete
+                            <span className="text-red-600">Delete</span>
                           </MenuItem>
                         </Menu>
                       </Popover>
@@ -122,12 +123,14 @@ export function UserTable() {
           </TableBody>
         </Table>
       </div>
-      <Pagination
-        total={rows.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
+      <div className="sticky bottom-0 bg-gray-50 w-full py-2">
+        <Pagination
+          total={rows.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
     </div>
   );
 }

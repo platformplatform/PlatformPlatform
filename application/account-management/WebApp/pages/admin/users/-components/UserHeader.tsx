@@ -1,15 +1,7 @@
-import {
-  ChevronRightIcon,
-  CircleUserIcon,
-  Languages,
-  LifeBuoyIcon,
-  LogOutIcon,
-  MoonIcon,
-  SettingsIcon,
-  UserIcon
-} from "lucide-react";
+import { ChevronRightIcon, Languages, LifeBuoyIcon, LogOutIcon, MoonIcon, SettingsIcon, UserIcon } from "lucide-react";
+import avatarUrl from "../../images/avatar.png";
 import { MenuTrigger } from "react-aria-components";
-import ProfileData from "./data";
+import ProfileMenuItem from "./profileMenuItem";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Popover } from "@repo/ui/components/Popover";
@@ -33,25 +25,25 @@ export function UserHeader() {
         <LifeBuoyIcon size={20} />
         <Languages size={20} />
         <MenuTrigger>
-          <Button aria-label="Menu" variant="icon">
-            <CircleUserIcon size={30} />
+          <Button aria-label="Menu" variant="icon" className="w-12 h-12 rounded-full bg-transparent">
+            <img src={avatarUrl} alt="Profile menu" />
           </Button>
           <Popover>
             <Menu>
-              <MenuItem onAction={() => alert("open")}>
-                <ProfileData />
+              <MenuItem className="h-16 w-60" onAction={() => alert("open")}>
+                <ProfileMenuItem />
               </MenuItem>
               <MenuSeparator />
-              <MenuItem onAction={() => alert("open")}>
+              <MenuItem className="h-11 w-60" onAction={() => alert("open")}>
                 <UserIcon size={16} />
                 Edit profile
               </MenuItem>
-              <MenuItem onAction={() => alert("rename")}>
+              <MenuItem className="h-11 w-60" onAction={() => alert("rename")}>
                 <SettingsIcon size={16} />
                 Account settings
               </MenuItem>
               <MenuSeparator />
-              <MenuItem onAction={() => alert("rename")}>
+              <MenuItem className="h-12 w-60" onAction={() => alert("rename")}>
                 <LogOutIcon size={16} /> Sign out
               </MenuItem>
             </Menu>
