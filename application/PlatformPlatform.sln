@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.ApiCore", "sha
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9E2EF0B0-2A92-489B-8910-070C871197B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "shared-kernel\Tests\SharedKernel.Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Tests", "shared-kernel\Tests\SharedKernel.Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "account-management", "account-management", "{EEA1463E-71F8-44E6-8055-787DAA5E62D2}"
 EndProject
