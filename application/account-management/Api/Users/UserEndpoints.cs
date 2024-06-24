@@ -14,11 +14,11 @@ public class UserEndpoints : IEndpoints
 
         group.MapGet("/", async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
             => await mediator.Send(query)
-        );
+        ).Produces<GetUsersResponseDto>();
 
         group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> ([AsParameters] GetUserQuery query, ISender mediator)
             => await mediator.Send(query)
-        );
+        ).Produces<UserResponseDto>();
 
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
