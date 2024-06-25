@@ -196,6 +196,42 @@
         }
       }
     },
+    "/api/account-management/users/{id}/change-user-role": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountManagementUsersChangeUserRole",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserRoleCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/users/{id}/update-avatar": {
       "post": {
         "tags": [
@@ -642,6 +678,15 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "ChangeUserRoleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userRole": {
+            "$ref": "#/components/schemas/UserRole"
           }
         }
       },

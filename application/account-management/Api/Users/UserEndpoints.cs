@@ -28,6 +28,10 @@ public class UserEndpoints : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
 
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+
         group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteUserCommand command, ISender mediator)
             => await mediator.Send(command)
         );
