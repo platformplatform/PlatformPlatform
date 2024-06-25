@@ -631,10 +631,16 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userRole": {
-            "$ref": "#/components/schemas/UserRole"
-          },
           "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
             "type": "string"
           }
         }

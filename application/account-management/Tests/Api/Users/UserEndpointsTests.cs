@@ -234,7 +234,13 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.Owner };
+        var command = new UpdateUserCommand
+        {
+            Email = Faker.Internet.Email(),
+            FirstName = Faker.Name.FirstName(),
+            LastName = Faker.Name.LastName(),
+            Title = Faker.Name.JobTitle()
+        };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
@@ -248,8 +254,13 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var existingUserId = DatabaseSeeder.User1.Id;
-        var invalidEmail = Faker.InvalidEmail();
-        var command = new UpdateUserCommand { Email = invalidEmail, UserRole = UserRole.Admin };
+        var command = new UpdateUserCommand
+        {
+            Email = Faker.InvalidEmail(),
+            FirstName = Faker.Random.String(31),
+            LastName = Faker.Random.String(31),
+            Title = Faker.Random.String(51)
+        };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
@@ -257,7 +268,10 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
+            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters."),
+            new ErrorDetail("FirstName", "First name must be no longer than 30 characters."),
+            new ErrorDetail("LastName", "Last name must be no longer than 30 characters."),
+            new ErrorDetail("Title", "Title must be no longer than 50 characters.")
         };
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
     }
@@ -267,7 +281,13 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         var unknownUserId = UserId.NewId();
-        var command = new UpdateUserCommand { Email = Faker.Internet.Email(), UserRole = UserRole.Admin };
+        var command = new UpdateUserCommand
+        {
+            Email = Faker.Internet.Email(),
+            FirstName = Faker.Name.FirstName(),
+            LastName = Faker.Name.LastName(),
+            Title = Faker.Name.JobTitle()
+        };
 
         // Act
         var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
