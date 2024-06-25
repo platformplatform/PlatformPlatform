@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { ErrorPage } from "./-components/ErrorPage";
-import { NotFound } from "./-components/NotFoundPage";
+import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
+import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { ThemeModeProvider } from "@repo/infrastructure/themeMode/useThemeMode";
