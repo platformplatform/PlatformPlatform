@@ -126,7 +126,7 @@ public static class ApiCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection ServeOnPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
+    public static IServiceCollection ConfigureDevelopmentPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
     {
         builder.WebHost.ConfigureKestrel((context, serverOptions) =>
             {

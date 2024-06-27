@@ -12,7 +12,7 @@ builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices()
     .AddConfigureStorage(builder)
-    .ServeOnPort(builder, 9199);
+    .ConfigureDevelopmentPort(builder, 9199);
 
 var host = builder.Build();
 
