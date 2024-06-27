@@ -17,10 +17,5 @@
     "@repo/config": "*",
     "@repo/infrastructure": "*",
     "@repo/ui": "*"
-  },
-  "postcss": {
-    "plugins": {
-      "tailwindcss": {}
-    }
   }
 }
