@@ -134,7 +134,7 @@ public static class ApiCoreConfiguration
 
                 serverOptions.ConfigureEndpointDefaults(listenOptions => listenOptions.UseHttps());
 
-                serverOptions.ListenAnyIP(port, listenOptions => listenOptions.UseHttps());
+                serverOptions.ListenLocalhost(port, listenOptions => listenOptions.UseHttps());
             }
         );
 
