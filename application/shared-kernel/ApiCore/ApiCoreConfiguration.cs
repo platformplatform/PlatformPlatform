@@ -126,7 +126,7 @@ public static class ApiCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection ServeOnPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
+    public static IServiceCollection ConfigureDevelopmentPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
     {
         builder.WebHost.ConfigureKestrel((context, serverOptions) =>
             {
@@ -134,7 +134,7 @@ public static class ApiCoreConfiguration
 
                 serverOptions.ConfigureEndpointDefaults(listenOptions => listenOptions.UseHttps());
 
-                serverOptions.ListenAnyIP(port, listenOptions => listenOptions.UseHttps());
+                serverOptions.ListenLocalhost(port, listenOptions => listenOptions.UseHttps());
             }
         );
 

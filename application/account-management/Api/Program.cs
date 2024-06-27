@@ -14,7 +14,7 @@ builder.Services
     .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
     .AddConfigureStorage(builder)
     .AddSinglePageAppFallback()
-    .ServeOnPort(builder, 9100);
+    .ConfigureDevelopmentPort(builder, 9100);
 
 var app = builder.Build();
 
