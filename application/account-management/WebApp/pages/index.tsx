@@ -13,10 +13,10 @@ import { CtaSection3 } from "./-landing/sections/CtaSection3";
 import { FooterSection } from "./-landing/sections/FooterSection";
 
 export const Route = createFileRoute("/")({
-  component: LandingPage
+  component: Home
 });
 
-function LandingPage() {
+function Home() {
   return (
     <main className="flex w-full flex-col">
       <HeroSection />
