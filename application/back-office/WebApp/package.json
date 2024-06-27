@@ -12,10 +12,6 @@
     "swagger": "openapi-typescript shared/lib/api/BackOffice.Api.json -o shared/lib/api/api.generated.d.ts",
     "publish": "npm run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"
   },
-  "dependencies": {
-    "react-aria-components": "^1.2.1",
-    "react-dom-confetti": "^0.2.0"
-  },
   "devDependencies": {
     "@repo/build": "*",
     "@repo/config": "*",
