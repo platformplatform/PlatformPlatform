@@ -1,6 +1,6 @@
 import { ChevronDownIcon, LanguagesIcon } from "lucide-react";
 import { Button, type Key, Label, ListBox, ListBoxItem, Popover, Select } from "react-aria-components";
-import { translationContext, type Locale } from "@repo/infrastructure/translations/TranslationContext";
+import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { use, useCallback } from "react";
 import { useLingui } from "@lingui/react";
 

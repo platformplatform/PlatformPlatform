@@ -12,15 +12,3 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
-
-#. js-lingui-explicit-id
-#~ msgid "Missing Fields. Failed to login."
-#~ msgstr "Missing Fields. Failed to login."
-
-#. js-lingui-explicit-id
-#~ msgid "Server error: Failed login."
-#~ msgstr "Server error: Failed login."
-
-#. js-lingui-explicit-id
-#~ msgid "Server error: Failed logout."
-#~ msgstr "Server error: Failed logout."

@@ -53,18 +53,6 @@ msgstr "Skærmbilleder af dashboard-projektet, der viser mobile versioner"
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet, der viser desktop- og mobile versioner"
 
-#. js-lingui-explicit-id
-#~ msgid "Missing Fields. Failed to login."
-#~ msgstr "Felter mangler. Kunne ikke logge ind."
-
-#. js-lingui-explicit-id
-#~ msgid "Server error: Failed login."
-#~ msgstr "Serverfejl: Kunne ikke logge ind."
-
-#. js-lingui-explicit-id
-#~ msgid "Server error: Failed logout."
-#~ msgstr "Serverfejl: Kunne ikke logge ud."
-
 msgid "Already have an account?"
 msgstr "Har du allerede en konto?"
 
@@ -110,11 +98,5 @@ msgstr "Opret"
 msgid "Subdomain"
 msgstr "Subdomæne"
 
-#~ msgid "This is the example for the<0>Acme</0>demo product, brought to you by PlatformPlatform"
-#~ msgstr "Dette er et eksempel på<0>Acme</0>demo produkt, præsenteret af PlatformPlatform"
-
 msgid "Verify"
 msgstr "Bekræft"
-
-#~ msgid "Welcome to Acme."
-#~ msgstr "Velkommen til Acme."
