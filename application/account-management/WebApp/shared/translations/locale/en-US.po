@@ -18,10 +18,6 @@ msgid "yourname@example.com"
 msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
-msgid "Enter password"
-msgstr "Enter password"
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to start account registration."
 msgstr "Missing Fields. Failed to start account registration."
 
@@ -59,6 +55,9 @@ msgstr "Already have an account?"
 msgid "Can't find your code? Check your spam folder"
 msgstr "Can't find your code? Check your spam folder"
 
+msgid "Continue"
+msgstr "Continue"
+
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -71,20 +70,20 @@ msgstr "Don't have an account?"
 msgid "Email"
 msgstr "Email"
 
+msgid "Enter your email below to sign in."
+msgstr "Enter your email below to sign in."
+
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
 
 msgid "Filters"
 msgstr "Filters"
 
-msgid "Password"
-msgstr "Password"
+msgid "Hi! Welcome back"
+msgstr "Hi! Welcome back"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
-
-msgid "Please sign in to continue"
-msgstr "Please sign in to continue"
 
 msgid "Region"
 msgstr "Region"
@@ -92,14 +91,14 @@ msgstr "Region"
 msgid "Sign in"
 msgstr "Sign in"
 
-msgid "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
-msgstr "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
-
 msgid "Sign up"
 msgstr "Sign up"
 
 msgid "Subdomain"
 msgstr "Subdomain"
+
+msgid "This is the region where your data is stored"
+msgstr "This is the region where your data is stored"
 
 msgid "Verify"
 msgstr "Verify"

@@ -10,8 +10,8 @@ import { useExpirationTimeout } from "@/shared/ui/oneTimePassword/useExpiration"
 import { OneTimeCodeInput } from "@/shared/ui/oneTimePassword/OneTimeCodeInput";
 import { DigitPattern } from "@/shared/ui/oneTimePassword/DigitPattern";
 import { Link } from "@repo/ui/components/Link";
-import poweredByUrl from "@/shared/ui/images/powered-by.png";
-import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
+import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
+import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
 
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
@@ -57,7 +57,7 @@ export function CompleteAccountRegistrationForm() {
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
           </p>
-          <img src={poweredByUrl} alt="powered by" />
+          <img src={poweredByUrl} alt="powered by" className="w-28" />
         </div>
       </div>
     </Form>
