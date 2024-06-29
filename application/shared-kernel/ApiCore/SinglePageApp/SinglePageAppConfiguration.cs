@@ -17,8 +17,8 @@ public class SinglePageAppConfiguration
     public static readonly string BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
 
     private readonly string _htmlTemplatePath;
+    private readonly bool _isDevelopment;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
-    private readonly DateTime _startUpTime = DateTime.UtcNow;
     private string? _htmlTemplate;
 
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
@@ -40,9 +40,10 @@ public class SinglePageAppConfiguration
 
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
 
+        _isDevelopment = isDevelopment;
         _htmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
         PermissionPolicies = GetPermissionsPolicies();
-        ContentSecurityPolicies = GetContentSecurityPolicies(isDevelopment);
+        ContentSecurityPolicies = GetContentSecurityPolicies();
     }
 
     private string CdnUrl { get; }
@@ -59,7 +60,7 @@ public class SinglePageAppConfiguration
 
     public string GetHtmlTemplate()
     {
-        if (_htmlTemplate is not null)
+        if (_htmlTemplate is not null && _isDevelopment is false)
         {
             return _htmlTemplate;
         }
@@ -82,14 +83,11 @@ public class SinglePageAppConfiguration
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
-        var startNew = Stopwatch.StartNew();
-        while (startNew.Elapsed < TimeSpan.FromSeconds(10))
+        var retryCount = 0;
+        while (!File.Exists(_htmlTemplatePath) && retryCount < 60)
         {
-            var spaCreationTimeUtc = new FileInfo(_htmlTemplatePath).CreationTimeUtc;
-            if (spaCreationTimeUtc > _startUpTime.AddSeconds(-10) && spaCreationTimeUtc < DateTime.UtcNow.AddSeconds(-2))
-            {
-                break;
-            }
+            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+            retryCount++;
         }
     }
 
@@ -125,12 +123,12 @@ public class SinglePageAppConfiguration
         return string.Join(", ", permissionsPolicies.Select(p => $"{p.Key}=({string.Join(", ", p.Value)})"));
     }
 
-    private string GetContentSecurityPolicies(bool isDevelopment)
+    private string GetContentSecurityPolicies()
     {
         var trustedCdnHosts = "https://platformplatformgithub.blob.core.windows.net";
         var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHosts}";
 
-        if (isDevelopment)
+        if (_isDevelopment)
         {
             var webSocketHost = CdnUrl.Replace("https", "wss");
             trustedHosts += $" {webSocketHost}";
