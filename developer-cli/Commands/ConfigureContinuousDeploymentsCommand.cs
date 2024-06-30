@@ -145,7 +145,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             AnsiConsole.WriteLine();
         }
 
-        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{Config.GithubInfo?.Path}", redirectOutput: true);
+        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{Config.GithubInfo!.Path}", redirectOutput: true);
 
         using var githubApi = JsonDocument.Parse(githubApiJson);
 
@@ -160,7 +160,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private static void PublishExistingGithubVariables()
     {
         var githubVariablesJson = ProcessHelper.StartProcess(
-            $"gh api repos/{Config.GithubInfo?.Path}/actions/variables --paginate",
+            $"gh api repos/{Config.GithubInfo!.Path}/actions/variables --paginate",
             redirectOutput: true
         );
 
@@ -577,7 +577,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         CreateFederatedCredential(Config.ProductionSubscription.AppRegistration.AppRegistrationId!, "ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {Config.GithubInfo?.Url}.[/]"
+            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {Config.GithubInfo!.Url}.[/]"
         );
 
         void CreateFederatedCredential(string appRegistrationId, string displayName, string refRefsHeadsMain)
@@ -586,7 +586,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 {
                     name = displayName,
                     issuer = "https://token.actions.githubusercontent.com",
-                    subject = $"""repo:{Config.GithubInfo?.Path}:{refRefsHeadsMain}""",
+                    subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
                     audiences = new[] { "api://AzureADTokenExchange" }
                 }
             );
@@ -656,12 +656,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CreateGithubEnvironments()
     {
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/staging""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/staging""",
             redirectOutput: true
         );
 
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/production""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/production""",
             redirectOutput: true
         );
 
@@ -700,7 +700,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         void SetGithubVariable(VariableNames name, string value)
         {
-            ProcessHelper.StartProcess($"gh variable set {Enum.GetName(name)} -b\"{value}\" --repo={Config.GithubInfo?.Path}");
+            ProcessHelper.StartProcess($"gh variable set {Enum.GetName(name)} -b\"{value}\" --repo={Config.GithubInfo!.Path}");
         }
     }
 
@@ -831,13 +831,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
             $"""
              So far so good. The configuration of GitHub and Azure is now complete. Here are some recommendations to further secure and optimize your setup:
 
-             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{Config.GithubInfo?.Url}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch. Requires a paid GitHub plan for private repositories.
+             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{Config.GithubInfo!.Url}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch. Requires a paid GitHub plan for private repositories.
 
-             - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo?.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
+             - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo!.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
 
              - Configure the Domain Name for the staging and production environments. This involves two steps:
 
-                 a. Go to [blue]{Config.GithubInfo?.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
+                 a. Go to [blue]{Config.GithubInfo!.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
 
                  b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, re-run the failed jobs.
 
