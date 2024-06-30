@@ -714,7 +714,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         void DisableActiveWorkflow(string workflowName)
         {
             // Command to list workflows
-            var listWorkflowsCommand = "gh workflow list --json name,state,id";
+            var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
             var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
 
             // Parse JSON to find the specific workflow and check if it's active
@@ -728,7 +728,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
                 // Disable the workflow if it is active
                 var workflowId = element.GetProperty("id").GetInt64();
-                var disableCommand = $"gh workflow disable {workflowId}";
+                var disableCommand = $"gh workflow disable {workflowId} --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
 
                 AnsiConsole.MarkupLine($"[green]Reusable Git Workflow '{workflowName}' has been disabled.[/]");
@@ -766,14 +766,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
             {
                 AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
-                var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
+                var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
 
                 // Wait briefly to ensure the run has started
                 Thread.Sleep(TimeSpan.FromSeconds(15));
 
                 // Fetch and filter the workflows to find a "running" one
-                var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
+                var listWorkflowRunsCommand =
+                    $"gh run list --workflow={workflowFileName} --json databaseId,status --repo={Config.GithubInfo!.Path}";
                 var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
 
                 long? workflowId = null;
@@ -797,7 +798,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     Environment.Exit(1);
                 }
 
-                var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+                var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
 
                 // Run the command one more time to get the result
