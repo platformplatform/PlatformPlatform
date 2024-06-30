@@ -65,9 +65,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CollectUniquePrefix();
 
-        ConfirmReuseIfAppRegistrationsExists();
+        ConfirmReuseIfAppRegistrationsExist();
 
-        ConfirmReuseIfSqlAdminSecurityGroupsExists();
+        ConfirmReuseIfSqlAdminSecurityGroupExists();
 
         CollectAdditionalInfo();
 
@@ -209,7 +209,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         AnsiConsole.MarkupLine("[yellow]This Github Repository has already been initialized. If you continue existing GitHub variables will be overridden.[/]");
-        if (AnsiConsole.Confirm("Do you want to continue, and override existing GitHub variables?"))
+        if (AnsiConsole.Confirm("Do you want to continue and override existing GitHub variables?"))
         {
             AnsiConsole.WriteLine();
             return;
@@ -321,8 +321,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     )
             );
 
-            if (IsContainerRegistryConflicting(Config.StagingSubscription.Id, Config.StagingLocation.SharedLocation, $"{uniquePrefix}-stage", $"{uniquePrefix}stage") ||
-                IsContainerRegistryConflicting(Config.ProductionSubscription.Id, Config.ProductionLocation.SharedLocation, $"{uniquePrefix}-prod", $"{uniquePrefix}prod"))
+            if (IsContainerRegistryNameConflicting(Config.StagingSubscription.Id, Config.StagingLocation.SharedLocation, $"{uniquePrefix}-stage", $"{uniquePrefix}stage") ||
+                IsContainerRegistryNameConflicting(Config.ProductionSubscription.Id, Config.ProductionLocation.SharedLocation, $"{uniquePrefix}-prod", $"{uniquePrefix}prod"))
             {
                 AnsiConsole.MarkupLine(
                     "[red]ERROR:[/]Azure resources conflicting with this prefix is already in use, possibly in [bold]another subscription[/] or in [bold]another location[/]. Please enter a unique name."
@@ -335,7 +335,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             return;
         }
 
-        bool IsContainerRegistryConflicting(string subscriptionId, string location, string resourceGroup, string azureContainerRegistryName)
+        bool IsContainerRegistryNameConflicting(string subscriptionId, string location, string resourceGroup, string azureContainerRegistryName)
         {
             var checkAvailability = RunAzureCliCommand($"acr check-name --name {azureContainerRegistryName} --query \"nameAvailable\" -o tsv");
             if (bool.Parse(checkAvailability)) return false;
@@ -355,7 +355,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void ConfirmReuseIfAppRegistrationsExists()
+    private void ConfirmReuseIfAppRegistrationsExist()
     {
         ConfirmReuseIfAppRegistrationExist(Config.StagingSubscription.AppRegistration);
         ConfirmReuseIfAppRegistrationExist(Config.ProductionSubscription.AppRegistration);
@@ -399,7 +399,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void ConfirmReuseIfSqlAdminSecurityGroupsExists()
+    private void ConfirmReuseIfSqlAdminSecurityGroupExists()
     {
         Config.StagingSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.StagingSubscription.SqlAdminsGroup.Name);
         Config.ProductionSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.ProductionSubscription.SqlAdminsGroup.Name);
