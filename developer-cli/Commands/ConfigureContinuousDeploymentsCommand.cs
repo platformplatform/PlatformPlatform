@@ -23,7 +23,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
-        "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
+        "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect."
     )
     {
         AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and GitHub CLI commands and output"));
@@ -52,6 +52,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
         SetGithubInfo();
 
         LoginToGithub();
+
+        EnsureGithubWorkflowsAreEnabled();
 
         PublishExistingGithubVariables();
 
@@ -154,6 +156,31 @@ public class ConfigureContinuousDeploymentsCommand : Command
         {
             AnsiConsole.MarkupLine("[red]ERROR: You do not have admin permissions on the repository. Please ensure you have the required permissions and try again. Run 'gh auth logout' to log in with a different account.[/]");
             Environment.Exit(0);
+        }
+    }
+
+    private void EnsureGithubWorkflowsAreEnabled()
+    {
+        while (true)
+        {
+            var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
+            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+
+            if (result.StartsWith('[') && result.EndsWith(']'))
+            {
+                break;
+            }
+
+            if (AnsiConsole.Confirm("[yellow]GitHub Actions are currently disabled for this repository. Press Enter to open your browser and enable GitHub Actions.[/]"))
+            {
+                ProcessHelper.OpenBrowser($"https://github.com/{Config.GithubInfo!.Path}/actions");
+                AnsiConsole.MarkupLine("[blue]Please enable the workflows and press any key to continue...[/]");
+                Console.ReadKey();
+            }
+            else
+            {
+                Environment.Exit(0);
+            }
         }
     }
 

@@ -13,6 +13,22 @@ public static class ProcessHelper
         process.WaitForExit();
     }
 
+    public static void OpenBrowser(string url)
+    {
+        if (Configuration.IsWindows)
+        {
+            StartProcess($"start {url}");
+        }
+        else if (Configuration.IsMacOs)
+        {
+            StartProcess($"open {url}");
+        }
+        else if (Configuration.IsLinux)
+        {
+            StartProcess($"xdg-open {url}");
+        }
+    }
+
     public static string StartProcess(
         string command,
         string? solutionFolder = null,
