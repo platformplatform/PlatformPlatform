@@ -8,7 +8,10 @@ public class ManagedIdentityTransform(TokenCredential credential)
 {
     protected override string? GetValue(RequestTransformContext context)
     {
-        if (!context.HttpContext.Request.Path.StartsWithSegments("/avatars")) return null;
+        if (!context.HttpContext.Request.Path.StartsWithSegments("/avatars", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
 
         var tokenRequestContext = new TokenRequestContext(["https://storage.azure.com/.default"]);
         var token = credential.GetToken(tokenRequestContext, context.HttpContext.RequestAborted);

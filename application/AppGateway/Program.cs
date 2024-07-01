@@ -32,6 +32,11 @@ else
     );
 }
 
+builder.Services.AddSingleton<BlockInternalApiTransform>();
+reverseProxyBuilder.AddTransforms(context =>
+    context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
+);
+
 builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);

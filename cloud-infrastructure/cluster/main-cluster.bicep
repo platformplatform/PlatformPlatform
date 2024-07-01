@@ -233,6 +233,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
     ingress: true
+    hasProbesEndpoint: true
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
@@ -257,6 +258,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
     ingress: true
+    hasProbesEndpoint: true
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
@@ -358,6 +360,7 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
     maxReplicas: 1
     userAssignedIdentityName: backOfficeIdentityName
     ingress: true
+    hasProbesEndpoint: true
     environmentVariables: backOfficeEnvironmentVariables
   }
   dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService]
@@ -382,6 +385,7 @@ module backOfficeApi '../modules/container-app.bicep' = {
     maxReplicas: 1
     userAssignedIdentityName: backOfficeIdentityName
     ingress: true
+    hasProbesEndpoint: true
     environmentVariables: backOfficeEnvironmentVariables
   }
   dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService, backOfficeWorkers]
@@ -423,6 +427,7 @@ module appGateway '../modules/container-app.bicep' = {
     maxReplicas: 3
     userAssignedIdentityName: appGatewayIdentityName
     ingress: true
+    hasProbesEndpoint: false
     domainName: domainName == '' ? '' : domainName
     isDomainConfigured: domainName != '' && isDomainConfigured
     external: true
