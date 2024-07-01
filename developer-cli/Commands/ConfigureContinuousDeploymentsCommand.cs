@@ -23,7 +23,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
-        "Set up trust between Azure and GitHub for passwordless deployments using OpenID."
+        "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect."
     )
     {
         AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and GitHub CLI commands and output"));
@@ -53,6 +53,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         LoginToGithub();
 
+        EnsureGithubWorkflowsAreEnabled();
+
         PublishExistingGithubVariables();
 
         ShowWarningIfGithubRepositoryIsAlreadyInitialized();
@@ -63,9 +65,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         CollectUniquePrefix();
 
-        ConfirmReuseIfAppRegistrationsExists();
+        ConfirmReuseIfAppRegistrationsExist();
 
-        ConfirmReuseIfSqlAdminSecurityGroupsExists();
+        ConfirmReuseIfSqlAdminSecurityGroupExists();
 
         CollectAdditionalInfo();
 
@@ -145,7 +147,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             AnsiConsole.WriteLine();
         }
 
-        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{Config.GithubInfo?.Path}", redirectOutput: true);
+        var githubApiJson = ProcessHelper.StartProcess($"gh api repos/{Config.GithubInfo!.Path}", redirectOutput: true);
 
         using var githubApi = JsonDocument.Parse(githubApiJson);
 
@@ -157,10 +159,35 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    private void EnsureGithubWorkflowsAreEnabled()
+    {
+        while (true)
+        {
+            var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
+            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+
+            if (result.StartsWith('[') && result.EndsWith(']'))
+            {
+                break;
+            }
+
+            if (AnsiConsole.Confirm("[yellow]GitHub Actions are currently disabled for this repository. Press Enter to open your browser and enable GitHub Actions.[/]"))
+            {
+                ProcessHelper.OpenBrowser($"https://github.com/{Config.GithubInfo!.Path}/actions");
+                AnsiConsole.MarkupLine("[blue]Please enable the workflows and press any key to continue...[/]");
+                Console.ReadKey();
+            }
+            else
+            {
+                Environment.Exit(0);
+            }
+        }
+    }
+
     private static void PublishExistingGithubVariables()
     {
         var githubVariablesJson = ProcessHelper.StartProcess(
-            $"gh api repos/{Config.GithubInfo?.Path}/actions/variables --paginate",
+            $"gh api repos/{Config.GithubInfo!.Path}/actions/variables --paginate",
             redirectOutput: true
         );
 
@@ -182,7 +209,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
 
         AnsiConsole.MarkupLine("[yellow]This Github Repository has already been initialized. If you continue existing GitHub variables will be overridden.[/]");
-        if (AnsiConsole.Confirm("Do you want to continue, and override existing GitHub variables?"))
+        if (AnsiConsole.Confirm("Do you want to continue and override existing GitHub variables?"))
         {
             AnsiConsole.WriteLine();
             return;
@@ -294,8 +321,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     )
             );
 
-            if (IsContainerRegistryConflicting(Config.StagingSubscription.Id, Config.StagingLocation.SharedLocation, $"{uniquePrefix}-stage", $"{uniquePrefix}stage") ||
-                IsContainerRegistryConflicting(Config.ProductionSubscription.Id, Config.ProductionLocation.SharedLocation, $"{uniquePrefix}-prod", $"{uniquePrefix}prod"))
+            if (IsContainerRegistryNameConflicting(Config.StagingSubscription.Id, Config.StagingLocation.SharedLocation, $"{uniquePrefix}-stage", $"{uniquePrefix}stage") ||
+                IsContainerRegistryNameConflicting(Config.ProductionSubscription.Id, Config.ProductionLocation.SharedLocation, $"{uniquePrefix}-prod", $"{uniquePrefix}prod"))
             {
                 AnsiConsole.MarkupLine(
                     "[red]ERROR:[/]Azure resources conflicting with this prefix is already in use, possibly in [bold]another subscription[/] or in [bold]another location[/]. Please enter a unique name."
@@ -308,7 +335,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
             return;
         }
 
-        bool IsContainerRegistryConflicting(string subscriptionId, string location, string resourceGroup, string azureContainerRegistryName)
+        bool IsContainerRegistryNameConflicting(string subscriptionId, string location, string resourceGroup, string azureContainerRegistryName)
         {
             var checkAvailability = RunAzureCliCommand($"acr check-name --name {azureContainerRegistryName} --query \"nameAvailable\" -o tsv");
             if (bool.Parse(checkAvailability)) return false;
@@ -328,7 +355,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void ConfirmReuseIfAppRegistrationsExists()
+    private void ConfirmReuseIfAppRegistrationsExist()
     {
         ConfirmReuseIfAppRegistrationExist(Config.StagingSubscription.AppRegistration);
         ConfirmReuseIfAppRegistrationExist(Config.ProductionSubscription.AppRegistration);
@@ -372,7 +399,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
-    private void ConfirmReuseIfSqlAdminSecurityGroupsExists()
+    private void ConfirmReuseIfSqlAdminSecurityGroupExists()
     {
         Config.StagingSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.StagingSubscription.SqlAdminsGroup.Name);
         Config.ProductionSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.ProductionSubscription.SqlAdminsGroup.Name);
@@ -577,7 +604,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         CreateFederatedCredential(Config.ProductionSubscription.AppRegistration.AppRegistrationId!, "ProductionEnvironment", "environment:production");
 
         AnsiConsole.MarkupLine(
-            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {Config.GithubInfo?.Url}.[/]"
+            $"[green]Successfully created App Registration with Federated Credentials allowing passwordless deployments from {Config.GithubInfo!.Url}.[/]"
         );
 
         void CreateFederatedCredential(string appRegistrationId, string displayName, string refRefsHeadsMain)
@@ -586,7 +613,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 {
                     name = displayName,
                     issuer = "https://token.actions.githubusercontent.com",
-                    subject = $"""repo:{Config.GithubInfo?.Path}:{refRefsHeadsMain}""",
+                    subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
                     audiences = new[] { "api://AzureADTokenExchange" }
                 }
             );
@@ -656,12 +683,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
     private void CreateGithubEnvironments()
     {
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/staging""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/staging""",
             redirectOutput: true
         );
 
         ProcessHelper.StartProcess(
-            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo?.Path}/environments/production""",
+            $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/production""",
             redirectOutput: true
         );
 
@@ -700,7 +727,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         void SetGithubVariable(VariableNames name, string value)
         {
-            ProcessHelper.StartProcess($"gh variable set {Enum.GetName(name)} -b\"{value}\" --repo={Config.GithubInfo?.Path}");
+            ProcessHelper.StartProcess($"gh variable set {Enum.GetName(name)} -b\"{value}\" --repo={Config.GithubInfo!.Path}");
         }
     }
 
@@ -714,7 +741,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         void DisableActiveWorkflow(string workflowName)
         {
             // Command to list workflows
-            var listWorkflowsCommand = "gh workflow list --json name,state,id";
+            var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
             var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
 
             // Parse JSON to find the specific workflow and check if it's active
@@ -728,7 +755,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
                 // Disable the workflow if it is active
                 var workflowId = element.GetProperty("id").GetInt64();
-                var disableCommand = $"gh workflow disable {workflowId}";
+                var disableCommand = $"gh workflow disable {workflowId} --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
 
                 AnsiConsole.MarkupLine($"[green]Reusable Git Workflow '{workflowName}' has been disabled.[/]");
@@ -766,14 +793,15 @@ public class ConfigureContinuousDeploymentsCommand : Command
             {
                 AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
-                var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main";
+                var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
 
                 // Wait briefly to ensure the run has started
                 Thread.Sleep(TimeSpan.FromSeconds(15));
 
                 // Fetch and filter the workflows to find a "running" one
-                var listWorkflowRunsCommand = $"gh run list --workflow={workflowFileName} --json databaseId,status";
+                var listWorkflowRunsCommand =
+                    $"gh run list --workflow={workflowFileName} --json databaseId,status --repo={Config.GithubInfo!.Path}";
                 var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
 
                 long? workflowId = null;
@@ -797,7 +825,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                     Environment.Exit(1);
                 }
 
-                var watchWorkflowRunCommand = $"gh run watch {workflowId.Value}";
+                var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --repo={Config.GithubInfo!.Path}";
                 ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
 
                 // Run the command one more time to get the result
@@ -831,13 +859,13 @@ public class ConfigureContinuousDeploymentsCommand : Command
             $"""
              So far so good. The configuration of GitHub and Azure is now complete. Here are some recommendations to further secure and optimize your setup:
 
-             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{Config.GithubInfo?.Url}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch. Requires a paid GitHub plan for private repositories.
+             - For protecting the [blue]main[/] branch, configure branch protection rules to necessitate pull request reviews before merging can occur. Visit [blue]{Config.GithubInfo!.Url}/settings/branches[/], click ""Add Branch protection rule"", and set it up for the [bold]main[/] branch. Requires a paid GitHub plan for private repositories.
 
-             - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo?.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
+             - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo!.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
 
              - Configure the Domain Name for the staging and production environments. This involves two steps:
 
-                 a. Go to [blue]{Config.GithubInfo?.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
+                 a. Go to [blue]{Config.GithubInfo!.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
 
                  b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, re-run the failed jobs.
 
