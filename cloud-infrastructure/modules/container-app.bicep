@@ -94,7 +94,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             memory: memory
           }
           env: environmentVariables
-          probes: hasProbesEndpoint
+          probes: hasProbesEndpoint && containerImageTag != 'initial' // The quickstart image does not have liveness and readiness probes
             ? [
                 {
                   type: 'Liveness'
