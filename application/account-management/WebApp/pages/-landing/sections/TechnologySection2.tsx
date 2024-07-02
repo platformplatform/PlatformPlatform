@@ -17,7 +17,7 @@ export function TechnologySection2() {
         </div>
         <div className="flex lg:w-1/2 justify-start">
           <div className="rounded-xl shadow-xl h-fit">
-            <img src={infrastructure} alt="Mockup" className="rounded-lg" />
+            <img src={infrastructure} alt="Mockup" className="rounded-lg" loading="lazy" />
           </div>
         </div>
       </div>

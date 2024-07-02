@@ -66,7 +66,7 @@ function FeatureBlock({ title, content, image }: FeatureBlockProps) {
     <div className="flex flex-col gap-4 h-1/3">
       <div>
         <div className="flex shadow rounded-lg w-12 h-12 justify-center p-0 items-center">
-          <img src={image} alt={title} />
+          <img src={image} alt={title} loading="lazy" />
         </div>
       </div>
       <div className="text-gray-900 text-xl font-semibold text-start">{title}</div>

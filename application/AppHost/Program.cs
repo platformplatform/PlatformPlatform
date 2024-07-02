@@ -5,7 +5,7 @@ using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var certificatePassword = builder.CreateSslCertificateIfNotExists();
+builder.CreateSslCertificateIfNotExists();
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
@@ -32,8 +32,7 @@ var accountManagementDatabase = sqlServer
 CreateBlobContainer("avatars");
 
 var frontendBuild = builder
-    .AddNpmApp("frontend-build", "../")
-    .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
+    .AddNpmApp("frontend-build", "../");
 
 var accountManagementApi = builder
     .AddProject<AccountManagement_Api>("account-management-api")

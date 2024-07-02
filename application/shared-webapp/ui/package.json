@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "tsc -p . -w",
     "dev:setup": "tsc -p .",
-    "build": "rm -rf ./dist && tsc -p .",
+    "build": "rimraf ./dist && tsc -p .",
     "check": "biome check",
     "lint": "biome lint --write",
     "format": "biome format --write"

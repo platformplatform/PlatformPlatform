@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { logger } from "@rsbuild/core";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import z from "zod";
 
 /**
  * Build ignore pattern for the dist folder
@@ -10,6 +11,7 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 const applicationRoot = path.resolve(process.cwd(), "..", "..");
 const distFolder = path.join(process.cwd(), "dist");
 const ignoreDistPattern = `**/${path.relative(applicationRoot, distFolder)}/**`;
+const appHostProject = path.join(applicationRoot, "AppHost", "AppHost.csproj");
 
 /**
  * Files to write to disk for the development server to serve
@@ -39,19 +41,20 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
           return userConfig;
         }
 
+        const userSecretsId = getUserSecretsId(fs.readFileSync(appHostProject, "utf-8"));
+        logger.info(`Using user secrets id: "${userSecretsId}"`);
+
+        const userSecrets = getUserSecrets(userSecretsId);
+        const passphrase = userSecrets["certificate-password"];
+
         // Path to the platformplatform.pfx certificate generated as part of the Aspire setup
         const pfxPath = path.join(os.homedir(), ".aspnet", "dev-certs", "https", "platformplatform.pfx");
-        const passphrase = process.env.CERTIFICATE_PASSWORD ?? "";
 
         if (fs.existsSync(pfxPath) === false) {
           throw new Error(`Certificate not found at path: ${pfxPath}`);
         }
 
-        if (passphrase === "") {
-          throw new Error("CERTIFICATE_PASSWORD environment variable is not set");
-        }
-
-        logger.info(`Using ignore pattern: ${ignoreDistPattern}`);
+        logger.info(`Using ignore pattern: "${ignoreDistPattern}"`);
 
         const extraConfig: RsbuildConfig = {
           server: {
@@ -88,4 +91,49 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
       });
     }
   };
+}
+
+/**
+ * Get the UserSecretsId from the AppHost.csproj file
+ *
+ * @param csprojString - The content of the AppHost.csproj file
+ * @returns The UserSecretsId
+ */
+function getUserSecretsId(csprojString: string): string {
+  const match = RegExp(/<UserSecretsId>(.*)<\/UserSecretsId>/).exec(csprojString);
+  if (match === null) {
+    throw new Error("UserSecretsId not found in AppHost.csproj");
+  }
+
+  return match[1];
+}
+
+/**
+ * UserSecrets schema
+ */
+const userSecretsSchema = z.object({
+  "certificate-password": z.string()
+});
+
+type UserSecrets = z.infer<typeof userSecretsSchema>;
+
+/**
+ * Get the UserSecrets from the usersecrets file
+ *
+ * @param id - The UserSecretsId
+ * @returns The UserSecrets
+ */
+function getUserSecrets(id: string): UserSecrets {
+  const userSecretsPath = path.join(os.homedir(), ".microsoft", "usersecrets", id, "secrets.json");
+  try {
+    const result = userSecretsSchema.safeParse(JSON.parse(fs.readFileSync(userSecretsPath, "utf-8")));
+    if (!result.success) {
+      throw new Error(result.error.message);
+    }
+    return result.data;
+  } catch (error) {
+    throw new Error(
+      `User secrets not found at path: ${userSecretsPath} - "${error instanceof Error ? error.message : error}"`
+    );
+  }
 }

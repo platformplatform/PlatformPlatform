@@ -1,6 +1,5 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
       "outputs": ["dist/**"],
@@ -12,7 +11,6 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["CERTIFICATE_PASSWORD"],
       "dependsOn": ["^dev:setup"]
     },
     "dev:setup": {
