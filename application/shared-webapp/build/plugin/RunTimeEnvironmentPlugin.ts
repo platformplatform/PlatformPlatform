@@ -25,6 +25,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             // The method getApplicationEnvironment() is defined in the runtime
             // environment file loaded as the first entry point
             define: {
+              "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
               "import.meta.build_env": JSON.stringify({
                 APPLICATION_ID,
                 ...customBuildEnv
