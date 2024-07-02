@@ -22,27 +22,57 @@ export function FeatureSection() {
       </div>
       <div className="flex flex-row justify-center gap-4 px-16 md:pr-0">
         <div className="flex flex-col gap-4">
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={createAccountUrl} alt="Create Account" />
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={enterCodeUrl} alt="Enter Code" />
+          <img
+            className="shadow-xl shadow-gray-400 rounded-lg"
+            src={createAccountUrl}
+            alt="Create Account"
+            loading="lazy"
+          />
+          <img className="shadow-xl shadow-gray-400 rounded-lg" src={enterCodeUrl} alt="Enter Code" loading="lazy" />
         </div>
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-2">
-            <img className="shadow-xl shadow-gray-400 rounded-lg" src={profileEditDarkUrl} alt="Profile Edit Dark" />
+            <img
+              className="shadow-xl shadow-gray-400 rounded-lg"
+              src={profileEditDarkUrl}
+              alt="Profile Edit Dark"
+              loading="lazy"
+            />
             <div>
-              <img className="shadow-xl shadow-gray-400 rounded-lg" src={darkModeUrl} alt="Dark Mode" />
+              <img className="shadow-xl shadow-gray-400 rounded-lg" src={darkModeUrl} alt="Dark Mode" loading="lazy" />
             </div>
             <div>
-              <img className="shadow-xl shadow-gray-400 rounded-lg" src={lightModeUrl} alt="Light Mode" />
+              <img
+                className="shadow-xl shadow-gray-400 rounded-lg"
+                src={lightModeUrl}
+                alt="Light Mode"
+                loading="lazy"
+              />
             </div>
           </div>
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={editProfileUrl} alt="Edit Profile" />
+          <img
+            className="shadow-xl shadow-gray-400 rounded-lg"
+            src={editProfileUrl}
+            alt="Edit Profile"
+            loading="lazy"
+          />
         </div>
         <div className="flex-col gap-4 hidden md:flex">
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={accountSettingsUrl} alt="Account Settings" />
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={profileEditLightUrl} alt="Edit Profile Light" />
+          <img
+            className="shadow-xl shadow-gray-400 rounded-lg"
+            src={accountSettingsUrl}
+            alt="Account Settings"
+            loading="lazy"
+          />
+          <img
+            className="shadow-xl shadow-gray-400 rounded-lg"
+            src={profileEditLightUrl}
+            alt="Edit Profile Light"
+            loading="lazy"
+          />
         </div>
         <div className="flex-col gap-4 hidden md:flex">
-          <img className="shadow-xl shadow-gray-400 rounded-lg" src={usersUrl} alt="Users" />
+          <img className="shadow-xl shadow-gray-400 rounded-lg" src={usersUrl} alt="Users" loading="lazy" />
         </div>
       </div>
     </div>
