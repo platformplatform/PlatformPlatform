@@ -24,7 +24,7 @@ const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPag
     <div className="flex justify-between items-center space-x-2 md:space-x-4">
       <Button
         variant="secondary"
-        className="flex text-slate-700 text-sm items-center"
+        className="flex text-sm items-center"
         onPress={handlePrevious}
         isDisabled={currentPage === 1}
       >
@@ -36,7 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPag
       </span>
       <Button
         variant="secondary"
-        className="flex text-slate-700 text-sm items-center"
+        className="flex text-sm items-center"
         onPress={handleNext}
         isDisabled={currentPage === totalPages}
       >

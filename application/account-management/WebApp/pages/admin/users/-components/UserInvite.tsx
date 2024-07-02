@@ -12,8 +12,8 @@ export function UserInvite() {
       </div>
 
       <Button
-        variant="secondary"
-        className="flex items-center gap-2 bg-black text-base font-semibold whitespace-nowrap text-white mt-2"
+        variant="primary"
+        className="flex items-center gap-2 text-base font-semibold whitespace-nowrap mt-2"
       >
         <PlusIcon size={16} />
         Invite Users
