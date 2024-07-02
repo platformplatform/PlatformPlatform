@@ -11,7 +11,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "dependsOn": ["^dev:setup"]
+      "dependsOn": ["dev:setup"]
     },
     "dev:setup": {
       "dependsOn": ["^dev:setup"],
