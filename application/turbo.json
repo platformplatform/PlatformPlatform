@@ -13,7 +13,7 @@
       "cache": false,
       "persistent": true,
       "env": ["CERTIFICATE_PASSWORD"],
-      "dependsOn": ["^dev:setup"]
+      "dependsOn": ["dev:setup"]
     },
     "dev:setup": {
       "dependsOn": ["^dev:setup"],

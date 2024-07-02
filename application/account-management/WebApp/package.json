@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run update-translations && npm run swagger && rsbuild dev",
+    "dev": "rsbuild dev",
+    "dev:setup": "npm run update-translations && npm run swagger",
     "build": "npm run update-translations && npm run swagger && rsbuild build",
     "update-translations": "lingui extract && lingui compile --typescript",
     "check": "biome check",
