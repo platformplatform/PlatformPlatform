@@ -29,7 +29,7 @@ export function FooterSection() {
       <div className="w-full px-24 bg-white flex flex-col py-16">
         <div className="flex flex-row items-center flex-grow justify-between max-w-sm">
           <div className="flex gap-8 flex-col">
-            <img src={logoWrap} alt="Logo Wrap" />
+            <img src={logoWrap} alt="Logo Wrap" loading="lazy" />
             <div className="text-slate-600 text-base font-normal">
               Build amazing products on enterprise grade and open source technology.
             </div>
@@ -41,11 +41,11 @@ export function FooterSection() {
             © 2024 PlatformPlatform. All rights reserved.
           </div>
           <div className="flex flex-row gap-8">
-            <img src={twitterLogo} alt="Twitter Logo" />
-            <img src={linkedinLogo} alt="LinkedIn Logo" />
-            <img src={youtubeLogo} alt="YouTube Logo" />
-            <img src={githubLogo} alt="GitHub Logo" />
-            <img src={slackLogo} alt="Slack Logo" />
+            <img src={twitterLogo} alt="Twitter Logo" loading="lazy" />
+            <img src={linkedinLogo} alt="LinkedIn Logo" loading="lazy" />
+            <img src={youtubeLogo} alt="YouTube Logo" loading="lazy" />
+            <img src={githubLogo} alt="GitHub Logo" loading="lazy" />
+            <img src={slackLogo} alt="Slack Logo" loading="lazy" />
           </div>
         </div>
       </div>
