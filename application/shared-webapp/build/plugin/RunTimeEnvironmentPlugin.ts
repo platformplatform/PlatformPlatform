@@ -1,5 +1,7 @@
+import fs from "node:fs";
 import path from "node:path";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import { logger } from "@rsbuild/core";
 
 /**
  * The application ID is the relative path from the root of the repository to the
@@ -9,8 +11,32 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
  * @example "account-management/webapp"
  */
 const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
+const indexHtmlPath = path.join(process.cwd(), "dist", "index.html");
 
-export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(customBuildEnv: E): RsbuildPlugin {
+const defaultUserInfoEnv: UserInfoEnv = {
+  isAuthenticated: false,
+  locale: "en-US"
+};
+
+const defaultRuntimeEnv: RuntimeEnv = {
+  PUBLIC_URL: "/",
+  CDN_URL: "/",
+  APPLICATION_VERSION: "1.0.0",
+  LOCALE: "en-US"
+};
+
+/**
+ * Plugin to set the runtime environment variables for the application.
+ *
+ * @param customBuildEnv - Custom build environment variables
+ * @param userInfoEnv - User information environment variables (only used in development)
+ * @param runtimeEnv - Runtime environment variables (only used in development)
+ */
+export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(
+  customBuildEnv: E,
+  userInfoEnv: UserInfoEnv = defaultUserInfoEnv,
+  runtimeEnv: RuntimeEnv = defaultRuntimeEnv
+): RsbuildPlugin {
   return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {
@@ -62,6 +88,28 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
                 return tag;
               });
             }
+          },
+          dev: {
+            setupMiddlewares: [
+              (middlewares) => {
+                logger.info("Setting up runtime environment middleware");
+                middlewares.unshift((req, res, next) => {
+                  if (["", ".html"].includes(path.extname(req.url ?? ""))) {
+                    res.setHeader("Content-Type", "text/html");
+                    res.end(
+                      fs
+                        .readFileSync(indexHtmlPath, "utf-8")
+                        .replace("%ENCODED_RUNTIME_ENV%", Buffer.from(JSON.stringify(runtimeEnv)).toString("base64"))
+                        .replace("%ENCODED_USER_INFO_ENV%", Buffer.from(JSON.stringify(userInfoEnv)).toString("base64"))
+                        .replace(/%CDN_URL%/g, "")
+                    );
+                    return;
+                  }
+
+                  next();
+                });
+              }
+            ]
           }
         };
 
