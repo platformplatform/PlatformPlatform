@@ -17,12 +17,12 @@ public static class PrerequisitesChecker
 {
     private static readonly List<Prerequisite> Dependencies =
     [
-        new Prerequisite(PrerequisiteType.CommandLineTool, "dotnet", "dotnet", new Version(8, 0, 200)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(24, 0)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(21, 0)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 55)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 41)),
-        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.1""")
+        new Prerequisite(PrerequisiteType.CommandLineTool, "dotnet", "dotnet", new Version(8, 0, 300)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(26, 0)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(22, 0)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 61)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 51)),
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.2""")
     ];
 
     public static void Check(params string[] prerequisiteName)
@@ -133,7 +133,7 @@ public static class PrerequisitesChecker
 
            Installed Workload Id      Manifest Version      Installation Source
            --------------------------------------------------------------------
-           aspire                     8.0.1/8.0.100         SDK 8.0.300
+           aspire                     8.0.2/8.0.100         SDK 8.0.300
 
            Use `dotnet workload search` to find additional workloads to install.
          */

@@ -2,7 +2,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using Karambolo.PO;
 using OllamaSharp;
-using OllamaSharp.Models;
+using OllamaSharp.Models.Chat;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -165,13 +165,13 @@ public class TranslateCommand : Command
                         new ChatRequest { Model = ModelName, Messages = messages },
                         status =>
                         {
-                            content += status.Message?.Content ?? "";
+                            content += status?.Message.Content ?? "";
                             var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
                             context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
                         }
                     )).ToList();
 
-                    UpdateCatalogTranslation(poCatalog, key, messages.Last().Content);
+                    UpdateCatalogTranslation(poCatalog, key, messages.Last().Content!);
                 }
 
                 AnsiConsole.MarkupLine("[green]Translation completed.[/]");
