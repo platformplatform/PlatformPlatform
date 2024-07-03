@@ -1,6 +1,7 @@
 using System.Security;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
@@ -18,7 +19,6 @@ public class SinglePageAppConfiguration
 
     private readonly string _htmlTemplatePath;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
-    private readonly DateTime _startUpTime = DateTime.UtcNow;
     private string? _htmlTemplate;
 
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
@@ -76,19 +76,75 @@ public class SinglePageAppConfiguration
     }
 
     /// <summary>
-    ///     When debugging locally, the SPA and API are built in parallel, so we give the SPA 10 seconds to be ready.
-    ///     It takes a few seconds from when the index.html is written to disk, until the JS and CSS are ready.
+    ///     When debugging locally, the frontend is served from a Web Development server over web sockets.
+    ///     The build server generates the artifacts incrementally, so here we check if the artifacts are fully generated.
+    ///     Also, this awaits the Application Insights file to be fully generated, as it is created in two steps.
     /// </summary>
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
         var startNew = Stopwatch.StartNew();
-        while (startNew.Elapsed < TimeSpan.FromSeconds(10))
+        while (startNew.Elapsed < TimeSpan.FromSeconds(30))
         {
-            var spaCreationTimeUtc = new FileInfo(_htmlTemplatePath).CreationTimeUtc;
-            if (spaCreationTimeUtc > _startUpTime.AddSeconds(-10) && spaCreationTimeUtc < DateTime.UtcNow.AddSeconds(-2))
+            if (File.Exists(_htmlTemplatePath))
             {
-                break;
+                var htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+                if (string.IsNullOrEmpty(htmlTemplate))
+                {
+                    continue; // The index.html is first written empty and then filled with content
+                }
+
+                var applicationInsightsUrl = ExtractApplicationInsightsUrl(htmlTemplate);
+
+                if (GetApplicationInsightsBundleSize(applicationInsightsUrl).Result > 2_000_000)
+                {
+                    return; // The Application Insights file is generated in two steps, the final size is above 2 MB
+                }
+
+                Console.WriteLine("Waiting for Application Insights file to be fully generated.");
+            }
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(200));
+        }
+
+        throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
+
+        string ExtractApplicationInsightsUrl(string htmlContent)
+        {
+            // The Application Insights script URL has a hash in the filename, so it's extracted dynamically
+            var regex = new Regex(
+                @"src=""%CDN_URL%(/static/js/[\w-/]*applicationinsights-react-js[\w-]*\.js)""",
+                RegexOptions.IgnoreCase,
+                TimeSpan.FromSeconds(1)
+            );
+            var match = regex.Match(htmlContent);
+            if (match.Success)
+            {
+                var path = match.Groups[1].Value;
+                var host = Environment.GetEnvironmentVariable("CDN_URL");
+                return $"{host}{path}";
+            }
+
+            throw new InvalidOperationException("Application Insights script URL not found.");
+        }
+
+        async Task<int> GetApplicationInsightsBundleSize(string applicationInsightsUrl)
+        {
+            try
+            {
+                var httpClient = new HttpClient { Timeout = TimeSpan.FromMilliseconds(500) };
+                var response = await httpClient.GetAsync(applicationInsightsUrl);
+                if (!response.IsSuccessStatusCode) return 0;
+                var content = await response.Content.ReadAsByteArrayAsync();
+                return content.Length;
+            }
+            catch (HttpRequestException)
+            {
+                return 0;
+            }
+            catch (TaskCanceledException)
+            {
+                return 0;
             }
         }
     }
