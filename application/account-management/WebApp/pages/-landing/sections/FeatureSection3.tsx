@@ -15,7 +15,7 @@ export function FeatureSection3() {
           <FeatureList />
         </div>
         <div className="flex lg:w-1/2 justify-end border-4 rounded-xl shadow-xl">
-          <img src={createAccountUrl} alt="Mockup" className="rounded-lg" />
+          <img src={createAccountUrl} alt="Mockup" className="rounded-lg" loading="lazy" />
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@ function FeatureList() {
         <div className="flex items-center text-slate-600 text-md md:text-xl font-normal gap-4">
           <span>Just click the </span>
           <Button variant="neutral" className="flex p-2 items-center">
-            <img src={darkmodeUrl} alt="Dark Mode Toggle" className="flex w-full h-full" />
+            <img src={darkmodeUrl} alt="Dark Mode Toggle" className="flex w-full h-full" loading="lazy" />
           </Button>
           <span> button to switch to the Dark Side.</span>
         </div>

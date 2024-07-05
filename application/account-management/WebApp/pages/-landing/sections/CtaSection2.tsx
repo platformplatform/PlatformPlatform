@@ -15,7 +15,7 @@ export function CtaSection2() {
           <Button className="bg-gray-600 rounded-lg shadow whitespace-nowrap">Get started today - it’s free</Button>
         </div>
         <div className="w-min-6xl">
-          <img src={calenderMockupUrl} alt="Create Account" />
+          <img src={calenderMockupUrl} alt="Create Account" loading="lazy" />
         </div>
       </div>
     </div>
