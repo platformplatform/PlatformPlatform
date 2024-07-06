@@ -7,9 +7,6 @@ indent_style = space
 indent_size = 4
 tab_width = 4
 
-[*.cs]
-end_of_line = crlf
-
 [*.{ts,tsx,js,jsx,json,md,mdx,.prettierrc,.eslintrc,yml,Dockerfile}]
 indent_size = 2
 tab_width = 2
