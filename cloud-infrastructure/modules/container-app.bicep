@@ -101,7 +101,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
                   httpGet: {
                     path: '/internal-api/live'
                     port: 8080
-                    scheme: 'HTTPS'
+                    scheme: 'HTTP'
                   }
                   initialDelaySeconds: 3
                   failureThreshold: 3
@@ -114,7 +114,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
                   httpGet: {
                     path: '/internal-api/ready'
                     port: 8080
-                    scheme: 'HTTPS'
+                    scheme: 'HTTP'
                   }
                   initialDelaySeconds: 3
                   failureThreshold: 3
@@ -125,7 +125,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               ]
             : [
                 {
-                  type: 'liveness'
+                  type: 'Liveness'
                   failureThreshold: 3
                   periodSeconds: 10
                   successThreshold: 1
@@ -135,7 +135,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
                   timeoutSeconds: 1
                 }
                 {
-                  type: 'readiness'
+                  type: 'Readiness'
                   failureThreshold: 48
                   initialDelaySeconds: 3
                   periodSeconds: 5
