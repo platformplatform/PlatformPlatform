@@ -74,8 +74,28 @@ jobs:
 
       - name: Deploy Container
         run: |
-          SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          SUFFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SUFFIX
+
+          echo "Waiting for the new revision to be active..."
+          for i in {1..10}; do
+            sleep 15
+
+            RUNNING_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.runningState" --output tsv)
+            HEALTH_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.healthState" --output tsv)
+            if [[ "$HEALTH_STATUS" == "Healthy" ]]; then
+              echo "New revision is healthy. Running state: $RUNNING_STATUS"
+              exit 0
+            fi
+            if [[ "$HEALTH_STATUS" == "Unhealthy" ]]; then
+              echo "New revision is Unhealthy. Running state: $RUNNING_STATUS"
+              exit 1
+            fi
+            
+            echo "($i) Waiting for revision to become active. Running state: $RUNNING_STATUS"
+          done
+          echo "New revision did not become active in time. Running state: $RUNNING_STATUS"
+          exit 1
 
   prod1:
     name: Production
@@ -101,5 +121,25 @@ jobs:
 
       - name: Deploy Container
         run: |
-          SURFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SURFIX
+          SUFFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
+          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SUFFIX
+
+          echo "Waiting for the new revision to be active..."
+          for i in {1..10}; do
+            sleep 15
+
+            RUNNING_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.runningState" --output tsv)
+            HEALTH_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.healthState" --output tsv)
+            if [[ "$HEALTH_STATUS" == "Healthy" ]]; then
+              echo "New revision is healthy. Running state: $RUNNING_STATUS"
+              exit 0
+            fi
+            if [[ "$HEALTH_STATUS" == "Unhealthy" ]]; then
+              echo "New revision is Unhealthy. Running state: $RUNNING_STATUS"
+              exit 1
+            fi
+            
+            echo "($i) Waiting for revision to become active. Running state: $RUNNING_STATUS"
+          done
+          echo "New revision did not become active in time. Running state: $RUNNING_STATUS"
+          exit 1
