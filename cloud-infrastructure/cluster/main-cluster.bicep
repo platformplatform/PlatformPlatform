@@ -233,7 +233,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     maxReplicas: 3
     userAssignedIdentityName: accountManagementIdentityName
     ingress: true
-    hasProbesEndpoint: true
+    hasProbesEndpoint: false
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
@@ -360,7 +360,7 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
     maxReplicas: 1
     userAssignedIdentityName: backOfficeIdentityName
     ingress: true
-    hasProbesEndpoint: true
+    hasProbesEndpoint: false
     environmentVariables: backOfficeEnvironmentVariables
   }
   dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService]

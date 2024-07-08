@@ -9,6 +9,7 @@ on:
       - "application/shared-kernel/**"
       - "application/AppGateway/**"
       - ".github/workflows/app-gateway.yml"
+      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "application/shared-kernel/**"
       - "application/AppGateway/**"
       - ".github/workflows/app-gateway.yml"
+      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   workflow_dispatch:
 
