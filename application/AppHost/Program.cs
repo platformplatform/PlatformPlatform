@@ -19,6 +19,13 @@ var azureStorage = builder
             resourceBuilder.WithBlobPort(10000);
         }
     )
+    .WithAnnotation(new ContainerImageAnnotation
+        {
+            Registry = "mcr.microsoft.com",
+            Image = "azure-storage/azurite",
+            Tag = "latest"
+        }
+    )
     .AddBlobs("blobs");
 
 builder
