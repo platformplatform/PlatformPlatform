@@ -10,6 +10,7 @@ on:
       - "application/shared-webapp/**"
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
+      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -18,6 +19,7 @@ on:
       - "application/shared-webapp/**"
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
+      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   workflow_dispatch:
 
