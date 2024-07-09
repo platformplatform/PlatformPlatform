@@ -24,6 +24,7 @@ app.UseApiCoreConfiguration();
 app.UseSinglePageAppFallback();
 
 // Apply migrations to the database (should be moved to GitHub Actions or similar in production)
-app.Services.ApplyMigrations<AccountManagementDbContext>();
+
+Task.Run(() => app.Services.ApplyMigrationsAsync<AccountManagementDbContext>());
 
 app.Run();

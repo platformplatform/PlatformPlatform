@@ -136,7 +136,7 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
+    public static async Task ApplyMigrationsAsync<T>(this IServiceProvider services) where T : DbContext
     {
         using var scope = services.CreateScope();
 
@@ -158,7 +158,7 @@ public static class InfrastructureCoreConfiguration
 
                 var strategy = dbContext.Database.CreateExecutionStrategy();
 
-                strategy.Execute(() => dbContext.Database.Migrate());
+                await strategy.ExecuteAsync(() => dbContext.Database.MigrateAsync());
 
                 logger.LogInformation("Finished migrating database.");
 
