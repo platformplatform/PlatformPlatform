@@ -129,7 +129,7 @@ public static class InfrastructureCoreConfiguration
                                  type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
                 )
             )
-            .AsImplementedInterfaces()
+            .AsSelfWithInterfaces()
             .WithScopedLifetime()
         );
 

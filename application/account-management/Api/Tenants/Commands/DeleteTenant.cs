@@ -27,7 +27,7 @@ public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Resul
 
 public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantCommand>
 {
-    public DeleteTenantValidator(IUserRepository userRepository)
+    public DeleteTenantValidator(UserRepository userRepository)
     {
         RuleFor(x => x.Id)
             .MustAsync(async (tenantId, cancellationToken) =>
@@ -37,7 +37,7 @@ public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantComman
     }
 }
 
-public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
+public sealed class DeleteTenantHandler(TenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteTenantCommand, Result>
 {
     public async Task<Result> Handle(DeleteTenantCommand command, CancellationToken cancellationToken)

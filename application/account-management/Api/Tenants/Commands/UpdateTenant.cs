@@ -41,7 +41,7 @@ public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantComman
     }
 }
 
-public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
+public sealed class UpdateTenantHandler(TenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateTenantCommand, Result>
 {
     public async Task<Result> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)

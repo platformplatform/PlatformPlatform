@@ -48,7 +48,7 @@ public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
     }
 }
 
-public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+public sealed class UpdateUserHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<UpdateUserCommand, Result>
 {
     public async Task<Result> Handle(UpdateUserCommand command, CancellationToken cancellationToken)

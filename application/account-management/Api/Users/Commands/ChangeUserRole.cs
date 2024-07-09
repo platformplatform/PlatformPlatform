@@ -29,7 +29,7 @@ public sealed record ChangeUserRoleCommand : ICommand, IRequest<Result>
     public required UserRole UserRole { get; init; }
 }
 
-public sealed class ChangeUserRoleHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+public sealed class ChangeUserRoleHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<ChangeUserRoleCommand, Result>
 {
     public async Task<Result> Handle(ChangeUserRoleCommand command, CancellationToken cancellationToken)

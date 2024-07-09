@@ -32,7 +32,7 @@ public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
-    public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
+    public CreateUserValidator(UserRepository userRepository, TenantRepository tenantRepository)
     {
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
 
@@ -51,7 +51,7 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
     }
 }
 
-public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+public sealed class CreateUserHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     private static readonly HttpClient Client = new();

@@ -22,7 +22,7 @@ public sealed class GetTenantEndpoint : IEndpoints
 
 public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
-public sealed class GetTenantHandler(ITenantRepository tenantRepository)
+public sealed class GetTenantHandler(TenantRepository tenantRepository)
     : IRequestHandler<GetTenantQuery, Result<TenantResponseDto>>
 {
     public async Task<Result<TenantResponseDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)

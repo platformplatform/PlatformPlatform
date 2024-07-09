@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 
-internal sealed class TenantRepository(AccountManagementDbContext accountManagementDbContext)
-    : RepositoryBase<Tenant, TenantId>(accountManagementDbContext), ITenantRepository
+public sealed class TenantRepository(AccountManagementDbContext accountManagementDbContext)
+    : RepositoryBase<Tenant, TenantId>(accountManagementDbContext), ICrudRepository<Tenant, TenantId>
 {
     public Task<bool> IsSubdomainFreeAsync(string subdomain, CancellationToken cancellationToken)
     {

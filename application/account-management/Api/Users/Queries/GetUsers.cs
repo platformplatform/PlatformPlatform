@@ -28,7 +28,7 @@ public sealed record GetUsersQuery(
     int? PageOffset = null
 ) : IRequest<Result<GetUsersResponseDto>>;
 
-public sealed class GetUsersHandler(IUserRepository userRepository)
+public sealed class GetUsersHandler(UserRepository userRepository)
     : IRequestHandler<GetUsersQuery, Result<GetUsersResponseDto>>
 {
     public async Task<Result<GetUsersResponseDto>> Handle(GetUsersQuery query, CancellationToken cancellationToken)

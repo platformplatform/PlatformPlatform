@@ -21,7 +21,7 @@ public sealed class IsSubdomainFreeRegistrationsEndpoint : IEndpoints
 
 public sealed record IsSubdomainFreeQuery(string Subdomain) : IRequest<Result<bool>>;
 
-public sealed class IsSubdomainFreeHandler(ITenantRepository tenantRepository)
+public sealed class IsSubdomainFreeHandler(TenantRepository tenantRepository)
     : IRequestHandler<IsSubdomainFreeQuery, Result<bool>>
 {
     public async Task<Result<bool>> Handle(IsSubdomainFreeQuery request, CancellationToken cancellationToken)

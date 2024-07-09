@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
+using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Domain;
 
-internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
-    : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
+public sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
+    : RepositoryBase<User, UserId>(accountManagementDbContext), ICrudRepository<User, UserId>
 {
     public async Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken)
     {

@@ -23,7 +23,7 @@ public sealed class DeleteUserEndpoint : IEndpoints
 
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
-public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+public sealed class DeleteUserHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteUserCommand, Result>
 {
     public async Task<Result> Handle(DeleteUserCommand command, CancellationToken cancellationToken)

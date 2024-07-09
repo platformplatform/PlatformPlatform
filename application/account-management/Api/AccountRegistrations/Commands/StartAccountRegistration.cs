@@ -39,7 +39,7 @@ public sealed record StartAccountRegistrationCommand(string Subdomain, string Em
 
 public sealed class StartAccountRegistrationValidator : AbstractValidator<StartAccountRegistrationCommand>
 {
-    public StartAccountRegistrationValidator(ITenantRepository tenantRepository)
+    public StartAccountRegistrationValidator(TenantRepository tenantRepository)
     {
         RuleFor(x => x.Subdomain).NotEmpty();
         RuleFor(x => x.Subdomain)
@@ -53,7 +53,7 @@ public sealed class StartAccountRegistrationValidator : AbstractValidator<StartA
 }
 
 public sealed class StartAccountRegistrationCommandHandler(
-    IAccountRegistrationRepository accountRegistrationRepository,
+    AccountRegistrationRepository accountRegistrationRepository,
     IEmailService emailService,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events

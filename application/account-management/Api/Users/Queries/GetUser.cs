@@ -22,7 +22,7 @@ public sealed class GetUserEndpoint : IEndpoints
 
 public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
-public sealed class GetUserHandler(IUserRepository userRepository)
+public sealed class GetUserHandler(UserRepository userRepository)
     : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
 {
     public async Task<Result<UserResponseDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)

@@ -31,8 +31,8 @@ public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
 }
 
 public sealed class CompleteAccountRegistrationHandler(
-    ITenantRepository tenantRepository,
-    IAccountRegistrationRepository accountRegistrationRepository,
+    TenantRepository tenantRepository,
+    AccountRegistrationRepository accountRegistrationRepository,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events,
     ILogger<CompleteAccountRegistrationHandler> logger

@@ -43,7 +43,7 @@ public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarComman
 }
 
 public sealed class UpdateAvatarHandler(
-    IUserRepository userRepository,
+    UserRepository userRepository,
     [FromKeyedServices("avatars-storage")] IBlobStorage blobStorage,
     ITelemetryEventsCollector events
 ) : IRequestHandler<UpdateAvatarCommand, Result>
