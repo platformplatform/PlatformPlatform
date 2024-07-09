@@ -5,11 +5,27 @@ using FluentValidation;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+
+public sealed class CreateUserEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
+
+        group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, ISender mediator)
+            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
+        );
+    }
+}
 
 public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
     : ICommand, IRequest<Result<UserId>>;

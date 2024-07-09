@@ -1,10 +1,26 @@
 using FluentValidation;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Commands;
+
+public sealed class UpdateTenantEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/tenants";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants");
+
+        group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+    }
+}
 
 public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
 {

@@ -2,10 +2,26 @@ using FluentValidation;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Commands;
+
+public sealed class DeleteTenantEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/tenants";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants");
+
+        group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteTenantCommand command, ISender mediator)
+            => await mediator.Send(command)
+        );
+    }
+}
 
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 

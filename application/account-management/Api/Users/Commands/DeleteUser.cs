@@ -1,9 +1,25 @@
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+
+public sealed class DeleteUserEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
+
+        group.MapDelete("/{id}", async Task<ApiResult> ([AsParameters] DeleteUserCommand command, ISender mediator)
+            => await mediator.Send(command)
+        );
+    }
+}
 
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 

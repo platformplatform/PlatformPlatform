@@ -1,9 +1,25 @@
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+
+public sealed class ChangeUserRoleEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
+
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+    }
+}
 
 public sealed record ChangeUserRoleCommand : ICommand, IRequest<Result>
 {

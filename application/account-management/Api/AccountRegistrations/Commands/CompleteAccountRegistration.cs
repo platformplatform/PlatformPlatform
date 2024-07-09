@@ -2,10 +2,26 @@ using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Domain;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
+
+public sealed class CompleteAccountRegistrationsEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/account-registrations";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations");
+
+        group.MapPost("{id}/complete", async Task<ApiResult> (AccountRegistrationId id, CompleteAccountRegistrationCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+    }
+}
 
 public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
     : ICommand, IRequest<Result>

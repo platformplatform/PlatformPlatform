@@ -2,11 +2,28 @@ using System.Security.Cryptography;
 using FluentValidation;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+
+public sealed class UpdateAvatarEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
+
+        // Id should be inferred from the authenticated user
+        group.MapPost("/{id}/update-avatar", async Task<ApiResult> (UserId id, IFormFile file, ISender mediator)
+            => await mediator.Send(new UpdateAvatarCommand(id, file.OpenReadStream(), file.ContentType))
+        ).DisableAntiforgery(); // Disable antiforgery until we implement it
+    }
+}
 
 public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType)
     : ICommand, IRequest<Result>;

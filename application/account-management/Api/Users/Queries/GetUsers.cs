@@ -1,9 +1,23 @@
 using Mapster;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
-namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
+
+public sealed class GetUsersEndpoint : IEndpoints
+{
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup("/api/account-management/users").WithTags("Users");
+
+        group.MapGet("/", async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, ISender mediator)
+            => await mediator.Send(query)
+        ).Produces<GetUsersResponseDto>();
+    }
+}
 
 public sealed record GetUsersQuery(
     string? Search = null,

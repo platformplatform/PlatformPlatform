@@ -1,6 +1,6 @@
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 
-namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
 
 public sealed record UserResponseDto(
     string Id,

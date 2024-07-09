@@ -6,6 +6,7 @@ using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Commands;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
+using PlatformPlatform.AccountManagement.Api.Users.Queries;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;
 

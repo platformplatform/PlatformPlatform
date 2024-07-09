@@ -6,12 +6,99 @@
     "version": "v1"
   },
   "paths": {
-    "/api/account-management/users": {
+    "/api/account-management/users/{id}": {
       "get": {
         "tags": [
           "Users"
         ],
         "operationId": "GetApiAccountManagementUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "DeleteApiAccountManagementUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountManagementUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/account-management/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountManagementUsers2",
         "parameters": [
           {
             "name": "Search",
@@ -109,93 +196,6 @@
         }
       }
     },
-    "/api/account-management/users/{id}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "GetApiAccountManagementUsers2",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PutApiAccountManagementUsers",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "DeleteApiAccountManagementUsers",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/account-management/users/{id}/change-user-role": {
       "put": {
         "tags": [
@@ -225,6 +225,30 @@
           "required": true,
           "x-position": 2
         },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/account-management/users/{id}/remove-avatar": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountManagementUsersRemoveAvatar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -272,30 +296,6 @@
         }
       }
     },
-    "/api/account-management/users/{id}/remove-avatar": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PostApiAccountManagementUsersRemoveAvatar",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/account-management/tenants/{id}": {
       "get": {
         "tags": [
@@ -323,6 +323,28 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "DeleteApiAccountManagementTenants",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TenantId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         }
       },
@@ -354,28 +376,6 @@
           "required": true,
           "x-position": 2
         },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Tenants"
-        ],
-        "operationId": "DeleteApiAccountManagementTenants",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TenantId"
-            },
-            "x-position": 1
-          }
-        ],
         "responses": {
           "200": {
             "description": ""
@@ -415,31 +415,6 @@
         }
       }
     },
-    "/api/account-management/account-registrations/start": {
-      "post": {
-        "tags": [
-          "AccountRegistrations"
-        ],
-        "operationId": "PostApiAccountManagementAccountRegistrationsStart",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartAccountRegistrationCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/account-management/account-registrations/{id}/complete": {
       "post": {
         "tags": [
@@ -475,34 +450,35 @@
           }
         }
       }
+    },
+    "/api/account-management/account-registrations/start": {
+      "post": {
+        "tags": [
+          "AccountRegistrations"
+        ],
+        "operationId": "PostApiAccountManagementAccountRegistrationsStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartAccountRegistrationCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "GetUsersResponseDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentPageOffset": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UserResponseDto"
-            }
-          }
-        }
-      },
       "UserResponseDto": {
         "type": "object",
         "additionalProperties": false,
@@ -557,36 +533,6 @@
           "Owner"
         ]
       },
-      "SortableUserProperties": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "CreatedAt",
-          "ModifiedAt",
-          "Name",
-          "Email",
-          "Role"
-        ],
-        "enum": [
-          "CreatedAt",
-          "ModifiedAt",
-          "Name",
-          "Email",
-          "Role"
-        ]
-      },
-      "SortOrder": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Ascending",
-          "Descending"
-        ],
-        "enum": [
-          "Ascending",
-          "Descending"
-        ]
-      },
       "UserId": {
         "type": "string",
         "allOf": [
@@ -619,6 +565,69 @@
           "value": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "GetUsersResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentPageOffset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserResponseDto"
+            }
+          }
+        }
+      },
+      "SortableUserProperties": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "CreatedAt",
+          "ModifiedAt",
+          "Name",
+          "Email",
+          "Role"
+        ],
+        "enum": [
+          "CreatedAt",
+          "ModifiedAt",
+          "Name",
+          "Email",
+          "Role"
+        ]
+      },
+      "SortOrder": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Ascending",
+          "Descending"
+        ],
+        "enum": [
+          "Ascending",
+          "Descending"
+        ]
+      },
+      "ChangeUserRoleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userRole": {
+            "$ref": "#/components/schemas/UserRole"
           }
         }
       },
@@ -681,15 +690,6 @@
           }
         }
       },
-      "ChangeUserRoleCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userRole": {
-            "$ref": "#/components/schemas/UserRole"
-          }
-        }
-      },
       "TenantResponseDto": {
         "type": "object",
         "additionalProperties": false,
@@ -737,18 +737,6 @@
           }
         }
       },
-      "StartAccountRegistrationCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "subdomain": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
       "AccountRegistrationId": {
         "type": "string",
         "allOf": [
@@ -789,6 +777,18 @@
         "additionalProperties": false,
         "properties": {
           "oneTimePassword": {
+            "type": "string"
+          }
+        }
+      },
+      "StartAccountRegistrationCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subdomain": {
+            "type": "string"
+          },
+          "email": {
             "type": "string"
           }
         }

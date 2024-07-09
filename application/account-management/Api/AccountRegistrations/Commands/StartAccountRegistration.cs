@@ -5,12 +5,28 @@ using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Domain;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
+using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
+
+public sealed class StartAccountRegistrationsEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/account-registrations";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations");
+
+        group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
+            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
+        );
+    }
+}
 
 public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
     : ICommand, IRequest<Result<AccountRegistrationId>>
