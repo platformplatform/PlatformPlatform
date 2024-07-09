@@ -2,7 +2,7 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;

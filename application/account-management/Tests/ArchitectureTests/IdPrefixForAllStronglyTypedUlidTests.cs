@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.AccountManagement.Domain;
+using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 using Xunit;
 
@@ -13,7 +13,7 @@ public class IdPrefixForAllStronglyTypedUlidTests
     {
         // Act
         var result = Types
-            .InAssembly(DomainConfiguration.Assembly)
+            .InAssembly(ApiConfiguration.Assembly)
             .That().Inherit(typeof(StronglyTypedUlid<>))
             .Should().HaveCustomAttribute(typeof(IdPrefixAttribute))
             .GetResult();
@@ -28,7 +28,7 @@ public class IdPrefixForAllStronglyTypedUlidTests
     {
         // Arrange
         var stronglyTypedUlidIds = Types
-            .InAssembly(DomainConfiguration.Assembly)
+            .InAssembly(ApiConfiguration.Assembly)
             .That().Inherit(typeof(StronglyTypedUlid<>))
             .GetTypes();
 

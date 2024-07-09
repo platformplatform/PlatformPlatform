@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Application.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
+using PlatformPlatform.AccountManagement.Api.Tenants.Commands;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.AccountRegistrations;

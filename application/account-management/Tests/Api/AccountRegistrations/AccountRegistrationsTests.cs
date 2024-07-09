@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;
 

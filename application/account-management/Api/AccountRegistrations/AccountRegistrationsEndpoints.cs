@@ -1,5 +1,5 @@
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 

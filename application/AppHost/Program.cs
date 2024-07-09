@@ -43,12 +43,7 @@ var frontendBuild = builder
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 var accountManagementApi = builder
-    .AddProject<AccountManagement_Api>("account-management-api")
-    .WithReference(accountManagementDatabase)
-    .WithReference(azureStorage);
-
-builder
-    .AddProject<AccountManagement_Workers>("account-management-workers")
+    .AddProject<Api>("account-management-api")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 

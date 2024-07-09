@@ -1,8 +1,6 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Domain;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using Xunit;
 
@@ -15,7 +13,7 @@ public sealed class PublicClassesTests
     {
         // Act
         var result = Types
-            .InAssembly(DomainConfiguration.Assembly)
+            .InAssembly(ApiConfiguration.Assembly)
             .That().ArePublic()
             .And().AreNotAbstract()
             .Should().BeSealed()
@@ -31,7 +29,7 @@ public sealed class PublicClassesTests
     {
         // Act
         var types = Types
-            .InAssembly(ApplicationConfiguration.Assembly)
+            .InAssembly(ApiConfiguration.Assembly)
             .That().ArePublic()
             .And().AreNotAbstract()
             .And().DoNotHaveName(typeof(Result<>).Name);
@@ -50,7 +48,7 @@ public sealed class PublicClassesTests
     {
         // Act
         var types = Types
-            .InAssembly(InfrastructureConfiguration.Assembly)
+            .InAssembly(ApiConfiguration.Assembly)
             .That().ArePublic()
             .And().AreNotAbstract();
 

@@ -1,8 +1,10 @@
 using Bogus;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
+using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Domain;
+using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Api.Users.Domain;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 

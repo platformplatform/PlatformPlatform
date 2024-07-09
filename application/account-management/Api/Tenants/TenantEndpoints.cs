@@ -1,4 +1,5 @@
-using PlatformPlatform.AccountManagement.Application.Tenants;
+using PlatformPlatform.AccountManagement.Api.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 

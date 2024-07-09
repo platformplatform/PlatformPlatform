@@ -1,8 +1,7 @@
-using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Domain;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices()
-    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
+    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly())
     .AddConfigureStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
@@ -23,5 +22,8 @@ app.UseApiCoreConfiguration();
 
 // Server the SPA and static files if no other endpoints are found
 app.UseSinglePageAppFallback();
+
+// Apply migrations to the database (should be moved to GitHub Actions or similar in production)
+app.Services.ApplyMigrations<AccountManagementDbContext>();
 
 app.Run();
