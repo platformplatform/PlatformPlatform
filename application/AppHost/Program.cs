@@ -52,24 +52,10 @@ builder
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage);
 
-var backOfficeDatabase = sqlServer
-    .AddDatabase("back-office-database", "back-office");
-
-var backOfficeApi = builder
-    .AddProject<BackOffice_Api>("back-office-api")
-    .WithReference(backOfficeDatabase)
-    .WithReference(azureStorage);
-
-builder
-    .AddProject<BackOffice_Workers>("back-office-workers")
-    .WithReference(backOfficeDatabase)
-    .WithReference(azureStorage);
-
 builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(frontendBuild)
-    .WithReference(accountManagementApi)
-    .WithReference(backOfficeApi);
+    .WithReference(accountManagementApi);
 
 builder.Build().Run();
 

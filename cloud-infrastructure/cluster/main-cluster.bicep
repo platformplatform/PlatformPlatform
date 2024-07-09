@@ -10,7 +10,6 @@ param isDomainConfigured bool
 param sqlAdminObjectId string
 param appGatewayVersion string
 param accountManagementVersion string
-param backOfficeVersion string
 param applicationInsightsConnectionString string
 param communicatoinServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
@@ -264,133 +263,6 @@ module accountManagementApi '../modules/container-app.bicep' = {
   dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
 }
 
-// Back Office
-
-var backOfficeIdentityName = '${resourceGroupName}-back-office'
-module backOfficeIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: '${resourceGroupName}-back-office-managed-identity'
-  scope: clusterResourceGroup
-  params: {
-    name: backOfficeIdentityName
-    location: location
-    tags: tags
-    containerRegistryName: containerRegistryName
-    environmentResourceGroupName: environmentResourceGroupName
-    keyVaultName: keyVault.outputs.name
-  }
-}
-
-module backOfficeDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${resourceGroupName}-back-office-sql-database'
-  scope: clusterResourceGroup
-  params: {
-    sqlServerName: resourceGroupName
-    databaseName: 'back-office'
-    location: location
-    tags: tags
-  }
-  dependsOn: [microsoftSqlServer]
-}
-
-var backOfficeStorageAccountName = '${storageAccountUniquePrefix}backoffice'
-module backOfficeStorageAccount '../modules/storage-account.bicep' = {
-  scope: clusterResourceGroup
-  name: '${resourceGroupName}-back-office-storage-account'
-  params: {
-    location: location
-    name: backOfficeStorageAccountName
-    tags: tags
-    sku: 'Standard_GRS'
-    userAssignedIdentityName: backOfficeIdentityName
-  }
-  dependsOn: [backOfficeIdentity]
-}
-
-var backOfficeEnvironmentVariables = [
-  {
-    name: 'AZURE_CLIENT_ID'
-    value: '${backOfficeIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
-  }
-  {
-    name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-    value: applicationInsightsConnectionString
-  }
-  {
-    name: 'DATABASE_CONNECTION_STRING'
-    value: '${backOfficeDatabase.outputs.connectionString};User Id=${backOfficeIdentity.outputs.clientId};'
-  }
-  {
-    name: 'KEYVAULT_URL'
-    value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
-  }
-  {
-    name: 'BLOB_STORAGE_URL'
-    value: 'https://${backOfficeStorageAccountName}.blob.${az.environment().suffixes.storage}'
-  }
-  {
-    name: 'PUBLIC_URL'
-    value: publicUrl
-  }
-  {
-    name: 'CDN_URL'
-    value: '${cdnUrl}/back-office'
-  }
-  {
-    name: 'SENDER_EMAIL_ADDRESS'
-    value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
-  }
-]
-
-module backOfficeWorkers '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-back-office-workers-container-app'
-  scope: clusterResourceGroup
-  params: {
-    name: 'back-office-workers'
-    location: location
-    tags: tags
-    resourceGroupName: resourceGroupName
-    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
-    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
-    containerRegistryName: containerRegistryName
-    containerImageName: 'back-office-workers'
-    containerImageTag: backOfficeVersion
-    cpu: '0.25'
-    memory: '0.5Gi'
-    minReplicas: 0
-    maxReplicas: 1
-    userAssignedIdentityName: backOfficeIdentityName
-    ingress: true
-    hasProbesEndpoint: false
-    environmentVariables: backOfficeEnvironmentVariables
-  }
-  dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService]
-}
-
-module backOfficeApi '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-back-office-api-container-app'
-  scope: clusterResourceGroup
-  params: {
-    name: 'back-office-api'
-    location: location
-    tags: tags
-    resourceGroupName: resourceGroupName
-    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
-    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
-    containerRegistryName: containerRegistryName
-    containerImageName: 'back-office-api'
-    containerImageTag: backOfficeVersion
-    cpu: '0.25'
-    memory: '0.5Gi'
-    minReplicas: 0
-    maxReplicas: 1
-    userAssignedIdentityName: backOfficeIdentityName
-    ingress: true
-    hasProbesEndpoint: true
-    environmentVariables: backOfficeEnvironmentVariables
-  }
-  dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService, backOfficeWorkers]
-}
-
 // App Gateway
 
 var appGatewayIdentityName = '${resourceGroupName}-app-gateway'
@@ -452,10 +324,6 @@ module appGateway '../modules/container-app.bicep' = {
         name: 'ACCOUNT_MANAGEMENT_API_URL'
         value: 'https://account-management-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
       }
-      {
-        name: 'BACK_OFFICE_API_URL'
-        value: 'https://back-office-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
-      }
     ]
   }
   dependsOn: [appGatewayIdentity]
@@ -472,4 +340,3 @@ module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules
 }
 
 output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
-output backOfficeIdentityClientId string = backOfficeIdentity.outputs.clientId

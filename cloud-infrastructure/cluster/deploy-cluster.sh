@@ -49,7 +49,7 @@ APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show -
 
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
 DEPLOYMENT_COMMAND="az deployment sub create"
-DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
+DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
@@ -87,7 +87,7 @@ then
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
     echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
     IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" $RESOURCE_GROUP_NAME)
-    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
+    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
     . ../deploy.sh
 
     cleaned_output=$(echo "$output" | sed '/^WARNING/d')
@@ -99,12 +99,9 @@ then
 
   # Extract the ID of the Managed Identities, which can be used to grant access to SQL Database
   ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
-  BACK_OFFICE_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.backOfficeIdentityClientId.value')
   if [[ -n "$GITHUB_OUTPUT" ]]; then
     echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
-    echo "BACK_OFFICE_IDENTITY_CLIENT_ID=$BACK_OFFICE_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
   else
     . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
-    . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
   fi
 fi
