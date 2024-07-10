@@ -49,6 +49,15 @@ msgstr "Screenshots of the dashboard project showing mobile versions"
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
 
+msgid "Active Users"
+msgstr "Active Users"
+
+msgid "Active users the past 30 days"
+msgstr "Active users the past 30 days"
+
+msgid "Add more in the Users menu"
+msgstr "Add more in the Users menu"
+
 msgid "Already have an account?"
 msgstr "Already have an account?"
 
@@ -79,6 +88,9 @@ msgstr "Enter your verification code"
 msgid "Filters"
 msgstr "Filters"
 
+msgid "Here’s your overview of what’s going on."
+msgstr "Here’s your overview of what’s going on."
+
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
 
@@ -100,5 +112,11 @@ msgstr "Subdomain"
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
 
+msgid "Total Users"
+msgstr "Total Users"
+
 msgid "Verify"
 msgstr "Verify"
+
+msgid "Welcome home"
+msgstr "Welcome home"
