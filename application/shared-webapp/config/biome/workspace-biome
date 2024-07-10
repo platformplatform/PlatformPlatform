@@ -8,6 +8,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { spawnSync } = require("node:child_process");
 
 // Get the path of the application
 const applicationPath = path.join(__dirname, "..", "..", "..");
@@ -21,16 +22,22 @@ if (!fs.existsSync(configPath)) {
 }
 
 // Get the path of the biome module
-const biomePath = path.join(applicationPath, "node_modules", ".bin", "biome");
-
-// Check if the biome module exists
-if (!fs.existsSync(biomePath)) {
-  console.error("Biome module not found. Please run `npm install` to install the module. ");
-  process.exit(1);
-}
-
-// Set the BIOME_CONFIG_PATH environment variable pointing to the directory of the biome.json file
-process.env.BIOME_CONFIG_PATH = path.dirname(configPath);
+const biomePath = require.resolve("@biomejs/biome/bin/biome");
 
 // Load the biome module
-require(biomePath);
+const result = spawnSync(biomePath, process.argv.slice(2), {
+  shell: false,
+  stdio: "inherit",
+  cwd: applicationPath,
+  env: {
+    ...process.env,
+    // Set the BIOME_CONFIG_PATH environment variable pointing to the directory of the biome.json file
+    BIOME_CONFIG_PATH: path.dirname(configPath)
+  }
+});
+
+if (result.error) {
+  throw result.error;
+}
+
+process.exit(result.status);
