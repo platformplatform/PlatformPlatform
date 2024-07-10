@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { ChevronsLeftIcon, CircleUserIcon, HomeIcon, type LucideIcon, UsersRoundIcon } from "lucide-react";
+import { ChevronsLeftIcon, CircleUserIcon, HomeIcon, type LucideIcon, UsersIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
@@ -115,7 +115,7 @@ export function SideMenu() {
         <MenuButton icon={HomeIcon} label="Home" />
         <MenuSeparator>Organisation</MenuSeparator>
         <MenuButton icon={CircleUserIcon} label="Account" />
-        <MenuButton icon={UsersRoundIcon} label="Users" />
+        <MenuButton icon={UsersIcon} label="Users" />
       </div>
     </collapsedContext.Provider>
   );

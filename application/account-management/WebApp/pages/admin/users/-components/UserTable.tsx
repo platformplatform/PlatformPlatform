@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
 import { use, useMemo, useState } from "react";
@@ -87,7 +87,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
               <Cell>
                 <div className="flex gap-2 w-12">
                   <Button variant="icon" className="group-hover:visible invisible">
-                    <TrashIcon size={16} />
+                    <Trash2Icon size={16} />
                   </Button>
                   <MenuTrigger>
                     <Button variant="icon" aria-label="Menu">
@@ -101,7 +101,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem onAction={() => alert("rename")}>
-                          <TrashIcon size={16} />
+                          <Trash2Icon size={16} />
                           <span className="text-destructive">Delete</span>
                         </MenuItem>
                       </Menu>
