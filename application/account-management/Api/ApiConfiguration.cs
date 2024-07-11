@@ -8,11 +8,12 @@ public static class ApiConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
 
         services.AddApplicationServices(Assembly);
+        services.ConfigureInfrastructureServices<AccountManagementDbContext>(Assembly);
 
         return services;
     }
@@ -23,13 +24,6 @@ public static class ApiConfiguration
         services.ConfigureDatabaseContext<AccountManagementDbContext>(builder, "account-management-database");
         services.AddDefaultBlobStorage(builder);
         services.AddNamedBlobStorages(builder, ("avatars-storage", "BLOB_STORAGE_URL"));
-
-        return services;
-    }
-
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
-    {
-        services.ConfigureInfrastructureServices<AccountManagementDbContext>(Assembly);
 
         return services;
     }

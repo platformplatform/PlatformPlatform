@@ -9,11 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedKernel", "shared-kern
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedKernel.Tests", "shared-kernel\Tests\SharedKernel.Tests.csproj", "{B232D7BB-396A-46FE-B6D2-95041412C835}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "account-management\Api\Api.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Api", "account-management\Api\AccountManagement.Api.csproj", "{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WebApp", "account-management\WebApp\WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "AccountManagement.WebApp", "account-management\WebApp\AccountManagement.WebApp.esproj", "{8292F35B-F0F6-4DB1-90E2-4707DB8C7104}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "account-management\Tests\Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests", "account-management\Tests\AccountManagement.Tests.csproj", "{ABEB4337-3606-4730-8ABE-94DF98C2C348}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "account-management", "account-management", "{4DC84DC3-E05C-470C-8D3F-464E0C0080F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{836ABCEF-C16B-4331-B8D5-0EA75E4101FE} = {F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}
 		{B232D7BB-396A-46FE-B6D2-95041412C835} = {F01E4DC8-2A8B-4CB9-893A-B3B8FF2EFE22}
+		{4AF4767C-1BF5-4B86-9050-F05ABF6AF4BE} = {4DC84DC3-E05C-470C-8D3F-464E0C0080F3}
+		{ABEB4337-3606-4730-8ABE-94DF98C2C348} = {4DC84DC3-E05C-470C-8D3F-464E0C0080F3}
+		{8292F35B-F0F6-4DB1-90E2-4707DB8C7104} = {4DC84DC3-E05C-470C-8D3F-464E0C0080F3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
