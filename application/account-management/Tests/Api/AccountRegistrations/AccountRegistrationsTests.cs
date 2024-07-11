@@ -4,7 +4,7 @@ using FluentAssertions;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.Application.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.AccountRegistrations;

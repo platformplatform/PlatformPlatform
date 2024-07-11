@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

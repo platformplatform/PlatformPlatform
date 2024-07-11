@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
+using PlatformPlatform.SharedKernel.Domain.DomainEvents;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

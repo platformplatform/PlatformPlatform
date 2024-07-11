@@ -1,7 +1,7 @@
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Queries;
 

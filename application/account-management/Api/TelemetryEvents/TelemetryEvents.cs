@@ -1,6 +1,6 @@
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 

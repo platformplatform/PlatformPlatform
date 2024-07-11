@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Domain;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
-using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
+using PlatformPlatform.SharedKernel.Infrastructure.EntityFramework;
 
 namespace PlatformPlatform.AccountManagement.Api;
 

@@ -2,8 +2,8 @@ using Mapster;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
+using PlatformPlatform.SharedKernel.Domain.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
 

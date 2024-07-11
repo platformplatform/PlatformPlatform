@@ -7,7 +7,7 @@ using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Commands;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Queries;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.Application.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Users;

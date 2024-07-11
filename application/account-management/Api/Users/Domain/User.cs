@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.Domain.Entities;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Domain;
 

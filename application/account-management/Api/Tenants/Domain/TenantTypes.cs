@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.DomainCore.Identity;
+using PlatformPlatform.SharedKernel.Domain.Identity;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 

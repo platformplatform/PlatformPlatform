@@ -4,9 +4,9 @@ using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
+using PlatformPlatform.SharedKernel.Application.Services;
+using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 

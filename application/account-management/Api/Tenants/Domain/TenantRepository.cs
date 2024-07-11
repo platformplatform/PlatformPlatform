@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
-using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.Domain.Entities;
+using PlatformPlatform.SharedKernel.Infrastructure.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 

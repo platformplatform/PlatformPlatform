@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.SharedKernel.ApplicationCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel.Application;
+using PlatformPlatform.SharedKernel.Infrastructure;
 
 namespace PlatformPlatform.AccountManagement.Api;
 
@@ -12,7 +12,7 @@ public static class ApiConfiguration
     {
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
 
-        services.AddApplicationCoreServices(Assembly);
+        services.AddApplicationServices(Assembly);
 
         return services;
     }
@@ -29,7 +29,7 @@ public static class ApiConfiguration
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.ConfigureInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
+        services.ConfigureInfrastructureServices<AccountManagementDbContext>(Assembly);
 
         return services;
     }

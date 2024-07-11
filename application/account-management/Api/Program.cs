@@ -1,7 +1,7 @@
 using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

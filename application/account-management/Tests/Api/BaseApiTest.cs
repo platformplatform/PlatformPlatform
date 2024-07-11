@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.Validation;
+using PlatformPlatform.SharedKernel.Tests.Application.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 
@@ -27,7 +27,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
             {
                 builder.ConfigureTestServices(services =>
                     {
-                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
+                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
                         services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                         services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 

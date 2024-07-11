@@ -7,9 +7,9 @@ using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
+using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 

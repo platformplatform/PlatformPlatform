@@ -12,9 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ApiCore\SharedKernel.ApiCore.csproj" />
-        <ProjectReference Include="..\DomainCore\SharedKernel.DomainCore.csproj" />
-        <ProjectReference Include="..\InfrastructureCore\SharedKernel.InfrastructureCore.csproj" />
+        <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@ using Mapster;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Application.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
 

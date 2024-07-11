@@ -1,7 +1,7 @@
 using Azure.Core;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Transformations;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +10,9 @@ var reverseProxyBuilder = builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>();
 
-if (InfrastructureCoreConfiguration.IsRunningInAzure)
+if (InfrastructureConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.GetDefaultAzureCredential());
+    builder.Services.AddSingleton<TokenCredential>(InfrastructureConfiguration.GetDefaultAzureCredential());
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();

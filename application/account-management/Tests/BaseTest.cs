@@ -10,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Api;
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Application.Services;
+using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.Application.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
