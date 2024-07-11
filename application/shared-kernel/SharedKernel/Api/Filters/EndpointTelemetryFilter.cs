@@ -2,7 +2,7 @@ using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Filters;
+namespace PlatformPlatform.SharedKernel.Api.Filters;
 
 /// <summary>
 ///     Filter out telemetry from requests matching excluded paths

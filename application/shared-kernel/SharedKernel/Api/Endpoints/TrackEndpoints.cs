@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using NSwag.Annotations;
 using StackFrame = Microsoft.ApplicationInsights.DataContracts.StackFrame;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+namespace PlatformPlatform.SharedKernel.Api.Endpoints;
 
 public class TrackEndpoints : IEndpoints
 {

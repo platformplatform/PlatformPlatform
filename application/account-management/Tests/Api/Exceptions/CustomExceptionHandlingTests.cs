@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using PlatformPlatform.AccountManagement.Api;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
+namespace PlatformPlatform.AccountManagement.Tests.Api.Exceptions;
 
 public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
 {

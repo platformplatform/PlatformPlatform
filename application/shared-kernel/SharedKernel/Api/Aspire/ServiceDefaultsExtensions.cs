@@ -6,9 +6,9 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using PlatformPlatform.SharedKernel.ApiCore.Filters;
+using PlatformPlatform.SharedKernel.Api.Filters;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Aspire;
+namespace PlatformPlatform.SharedKernel.Api.Aspire;
 
 public static class ServiceDefaultsExtensions
 {

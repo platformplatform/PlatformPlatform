@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+namespace PlatformPlatform.SharedKernel.Api.SinglePageApp;
 
 public class SinglePageAppConfiguration
 {

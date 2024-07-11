@@ -10,7 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+namespace PlatformPlatform.SharedKernel.Api.SinglePageApp;
 
 public static class SinglePageAppFallbackExtensions
 {

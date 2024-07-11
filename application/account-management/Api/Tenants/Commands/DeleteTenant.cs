@@ -2,8 +2,8 @@ using FluentValidation;
 using PlatformPlatform.AccountManagement.Api.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.SharedKernel.Api.ApiResults;
+using PlatformPlatform.SharedKernel.Api.Endpoints;
 using PlatformPlatform.SharedKernel.Application.Cqrs;
 using PlatformPlatform.SharedKernel.Application.TelemetryEvents;
 

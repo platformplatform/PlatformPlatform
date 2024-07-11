@@ -9,14 +9,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NJsonSchema;
 using NJsonSchema.Generation;
-using PlatformPlatform.SharedKernel.ApiCore.Aspire;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
-using PlatformPlatform.SharedKernel.ApiCore.Filters;
-using PlatformPlatform.SharedKernel.ApiCore.Middleware;
-using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.Api.Endpoints;
+using PlatformPlatform.SharedKernel.Api.Filters;
+using PlatformPlatform.SharedKernel.Api.Middleware;
+using PlatformPlatform.SharedKernel.Api.SinglePageApp;
+using PlatformPlatform.SharedKernel.Api.Aspire;
 using PlatformPlatform.SharedKernel.Domain.Identity;
 
-namespace PlatformPlatform.SharedKernel.ApiCore;
+namespace PlatformPlatform.SharedKernel.Api;
 
 public static class ApiCoreConfiguration
 {
@@ -25,7 +25,7 @@ public static class ApiCoreConfiguration
     private static readonly string LocalhostUrl =
         Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
-    public static IServiceCollection AddApiCoreServices(
+    public static IServiceCollection AddApiServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
         Assembly apiAssembly,

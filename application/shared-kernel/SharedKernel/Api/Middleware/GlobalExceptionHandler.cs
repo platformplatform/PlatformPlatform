@@ -2,7 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
+namespace PlatformPlatform.SharedKernel.Api.Middleware;
 
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {

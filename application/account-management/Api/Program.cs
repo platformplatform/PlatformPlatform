@@ -1,6 +1,6 @@
 using PlatformPlatform.AccountManagement.Api;
-using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.Api;
+using PlatformPlatform.SharedKernel.Api.SinglePageApp;
 using PlatformPlatform.SharedKernel.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddApiServices()
-    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly())
+    .AddApiServices(builder, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly())
     .AddConfigureStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);

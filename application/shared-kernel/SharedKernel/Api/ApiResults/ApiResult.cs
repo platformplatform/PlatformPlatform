@@ -4,7 +4,7 @@ using Mapster;
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.SharedKernel.Application.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.ApiResults;
+namespace PlatformPlatform.SharedKernel.Api.ApiResults;
 
 public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
 {

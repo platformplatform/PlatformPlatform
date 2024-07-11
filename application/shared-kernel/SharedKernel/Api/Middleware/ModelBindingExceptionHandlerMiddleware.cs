@@ -1,7 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 
-namespace PlatformPlatform.SharedKernel.ApiCore.Middleware;
+namespace PlatformPlatform.SharedKernel.Api.Middleware;
 
 public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
 {
