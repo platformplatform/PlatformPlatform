@@ -10,6 +10,9 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
+public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType)
+    : ICommand, IRequest<Result>;
+
 public sealed class UpdateAvatarEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -24,9 +27,6 @@ public sealed class UpdateAvatarEndpoint : IEndpoints
         ).DisableAntiforgery(); // Disable antiforgery until we implement it
     }
 }
-
-public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType)
-    : ICommand, IRequest<Result>;
 
 public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
 {

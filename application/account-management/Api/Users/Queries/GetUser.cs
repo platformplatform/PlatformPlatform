@@ -6,6 +6,21 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
 
+public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
+
+public sealed record UserResponseDto(
+    string Id,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt,
+    string Email,
+    UserRole Role,
+    string FirstName,
+    string LastName,
+    string Title,
+    bool EmailConfirmed,
+    string? AvatarUrl
+);
+
 public sealed class GetUserEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -19,8 +34,6 @@ public sealed class GetUserEndpoint : IEndpoints
         ).Produces<UserResponseDto>();
     }
 }
-
-public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
 public sealed class GetUserHandler(UserRepository userRepository)
     : IRequestHandler<GetUserQuery, Result<UserResponseDto>>

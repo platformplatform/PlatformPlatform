@@ -14,6 +14,15 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
 
+public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
+    : ICommand, IRequest<Result<AccountRegistrationId>>
+{
+    public TenantId GetTenantId()
+    {
+        return new TenantId(Subdomain);
+    }
+}
+
 public sealed class StartAccountRegistrationsEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/account-registrations";
@@ -25,15 +34,6 @@ public sealed class StartAccountRegistrationsEndpoint : IEndpoints
         group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
         );
-    }
-}
-
-public sealed record StartAccountRegistrationCommand(string Subdomain, string Email)
-    : ICommand, IRequest<Result<AccountRegistrationId>>
-{
-    public TenantId GetTenantId()
-    {
-        return new TenantId(Subdomain);
     }
 }
 

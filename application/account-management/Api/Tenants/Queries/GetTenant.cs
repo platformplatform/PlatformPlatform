@@ -6,6 +6,16 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Queries;
 
+public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
+
+public sealed record TenantResponseDto(
+    string Id,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt,
+    string Name,
+    TenantState State
+);
+
 public sealed class GetTenantEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/tenants";
@@ -19,8 +29,6 @@ public sealed class GetTenantEndpoint : IEndpoints
         ).Produces<TenantResponseDto>();
     }
 }
-
-public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
 public sealed class GetTenantHandler(TenantRepository tenantRepository)
     : IRequestHandler<GetTenantQuery, Result<TenantResponseDto>>

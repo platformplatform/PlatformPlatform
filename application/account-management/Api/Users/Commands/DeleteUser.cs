@@ -7,6 +7,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
+public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
+
 public sealed class DeleteUserEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -20,8 +22,6 @@ public sealed class DeleteUserEndpoint : IEndpoints
         );
     }
 }
-
-public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
 public sealed class DeleteUserHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteUserCommand, Result>

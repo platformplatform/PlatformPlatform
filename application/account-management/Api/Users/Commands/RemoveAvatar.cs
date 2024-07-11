@@ -7,6 +7,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
+public sealed record RemoveAvatarCommand(UserId Id) : ICommand, IRequest<Result>;
+
 public sealed class RemoveAvatarEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -21,8 +23,6 @@ public sealed class RemoveAvatarEndpoint : IEndpoints
         );
     }
 }
-
-public sealed record RemoveAvatarCommand(UserId Id) : ICommand, IRequest<Result>;
 
 public sealed class RemoveAvatarCommandHandler(UserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<RemoveAvatarCommand, Result>

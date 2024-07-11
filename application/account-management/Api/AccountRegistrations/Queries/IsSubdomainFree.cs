@@ -5,6 +5,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Queries;
 
+public sealed record IsSubdomainFreeQuery(string Subdomain) : IRequest<Result<bool>>;
+
 public sealed class IsSubdomainFreeRegistrationsEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/account-registrations";
@@ -18,8 +20,6 @@ public sealed class IsSubdomainFreeRegistrationsEndpoint : IEndpoints
         ).Produces<bool>();
     }
 }
-
-public sealed record IsSubdomainFreeQuery(string Subdomain) : IRequest<Result<bool>>;
 
 public sealed class IsSubdomainFreeHandler(TenantRepository tenantRepository)
     : IRequestHandler<IsSubdomainFreeQuery, Result<bool>>

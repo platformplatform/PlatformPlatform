@@ -9,20 +9,6 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
-public sealed class UpdateUserEndpoint : IEndpoints
-{
-    private const string RoutesPrefix = "/api/account-management/users";
-
-    public void MapEndpoints(IEndpointRouteBuilder routes)
-    {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
-
-        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUserCommand command, ISender mediator)
-            => await mediator.Send(command with { Id = id })
-        );
-    }
-}
-
 public sealed record UpdateUserCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes the Id from the API contract
@@ -35,6 +21,20 @@ public sealed record UpdateUserCommand : ICommand, IRequest<Result>
     public required string LastName { get; init; }
 
     public required string Title { get; init; }
+}
+
+public sealed class UpdateUserEndpoint : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users");
+
+        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUserCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+    }
 }
 
 public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>

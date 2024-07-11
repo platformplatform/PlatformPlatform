@@ -7,6 +7,14 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
+public sealed record ChangeUserRoleCommand : ICommand, IRequest<Result>
+{
+    [JsonIgnore] // Removes the Id from the API contract
+    public UserId Id { get; init; } = null!;
+
+    public required UserRole UserRole { get; init; }
+}
+
 public sealed class ChangeUserRoleEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -19,14 +27,6 @@ public sealed class ChangeUserRoleEndpoint : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
     }
-}
-
-public sealed record ChangeUserRoleCommand : ICommand, IRequest<Result>
-{
-    [JsonIgnore] // Removes the Id from the API contract
-    public UserId Id { get; init; } = null!;
-
-    public required UserRole UserRole { get; init; }
 }
 
 public sealed class ChangeUserRoleHandler(UserRepository userRepository, ITelemetryEventsCollector events)

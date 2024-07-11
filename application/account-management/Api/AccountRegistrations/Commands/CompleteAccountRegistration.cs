@@ -9,6 +9,13 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
 
+public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
+    : ICommand, IRequest<Result>
+{
+    [JsonIgnore]
+    public AccountRegistrationId Id { get; init; } = null!;
+}
+
 public sealed class CompleteAccountRegistrationsEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/account-registrations";
@@ -21,13 +28,6 @@ public sealed class CompleteAccountRegistrationsEndpoint : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
     }
-}
-
-public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
-    : ICommand, IRequest<Result>
-{
-    [JsonIgnore]
-    public AccountRegistrationId Id { get; init; } = null!;
 }
 
 public sealed class CompleteAccountRegistrationHandler(

@@ -13,6 +13,9 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Commands;
 
+public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
+    : ICommand, IRequest<Result<UserId>>;
+
 public sealed class CreateUserEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
@@ -26,9 +29,6 @@ public sealed class CreateUserEndpoint : IEndpoints
         );
     }
 }
-
-public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
-    : ICommand, IRequest<Result<UserId>>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {

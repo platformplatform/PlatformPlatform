@@ -9,6 +9,8 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Commands;
 
+public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
+
 public sealed class DeleteTenantEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/tenants";
@@ -22,8 +24,6 @@ public sealed class DeleteTenantEndpoint : IEndpoints
         );
     }
 }
-
-public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;
 
 public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantCommand>
 {

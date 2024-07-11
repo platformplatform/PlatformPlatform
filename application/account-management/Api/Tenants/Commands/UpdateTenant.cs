@@ -8,6 +8,14 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants.Commands;
 
+public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
+{
+    [JsonIgnore] // Removes the Id from the API contract
+    public TenantId Id { get; init; } = null!;
+
+    public required string Name { get; init; }
+}
+
 public sealed class UpdateTenantEndpoint : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/tenants";
@@ -20,14 +28,6 @@ public sealed class UpdateTenantEndpoint : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
     }
-}
-
-public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
-{
-    [JsonIgnore] // Removes the Id from the API contract
-    public TenantId Id { get; init; } = null!;
-
-    public required string Name { get; init; }
 }
 
 public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>

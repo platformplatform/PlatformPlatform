@@ -7,6 +7,17 @@ using PlatformPlatform.SharedKernel.DomainCore.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Api.Users.Queries;
 
+public sealed record GetUsersQuery(
+    string? Search = null,
+    UserRole? UserRole = null,
+    SortableUserProperties OrderBy = SortableUserProperties.Name,
+    SortOrder SortOrder = SortOrder.Ascending,
+    int? PageSize = null,
+    int? PageOffset = null
+) : IRequest<Result<GetUsersResponseDto>>;
+
+public sealed record GetUsersResponseDto(int TotalCount, int TotalPages, int CurrentPageOffset, UserResponseDto[] Users);
+
 public sealed class GetUsersEndpoint : IEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder routes)
@@ -18,15 +29,6 @@ public sealed class GetUsersEndpoint : IEndpoints
         ).Produces<GetUsersResponseDto>();
     }
 }
-
-public sealed record GetUsersQuery(
-    string? Search = null,
-    UserRole? UserRole = null,
-    SortableUserProperties OrderBy = SortableUserProperties.Name,
-    SortOrder SortOrder = SortOrder.Ascending,
-    int? PageSize = null,
-    int? PageOffset = null
-) : IRequest<Result<GetUsersResponseDto>>;
 
 public sealed class GetUsersHandler(UserRepository userRepository)
     : IRequestHandler<GetUsersQuery, Result<GetUsersResponseDto>>
