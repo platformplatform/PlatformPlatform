@@ -70,7 +70,7 @@ export function UserTable({ usersPromise }: UserTableProps) {
                       <div>
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="text-gray-500">{user.title ?? "N/A"}</div>
+                      <div className="text-gray-500">{user.title ?? ""}</div>
                     </div>
                   </div>
                 </Cell>
@@ -129,7 +129,7 @@ export function UserTable({ usersPromise }: UserTableProps) {
 }
 
 function toFormattedDate(input: string | undefined | null) {
-  if (!input) return "N/A";
+  if (!input) return "";
   const date = new Date(input);
   return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }

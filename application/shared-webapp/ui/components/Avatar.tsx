@@ -24,7 +24,7 @@ export function Avatar({ firstName, lastName, avatarUrl }: AvatarProps) {
 }
 
 function getInitials(firstName: string | undefined, lastName: string | undefined) {
-  if (!firstName && !lastName) return "N/A";
+  if (!firstName && !lastName) return "";
   const firstInitial = firstName ? firstName[0].toUpperCase() : "";
   const lastInitial = lastName ? lastName[0].toUpperCase() : "";
   return `${firstInitial}${lastInitial}`;

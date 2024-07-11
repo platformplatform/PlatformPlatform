@@ -2,16 +2,18 @@ import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { useState } from "react";
 import { MenuTrigger } from "react-aria-components";
-import { Modal } from "@repo/ui/components/Modal";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import avatarUrl from "../../images/avatar.png";
 import ProfileMenuItem from "./profileMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import AccountModal from "./UserModals/AccountModal";
+import ProfileModal from "./UserModals/ProfileModal";
+import DeleteAccountModal from "./UserModals/DeleteAccountModal";
 
 export function UserButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
   return (
     <>
@@ -34,43 +36,17 @@ export function UserButton() {
           </MenuItem>
           <MenuSeparator />
           <MenuItem onAction={() => setIsSignOutModalOpen(true)}>
-            <LogOutIcon size={16} /> Sign out
+            <LogOutIcon size={16} /> Log out
           </MenuItem>
         </Menu>
       </MenuTrigger>
 
-      {/* Profile */}
-      <Modal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} isDismissable>
-        <AlertDialog
-        variant="info"
-        actionLabel="Save changes"
-        title="Profile Settings"
-        onAction={() => setIsAccountModalOpen(false)}>
-          Profile settings and options.
-        </AlertDialog>
-      </Modal>
-
-      {/* Account Modal */}
-      <Modal isOpen={isAccountModalOpen} onOpenChange={setIsAccountModalOpen} isDismissable>
-        <AlertDialog
-        variant="info"
-        actionLabel="Save changes"
-        title="Account Settings"
-        onAction={() => setIsAccountModalOpen(false)}>
-          Account settings and options.
-        </AlertDialog>
-      </Modal>
-
-      {/* Sign Out Modal */}
-      <Modal isOpen={isSignOutModalOpen} onOpenChange={setIsSignOutModalOpen} isDismissable>
-        <AlertDialog
-          variant="destructive"
-          actionLabel="Confirm"
-          title="Sign Out"
-          onAction={() => setIsAccountModalOpen(false)}>
-          Are you sure you want to sign out?
-        </AlertDialog>
-      </Modal>
+      <AccountModal isOpen={isAccountModalOpen} onOpenChange={setIsAccountModalOpen} onDeleteAccount={() => {
+        setIsAccountModalOpen(false);
+        setIsDeleteAccountModalOpen(true);
+      }} />
+      <ProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+      <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
   );
 }

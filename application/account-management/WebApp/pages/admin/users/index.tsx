@@ -10,7 +10,7 @@ import { accountManagementApi } from "@/shared/lib/api/client";
 import { z } from "zod";
 
 const userPageSearchSchema = z.object({
-  page: z.number().optional().catch(0)
+  pageOffset: z.number().optional().catch(0)
 });
 
 export const Route = createFileRoute("/admin/users/")({
@@ -19,12 +19,12 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
-  const { page } = Route.useSearch();
+  const { pageOffset } = Route.useSearch();
   const usersPromise = accountManagementApi
     .GET("/api/account-management/users", {
       params: {
         query: {
-          PageOffset: page
+          PageOffset: pageOffset
         }
       }
     })
