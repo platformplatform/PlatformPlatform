@@ -4,6 +4,7 @@ using NSubstitute;
 using PlatformPlatform.AccountManagement.Api;
 using PlatformPlatform.AccountManagement.Api.AccountRegistrations.Commands;
 using PlatformPlatform.AccountManagement.Api.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Api.Tenants.EventHandlers;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.AccountRegistrations;

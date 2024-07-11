@@ -2,7 +2,7 @@ using PlatformPlatform.AccountManagement.Api.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Api.Users.Commands;
 using PlatformPlatform.AccountManagement.Api.Users.Domain;
 
-namespace PlatformPlatform.AccountManagement.Api.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Api.Tenants.EventHandlers;
 
 public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger, ISender mediator)
     : INotificationHandler<TenantCreatedEvent>
