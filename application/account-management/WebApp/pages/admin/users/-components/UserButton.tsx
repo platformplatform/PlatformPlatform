@@ -41,10 +41,14 @@ export function UserButton() {
         </Menu>
       </MenuTrigger>
 
-      <AccountModal isOpen={isAccountModalOpen} onOpenChange={setIsAccountModalOpen} onDeleteAccount={() => {
-        setIsAccountModalOpen(false);
-        setIsDeleteAccountModalOpen(true);
-      }} />
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onOpenChange={setIsAccountModalOpen}
+        onDeleteAccount={() => {
+          setIsAccountModalOpen(false);
+          setIsDeleteAccountModalOpen(true);
+        }}
+      />
       <ProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
