@@ -97,12 +97,12 @@ export function UserTable({ usersPromise }: UserTableProps) {
                       </Button>
                       <Popover>
                         <Menu>
-                          <MenuItem onAction={() => alert("open")} className="h-12">
+                          <MenuItem onAction={() => alert("open")}>
                             <UserIcon size={16} />
                             View Profile
                           </MenuItem>
                           <MenuSeparator />
-                          <MenuItem onAction={() => alert("rename")} className="h-12">
+                          <MenuItem onAction={() => alert("rename")}>
                             <TrashIcon size={16} />
                             <span className="text-red-600">Delete</span>
                           </MenuItem>
