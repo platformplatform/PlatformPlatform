@@ -28,11 +28,11 @@ export function UserButton() {
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
             <UserIcon size={16} />
-            Profile
+            Edit profile
           </MenuItem>
           <MenuItem id="account" onAction={() => setIsAccountModalOpen(true)}>
             <SettingsIcon size={16} />
-            Account
+            Account settings
           </MenuItem>
           <MenuSeparator />
           <MenuItem onAction={() => setIsSignOutModalOpen(true)}>
