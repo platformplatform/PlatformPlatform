@@ -1,5 +1,5 @@
 import { ChevronRightIcon, Languages, LifeBuoyIcon, MoonIcon } from "lucide-react";
-import { UserButton } from "./UserButton";
+import { UserAvatarButton } from "./UserAvatarButton";
 
 export function TopMenu() {
   return (
@@ -19,7 +19,7 @@ export function TopMenu() {
         <MoonIcon size={20} />
         <LifeBuoyIcon size={20} />
         <Languages size={20} />
-        <UserButton />
+        <UserAvatarButton />
       </div>
     </div>
   );

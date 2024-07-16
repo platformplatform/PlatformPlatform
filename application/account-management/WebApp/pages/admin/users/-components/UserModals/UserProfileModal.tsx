@@ -12,7 +12,7 @@ type ProfileModalProps = {
   onOpenChange: (isOpen: boolean) => void;
 };
 
-export function ProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
+export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
   const [file, setFile] = React.useState<string[] | null>(null);
 
   return (
@@ -78,4 +78,4 @@ export function ProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
   );
 }
 
-export default ProfileModal;
+export default UserProfileModal;

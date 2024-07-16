@@ -3,13 +3,13 @@ import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { useState } from "react";
 import { MenuTrigger } from "react-aria-components";
 import avatarUrl from "../../images/avatar.png";
-import ProfileMenuItem from "./profileMenuItem";
+import AvatarMenuItem from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "./UserModals/AccountModal";
-import ProfileModal from "./UserModals/ProfileModal";
+import UserProfileModal from "./UserModals/UserProfileModal";
 import DeleteAccountModal from "./UserModals/DeleteAccountModal";
 
-export function UserButton() {
+export function UserAvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
@@ -23,7 +23,7 @@ export function UserButton() {
         </Button>
         <Menu>
           <MenuItem className="h-16 w-60" onAction={() => setIsProfileModalOpen(true)}>
-            <ProfileMenuItem />
+            <AvatarMenuItem />
           </MenuItem>
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
@@ -49,7 +49,7 @@ export function UserButton() {
           setIsDeleteAccountModalOpen(true);
         }}
       />
-      <ProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
   );
