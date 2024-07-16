@@ -68,7 +68,7 @@ export function ProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
               </div>
               <div className="flex flex-col gap-1">
                 <label>Title</label>
-                <Input placeholder="E.g. Chief Problem Solving Officer" />
+                <Input placeholder="E.g. Marketing Manager" />
               </div>
             </div>
           </div>
