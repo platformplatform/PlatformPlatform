@@ -17,7 +17,7 @@ export function AccountModal({ isOpen, onOpenChange, onDeleteAccount }: AccountM
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className="w-full max-w-6xl">
         <AlertDialog variant="info" actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
-          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 p-2" variant="icon">
+          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
             <XIcon name="cross" />
           </Button>
           <div className="flex flex-col text-gray-900 text-xl font-semibold pb-8">

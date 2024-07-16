@@ -25,7 +25,7 @@ export function ProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
           onAction={() => onOpenChange(false)}
           className="p-8"
         >
-          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 p-2" variant="icon">
+          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
             <XIcon name="cross" />
           </Button>
           <div className="flex flex-col text-gray-900 text-xl font-semibold">
