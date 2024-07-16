@@ -15,7 +15,6 @@ const ignoreDistPattern = `**/${path.relative(applicationRoot, distFolder)}/**`;
  * Files to write to disk for the development server to serve
  */
 const writeToDisk = ["index.html", "robots.txt", "favicon.ico"];
-let isFirstRun = true;
 
 export type DevelopmentServerPluginOptions = {
   /**
@@ -74,11 +73,6 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             assetPrefix: "auto",
             // Write files to "dist" folder enabling the Api to serve them
             writeToDisk: (filename: string) => {
-              if (isFirstRun) {
-                logger.info("The router is not ready on the first run, so we skip writing to disk.");
-                isFirstRun = false;
-                return false;
-              }
              return  writeToDisk.some((file) => filename.endsWith(file));
             }
           },

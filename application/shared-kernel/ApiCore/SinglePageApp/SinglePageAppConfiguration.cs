@@ -77,22 +77,23 @@ public class SinglePageAppConfiguration
         return _htmlTemplate;
     }
 
-    /// <summary>
-    ///     When debugging locally, the SPA and API are built in parallel, so we give the SPA a few seconds to be ready.
-    ///     It takes a few seconds from when the index.html is written to disk, until the JS and CSS are ready.
-    /// </summary>
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
         var stopwatch = Stopwatch.StartNew();
         while (stopwatch.Elapsed < TimeSpan.FromSeconds(30))
         {
-            if (File.Exists(_htmlTemplatePath) && new FileInfo(_htmlTemplatePath).CreationTimeUtc > StartupTime.AddSeconds(-10)) break;
-            Thread.Sleep(TimeSpan.FromMilliseconds(2));
+            // A new index.html is created when starting, so we ensure the index.html is not from an old build
+            if (new FileInfo(_htmlTemplatePath).CreationTimeUtc > StartupTime.AddSeconds(-10)) break;
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }
 
-        // From the time the index.html is created, the Web App Dev server needs a few moments to warm up
-        Thread.Sleep(TimeSpan.FromMilliseconds(500));
+        // If the index.html was just created, the Web App Dev server needs a few moments to warm up
+        if (new FileInfo(_htmlTemplatePath).CreationTimeUtc > DateTime.UtcNow.AddSeconds(-1))
+        {
+            Thread.Sleep(TimeSpan.FromMilliseconds(500));
+        }
     }
 
     private static string GetWebAppDistRoot(string webAppProjectName, string webAppDistRootName)
@@ -129,8 +130,9 @@ public class SinglePageAppConfiguration
 
     private string GetContentSecurityPolicies()
     {
-        var trustedCdnHosts = "https://platformplatformgithub.blob.core.windows.net";
-        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHosts}";
+        var trustedCdnHost = "https://platformplatformgithub.blob.core.windows.net";
+        var gravatarHost = "https://gravatar.com";
+        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHost} {gravatarHost}";
 
         if (_isDevelopment)
         {
