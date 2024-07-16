@@ -48,7 +48,7 @@ export default function UsersPage() {
           <UserQuerying />
         </div>
         <div className="flex-grow z-0 overflow-auto min-h-48">
-          <Suspense fallback={<div>loading data</div>}>
+          <Suspense fallback={<div>Loading data...</div>}>
             <UserTable usersPromise={usersPromise} />
           </Suspense>
         </div>
