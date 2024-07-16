@@ -18,13 +18,7 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className="w-full max-w-6xl">
-        <AlertDialog
-          variant="info"
-          actionLabel="Save changes"
-          title=""
-          onAction={() => onOpenChange(false)}
-          className="p-8"
-        >
+        <AlertDialog variant="info" actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
           <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
             <XIcon name="cross" />
           </Button>
