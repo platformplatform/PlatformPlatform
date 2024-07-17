@@ -52,7 +52,7 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
 }
 
 export function MenuSeparator(props: Readonly<SeparatorProps>) {
-  return <Separator {...props} className="border-b border-gray-300 dark:border-zinc-700 " />;
+  return <Separator {...props} className="border-b border-gray-300 dark:border-zinc-700 m-1" />;
 }
 
 export function MenuSection<T extends object>(props: Readonly<DropdownSectionProps<T>>) {

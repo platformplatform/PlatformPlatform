@@ -1,6 +1,6 @@
 import avatarUrl from "../../images/avatar.png";
 
-const ProfileMenuItem: React.FC = () => {
+const AvatarMenuItem: React.FC = () => {
   const name = "Mary Doe";
   const title = "DevOps Engineer";
 
@@ -17,4 +17,4 @@ const ProfileMenuItem: React.FC = () => {
   );
 };
 
-export default ProfileMenuItem;
+export default AvatarMenuItem;

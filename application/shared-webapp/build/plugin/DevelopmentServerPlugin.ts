@@ -72,7 +72,9 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",
             // Write files to "dist" folder enabling the Api to serve them
-            writeToDisk: (filename: string) => writeToDisk.some((file) => filename.endsWith(file))
+            writeToDisk: (filename: string) => {
+             return  writeToDisk.some((file) => filename.endsWith(file));
+            }
           },
           tools: {
             rspack: {

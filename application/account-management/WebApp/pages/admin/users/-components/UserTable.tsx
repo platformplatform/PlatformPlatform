@@ -1,30 +1,36 @@
 import { EllipsisVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
-import { useMemo, useState } from "react";
-import { rows } from "./data";
+import { use, useMemo, useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import Badge from "@repo/ui/components/Badge";
 import Pagination from "@repo/ui/components/Pagination";
 import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
+import { Avatar } from "@repo/ui/components/Avatar";
+import type { components } from "@/shared/lib/api/api.generated";
 
-export function UserTable() {
+type UserTableProps = {
+  usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
+};
+export function UserTable({ usersPromise }: UserTableProps) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "name",
+    column: "firstName",
     direction: "ascending"
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const { currentPageOffset, totalCount, totalPages, users } = use(usersPromise);
+
   const sortedRows = useMemo(() => {
     // @ts-expect-error
-    const items = rows.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
+    const items = users.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
     if (sortDescriptor.direction === "descending") items.reverse();
 
     return items;
-  }, [sortDescriptor]);
+  }, [sortDescriptor, users]);
 
   const paginatedRows = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -59,21 +65,12 @@ export function UserTable() {
               <Row key={user.email}>
                 <Cell>
                   <div className="flex h-14 items-center">
-                    {user.profilePicture ? (
-                      <img
-                        src={user.profilePicture}
-                        alt="User avatar"
-                        className="mr-2 w-10 h-10 rounded-full bg-transparent"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 min-w-[2.5rem] min-h-[2.5rem] rounded-full bg-gray-200 mr-2 flex items-center justify-center text-sm font-semibold uppercase">
-                        AB
-                      </div>
-                    )}
+                    <Avatar firstName={user.firstName} lastName={user.lastName} avatarUrl={user.avatarUrl} />
                     <div className="truncate">
-                      {user.name}
-                      <br />
-                      <span className="text-gray-500">{user.title}</span>
+                      <div>
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-gray-500">{user.title ?? ""}</div>
                     </div>
                   </div>
                 </Cell>
@@ -81,14 +78,10 @@ export function UserTable() {
                   <span className="text-gray-500">{user.email}</span>
                 </Cell>
                 <Cell>
-                  <span className="text-gray-500">
-                    {user.added.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
-                  </span>
+                  <span className="text-gray-500">{toFormattedDate(user.createdAt)}</span>
                 </Cell>
                 <Cell>
-                  <span className="text-gray-500">
-                    {user.lastSeen.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })}
-                  </span>
+                  <span className="text-gray-500">{toFormattedDate(user.modifiedAt)}</span>
                 </Cell>
                 <Cell>
                   <Badge>{user.role}</Badge>
@@ -104,12 +97,12 @@ export function UserTable() {
                       </Button>
                       <Popover>
                         <Menu>
-                          <MenuItem onAction={() => alert("open")} className="h-12">
+                          <MenuItem onAction={() => alert("open")}>
                             <UserIcon size={16} />
                             View Profile
                           </MenuItem>
                           <MenuSeparator />
-                          <MenuItem onAction={() => alert("rename")} className="h-12">
+                          <MenuItem onAction={() => alert("rename")}>
                             <TrashIcon size={16} />
                             <span className="text-red-600">Delete</span>
                           </MenuItem>
@@ -125,7 +118,7 @@ export function UserTable() {
       </div>
       <div className="sticky bottom-0 bg-gray-50 w-full py-2">
         <Pagination
-          total={rows.length}
+          total={totalCount ?? 0}
           itemsPerPage={itemsPerPage}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
@@ -133,4 +126,10 @@ export function UserTable() {
       </div>
     </div>
   );
+}
+
+function toFormattedDate(input: string | undefined | null) {
+  if (!input) return "";
+  const date = new Date(input);
+  return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }

@@ -11,10 +11,7 @@ export function UserInvite() {
         </p>
       </div>
 
-      <Button
-        variant="secondary"
-        className="flex items-center gap-2 bg-black text-base font-semibold whitespace-nowrap text-white mt-2"
-      >
+      <Button variant="primary" className="flex items-center gap-2 whitespace-nowrap mt-2">
         <PlusIcon size={16} />
         Invite Users
       </Button>
