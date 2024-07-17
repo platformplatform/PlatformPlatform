@@ -3,7 +3,7 @@ const infrastructure = "https://platformplatformgithub.blob.core.windows.net/inf
 // TechnologySection2: A functional component that displays the technology section
 export function TechnologySection2() {
   return (
-    <div className="flex flex-col gap-8 bg-gray-50 py-24 w-full px-8 md:px-24">
+    <div className="flex flex-col gap-8 bg-muted py-24 w-full px-8 md:px-24">
       <div className="flex flex-col gap-8 pt-16 text-start w-full lg:w-2/3">
         <div>
           {/* Display the section title */}
@@ -32,10 +32,10 @@ function FeatureTitle() {
   return (
     <div className="flex gap-4 flex-col">
       <h1 className="text-amber-600 text-base font-semibold text-start">TECHNOLOGY</h1>
-      <h2 className="text-gray-900 text-4xl font-semibold">
+      <h2 className="text-foreground text-4xl font-semibold">
         We’ve taken care of all the tech stuff, so you can focus on getting your product launched
       </h2>
-      <p className="text-slate-600 text-md md:text-xl font-normal">
+      <p className="text-muted-foreground text-md md:text-xl font-normal">
         Drawing on our expertise building true enterprise-grade products with millions of daily users in highly
         regulated sectors like healthcare, finance, government, etc., we help you create secure production-ready
         products.
@@ -49,22 +49,22 @@ function FeatureList() {
   return (
     <div className="flex flex-col gap-4 md:gap-16">
       <div className="flex flex-col gap-4">
-        <h3 className="text-gray-900 text-2xl font-semibold">Monorepo containing all application code</h3>
-        <p className="text-slate-600 text-md md:text-xl font-normal">
+        <h3 className="text-foreground text-2xl font-semibold">Monorepo containing all application code</h3>
+        <p className="text-muted-foreground text-md md:text-xl font-normal">
           PlatformPlatform is a monorepo containing all application code, infrastructure, tools, libraries,
           documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber,
           Microsoft, etc.
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <h3 className="text-gray-900 text-2xl font-semibold">Deploy Azure Infrastructure</h3>
-        <p className="text-slate-600 text-md md:text-xl font-normal">
+        <h3 className="text-foreground text-2xl font-semibold">Deploy Azure Infrastructure</h3>
+        <p className="text-muted-foreground text-md md:text-xl font-normal">
           This is how it looks when GitHub workflows has deployed Azure Infrastructure:
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <h3 className="text-gray-900 text-2xl font-semibold">100% Security score</h3>
-        <p className="text-slate-600 text-md md:text-xl font-normal">
+        <h3 className="text-foreground text-2xl font-semibold">100% Security score</h3>
+        <p className="text-muted-foreground text-md md:text-xl font-normal">
           This is the security score after deploying PlatformPlatform resources to Azure. Achieving a 100% security
           score in Azure Defender for Cloud without exemptions is not trivial.
         </p>

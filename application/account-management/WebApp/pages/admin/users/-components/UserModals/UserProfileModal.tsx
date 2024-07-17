@@ -4,8 +4,8 @@ import { Button } from "@repo/ui/components/Button";
 import { Modal } from "@repo/ui/components/Modal";
 import { Mail, XIcon } from "lucide-react";
 import avatarUrl from "../../../images/avatar.png";
-import { Input } from "@repo/ui/components/Field";
 import React from "react";
+import { Input } from "@repo/ui/components/Input";
 
 type ProfileModalProps = {
   isOpen: boolean;
@@ -58,7 +58,7 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
               <div className="flex flex-col gap-1">
                 <label>Email</label>
                 <div>
-                  <Input value="olivia@companyx.com" disabled={true} className="border px-4 py-2 pl-10 w-full" />
+                  <Input value="olivia@companyx.com" isDisabled={true} className="border px-4 py-2 pl-10 w-full" />
                   <Mail className="absolute -translate-y-7 translate-x-2 text-gray-400 size-5" />
                 </div>
               </div>

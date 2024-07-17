@@ -1,10 +1,15 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
+ * ref: https://ui.shadcn.com/docs/components/alert-dialog
+ */
+import { Dialog } from "./Dialog";
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { chain } from "react-aria";
 import type { DialogProps } from "react-aria-components";
-import { Heading } from "react-aria-components";
+import { tv } from "tailwind-variants";
 import { Button } from "./Button";
-import { Dialog } from "./Dialog";
+import { Heading } from "./Heading";
 
 interface AlertDialogProps extends Omit<DialogProps, "children"> {
   title: string;
@@ -14,6 +19,16 @@ interface AlertDialogProps extends Omit<DialogProps, "children"> {
   cancelLabel?: string;
   onAction?: () => void;
 }
+
+const alertDialogContents = tv({
+  base: "w-6 h-6 absolute right-6 top-6 stroke-2",
+  variants: {
+    variant: {
+      destructive: "text-destructive",
+      info: "text-primary"
+    }
+  }
+});
 
 export function AlertDialog({
   title,
@@ -28,10 +43,11 @@ export function AlertDialog({
     <Dialog role="alertdialog" {...props}>
       {({ close }) => (
         <>
-          <Heading slot="title" className="text-xl font-semibold leading-6 my-0">
-            {title}
-          </Heading>
-          <div className="mt-3 text-slate-500 dark:text-zinc-400">{children}</div>
+          <Heading slot="title">{title}</Heading>
+          <div className={alertDialogContents({ variant })}>
+            {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
+          </div>
+          <p className="mt-3 text-muted-foreground">{children}</p>
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="secondary" onPress={close}>
               {cancelLabel ?? "Cancel"}

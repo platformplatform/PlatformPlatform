@@ -1,40 +1,65 @@
-import type { ButtonProps as RACButtonProps } from "react-aria-components";
-import { Button as RACButton, composeRenderProps } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/button--docs
+ * ref: https://ui.shadcn.com/docs/components/button
+ */
+import { Button as AriaButton, type ButtonProps as AriaButtonProps, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { focusRing } from "./utils";
+import { focusRing } from "./focusRing";
 
-export interface ButtonProps extends RACButtonProps {
-  variant?: "primary" | "secondary" | "destructive" | "neutral" | "icon" | "ghost";
+export interface ButtonProps extends AriaButtonProps, React.RefAttributes<HTMLButtonElement> {
+  /**
+   * The variant of the button.
+   * @default primary
+   */
+  variant?: "primary" | "secondary" | "destructive" | "outline" | "ghost" | "link" | "icon";
+  /**
+   * The size of the button.
+   * @default md
+   */
+  size?: "xs" | "sm" | "md" | "lg" | "icon";
 }
 
 const button = tv({
   extend: focusRing,
-  base: "px-5 py-2 text-sm text-center transition font-normal rounded-lg text-base shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] dark:shadow-none cursor-default",
+  base: "inline-flex gap-2 w-fit items-center justify-center w-fit whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   variants: {
     variant: {
-      primary: "bg-neutral-900 hover:bg-neutral-700 pressed:bg-neutral-800 text-white border-gray-700",
-      secondary:
-        "bg-gray-200 hover:bg-gray-300 pressed:bg-gray-400 slate-700 dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:pressed:bg-zinc-400 dark:text-zinc-100",
-      neutral: "bg-neutral-600 hover:bg-neutral-700 pressed:bg-neutral-800 text-white",
-      destructive: "bg-red-700 hover:bg-red-800 pressed:bg-red-900 text-white",
-      icon: "border-0 p-1 flex items-center justify-center text-gray-600 hover:bg-black/[5%] pressed:bg-black/10 dark:text-zinc-400 dark:hover:bg-white/10 dark:pressed:bg-white/20 disabled:bg-transparent",
-      ghost: ""
+      primary: "bg-primary text-primary-foreground hover:bg-primary/90 pressed:bg-primary/80",
+      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 pressed:bg-secondary/70",
+      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 pressed:bg-destructive/80",
+      outline:
+        "border border-input text-accent-foreground hover:bg-accent hover:text-accent-foreground/90 pressed:bg-accent/80",
+      ghost: "hover:bg-accent text-accent-foreground hover:text-accent-foreground/90 pressed:bg-accent/80",
+      link: "text-primary underline-offset-4 hover:underline pressed:text-primary/80"
+    },
+    size: {
+      xs: "h-6 w-6 shrink-0",
+      sm: "h-9 rounded-md px-3",
+      md: "h-10 px-4 py-2",
+      lg: "h-11 rounded-md px-8",
+      icon: "h-10 w-10 shrink-0"
     },
     isDisabled: {
-      true: "bg-gray-100 dark:bg-zinc-800 text-gray-300 dark:text-zinc-600 forced-colors:text-[GrayText] border-black/5 dark:border-white/5"
+      true: "pointer-events-none opacity-50"
     }
   },
   defaultVariants: {
-    variant: "primary"
+    variant: "primary",
+    size: "md"
   }
 });
 
-export function Button(props: Readonly<ButtonProps>) {
+export function Button({ className, variant, size, ...props }: Readonly<ButtonProps>) {
   return (
-    <RACButton
+    <AriaButton
       {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
-        button({ ...renderProps, variant: props.variant, className })
+      className={composeRenderProps(className, (className, renderProps) =>
+        button({
+          ...renderProps,
+          size: variant === "icon" ? "icon" : size,
+          variant: variant === "icon" ? "outline" : variant,
+          className
+        })
       )}
     />
   );

@@ -1,11 +1,23 @@
-import { ChevronDown } from "lucide-react";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/combobox--docs
+ * ref: https://ui.shadcn.com/docs/components/combobox
+ */
+import { ChevronsUpDownIcon } from "lucide-react";
 import type React from "react";
-import type { ComboBoxProps as AriaComboBoxProps, ListBoxItemProps, ValidationResult } from "react-aria-components";
-import { ComboBox as AriaComboBox, ListBox } from "react-aria-components";
+import {
+  ComboBox as AriaComboBox,
+  type ComboBoxProps as AriaComboBoxProps,
+  ListBox,
+  type ListBoxItemProps,
+  type ValidationResult
+} from "react-aria-components";
 import { Button } from "./Button";
-import { Description, FieldError, FieldGroup, Input, Label } from "./Field";
-import type { DropdownSectionProps } from "./ListBox";
-import { DropdownItem, DropdownSection } from "./ListBox";
+import { Description } from "./Description";
+import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
+import { FieldGroup } from "./Field";
+import { FieldError } from "./FieldError";
+import { Input } from "./Input";
+import { Label } from "./Label";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -13,6 +25,8 @@ export interface ComboBoxProps<T extends object> extends Omit<AriaComboBoxProps<
   label?: string;
   description?: string | null;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  isOpen?: boolean;
+  placeholder?: string;
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
@@ -20,6 +34,7 @@ export function ComboBox<T extends object>({
   label,
   description,
   errorMessage,
+  isOpen,
   children,
   items,
   ...props
@@ -28,17 +43,17 @@ export function ComboBox<T extends object>({
     <AriaComboBox {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       <Label>{label}</Label>
       <FieldGroup>
-        <Input />
-        <Button variant="icon" className="w-6 mr-1 rounded outline-offset-0 ">
-          <ChevronDown aria-hidden className="w-4 h-4" />
+        <Input isEmbedded />
+        <Button variant="ghost" size="icon" className="mr-1 w-6 rounded outline-offset-0 ">
+          <ChevronsUpDownIcon aria-hidden className="h-4 w-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover className="w-[--trigger-width]">
+      <Popover className="w-[--trigger-width]" isOpen={isOpen}>
         <ListBox
           items={items}
-          className="outline-0 p-1 max-h-[inherit] overflow-auto [clip-path:inset(0_0_0_0_round_.75rem)]"
+          className="max-h-[inherit] overflow-auto p-1 outline-0 [clip-path:inset(0_0_0_0_round_.75rem)]"
         >
           {children}
         </ListBox>

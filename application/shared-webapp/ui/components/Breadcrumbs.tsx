@@ -1,18 +1,27 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/breadcrumbs--docs
+ * ref: https://ui.shadcn.com/docs/components/breadcrumb
+ */
 import { ChevronRight } from "lucide-react";
-import type { BreadcrumbProps, BreadcrumbsProps, LinkProps } from "react-aria-components";
-import { Breadcrumb as AriaBreadcrumb, Breadcrumbs as AriaBreadcrumbs } from "react-aria-components";
+import {
+  Breadcrumb as AriaBreadcrumb,
+  Breadcrumbs as AriaBreadcrumbs,
+  type BreadcrumbProps,
+  type BreadcrumbsProps,
+  type LinkProps
+} from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import { Link } from "./Link";
 
 export function Breadcrumbs<T extends object>(props: Readonly<BreadcrumbsProps<T>>) {
-  return <AriaBreadcrumbs {...props} className={twMerge("flex gap-1", props.className)} />;
+  return <AriaBreadcrumbs {...props} className={twMerge("flex gap-2", props.className)} />;
 }
 
 export function Breadcrumb(props: BreadcrumbProps & LinkProps) {
   return (
-    <AriaBreadcrumb {...props} className={twMerge("flex items-center gap-1", props.className)}>
-      <Link variant="secondary" {...props} />
-      {props.href && <ChevronRight className="w-3 h-3 text-gray-600 dark:text-zinc-400" />}
+    <AriaBreadcrumb {...props} className={twMerge("flex items-center gap-2", props.className)}>
+      <Link variant="primary" {...props} />
+      {props.href && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
     </AriaBreadcrumb>
   );
 }

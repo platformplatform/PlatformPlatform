@@ -1,15 +1,16 @@
-import { Check } from "lucide-react";
-import type { ListBoxProps as AriaListBoxProps, ListBoxItemProps, SectionProps } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/listbox--docs
+ */
 import {
   ListBox as AriaListBox,
   ListBoxItem as AriaListBoxItem,
-  Collection,
-  Header,
-  Section,
+  type ListBoxProps as AriaListBoxProps,
+  type ListBoxItemProps,
   composeRenderProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { composeTailwindRenderProps, focusRing } from "./utils";
+import { focusRing } from "./focusRing";
+import { composeTailwindRenderProps } from "./utils";
 
 interface ListBoxProps<T> extends Omit<AriaListBoxProps<T>, "layout" | "orientation"> {}
 
@@ -17,10 +18,7 @@ export function ListBox<T extends object>({ children, ...props }: ListBoxProps<T
   return (
     <AriaListBox
       {...props}
-      className={composeTailwindRenderProps(
-        props.className,
-        "outline-0 p-1 border border-gray-300 dark:border-zinc-600 rounded-lg"
-      )}
+      className={composeTailwindRenderProps(props.className, "rounded-lg border border-border p-1 outline-0")}
     >
       {children}
     </AriaListBox>
@@ -32,11 +30,11 @@ export const itemStyles = tv({
   base: "group relative flex items-center gap-8 cursor-default select-none py-1.5 px-2.5 rounded-md will-change-transform text-sm forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 -outline-offset-2",
-      true: "bg-blue-600 text-white forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] [&:has(+[data-selected])]:rounded-b-none [&+[data-selected]]:rounded-t-none -outline-offset-4 outline-white dark:outline-white forced-colors:outline-[HighlightText]"
+      false: "bg-background hover:bg-muted pressed:bg-muted/90",
+      true: "bg-muted/50 hover:bg-muted/90 pressed:bg-muted/80  forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
     },
     isDisabled: {
-      true: "text-slate-300 dark:text-zinc-600 forced-colors:text-[GrayText]"
+      true: "text-muted-foreground/50 forced-colors:text-[GrayText]"
     }
   }
 });
@@ -48,62 +46,9 @@ export function ListBoxItem(props: Readonly<ListBoxItemProps>) {
       {composeRenderProps(props.children, (children) => (
         <>
           {children}
-          <div className="absolute left-4 right-4 bottom-0 h-px bg-white/20 forced-colors:bg-[HighlightText] hidden [.group[data-selected]:has(+[data-selected])_&]:block" />
+          <div className="absolute right-4 bottom-0 left-4 hidden h-px bg-border forced-colors:bg-[HighlightText] [.group[data-selected]:has(+[data-selected])_&]:block" />
         </>
       ))}
     </AriaListBoxItem>
-  );
-}
-
-export const dropdownItemStyles = tv({
-  base: "text-gray-900 group h-10 flex items-center gap-4 cursor-default select-none py-2 pl-3 pr-1 rounded-lg outline outline-0 text-sm forced-color-adjust-none",
-  variants: {
-    variant: {
-      primary: "bg-white dark:bg-zinc-800",
-      secondary: "bg-gray-100 dark:bg-zinc-700",
-      destructive: "text-white hover:text-white bg-red-700 hover:bg-red-800",
-      icon: "bg-transparent"
-    },
-    isDisabled: {
-      false: "dark:text-zinc-100",
-      true: "text-gray-300 dark:text-zinc-600 forced-colors:text-[GrayText]"
-    },
-    isFocused: {
-      true: "bg-gray-100 text-gray-900 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
-    }
-  },
-  defaultVariants: {
-    variant: "primary"
-  }
-});
-
-export function DropdownItem(props: Readonly<ListBoxItemProps>) {
-  const textValue = props.textValue ?? (typeof props.children === "string" ? props.children : undefined);
-  return (
-    <AriaListBoxItem {...props} textValue={textValue} className={dropdownItemStyles}>
-      {composeRenderProps(props.children, (children, { isSelected }) => (
-        <>
-          <span className="flex-1 flex items-center gap-2 truncate font-normal group-selected:font-semibold">
-            {children}
-          </span>
-          <span className="w-5 flex items-center">{isSelected && <Check className="w-4 h-4" />}</span>
-        </>
-      ))}
-    </AriaListBoxItem>
-  );
-}
-
-export interface DropdownSectionProps<T> extends SectionProps<T> {
-  title?: string;
-}
-
-export function DropdownSection<T extends object>(props: Readonly<DropdownSectionProps<T>>) {
-  return (
-    <Section className="first:-mt-[5px] after:content-[''] after:block after:h-[5px]">
-      <Header className="text-sm font-semibold text-gray-500 dark:text-zinc-300 px-4 py-1 truncate sticky -top-[5px] -mt-px -mx-1 z-10 bg-gray-100/60 dark:bg-zinc-700/60 backdrop-blur-md supports-[-moz-appearance:none]:bg-gray-100 border-y dark:border-y-zinc-700 [&+*]:mt-1">
-        {props.title}
-      </Header>
-      <Collection items={props.items}>{props.children}</Collection>
-    </Section>
   );
 }

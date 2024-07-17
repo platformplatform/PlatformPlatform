@@ -1,14 +1,19 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/meter--docs
+ */
 import { AlertTriangle } from "lucide-react";
-import type { MeterProps as AriaMeterProps } from "react-aria-components";
-import { Meter as AriaMeter } from "react-aria-components";
-import { Label } from "./Field";
+import { Meter as AriaMeter, type MeterProps as AriaMeterProps } from "react-aria-components";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface MeterProps extends AriaMeterProps {
   label?: string;
+  warnAt?: number;
+  dangerAt?: number;
+  showIndicators?: boolean;
 }
 
-export function Meter({ label, ...props }: Readonly<MeterProps>) {
+export function Meter({ label, warnAt, dangerAt, showIndicators, ...props }: Readonly<MeterProps>) {
   return (
     <AriaMeter {...props} className={composeTailwindRenderProps(props.className, "flex flex-col gap-1")}>
       {({ percentage, valueText }) => (
@@ -16,19 +21,31 @@ export function Meter({ label, ...props }: Readonly<MeterProps>) {
           <div className="flex justify-between gap-2">
             <Label>{label}</Label>
             <span
-              className={`text-sm ${percentage >= 80 ? "text-red-600 dark:text-red-500" : "text-gray-600 dark:text-zinc-400"}`}
+              className={`text-sm ${valueExceeded(percentage, dangerAt) ? "text-danger" : "text-muted-foreground"}`}
             >
-              {percentage >= 80 && (
-                <AlertTriangle aria-label="Alert" className="inline-block w-4 h-4 align-text-bottom" />
+              {valueExceeded(percentage, dangerAt) && (
+                <AlertTriangle aria-label="Alert" className="inline-block h-4 w-4 align-text-bottom" />
               )}
               {` ${valueText}`}
             </span>
           </div>
-          <div className="w-64 h-2 rounded-full bg-gray-300 dark:bg-zinc-700 outline outline-1 -outline-offset-1 outline-transparent relative">
+          <div className="-outline-offset-1 relative h-2 w-64 rounded-full bg-muted outline outline-1 outline-transparent">
             <div
-              className={`absolute top-0 left-0 h-full rounded-full ${getColor(percentage)} forced-colors:bg-[Highlight]`}
+              className={`absolute top-0 left-0 h-full rounded-full ${getTrackColor({ percentage, warnAt, dangerAt })} forced-colors:bg-[Highlight]`}
               style={{ width: `${percentage}%` }}
             />
+            {showIndicators && warnAt != null && !valueExceeded(percentage, warnAt) && (
+              <div
+                className={"absolute top-0 left-0 h-full border-foreground border-r-2 border-r-warning"}
+                style={{ width: `${warnAt}%` }}
+              />
+            )}
+            {showIndicators && dangerAt != null && !valueExceeded(percentage, dangerAt) && (
+              <div
+                className={"absolute top-0 left-0 h-full border-foreground border-r-2 border-r-danger"}
+                style={{ width: `${dangerAt}%` }}
+              />
+            )}
           </div>
         </>
       )}
@@ -36,10 +53,23 @@ export function Meter({ label, ...props }: Readonly<MeterProps>) {
   );
 }
 
-function getColor(percentage: number) {
-  if (percentage < 70) return "bg-green-600";
+function valueExceeded(percentage: number, threshold?: number) {
+  return threshold != null && percentage >= threshold;
+}
 
-  if (percentage < 80) return "bg-orange-500";
+type GetColorProps = {
+  percentage: number;
+  warnAt?: number;
+  dangerAt?: number;
+};
 
-  return "bg-red-600";
+function getTrackColor({ percentage, warnAt, dangerAt }: GetColorProps) {
+  if (valueExceeded(percentage, dangerAt)) {
+    return "bg-danger";
+  }
+  if (valueExceeded(percentage, warnAt)) {
+    return "bg-warning";
+  }
+
+  return "bg-success";
 }

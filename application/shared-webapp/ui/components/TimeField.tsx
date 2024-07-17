@@ -1,7 +1,16 @@
-import type { TimeFieldProps as AriaTimeFieldProps, TimeValue, ValidationResult } from "react-aria-components";
-import { TimeField as AriaTimeField } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/timefield--docs
+ */
+import {
+  TimeField as AriaTimeField,
+  type TimeFieldProps as AriaTimeFieldProps,
+  type TimeValue,
+  type ValidationResult
+} from "react-aria-components";
 import { DateInput } from "./DateField";
-import { Description, FieldError, Label } from "./Field";
+import { Description } from "./Description";
+import { FieldError } from "./FieldError";
+import { Label } from "./Label";
 
 export interface TimeFieldProps<T extends TimeValue> extends AriaTimeFieldProps<T> {
   label?: string;

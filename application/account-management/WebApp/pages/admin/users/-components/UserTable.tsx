@@ -65,7 +65,10 @@ export function UserTable({ usersPromise }: UserTableProps) {
               <Row key={user.email}>
                 <Cell>
                   <div className="flex h-14 items-center">
-                    <Avatar firstName={user.firstName} lastName={user.lastName} avatarUrl={user.avatarUrl} />
+                    <Avatar
+                      initials={getInitials(user.firstName, user.lastName, user.email)}
+                      avatarUrl={user.avatarUrl}
+                    />
                     <div className="truncate">
                       <div>
                         {user.firstName} {user.lastName}
@@ -84,7 +87,7 @@ export function UserTable({ usersPromise }: UserTableProps) {
                   <span className="text-gray-500">{toFormattedDate(user.modifiedAt)}</span>
                 </Cell>
                 <Cell>
-                  <Badge >{user.role}</Badge>
+                  <Badge>{user.role}</Badge>
                 </Cell>
                 <Cell>
                   <div className="flex gap-2">
@@ -132,4 +135,10 @@ function toFormattedDate(input: string | undefined | null) {
   if (!input) return "";
   const date = new Date(input);
   return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function getInitials(firstName: string | undefined, lastName: string | undefined, email: string | undefined) {
+  if (firstName && lastName) return `${firstName[0]}${lastName[0]}`;
+  if (email == null) return "";
+  return email.split("@")[0].slice(0, 2).toUpperCase();
 }

@@ -1,7 +1,15 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/form--docs
+ * ref: https://ui.shadcn.com/docs/components/form
+ */
 import type { FormProps } from "react-aria-components";
-import { Form as RACForm } from "react-aria-components";
-import { twMerge } from "tailwind-merge";
+import { Form as AriaForm } from "react-aria-components";
+import { tv } from "tailwind-variants";
 
-export function Form(props: Readonly<FormProps>) {
-  return <RACForm {...props} className={twMerge("flex flex-col gap-4", props.className)} />;
+const formStyles = tv({
+  base: "flex flex-col gap-4"
+});
+
+export function Form({ className, ...props }: Readonly<FormProps>) {
+  return <AriaForm {...props} className={formStyles({ className })} />;
 }

@@ -1,20 +1,33 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/taggroup--docs
+ */
 import { XIcon } from "lucide-react";
 import { createContext, useContext } from "react";
-import type { TagGroupProps as AriaTagGroupProps, TagProps as AriaTagProps, TagListProps } from "react-aria-components";
 import {
   Tag as AriaTag,
   TagGroup as AriaTagGroup,
+  type TagGroupProps as AriaTagGroupProps,
+  type TagProps as AriaTagProps,
   Button,
   TagList,
+  type TagListProps,
   Text,
   composeRenderProps
 } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
-import { Description, Label } from "./Field";
-import { focusRing } from "./utils";
+import { Description } from "./Description";
+import { Label } from "./Label";
+import { focusRing } from "./focusRing";
 
-const colors = {
+const variants = {
+  primary:
+    "bg-primary text-primary-foreground border-primary-200 hover:border-primary-300 dark:bg-primary-400/20 dark:text-primary-300 dark:border-primary-400/10 dark:hover:border-primary-400/20",
+  secondary:
+    "bg-secondary text-secondary-foreground border-secondary-200 hover:border-secondary-300 dark:bg-secondary-400/20 dark:text-secondary-300 dark:border-secondary-400/10 dark:hover:border-secondary-400/20",
+  destructive:
+    "bg-destructive text-destructive-foreground border-destructive-200 hover:border-destructive-300 dark:bg-destructive-400/20 dark:text-destructive-300 dark:border-destructive-400/10 dark:hover:border-destructive-400/20",
+  outline: "border-accent bg-background hover:bg-accent hover:text-accent-foreground pressed:bg-accent/80",
   gray: "bg-gray-100 text-gray-600 border-gray-200 hover:border-gray-300 dark:bg-zinc-700 dark:text-zinc-300 dark:border-zinc-600 dark:hover:border-zinc-500",
   green:
     "bg-green-100 text-green-700 border-green-200 hover:border-green-300 dark:bg-green-300/20 dark:text-green-400 dark:border-green-300/10 dark:hover:border-green-300/20",
@@ -23,14 +36,18 @@ const colors = {
   blue: "bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 dark:bg-blue-400/20 dark:text-blue-300 dark:border-blue-400/10 dark:hover:border-blue-400/20"
 };
 
-type Color = keyof typeof colors;
-const ColorContext = createContext<Color>("gray");
+type VariantKey = keyof typeof variants;
+const VariantContext = createContext<VariantKey>("gray");
 
 const tagStyles = tv({
   extend: focusRing,
   base: "transition cursor-default text-xs rounded-full border px-3 py-0.5 flex items-center max-w-fit gap-1",
   variants: {
-    color: {
+    variant: {
+      primary: "",
+      secondary: "",
+      destructive: "",
+      outline: "",
       gray: "",
       green: "",
       yellow: "",
@@ -40,30 +57,31 @@ const tagStyles = tv({
       true: "pr-1"
     },
     isSelected: {
-      true: "bg-blue-600 text-white border-transparent forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-color-adjust-none"
+      true: "bg-primary text-primary-foreground border-transparent forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-color-adjust-none"
     },
     isDisabled: {
-      true: "bg-gray-100 text-gray-300 forced-colors:text-[GrayText]"
+      true: "bg-muted/80 text-muted-foreground forced-colors:text-[GrayText]"
     }
   },
-  compoundVariants: (Object.keys(colors) as Color[]).map((color) => ({
+  compoundVariants: (Object.keys(variants) as VariantKey[]).map((variant) => ({
     isSelected: false,
-    color,
-    class: colors[color]
+    isDisabled: false,
+    variant,
+    class: variants[variant]
   }))
 });
 
 export interface TagGroupProps<T>
   extends Omit<AriaTagGroupProps, "children">,
     Pick<TagListProps<T>, "items" | "children" | "renderEmptyState"> {
-  color?: Color;
+  variant?: VariantKey;
   label?: string;
   description?: string;
   errorMessage?: string;
 }
 
 export interface TagProps extends AriaTagProps {
-  color?: Color;
+  variant?: VariantKey;
 }
 
 export function TagGroup<T extends object>({
@@ -71,21 +89,23 @@ export function TagGroup<T extends object>({
   description,
   errorMessage,
   items,
+  variant = "gray",
+  className,
   children,
   renderEmptyState,
   ...props
 }: Readonly<TagGroupProps<T>>) {
   return (
-    <AriaTagGroup {...props} className={twMerge("flex flex-col gap-1", props.className)}>
+    <AriaTagGroup {...props} className={twMerge("flex flex-col gap-1", className)}>
       <Label>{label}</Label>
-      <ColorContext.Provider value={props.color ?? "gray"}>
+      <VariantContext.Provider value={variant}>
         <TagList items={items} renderEmptyState={renderEmptyState} className="flex flex-wrap gap-1">
           {children}
         </TagList>
-      </ColorContext.Provider>
+      </VariantContext.Provider>
       {description && <Description>{description}</Description>}
       {errorMessage && (
-        <Text slot="errorMessage" className="text-sm text-red-600">
+        <Text slot="errorMessage" className="text-destructive text-sm">
           {errorMessage}
         </Text>
       )}
@@ -98,15 +118,15 @@ const removeButtonStyles = tv({
   base: "cursor-default rounded-full transition-[background-color] p-0.5 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 pressed:bg-black/20 dark:pressed:bg-white/20"
 });
 
-export function Tag({ children, color, ...props }: Readonly<TagProps>) {
+export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
   const textValue = typeof children === "string" ? children : undefined;
-  const groupColor = useContext(ColorContext);
+  const groupVariant = useContext(VariantContext);
   return (
     <AriaTag
       textValue={textValue}
       {...props}
       className={composeRenderProps(props.className, (className, renderProps) =>
-        tagStyles({ ...renderProps, className, color: color ?? groupColor })
+        tagStyles({ ...renderProps, className, variant: variant ?? groupVariant })
       )}
     >
       {({ allowsRemoving }) => (
@@ -114,7 +134,7 @@ export function Tag({ children, color, ...props }: Readonly<TagProps>) {
           {children}
           {allowsRemoving && (
             <Button slot="remove" className={removeButtonStyles}>
-              <XIcon aria-hidden className="w-3 h-3" />
+              <XIcon aria-hidden className="h-3 w-3" />
             </Button>
           )}
         </>

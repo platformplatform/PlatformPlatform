@@ -1,8 +1,18 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/searchfield--docs
+ */
 import { SearchIcon, XIcon } from "lucide-react";
-import type { SearchFieldProps as AriaSearchFieldProps, ValidationResult } from "react-aria-components";
-import { SearchField as AriaSearchField } from "react-aria-components";
+import {
+  SearchField as AriaSearchField,
+  type SearchFieldProps as AriaSearchFieldProps,
+  type ValidationResult
+} from "react-aria-components";
 import { Button } from "./Button";
-import { Description, FieldError, FieldGroup, Input, Label } from "./Field";
+import { Description } from "./Description";
+import { FieldGroup } from "./Field";
+import { FieldError } from "./FieldError";
+import { Input } from "./Input";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface SearchFieldProps extends AriaSearchFieldProps {
@@ -15,17 +25,17 @@ export function SearchField({ label, description, errorMessage, ...props }: Read
   return (
     <AriaSearchField
       {...props}
-      className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1 min-w-[40px]")}
+      className={composeTailwindRenderProps(props.className, "group flex min-w-[40px] flex-col gap-1")}
     >
       {label && <Label>{label}</Label>}
       <FieldGroup>
         <SearchIcon
           aria-hidden
-          className="w-4 h-4 ml-2 text-gray-500 dark:text-zinc-400 forced-colors:text-[ButtonText] group-disabled:text-gray-200 dark:group-disabled:text-zinc-600 forced-colors:group-disabled:text-[GrayText]"
+          className="ml-2 h-4 w-4 text-muted-foreground group-disabled:opacity-50 forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
-        <Input className="[&::-webkit-search-cancel-button]:hidden" />
-        <Button variant="icon" className="mr-1 w-6 group-empty:invisible">
-          <XIcon aria-hidden className="w-4 h-4" />
+        <Input isEmbedded className="[&::-webkit-search-cancel-button]:hidden" />
+        <Button variant="ghost" size="icon" className="mr-1 w-6 group-empty:invisible">
+          <XIcon aria-hidden className="h-4 w-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}

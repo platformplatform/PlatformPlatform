@@ -1,5 +1,7 @@
-import type { SeparatorProps } from "react-aria-components";
-import { Separator as RACSeparator } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter
+ */
+import { Separator as AriaSeparator, type SeparatorProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
 const styles = tv({
@@ -16,5 +18,7 @@ const styles = tv({
 });
 
 export function Separator(props: Readonly<SeparatorProps>) {
-  return <RACSeparator {...props} className={styles({ orientation: props.orientation, className: props.className })} />;
+  return (
+    <AriaSeparator {...props} className={styles({ orientation: props.orientation, className: props.className })} />
+  );
 }

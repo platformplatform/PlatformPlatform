@@ -1,5 +1,8 @@
-import type { ModalOverlayProps } from "react-aria-components";
-import { ModalOverlay, Modal as RACModal } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
+ * ref: https://ui.shadcn.com/docs/components/alert-dialog
+ */
+import { Modal as AriaModal, ModalOverlay, type ModalOverlayProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
 const overlayStyles = tv({
@@ -29,7 +32,7 @@ const modalStyles = tv({
 export function Modal(props: Readonly<ModalOverlayProps>) {
   return (
     <ModalOverlay {...props} className={overlayStyles}>
-      <RACModal {...props} className={modalStyles} />
+      <AriaModal {...props} className={modalStyles} />
     </ModalOverlay>
   );
 }

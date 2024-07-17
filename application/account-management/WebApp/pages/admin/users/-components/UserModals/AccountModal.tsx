@@ -1,6 +1,6 @@
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Button } from "@repo/ui/components/Button";
-import { Input } from "@repo/ui/components/Field";
+import { Input } from "@repo/ui/components/Input";
 import { Modal } from "@repo/ui/components/Modal";
 import { Trash2, XIcon } from "lucide-react";
 
@@ -36,7 +36,7 @@ export function AccountModal({ isOpen, onOpenChange, onDeleteAccount }: AccountM
               </div>
               <div className="flex flex-col gap-1">
                 <label>Domain</label>
-                <Input value="subdomain.platformplatform.net" disabled={true} />
+                <Input value="subdomain.platformplatform.net" isDisabled={true} />
               </div>
             </div>
             <h3 className="text-base pb-2">Danger zone</h3>

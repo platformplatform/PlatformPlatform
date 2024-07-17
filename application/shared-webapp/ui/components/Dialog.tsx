@@ -1,13 +1,17 @@
-import type { DialogProps } from "react-aria-components";
-import { Dialog as RACDialog } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
+ */
+import { Dialog as AriaDialog, type DialogProps } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
+
+export { DialogTrigger } from "react-aria-components";
 
 export function Dialog(props: Readonly<DialogProps>) {
   return (
-    <RACDialog
+    <AriaDialog
       {...props}
       className={twMerge(
-        "outline outline-0 p-8 [[data-placement]>&]:p-4 max-h-[inherit] overflow-auto relative",
+        "relative max-h-[inherit] overflow-auto p-6 outline outline-0 [[data-placement]>&]:p-4",
         props.className
       )}
     />

@@ -6,6 +6,7 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
 import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { Badge } from "@repo/ui/components/Badge";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
@@ -15,29 +16,26 @@ const heroimgMobile = "https://platformplatformgithub.blob.core.windows.net/hero
 export function HeroSection() {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col bg-gray-900">
+    <div className="flex flex-col bg-muted">
       <div className="flex flex-col gap-2 md:flex-row justify-between pt-8 pb-24 xl:px-24 px-2">
         <div className="flex flex-col grow justify-start gap-2 md:gap-4 lg:gap-8 lg:justify-start md:flex-row items-center ">
           <img src={logoWrap} alt="author" />
           <ProductLink />
           <ResourcesLink />
           <DocumentationLink />
-          <Link
-            className="flex gap-1 items-center decoration-transparent"
-            href="https://github.com/platformplatform/PlatformPlatform"
-          >
+          <Link href="https://github.com/platformplatform/PlatformPlatform">
             <GithubIcon className="wmax-5 h-5" />
             <span className="md:hidden lg:inline">Github</span>
           </Link>
           <ThemeModeSelector />
         </div>
         <div className="flex flex-col md:gap-8 md:flex-row items-center">
-          <Button onPress={() => navigate({ to: "/register" })} variant="secondary" className="text-nowrap">
+          <Button onPress={() => navigate({ to: "/register" })} variant="primary">
             Get started
           </Button>
         </div>
       </div>
-      <div className="flex flex-col items-center gap-4 py-12 px-8 md:px-48 text-white text-center">
+      <div className="flex flex-col items-center gap-4 py-12 px-8 md:px-48 text-center">
         <FeatureTag />
         <ProductSubtitle />
         <ProductTitle />
@@ -55,55 +53,52 @@ export function HeroSection() {
 // ProductLink: A functional component that displays the product link with dropdown
 function ProductLink() {
   return (
-    <DialogTrigger>
-      <Button variant="icon" className="text-gray-700 dark:text-zinc-300">
-        Product <ChevronDownIcon />
-      </Button>
-      <Popover>
-        <Dialog className="flex flex-col">
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-        </Dialog>
-      </Popover>
-    </DialogTrigger>
+    <TopLink title="Product">
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+    </TopLink>
   );
 }
 
 // ResourcesLink: A functional component that displays the resources link with dropdown
 function ResourcesLink() {
   return (
-    <DialogTrigger>
-      <Button variant="icon" className="text-gray-700 dark:text-zinc-300">
-        Resources <ChevronDownIcon />
-      </Button>
-      <Popover>
-        <Dialog className="flex flex-col">
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-        </Dialog>
-      </Popover>
-    </DialogTrigger>
+    <TopLink title="Resources">
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+    </TopLink>
   );
 }
 
 // DocumentationLink: A functional component that displays the documentation link with dropdown
 function DocumentationLink() {
   return (
+    <TopLink title="Documentation">
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+      <Link href="/">Product</Link>
+    </TopLink>
+  );
+}
+
+type TopLinkProps = {
+  title: string;
+  children: React.ReactNode;
+};
+
+function TopLink({ title, children }: TopLinkProps) {
+  return (
     <DialogTrigger>
-      <Button variant="icon" className="text-gray-700 dark:text-zinc-300">
-        Documentation <ChevronDownIcon />
+      <Button variant="ghost">
+        {title} <ChevronDownIcon />
       </Button>
       <Popover>
-        <Dialog className="flex flex-col">
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-          <Link href="/">Product</Link>
-        </Dialog>
+        <Dialog className="flex flex-col">{children}</Dialog>
       </Popover>
     </DialogTrigger>
   );
@@ -111,29 +106,11 @@ function DocumentationLink() {
 
 function FeatureTag() {
   return (
-    <div className="w-64 h-8 pl-1 pr-2.5 py-1 bg-white rounded-[10px] shadow border border-gray-300 justify-start items-center gap-3 inline-flex">
-      <FeatureLabel />
-      <FeatureText />
-    </div>
-  );
-}
-
-function FeatureLabel() {
-  return (
-    <div className="px-2 py-0.5 bg-gray-900 rounded-md border border-slate-50 justify-start items-center flex text-nowrap">
-      <div className="text-center text-slate-50 text-sm font-medium leading-tight">New feature</div>
-    </div>
-  );
-}
-
-function FeatureText() {
-  return (
-    <div className="justify-start items-center gap-1 flex">
-      <div className="flex whitespace-nowrap items-center gap-2 text-slate-700 text-sm font-medium leading-tight">
-        New feature here <ArrowRightIcon className="h-4 w-4" />
-      </div>
-      <div className="w-4 h-4 relative" />
-    </div>
+    <Button variant="primary" className="rounded-xl px-2 gap-2">
+      <Badge variant="secondary">New feature</Badge>
+      PassKeys are here
+      <ArrowRightIcon className="h-4 w-4" />
+    </Button>
   );
 }
 
@@ -146,12 +123,12 @@ function ProductTitle() {
 }
 
 function ProductSubtitle() {
-  return <h4 className="text-base font-semibold ">Super. Simple. SaaS.</h4>;
+  return <h4 className="text-muted-foreground text-base font-semibold ">Super. Simple. SaaS.</h4>;
 }
 
 function ProductDescription() {
   return (
-    <p className="text-gray-300 text-xl">
+    <p className="text-muted-foreground text-xl">
       Free, Open-Source .NET, React and Infrastructure kit for Startup and Enterprise.
     </p>
   );
@@ -161,10 +138,8 @@ function ActionButtons() {
   const navigate = useNavigate();
   return (
     <div className="flex justify-center gap-4">
-      <Button variant="ghost" className="text-nowrap">
-        Book a demo
-      </Button>
-      <Button onPress={() => navigate({ to: "/register" })} variant="secondary" className="text-nowrap">
+      <Button variant="outline">Book a demo</Button>
+      <Button onPress={() => navigate({ to: "/register" })} variant="primary">
         Get started today
       </Button>
     </div>
