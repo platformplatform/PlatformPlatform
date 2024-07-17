@@ -2,7 +2,7 @@ import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { FileTrigger } from "react-aria-components";
 import { Button } from "@repo/ui/components/Button";
 import { Modal } from "@repo/ui/components/Modal";
-import { XIcon } from "lucide-react";
+import { Mail, XIcon } from "lucide-react";
 import avatarUrl from "../../../images/avatar.png";
 import { Input } from "@repo/ui/components/Field";
 import React from "react";
@@ -17,7 +17,7 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className="w-full max-w-6xl">
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
         <AlertDialog variant="info" actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
           <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
             <XIcon name="cross" />
@@ -28,9 +28,8 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
               <h2 className=" text-slate-600 text-sm font-normal">Manage your profile here</h2>
             </div>
             <div className="w-full flex-col flex gap-3 text-slate-700 text-sm font-medium">
-              <div className="flex gap-4 flex-col">
-                <label>Photo</label>
-                <img src={avatarUrl} alt="Userprofile" className="aspect-square w-16" />
+              <label>Photo</label>
+              <div className="flex flex-row gap-4">
                 <FileTrigger
                   onSelect={(e) => {
                     if (e) {
@@ -40,8 +39,8 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
                     }
                   }}
                 >
-                  <Button variant="secondary" className="w-fit">
-                    Select a file
+                  <Button variant="icon" className="rounded-full bg-transparent">
+                    <img src={avatarUrl} alt="Userprofile" className="aspect-square w-16" />
                   </Button>
                 </FileTrigger>
                 {file && file}
@@ -49,16 +48,19 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col gap-1">
                   <label>First name</label>
-                  <Input placeholder="Olivia" />
+                  <Input placeholder="E.g. Olivia" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label>Last name</label>
-                  <Input placeholder="Rhye" />
+                  <Input placeholder="E.g. Rhye" />
                 </div>
               </div>
               <div className="flex flex-col gap-1">
                 <label>Email</label>
-                <Input placeholder="olivia@companyx.com" />
+                <div>
+                  <Input value="olivia@companyx.com" disabled={true} className="border px-4 py-2 pl-10 w-full" />
+                  <Mail className="absolute -translate-y-7 translate-x-2 text-gray-400 size-5" />
+                </div>
               </div>
               <div className="flex flex-col gap-1">
                 <label>Title</label>
