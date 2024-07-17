@@ -17,7 +17,7 @@ export function UserQuerying() {
         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
 
-      <Button variant="secondary" className="flex gap-2 text-sm items-center">
+      <Button variant="secondary" className="flex gap-2 items-center">
         <ListFilterIcon size={16} />
         Filters
       </Button>
