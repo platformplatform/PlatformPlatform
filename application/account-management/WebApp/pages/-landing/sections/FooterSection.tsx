@@ -23,7 +23,7 @@ export function FooterSection() {
             className="bg-white rounded-lg shadow border border-gray-300 text-gray-500 text-base font-normal p-1.5"
           />
           {/* Button component is used to display a call to action */}
-          <Button variant="neutral">Subscribe</Button>
+          <Button variant="secondary">Subscribe</Button>
         </div>
       </div>
       <div className="w-full px-24 bg-white flex flex-col py-16">

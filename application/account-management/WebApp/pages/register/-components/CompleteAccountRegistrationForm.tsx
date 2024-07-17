@@ -45,7 +45,7 @@ export function CompleteAccountRegistrationForm() {
         <div className="w-full flex flex-col gap-4">
           <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} />
           <div className="text-xs text-neutral-500 text-center">
-            <Link href="/" bold>
+            <Link href="/">
               <Trans>Did't receive the code? Resend</Trans>
             </Link>{" "}
             <span className="font-normal leading-none tabular-nums">({expiresInString})</span>

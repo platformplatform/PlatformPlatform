@@ -1,4 +1,4 @@
-import Badge from "@repo/ui/components/Badge";
+import { Badge } from "@repo/ui/components/Badge";
 import { Tab, TabList, Tabs } from "@repo/ui/components/Tabs";
 
 export function UserTabs() {

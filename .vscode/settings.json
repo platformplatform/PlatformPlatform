@@ -23,6 +23,9 @@
   "[bicep]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-bicep"
   },
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "files.associations": {
     "*.css": "tailwindcss"
   },

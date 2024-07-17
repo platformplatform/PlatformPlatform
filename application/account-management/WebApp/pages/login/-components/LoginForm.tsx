@@ -6,7 +6,9 @@ import { useActionState } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { FieldError, Input, Label } from "@repo/ui/components/Field";
+import { FieldError } from "@repo/ui/components/FieldError";
+import { Input } from "@repo/ui/components/Input";
+import { Label } from "@repo/ui/components/Label";
 import poweredByUrl from "@/shared/ui/images/powered-by.png";
 import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
 import { type AuthenticationState, useSignInAction } from "@repo/infrastructure/auth/hooks";
@@ -67,7 +69,7 @@ export default function LoginForm() {
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs text-neutral-500">
             <Trans>Don't have an account?</Trans>{" "}
-            <Link href="/register" bold>
+            <Link href="/register">
               <Trans>Sign up</Trans>
             </Link>
           </p>

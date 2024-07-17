@@ -3,7 +3,7 @@ import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
 import { use, useMemo, useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
-import Badge from "@repo/ui/components/Badge";
+import { Badge } from "@repo/ui/components/Badge";
 import Pagination from "@repo/ui/components/Pagination";
 import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
@@ -84,7 +84,7 @@ export function UserTable({ usersPromise }: UserTableProps) {
                   <span className="text-gray-500">{toFormattedDate(user.modifiedAt)}</span>
                 </Cell>
                 <Cell>
-                  <Badge>{user.role}</Badge>
+                  <Badge >{user.role}</Badge>
                 </Cell>
                 <Cell>
                   <div className="flex gap-2">

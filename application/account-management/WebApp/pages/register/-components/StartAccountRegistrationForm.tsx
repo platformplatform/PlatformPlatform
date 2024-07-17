@@ -10,7 +10,9 @@ import { startAccountRegistration } from "./actions";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { FieldError, Input, Label } from "@repo/ui/components/Field";
+import { FieldError } from "@repo/ui/components/FieldError";
+import { Input } from "@repo/ui/components/Input";
+import { Label } from "@repo/ui/components/Label";
 import poweredByUrl from "@/shared/ui/images/powered-by.png";
 import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
 import { DomainInput } from "@/shared/ui/DomainInput";
@@ -78,20 +80,16 @@ export function StartAccountRegistrationForm() {
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
             <Trans>Already have an account?</Trans>{" "}
-            <Link href="/login" bold>
+            <Link href="/login">
               <Trans>Sign in</Trans>
             </Link>
           </p>
           <div className="text-sm text-neutral-500">
             By continuing, you agree to our policies
             <div className="flex items-center justify-center">
-              <Link href="/" bold>
-                Terms of use
-              </Link>
+              <Link href="/">Terms of use</Link>
               <DotIcon className="w-4 h-4" />
-              <Link href="/" bold>
-                Privacy Policies
-              </Link>
+              <Link href="/">Privacy Policies</Link>
             </div>
           </div>
           <img src={poweredByUrl} alt="powered by" />
