@@ -74,6 +74,9 @@ msgstr "Email"
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "Password"
 msgstr "Password"
 
