@@ -84,7 +84,7 @@ export function StartAccountRegistrationForm() {
           <p className="text-xs ">
             <Trans>Already have an account?</Trans>{" "}
             <Link href="/login">
-              <Trans>Sign in</Trans>
+              <Trans>Log in</Trans>
             </Link>
           </p>
           <div className="text-sm text-neutral-500">
