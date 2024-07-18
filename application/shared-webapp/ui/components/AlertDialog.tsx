@@ -4,7 +4,7 @@
  */
 import { Dialog } from "./Dialog";
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { chain } from "react-aria";
 import type { DialogProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
@@ -24,9 +24,13 @@ const alertDialogContents = tv({
   base: "w-6 h-6 absolute right-6 top-6 stroke-2",
   variants: {
     variant: {
+      neutral: "hidden",
       destructive: "text-destructive",
       info: "text-primary"
     }
+  },
+  defaultVariants: {
+    variant: "neutral"
   }
 });
 
@@ -39,16 +43,19 @@ export function AlertDialog({
   children,
   ...props
 }: Readonly<AlertDialogProps>) {
+  const contentId = useId();
   return (
-    <Dialog role="alertdialog" {...props}>
+    <Dialog role="alertdialog" aria-describedby={contentId} {...props}>
       {({ close }) => (
         <>
           <Heading slot="title">{title}</Heading>
           <div className={alertDialogContents({ variant })}>
             {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
           </div>
-          <p className="mt-3 text-muted-foreground">{children}</p>
-          <div className="mt-6 flex justify-end gap-2">
+          <div id={contentId} className="mt-3 text-muted-foreground">
+            {children}
+          </div>
+          <div role="group" className="mt-6 flex justify-end gap-2">
             <Button variant="secondary" onPress={close}>
               {cancelLabel ?? "Cancel"}
             </Button>

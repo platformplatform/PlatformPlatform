@@ -60,7 +60,7 @@ export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
 
 const tabProps = tv({
   extend: focusRing,
-  base: "flex items-center cursor-default px-4 pt-1.5 pb-0.5 text-sm font-medium transition forced-color-adjust-none",
+  base: "flex gap-2 items-center cursor-default px-4 pt-1.5 pb-0.5 text-sm font-medium transition forced-color-adjust-none",
   variants: {
     isSelected: {
       false: "text-muted-foreground border-transparent",

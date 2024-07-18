@@ -1,15 +1,17 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import type React from "react";
 import { Button } from "./Button";
+import { twMerge } from "tailwind-merge";
 
 interface PaginationProps {
   total: number;
   itemsPerPage: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+  className?: string;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPage, onPageChange }) => {
+export function Pagination({ total, itemsPerPage, currentPage, onPageChange, className }: Readonly<PaginationProps>) {
   const totalPages = Math.ceil(total / itemsPerPage);
 
   const handlePrevious = () => {
@@ -21,7 +23,7 @@ const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPag
   };
 
   return (
-    <div className="flex justify-between items-center space-x-2 md:space-x-4">
+    <div className={twMerge("flex justify-between items-center space-x-2 md:space-x-4", className)}>
       <Button
         variant="secondary"
         className="flex text-sm items-center"
@@ -44,6 +46,4 @@ const Pagination: React.FC<PaginationProps> = ({ total, itemsPerPage, currentPag
       </Button>
     </div>
   );
-};
-
-export default Pagination;
+}

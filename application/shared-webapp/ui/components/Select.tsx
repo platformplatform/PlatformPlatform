@@ -21,6 +21,7 @@ import { Label } from "./Label";
 import { Popover } from "./Popover";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
+export type { Key } from "react-aria-components";
 
 const buttonStyles = tv({
   extend: focusRing,

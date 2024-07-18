@@ -4,7 +4,7 @@ import { MenuTrigger, TableBody } from "react-aria-components";
 import { use, useMemo, useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Badge } from "@repo/ui/components/Badge";
-import Pagination from "@repo/ui/components/Pagination";
+import { Pagination } from "@repo/ui/components/Pagination";
 import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
@@ -39,94 +39,82 @@ export function UserTable({ usersPromise }: UserTableProps) {
   }, [sortedRows, currentPage]);
 
   return (
-    <div>
-      <div className="overflow-auto">
-        <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
-          <TableHeader>
-            <Column minWidth={100} allowsSorting id="name" isRowHeader>
-              Name
-            </Column>
-            <Column minWidth={100} allowsSorting id="email">
-              Email
-            </Column>
-            <Column defaultWidth={130} id="date">
-              Added
-            </Column>
-            <Column defaultWidth={130} id="lastSeen">
-              Last Seen
-            </Column>
-            <Column defaultWidth={100} id="role">
-              Role
-            </Column>
-            <Column width={80}>Actions</Column>
-          </TableHeader>
-          <TableBody>
-            {paginatedRows.map((user) => (
-              <Row key={user.email}>
-                <Cell>
-                  <div className="flex h-14 items-center">
-                    <Avatar
-                      initials={getInitials(user.firstName, user.lastName, user.email)}
-                      avatarUrl={user.avatarUrl}
-                    />
-                    <div className="truncate">
-                      <div>
-                        {user.firstName} {user.lastName}
-                      </div>
-                      <div className="text-gray-500">{user.title ?? ""}</div>
+    <div className="flex flex-col gap-2 h-full">
+      <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
+        <TableHeader>
+          <Column allowsSorting id="name" isRowHeader>
+            Name
+          </Column>
+          <Column allowsSorting id="email">
+            Email
+          </Column>
+          <Column id="date">Added</Column>
+          <Column id="lastSeen">Last Seen</Column>
+          <Column id="role">Role</Column>
+          <Column>Actions</Column>
+        </TableHeader>
+        <TableBody>
+          {paginatedRows.map((user) => (
+            <Row key={user.email}>
+              <Cell>
+                <div className="flex h-14 items-center gap-2">
+                  <Avatar
+                    initials={getInitials(user.firstName, user.lastName, user.email)}
+                    avatarUrl={user.avatarUrl}
+                    size="sm"
+                    isRound
+                  />
+                  <div className="truncate">
+                    <div>
+                      {user.firstName} {user.lastName}
                     </div>
+                    <div className="text-muted-foreground">{user.title ?? ""}</div>
                   </div>
-                </Cell>
-                <Cell>
-                  <span className="text-gray-500">{user.email}</span>
-                </Cell>
-                <Cell>
-                  <span className="text-gray-500">{toFormattedDate(user.createdAt)}</span>
-                </Cell>
-                <Cell>
-                  <span className="text-gray-500">{toFormattedDate(user.modifiedAt)}</span>
-                </Cell>
-                <Cell>
-                  <Badge>{user.role}</Badge>
-                </Cell>
-                <Cell>
-                  <div className="flex gap-2">
-                    <Button variant="icon" className="group-hover:visible invisible">
-                      <TrashIcon size={16} />
+                </div>
+              </Cell>
+              <Cell>{user.email}</Cell>
+              <Cell>{toFormattedDate(user.createdAt)}</Cell>
+              <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
+              <Cell>
+                <Badge variant={user.role === "Admin" ? "danger" : user.role === "Owner" ? "success" : "neutral"}>
+                  {user.role}
+                </Badge>
+              </Cell>
+              <Cell>
+                <div className="flex gap-2 w-12">
+                  <Button variant="icon" className="group-hover:visible invisible">
+                    <TrashIcon size={16} />
+                  </Button>
+                  <MenuTrigger>
+                    <Button variant="icon" aria-label="Menu">
+                      <EllipsisVerticalIcon size={16} />
                     </Button>
-                    <MenuTrigger>
-                      <Button variant="icon" aria-label="Menu">
-                        <EllipsisVerticalIcon size={16} />
-                      </Button>
-                      <Popover>
-                        <Menu>
-                          <MenuItem onAction={() => alert("open")}>
-                            <UserIcon size={16} />
-                            View Profile
-                          </MenuItem>
-                          <MenuSeparator />
-                          <MenuItem onAction={() => alert("rename")}>
-                            <TrashIcon size={16} />
-                            <span className="text-red-600">Delete</span>
-                          </MenuItem>
-                        </Menu>
-                      </Popover>
-                    </MenuTrigger>
-                  </div>
-                </Cell>
-              </Row>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="sticky bottom-0 bg-gray-50 w-full py-2">
-        <Pagination
-          total={totalCount ?? 0}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+                    <Popover>
+                      <Menu>
+                        <MenuItem onAction={() => alert("open")}>
+                          <UserIcon size={16} />
+                          View Profile
+                        </MenuItem>
+                        <MenuSeparator />
+                        <MenuItem onAction={() => alert("rename")}>
+                          <TrashIcon size={16} />
+                          <span className="text-destructive">Delete</span>
+                        </MenuItem>
+                      </Menu>
+                    </Popover>
+                  </MenuTrigger>
+                </div>
+              </Cell>
+            </Row>
+          ))}
+        </TableBody>
+      </Table>
+      <Pagination
+        total={totalCount ?? 0}
+        itemsPerPage={itemsPerPage}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

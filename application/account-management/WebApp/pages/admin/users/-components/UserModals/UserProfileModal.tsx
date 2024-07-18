@@ -18,9 +18,9 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-        <AlertDialog variant="info" actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
-          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
-            <XIcon name="cross" />
+        <AlertDialog actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
+          <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="ghost" size="sm">
+            <XIcon className="w-4 h-4" />
           </Button>
           <div className="flex flex-col text-gray-900 text-xl font-semibold">
             <div className="pb-4">
