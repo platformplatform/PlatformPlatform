@@ -8,8 +8,8 @@ export type ThemeModeContextType = [ThemeMode, (mode: ThemeMode | ((mode: ThemeM
 export const ThemeModeContext = createContext<ThemeModeContextType>(["light", () => {}]);
 
 const setClassName = (mode: ThemeMode) => {
-  document.body.classList.remove("light", "dark");
-  document.body.classList.add(mode);
+  document.documentElement.classList.remove("light", "dark");
+  document.documentElement.classList.add(mode);
 };
 
 const initialThemeMode = localStorage.getItem(storageKey) === "dark" ? "dark" : "light";
