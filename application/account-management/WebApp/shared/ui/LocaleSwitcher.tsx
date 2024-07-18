@@ -48,6 +48,7 @@ export function LocaleSwitcher() {
           onSelectionChange={handleLocaleChange}
           selectedKeys={[currentLocale]}
           className="border-none px-4 py-2"
+          aria-label="Select a language"
         >
           {items.map((item) => (
             <ListBoxItem key={item.id} id={item.id}>

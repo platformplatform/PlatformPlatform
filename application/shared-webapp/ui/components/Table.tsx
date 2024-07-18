@@ -32,9 +32,12 @@ export { TableBody, useContextProps } from "react-aria-components";
 
 export function Table(props: Readonly<TableProps>) {
   return (
-    <div className="relative h-full w-full">
-      <div className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden">
-        <ResizableTableContainer className="relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md">
+    <div className="relative h-full w-full" aria-hidden>
+      <div className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden" aria-hidden>
+        <ResizableTableContainer
+          className="relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md"
+          aria-hidden
+        >
           <AriaTable {...props} className="border-separate border-spacing-0" />
         </ResizableTableContainer>
       </div>

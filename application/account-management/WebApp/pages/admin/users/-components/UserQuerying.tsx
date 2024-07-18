@@ -8,7 +8,7 @@ export function UserQuerying() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   return (
     <div className="flex justify-between mt-4 mb-4">
-      <SearchField placeholder="Search" value={searchTerm} onChange={setSearchTerm} />
+      <SearchField placeholder="Search" value={searchTerm} onChange={setSearchTerm} aria-label="Users" />
 
       <Button variant="secondary">
         <ListFilterIcon size={16} />

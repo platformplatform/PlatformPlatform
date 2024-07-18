@@ -40,7 +40,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
 
   return (
     <div className="flex flex-col gap-2 h-full">
-      <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor}>
+      <Table selectionMode="multiple" sortDescriptor={sortDescriptor} onSortChange={setSortDescriptor} aria-label="Users">
         <TableHeader>
           <Column allowsSorting id="name" isRowHeader>
             Name
