@@ -1,8 +1,8 @@
 // FeatureSection2: Displays a section with features
 export function FeatureSection2() {
   return (
-    <div className="flex flex-col md:flex-row gap-8 bg-white py-24 px-8 md:px-32">
-      <div className="flex flex-col md:w-1/3 grow gap-4 text-gray-900 text-4xl font-semibold text-start pr-8">
+    <div className="flex flex-col md:flex-row gap-8 bg-background py-24 px-8 md:px-32">
+      <div className="flex flex-col md:w-1/3 grow gap-4 text-foreground text-4xl font-semibold text-start pr-8">
         <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
         All the features you need to build anything you want
       </div>
@@ -47,8 +47,8 @@ interface FeatureBlockProps {
 function FeatureBlock({ title, content }: FeatureBlockProps) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
-      <div className="text-gray-900 text-xl font-semibold text-start">{title}</div>
-      <div className="text-slate-600 text-base font-normal text-start">{content}</div>
+      <div className="text-foreground text-xl font-semibold text-start">{title}</div>
+      <div className="text-muted-foreground text-base font-normal text-start">{content}</div>
     </div>
   );
 }

@@ -1,12 +1,20 @@
-import type {
-  DateFieldProps as AriaDateFieldProps,
-  DateInputProps,
-  DateValue,
-  ValidationResult
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/datefield--docs
+ */
+import {
+  DateField as AriaDateField,
+  type DateFieldProps as AriaDateFieldProps,
+  DateInput as AriaDateInput,
+  type DateInputProps,
+  DateSegment,
+  type DateValue,
+  type ValidationResult
 } from "react-aria-components";
-import { DateField as AriaDateField, DateInput as AriaDateInput, DateSegment } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Description, FieldError, Label, fieldGroupStyles } from "./Field";
+import { Description } from "./Description";
+import { fieldGroupStyles } from "./Field";
+import { FieldError } from "./FieldError";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface DateFieldProps<T extends DateValue> extends AriaDateFieldProps<T> {
@@ -32,16 +40,16 @@ export function DateField<T extends DateValue>({
 }
 
 const segmentStyles = tv({
-  base: "inline p-0.5 type-literal:px-0 rounded outline outline-0 forced-color-adjust-none caret-transparent text-gray-800 dark:text-zinc-200 forced-colors:text-[ButtonText]",
+  base: "inline p-0.5 type-literal:px-0 rounded-md outline outline-0 forced-color-adjust-none caret-transparent text-foreground text-sm forced-colors:text-[ButtonText]",
   variants: {
     isPlaceholder: {
-      true: "text-gray-600 dark:text-zinc-400 italic"
+      true: "text-muted-foreground italic"
     },
     isDisabled: {
-      true: "text-gray-200 dark:text-zinc-600 forced-colors:text-[GrayText]"
+      true: "opacity-50 cursor-not-allowed forced-colors:text-[GrayText]"
     },
     isFocused: {
-      true: "bg-blue-600 text-white dark:text-white forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+      true: "bg-accent text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     }
   }
 });

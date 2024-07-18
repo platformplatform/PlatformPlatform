@@ -1,27 +1,34 @@
-import type React from "react";
+/**
+ * ref: https://react.fluentui.dev/?path=/docs/components-badge-badge--default
+ * ref: https://ui.shadcn.com/docs/components/badge
+ */
+import type { PropsWithChildren } from "react";
+import { tv } from "tailwind-variants";
 
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info";
+const styles = tv({
+  base: "flex gap-2 py-1 px-2 h-7 w-fit rounded-md text-xs font-medium items-center justify-center [&>svg]:h-5",
+  variants: {
+    variant: {
+      neutral: "bg-muted text-muted-foreground",
+      success: "bg-success text-success-foreground",
+      warning: "bg-warning text-warning-foreground",
+      danger: "bg-danger text-danger-foreground",
+      info: "bg-info text-info-foreground",
+      primary: "bg-primary text-primary-foreground",
+      secondary: "bg-secondary text-secondary-foreground"
+    }
+  },
+  defaultVariants: {
+    variant: "neutral"
+  }
+});
+
+type Variant = keyof typeof styles.variants.variant;
+
+type BadgeProps = {
+  variant?: Variant;
+} & PropsWithChildren;
+
+export function Badge({ variant, children }: BadgeProps) {
+  return <div className={styles({ variant })}>{children}</div>;
 }
-
-const Badge: React.FC<BadgeProps> = ({ children, variant = "primary" }) => {
-  const variantClasses = {
-    primary: "border-indigo-900 text-indigo-900",
-    secondary: "border-gray-200 border-1 text-slate-700 text-xs font-medium",
-    success: "border-green-500 text-green-500",
-    danger: "border-red-500 text-red-500",
-    warning: "border-yellow-500 text-yellow-500",
-    info: "border-teal-500 text-teal-500"
-  };
-
-  return (
-    <div
-      className={`px-2 py-0.5 rounded-full border inline-flex justify-start items-center ${variantClasses[variant]}`}
-    >
-      <div className="text-xs font-medium">{children}</div>
-    </div>
-  );
-};
-
-export default Badge;

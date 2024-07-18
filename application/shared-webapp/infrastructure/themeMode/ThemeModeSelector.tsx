@@ -8,12 +8,8 @@ import { MoonIcon, SunIcon } from "lucide-react";
 export function ThemeModeSelector() {
   const [themeMode, setThemeMode] = useThemeMode();
   return (
-    <Button variant="icon">
-      {themeMode === "light" ? (
-        <MoonIcon onClick={() => setThemeMode("dark")} />
-      ) : (
-        <SunIcon onClick={() => setThemeMode("light")} />
-      )}
+    <Button variant="icon" onPress={() => setThemeMode((themeMode) => (themeMode === "dark" ? "light" : "dark"))}>
+      {themeMode === "light" ? <MoonIcon className="w-4 h-4" /> : <SunIcon className="w-4 h-4" />}
     </Button>
   );
 }

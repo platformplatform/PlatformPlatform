@@ -1,13 +1,20 @@
-import type { TabListProps, TabPanelProps, TabProps, TabsProps } from "react-aria-components";
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/tabs--docs
+ * ref: https://ui.shadcn.com/docs/components/tabs
+ */
 import {
-  Tab as RACTab,
-  TabList as RACTabList,
-  TabPanel as RACTabPanel,
-  Tabs as RACTabs,
+  Tab as AriaTab,
+  TabList as AriaTabList,
+  TabPanel as AriaTabPanel,
+  Tabs as AriaTabs,
+  type TabListProps,
+  type TabPanelProps,
+  type TabProps,
+  type TabsProps,
   composeRenderProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { focusRing } from "./utils";
+import { focusRing } from "./focusRing";
 
 const tabsStyles = tv({
   base: "flex gap-4",
@@ -21,7 +28,7 @@ const tabsStyles = tv({
 
 export function Tabs(props: Readonly<TabsProps>) {
   return (
-    <RACTabs
+    <AriaTabs
       {...props}
       className={composeRenderProps(props.className, (className, renderProps) =>
         tabsStyles({ ...renderProps, className })
@@ -31,18 +38,18 @@ export function Tabs(props: Readonly<TabsProps>) {
 }
 
 const tabListStyles = tv({
-  base: "flex gap-1",
+  base: "flex gap-1 border-border",
   variants: {
     orientation: {
-      horizontal: "flex-row",
-      vertical: "flex-col items-start"
+      horizontal: "flex-row border-b [&>*]:border-b-2",
+      vertical: "flex-col items-start border-r [&>*]:border-r-2 [&>*]:w-full"
     }
   }
 });
 
 export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
   return (
-    <RACTabList
+    <AriaTabList
       {...props}
       className={composeRenderProps(props.className, (className, renderProps) =>
         tabListStyles({ ...renderProps, className })
@@ -53,22 +60,27 @@ export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
 
 const tabProps = tv({
   extend: focusRing,
-  base: "flex items-center cursor-default px-4 py-1.5 text-sm font-medium transition forced-color-adjust-none border-b-2 border-transparent",
+  base: "flex gap-2 items-center cursor-default px-4 pt-1.5 pb-0.5 text-sm font-medium transition forced-color-adjust-none",
   variants: {
     isSelected: {
-      false:
-        "text-gray-600 dark:text-zinc-300 hover:text-gray-700 pressed:text-gray-700 dark:hover:text-zinc-200 dark:pressed:text-zinc-200 hover:bg-gray-200 dark:hover:bg-zinc-800 pressed:bg-gray-200 dark:pressed:bg-zinc-800",
-      true: "text-black dark:text-black forced-colors:text-[HighlightText] dark:bg-zinc-200 forced-colors:bg-[Highlight] border-black"
+      false: "text-muted-foreground border-transparent",
+      true: "text-foreground border-primary forced-colors:text-[HighlightText]"
+    },
+    isHovered: {
+      true: "text-muted-foreground/90"
+    },
+    isFocusVisible: {
+      true: "rounded-md border-transparent"
     },
     isDisabled: {
-      true: "text-gray-200 dark:text-zinc-600 forced-colors:text-[GrayText] selected:text-gray-300 dark:selected:text-zinc-500 forced-colors:selected:text-[HighlightText] selected:bg-gray-200 dark:selected:bg-zinc-600 forced-colors:selected:bg-[GrayText]"
+      true: "opacity-50 cursor-not-allowed"
     }
   }
 });
 
 export function Tab(props: Readonly<TabProps>) {
   return (
-    <RACTab
+    <AriaTab
       {...props}
       className={composeRenderProps(props.className, (className, renderProps) =>
         tabProps({ ...renderProps, className })
@@ -79,12 +91,12 @@ export function Tab(props: Readonly<TabProps>) {
 
 const tabPanelStyles = tv({
   extend: focusRing,
-  base: "flex-1 p-4 text-sm text-gray-900 dark:text-zinc-100"
+  base: "flex-1 p-4 text-sm text-foreground border border-border rounded-lg"
 });
 
 export function TabPanel(props: Readonly<TabPanelProps>) {
   return (
-    <RACTabPanel
+    <AriaTabPanel
       {...props}
       className={composeRenderProps(props.className, (className, renderProps) =>
         tabPanelStyles({ ...renderProps, className })

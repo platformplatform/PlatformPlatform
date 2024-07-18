@@ -1,11 +1,11 @@
 // FeatureSection4: A functional component that displays a section with features
 export function FeatureSection4() {
   return (
-    <div className="flex flex-col md:flex-row gap-16 bg-gray-50 py-24 md:px-24 px-8">
-      <div className="flex flex-col md:w-1/4 grow gap-4 text-gray-900 text-4xl font-semibold text-start">
+    <div className="flex flex-col md:flex-row gap-16 bg-muted py-24 md:px-24 px-8">
+      <div className="flex flex-col md:w-1/4 grow gap-4 text-foreground text-4xl font-semibold text-start">
         <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
         Built by Founders, Engineers and Designers
-        <div className="text-slate-600 text-xl font-normal">
+        <div className="text-muted-foreground text-xl font-normal">
           Skip the many months it takes to build an enterprise grade and production ready setup. We’ve done the hard
           work for you so you can focus on your core product.
         </div>
@@ -47,8 +47,8 @@ export function FeatureSection4() {
 function FeatureBlock({ title, content }: FeatureBlockProps) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
-      <div className="text-gray-900 text-xl font-semibold text-start">{title}</div>
-      <div className="text-slate-600 text-base font-normal text-start">{content}</div>
+      <div className="text-foreground text-xl font-semibold text-start">{title}</div>
+      <div className="text-muted-foreground text-base font-normal text-start">{content}</div>
     </div>
   );
 }

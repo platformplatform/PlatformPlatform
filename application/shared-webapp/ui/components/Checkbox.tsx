@@ -1,18 +1,23 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/checkbox--docs
+ * ref: https://ui.shadcn.com/docs/components/checkbox
+ */
 import { Check, Minus } from "lucide-react";
 import type { ReactNode } from "react";
-import type {
-  CheckboxGroupProps as AriaCheckboxGroupProps,
-  CheckboxProps,
-  ValidationResult
-} from "react-aria-components";
 import {
   Checkbox as AriaCheckbox,
   CheckboxGroup as AriaCheckboxGroup,
+  type CheckboxGroupProps as AriaCheckboxGroupProps,
+  type CheckboxProps,
+  type ValidationResult,
   composeRenderProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Description, FieldError, Label } from "./Field";
-import { composeTailwindRenderProps, focusRing } from "./utils";
+import { Description } from "./Description";
+import { FieldError } from "./FieldError";
+import { Label } from "./Label";
+import { focusRing } from "./focusRing";
+import { composeTailwindRenderProps } from "./utils";
 
 export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "children"> {
   label?: string;
@@ -36,8 +41,8 @@ const checkboxStyles = tv({
   base: "flex gap-2 items-center group text-sm transition",
   variants: {
     isDisabled: {
-      false: "text-gray-800 dark:text-zinc-200",
-      true: "text-gray-300 dark:text-zinc-600 forced-colors:text-[GrayText]"
+      false: "text-foreground",
+      true: "text-foreground/50"
     }
   }
 });
@@ -47,50 +52,40 @@ const boxStyles = tv({
   base: "w-5 h-5 flex-shrink-0 rounded flex items-center justify-center border-2 transition",
   variants: {
     isSelected: {
-      false:
-        "bg-white dark:bg-zinc-900 border-[--color] [--color:theme(colors.gray.400)] dark:[--color:colors.zinc-400)] group-pressed:[--color:theme(colors.gray.500)] dark:group-pressed:[--color:theme(colors.zinc.300)]",
-      true: "bg-[--color] border-[--color] [--color:theme(colors.gray.700)] group-pressed:[--color:theme(colors.gray.800)] dark:[--color:theme(colors.slate.300)] dark:group-pressed:[--color:theme(colors.slate.200)] forced-colors:![--color:Highlight]"
+      false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "text-primary-foreground bg-[--color] border-[--color] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
-      true: "[--color:theme(colors.red.700)] dark:[--color:theme(colors.red.600)] forced-colors:![--color:Mark] group-pressed:[--color:theme(colors.red.800)] dark:group-pressed:[--color:theme(colors.red.700)]"
+      true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isDisabled: {
-      true: "[--color:theme(colors.gray.200)] dark:[--color:theme(colors.zinc.700)] forced-colors:![--color:GrayText]"
+      true: "opacity-50 cursor-not-allowed"
     }
   }
 });
 
-const iconStyles =
-  "w-4 h-4 text-white group-disabled:text-gray-400 dark:text-slate-900 dark:group-disabled:text-slate-600 forced-colors:text-[HighlightText]";
+const iconStyles = "w-4 h-4";
 
 export function Checkbox(props: Readonly<CheckboxProps>) {
   return (
     <AriaCheckbox
       {...props}
-      className={composeRenderProps(props.className, (className, renderProps) => {
-        return checkboxStyles({ ...renderProps, className });
-      })}
+      className={composeRenderProps(props.className, (className, renderProps) =>
+        checkboxStyles({ ...renderProps, className })
+      )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
-            <CheckboxCarrot isSelected={isSelected} isIndeterminate={isIndeterminate} />
+            {isIndeterminate ? (
+              <Minus aria-hidden className={iconStyles} />
+            ) : isSelected ? (
+              <Check aria-hidden className={iconStyles} />
+            ) : null}
           </div>
           {props.children}
         </>
       )}
     </AriaCheckbox>
   );
-}
-
-export interface CheckboxCarrotProps {
-  isSelected: boolean;
-  isIndeterminate: boolean;
-}
-export function CheckboxCarrot({ isSelected, isIndeterminate }: Readonly<CheckboxCarrotProps>) {
-  if (isIndeterminate) return <Minus aria-hidden className={iconStyles} />;
-
-  if (isSelected) return <Check aria-hidden className={iconStyles} />;
-
-  return null;
 }

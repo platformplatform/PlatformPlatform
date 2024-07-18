@@ -1,16 +1,35 @@
-import { ChevronDownIcon, LanguagesIcon } from "lucide-react";
-import { Button, type Key, Label, ListBox, ListBoxItem, Popover, Select } from "react-aria-components";
+import { LanguagesIcon } from "lucide-react";
 import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
-import { use, useCallback } from "react";
+import { use, useCallback, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react";
+import { Button } from "@repo/ui/components/Button";
+import { ListBox, ListBoxItem } from "@repo/ui/components/ListBox";
+import { Popover } from "@repo/ui/components/Popover";
+import type { Key } from "@repo/ui/components/Select";
+import { Dialog, DialogTrigger } from "@repo/ui/components/Dialog";
+import type { Selection } from "react-aria-components";
 
 export function LocaleSwitcher() {
+  const [isOpen, setIsOpen] = useState(false);
   const { setLocale, getLocaleInfo, locales } = use(translationContext);
   const { i18n } = useLingui();
 
+  const items = useMemo(
+    () =>
+      locales.map((locale) => ({
+        id: locale,
+        label: getLocaleInfo(locale).label
+      })),
+    [locales, getLocaleInfo]
+  );
+
   const handleLocaleChange = useCallback(
-    (newLocale: Key): void => {
-      setLocale(newLocale as Locale);
+    async (selection: Selection) => {
+      const newLocale = [...selection][0] as Locale | undefined;
+      if (newLocale != null) {
+        await setLocale(newLocale);
+      }
+      setIsOpen(false);
     },
     [setLocale]
   );
@@ -18,22 +37,27 @@ export function LocaleSwitcher() {
   const currentLocale = i18n.locale as Locale;
 
   return (
-    <Select onSelectionChange={handleLocaleChange} selectedKey={currentLocale} className="flex flex-col">
-      <Label>Language</Label>
-      <Button className="flex flex-row border border-border rounded p-2 justify-between">
+    <DialogTrigger onOpenChange={setIsOpen} isOpen={isOpen}>
+      <Button variant="ghost" size="icon">
         <LanguagesIcon />
-        {getLocaleInfo(currentLocale).label}
-        <ChevronDownIcon />
       </Button>
-      <Popover className="border border-border rounded p-2 w-52 backdrop-blur-sm">
-        <ListBox>
-          {locales.map((locale) => (
-            <ListBoxItem key={locale} id={locale} className="cursor-pointer p-2">
-              {getLocaleInfo(locale).label}
+      <Popover>
+        <ListBox
+          selectionMode="single"
+          selectionBehavior="replace"
+          onSelectionChange={handleLocaleChange}
+          selectedKeys={[currentLocale]}
+          className="border-none px-4 py-2"
+          aria-label="Select a language"
+        >
+          {items.map((item) => (
+            <ListBoxItem key={item.id} id={item.id}>
+              {item.label}
             </ListBoxItem>
           ))}
         </ListBox>
       </Popover>
-    </Select>
+    </DialogTrigger>
   );
 }
+// onSelectionChange={handleLocaleChange} selectedKey={currentLocale} className="flex flex-col"

@@ -1,11 +1,18 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/radiogroup--docs
+ * ref: https://ui.shadcn.com/docs/components/radio-group
+ */
 import type { ReactNode } from "react";
-import type { RadioGroupProps as RACRadioGroupProps, RadioProps, ValidationResult } from "react-aria-components";
-import { Radio as RACRadio, RadioGroup as RACRadioGroup } from "react-aria-components";
+import { Radio as AriaRadio, RadioGroup as AriaRadioGroup, composeRenderProps } from "react-aria-components";
+import type { RadioGroupProps as AriaRadioGroupProps, RadioProps, ValidationResult } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Description, FieldError, Label } from "./Field";
-import { composeTailwindRenderProps, focusRing } from "./utils";
+import { Description } from "./Description";
+import { FieldError } from "./FieldError";
+import { Label } from "./Label";
+import { focusRing } from "./focusRing";
+import { composeTailwindRenderProps } from "./utils";
 
-export interface RadioGroupProps extends Omit<RACRadioGroupProps, "children"> {
+export interface RadioGroupProps extends Omit<AriaRadioGroupProps, "children"> {
   label?: string;
   children?: ReactNode;
   description?: string;
@@ -14,49 +21,60 @@ export interface RadioGroupProps extends Omit<RACRadioGroupProps, "children"> {
 
 export function RadioGroup(props: Readonly<RadioGroupProps>) {
   return (
-    <RACRadioGroup {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-2")}>
+    <AriaRadioGroup {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-2")}>
       <Label>{props.label}</Label>
-      <div className="flex group-orientation-vertical:flex-col gap-2 group-orientation-horizontal:gap-4">
+      <div className="flex gap-2 group-orientation-vertical:flex-col group-orientation-horizontal:gap-4">
         {props.children}
       </div>
       {props.description && <Description>{props.description}</Description>}
       <FieldError>{props.errorMessage}</FieldError>
-    </RACRadioGroup>
+    </AriaRadioGroup>
   );
 }
 
-const styles = tv({
+const indicatorStyles = tv({
   extend: focusRing,
-  base: "w-5 h-5 rounded-full border-2 bg-white dark:bg-zinc-900 transition-all",
+  base: "flex w-5 h-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
   variants: {
     isSelected: {
-      false: "border-gray-400 dark:border-zinc-400 group-pressed:border-gray-500 dark:group-pressed:border-zinc-300",
-      true: "border-[7px] border-gray-700 dark:border-slate-300 forced-colors:!border-[Highlight] group-pressed:border-gray-800 dark:group-pressed:border-slate-200"
+      false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-[7px] border-[--color] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
-      true: "border-red-700 dark:border-red-600 group-pressed:border-red-800 dark:group-pressed:border-red-700 forced-colors:!border-[Mark]"
+      true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isDisabled: {
-      true: "border-gray-200 dark:border-zinc-700 forced-colors:!border-[GrayText]"
+      true: "opacity-50 cursor-not-allowed"
     }
   }
 });
 
-export function Radio(props: Readonly<RadioProps>) {
+const radioStyles = tv({
+  base: "group flex items-center gap-2 text-foreground text-sm transition forced-colors:disabled:text-[GrayText]",
+  variants: {
+    isDisabled: {
+      true: "opacity-50"
+    }
+  }
+});
+
+export function Radio({ className, children, ...props }: Readonly<RadioProps>) {
   return (
-    <RACRadio
+    <AriaRadio
       {...props}
-      className={composeTailwindRenderProps(
-        props.className,
-        "flex gap-2 items-center group text-gray-800 disabled:text-gray-300 dark:text-zinc-200 dark:disabled:text-zinc-600 forced-colors:disabled:text-[GrayText] text-sm transition"
+      className={composeRenderProps(className, (className, renderProps) =>
+        radioStyles({
+          ...renderProps,
+          className
+        })
       )}
     >
       {(renderProps) => (
         <>
-          <div className={styles(renderProps)} />
-          {props.children}
+          <div className={indicatorStyles(renderProps)} />
+          {children}
         </>
       )}
-    </RACRadio>
+    </AriaRadio>
   );
 }

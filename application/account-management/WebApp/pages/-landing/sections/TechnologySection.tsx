@@ -8,10 +8,10 @@ const frame6 = "https://platformplatformgithub.blob.core.windows.net/shield-star
 // TechnologySection: A functional component that displays the technology section
 export function TechnologySection() {
   return (
-    <div className="flex flex-col gap-16 text-center bg-white py-24 px-8 md:px-32">
-      <div className="flex flex-col gap-4 text-gray-900 text-3xl font-semibold text-start w-2/3">
+    <div className="flex flex-col gap-16 text-center bg-background py-24 px-8 md:px-32">
+      <div className="flex flex-col gap-4 text-foreground text-3xl font-semibold text-start w-2/3">
         <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
-        <p className="text-gray-900 text-4xl font-semibold text-start">
+        <p className="text-foreground text-4xl font-semibold text-start">
           Standing on the shoulders of giants. Building blocks of PlatformPlatform
         </p>
       </div>
@@ -65,12 +65,12 @@ function FeatureBlock({ title, content, image }: FeatureBlockProps) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
       <div>
-        <div className="flex shadow rounded-lg w-12 h-12 justify-center p-0 items-center">
+        <div className="flex bg-white shadow dark:shadow-gray-600 rounded-lg w-12 h-12 justify-center p-0 items-center">
           <img src={image} alt={title} loading="lazy" />
         </div>
       </div>
-      <div className="text-gray-900 text-xl font-semibold text-start">{title}</div>
-      <div className="text-slate-600 text-base font-normal text-start">{content}</div>
+      <div className="text-foreground text-xl font-semibold text-start">{title}</div>
+      <div className="text-muted-foreground text-base font-normal text-start">{content}</div>
     </div>
   );
 }

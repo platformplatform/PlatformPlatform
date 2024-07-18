@@ -18,9 +18,6 @@ export function DeleteAccountModal({ isOpen, onOpenChange }: DeleteAccountModalP
         title="Delete Account"
         onAction={() => onOpenChange(false)}
       >
-        <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="icon">
-          <XIcon name="cross" />
-        </Button>
         You’re about to permanently delete the account and all data...
         <br />
         environment through PlatformPlatform.

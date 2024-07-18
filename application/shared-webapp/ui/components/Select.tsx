@@ -1,22 +1,41 @@
+/**
+ * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/select--docs
+ * ref: https://ui.shadcn.com/docs/components/select
+ */
 import { ChevronDown } from "lucide-react";
 import type React from "react";
-import type { SelectProps as AriaSelectProps, ListBoxItemProps, ValidationResult } from "react-aria-components";
-import { Select as AriaSelect, Button, ListBox, SelectValue } from "react-aria-components";
+import {
+  Select as AriaSelect,
+  type SelectProps as AriaSelectProps,
+  Button,
+  ListBox,
+  type ListBoxItemProps,
+  SelectValue,
+  type ValidationResult
+} from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Description, FieldError, Label } from "./Field";
-import type { DropdownSectionProps } from "./ListBox";
-import { DropdownItem, DropdownSection } from "./ListBox";
+import { Description } from "./Description";
+import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
+import { FieldError } from "./FieldError";
+import { Label } from "./Label";
 import { Popover } from "./Popover";
-import { composeTailwindRenderProps, focusRing } from "./utils";
+import { focusRing } from "./focusRing";
+import { composeTailwindRenderProps } from "./utils";
+export type { Key } from "react-aria-components";
 
-const styles = tv({
+const buttonStyles = tv({
   extend: focusRing,
-  base: "flex items-center text-start gap-4 w-full cursor-default border border-black/10 dark:border-white/10 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)] dark:shadow-none rounded-lg pl-3 pr-2 py-2 min-w-[150px] transition bg-gray-50 dark:bg-zinc-700",
+  base: [
+    "flex items-center h-9 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
+    "border-2 border-border rounded-md text-foreground"
+  ],
   variants: {
+    isInvalid: {
+      true: "border-destructive group-invalid:border-destructive forced-colors:group-invalid:border-[Mark]"
+    },
     isDisabled: {
-      false:
-        "text-gray-800 dark:text-zinc-300 hover:bg-gray-100 pressed:bg-gray-200 dark:hover:bg-zinc-600 dark:pressed:bg-zinc-500 group-invalid:border-red-600 forced-colors:group-invalid:border-[Mark]",
-      true: "text-gray-200 dark:text-zinc-600 forced-colors:text-[GrayText] dark:bg-zinc-800 dark:border-white/5 forced-colors:border-[GrayText]"
+      false: "hover:bg-accent/90 pressed:bg-accent pressed:text-accent-foreground",
+      true: "opacity-50 forced-colors:text-[GrayText] forced-colors:border-[GrayText]"
     }
   }
 });
@@ -35,16 +54,17 @@ export function Select<T extends object>({
   errorMessage,
   children,
   items,
+  className,
   ...props
 }: Readonly<SelectProps<T>>) {
   return (
-    <AriaSelect {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
+    <AriaSelect {...props} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
-      <Button className={styles}>
+      <Button className={buttonStyles(props)}>
         <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
         <ChevronDown
           aria-hidden
-          className="w-4 h-4 text-gray-600 dark:text-zinc-400 forced-colors:text-[ButtonText] group-disabled:text-gray-200 dark:group-disabled:text-zinc-600 forced-colors:group-disabled:text-[GrayText]"
+          className="h-4 w-4 text-muted-foreground group-disabled:text-muted forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
       </Button>
       {description && <Description>{description}</Description>}
@@ -52,7 +72,7 @@ export function Select<T extends object>({
       <Popover className="min-w-[--trigger-width]">
         <ListBox
           items={items}
-          className="outline-none p-1 max-h-[inherit] overflow-auto [clip-path:inset(0_0_0_0_round_.75rem)]"
+          className="max-h-[inherit] overflow-auto p-1 outline-none [clip-path:inset(0_0_0_0_round_.75rem)]"
         >
           {children}
         </ListBox>

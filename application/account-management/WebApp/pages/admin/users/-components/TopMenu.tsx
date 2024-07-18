@@ -1,24 +1,24 @@
-import { ChevronRightIcon, Languages, LifeBuoyIcon, MoonIcon } from "lucide-react";
+import { LifeBuoyIcon } from "lucide-react";
 import { UserAvatarButton } from "./UserAvatarButton";
+import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
+import { Button } from "@repo/ui/components/Button";
+import { LocaleSwitcher } from "@/shared/ui/LocaleSwitcher";
 
 export function TopMenu() {
   return (
-    <div className="flex text-slate-600 text-sm font-medium items-center justify-between space-x-8">
-      <div className="flex gap-4 items-center">
-        <div className="flex gap-4 whitespace-nowrap">
-          Home
-          <ChevronRightIcon className="text-slate-600" size={20} />
-        </div>
-        <div className="flex gap-4 whitespace-nowrap">
-          Users
-          <ChevronRightIcon className="text-slate-600" size={20} />
-        </div>
-        <div className="flex gap-4 text-gray-400 text-sm font-semibold whitespace-nowrap">All Users</div>
-      </div>
+    <div className="flex items-center justify-between">
+      <Breadcrumbs>
+        <Breadcrumb href="/admin">Home</Breadcrumb>
+        <Breadcrumb href="/admin/users">Users</Breadcrumb>
+        <Breadcrumb>All Users</Breadcrumb>
+      </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
-        <MoonIcon size={20} />
-        <LifeBuoyIcon size={20} />
-        <Languages size={20} />
+        <ThemeModeSelector />
+        <Button variant="ghost" size="icon">
+          <LifeBuoyIcon size={20} />
+        </Button>
+        <LocaleSwitcher />
         <UserAvatarButton />
       </div>
     </div>

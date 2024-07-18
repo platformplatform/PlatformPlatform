@@ -1,27 +1,26 @@
 import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useState } from "react";
-import { MenuTrigger } from "react-aria-components";
 import avatarUrl from "../../images/avatar.png";
 import AvatarMenuItem from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "./UserModals/AccountModal";
 import UserProfileModal from "./UserModals/UserProfileModal";
 import DeleteAccountModal from "./UserModals/DeleteAccountModal";
+import { Avatar } from "@repo/ui/components/Avatar";
 
 export function UserAvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
   return (
     <>
       <MenuTrigger aria-label="account settings">
-        <Button aria-label="Menu" variant="icon" className="w-12 h-12 rounded-full bg-transparent">
-          <img src={avatarUrl} alt="Profile menu" />
+        <Button aria-label="Menu" variant="ghost" size="icon" className="rounded-full">
+          <Avatar avatarUrl={avatarUrl} initials="MD" isRound size="sm" />
         </Button>
-        <Menu>
+        <Menu placement="bottom end">
           <MenuItem className="h-16 w-60" onAction={() => setIsProfileModalOpen(true)}>
             <AvatarMenuItem />
           </MenuItem>
@@ -35,7 +34,7 @@ export function UserAvatarButton() {
             Account settings
           </MenuItem>
           <MenuSeparator />
-          <MenuItem onAction={() => setIsSignOutModalOpen(true)}>
+          <MenuItem href="/">
             <LogOutIcon size={16} /> Log out
           </MenuItem>
         </Menu>
