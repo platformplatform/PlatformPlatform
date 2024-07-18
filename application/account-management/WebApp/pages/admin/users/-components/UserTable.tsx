@@ -14,7 +14,7 @@ import type { components } from "@/shared/lib/api/api.generated";
 type UserTableProps = {
   usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
 };
-export function UserTable({ usersPromise }: UserTableProps) {
+export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "firstName",
     direction: "ascending"
@@ -76,9 +76,7 @@ export function UserTable({ usersPromise }: UserTableProps) {
               <Cell>{toFormattedDate(user.createdAt)}</Cell>
               <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
               <Cell>
-                <Badge variant={user.role === "Admin" ? "danger" : user.role === "Owner" ? "success" : "neutral"}>
-                  {user.role}
-                </Badge>
+                <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
               </Cell>
               <Cell>
                 <div className="flex gap-2 w-12">
@@ -129,4 +127,10 @@ function getInitials(firstName: string | undefined, lastName: string | undefined
   if (firstName && lastName) return `${firstName[0]}${lastName[0]}`;
   if (email == null) return "";
   return email.split("@")[0].slice(0, 2).toUpperCase();
+}
+
+function getRoleBadgeVariant(role?: "Admin" | "Owner" | "Member") {
+  if (role === "Admin") return "danger";
+  if (role === "Owner") return "success";
+  return "neutral";
 }
