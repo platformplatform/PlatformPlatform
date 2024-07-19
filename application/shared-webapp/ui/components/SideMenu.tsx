@@ -42,7 +42,7 @@ function MenuButton({ icon: Icon, label }: Readonly<MenuButtonProps>) {
 }
 
 const sideMenuStyles = tv({
-  base: "flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
+  base: "relative flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
@@ -81,13 +81,19 @@ export function SideMenu() {
   return (
     <collapsedContext.Provider value={isCollapsed}>
       <div className={sideMenuStyles({ isCollapsed })}>
-        <div className="flex items-center self-end">
-          <Button variant="ghost" size="icon" onPress={toggleCollapse}>
+        <div className="h-20">
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={toggleCollapse}
+            className="absolute top-3.5 right-0 hover:bg-transparent hover:text-muted-foreground border-r-2 border-border rounded-r-none"
+          >
             <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
           </Button>
-          <div className="border border-border h-8" />
+          <div className="pr-8">
+            <img src={logoWrap} alt="Logo Wrap" className={logoStyles({ isCollapsed })} />
+          </div>
         </div>
-        <img src={logoWrap} alt="Logo Wrap" className={logoStyles({ isCollapsed })} />
         <MenuButton icon={HomeIcon} label="Home" />
         <MenuSeparator>Organisation</MenuSeparator>
         <MenuButton icon={CircleUserIcon} label="Account" />
