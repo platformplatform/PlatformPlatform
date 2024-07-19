@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +28,26 @@ public static class InfrastructureCoreConfiguration
         var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
         var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
         return new DefaultAzureCredential(credentialOptions);
+    }
+
+    public static IServiceCollection ConfigureDataProtectionApi(this IServiceCollection services)
+    {
+        if (IsRunningInAzure)
+        {
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            services.AddDataProtection()
+                .ProtectKeysWithAzureKeyVault(keyVaultUri, DefaultAzureCredential)
+                .SetDefaultKeyLifetime(TimeSpan.FromDays(30)); // Rotate keys every 30 days
+        }
+        else
+        {
+            var keysPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aspnet", "DataProtection-Keys");
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+                .SetDefaultKeyLifetime(TimeSpan.FromDays(7));
+        }
+
+        return services;
     }
 
     public static IServiceCollection ConfigureDatabaseContext<T>(

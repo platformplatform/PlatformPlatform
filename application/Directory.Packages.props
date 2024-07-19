@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- PlatformPlatform dependencies - Api -->
+    <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.2.3" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(AspNetCoreVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
