@@ -47,7 +47,7 @@ export function Table(props: Readonly<TableProps>) {
 
 const columnStyles = tv({
   extend: focusRing,
-  base: "px-4 h-12 flex-1 flex gap-1 items-center"
+  base: "px-4 h-12 flex-1 flex gap-1 items-center text-sm"
 });
 
 const resizerStyles = tv({
@@ -94,7 +94,7 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
     <AriaTableHeader
       {...props}
       className={twMerge(
-        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl hover:bg-accent supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden",
+        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden",
         props.className
       )}
     >
