@@ -81,7 +81,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
               <Cell>{toFormattedDate(user.createdAt)}</Cell>
               <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
               <Cell>
-                <Badge variant={getRoleBadgeVariant(user.role)}>{user.role}</Badge>
+                <Badge variant="outline">{user.role}</Badge>
               </Cell>
               <Cell>
                 <div className="flex gap-2 w-12">
@@ -132,10 +132,4 @@ function getInitials(firstName: string | undefined, lastName: string | undefined
   if (firstName && lastName) return `${firstName[0]}${lastName[0]}`;
   if (email == null) return "";
   return email.split("@")[0].slice(0, 2).toUpperCase();
-}
-
-function getRoleBadgeVariant(role?: "Admin" | "Owner" | "Member") {
-  if (role === "Admin") return "danger";
-  if (role === "Owner") return "success";
-  return "neutral";
 }
