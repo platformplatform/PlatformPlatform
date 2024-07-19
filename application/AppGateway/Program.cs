@@ -57,6 +57,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     }
 );
 
+builder.Services.ConfigureDataProtectionApi();
+
 var app = builder.Build();
 
 app.MapReverseProxy();
