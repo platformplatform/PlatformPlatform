@@ -1,15 +1,17 @@
-using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection;
 using PlatformPlatform.SharedKernel.ApiCore.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 
-public class AuthenticationCookieMiddleware(ILogger<AuthenticationCookieMiddleware> logger)
+public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtectionProvider, ILogger<AuthenticationCookieMiddleware> logger)
     : IMiddleware
 {
     private const string AuthenticationCookieName = "authentication-cookie";
     private const string RefreshTokenKey = "X-Refresh-Token";
     private const string AccessTokenKey = "X-Access-Token";
+
+    private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("PlatformPlatform");
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -75,16 +77,14 @@ public class AuthenticationCookieMiddleware(ILogger<AuthenticationCookieMiddlewa
 
     private AuthenticationTokenPair Decrypt(string authenticationCookieValue)
     {
-        // TODO: Replace  Base64 with secure encryption method like AES
-        var base64EncodedString = Encoding.UTF8.GetString(Convert.FromBase64String(authenticationCookieValue));
-        return JsonSerializer.Deserialize<AuthenticationTokenPair>(base64EncodedString)!;
+        var decryptedValue = _protector.Unprotect(authenticationCookieValue);
+        return JsonSerializer.Deserialize<AuthenticationTokenPair>(decryptedValue)!;
     }
 
     private string Encrypt(AuthenticationTokenPair authenticationTokenPair)
     {
-        // TODO: Replace  Base64 with secure encryption method like AES
         var jsonString = JsonSerializer.Serialize(authenticationTokenPair);
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+        return _protector.Protect(jsonString);
     }
 
     private record AuthenticationTokenPair(string RefreshToken, string AccessToken);
