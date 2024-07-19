@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react";
 import { tv } from "tailwind-variants";
 
 const styles = tv({
-  base: "flex gap-2 py-1 px-2 h-7 w-fit rounded-md text-xs font-medium items-center justify-center [&>svg]:h-5",
+  base: "flex gap-2 py-1 px-2 h-6 w-fit rounded-full text-xs font-medium items-center justify-center [&>svg]:h-5",
   variants: {
     variant: {
       neutral: "bg-muted text-muted-foreground",
@@ -15,7 +15,8 @@ const styles = tv({
       danger: "bg-danger text-danger-foreground",
       info: "bg-info text-info-foreground",
       primary: "bg-primary text-primary-foreground",
-      secondary: "bg-secondary text-secondary-foreground"
+      secondary: "bg-secondary text-secondary-foreground",
+      outline: "border border-muted-foreground text-muted-foreground"
     }
   },
   defaultVariants: {
