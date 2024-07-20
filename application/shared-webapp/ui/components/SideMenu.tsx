@@ -2,7 +2,9 @@ import { createContext, useContext, useState } from "react";
 import { ChevronsLeftIcon, CircleUserIcon, HomeIcon, type LucideIcon, UsersRoundIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
-const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
+import logoMarkUrl from "../images/logo-mark.svg";
+import logoWrapUrl from "../images/logo-wrap.svg";
+import { Tooltip, TooltipTrigger } from "./Tooltip";
 
 const collapsedContext = createContext(false);
 
@@ -34,10 +36,13 @@ type MenuButtonProps = {
 function MenuButton({ icon: Icon, label }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
   return (
-    <Button variant="ghost" className={menuButtonStyles({ isCollapsed })}>
-      <Icon className="w-6 h-6 shrink-0 grow-0" />
-      <div className={menuTextStyles({ isCollapsed })}>{label}</div>
-    </Button>
+    <TooltipTrigger>
+      <Button variant="ghost" className={menuButtonStyles({ isCollapsed })}>
+        <Icon className="w-6 h-6 shrink-0 grow-0" />
+        <div className={menuTextStyles({ isCollapsed })}>{label}</div>
+      </Button>
+      {isCollapsed && <Tooltip placement="right">{label}</Tooltip>}
+    </TooltipTrigger>
   );
 }
 
@@ -61,12 +66,22 @@ const chevronStyles = tv({
   }
 });
 
-const logoStyles = tv({
-  base: "self-start opacity-100 transition-all duration-300",
+const logoWrapStyles = tv({
+  base: "self-start  transition-all duration-300",
   variants: {
     isCollapsed: {
-      true: "h-0 opacity-0 ease-out",
-      false: "h-8 ease-in"
+      true: "h-8 opacity-0 ease-out",
+      false: "h-8 ease-in opacity-100"
+    }
+  }
+});
+
+const logoMarkStyles = tv({
+  base: "self-start transition-all duration-300",
+  variants: {
+    isCollapsed: {
+      true: "h-8 opacity-100 ease-in",
+      false: "h-8 opacity-0 ease-out"
     }
   }
 });
@@ -91,7 +106,10 @@ export function SideMenu() {
             <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
           </Button>
           <div className="pr-8">
-            <img src={logoWrap} alt="Logo Wrap" className={logoStyles({ isCollapsed })} />
+            <img src={logoWrapUrl} alt="Logo Wrap" className={logoWrapStyles({ isCollapsed })} />
+          </div>
+          <div className="flex pl-3 pt-4">
+            <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
           </div>
         </div>
         <MenuButton icon={HomeIcon} label="Home" />
