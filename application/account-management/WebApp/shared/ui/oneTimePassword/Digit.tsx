@@ -37,7 +37,6 @@ export function Digit({
       pattern={inputPattern}
       maxLength={1}
       value={value}
-      onChange={() => {}}
       onKeyUp={(e) => {
         if (e.key === "Backspace") onChange("");
         else if (isCharValid.test(e.key)) onChange(e.key);

@@ -73,7 +73,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             assetPrefix: "auto",
             // Write files to "dist" folder enabling the Api to serve them
             writeToDisk: (filename: string) => {
-             return  writeToDisk.some((file) => filename.endsWith(file));
+              return writeToDisk.some((file) => filename.endsWith(file));
             }
           },
           tools: {

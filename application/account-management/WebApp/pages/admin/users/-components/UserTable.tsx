@@ -14,6 +14,7 @@ import type { components } from "@/shared/lib/api/api.generated";
 type UserTableProps = {
   usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
 };
+
 export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "firstName",
