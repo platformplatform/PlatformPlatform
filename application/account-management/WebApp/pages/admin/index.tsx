@@ -23,7 +23,7 @@ export default function Home() {
           }
         }
       })
-      .then(({ data }) =>        setTotalCount(data?.totalCount ?? null))
+      .then(({ data }) => setTotalCount(data?.totalCount ?? null))
       .catch((e) => console.error(e));
   }, []);
 

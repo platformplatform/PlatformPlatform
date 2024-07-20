@@ -21,6 +21,8 @@ export const Route = createFileRoute("/admin/users/")({
 
 export default function UsersPage() {
   const [pageOffset, setPageOffset] = useState(0);
+  const [orderBy, setOrderBy] = useState<components["schemas"]["SortableUserProperties"]>();
+  const [sortOrder, setSortOrder] = useState<components["schemas"]["SortOrder"]>();
   const [userData, setUserData] = useState<components["schemas"]["GetUsersResponseDto"] | null>(null);
 
   useEffect(() => {
@@ -28,13 +30,15 @@ export default function UsersPage() {
       .GET("/api/account-management/users", {
         params: {
           query: {
-            PageOffset: pageOffset
+            PageOffset: pageOffset,
+            OrderBy: orderBy,
+            SortOrder: sortOrder
           }
         }
       })
       .then(({ data }) => setUserData(data ?? null))
       .catch((e) => console.error(e));
-  }, [pageOffset]);
+  }, [pageOffset, orderBy, sortOrder]);
 
   return (
     <div className="flex gap-4 w-full h-full border">
@@ -45,7 +49,7 @@ export default function UsersPage() {
         <UserTabs usersData={userData} />
         <UserQuerying />
         <Suspense fallback={<div>Loading data...</div>}>
-          <UserTable usersData={userData} onPageChange={setPageOffset} />
+          <UserTable usersData={userData} onPageChange={setPageOffset} onSortChange={[setOrderBy, setSortOrder]} />
         </Suspense>
       </div>
     </div>

@@ -9,25 +9,34 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
+import { getPascalCase } from "@repo/utils/string/getPascalCase";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type UserTableProps = {
   usersData: components["schemas"]["GetUsersResponseDto"] | null;
   onPageChange: (page: number) => void;
+  onSortChange: [
+    (column: components["schemas"]["SortableUserProperties"]) => void,
+    (direction: components["schemas"]["SortOrder"]) => void
+  ];
 };
 
-export function UserTable({ usersData, onPageChange }: Readonly<UserTableProps>) {
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "firstName",
-    direction: "ascending"
-  });
+export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<UserTableProps>) {
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <Table
         selectionMode="multiple"
         sortDescriptor={sortDescriptor}
-        onSortChange={setSortDescriptor}
+        onSortChange={(newSortDescriptor) => {
+          setSortDescriptor(newSortDescriptor);
+          onSortChange[0](
+            getPascalCase(newSortDescriptor.column as string) as components["schemas"]["SortableUserProperties"]
+          );
+          onSortChange[1](getPascalCase(newSortDescriptor.direction) as components["schemas"]["SortOrder"]);
+          onPageChange(0);
+        }}
         aria-label="Users"
       >
         <TableHeader>
@@ -37,9 +46,15 @@ export function UserTable({ usersData, onPageChange }: Readonly<UserTableProps>)
           <Column allowsSorting id="email">
             Email
           </Column>
-          <Column id="date">Added</Column>
-          <Column id="lastSeen">Last Seen</Column>
-          <Column id="role">Role</Column>
+          <Column allowsSorting id="createdAt">
+            Added
+          </Column>
+          <Column allowsSorting id="modifiedAt">
+            Last Seen
+          </Column>
+          <Column allowsSorting id="role">
+            Role
+          </Column>
           <Column>Actions</Column>
         </TableHeader>
         <TableBody>
