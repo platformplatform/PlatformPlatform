@@ -9,31 +9,30 @@ import { Link } from "@repo/ui/components/Link";
 import { FieldError } from "@repo/ui/components/FieldError";
 import { Input } from "@repo/ui/components/Input";
 import { Label } from "@repo/ui/components/Label";
-import poweredByUrl from "@/shared/ui/images/powered-by.png";
-import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
-import { type AuthenticationState, useSignInAction } from "@repo/infrastructure/auth/hooks";
+import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
+import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
+import { type AuthenticationState, useLogInAction } from "@repo/infrastructure/auth/hooks";
 
 export default function LoginForm() {
-  const signInAction = useSignInAction();
+  const logInAction = useLogInAction();
   const { i18n } = useLingui();
   const initialState: AuthenticationState = { message: null, errors: {} };
 
-  const [state, action] = useActionState(signInAction, initialState);
+  const [state, action] = useActionState(logInAction, initialState);
 
   return (
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Link href="/">
+            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          </Link>
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
-          <Trans>Please sign in to continue</Trans>
+          <Trans>Hi! Welcome back</Trans>
         </h1>
-        <div className="text-gray-500 text-sm text-center">
-          <Trans>
-            Sign in with your company email address to get started building on PlatformPlatform - just like thousands of
-            other developers.
-          </Trans>
+        <div className="text-gray-500 text-xs text-center">
+          <Trans>Enter your email below to log in.</Trans>
         </div>
         <div className="w-full flex flex-col gap-4">
           <TextField className="flex flex-col">
@@ -47,20 +46,7 @@ export default function LoginForm() {
               autoFocus
               required
               placeholder={i18n.t("yourname@example.com")}
-            />
-            <FieldError />
-          </TextField>
-
-          <TextField type="password" name="password" className="flex flex-col">
-            <Label>
-              <Trans>Password</Trans>
-            </Label>
-            <Input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              placeholder={i18n.t("Enter password")}
-              required
+              className="border py-2 rounded-lg border-gray-300"
             />
             <FieldError />
           </TextField>
@@ -73,7 +59,7 @@ export default function LoginForm() {
               <Trans>Sign up</Trans>
             </Link>
           </p>
-          <img src={poweredByUrl} alt="powered by" />
+          <img src={poweredByUrl} alt="powered by" className="w-28" />
         </div>
       </div>
     </Form>
@@ -85,7 +71,7 @@ function LoginButton() {
 
   return (
     <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
-      <Trans>Sign in</Trans>
+      <Trans>Continue</Trans>
     </Button>
   );
 }

@@ -34,17 +34,17 @@ export function useUserRole() {
 }
 
 /**
- * Return the sign in action.
+ * Return the log in action.
  * [FormAction]
  */
-export function useSignInAction() {
-  return useAuthentication().signInAction;
+export function useLogInAction() {
+  return useAuthentication().logInAction;
 }
 
 /**
  * Return the sign out action.
  * [FormAction]
  */
-export function useSignOutAction() {
-  return useAuthentication().signOutAction;
+export function useLogOutAction() {
+  return useAuthentication().logOutAction;
 }

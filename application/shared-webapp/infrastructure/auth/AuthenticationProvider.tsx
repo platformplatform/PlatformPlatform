@@ -6,22 +6,22 @@ import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 export interface AuthenticationContextType {
   userInfo: UserInfo | null;
   reloadUserInfo: () => void;
-  signInAction: (_: AuthenticationState, formData: FormData) => Promise<AuthenticationState>;
-  signOutAction: () => Promise<AuthenticationState>;
+  logInAction: (_: AuthenticationState, formData: FormData) => Promise<AuthenticationState>;
+  logOutAction: () => Promise<AuthenticationState>;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
   userInfo: initialUserInfo,
   reloadUserInfo: () => {},
-  signInAction: async () => ({}),
-  signOutAction: async () => ({})
+  logInAction: async () => ({}),
+  logOutAction: async () => ({})
 });
 
 export interface AuthenticationProviderProps {
   children: React.ReactNode;
   navigate?: (navigateOptions: NavigateOptions) => void;
-  afterSignOut?: NavigateOptions["to"];
-  afterSignIn?: NavigateOptions["to"];
+  afterLogOut?: NavigateOptions["to"];
+  afterLogIn?: NavigateOptions["to"];
 }
 
 /**
@@ -30,8 +30,8 @@ export interface AuthenticationProviderProps {
 export function AuthenticationProvider({
   children,
   navigate,
-  afterSignIn,
-  afterSignOut
+  afterLogIn,
+  afterLogOut
 }: Readonly<AuthenticationProviderProps>) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(initialUserInfo);
   const fetching = useRef(false);
@@ -48,33 +48,33 @@ export function AuthenticationProvider({
     fetching.current = false;
   }, []);
 
-  const signOutAction = useCallback(async () => {
+  const logOutAction = useCallback(async () => {
     const result = await logout();
     setUserInfo(null);
-    if (navigate && afterSignOut) navigate({ to: afterSignOut });
+    if (navigate && afterLogOut) navigate({ to: afterLogOut });
 
     return result;
-  }, [navigate, afterSignOut]);
+  }, [navigate, afterLogOut]);
 
-  const signInAction = useCallback(
+  const logInAction = useCallback(
     async (state: AuthenticationState, formData: FormData) => {
       const result = await authenticate(state, formData);
       if (result.success) setUserInfo(await getUserInfo());
 
-      if (result.success && navigate && afterSignIn) navigate({ to: afterSignIn });
+      if (result.success && navigate && afterLogIn) navigate({ to: afterLogIn });
       return result;
     },
-    [navigate, afterSignIn]
+    [navigate, afterLogIn]
   );
 
   const authenticationContext = useMemo(
     () => ({
       userInfo,
       reloadUserInfo,
-      signInAction,
-      signOutAction
+      logInAction,
+      logOutAction
     }),
-    [userInfo, reloadUserInfo, signInAction, signOutAction]
+    [userInfo, reloadUserInfo, logInAction, logOutAction]
   );
 
   return <AuthenticationContext.Provider value={authenticationContext}>{children}</AuthenticationContext.Provider>;

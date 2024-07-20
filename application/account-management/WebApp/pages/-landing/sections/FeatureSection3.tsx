@@ -44,12 +44,12 @@ function FeatureList() {
   return (
     <>
       <div className="flex flex-col md:gap-8 gap-4">
-        <h3 className="text-foreground text-2xl font-semibold">Sign up and Sign in - built right in</h3>
+        <h3 className="text-foreground text-2xl font-semibold">Sign up and Log in - built right in</h3>
         <p className="text-muted-foreground text-md md:text-xl font-normal">
           We’ve built user authentication and authorisation right in, so you don’t have to. With enterprise security
           grade and using best practice.
           <br />
-          No need for passwords and the problems of password resets, but just seamless one click sign up and sign in
+          No need for passwords and the problems of password resets, but just seamless one click sign up and log in
           using magic links and Passkeys.
           <br />
           And you control your brand of course.

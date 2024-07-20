@@ -1,8 +1,5 @@
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Button } from "@repo/ui/components/Button";
 import { Modal } from "@repo/ui/components/Modal";
-import { XIcon } from "lucide-react";
-import { useState } from "react";
 
 type DeleteAccountModalProps = {
   isOpen: boolean;

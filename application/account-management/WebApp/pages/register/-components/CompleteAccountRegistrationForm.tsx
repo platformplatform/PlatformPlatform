@@ -10,8 +10,8 @@ import { useExpirationTimeout } from "@/shared/ui/oneTimePassword/useExpiration"
 import { OneTimeCodeInput } from "@/shared/ui/oneTimePassword/OneTimeCodeInput";
 import { DigitPattern } from "@/shared/ui/oneTimePassword/DigitPattern";
 import { Link } from "@repo/ui/components/Link";
-import poweredByUrl from "@/shared/ui/images/powered-by.png";
-import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
+import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
+import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
 
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
@@ -32,7 +32,9 @@ export function CompleteAccountRegistrationForm() {
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Link href="/">
+            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          </Link>
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
           <Trans>Enter your verification code</Trans>
@@ -47,7 +49,7 @@ export function CompleteAccountRegistrationForm() {
           <div className="text-xs text-neutral-500 text-center">
             <Link href="/">
               <Trans>Did't receive the code? Resend</Trans>
-            </Link>{" "}
+            </Link>
             <span className="font-normal leading-none tabular-nums">({expiresInString})</span>
           </div>
         </div>
@@ -57,7 +59,7 @@ export function CompleteAccountRegistrationForm() {
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
           </p>
-          <img src={poweredByUrl} alt="powered by" />
+          <img src={poweredByUrl} alt="powered by" className="w-28" />
         </div>
       </div>
     </Form>

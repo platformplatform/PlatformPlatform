@@ -13,8 +13,8 @@ import { Link } from "@repo/ui/components/Link";
 import { FieldError } from "@repo/ui/components/FieldError";
 import { Input } from "@repo/ui/components/Input";
 import { Label } from "@repo/ui/components/Label";
-import poweredByUrl from "@/shared/ui/images/powered-by.png";
-import logoMarkUrl from "@/shared/ui/images/logo-mark.png";
+import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
+import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
 import { DomainInput } from "@/shared/ui/DomainInput";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 
@@ -32,11 +32,13 @@ export function StartAccountRegistrationForm() {
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Link href="/">
+            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          </Link>
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">Create your account</h1>
-        <div className="text-gray-500 text-sm text-center">
-          Sign up in seconds to get started building on PlatformPlatform - just like thousands of other developers.
+        <div className="text-gray-500 text-xs text-center">
+          Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.
         </div>
         <div className="w-full flex flex-col gap-4">
           <TextField className="flex flex-col">
@@ -60,7 +62,7 @@ export function StartAccountRegistrationForm() {
             <DomainInput
               type="text"
               name="subdomain"
-              domain=".platformplatform.com"
+              domain=".platformplatform.net"
               required
               placeholder={i18n.t("subdomain")}
             />
@@ -75,13 +77,16 @@ export function StartAccountRegistrationForm() {
             </Select>
             <FieldError />
           </TextField>
+          <p className="text-gray-500 text-xs">
+            <Trans>This is the region where your data is stored</Trans>{" "}
+          </p>
         </div>
         <StartAccountRegistrationButton />
         <div className="flex flex-col text-neutral-500 items-center gap-6">
           <p className="text-xs ">
             <Trans>Already have an account?</Trans>{" "}
             <Link href="/login">
-              <Trans>Sign in</Trans>
+              <Trans>Log in</Trans>
             </Link>
           </p>
           <div className="text-sm text-neutral-500">
@@ -92,7 +97,7 @@ export function StartAccountRegistrationForm() {
               <Link href="/">Privacy Policies</Link>
             </div>
           </div>
-          <img src={poweredByUrl} alt="powered by" />
+          <img src={poweredByUrl} alt="powered by" className="w-28" />
         </div>
       </div>
     </Form>

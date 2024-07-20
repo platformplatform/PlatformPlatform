@@ -43,7 +43,7 @@ export function UserProfileModal({ isOpen, onOpenChange }: ProfileModalProps) {
                     <img src={avatarUrl} alt="Userprofile" className="aspect-square w-16" />
                   </Button>
                 </FileTrigger>
-                {file && file}
+                {file}
               </div>
               <div className="flex flex-row gap-4">
                 <div className="flex flex-col gap-1">

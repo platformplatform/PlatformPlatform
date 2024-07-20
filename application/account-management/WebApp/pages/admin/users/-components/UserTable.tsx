@@ -1,7 +1,7 @@
-import { EllipsisVerticalIcon, TrashIcon, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
-import { use, useMemo, useState } from "react";
+import { useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Badge } from "@repo/ui/components/Badge";
 import { Pagination } from "@repo/ui/components/Pagination";
@@ -9,41 +9,34 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
+import { getPascalCase } from "@repo/utils/string/getPascalCase";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type UserTableProps = {
-  usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
+  usersData: components["schemas"]["GetUsersResponseDto"] | null;
+  onPageChange: (page: number) => void;
+  onSortChange: [
+    (column: components["schemas"]["SortableUserProperties"]) => void,
+    (direction: components["schemas"]["SortOrder"]) => void
+  ];
 };
-export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
-    column: "firstName",
-    direction: "ascending"
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  const { currentPageOffset, totalCount, totalPages, users } = use(usersPromise);
-
-  const sortedRows = useMemo(() => {
-    // @ts-expect-error
-    const items = users.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
-    if (sortDescriptor.direction === "descending") items.reverse();
-
-    return items;
-  }, [sortDescriptor, users]);
-
-  const paginatedRows = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortedRows.slice(startIndex, endIndex);
-  }, [sortedRows, currentPage]);
+export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<UserTableProps>) {
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <Table
         selectionMode="multiple"
         sortDescriptor={sortDescriptor}
-        onSortChange={setSortDescriptor}
+        onSortChange={(newSortDescriptor) => {
+          setSortDescriptor(newSortDescriptor);
+          onSortChange[0](
+            getPascalCase(newSortDescriptor.column as string) as components["schemas"]["SortableUserProperties"]
+          );
+          onSortChange[1](getPascalCase(newSortDescriptor.direction) as components["schemas"]["SortOrder"]);
+          onPageChange(0);
+        }}
         aria-label="Users"
       >
         <TableHeader>
@@ -53,14 +46,20 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
           <Column allowsSorting id="email">
             Email
           </Column>
-          <Column id="date">Added</Column>
-          <Column id="lastSeen">Last Seen</Column>
-          <Column id="role">Role</Column>
+          <Column allowsSorting id="createdAt">
+            Added
+          </Column>
+          <Column allowsSorting id="modifiedAt">
+            Last Seen
+          </Column>
+          <Column allowsSorting id="role">
+            Role
+          </Column>
           <Column>Actions</Column>
         </TableHeader>
         <TableBody>
-          {paginatedRows.map((user) => (
-            <Row key={user.email}>
+          {(usersData?.users ?? []).map((user) => (
+            <Row key={user.id}>
               <Cell>
                 <div className="flex h-14 items-center gap-2">
                   <Avatar
@@ -86,7 +85,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
               <Cell>
                 <div className="flex gap-2 w-12">
                   <Button variant="icon" className="group-hover:visible invisible">
-                    <TrashIcon size={16} />
+                    <Trash2Icon size={16} />
                   </Button>
                   <MenuTrigger>
                     <Button variant="icon" aria-label="Menu">
@@ -100,7 +99,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem onAction={() => alert("rename")}>
-                          <TrashIcon size={16} />
+                          <Trash2Icon size={16} />
                           <span className="text-destructive">Delete</span>
                         </MenuItem>
                       </Menu>
@@ -113,10 +112,9 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
         </TableBody>
       </Table>
       <Pagination
-        total={totalCount ?? 0}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        pageOffset={usersData?.currentPageOffset ?? 0}
+        totalPages={usersData?.totalPages ?? 1}
+        onPageChange={onPageChange}
       />
     </div>
   );

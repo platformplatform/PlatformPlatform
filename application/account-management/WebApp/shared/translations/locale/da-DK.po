@@ -1,45 +1,41 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2023-12-15 20:50+0100\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: da-DK\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-15 20:50+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: da-DK\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
+"X-Generator: @lingui/cli\n"
 
 #. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr "ditnavn@example.com"
 
 #. js-lingui-explicit-id
-msgid "Enter password"
-msgstr "Indtast adgangskode"
-
-#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to start account registration."
-msgstr "Felter mangler. Kunne ikke starte konto oprettelse."
+msgstr "Felter mangler. Kunne ikke starte kontooprettelse."
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed to start account registration."
-msgstr "Serverfejl: Kunne ikke starte konto oprettelse."
+msgstr "Serverfejl: Kunne ikke starte kontooprettelse."
 
 #. js-lingui-explicit-id
 msgid "Account registration ID is missing."
-msgstr ""
+msgstr "Kontooprettelse-ID mangler."
 
 #. js-lingui-explicit-id
 msgid "Missing Fields. Failed to complete account registration."
-msgstr "Felter mangler. Kunne ikke færdigøre konto oprettelse."
+msgstr "Felter mangler. Kunne ikke færdigøre kontooprettelse."
 
 #. js-lingui-explicit-id
 msgid "Server error: Failed to complete account registration."
-msgstr "Serverfejl: Kunne ikke færdigøre konto oprettelse."
+msgstr "Serverfejl: Kunne ikke færdigøre kontooprettelse."
 
 #. js-lingui-explicit-id
 msgid "subdomain"
@@ -53,11 +49,23 @@ msgstr "Skærmbilleder af dashboard-projektet, der viser mobile versioner"
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet, der viser desktop- og mobile versioner"
 
+msgid "Active Users"
+msgstr "Aktive brugere"
+
+msgid "Active users the past 30 days"
+msgstr "Aktive brugere de seneste 30 dage"
+
+msgid "Add more in the Users menu"
+msgstr "Tilføj flere i Bruger-menuen"
+
 msgid "Already have an account?"
 msgstr "Har du allerede en konto?"
 
 msgid "Can't find your code? Check your spam folder"
-msgstr "Kan ikke finde din kode? Tjek din spam-mappe"
+msgstr "Kan du ikke finde din kode? Tjek din spam-mappe"
+
+msgid "Continue"
+msgstr "Fortsæt"
 
 msgid "Create your account"
 msgstr "Opret din konto"
@@ -71,29 +79,29 @@ msgstr "Har du ikke en konto?"
 msgid "Email"
 msgstr "E-mail"
 
+msgid "Enter your email below to log in."
+msgstr "Indtast din e-mail nedenfor for at logge ind"
+
 msgid "Enter your verification code"
 msgstr "Indtast din verifikationskode"
 
 msgid "Filters"
 msgstr "Filtre"
 
-msgid "Password"
-msgstr "Adgangskode"
+msgid "Here’s your overview of what’s going on."
+msgstr "Her er en oversigt over, hvad der sker"
+
+msgid "Hi! Welcome back"
+msgstr "Hej! Velkommen tilbage"
+
+msgid "Log in"
+msgstr "Log ind"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek venligst din e-mail for en verifikationskode sendt til <0>{email}</0>"
 
-msgid "Please sign in to continue"
-msgstr "Log ind for at fortsætte"
-
 msgid "Region"
-msgstr ""
-
-msgid "Sign in"
-msgstr "Log ind"
-
-msgid "Sign in with your company email address to get started building on PlatformPlatform - just like thousands of other developers."
-msgstr "Log ind med din virksomheds e-mail-adresse for at komme i gang med at bygge på PlatformPlatform - ligesom tusindvis af andre udviklere."
+msgstr "Region"
 
 msgid "Sign up"
 msgstr "Opret"
@@ -101,5 +109,14 @@ msgstr "Opret"
 msgid "Subdomain"
 msgstr "Subdomæne"
 
+msgid "This is the region where your data is stored"
+msgstr "Dine data vil blive gemt i denne region."
+
+msgid "Total Users"
+msgstr "Totalt antal brugere"
+
 msgid "Verify"
 msgstr "Bekræft"
+
+msgid "Welcome home"
+msgstr "Velkommen hjem"

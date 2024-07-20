@@ -5,8 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Button } from "@repo/ui/components/Button";
 import { ListBox, ListBoxItem } from "@repo/ui/components/ListBox";
 import { Popover } from "@repo/ui/components/Popover";
-import type { Key } from "@repo/ui/components/Select";
-import { Dialog, DialogTrigger } from "@repo/ui/components/Dialog";
+import { DialogTrigger } from "@repo/ui/components/Dialog";
 import type { Selection } from "react-aria-components";
 
 export function LocaleSwitcher() {
@@ -60,4 +59,5 @@ export function LocaleSwitcher() {
     </DialogTrigger>
   );
 }
+
 // onSelectionChange={handleLocaleChange} selectedKey={currentLocale} className="flex flex-col"

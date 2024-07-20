@@ -4,22 +4,19 @@ import { Button } from "./Button";
 import { twMerge } from "tailwind-merge";
 
 interface PaginationProps {
-  total: number;
-  itemsPerPage: number;
-  currentPage: number;
-  onPageChange: (page: number) => void;
+  pageOffset: number;
+  totalPages: number;
+  onPageChange: (pageOffset: number) => void;
   className?: string;
 }
 
-export function Pagination({ total, itemsPerPage, currentPage, onPageChange, className }: Readonly<PaginationProps>) {
-  const totalPages = Math.ceil(total / itemsPerPage);
-
+export function Pagination({ pageOffset, totalPages, onPageChange, className }: Readonly<PaginationProps>) {
   const handlePrevious = () => {
-    if (currentPage > 1) onPageChange(currentPage - 1);
+    if (pageOffset > 0) onPageChange(pageOffset - 1);
   };
 
   const handleNext = () => {
-    if (currentPage < totalPages) onPageChange(currentPage + 1);
+    if (pageOffset + 1 < totalPages) onPageChange(pageOffset + 1);
   };
 
   return (
@@ -28,19 +25,19 @@ export function Pagination({ total, itemsPerPage, currentPage, onPageChange, cla
         variant="secondary"
         className="flex text-sm items-center"
         onPress={handlePrevious}
-        isDisabled={currentPage === 1}
+        isDisabled={pageOffset === 0}
       >
         <ArrowLeftIcon size={16} />
         Previous
       </Button>
       <span className="hidden text-gray-500 sm:block">
-        Page {currentPage} of {totalPages}
+        Page {pageOffset + 1} of {totalPages}
       </span>
       <Button
         variant="secondary"
         className="flex text-sm items-center"
         onPress={handleNext}
-        isDisabled={currentPage === totalPages}
+        isDisabled={pageOffset + 1 === totalPages}
       >
         Next <ArrowRightIcon size={16} />
       </Button>
