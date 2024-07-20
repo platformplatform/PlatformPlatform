@@ -12,8 +12,9 @@
   },
   "scripts": {
     "dev": "tsc -p . -w",
-    "dev:setup": "tsc -p .",
-    "build": "rimraf ./dist && tsc -p .",
+    "dev:setup": "rimraf ./dist && npm run copyImages && tsc -p .",
+    "build": "rimraf ./dist && npm run copyImages && tsc -p .",
+    "copyImages": "node ./copyImages.js",
     "check": "biome check",
     "lint": "biome lint --write",
     "format": "biome format --write"

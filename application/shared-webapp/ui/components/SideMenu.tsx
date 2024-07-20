@@ -2,7 +2,9 @@ import { createContext, useContext, useState } from "react";
 import { ChevronsLeftIcon, CircleUserIcon, HomeIcon, type LucideIcon, UsersRoundIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
-const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
+import logoMarkUrl from "../images/logo-mark.svg";
+import logoWrapUrl from "../images/logo-wrap.svg";
+import { Tooltip, TooltipTrigger } from "./Tooltip";
 
 const collapsedContext = createContext(false);
 
@@ -34,15 +36,18 @@ type MenuButtonProps = {
 function MenuButton({ icon: Icon, label }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
   return (
-    <Button variant="ghost" className={menuButtonStyles({ isCollapsed })}>
-      <Icon className="w-6 h-6 shrink-0 grow-0" />
-      <div className={menuTextStyles({ isCollapsed })}>{label}</div>
-    </Button>
+    <TooltipTrigger>
+      <Button variant="ghost" className={menuButtonStyles({ isCollapsed })}>
+        <Icon className="w-6 h-6 shrink-0 grow-0" />
+        <div className={menuTextStyles({ isCollapsed })}>{label}</div>
+      </Button>
+      {isCollapsed && <Tooltip placement="right">{label}</Tooltip>}
+    </TooltipTrigger>
   );
 }
 
 const sideMenuStyles = tv({
-  base: "flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
+  base: "relative flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
@@ -61,12 +66,22 @@ const chevronStyles = tv({
   }
 });
 
-const logoStyles = tv({
-  base: "self-start opacity-100 transition-all duration-300",
+const logoWrapStyles = tv({
+  base: "self-start  transition-all duration-300",
   variants: {
     isCollapsed: {
-      true: "h-0 opacity-0 ease-out",
-      false: "h-8 ease-in"
+      true: "h-8 opacity-0 ease-out",
+      false: "h-8 ease-in opacity-100"
+    }
+  }
+});
+
+const logoMarkStyles = tv({
+  base: "self-start transition-all duration-300",
+  variants: {
+    isCollapsed: {
+      true: "h-8 opacity-100 ease-in",
+      false: "h-8 opacity-0 ease-out"
     }
   }
 });
@@ -81,13 +96,22 @@ export function SideMenu() {
   return (
     <collapsedContext.Provider value={isCollapsed}>
       <div className={sideMenuStyles({ isCollapsed })}>
-        <div className="flex items-center self-end">
-          <Button variant="ghost" size="icon" onPress={toggleCollapse}>
+        <div className="h-20">
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={toggleCollapse}
+            className="absolute top-3.5 right-0 hover:bg-transparent hover:text-muted-foreground border-r-2 border-border rounded-r-none"
+          >
             <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
           </Button>
-          <div className="border border-border h-8" />
+          <div className="pr-8">
+            <img src={logoWrapUrl} alt="Logo Wrap" className={logoWrapStyles({ isCollapsed })} />
+          </div>
+          <div className="flex pl-3 pt-4">
+            <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
+          </div>
         </div>
-        <img src={logoWrap} alt="Logo Wrap" className={logoStyles({ isCollapsed })} />
         <MenuButton icon={HomeIcon} label="Home" />
         <MenuSeparator>Organisation</MenuSeparator>
         <MenuButton icon={CircleUserIcon} label="Account" />
