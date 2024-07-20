@@ -44,7 +44,7 @@ export function UserTable({ usersData, onPageChange }: Readonly<UserTableProps>)
         </TableHeader>
         <TableBody>
           {(usersData?.users ?? []).map((user) => (
-            <Row key={user.email}>
+            <Row key={user.id}>
               <Cell>
                 <div className="flex h-14 items-center gap-2">
                   <Avatar
