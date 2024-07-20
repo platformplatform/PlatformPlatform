@@ -42,7 +42,7 @@ export function useLogInAction() {
 }
 
 /**
- * Return the sign out action.
+ * Return the log out action.
  * [FormAction]
  */
 export function useLogOutAction() {
