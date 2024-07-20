@@ -47,6 +47,7 @@ export default function LoginForm() {
               required
               placeholder={i18n.t("yourname@example.com")}
               className="border py-2 rounded-lg border-gray-300"
+              aria-label={i18n.t("Email")}
             />
             <FieldError />
           </TextField>

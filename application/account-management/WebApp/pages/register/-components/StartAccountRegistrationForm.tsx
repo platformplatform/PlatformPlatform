@@ -52,6 +52,7 @@ export function StartAccountRegistrationForm() {
               autoComplete="email webauthn"
               required
               placeholder={i18n.t("yourname@example.com")}
+              aria-label={i18n.t("Email")}
             />
             <FieldError />
           </TextField>
@@ -65,6 +66,7 @@ export function StartAccountRegistrationForm() {
               domain=".platformplatform.net"
               required
               placeholder={i18n.t("subdomain")}
+              aria-label={i18n.t("Subdomain")}
             />
             <FieldError />
           </TextField>
@@ -72,7 +74,7 @@ export function StartAccountRegistrationForm() {
             <Label>
               <Trans>Region</Trans>
             </Label>
-            <Select name="region" selectedKey="europe" key="europe">
+            <Select name="region" selectedKey="europe" key="europe" aria-label={i18n.t("Region")}>
               <SelectItem id="europe">Europe</SelectItem>
             </Select>
             <FieldError />

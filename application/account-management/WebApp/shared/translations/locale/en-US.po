@@ -18,6 +18,10 @@ msgid "yourname@example.com"
 msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
+msgid "Email"
+msgstr "Email"
+
+#. js-lingui-explicit-id
 msgid "Missing Fields. Failed to start account registration."
 msgstr "Missing Fields. Failed to start account registration."
 
@@ -40,6 +44,14 @@ msgstr "Server error: Failed to complete account registration."
 #. js-lingui-explicit-id
 msgid "subdomain"
 msgstr "subdomain"
+
+#. js-lingui-explicit-id
+msgid "Subdomain"
+msgstr "Subdomain"
+
+#. js-lingui-explicit-id
+msgid "Region"
+msgstr "Region"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"
