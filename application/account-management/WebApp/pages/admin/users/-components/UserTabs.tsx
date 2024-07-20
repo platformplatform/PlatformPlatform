@@ -1,20 +1,17 @@
-import { use } from "react";
 import { Badge } from "@repo/ui/components/Badge";
 import { Tab, TabList, Tabs } from "@repo/ui/components/Tabs";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type UserTableProps = {
-  usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
+  usersData: components["schemas"]["GetUsersResponseDto"] | null;
 };
 
-export function UserTabs({ usersPromise }: Readonly<UserTableProps>) {
-  const { totalCount } = use(usersPromise);
-
+export function UserTabs({ usersData }: Readonly<UserTableProps>) {
   return (
     <Tabs>
       <TabList aria-label="User Categories">
         <Tab id="allUsers" href="/admin/users">
-          All Users <Badge variant="secondary">{totalCount}</Badge>
+          All Users <Badge variant="secondary">{usersData?.totalCount}</Badge>
         </Tab>
         <Tab id="invitedUsers" href="/admin/users">
           Invited Users <Badge variant="secondary">2</Badge>

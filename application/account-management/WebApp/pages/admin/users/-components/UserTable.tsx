@@ -1,7 +1,7 @@
 import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
-import { use, useMemo, useState } from "react";
+import { useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Badge } from "@repo/ui/components/Badge";
 import { Pagination } from "@repo/ui/components/Pagination";
@@ -12,32 +12,15 @@ import { Avatar } from "@repo/ui/components/Avatar";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type UserTableProps = {
-  usersPromise: Promise<components["schemas"]["GetUsersResponseDto"]>;
+  usersData: components["schemas"]["GetUsersResponseDto"] | null;
+  onPageChange: (page: number) => void;
 };
 
-export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
+export function UserTable({ usersData, onPageChange }: Readonly<UserTableProps>) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "firstName",
     direction: "ascending"
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  const { currentPageOffset, totalCount, totalPages, users } = use(usersPromise);
-
-  const sortedRows = useMemo(() => {
-    // @ts-expect-error
-    const items = users.slice().sort((a, b) => a[sortDescriptor.column].localeCompare(b[sortDescriptor.column]));
-    if (sortDescriptor.direction === "descending") items.reverse();
-
-    return items;
-  }, [sortDescriptor, users]);
-
-  const paginatedRows = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortedRows.slice(startIndex, endIndex);
-  }, [sortedRows, currentPage]);
 
   return (
     <div className="flex flex-col gap-2 h-full">
@@ -60,7 +43,7 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
           <Column>Actions</Column>
         </TableHeader>
         <TableBody>
-          {paginatedRows.map((user) => (
+          {(usersData?.users ?? []).map((user) => (
             <Row key={user.email}>
               <Cell>
                 <div className="flex h-14 items-center gap-2">
@@ -114,10 +97,9 @@ export function UserTable({ usersPromise }: Readonly<UserTableProps>) {
         </TableBody>
       </Table>
       <Pagination
-        total={totalCount ?? 0}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        pageOffset={usersData?.currentPageOffset ?? 0}
+        totalPages={usersData?.totalPages ?? 1}
+        onPageChange={onPageChange}
       />
     </div>
   );

@@ -56,8 +56,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "nullable": true
+              "format": "int32"
             },
             "x-position": 5
           },
@@ -484,6 +483,10 @@
         "additionalProperties": false,
         "properties": {
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           },

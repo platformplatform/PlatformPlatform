@@ -5,9 +5,10 @@ import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
 import { UserInvite } from "./-components/UserInvite";
 import { SideMenu } from "@repo/ui/components/SideMenu";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { accountManagementApi } from "@/shared/lib/api/client";
 import { z } from "zod";
+import type { components } from "@/shared/lib/api/api.generated";
 
 const userPageSearchSchema = z.object({
   pageOffset: z.number().optional().catch(0)
@@ -19,34 +20,32 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
-  const { pageOffset } = Route.useSearch();
-  const usersPromise = accountManagementApi
-    .GET("/api/account-management/users", {
-      params: {
-        query: {
-          PageOffset: pageOffset
+  const [pageOffset, setPageOffset] = useState(0);
+  const [userData, setUserData] = useState<components["schemas"]["GetUsersResponseDto"] | null>(null);
+
+  useEffect(() => {
+    accountManagementApi
+      .GET("/api/account-management/users", {
+        params: {
+          query: {
+            PageOffset: pageOffset
+          }
         }
-      }
-    })
-    .then(({ response, data, error }) => {
-      if (error) {
-        throw error;
-      }
-      if (!data) {
-        throw new Error("No data");
-      }
-      return data;
-    });
+      })
+      .then(({ data }) => setUserData(data ?? null))
+      .catch((e) => console.error(e));
+  }, [pageOffset]);
+
   return (
     <div className="flex gap-4 w-full h-full border">
       <SideMenu />
       <div className="flex flex-col gap-4 pl-1 pr-6 py-3 w-full">
         <TopMenu />
         <UserInvite />
-        <UserTabs usersPromise={usersPromise} />
+        <UserTabs usersData={userData} />
         <UserQuerying />
         <Suspense fallback={<div>Loading data...</div>}>
-          <UserTable usersPromise={usersPromise} />
+          <UserTable usersData={userData} onPageChange={setPageOffset} />
         </Suspense>
       </div>
     </div>
