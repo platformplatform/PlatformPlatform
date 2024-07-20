@@ -24,7 +24,9 @@ export default function LoginForm() {
     <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
       <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
         <div className="flex justify-center">
-          <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          <Link href="/">
+            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+          </Link>
         </div>
         <h1 className="mb-3 text-2xl w-full text-center">
           <Trans>Hi! Welcome back</Trans>
