@@ -29,9 +29,12 @@ export function HeroSection() {
           </Link>
           <ThemeModeSelector />
         </div>
-        <div className="flex flex-col md:gap-8 md:flex-row items-center">
+        <div className="flex flex-col md:gap-4 md:flex-row items-center">
+          <Button onPress={() => navigate({ to: "/login" })} variant="primary">
+            Log in
+          </Button>
           <Button onPress={() => navigate({ to: "/register" })} variant="primary">
-            Get started
+            Sign up
           </Button>
         </div>
       </div>
