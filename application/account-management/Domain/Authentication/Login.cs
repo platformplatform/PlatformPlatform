@@ -2,25 +2,25 @@ using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
-namespace PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+namespace PlatformPlatform.AccountManagement.Domain.Authentication;
 
-public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
+public sealed class Login : AggregateRoot<LoginId>
 {
     public const int MaxAttempts = 3;
-    private const int ValidForSeconds = 300;
+    public const int ValidForSeconds = 300;
 
-    private AccountRegistration(TenantId tenantId, string email, string oneTimePasswordHash)
-        : base(AccountRegistrationId.NewId())
+    private Login(TenantId tenantId, UserId userId, string oneTimePasswordHash)
+        : base(LoginId.NewId())
     {
         TenantId = tenantId;
-        Email = email;
+        UserId = userId;
         OneTimePasswordHash = oneTimePasswordHash;
         ValidUntil = CreatedAt.AddSeconds(ValidForSeconds);
     }
 
-    public TenantId TenantId { get; private set; }
+    public TenantId TenantId { get; }
 
-    public string Email { get; private set; }
+    public UserId UserId { get; private set; }
 
     public string OneTimePasswordHash { get; private set; }
 
@@ -36,9 +36,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         return ValidUntil < TimeProvider.System.GetUtcNow();
     }
 
-    public static AccountRegistration Create(TenantId tenantId, string email, string oneTimePasswordHash)
+    public static Login Create(User user, string oneTimePasswordHash)
     {
-        return new AccountRegistration(tenantId, email.ToLowerInvariant(), oneTimePasswordHash);
+        return new Login(user.TenantId, user.Id, oneTimePasswordHash);
     }
 
     public void RegisterInvalidPasswordAttempt()
@@ -50,10 +50,10 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
     {
         if (HasExpired() || RetryCount >= MaxAttempts)
         {
-            throw new UnreachableException("This account registration has expired.");
+            throw new UnreachableException("This account login process id has expired.");
         }
 
-        if (Completed) throw new UnreachableException("The account has already been created.");
+        if (Completed) throw new UnreachableException("The login process id has already been created.");
 
         Completed = true;
     }
@@ -64,9 +64,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
     }
 }
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, AccountRegistrationId>))]
-[IdPrefix("accreg")]
-public sealed record AccountRegistrationId(string Value) : StronglyTypedUlid<AccountRegistrationId>(Value)
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]
+[IdPrefix("login")]
+public sealed record LoginId(string Value) : StronglyTypedUlid<LoginId>(Value)
 {
     public override string ToString()
     {
