@@ -6,7 +6,6 @@ import { useActionState } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { FieldError } from "@repo/ui/components/FieldError";
 import { Input } from "@repo/ui/components/Input";
 import { Label } from "@repo/ui/components/Label";
 import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
@@ -49,7 +48,9 @@ export default function LoginForm() {
               className="border py-2 rounded-lg border-gray-300"
               aria-label={i18n.t("Email")}
             />
-            <FieldError />
+            <span className="text-destructive text-sm" slot="errorMessage">
+              {state.errors?.email ?? ""}
+            </span>
           </TextField>
         </div>
         <LoginButton />

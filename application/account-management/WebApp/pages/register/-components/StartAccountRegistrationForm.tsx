@@ -10,7 +10,6 @@ import { startAccountRegistration } from "./actions";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { FieldError } from "@repo/ui/components/FieldError";
 import { Input } from "@repo/ui/components/Input";
 import { Label } from "@repo/ui/components/Label";
 import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
@@ -50,11 +49,12 @@ export function StartAccountRegistrationForm() {
               name="email"
               autoFocus
               autoComplete="email webauthn"
-              required
               placeholder={i18n.t("yourname@example.com")}
               aria-label={i18n.t("Email")}
             />
-            <FieldError />
+            <span className="text-destructive text-sm" slot="errorMessage">
+              {state.errors?.email ?? ""}
+            </span>
           </TextField>
           <TextField className="flex flex-col">
             <Label>
@@ -68,7 +68,9 @@ export function StartAccountRegistrationForm() {
               placeholder={i18n.t("subdomain")}
               aria-label={i18n.t("Subdomain")}
             />
-            <FieldError />
+            <span className="text-destructive text-sm" slot="errorMessage">
+              {state.errors?.subdomain ?? ""}
+            </span>
           </TextField>
           <TextField className="flex flex-col">
             <Label>
@@ -77,7 +79,9 @@ export function StartAccountRegistrationForm() {
             <Select name="region" selectedKey="europe" key="europe" aria-label={i18n.t("Region")}>
               <SelectItem id="europe">Europe</SelectItem>
             </Select>
-            <FieldError />
+            <span className="text-destructive text-sm" slot="errorMessage">
+              {state.errors?.region ?? ""}
+            </span>
           </TextField>
           <p className="text-gray-500 text-xs">
             <Trans>This is the region where your data is stored</Trans>{" "}
