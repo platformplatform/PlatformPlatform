@@ -22,24 +22,12 @@ msgid "Email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-msgid "Missing Fields. Failed to start account registration."
-msgstr "Felter mangler. Kunne ikke starte kontooprettelse."
+msgid "An error occured when trying to start Account registration."
+msgstr "Der opstod en fejl. Kunne ikke starte kontooprettelse."
 
 #. js-lingui-explicit-id
-msgid "Server error: Failed to start account registration."
-msgstr "Serverfejl: Kunne ikke starte kontooprettelse."
-
-#. js-lingui-explicit-id
-msgid "Account registration ID is missing."
-msgstr "Kontooprettelse-ID mangler."
-
-#. js-lingui-explicit-id
-msgid "Missing Fields. Failed to complete account registration."
-msgstr "Felter mangler. Kunne ikke færdigøre kontooprettelse."
-
-#. js-lingui-explicit-id
-msgid "Server error: Failed to complete account registration."
-msgstr "Serverfejl: Kunne ikke færdigøre kontooprettelse."
+msgid "An error occured when trying to complete Account registration."
+msgstr "Der opstod en fejl. Kunne ikke færdigøre kontooprettelse."
 
 #. js-lingui-explicit-id
 msgid "subdomain"
