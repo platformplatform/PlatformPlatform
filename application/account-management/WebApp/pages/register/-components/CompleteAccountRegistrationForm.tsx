@@ -1,17 +1,16 @@
-import { useFormStatus } from "react-dom";
 import { Trans } from "@lingui/macro";
 import { Navigate } from "@tanstack/react-router";
 import { useActionState } from "react";
 import type { State } from "./actions";
 import { completeAccountRegistration, registration } from "./actions";
 import { Button } from "@repo/ui/components/Button";
+import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
-import { useExpirationTimeout } from "@/shared/ui/oneTimePassword/useExpiration";
-import { OneTimeCodeInput } from "@/shared/ui/oneTimePassword/OneTimeCodeInput";
-import { DigitPattern } from "@/shared/ui/oneTimePassword/DigitPattern";
 import { Link } from "@repo/ui/components/Link";
-import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
-import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
+import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
+import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import poweredByUrl from "@/shared/images/powered-by.svg";
 
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
@@ -29,49 +28,42 @@ export function CompleteAccountRegistrationForm() {
   if (state.success) return <Navigate to="/admin/users" />;
 
   return (
-    <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
-      <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
+    <Form action={action} validationErrors={state.errors} className="w-full max-w-sm space-y-3">
+      <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
         <div className="flex justify-center">
           <Link href="/">
             <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
           </Link>
         </div>
-        <h1 className="mb-3 text-2xl w-full text-center">
+        <h1 className="mb-3 w-full text-center text-2xl">
           <Trans>Enter your verification code</Trans>
         </h1>
-        <div className="text-gray-500 text-sm text-center">
+        <div className="text-center text-gray-500 text-sm">
           <Trans>
             Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
           </Trans>
+          <span className="font-semibold">{email}</span>
         </div>
-        <div className="w-full flex flex-col gap-4">
-          <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} />
-          <div className="text-xs text-neutral-500 text-center">
+        <div className="flex w-full flex-col gap-4">
+          <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} autoFocus />
+          <div className="text-center text-neutral-500 text-xs">
             <Link href="/">
               <Trans>Did't receive the code? Resend</Trans>
             </Link>
-            <span className="font-normal leading-none tabular-nums">({expiresInString})</span>
+            <span className="font-normal tabular-nums leading-none">({expiresInString})</span>
           </div>
         </div>
-        <CompleteAccountRegistrationButton />
+        <Button type="submit" className="mt-4 w-full text-center">
+          <Trans>Verify</Trans>
+        </Button>
         <input type="hidden" name="accountRegistrationId" value={accountRegistrationId} />
-        <div className="flex flex-col text-neutral-500 items-center gap-6">
+        <div className="flex flex-col items-center gap-6 text-neutral-500">
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
           </p>
-          <img src={poweredByUrl} alt="powered by" className="w-28" />
+          <img src={poweredByUrl} alt="powered by" />
         </div>
       </div>
     </Form>
-  );
-}
-
-function CompleteAccountRegistrationButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
-      <Trans>Verify</Trans>
-    </Button>
   );
 }

@@ -1,21 +1,23 @@
-import { useFormStatus } from "react-dom";
 import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
-import { TextField } from "react-aria-components";
 import { Navigate } from "@tanstack/react-router";
 import { useActionState } from "react";
 import type { State } from "./actions";
 import { startAccountRegistration } from "./actions";
 import { Button } from "@repo/ui/components/Button";
+import { Description } from "@repo/ui/components/Description";
+import { FieldError } from "@repo/ui/components/FieldError";
 import { Form } from "@repo/ui/components/Form";
-import { Link } from "@repo/ui/components/Link";
+import { Heading } from "@repo/ui/components/Heading";
 import { Input } from "@repo/ui/components/Input";
 import { Label } from "@repo/ui/components/Label";
-import poweredByUrl from "../../../../../shared-webapp/ui/images/powered-by.svg";
-import logoMarkUrl from "../../../../../shared-webapp/ui/images/logo-mark.svg";
-import { DomainInput } from "@/shared/ui/DomainInput";
+import { Link } from "@repo/ui/components/Link";
 import { Select, SelectItem } from "@repo/ui/components/Select";
+import { DomainInput } from "@repo/ui/components/DomainInput";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import poweredByUrl from "@/shared/images/powered-by.svg";
+import { TextField } from "@repo/ui/components/TextField";
 
 export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
@@ -26,96 +28,70 @@ export function StartAccountRegistrationForm() {
   if (state.success) {
     return <Navigate to="/register/verify" />;
   }
-
   return (
-    <Form action={action} validationErrors={state.errors} className="space-y-3 w-full max-w-sm">
-      <div className="flex flex-col gap-4 rounded-lg px-6 pb-4 pt-8 w-full">
-        <div className="flex justify-center">
-          <Link href="/">
-            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
-          </Link>
-        </div>
-        <h1 className="mb-3 text-2xl w-full text-center">Create your account</h1>
-        <div className="text-gray-500 text-xs text-center">
-          Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.
-        </div>
-        <div className="w-full flex flex-col gap-4">
-          <TextField className="flex flex-col">
-            <Label>
-              <Trans>Email</Trans>
-            </Label>
-            <Input
-              type="email"
-              name="email"
-              autoFocus
-              autoComplete="email webauthn"
-              placeholder={i18n.t("yourname@example.com")}
-              aria-label={i18n.t("Email")}
-            />
-            <span className="text-destructive text-sm" slot="errorMessage">
-              {state.errors?.email ?? ""}
-            </span>
-          </TextField>
-          <TextField className="flex flex-col">
-            <Label>
-              <Trans>Subdomain</Trans>
-            </Label>
-            <DomainInput
-              type="text"
-              name="subdomain"
-              domain=".platformplatform.net"
-              required
-              placeholder={i18n.t("subdomain")}
-              aria-label={i18n.t("Subdomain")}
-            />
-            <span className="text-destructive text-sm" slot="errorMessage">
-              {state.errors?.subdomain ?? ""}
-            </span>
-          </TextField>
-          <TextField className="flex flex-col">
-            <Label>
-              <Trans>Region</Trans>
-            </Label>
-            <Select name="region" selectedKey="europe" key="europe" aria-label={i18n.t("Region")}>
-              <SelectItem id="europe">Europe</SelectItem>
-            </Select>
-            <span className="text-destructive text-sm" slot="errorMessage">
-              {state.errors?.region ?? ""}
-            </span>
-          </TextField>
-          <p className="text-gray-500 text-xs">
-            <Trans>This is the region where your data is stored</Trans>{" "}
-          </p>
-        </div>
-        <StartAccountRegistrationButton />
-        <div className="flex flex-col text-neutral-500 items-center gap-6">
-          <p className="text-xs ">
-            <Trans>Already have an account?</Trans>{" "}
-            <Link href="/login">
-              <Trans>Log in</Trans>
-            </Link>
-          </p>
-          <div className="text-sm text-neutral-500">
-            By continuing, you agree to our policies
-            <div className="flex items-center justify-center">
-              <Link href="/">Terms of use</Link>
-              <DotIcon className="w-4 h-4" />
-              <Link href="/">Privacy Policies</Link>
-            </div>
-          </div>
-          <img src={poweredByUrl} alt="powered by" className="w-28" />
+    <Form
+      action={action}
+      validationErrors={state.errors}
+      className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
+    >
+      <Link href="/">
+        <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+      </Link>
+      <Heading className="text-2xl">Create your account</Heading>
+      <div className="text-center text-muted-foreground text-sm">
+        Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.
+      </div>
+      <TextField className="flex w-full flex-col">
+        <Label>
+          <Trans>Email</Trans>
+        </Label>
+        <Input
+          type="email"
+          name="email"
+          autoFocus
+          autoComplete="email webauthn"
+          required
+          placeholder={i18n.t("yourname@example.com")}
+        />
+        <FieldError />
+      </TextField>
+      <TextField className="flex w-full flex-col">
+        <Label>
+          <Trans>Subdomain</Trans>
+        </Label>
+        <DomainInput name="subdomain" domain=".platformplatform.net" required placeholder="subdomain" />
+        <FieldError />
+      </TextField>
+      <TextField className="flex w-full flex-col">
+        <Label>
+          <Trans>Region</Trans>
+        </Label>
+        <Select name="region" selectedKey="europe" key="europe">
+          <SelectItem id="europe">Europe</SelectItem>
+        </Select>
+        <Description>
+          <Trans>This is the region where your data is stored</Trans>
+        </Description>
+        <FieldError />
+      </TextField>
+      <Button type="submit" className="mt-4 w-full text-center">
+        Create your account
+      </Button>
+      <p className="text-muted-foreground text-xs">
+        <Trans>Already have an account?</Trans>
+        <Link href="/login/">
+          <Trans>Log in</Trans>
+        </Link>
+      </p>
+      <div className="text-muted-foreground text-sm">
+        By continuing, you agree to our policies
+        <div className="flex items-center justify-center">
+          <Link href="/">Terms of use</Link>
+          <DotIcon className="h-4 w-4" />
+          <Link href="/">Privacy Policies</Link>
         </div>
       </div>
+      <img src={poweredByUrl} alt="powered by" />
     </Form>
-  );
-}
-
-function StartAccountRegistrationButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" className="mt-4 w-full text-center" aria-disabled={pending}>
-      <Trans>Create your account</Trans>
-    </Button>
   );
 }
