@@ -382,6 +382,74 @@
         }
       }
     },
+    "/api/account-management/authentication/start": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/{id}/complete": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/LoginId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/authentication/{email}": {
       "post": {
         "tags": [
@@ -750,6 +818,72 @@
         "additionalProperties": false,
         "properties": {
           "name": {
+            "type": "string"
+          }
+        }
+      },
+      "StartLoginResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "loginId": {
+            "type": "string"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StartLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginId": {
+        "type": "string",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedUlidOfLoginId"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedUlidOfLoginId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndLoginId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndLoginId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompleteLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oneTimePassword": {
             "type": "string"
           }
         }

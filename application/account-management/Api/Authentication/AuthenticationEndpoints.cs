@@ -2,6 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
+using PlatformPlatform.AccountManagement.Application.Authentication;
+using PlatformPlatform.AccountManagement.Domain.Authentication;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Authentication;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
@@ -22,6 +24,14 @@ public class AuthenticationEndpoints : IEndpoints
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").AllowAnonymous();
+
+        group.MapPost("/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, ISender mediator)
+            => await mediator.Send(command)
+        ).Produces<StartLoginResponse>();
+
+        group.MapPost("{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, ISender mediator)
+            => await mediator.Send(command with { Id = id })
+        );
 
         group.MapPost("/{email}", async Task<ApiResult> (HttpContext http, IUserRepository userRepository, string email) =>
             {
