@@ -1,3 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
@@ -18,9 +23,13 @@ public sealed class CompleteLoginHandler(
     ILoginRepository loginProcessRepository,
     OneTimePasswordValidator oneTimePasswordValidator,
     ITelemetryEventsCollector events,
+    IHttpContextAccessor httpContextAccessor,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
 {
+    // TODO: Change this to use ASP.NET data protection API and revert this commit from history before merging
+    private static readonly byte[] Key = "put-64-bytes-key-here"u8.ToArray();
+
     public async Task<Result> Handle(CompleteLoginCommand command, CancellationToken cancellationToken)
     {
         var loginProcess = await loginProcessRepository.GetByIdAsync(command.Id, cancellationToken);
@@ -66,10 +75,47 @@ public sealed class CompleteLoginHandler(
         loginProcess.MarkAsCompleted();
         loginProcessRepository.Update(loginProcess);
 
-        // Create a new session for the user
+        CreateAuthenticationTokens(user);
 
         events.CollectEvent(new LoginCompleted(user.Id, (int)registrationTimeInSeconds));
 
         return Result.Success();
+    }
+
+    private void CreateAuthenticationTokens(User user)
+    {
+        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
+
+        const string issuer = "https://localhost:9000";
+        const string audience = "https://localhost:9000";
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty)
+                }
+            ),
+            Expires = DateTime.UtcNow.AddMinutes(5),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Key), SecurityAlgorithms.HmacSha512Signature)
+        };
+
+        var refreshToken = new RefreshToken { UserId = user.Id };
+        httpContext.Response.Headers.Remove(RefreshToken.XRefreshTokenKey);
+        httpContext.Response.Headers.Append(RefreshToken.XRefreshTokenKey, JsonSerializer.Serialize(refreshToken));
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+        var accessToken = tokenHandler.WriteToken(securityToken);
+
+        httpContext.Response.Headers.Remove(RefreshToken.XAccessTokenKey);
+        httpContext.Response.Headers.Append(RefreshToken.XAccessTokenKey, accessToken);
     }
 }

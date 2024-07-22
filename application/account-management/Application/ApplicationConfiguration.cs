@@ -11,6 +11,8 @@ public static class ApplicationConfiguration
     {
         services.AddApplicationCoreServices(Assembly);
 
+        services.AddHttpContextAccessor();
+
         return services;
     }
 }
