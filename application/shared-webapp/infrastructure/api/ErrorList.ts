@@ -30,13 +30,11 @@ export function getApiError<R>(response: R): ApiError {
   return result.data.error;
 }
 
-export function getFieldErrors(apiErrorList: ApiErrorList): Record<string, string[]> {
-  const fieldErrors: Record<string, string[]> = {};
+export function getFieldErrors(apiErrorList: ApiErrorList): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
   for (const error of apiErrorList) {
     const key = getCamelCase(error.code);
-    if (fieldErrors[key] == null) fieldErrors[key] = [];
-
-    fieldErrors[key].push(error.message);
+    if (fieldErrors[key] == null) fieldErrors[key] = error.message;
   }
   return fieldErrors;
 }
