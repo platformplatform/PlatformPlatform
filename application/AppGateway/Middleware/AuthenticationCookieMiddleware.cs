@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
-using PlatformPlatform.SharedKernel.ApiCore.Authentication;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 
@@ -8,8 +8,6 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
     : IMiddleware
 {
     private const string AuthenticationCookieName = "authentication-cookie";
-    private const string RefreshTokenKey = "X-Refresh-Token";
-    private const string AccessTokenKey = "X-Access-Token";
 
     private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("PlatformPlatform");
 
@@ -22,8 +20,8 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
 
         await next(context);
 
-        if (context.Response.Headers.TryGetValue(RefreshTokenKey, out var refreshToken) &&
-            context.Response.Headers.TryGetValue(AccessTokenKey, out var accessToken))
+        if (context.Response.Headers.TryGetValue(RefreshToken.XRefreshTokenKey, out var refreshToken) &&
+            context.Response.Headers.TryGetValue(RefreshToken.XAccessTokenKey, out var accessToken))
         {
             ReplaceAuthenticationHeaderWithCookie(context, refreshToken.Single()!, accessToken.Single()!);
         }
@@ -31,7 +29,7 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
 
     private void ConvertAuthenticationCookieToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
     {
-        if (context.Request.Headers.ContainsKey(RefreshTokenKey) || context.Request.Headers.ContainsKey(AccessTokenKey))
+        if (context.Request.Headers.ContainsKey(RefreshToken.XRefreshTokenKey) || context.Request.Headers.ContainsKey(RefreshToken.XAccessTokenKey))
         {
             // The authentication cookie is used by WebApp, but API requests should use tokens in the headers
             throw new InvalidOperationException("A request cannot contain both a session cookie and tokens in the headers.");
@@ -71,8 +69,8 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
         };
         context.Response.Cookies.Append(AuthenticationCookieName, encryptedToken, cookieOptions);
 
-        context.Response.Headers.Remove(RefreshTokenKey);
-        context.Response.Headers.Remove(AccessTokenKey);
+        context.Response.Headers.Remove(RefreshToken.XRefreshTokenKey);
+        context.Response.Headers.Remove(RefreshToken.XAccessTokenKey);
     }
 
     private AuthenticationTokenPair Decrypt(string authenticationCookieValue)
