@@ -1,12 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { registration } from "../-components/actions";
+import { registration } from "../-state/actions";
 import { Link } from "@repo/ui/components/Link";
+import { RegisterLayout } from "@/pages/register/_layout";
 
 export const Route = createFileRoute("/register/expired/")({
-  component: VerificationExpired
+  component: WrappedVerificationExpiredPage
 });
 
-function VerificationExpired() {
+export default function WrappedVerificationExpiredPage() {
+  return (
+    <RegisterLayout>
+      <VerificationExpiredPage />
+    </RegisterLayout>
+  );
+}
+
+function VerificationExpiredPage() {
   if (!registration.current) throw new Error("Expected registration to be active");
 
   const { accountRegistrationId } = registration.current;

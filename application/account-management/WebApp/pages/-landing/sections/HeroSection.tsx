@@ -30,7 +30,7 @@ export function HeroSection() {
           <ThemeModeSelector />
         </div>
         <div className="flex flex-col md:gap-4 md:flex-row items-center">
-          <Button onPress={() => navigate({ to: "/login" })} variant="primary">
+          <Button onPress={() => navigate({ to: "/login" })} variant="ghost">
             Log in
           </Button>
           <Button onPress={() => navigate({ to: "/register" })} variant="primary">

@@ -18,28 +18,36 @@ msgid "yourname@example.com"
 msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
-msgid "Email"
-msgstr "Email"
-
-#. js-lingui-explicit-id
 msgid "An error occured when trying to start Account registration."
 msgstr "An error occured when trying to start Account registration."
+
+#. js-lingui-explicit-id
+msgid "Account registration is not started."
+msgstr "Account registration is not started."
 
 #. js-lingui-explicit-id
 msgid "An error occured when trying to complete Account registration."
 msgstr "An error occured when trying to complete Account registration."
 
 #. js-lingui-explicit-id
-msgid "subdomain"
-msgstr "subdomain"
+msgid "Email"
+msgstr "Email"
 
 #. js-lingui-explicit-id
 msgid "Subdomain"
 msgstr "Subdomain"
 
 #. js-lingui-explicit-id
+msgid "subdomain"
+msgstr "subdomain"
+
+#. js-lingui-explicit-id
 msgid "Region"
 msgstr "Region"
+
+#. js-lingui-explicit-id
+msgid "This is the region where your data is stored"
+msgstr "This is the region where your data is stored"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"
@@ -64,23 +72,23 @@ msgstr "Already have an account?"
 msgid "Can't find your code? Check your spam folder"
 msgstr "Can't find your code? Check your spam folder"
 
-msgid "Continue"
-msgstr "Continue"
+#~ msgid "Continue"
+#~ msgstr "Continue"
 
-msgid "Create your account"
-msgstr "Create your account"
+#~ msgid "Create your account"
+#~ msgstr "Create your account"
 
 msgid "Did't receive the code? Resend"
 msgstr "Did't receive the code? Resend"
 
-msgid "Don't have an account?"
-msgstr "Don't have an account?"
+#~ msgid "Don't have an account?"
+#~ msgstr "Don't have an account?"
 
-msgid "Email"
-msgstr "Email"
+#~ msgid "Email"
+#~ msgstr "Email"
 
-msgid "Enter your email below to log in."
-msgstr "Enter your email below to log in."
+#~ msgid "Enter your email below to log in."
+#~ msgstr "Enter your email below to log in."
 
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
@@ -91,8 +99,8 @@ msgstr "Filters"
 msgid "Here’s your overview of what’s going on."
 msgstr "Here’s your overview of what’s going on."
 
-msgid "Hi! Welcome back"
-msgstr "Hi! Welcome back"
+#~ msgid "Hi! Welcome back"
+#~ msgstr "Hi! Welcome back"
 
 msgid "Log in"
 msgstr "Log in"
@@ -100,17 +108,17 @@ msgstr "Log in"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
-msgid "Region"
-msgstr "Region"
+#~ msgid "Region"
+#~ msgstr "Region"
 
-msgid "Sign up"
-msgstr "Sign up"
+#~ msgid "Sign up"
+#~ msgstr "Sign up"
 
-msgid "Subdomain"
-msgstr "Subdomain"
+#~ msgid "Subdomain"
+#~ msgstr "Subdomain"
 
-msgid "This is the region where your data is stored"
-msgstr "This is the region where your data is stored"
+#~ msgid "This is the region where your data is stored"
+#~ msgstr "This is the region where your data is stored"
 
 msgid "Total Users"
 msgstr "Total Users"
