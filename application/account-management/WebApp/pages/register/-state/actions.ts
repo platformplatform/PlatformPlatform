@@ -3,8 +3,6 @@ import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList"
 import { accountManagementApi } from "@/shared/lib/api/client";
 import type { FetchResponse } from "openapi-fetch";
 
-const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
-
 interface CurrentRegistration {
   accountRegistrationId: string;
   email: string;
@@ -33,32 +31,20 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
   });
 
   if (!result.response.ok) {
-    const errorState = convertResponseErrorToErrorState(result);
-    console.log(errorState);
-    return errorState;
+    return convertResponseErrorToErrorState(result);
   }
 
-  try {
-    const accountRegistrationId = extractRegistrationIdFromHeader(result.response.headers);
-
-    if (!accountRegistrationId) {
-      return {
-        error: true,
-        success: false,
-        message: i18n.t("An error occured when trying to start Account registration.")
-      };
-    }
-
-    registration.current = { accountRegistrationId, email, expireAt: new Date(Date.now() + VALIDATION_LIFETIME) };
-
-    return { error: false, success: true };
-  } catch (e) {
-    return {
-      error: true,
-      success: false,
-      message: i18n.t("An error occured when trying to start Account registration.")
-    };
+  if (!result.data) {
+    throw new Error("Start registration failed.");
   }
+
+  registration.current = {
+    accountRegistrationId: result.data.accountRegistrationId as string,
+    email,
+    expireAt: new Date(Date.now() + (result.data.validForSeconds as number) * 1000)
+  };
+
+  return { error: false, success: true };
 }
 
 export async function completeAccountRegistration(_: State, formData: FormData): Promise<State> {
@@ -76,9 +62,7 @@ export async function completeAccountRegistration(_: State, formData: FormData):
     });
 
     if (!result.response.ok) {
-      const errorState = convertResponseErrorToErrorState(result);
-      console.log(errorState);
-      return errorState;
+      return convertResponseErrorToErrorState(result);
     }
 
     return { error: false, success: true };
@@ -96,9 +80,4 @@ type MediaType = `${string}/${string}`;
 function convertResponseErrorToErrorState<T, O, M extends MediaType>(result: FetchResponse<T, O, M>): State {
   const apiError = getApiError(result);
   return { error: true, success: false, message: apiError.title, errors: getFieldErrors(apiError.Errors) };
-}
-
-function extractRegistrationIdFromHeader(headers: Headers): string | undefined {
-  const location = headers.get("Location");
-  return location?.split("/").pop();
 }

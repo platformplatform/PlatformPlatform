@@ -1,6 +1,5 @@
 import { Trans } from "@lingui/macro";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useMemo } from "react";
 import { useFormState } from "react-dom";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
@@ -25,15 +24,13 @@ export default function WrappedCompleteAccountRegistrationPage() {
   );
 }
 
-const VALIDATION_LIFETIME = 1000 * 60 * 5; // 5 minutes
 const initialState: State = { message: null, errors: {}, error: false };
 
 export function CompleteAccountRegistrationPage() {
   if (!registration.current) throw new Error("Account registration ID is missing.");
   const { email, accountRegistrationId } = registration.current;
 
-  const expireAt = useMemo(() => new Date(Date.now() + VALIDATION_LIFETIME), []);
-  const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
+  const { expiresInString, isExpired } = useExpirationTimeout(registration.current?.expireAt);
 
   const [state, action] = useFormState(completeAccountRegistration, initialState);
 

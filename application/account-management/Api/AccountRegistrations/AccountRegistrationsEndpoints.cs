@@ -17,9 +17,9 @@ public class AccountRegistrationsEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<bool>();
 
-        group.MapPost("/start", async Task<ApiResult> (StartAccountRegistrationCommand command, ISender mediator)
-            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
-        );
+        group.MapPost("/start", async Task<ApiResult<StartAccountRegistrationResponse>> (StartAccountRegistrationCommand command, ISender mediator)
+            => await mediator.Send(command)
+        ).Produces<StartAccountRegistrationResponse>();
 
         group.MapPost("{id}/complete", async Task<ApiResult> (AccountRegistrationId id, CompleteAccountRegistrationCommand command, ISender mediator)
             => await mediator.Send(command with { Id = id })

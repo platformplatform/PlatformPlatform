@@ -18,10 +18,6 @@ msgid "yourname@example.com"
 msgstr "ditnavn@example.com"
 
 #. js-lingui-explicit-id
-msgid "An error occured when trying to start Account registration."
-msgstr "Der opstod en fejl. Kunne ikke starte kontooprettelse."
-
-#. js-lingui-explicit-id
 msgid "Account registration is not started."
 msgstr ""
 
