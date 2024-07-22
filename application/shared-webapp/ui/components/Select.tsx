@@ -26,8 +26,8 @@ export type { Key } from "react-aria-components";
 const buttonStyles = tv({
   extend: focusRing,
   base: [
-    "flex items-center h-9 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
-    "border-2 border-border rounded-md text-foreground"
+    "flex items-center h-10 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
+    "border border-border rounded-md text-foreground"
   ],
   variants: {
     isInvalid: {
