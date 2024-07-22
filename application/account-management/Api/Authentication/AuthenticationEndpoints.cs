@@ -5,8 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.AccountManagement.Application.Authentication;
 using PlatformPlatform.AccountManagement.Domain.Authentication;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Authentication;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Api.Authentication;
@@ -76,7 +76,7 @@ public class AuthenticationEndpoints : IEndpoints
                     }
                     else
                     {
-                        refreshToken = new RefreshToken();
+                        refreshToken = new RefreshToken { UserId = user.Id };
                     }
 
                     http.Response.Headers.Remove(XRefreshTokenKey);
