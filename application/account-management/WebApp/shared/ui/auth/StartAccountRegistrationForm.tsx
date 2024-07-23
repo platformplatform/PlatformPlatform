@@ -9,7 +9,7 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { DomainInputField } from "@repo/ui/components/DomainInputField";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { startAccountRegistration, type State } from "./actions";
+import { startAccountRegistration, type State } from "./actions/accountRegistration";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";

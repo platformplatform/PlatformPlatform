@@ -8,7 +8,7 @@ import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { completeAccountRegistration, useRegistration, type State } from "./actions";
+import { completeAccountRegistration, useRegistration, type State } from "./actions/accountRegistration";
 import { useFormState } from "react-dom";
 
 export function CompleteAccountRegistrationForm() {
