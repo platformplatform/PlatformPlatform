@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@repo/ui/components/Link";
 import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
-import { useRegistration } from "@/shared/ui/auth/actions";
+import { useRegistration } from "@/shared/ui/auth/actions/accountRegistration";
 
 export const Route = createFileRoute("/(auth)/register/expired")({
   component: () => (
