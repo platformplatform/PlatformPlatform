@@ -8,16 +8,15 @@ import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { completeAccountRegistration, registration, type State } from "./actions";
+import { completeAccountRegistration, useRegistration, type State } from "./actions";
 import { useActionState } from "react";
 
-const initialState: State = { message: null, errors: {} };
 
 export function CompleteAccountRegistrationForm() {
-  if (!registration.current) throw new Error("Account registration ID is missing.");
-  const { email, accountRegistrationId } = registration.current;
+  const initialState: State = { message: null, errors: {} };
+  const { email, accountRegistrationId, expireAt } = useRegistration();
+  const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const { expiresInString, isExpired } = useExpirationTimeout(registration.current?.expireAt);
 
   const [state, action] = useActionState(completeAccountRegistration, initialState);
 

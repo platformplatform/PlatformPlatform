@@ -13,7 +13,12 @@ interface Registration {
   current: CurrentRegistration | undefined;
 }
 
-export const registration: Registration = { current: undefined };
+const registration: Registration = { current: undefined };
+
+export function useRegistration(): CurrentRegistration {
+  if (!registration.current) throw new Error("Account registration ID is missing.");
+  return { ...registration.current };
+}
 
 export interface State {
   success?: boolean;

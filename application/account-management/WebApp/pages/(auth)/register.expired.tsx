@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { registration } from "../../shared/ui/auth/actions";
 import { Link } from "@repo/ui/components/Link";
 import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
+import { useRegistration } from "@/shared/ui/auth/actions";
 
 export const Route = createFileRoute("/(auth)/register/expired")({
   component: () => (
@@ -12,9 +12,8 @@ export const Route = createFileRoute("/(auth)/register/expired")({
 });
 
 function VerificationExpiredPage() {
-  if (!registration.current) throw new Error("Expected registration to be active");
+  const { accountRegistrationId } = useRegistration();
 
-  const { accountRegistrationId } = registration.current;
   return (
     <div className="flex flex-col text-center p-8">
       <h2>Verification code expired</h2>
