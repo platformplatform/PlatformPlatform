@@ -42,7 +42,6 @@ export function CompleteAccountRegistrationForm() {
           <Trans>
             Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
           </Trans>
-          <span className="font-semibold">{email}</span>
         </div>
         <div className="flex w-full flex-col gap-4">
           <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} autoFocus />
