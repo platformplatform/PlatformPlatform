@@ -13,12 +13,17 @@ import { startAccountRegistration, type State } from "./actions/accountRegistrat
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";
+import { useState } from "react";
+import { useIsSubdomainFree } from "./hooks/useIsSubdomainFree";
 
 export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
   const [{ errors, success }, action, isPending] = useFormState(startAccountRegistration, initialState);
+
+  const [subdomain, setSubdomain] = useState("");
+  const isSubdomainFree = useIsSubdomainFree(subdomain);
 
   if (success) {
     return <Navigate to="/register/verify" />;
@@ -54,6 +59,9 @@ export function StartAccountRegistrationForm() {
         label={i18n.t("Subdomain")}
         placeholder={i18n.t("subdomain")}
         isRequired
+        value={subdomain}
+        onChange={setSubdomain}
+        isSubdomainFree={isSubdomainFree}
         className="flex w-full flex-col"
       />
       <Select
