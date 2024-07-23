@@ -1,5 +1,5 @@
 import { Trans } from "@lingui/macro";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { useFormState } from "react-dom";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
@@ -9,24 +9,11 @@ import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { completeAccountRegistration, registration, type State } from "../-state/actions";
-import { RegisterLayout } from "@/pages/register/_layout";
+import { completeAccountRegistration, registration, type State } from "./actions";
 
-export const Route = createFileRoute("/register/verify/")({
-  component: WrappedCompleteAccountRegistrationPage
-});
+const initialState: State = { message: null, errors: {} };
 
-export default function WrappedCompleteAccountRegistrationPage() {
-  return (
-    <RegisterLayout>
-      <CompleteAccountRegistrationPage />
-    </RegisterLayout>
-  );
-}
-
-const initialState: State = { message: null, errors: {}, error: false };
-
-export function CompleteAccountRegistrationPage() {
+export function CompleteAccountRegistrationForm() {
   if (!registration.current) throw new Error("Account registration ID is missing.");
   const { email, accountRegistrationId } = registration.current;
 

@@ -16,7 +16,6 @@ interface Registration {
 export const registration: Registration = { current: undefined };
 
 export interface State {
-  error: boolean;
   success?: boolean;
   message?: string | null;
   errors?: { [key: string]: string | string[] };
@@ -44,7 +43,7 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
     expireAt: new Date(Date.now() + (result.data.validForSeconds as number) * 1000)
   };
 
-  return { error: false, success: true };
+  return { success: true };
 }
 
 export async function completeAccountRegistration(_: State, formData: FormData): Promise<State> {
@@ -52,7 +51,7 @@ export async function completeAccountRegistration(_: State, formData: FormData):
   const accountRegistrationId = registration.current?.accountRegistrationId;
 
   if (!accountRegistrationId) {
-    return { error: true, success: false, message: i18n.t("Account registration is not started.") };
+    return { success: false, message: i18n.t("Account registration is not started.") };
   }
 
   try {
@@ -65,10 +64,9 @@ export async function completeAccountRegistration(_: State, formData: FormData):
       return convertResponseErrorToErrorState(result);
     }
 
-    return { error: false, success: true };
+    return { success: true };
   } catch (e) {
     return {
-      error: true,
       success: false,
       message: i18n.t("An error occured when trying to complete Account registration.")
     };
@@ -79,5 +77,5 @@ type MediaType = `${string}/${string}`;
 
 function convertResponseErrorToErrorState<T, O, M extends MediaType>(result: FetchResponse<T, O, M>): State {
   const apiError = getApiError(result);
-  return { error: true, success: false, message: apiError.title, errors: getFieldErrors(apiError.Errors) };
+  return { success: false, message: apiError.title, errors: getFieldErrors(apiError.Errors) };
 }

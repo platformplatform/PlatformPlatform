@@ -1,7 +1,7 @@
 import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
@@ -9,27 +9,14 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { DomainInputField } from "@repo/ui/components/DomainInputField";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { startAccountRegistration, type State } from "./-state/actions";
+import { startAccountRegistration, type State } from "./actions";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";
-import { RegisterLayout } from "./_layout";
 
-export const Route = createFileRoute("/register/")({
-  component: WrappedStartAccountRegistrationPage
-});
-
-export default function WrappedStartAccountRegistrationPage() {
-  return (
-    <RegisterLayout>
-      <StartAccountRegistrationPage />
-    </RegisterLayout>
-  );
-}
-
-export function StartAccountRegistrationPage() {
+export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
-  const initialState: State = { message: null, errors: {}, error: false };
+  const initialState: State = { message: null, errors: {} };
 
   const [{ errors, success }, action, isPending] = useFormState(startAccountRegistration, initialState);
 
