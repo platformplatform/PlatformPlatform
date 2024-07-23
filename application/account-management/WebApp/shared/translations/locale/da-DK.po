@@ -14,16 +14,16 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. js-lingui-explicit-id
-msgid "yourname@example.com"
-msgstr "ditnavn@example.com"
-
-#. js-lingui-explicit-id
 msgid "Account registration is not started."
 msgstr ""
 
 #. js-lingui-explicit-id
 msgid "An error occured when trying to complete Account registration."
 msgstr "Der opstod en fejl. Kunne ikke færdigøre kontooprettelse."
+
+#. js-lingui-explicit-id
+msgid "yourname@example.com"
+msgstr "ditnavn@example.com"
 
 #. js-lingui-explicit-id
 msgid "Email"
