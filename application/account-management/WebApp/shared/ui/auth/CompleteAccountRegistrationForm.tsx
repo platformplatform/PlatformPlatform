@@ -1,6 +1,5 @@
 import { Trans } from "@lingui/macro";
 import { Navigate } from "@tanstack/react-router";
-import { useFormState } from "react-dom";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
@@ -10,6 +9,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { completeAccountRegistration, registration, type State } from "./actions";
+import { useActionState } from "react";
 
 const initialState: State = { message: null, errors: {} };
 
@@ -19,7 +19,7 @@ export function CompleteAccountRegistrationForm() {
 
   const { expiresInString, isExpired } = useExpirationTimeout(registration.current?.expireAt);
 
-  const [state, action] = useFormState(completeAccountRegistration, initialState);
+  const [state, action] = useActionState(completeAccountRegistration, initialState);
 
   if (isExpired) return <Navigate to="/register/expired" />;
 

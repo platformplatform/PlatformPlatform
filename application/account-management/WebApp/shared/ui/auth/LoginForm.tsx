@@ -1,5 +1,4 @@
 import { useLingui } from "@lingui/react";
-import { useFormState } from "react-dom";
 import { Button } from "@repo/ui/components/Button";
 import { FieldError } from "@repo/ui/components/FieldError";
 import { Form } from "@repo/ui/components/Form";
@@ -11,13 +10,14 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { type AuthenticationState, useLogInAction } from "@repo/infrastructure/auth/hooks";
 import { TextField } from "@repo/ui/components/TextField";
+import { useActionState } from "react";
 
 export function LoginForm() {
   const logInAction = useLogInAction();
   const { i18n } = useLingui();
   const initialState: AuthenticationState = { message: null, errors: {} };
 
-  const [state, action] = useFormState(logInAction, initialState);
+  const [state, action] = useActionState(logInAction, initialState);
 
   return (
     <Form

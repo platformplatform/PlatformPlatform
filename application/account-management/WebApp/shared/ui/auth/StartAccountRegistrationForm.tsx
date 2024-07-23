@@ -12,13 +12,13 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { startAccountRegistration, type State } from "./actions";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 
 export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
   const initialState: State = { message: null, errors: {} };
 
-  const [{ errors, success }, action, isPending] = useFormState(startAccountRegistration, initialState);
+  const [{ errors, success }, action, isPending] = useActionState(startAccountRegistration, initialState);
 
   if (success) {
     return <Navigate to="/register/verify" />;
