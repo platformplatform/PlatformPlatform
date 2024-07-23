@@ -10,14 +10,14 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { type AuthenticationState, useLogInAction } from "@repo/infrastructure/auth/hooks";
 import { TextField } from "@repo/ui/components/TextField";
-import { useActionState } from "react";
+import { useFormState } from "react-dom";
 
 export function LoginForm() {
   const logInAction = useLogInAction();
   const { i18n } = useLingui();
   const initialState: AuthenticationState = { message: null, errors: {} };
 
-  const [state, action] = useActionState(logInAction, initialState);
+  const [state, action] = useFormState(logInAction, initialState);
 
   return (
     <Form

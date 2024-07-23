@@ -9,16 +9,14 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { completeAccountRegistration, useRegistration, type State } from "./actions";
-import { useActionState } from "react";
-
+import { useFormState } from "react-dom";
 
 export function CompleteAccountRegistrationForm() {
   const initialState: State = { message: null, errors: {} };
   const { email, accountRegistrationId, expireAt } = useRegistration();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-
-  const [state, action] = useActionState(completeAccountRegistration, initialState);
+  const [state, action] = useFormState(completeAccountRegistration, initialState);
 
   if (isExpired) return <Navigate to="/register/expired" />;
 
