@@ -2,6 +2,7 @@ import { i18n } from "@lingui/core";
 import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
 import { accountManagementApi } from "@/shared/lib/api/client";
 import type { FetchResponse } from "openapi-fetch";
+import { z } from "zod";
 
 interface CurrentRegistration {
   accountRegistrationId: string;
@@ -26,6 +27,11 @@ export interface State {
   errors?: { [key: string]: string | string[] };
 }
 
+const accountRegistrationResponseSchema = z.object({
+  accountRegistrationId: z.string(),
+  validForSeconds: z.number()
+});
+
 export async function startAccountRegistration(_: State, formData: FormData): Promise<State> {
   const subdomain = formData.get("subdomain") as string;
   const email = formData.get("email") as string;
@@ -38,14 +44,16 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
     return convertResponseErrorToErrorState(result);
   }
 
-  if (!result.data) {
+  const { data, success } = accountRegistrationResponseSchema.safeParse(result.data);
+
+  if (success === false) {
     throw new Error("Start registration failed.");
   }
 
   registration.current = {
-    accountRegistrationId: result.data.accountRegistrationId as string,
+    accountRegistrationId: data.accountRegistrationId,
     email,
-    expireAt: new Date(Date.now() + (result.data.validForSeconds as number) * 1000)
+    expireAt: new Date(Date.now() + data.validForSeconds * 1000)
   };
 
   return { success: true };
