@@ -23,6 +23,7 @@ export function LoginForm() {
     <Form
       action={action}
       validationErrors={state.errors}
+      validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
       <Link href="/">

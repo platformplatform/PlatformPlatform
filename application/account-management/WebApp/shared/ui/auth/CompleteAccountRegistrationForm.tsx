@@ -23,7 +23,12 @@ export function CompleteAccountRegistrationForm() {
   if (state.success) return <Navigate to="/admin/users" />;
 
   return (
-    <Form action={action} validationErrors={state.errors} className="w-full max-w-sm space-y-3">
+    <Form
+      action={action}
+      validationErrors={state.errors}
+      validationBehavior="aria"
+      className="w-full max-w-sm space-y-3"
+    >
       <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
         <div className="flex justify-center">
           <Link href="/">
