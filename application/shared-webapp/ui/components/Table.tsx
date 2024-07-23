@@ -93,9 +93,9 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
   return (
     <AriaTableHeader
       {...props}
-      className={twMerge(
-        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden",
-        props.className
+      className={composeTailwindRenderProps(
+        props.className,
+        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
       )}
     >
       {/* Add extra columns for drag and drop and selection. */}
