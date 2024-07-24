@@ -62,6 +62,7 @@ export function DomainInputField({
             isEmbedded
             placeholder={placeholder}
             autoComplete={autocomplete}
+            autoCorrect="off"
             className="h-full w-full"
           />
         </div>
