@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { HeroImage } from "@/shared/ui/images/HeroImage";
+import { HeroImage } from "@/shared/components/HeroImage";
 
 interface HorizontalHeroLayoutProps {
   children?: ReactNode;

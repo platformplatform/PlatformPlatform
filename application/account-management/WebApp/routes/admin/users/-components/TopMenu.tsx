@@ -3,7 +3,7 @@ import { UserAvatarButton } from "./UserAvatarButton";
 import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
-import { LocaleSwitcher } from "@/shared/ui/LocaleSwitcher";
+import { LocaleSwitcher } from "@/shared/components/LocaleSwitcher";
 
 export function TopMenu() {
   return (

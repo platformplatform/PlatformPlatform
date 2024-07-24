@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
-import { ErrorMessage } from "@/shared/ui/components/ErrorMessage";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
+import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { DotIcon } from "lucide-react";
 import { Trans } from "@lingui/macro";
 import { useLingui } from "@lingui/react";
