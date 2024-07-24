@@ -1,5 +1,5 @@
 import { LanguagesIcon } from "lucide-react";
-import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
+import { type Locale, translationContext } from "./TranslationContext";
 import { use, useCallback, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react";
 import { Button } from "@repo/ui/components/Button";

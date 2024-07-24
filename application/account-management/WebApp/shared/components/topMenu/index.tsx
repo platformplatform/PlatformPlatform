@@ -1,10 +1,10 @@
-import { LifeBuoyIcon } from "lucide-react";
-import { AvatarButton } from "./AvatarButton";
 import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
-import { LocaleSwitcher } from "@/shared/components/LocaleSwitcher";
+import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { AvatarButton } from "./AvatarButton";
 
 interface TopMenuProps {
   children?: ReactNode;
