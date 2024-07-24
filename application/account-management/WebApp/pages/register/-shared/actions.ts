@@ -46,7 +46,7 @@ export async function startAccountRegistration(_: State, formData: FormData): Pr
 
   const { data, success } = accountRegistrationResponseSchema.safeParse(result.data);
 
-  if (success === false) {
+  if (!success) {
     throw new Error("Start registration failed.");
   }
 

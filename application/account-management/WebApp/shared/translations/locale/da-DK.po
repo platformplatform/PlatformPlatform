@@ -74,7 +74,7 @@ msgstr "Kan du ikke finde din kode? Tjek din spam-mappe"
 #~ msgid "Create your account"
 #~ msgstr "Opret din konto"
 
-msgid "Did't receive the code? Resend"
+msgid "Didn't receive the code? Resend"
 msgstr "Modtog ikke koden? Send igen"
 
 #~ msgid "Don't have an account?"

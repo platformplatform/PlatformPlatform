@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
-import { ErrorMessage } from "@/shared/ui/auth/ErrorMessage";
+import { ErrorMessage } from "@/shared/ui/components/ErrorMessage";
 
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";

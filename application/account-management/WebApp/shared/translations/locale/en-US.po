@@ -74,8 +74,8 @@ msgstr "Can't find your code? Check your spam folder"
 #~ msgid "Create your account"
 #~ msgstr "Create your account"
 
-msgid "Did't receive the code? Resend"
-msgstr "Did't receive the code? Resend"
+msgid "Didn't receive the code? Resend"
+msgstr "Didn't receive the code? Resend"
 
 #~ msgid "Don't have an account?"
 #~ msgstr "Don't have an account?"
