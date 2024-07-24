@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
-import { CompleteAccountRegistrationForm } from "@/shared/ui/auth/CompleteAccountRegistrationForm";
+import { LoginForm } from "@/shared/ui/auth/LoginForm";
 import { ErrorMessage } from "@/shared/ui/auth/ErrorMessage";
 
-export const Route = createFileRoute("/(auth)/register/verify")({
+export const Route = createFileRoute("/login/")({
   component: () => (
     <HorizontalHeroLayout>
-      <CompleteAccountRegistrationForm />
+      <LoginForm />
     </HorizontalHeroLayout>
   ),
   errorComponent: (props) => (

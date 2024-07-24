@@ -3,7 +3,7 @@ import { HorizontalHeroLayout } from "@/shared/ui/layout/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/ui/auth/ErrorMessage";
 import { VerificationCodeExpiredMessage } from "@/shared/ui/auth/VerificationCodeExpiredMessage";
 
-export const Route = createFileRoute("/(auth)/register/expired")({
+export const Route = createFileRoute("/register/expired")({
   component: () => (
     <HorizontalHeroLayout>
       <VerificationCodeExpiredMessage />
