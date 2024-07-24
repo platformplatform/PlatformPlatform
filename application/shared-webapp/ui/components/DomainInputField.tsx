@@ -19,7 +19,7 @@ import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 
 const inputStyles = tv({
   extend: focusRing,
-  base: "grid grid-cols-2 h-10 border relative overflow-hidden",
+  base: "flex h-10 border",
   variants: {
     isFocused: fieldBorderStyles.variants.isFocusWithin,
     ...fieldBorderStyles.variants
@@ -56,9 +56,17 @@ export function DomainInputField({
     <AriaTextField {...props} name={name} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
       <Group className={inputStyles({ isInvalid, isFocusVisible })}>
-        <Input {...focusProps} isEmbedded placeholder={placeholder} autoComplete={autocomplete} className="h-full" />
-        <div className="text-xs flex items-center pl-1 text-muted-foreground border-none">{domain}</div>
-        <div className="absolute right-1 top-0 bottom-0 flex items-center">
+        <div className="flex grow overflow-hidden">
+          <Input
+            {...focusProps}
+            isEmbedded
+            placeholder={placeholder}
+            autoComplete={autocomplete}
+            className="h-full w-full"
+          />
+        </div>
+        <div className="w-fit gap-1 text-xs flex items-center p-1 text-muted-foreground">
+          {domain}
           <AvailabilityIcon isAvailable={isSubdomainFree} />
         </div>
       </Group>
@@ -75,7 +83,6 @@ type AvailabilityIconProps = {
 function AvailabilityIcon({ isAvailable }: Readonly<AvailabilityIconProps>) {
   if (isAvailable === false) return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
   if (isAvailable === true) return <CheckIcon className="h-4 w-4 stroke-success" />;
-  if (isAvailable === null) return <CheckIcon className="h-4 w-4 stroke-neutral animate-pulse" />;
 
   return null;
 }
