@@ -4,13 +4,13 @@ import { Input } from "@repo/ui/components/Input";
 import { Modal } from "@repo/ui/components/Modal";
 import { Trash2, XIcon } from "lucide-react";
 
-type AccountModalProps = {
+type AccountSettingsModal = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onDeleteAccount: () => void;
 };
 
-export function AccountModal({ isOpen, onOpenChange, onDeleteAccount }: AccountModalProps) {
+export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: AccountSettingsModal) {
   const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 
   return (
@@ -60,4 +60,4 @@ export function AccountModal({ isOpen, onOpenChange, onDeleteAccount }: AccountM
   );
 }
 
-export default AccountModal;
+export default AccountSettingsModal;

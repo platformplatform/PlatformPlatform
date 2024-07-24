@@ -1,12 +1,12 @@
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 
-type DeleteAccountModalProps = {
+type DeleteAccountConfirmationProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 };
 
-export function DeleteAccountModal({ isOpen, onOpenChange }: DeleteAccountModalProps) {
+export function DeleteAccountConfirmation({ isOpen, onOpenChange }: DeleteAccountConfirmationProps) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
       <AlertDialog
@@ -28,4 +28,4 @@ export function DeleteAccountModal({ isOpen, onOpenChange }: DeleteAccountModalP
   );
 }
 
-export default DeleteAccountModal;
+export default DeleteAccountConfirmation;

@@ -1,4 +1,4 @@
-import avatarUrl from "../../images/avatar.png";
+import avatarUrl from "./images/avatar.png";
 
 const AvatarMenuItem: React.FC = () => {
   const name = "Mary Doe";

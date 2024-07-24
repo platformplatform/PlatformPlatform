@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TopMenu } from "./-components/TopMenu";
+import { Menu } from "./-components/Menu";
 import { UserTabs } from "./-components/UserTabs";
 import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
@@ -44,7 +44,7 @@ export default function UsersPage() {
     <div className="flex gap-4 w-full h-full border">
       <SideMenu />
       <div className="flex flex-col gap-4 pl-1 pr-6 py-3 w-full">
-        <TopMenu />
+        <Menu />
         <UserInvite />
         <UserTabs usersData={userData} />
         <UserQuerying />

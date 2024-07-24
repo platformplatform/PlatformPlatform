@@ -1,17 +1,21 @@
 import { LifeBuoyIcon } from "lucide-react";
-import { UserAvatarButton } from "./UserAvatarButton";
+import { AvatarButton } from "./AvatarButton";
 import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { LocaleSwitcher } from "@/shared/components/LocaleSwitcher";
+import type { ReactNode } from "react";
 
-export function TopMenu() {
+interface TopMenuProps {
+  children?: ReactNode;
+}
+
+export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
     <div className="flex items-center justify-between">
       <Breadcrumbs>
         <Breadcrumb href="/admin">Home</Breadcrumb>
-        <Breadcrumb href="/admin/users">Users</Breadcrumb>
-        <Breadcrumb>All Users</Breadcrumb>
+        {children}
       </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
         <ThemeModeSelector />
@@ -19,7 +23,7 @@ export function TopMenu() {
           <LifeBuoyIcon size={20} />
         </Button>
         <LocaleSwitcher />
-        <UserAvatarButton />
+        <AvatarButton />
       </div>
     </div>
   );

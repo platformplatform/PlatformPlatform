@@ -1,15 +1,15 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useState } from "react";
-import avatarUrl from "../../images/avatar.png";
+import avatarUrl from "./images/avatar.png";
 import AvatarMenuItem from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
-import AccountModal from "./UserModals/AccountModal";
-import UserProfileModal from "./UserModals/UserProfileModal";
-import DeleteAccountModal from "./UserModals/DeleteAccountModal";
+import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
+import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
+import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
 
-export function UserAvatarButton() {
+export function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);

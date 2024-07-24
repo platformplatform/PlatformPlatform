@@ -3,7 +3,7 @@ import { FileTrigger } from "react-aria-components";
 import { Button } from "@repo/ui/components/Button";
 import { Modal } from "@repo/ui/components/Modal";
 import { Mail, XIcon } from "lucide-react";
-import avatarUrl from "../../../images/avatar.png";
+import avatarUrl from "../topMenu/images/avatar.png";
 import React from "react";
 import { Input } from "@repo/ui/components/Input";
 
