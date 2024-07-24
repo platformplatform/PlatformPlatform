@@ -78,7 +78,7 @@ export function StartAccountRegistrationForm() {
         Create your account
       </Button>
       <p className="text-muted-foreground text-xs">
-        <Trans>Already have an account?</Trans>
+        <Trans>Already have an account?</Trans>{" "}
         <Link href="/login">
           <Trans>Log in</Trans>
         </Link>
