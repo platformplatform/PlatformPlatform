@@ -4,8 +4,7 @@ import { routeTree } from "./routeTree.generated";
 // Set up a Router instance
 export const router = createRouter({
   routeTree,
-  defaultPreload: "intent",
-  basepath: "/back-office"
+  defaultPreload: "intent"
 });
 
 // Register router with tanstack/react-router

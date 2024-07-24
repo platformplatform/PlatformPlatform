@@ -14,16 +14,16 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. js-lingui-explicit-id
+msgid "yourname@example.com"
+msgstr "yourname@example.com"
+
+#. js-lingui-explicit-id
 msgid "Account registration is not started."
 msgstr "Account registration is not started."
 
 #. js-lingui-explicit-id
 msgid "An error occured when trying to complete Account registration."
 msgstr "An error occured when trying to complete Account registration."
-
-#. js-lingui-explicit-id
-msgid "yourname@example.com"
-msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
 msgid "Email"
@@ -74,8 +74,8 @@ msgstr "Can't find your code? Check your spam folder"
 #~ msgid "Create your account"
 #~ msgstr "Create your account"
 
-msgid "Did't receive the code? Resend"
-msgstr "Did't receive the code? Resend"
+msgid "Didn't receive the code? Resend"
+msgstr "Didn't receive the code? Resend"
 
 #~ msgid "Don't have an account?"
 #~ msgstr "Don't have an account?"
