@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { TopMenu } from "@/pages/admin/users/-components/TopMenu";
+import { TopMenu } from "@/routes/admin/users/-components/TopMenu";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { Trans } from "@lingui/macro";
 import { accountManagementApi } from "@/shared/lib/api/client";
