@@ -94,7 +94,7 @@ type TopLinkProps = {
   children: React.ReactNode;
 };
 
-function TopLink({ title, children }: TopLinkProps) {
+function TopLink({ title, children }: Readonly<TopLinkProps>) {
   return (
     <DialogTrigger>
       <Button variant="ghost">

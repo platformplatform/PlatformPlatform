@@ -22,7 +22,7 @@ export function Digit({
   autoComplete,
   digitPattern = DigitPattern.Digits,
   ...props
-}: DigitProps) {
+}: Readonly<DigitProps>) {
   const inputPattern = useMemo(() => `${digitPattern}*`, [digitPattern]);
   const isCharValid = useMemo(() => new RegExp(`^${digitPattern}$`), [digitPattern]);
   const isStringValid = useMemo(() => new RegExp(`^${digitPattern}+$`), [digitPattern]);

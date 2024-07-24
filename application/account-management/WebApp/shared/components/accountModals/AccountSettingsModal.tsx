@@ -10,7 +10,7 @@ type AccountSettingsModal = {
   onDeleteAccount: () => void;
 };
 
-export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: AccountSettingsModal) {
+export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: Readonly<AccountSettingsModal>) {
   const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
 
   return (

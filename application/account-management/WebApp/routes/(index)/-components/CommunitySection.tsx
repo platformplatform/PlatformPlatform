@@ -17,7 +17,7 @@ interface FeatureBlockProps {
 }
 
 // Component to display a feature with an image, title, content, and a link
-function FeatureBlock({ title, content, image, href, linkText, arrow }: FeatureBlockProps) {
+function FeatureBlock({ title, content, image, href, linkText, arrow }: Readonly<FeatureBlockProps>) {
   return (
     <div className="flex flex-col gap-4  items-center justify-center">
       <div className="flex shadow rounded-lg w-12 h-12 justify-center p-1 items-center">

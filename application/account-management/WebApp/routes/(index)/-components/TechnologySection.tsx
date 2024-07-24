@@ -61,7 +61,7 @@ interface FeatureBlockProps {
 }
 
 // FeatureBlock: A functional component that displays individual feature blocks
-function FeatureBlock({ title, content, image }: FeatureBlockProps) {
+function FeatureBlock({ title, content, image }: Readonly<FeatureBlockProps>) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
       <div>

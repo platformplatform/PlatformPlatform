@@ -9,7 +9,12 @@ export interface OneTimeCodeInputProps {
   name?: string;
 }
 
-export function OneTimeCodeInput({ digitPattern, disabled, length = 6, name = "code" }: OneTimeCodeInputProps) {
+export function OneTimeCodeInput({
+  digitPattern,
+  disabled,
+  length = 6,
+  name = "code"
+}: Readonly<OneTimeCodeInputProps>) {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const id = useId();
   const digitRefs = useMemo(

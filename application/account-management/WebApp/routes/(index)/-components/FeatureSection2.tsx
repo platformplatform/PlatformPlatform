@@ -44,7 +44,7 @@ interface FeatureBlockProps {
 }
 
 // FeatureBlock: Displays a single feature
-function FeatureBlock({ title, content }: FeatureBlockProps) {
+function FeatureBlock({ title, content }: Readonly<FeatureBlockProps>) {
   return (
     <div className="flex flex-col gap-4 h-1/3">
       <div className="text-foreground text-xl font-semibold text-start">{title}</div>
