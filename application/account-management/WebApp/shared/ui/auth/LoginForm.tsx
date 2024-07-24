@@ -31,21 +31,16 @@ export function LoginForm() {
       </Link>
       <Heading className="text-2xl">Hi! Welcome back</Heading>
       <div className="text-center text-muted-foreground text-sm">Enter your email below to sign in</div>
-      <TextField className="flex w-full flex-col">
-        <Label>Email</Label>
-        <Input
-          type="email"
-          name="email"
-          autoComplete="email webauthn"
-          autoFocus
-          required
-          placeholder={i18n.t("yourname@example.com")}
-        />
-        <FieldError />
-      </TextField>
-      <span className="text-destructive text-sm" slot="errorMessage">
-        {state.errors?.email ?? ""}
-      </span>
+      <TextField
+        type="email"
+        name="email"
+        label="Email"
+        autoComplete="email webauthn"
+        autoFocus
+        isRequired
+        placeholder={i18n.t("yourname@example.com")}
+        className="flex w-full flex-col"
+      />
       <Button type="submit" className="mt-4 w-full text-center">
         Continue
       </Button>
