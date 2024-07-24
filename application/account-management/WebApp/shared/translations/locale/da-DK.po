@@ -14,6 +14,14 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. js-lingui-explicit-id
+msgid "Login is not started."
+msgstr "Login er ikke startet."
+
+#. js-lingui-explicit-id
+msgid "An error occured when trying to complete login."
+msgstr "Der opstod en fejl. Kunne ikke færdigøre login."
+
+#. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr "ditnavn@example.com"
 
@@ -68,23 +76,8 @@ msgstr "Har du allerede en konto?"
 msgid "Can't find your code? Check your spam folder"
 msgstr "Kan du ikke finde din kode? Tjek din spam-mappe"
 
-#~ msgid "Continue"
-#~ msgstr "Fortsæt"
-
-#~ msgid "Create your account"
-#~ msgstr "Opret din konto"
-
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog ikke koden? Send igen"
-
-#~ msgid "Don't have an account?"
-#~ msgstr "Har du ikke en konto?"
-
-#~ msgid "Email"
-#~ msgstr "E-mail"
-
-#~ msgid "Enter your email below to log in."
-#~ msgstr "Indtast din e-mail nedenfor for at logge ind"
 
 msgid "Enter your verification code"
 msgstr "Indtast din verifikationskode"
@@ -95,26 +88,11 @@ msgstr "Filtre"
 msgid "Here’s your overview of what’s going on."
 msgstr "Her er en oversigt over, hvad der sker"
 
-#~ msgid "Hi! Welcome back"
-#~ msgstr "Hej! Velkommen tilbage"
-
 msgid "Log in"
 msgstr "Log ind"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek venligst din e-mail for en verifikationskode sendt til <0>{email}</0>"
-
-#~ msgid "Region"
-#~ msgstr "Region"
-
-#~ msgid "Sign up"
-#~ msgstr "Opret"
-
-#~ msgid "Subdomain"
-#~ msgstr "Subdomæne"
-
-#~ msgid "This is the region where your data is stored"
-#~ msgstr "Dine data vil blive gemt i denne region."
 
 msgid "Total Users"
 msgstr "Totalt antal brugere"

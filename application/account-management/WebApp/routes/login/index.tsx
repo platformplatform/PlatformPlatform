@@ -1,17 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { type AuthenticationState, useLogInAction } from "@repo/infrastructure/auth/hooks";
 import { TextField } from "@repo/ui/components/TextField";
 import { useFormState } from "react-dom";
 import { useLingui } from "@lingui/react";
+import { startLogin, type State } from "./-shared/actions";
 
 export const Route = createFileRoute("/login/")({
   component: () => (
@@ -27,16 +26,19 @@ export const Route = createFileRoute("/login/")({
 });
 
 export function LoginForm() {
-  const logInAction = useLogInAction();
   const { i18n } = useLingui();
-  const initialState: AuthenticationState = { message: null, errors: {} };
+  const initialState: State = { message: null, errors: {} };
 
-  const [state, action] = useFormState(logInAction, initialState);
+  const [{ errors, success }, action, isPending] = useFormState(startLogin, initialState);
+
+  if (success) {
+    return <Navigate to="/login/verify" />;
+  }
 
   return (
     <Form
       action={action}
-      validationErrors={state.errors}
+      validationErrors={errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
@@ -55,7 +57,7 @@ export function LoginForm() {
         placeholder={i18n.t("yourname@example.com")}
         className="flex w-full flex-col"
       />
-      <Button type="submit" className="mt-4 w-full text-center">
+      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         Continue
       </Button>
       <p className="text-muted-foreground text-xs">
