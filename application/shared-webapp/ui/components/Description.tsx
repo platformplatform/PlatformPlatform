@@ -4,8 +4,6 @@
 import { Text, type TextProps } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 
-export function Description(props: Readonly<TextProps>) {
-  return (
-    <Text {...props} slot="description" className={twMerge("mt-1 text-muted-foreground text-sm", props.className)} />
-  );
+export function Description({ className, ...props }: Readonly<TextProps>) {
+  return <Text {...props} slot="description" className={twMerge("mt-1 text-muted-foreground text-sm", className)} />;
 }

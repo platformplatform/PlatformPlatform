@@ -136,8 +136,7 @@ public class SinglePageAppConfiguration
 
         if (_isDevelopment)
         {
-            var webSocketHost = CdnUrl.Replace("https", "wss");
-            trustedHosts += $" {webSocketHost}";
+            trustedHosts += " wss://localhost:*";
         }
 
         var contentSecurityPolicies = new[]

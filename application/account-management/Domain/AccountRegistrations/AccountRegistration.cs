@@ -7,6 +7,7 @@ namespace PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 {
     public const int MaxAttempts = 3;
+    private const int ValidForSeconds = 300;
 
     private AccountRegistration(TenantId tenantId, string email, string oneTimePasswordHash)
         : base(AccountRegistrationId.NewId())
@@ -14,7 +15,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         TenantId = tenantId;
         Email = email;
         OneTimePasswordHash = oneTimePasswordHash;
-        ValidUntil = CreatedAt.AddMinutes(5);
+        ValidUntil = CreatedAt.AddSeconds(ValidForSeconds);
     }
 
     public TenantId TenantId { get; private set; }
@@ -55,6 +56,11 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         if (Completed) throw new UnreachableException("The account has already been created.");
 
         Completed = true;
+    }
+
+    public int GetValidForSeconds()
+    {
+        return Convert.ToInt16((ValidUntil - TimeProvider.System.GetUtcNow()).TotalSeconds);
     }
 }
 

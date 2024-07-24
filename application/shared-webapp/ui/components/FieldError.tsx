@@ -4,11 +4,11 @@
 import { FieldError as AriaFieldError, type FieldErrorProps } from "react-aria-components";
 import { composeTailwindRenderProps } from "./utils";
 
-export function FieldError(props: Readonly<FieldErrorProps>) {
+export function FieldError({ className, ...props }: Readonly<FieldErrorProps>) {
   return (
     <AriaFieldError
       {...props}
-      className={composeTailwindRenderProps(props.className, "text-destructive text-sm forced-colors:text-[Mark]")}
+      className={composeTailwindRenderProps(className, "text-destructive text-sm forced-colors:text-[Mark]")}
     />
   );
 }

@@ -434,7 +434,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartAccountRegistrationResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -737,6 +744,19 @@
         "properties": {
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "StartAccountRegistrationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accountRegistrationId": {
+            "type": "string"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

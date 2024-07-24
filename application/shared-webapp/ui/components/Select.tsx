@@ -4,10 +4,12 @@
  */
 import { ChevronDown } from "lucide-react";
 import type React from "react";
+import { useContext } from "react";
 import {
   Select as AriaSelect,
   type SelectProps as AriaSelectProps,
   Button,
+  FormValidationContext,
   ListBox,
   type ListBoxItemProps,
   SelectValue,
@@ -26,8 +28,8 @@ export type { Key } from "react-aria-components";
 const buttonStyles = tv({
   extend: focusRing,
   base: [
-    "flex items-center h-9 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
-    "border-2 border-border rounded-md text-foreground"
+    "flex items-center h-10 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
+    "border border-border rounded-md text-foreground"
   ],
   variants: {
     isInvalid: {
@@ -49,6 +51,7 @@ export interface SelectProps<T extends object> extends Omit<AriaSelectProps<T>, 
 }
 
 export function Select<T extends object>({
+  name,
   label,
   description,
   errorMessage,
@@ -57,10 +60,13 @@ export function Select<T extends object>({
   className,
   ...props
 }: Readonly<SelectProps<T>>) {
+  const errors = useContext(FormValidationContext);
+  const isInvalid = props.isInvalid || Boolean(name != null && name in errors ? errors?.[name] : undefined);
+
   return (
-    <AriaSelect {...props} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
+    <AriaSelect {...props} name={name} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
-      <Button className={buttonStyles(props)}>
+      <Button className={(renderProps) => buttonStyles({ ...renderProps, isInvalid })}>
         <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
         <ChevronDown
           aria-hidden

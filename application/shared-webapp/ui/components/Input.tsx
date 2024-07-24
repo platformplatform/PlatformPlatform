@@ -7,14 +7,14 @@ import { Input as AriaInput, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
 
-export interface InputProps extends Omit<AriaInputProps, "disabled"> {
+export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefAttributes<HTMLInputElement> {
   isDisabled?: boolean;
   isEmbedded?: boolean;
 }
 
 const inputStyles = tv({
   extend: focusRing,
-  base: "min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
+  base: "h-10 shrink-0 border rounded-md py-1.5 px-2 text-foreground text-sm placeholder:text-muted-foreground",
   variants: {
     isInvalid: {
       true: "border-destructive"
@@ -26,7 +26,7 @@ const inputStyles = tv({
       true: "file:border-0 file:bg-transparent file:font-medium file:text-sm cursor-pointer file:cursor-pointer"
     },
     isEmbedded: {
-      true: "border-0"
+      true: "border-0 border-muted"
     }
   }
 });
