@@ -1,10 +1,7 @@
 import { useLingui } from "@lingui/react";
 import { Button } from "@repo/ui/components/Button";
-import { FieldError } from "@repo/ui/components/FieldError";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
-import { Input } from "@repo/ui/components/Input";
-import { Label } from "@repo/ui/components/Label";
 import { Link } from "@repo/ui/components/Link";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";

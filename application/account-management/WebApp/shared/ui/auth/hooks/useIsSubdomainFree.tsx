@@ -1,5 +1,5 @@
 import { accountManagementApi } from "@/shared/lib/api/client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function useIsSubdomainFree(subdomain: string) {
   const [isSubdomainFree, setIsSubdomainFree] = useState<boolean | null>(null);
