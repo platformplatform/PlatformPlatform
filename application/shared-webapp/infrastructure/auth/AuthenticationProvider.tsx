@@ -1,5 +1,5 @@
 import type { NavigateOptions } from "@tanstack/react-router";
-import { createContext, useCallback, useMemo, useRef, useState } from "react";
+import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
 import type { AuthenticationState, UserInfo } from "./actions";
 import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
 

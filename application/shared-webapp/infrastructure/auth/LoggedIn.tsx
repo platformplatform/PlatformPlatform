@@ -13,7 +13,6 @@ export interface LoggedInProps {
 export function LoggedIn({ children, requiredRoles }: LoggedInProps) {
   const userInfo = useUserInfo();
   if (userInfo == null) return null;
-  if (requiredRoles != null && (userInfo.userRole == null || requiredRoles.includes(userInfo.userRole) === false))
-    return null;
+  if (requiredRoles != null && (userInfo.userRole == null || !requiredRoles.includes(userInfo.userRole))) return null;
   return children;
 }

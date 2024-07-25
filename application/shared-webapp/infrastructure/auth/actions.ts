@@ -31,7 +31,7 @@ export const initialUserInfo: UserInfo = validationResult.data;
 
 /**
  * Returns the user info if the user is authenticated or null if logged out
- * If user data is invalid, it will throw an error
+ * If the user data is invalid, it will throw an error
  */
 export async function getUserInfo(): Promise<UserInfo | null> {
   const { data, response } = await accountManagementApi.GET("/api/auth/user-info");

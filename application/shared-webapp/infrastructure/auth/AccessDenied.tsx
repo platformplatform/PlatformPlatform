@@ -8,7 +8,7 @@ export interface AccessDeniedProps {
 }
 
 /**
- * Display component if user is logged in but does not have the required role.
+ * Display component if a user is logged in but does not have the required role.
  */
 export function AccessDenied({ children, requiredRoles }: AccessDeniedProps) {
   const userInfo = useUserInfo();
