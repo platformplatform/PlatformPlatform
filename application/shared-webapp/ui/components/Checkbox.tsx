@@ -66,26 +66,34 @@ const boxStyles = tv({
 
 const iconStyles = "w-4 h-4";
 
-export function Checkbox(props: Readonly<CheckboxProps>) {
+export function Checkbox({ className, children, ...props }: Readonly<CheckboxProps>) {
   return (
     <AriaCheckbox
       {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
+      className={composeRenderProps(className, (className, renderProps) =>
         checkboxStyles({ ...renderProps, className })
       )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
-            {isIndeterminate ? (
-              <Minus aria-hidden className={iconStyles} />
-            ) : isSelected ? (
-              <Check aria-hidden className={iconStyles} />
-            ) : null}
+            <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />
           </div>
-          {props.children}
+          {children}
         </>
       )}
     </AriaCheckbox>
   );
+}
+
+type SelectionIconProps = {
+  isSelected: boolean;
+  isIndeterminate: boolean;
+};
+
+function SelectionIcon({ isSelected, isIndeterminate }: Readonly<SelectionIconProps>) {
+  if (isIndeterminate) return <Minus aria-hidden className={iconStyles} />;
+  if (isSelected) return <Check aria-hidden className={iconStyles} />;
+
+  return null;
 }
