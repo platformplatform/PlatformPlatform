@@ -1,4 +1,3 @@
-import "@fontsource/inter";
 import "@repo/ui/tailwind.css";
 import { router } from "@/shared/lib/router/router";
 import { RouterProvider } from "@tanstack/react-router";
