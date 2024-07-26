@@ -5,7 +5,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
-import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { Badge } from "@repo/ui/components/Badge";
 
 const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";

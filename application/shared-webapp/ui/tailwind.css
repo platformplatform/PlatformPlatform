@@ -96,6 +96,13 @@
       @apply dark;
     }
   }
+
+  @media (prefers-color-scheme: light) {
+    html:not(.dark) {
+      @apply light;
+    }
+  }
+
 }
 
 @layer base {

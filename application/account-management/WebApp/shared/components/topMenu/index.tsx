@@ -1,4 +1,4 @@
-import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
