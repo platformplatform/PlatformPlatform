@@ -38,7 +38,7 @@ export function CheckboxGroup(props: Readonly<CheckboxGroupProps>) {
 }
 
 const checkboxStyles = tv({
-  base: "flex gap-2 items-center group text-sm transition",
+  base: "flex h-5 w-5 gap-2 items-center group text-sm transition",
   variants: {
     isDisabled: {
       false: "text-foreground",
@@ -49,7 +49,7 @@ const checkboxStyles = tv({
 
 const boxStyles = tv({
   extend: focusRing,
-  base: "w-5 h-5 flex-shrink-0 rounded flex items-center justify-center border transition",
+  base: "w-full h-full flex-shrink-0 rounded flex items-center justify-center border transition",
   variants: {
     isSelected: {
       false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
