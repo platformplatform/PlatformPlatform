@@ -7,7 +7,7 @@ import { Trans } from "@lingui/macro";
 export function UserQuerying() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   return (
-    <div className="flex justify-between mt-4 mb-4">
+    <div className="flex justify-between mt-4 mb-4 gap-2">
       <SearchField placeholder="Search" value={searchTerm} onChange={setSearchTerm} aria-label="Users" />
 
       <Button variant="secondary">
