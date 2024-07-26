@@ -47,7 +47,7 @@ export function Table(props: Readonly<TableProps>) {
 
 const columnStyles = tv({
   extend: focusRing,
-  base: "px-4 h-12 flex-1 flex gap-1 items-center text-sm"
+  base: "px-4 flex-1 flex gap-1 items-center text-sm"
 });
 
 const resizerStyles = tv({
@@ -61,7 +61,7 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "cursor-default text-start font-semibold text-muted-foreground [&:focus-within]:z-20 [&:hover]:z-20"
+        "h-12 cursor-default text-start font-semibold text-muted-foreground [&:focus-within]:z-20 [&:hover]:z-20"
       )}
     >
       {composeRenderProps(children, (children, { allowsSorting, sortDirection }) => (
@@ -95,13 +95,13 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
       {...props}
       className={composeTailwindRenderProps(
         props.className,
-        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
+        "sticky top-0 z-10 h-16 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
       )}
     >
       {/* Add extra columns for drag and drop and selection. */}
       {allowsDragging && <Column />}
       {selectionBehavior === "toggle" && (
-        <AriaColumn width={36} minWidth={36} className="cursor-default p-4 text-start font-semibold text-sm">
+        <AriaColumn width={36} minWidth={36} className="cursor-default px-4 text-start font-semibold text-sm">
           {selectionMode === "multiple" && <Checkbox slot="selection" />}
         </AriaColumn>
       )}
@@ -112,7 +112,7 @@ export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "h-12 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-sm",
+  base: "h-16 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-sm",
   variants: {
     isDisabled: {
       false: "text-muted-foreground hover:bg-muted/80",
@@ -149,7 +149,7 @@ export function Row<T extends object>({ id, columns, children, ...otherProps }: 
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring p-4 truncate -outline-offset-2"
+  base: "border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring px-4 truncate -outline-offset-2"
 });
 
 export function Cell(props: Readonly<CellProps>) {
