@@ -97,6 +97,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    font-family: "Inter", sans-serif;
+  }
 }
 
 html, body, #root {

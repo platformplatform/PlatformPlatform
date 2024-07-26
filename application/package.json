@@ -15,6 +15,7 @@
     "format": "turbo format"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.0.19",
     "@lingui/core": "^4.11.1",
     "@lingui/macro": "^4.11.1",
     "@lingui/react": "^4.11.1",
