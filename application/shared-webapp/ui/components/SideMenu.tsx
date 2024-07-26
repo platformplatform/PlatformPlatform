@@ -1,10 +1,11 @@
-import { createContext, useContext, useState } from "react";
-import { ChevronsLeftIcon, CircleUserIcon, HomeIcon, type LucideIcon, UsersIcon } from "lucide-react";
+import { createContext, useCallback, useContext, useState } from "react";
+import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { useRouter } from "@tanstack/react-router";
 
 const collapsedContext = createContext(false);
 
@@ -31,13 +32,17 @@ const menuTextStyles = tv({
 type MenuButtonProps = {
   icon: LucideIcon;
   label: string;
+  href?: string;
 };
 
-function MenuButton({ icon: Icon, label }: Readonly<MenuButtonProps>) {
+export function MenuButton({ icon: Icon, label, href: to }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
+  const { navigate } = useRouter();
+  const onPress = useCallback(() => (to != null ? navigate({ to }) : undefined), [to, navigate]);
+
   return (
-    <TooltipTrigger>
-      <Button variant="ghost" className={menuButtonStyles({ isCollapsed })}>
+    <TooltipTrigger delay={300}>
+      <Button variant="link" className={menuButtonStyles({ isCollapsed })} onPress={onPress}>
         <Icon className="w-6 h-6 shrink-0 grow-0" />
         <div className={menuTextStyles({ isCollapsed })}>{label}</div>
       </Button>
@@ -51,7 +56,7 @@ const sideMenuStyles = tv({
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
-      false: "w-72 gap-2 pl-8 ease-in"
+      false: "w-72 gap-4 pl-8 ease-in"
     }
   }
 });
@@ -86,7 +91,11 @@ const logoMarkStyles = tv({
   }
 });
 
-export function SideMenu() {
+type SideMenuProps = {
+  children: React.ReactNode;
+};
+
+export function SideMenu({ children }: Readonly<SideMenuProps>) {
   const [isCollapsed, setIsCollapsed] = useState(() => !window.matchMedia("(min-width: 1024px)").matches);
 
   const toggleCollapse = () => {
@@ -112,21 +121,18 @@ export function SideMenu() {
             <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
           </div>
         </div>
-        <MenuButton icon={HomeIcon} label="Home" />
-        <MenuSeparator>Organisation</MenuSeparator>
-        <MenuButton icon={CircleUserIcon} label="Account" />
-        <MenuButton icon={UsersIcon} label="Users" />
+        {children}
       </div>
     </collapsedContext.Provider>
   );
 }
 
 const menuSeparatorStyles = tv({
-  base: "flex text-muted-foreground border-b-0 font-semibold uppercase transition-all duration-300 leading-4 items-end",
+  base: "text-muted-foreground border-b-0 font-semibold uppercase transition-all duration-300 leading-4",
   variants: {
     isCollapsed: {
       true: "h-0 w-6 text-muted-foreground/0 border-b-4 border-border/100 text-[0px] pt-0 self-center ease-out",
-      false: "h-14 w-full border-border/0 text-xs pt-4 ease-in"
+      false: "h-8 w-full border-border/0 text-xs pt-4 ease-in"
     }
   }
 });
@@ -135,7 +141,7 @@ type MenuSeparatorProps = {
   children: React.ReactNode;
 };
 
-function MenuSeparator({ children }: Readonly<MenuSeparatorProps>) {
+export function MenuSeparator({ children }: Readonly<MenuSeparatorProps>) {
   const isCollapsed = useContext(collapsedContext);
   return (
     <div className="pl-4">
