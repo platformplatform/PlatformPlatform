@@ -51,7 +51,7 @@ const sideMenuStyles = tv({
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
-      false: "w-72 gap-4 pl-8 ease-in"
+      false: "w-72 gap-2 pl-8 ease-in"
     }
   }
 });
@@ -122,11 +122,11 @@ export function SideMenu() {
 }
 
 const menuSeparatorStyles = tv({
-  base: "text-muted-foreground border-b-0 font-semibold uppercase transition-all duration-300 leading-4",
+  base: "flex text-muted-foreground border-b-0 font-semibold uppercase transition-all duration-300 leading-4 items-end",
   variants: {
     isCollapsed: {
       true: "h-0 w-6 text-muted-foreground/0 border-b-4 border-border/100 text-[0px] pt-0 self-center ease-out",
-      false: "h-8 w-full border-border/0 text-xs pt-4 ease-in"
+      false: "h-14 w-full border-border/0 text-xs pt-4 ease-in"
     }
   }
 });
