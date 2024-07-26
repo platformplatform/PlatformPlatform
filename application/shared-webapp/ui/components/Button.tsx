@@ -57,7 +57,7 @@ export function Button({ className, variant, size, ...props }: Readonly<ButtonPr
         button({
           ...renderProps,
           size: variant === "icon" ? "icon" : size,
-          variant: variant === "icon" ? "outline" : variant,
+          variant: variant === "icon" ? "ghost" : variant,
           className
         })
       )}

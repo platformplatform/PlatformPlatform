@@ -19,7 +19,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
       </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
         <ThemeModeSelector />
-        <Button variant="ghost" size="icon">
+        <Button variant="icon">
           <LifeBuoyIcon size={20} />
         </Button>
         <LocaleSwitcher />
