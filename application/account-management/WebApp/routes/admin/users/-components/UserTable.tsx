@@ -28,6 +28,7 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
     <div className="flex flex-col gap-2 h-full">
       <Table
         selectionMode="multiple"
+        selectionBehavior="toggle"
         sortDescriptor={sortDescriptor}
         onSortChange={(newSortDescriptor) => {
           setSortDescriptor(newSortDescriptor);
@@ -40,22 +41,24 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
         aria-label="Users"
       >
         <TableHeader>
-          <Column allowsSorting id="name" isRowHeader>
+          <Column minWidth={50} defaultWidth={200} allowsSorting id="name" isRowHeader>
             Name
           </Column>
-          <Column allowsSorting id="email">
+          <Column minWidth={50} allowsSorting id="email">
             Email
           </Column>
-          <Column allowsSorting id="createdAt">
+          <Column minWidth={55} allowsSorting id="createdAt">
             Added
           </Column>
-          <Column allowsSorting id="modifiedAt">
+          <Column minWidth={55} allowsSorting id="modifiedAt">
             Last Seen
           </Column>
-          <Column allowsSorting id="role">
+          <Column minWidth={75} allowsSorting id="role">
             Role
           </Column>
-          <Column>Actions</Column>
+          <Column minWidth={114} defaultWidth={114}>
+            Actions
+          </Column>
         </TableHeader>
         <TableBody>
           {(usersData?.users ?? []).map((user) => (
@@ -68,11 +71,11 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
                     size="sm"
                     isRound
                   />
-                  <div className="truncate">
-                    <div>
+                  <div className="flex flex-col truncate">
+                    <div className="truncate">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div className="text-muted-foreground">{user.title ?? ""}</div>
+                    <div className="text-muted-foreground truncate">{user.title ?? ""}</div>
                   </div>
                 </div>
               </Cell>
@@ -80,26 +83,29 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
               <Cell>{toFormattedDate(user.createdAt)}</Cell>
               <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
               <Cell>
-                <Badge variant="outline">{user.role}</Badge>
+                <Badge variant="outline">Member</Badge>
               </Cell>
               <Cell>
-                <div className="flex gap-2 w-12">
-                  <Button variant="icon" className="group-hover:visible invisible">
-                    <Trash2Icon size={16} />
+                <div className="group flex gap-2 w-full">
+                  <Button
+                    variant="icon"
+                    className="group-hover:opacity-100 opacity-0 duration-300 transition-opacity ease-in-out"
+                  >
+                    <Trash2Icon className="w-4 h-4" />
                   </Button>
                   <MenuTrigger>
                     <Button variant="icon" aria-label="Menu">
-                      <EllipsisVerticalIcon size={16} />
+                      <EllipsisVerticalIcon className="w-4 h-4" />
                     </Button>
                     <Popover>
                       <Menu>
                         <MenuItem onAction={() => alert("open")}>
-                          <UserIcon size={16} />
+                          <UserIcon className="w-4 h-4" />
                           View Profile
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem onAction={() => alert("rename")}>
-                          <Trash2Icon size={16} />
+                          <Trash2Icon className="w-4 h-4 text-destructive" />
                           <span className="text-destructive">Delete</span>
                         </MenuItem>
                       </Menu>
