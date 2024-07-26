@@ -26,7 +26,7 @@ interface MenuProps<T> extends AriaMenuProps<T> {
 
 export function Menu<T extends object>(props: Readonly<MenuProps<T>>) {
   return (
-    <Popover placement={props.placement} className="min-w-[150px]">
+    <Popover placement={props.placement} className="min-w-[150px] p-px">
       <AriaMenu {...props} className="max-h-[inherit] overflow-auto rounded-t-sm p-1 outline outline-0" />
     </Popover>
   );
@@ -40,7 +40,7 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
           {selectionMode !== "none" && (
             <span className="flex w-4 items-center">{isSelected && <Check aria-hidden className="h-4 w-4" />}</span>
           )}
-          <span className="flex flex-1 items-center gap-2 truncate font-normal group-selected:font-semibold">
+          <span className="flex flex-1 px-2 items-center gap-2 truncate font-normal group-selected:font-semibold">
             {children}
           </span>
           {hasSubmenu && <ChevronRight aria-hidden className="absolute right-2 h-4 w-4" />}
