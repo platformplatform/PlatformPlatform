@@ -37,7 +37,7 @@ export function LocaleSwitcher() {
 
   return (
     <DialogTrigger onOpenChange={setIsOpen} isOpen={isOpen}>
-      <Button variant="ghost" size="icon">
+      <Button variant="icon">
         <LanguagesIcon />
       </Button>
       <Popover>

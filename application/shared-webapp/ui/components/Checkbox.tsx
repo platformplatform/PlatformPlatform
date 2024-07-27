@@ -38,7 +38,7 @@ export function CheckboxGroup(props: Readonly<CheckboxGroupProps>) {
 }
 
 const checkboxStyles = tv({
-  base: "flex gap-2 items-center group text-sm transition",
+  base: "flex h-5 w-5 gap-2 items-center group text-sm transition",
   variants: {
     isDisabled: {
       false: "text-foreground",
@@ -49,7 +49,7 @@ const checkboxStyles = tv({
 
 const boxStyles = tv({
   extend: focusRing,
-  base: "w-5 h-5 flex-shrink-0 rounded flex items-center justify-center border-2 transition",
+  base: "w-full h-full flex-shrink-0 rounded flex items-center justify-center border transition",
   variants: {
     isSelected: {
       false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
@@ -66,26 +66,34 @@ const boxStyles = tv({
 
 const iconStyles = "w-4 h-4";
 
-export function Checkbox(props: Readonly<CheckboxProps>) {
+export function Checkbox({ className, children, ...props }: Readonly<CheckboxProps>) {
   return (
     <AriaCheckbox
       {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
+      className={composeRenderProps(className, (className, renderProps) =>
         checkboxStyles({ ...renderProps, className })
       )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
-            {isIndeterminate ? (
-              <Minus aria-hidden className={iconStyles} />
-            ) : isSelected ? (
-              <Check aria-hidden className={iconStyles} />
-            ) : null}
+            <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />
           </div>
-          {props.children}
+          {children}
         </>
       )}
     </AriaCheckbox>
   );
+}
+
+type SelectionIconProps = {
+  isSelected: boolean;
+  isIndeterminate: boolean;
+};
+
+function SelectionIcon({ isSelected, isIndeterminate }: Readonly<SelectionIconProps>) {
+  if (isIndeterminate) return <Minus aria-hidden className={iconStyles} />;
+  if (isSelected) return <Check aria-hidden className={iconStyles} />;
+
+  return null;
 }

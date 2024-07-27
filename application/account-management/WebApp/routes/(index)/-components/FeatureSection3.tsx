@@ -1,4 +1,4 @@
-import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 
 const createAccountUrl = "https://platformplatformgithub.blob.core.windows.net/create-account-s3.png";
 

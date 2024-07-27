@@ -1,4 +1,4 @@
-import { ThemeModeSelector } from "@repo/infrastructure/themeMode/ThemeModeSelector";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
@@ -12,17 +12,19 @@ interface TopMenuProps {
 
 export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between w-full">
       <Breadcrumbs>
         <Breadcrumb href="/admin">Home</Breadcrumb>
         {children}
       </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
-        <ThemeModeSelector />
-        <Button variant="ghost" size="icon">
-          <LifeBuoyIcon size={20} />
-        </Button>
-        <LocaleSwitcher />
+        <span className="hidden sm:flex">
+          <ThemeModeSelector />
+          <Button variant="icon">
+            <LifeBuoyIcon size={20} />
+          </Button>
+          <LocaleSwitcher />
+        </span>
         <AvatarButton />
       </div>
     </div>

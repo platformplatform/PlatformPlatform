@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
   content: [
@@ -18,6 +19,9 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", ...fontFamily.sans]
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

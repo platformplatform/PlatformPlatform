@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { SideMenu } from "@repo/ui/components/SideMenu";
 import { Trans } from "@lingui/macro";
 import { accountManagementApi } from "@/shared/lib/api/client";
 import { TopMenu } from "@/shared/components/topMenu";
+import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 
 export const Route = createFileRoute("/admin/")({
   component: Home
@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <div className="flex gap-4 w-full h-full border">
-      <SideMenu />
+      <SharedSideMenu />
       <div className="flex flex-grow flex-col gap-4 pl-1 pr-6 py-3 overflow-x-auto">
         <div className="z-10">
           <TopMenu />

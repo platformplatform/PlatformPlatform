@@ -17,7 +17,7 @@ export function AvatarButton() {
   return (
     <>
       <MenuTrigger aria-label="account settings">
-        <Button aria-label="Menu" variant="ghost" size="icon" className="rounded-full">
+        <Button aria-label="Menu" variant="icon" className="rounded-full">
           <Avatar avatarUrl={avatarUrl} initials="MD" isRound size="sm" />
         </Button>
         <Menu placement="bottom end">

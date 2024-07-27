@@ -22,11 +22,10 @@ import {
   composeRenderProps,
   useTableOptions
 } from "react-aria-components";
-import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
-import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
+import { Checkbox } from "./Checkbox";
 
 export { TableBody, useContextProps } from "react-aria-components";
 
@@ -47,12 +46,21 @@ export function Table(props: Readonly<TableProps>) {
 
 const columnStyles = tv({
   extend: focusRing,
-  base: "px-4 h-12 flex-1 flex gap-1 items-center text-sm"
+  base: "flex w-full gap-1 items-center text-xs font-bold"
 });
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "w-px px-[8px] translate-x-[8px] box-content py-1 h-6 bg-clip-content bg-muted-foreground forced-colors:bg-[ButtonBorder] cursor-col-resize rounded resizing:bg-ring forced-colors:resizing:bg-[Highlight] resizing:w-[2px] resizing:pl-[7px] -outline-offset-2"
+  base: "column-resizer absolute right-0 top-1.5 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
+  variants: {
+    isResizing: {
+      false: "bg-border forced-colors:bg-[ButtonBorder] ",
+      true: "bg-ring forced-colors:bg-[Highlight]"
+    },
+    isHovered: {
+      true: "bg-muted-foreground/80"
+    }
+  }
 });
 
 export function Column({ children, className, ...props }: Readonly<ColumnProps>) {
@@ -61,11 +69,11 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "cursor-default text-start font-semibold text-muted-foreground [&:focus-within]:z-20 [&:hover]:z-20"
+        "relative h-12 cursor-default text-start text-muted-foreground [&:focus-within]:z-20 [&:hover]:z-20"
       )}
     >
       {composeRenderProps(children, (children, { allowsSorting, sortDirection }) => (
-        <div className="flex items-center">
+        <div className="flex px-2 items-center w-full">
           <Group role="presentation" tabIndex={-1} className={columnStyles}>
             <span className="truncate">{children}</span>
             {allowsSorting && (
@@ -80,39 +88,43 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
               </span>
             )}
           </Group>
-          {!props.width && <ColumnResizer className={resizerStyles({ className: "column-resizer" })} />}
+          {!props.width && <ColumnResizer className={(rp) => resizerStyles(rp)} />}
         </div>
       ))}
     </AriaColumn>
   );
 }
 
-export function TableHeader<T extends object>(props: Readonly<TableHeaderProps<T>>) {
+export function TableHeader<T extends object>({
+  className,
+  children,
+  ...tableHeaderProps
+}: Readonly<TableHeaderProps<T>>) {
   const { selectionBehavior, selectionMode, allowsDragging } = useTableOptions();
 
   return (
     <AriaTableHeader
-      {...props}
+      {...tableHeaderProps}
       className={composeTailwindRenderProps(
-        props.className,
-        "sticky top-0 z-10 h-12 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
+        className,
+        "sticky [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 top-0 z-10 h-16 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
       )}
     >
       {/* Add extra columns for drag and drop and selection. */}
       {allowsDragging && <Column />}
       {selectionBehavior === "toggle" && (
-        <AriaColumn width={36} minWidth={36} className="cursor-default p-4 text-start font-semibold text-sm">
+        <AriaColumn width={52} minWidth={52}>
           {selectionMode === "multiple" && <Checkbox slot="selection" />}
         </AriaColumn>
       )}
-      <Collection items={props.columns}>{props.children}</Collection>
+      <Collection items={tableHeaderProps.columns}>{children}</Collection>
     </AriaTableHeader>
   );
 }
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "h-12 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-sm",
+  base: "h-16 [&>td:first-child]:pl-4 [&>td:last-child]:pr-4 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-xs font-normal",
   variants: {
     isDisabled: {
       false: "text-muted-foreground hover:bg-muted/80",
@@ -127,11 +139,11 @@ const rowStyles = tv({
   }
 });
 
-export function Row<T extends object>({ id, columns, children, ...otherProps }: Readonly<RowProps<T>>) {
+export function Row<T extends object>({ id, columns, children, ...rowProps }: Readonly<RowProps<T>>) {
   const { selectionBehavior, allowsDragging } = useTableOptions();
 
   return (
-    <AriaRow id={id} {...otherProps} className={rowStyles}>
+    <AriaRow id={id} {...rowProps} className={rowStyles}>
       {allowsDragging && (
         <Cell>
           <Button slot="drag">≡</Button>
@@ -149,7 +161,7 @@ export function Row<T extends object>({ id, columns, children, ...otherProps }: 
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring p-4 truncate -outline-offset-2"
+  base: "px-2 border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring truncate -outline-offset-2"
 });
 
 export function Cell(props: Readonly<CellProps>) {
