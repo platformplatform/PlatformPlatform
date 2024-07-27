@@ -629,7 +629,7 @@
         "additionalProperties": false,
         "properties": {
           "tenantId": {
-            "$ref": "#/components/schemas/TenantId"
+            "type": "string"
           },
           "email": {
             "type": "string"
@@ -639,20 +639,6 @@
           },
           "emailConfirmed": {
             "type": "boolean"
-          }
-        }
-      },
-      "TenantId": {
-        "type": "string"
-      },
-      "StronglyTypedIdOfStringAndTenantId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -720,6 +706,20 @@
           "Active",
           "Suspended"
         ]
+      },
+      "TenantId": {
+        "type": "string"
+      },
+      "StronglyTypedIdOfStringAndTenantId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "UpdateTenantCommand": {
         "type": "object",
