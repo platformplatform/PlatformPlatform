@@ -112,7 +112,7 @@ export function UserTable() {
               <Cell>{toFormattedDate(user.createdAt)}</Cell>
               <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
               <Cell>
-                <Badge variant="outline">Member</Badge>
+                <Badge variant="outline">{user.role}</Badge>
               </Cell>
               <Cell>
                 <div className="group flex gap-2 w-full">
