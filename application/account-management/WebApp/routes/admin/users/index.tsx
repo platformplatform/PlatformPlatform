@@ -41,9 +41,9 @@ export default function UsersPage() {
   }, [pageOffset, orderBy, sortOrder]);
 
   return (
-    <div className="flex gap-4 w-full h-full border">
+    <div className="flex gap-4 w-full h-full">
       <SharedSideMenu />
-      <div className="flex flex-col gap-4 pl-1 pr-6 py-3 w-full">
+      <div className="flex flex-col gap-4 px-2 sm:px-4 py-2 md:py-4 w-full">
         <Menu />
         <UserInvite />
         <UserTabs usersData={userData} />

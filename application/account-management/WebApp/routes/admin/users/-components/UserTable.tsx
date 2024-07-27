@@ -23,9 +23,11 @@ type UserTableProps = {
 
 export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<UserTableProps>) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
+  const handlePageChange = (page: number) => onPageChange(page - 1);
+  const currentPage = (usersData?.currentPageOffset ?? 0) + 1;
 
   return (
-    <div className="flex flex-col gap-2 h-full">
+    <div className="flex flex-col gap-2 h-full w-full">
       <Table
         selectionMode="multiple"
         selectionBehavior="toggle"
@@ -118,9 +120,20 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
         </TableBody>
       </Table>
       <Pagination
-        pageOffset={usersData?.currentPageOffset ?? 0}
+        size={5}
+        currentPage={currentPage}
         totalPages={usersData?.totalPages ?? 1}
-        onPageChange={onPageChange}
+        onPageChange={handlePageChange}
+        className="w-full pr-12 sm:hidden"
+      />
+      <Pagination
+        size={7}
+        nextLabel="Next"
+        previousLabel="Previous"
+        currentPage={currentPage}
+        totalPages={usersData?.totalPages ?? 1}
+        onPageChange={handlePageChange}
+        className="hidden sm:flex w-full"
       />
     </div>
   );

@@ -1,11 +1,14 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
+import { ChevronsLeftIcon, HelpCircleIcon, type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { useRouter } from "@tanstack/react-router";
+import { Dialog, DialogTrigger } from "./Dialog";
+import { Popover } from "./Popover";
+import { Modal } from "./Modal";
 
 const collapsedContext = createContext(false);
 
@@ -52,7 +55,7 @@ export function MenuButton({ icon: Icon, label, href: to }: Readonly<MenuButtonP
 }
 
 const sideMenuStyles = tv({
-  base: "relative flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
+  base: "relative hidden sm:flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
@@ -103,27 +106,46 @@ export function SideMenu({ children }: Readonly<SideMenuProps>) {
   };
 
   return (
-    <collapsedContext.Provider value={isCollapsed}>
-      <div className={sideMenuStyles({ isCollapsed })}>
-        <div className="h-20">
-          <Button
-            variant="ghost"
-            size="sm"
-            onPress={toggleCollapse}
-            className="absolute top-3.5 right-0 hover:bg-transparent hover:text-muted-foreground border-r-2 border-border rounded-r-none"
-          >
-            <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
-          </Button>
-          <div className="pr-8">
-            <img src={logoWrapUrl} alt="Logo Wrap" className={logoWrapStyles({ isCollapsed })} />
+    <>
+      <collapsedContext.Provider value={isCollapsed}>
+        <div className={sideMenuStyles({ isCollapsed })}>
+          <div className="h-20">
+            <Button
+              variant="ghost"
+              size="sm"
+              onPress={toggleCollapse}
+              className="absolute top-3.5 right-0 hover:bg-transparent hover:text-muted-foreground border-r-2 border-border rounded-r-none"
+            >
+              <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
+            </Button>
+            <div className="pr-8">
+              <img src={logoWrapUrl} alt="Logo Wrap" className={logoWrapStyles({ isCollapsed })} />
+            </div>
+            <div className="flex pl-3 pt-4">
+              <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
+            </div>
           </div>
-          <div className="flex pl-3 pt-4">
-            <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
-          </div>
+          {children}
         </div>
-        {children}
-      </div>
-    </collapsedContext.Provider>
+      </collapsedContext.Provider>
+      <collapsedContext.Provider value={false}>
+        <div className="absolute right-2 bottom-2 sm:hidden z-50">
+          <DialogTrigger>
+            <Button aria-label="Help" variant="icon">
+              <img src={logoMarkUrl} alt="Logo" className="w-8 h-8" />
+            </Button>
+            <Modal position="left" fullSize>
+              <Dialog className="w-60">
+                <div className="pb-8">
+                  <img src={logoWrapUrl} alt="Logo Wrap" />
+                </div>
+                {children}
+              </Dialog>
+            </Modal>
+          </DialogTrigger>
+        </div>
+      </collapsedContext.Provider>
+    </>
   );
 }
 
