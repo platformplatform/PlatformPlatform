@@ -9,7 +9,7 @@ public sealed record GetUsersQuery(
     UserRole? UserRole = null,
     SortableUserProperties OrderBy = SortableUserProperties.Name,
     SortOrder SortOrder = SortOrder.Ascending,
-    int PageSize = 10,
+    int PageSize = 25,
     int? PageOffset = null
 ) : IRequest<Result<GetUsersResponseDto>>;
 
