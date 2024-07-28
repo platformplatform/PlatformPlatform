@@ -4,18 +4,24 @@ namespace PlatformPlatform.AccountManagement.Domain.Users;
 
 public sealed class User : AggregateRoot<UserId>
 {
+    private string _email = string.Empty;
+
     private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed)
         : base(UserId.NewId())
     {
-        TenantId = tenantId;
         Email = email;
+        TenantId = tenantId;
         Role = role;
         EmailConfirmed = emailConfirmed;
     }
 
     public TenantId TenantId { get; }
 
-    public string Email { get; private set; }
+    public string Email
+    {
+        get => _email;
+        private set => _email = value.ToLowerInvariant();
+    }
 
     public string? FirstName { get; private set; }
 
