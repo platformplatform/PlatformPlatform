@@ -30,8 +30,7 @@ public sealed class CompleteAccountRegistrationHandler(
             return Result.NotFound($"AccountRegistration with id '{command.Id}' not found.");
         }
 
-        if (passwordHasher.VerifyHashedPassword(this, accountRegistration.OneTimePasswordHash, command.OneTimePassword)
-            == PasswordVerificationResult.Failed)
+        if (ValidateOneTimePassword(command, accountRegistration))
         {
             accountRegistration.RegisterInvalidPasswordAttempt();
             accountRegistrationRepository.Update(accountRegistration);
@@ -71,5 +70,21 @@ public sealed class CompleteAccountRegistrationHandler(
         events.CollectEvent(new AccountRegistrationCompleted(tenant.Id, tenant.State, (int)registrationTimeInSeconds));
 
         return Result.Success();
+    }
+
+    private bool ValidateOneTimePassword(CompleteAccountRegistrationCommand command, AccountRegistration accountRegistration)
+    {
+        var passwordVerificationResult = passwordHasher.VerifyHashedPassword(this, accountRegistration.OneTimePasswordHash, command.OneTimePassword);
+
+        OverRidePasswordVerificationResult(command.OneTimePassword, ref passwordVerificationResult);
+
+        return passwordVerificationResult == PasswordVerificationResult.Failed;
+
+        [Conditional("DEBUG")]
+        static void OverRidePasswordVerificationResult(string oneTimePassword, ref PasswordVerificationResult passwordVerificationResult)
+        {
+            // When debugging, we can always use the "UNLOCK" code to verify the password
+            if (oneTimePassword == "UNLOCK") passwordVerificationResult = PasswordVerificationResult.Success;
+        }
     }
 }
