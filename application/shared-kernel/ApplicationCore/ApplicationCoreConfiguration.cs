@@ -1,5 +1,7 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -20,6 +22,9 @@ public static class ApplicationCoreConfiguration
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddValidatorsFromAssembly(applicationAssembly);
+
+        services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
+        services.AddScoped<OneTimePasswordValidator>();
 
         return services;
     }
