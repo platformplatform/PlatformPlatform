@@ -1,5 +1,8 @@
-import createClient from "openapi-fetch";
-import type { paths } from "./api.generated";
+import type { paths, components } from "./api.generated";
+import { createPlatformApiClient } from "@repo/infrastructure/api/PlatformApiClient";
+export * from "./api.generated.d";
 
-const baseUrl = import.meta.env.PUBLIC_URL;
-export const accountManagementApi = createClient<paths>({ baseUrl });
+export const api = createPlatformApiClient<paths>();
+export const useApi = api.useApi;
+
+export type Schemas = components["schemas"];
