@@ -1,19 +1,14 @@
-import type { ClientMethod, Middleware, MaybeOptionalInit, ParseAsResponse, ClientOptions } from "openapi-fetch";
-import type {
-  MediaType,
-  HttpMethod,
-  PathsWithMethod,
-  SuccessResponse,
-  ResponseObjectMap
-} from "openapi-typescript-helpers";
+import type { Middleware, ClientOptions } from "openapi-fetch";
+import type { MediaType, HttpMethod } from "openapi-typescript-helpers";
 import createClient from "openapi-fetch";
-import type { FormProps } from "react-aria-components";
 import {
   type ClientMethodWithProblemDetails,
   createClientMethodWithProblemDetails,
-  isHttpMethod,
-  ProblemDetailsError
+  isHttpMethod
 } from "./ClientMethodWithProblemDetails";
+import { isKeyof } from "@repo/utils/object/isKeyof";
+import { createPlatformServerAction, type PlatformServerAction } from "./PlatformServerAction";
+import { createApiReactHook, type PlatformApiReactHook } from "./ApiReactHook";
 
 /**
  * Create a client for the platform API.
@@ -36,17 +31,22 @@ export function createPlatformApiClient<Paths extends {}, Media extends MediaTyp
     ...clientOptions
   });
   const action = createPlatformServerAction(client.POST);
+  const useApi = createApiReactHook(client.GET);
   const notImplemented = (name: string | symbol) => {
     throw new Error(`Action client method not implemented: ${name.toString()}`);
   };
   return new Proxy({} as PlatformApiClient<Paths, Media>, {
     get(_, name) {
+      if (name === "useApi") {
+        return useApi;
+      }
       if (name === "action") {
         return action;
       }
       if (isHttpMethod(name)) {
         const clientMethodKey = name.toUpperCase() as Uppercase<HttpMethod>;
-        return createClientMethodWithProblemDetails(client[clientMethodKey]);
+        const shouldCache = clientMethodKey === "GET";
+        return createClientMethodWithProblemDetails(client[clientMethodKey], shouldCache);
       }
       if (isKeyof(name, client)) {
         return client[name];
@@ -56,66 +56,11 @@ export function createPlatformApiClient<Paths extends {}, Media extends MediaTyp
   });
 }
 
-function createPlatformServerAction<
-  // biome-ignore lint/complexity/noBannedTypes: This is the exact type used in "openapi-typescript"
-  Paths extends Record<string, Record<HttpMethod, {}>>,
-  Media extends MediaType = MediaType
->(clientMethod: ClientMethod<Paths, "post", Media>) {
-  const postMethod = createClientMethodWithProblemDetails(clientMethod);
-  return <Path extends PathsWithMethod<Paths, "post">, Data = Awaited<ReturnType<typeof postMethod>>>(pathname: Path) =>
-    async (_: ActionClientState, formData: FormData): Promise<ActionClientState<Data>> => {
-      try {
-        const body = Object.fromEntries(formData);
-        const data = postMethod(pathname, {
-          // Make body data available for path parameters
-          path: body,
-          body
-          // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point
-        } as any) as Data;
-
-        return { success: true, data, message: undefined, errors: undefined };
-      } catch (error) {
-        if (error instanceof ProblemDetailsError) {
-          // Server validation errors
-          return {
-            success: false,
-            message: error.details.title,
-            errors: error.details.errors,
-            data: undefined
-          };
-        }
-        if (error instanceof Error) {
-          // API error
-          return { success: false, message: error.message, data: undefined, errors: {} };
-        }
-        // Unknown error
-        return { success: false, message: "An error occurred.", data: undefined, errors: {} };
-      }
-    };
-}
-
-function isKeyof<O extends {}>(key: string | symbol | keyof O, object: O): key is keyof O {
-  return typeof key === "string" && key in object;
-}
-
-type PlatformServerAction<
-  // biome-ignore lint/complexity/noBannedTypes: This is the exact type used in "openapi-typescript"
-  Paths extends Record<string, Record<HttpMethod, {}>>,
-  Media extends MediaType = MediaType,
-  Method extends HttpMethod = "post"
-> = <
-  Path extends PathsWithMethod<Paths, Method>,
-  Init extends MaybeOptionalInit<Paths[Path], Method>,
-  // Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<Paths[Path][Method]>, Media>, Init>
-  T = Paths[Path][Method],
-  Options = Init,
-  Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<T>, Media>, Options>
->(
-  p: Path
-) => (_: ActionClientState, formData: FormData) => Promise<ActionClientState<Data>>;
-
 type PlatformApiClient<Paths extends {}, Media extends MediaType = MediaType> = {
-  action: PlatformServerAction<Paths, Media>;
+  /** Call a GET endpoint using a React hook with state management */
+  useApi: PlatformApiReactHook<Paths, "get", Media>;
+  /** Call a server action */
+  action: PlatformServerAction<Paths, "post", Media>;
   /** Call a GET endpoint */
   get: ClientMethodWithProblemDetails<Paths, "get", Media>;
   /** Call a PUT endpoint */
@@ -137,25 +82,3 @@ type PlatformApiClient<Paths extends {}, Media extends MediaType = MediaType> = 
   /** Unregister middleware */
   eject(...middleware: Middleware[]): void;
 };
-
-export type ValidationErrors = NonNullable<FormProps["validationErrors"]>;
-
-export type ActionClientState<D = unknown> =
-  | {
-      success?: null;
-      message?: string;
-      errors?: ValidationErrors;
-      data?: null;
-    }
-  | {
-      success: false;
-      message: string;
-      errors: ValidationErrors;
-      data: undefined;
-    }
-  | {
-      success: true;
-      message: undefined;
-      errors: undefined;
-      data: D;
-    };
