@@ -599,15 +599,7 @@
       },
       "UserId": {
         "type": "string",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedUlidOfUserId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "format": "usr_{string}"
       },
       "StronglyTypedUlidOfUserId": {
         "allOf": [
@@ -651,16 +643,7 @@
         }
       },
       "TenantId": {
-        "type": "string",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndTenantId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "type": "string"
       },
       "StronglyTypedIdOfStringAndTenantId": {
         "type": "object",
@@ -774,15 +757,7 @@
       },
       "AccountRegistrationId": {
         "type": "string",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedUlidOfAccountRegistrationId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "format": "accreg_{string}"
       },
       "StronglyTypedUlidOfAccountRegistrationId": {
         "allOf": [

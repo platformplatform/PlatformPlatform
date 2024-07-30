@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { i18n } from "@lingui/core";
 import { accountManagementApi } from "./mock.api";
-import { getApiError, getFieldErrors } from "@repo/infrastructure/api/ErrorList";
 
 export const tenantInfoScheme = z.object({
   value: z.string()
@@ -92,11 +91,9 @@ export async function authenticate(_: AuthenticationState, formData: FormData): 
       };
     }
 
-    const apiError = getApiError(result);
-
     return {
-      message: apiError.title,
-      errors: getFieldErrors(apiError.Errors)
+      message: "mock error",
+      errors: {}
     };
   } catch (e) {
     return {

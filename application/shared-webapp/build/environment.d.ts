@@ -11,6 +11,10 @@ export declare global {
      * Application ID e.g. "account-management/webapp"
      **/
     APPLICATION_ID: string;
+    /**
+     * Build type e.g. "development" | "production"
+     */
+    BUILD_TYPE: "development" | "production";
   }
 
   /**

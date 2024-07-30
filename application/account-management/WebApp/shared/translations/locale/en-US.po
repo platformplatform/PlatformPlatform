@@ -18,14 +18,6 @@ msgid "yourname@example.com"
 msgstr "yourname@example.com"
 
 #. js-lingui-explicit-id
-msgid "Account registration is not started."
-msgstr "Account registration is not started."
-
-#. js-lingui-explicit-id
-msgid "An error occured when trying to complete Account registration."
-msgstr "An error occured when trying to complete Account registration."
-
-#. js-lingui-explicit-id
 msgid "Email"
 msgstr "Email"
 
@@ -52,6 +44,14 @@ msgstr "Screenshots of the dashboard project showing mobile versions"
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
+
+#. js-lingui-explicit-id
+#~ msgid "Account registration is not started."
+#~ msgstr "Account registration is not started."
+
+#. js-lingui-explicit-id
+#~ msgid "An error occured when trying to complete Account registration."
+#~ msgstr "An error occured when trying to complete Account registration."
 
 msgid "Active Users"
 msgstr "Active Users"
