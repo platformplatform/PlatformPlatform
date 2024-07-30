@@ -7,17 +7,20 @@ export const tenantInfoScheme = z.object({
 });
 export type TenantInfo = z.infer<typeof tenantInfoScheme>;
 
-export const userRoleScheme = z.enum(["TenantUser", "TenantAdmin", "SuperAdmin"]);
+export const userRoleScheme = z.enum(["Member", "Admin", "Owner"]);
 export type UserRole = z.infer<typeof userRoleScheme>;
 
 export const UserInfoScheme = z.object({
   isAuthenticated: z.boolean(),
   locale: z.string(),
   userId: z.string().nullable().optional(),
-  email: z.string().email().nullable().optional(),
   tenantId: z.string().nullable().optional(),
   userRole: userRoleScheme.nullable().optional(),
-  userName: z.string().nullable().optional()
+  email: z.string().email().nullable().optional(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  avatarUrl: z.string().nullable().optional()
 });
 export type UserInfo = z.infer<typeof UserInfoScheme>;
 

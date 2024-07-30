@@ -98,7 +98,12 @@ public sealed class CompleteLoginHandler(
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
-                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty)
+                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
+                    new Claim("tenantId", user.TenantId),
+                    new Claim("role", user.Role.ToString()),
+                    new Claim("locale", "en"),
+                    new Claim("title", user.Title ?? string.Empty),
+                    new Claim("avatarUrl", user.Avatar.Url ?? string.Empty)
                 }
             ),
             Expires = DateTime.UtcNow.AddMinutes(5),

@@ -3,10 +3,14 @@ import type { UserInfo } from "./actions";
 const mockAuthUserInfo: UserInfo = {
   isAuthenticated: true,
   locale: "en-US",
-  email: "foo@bar.com",
+  userId: "usr_0123456789ABCDEFGHJKLMNPQR",
   tenantId: "acme",
-  userRole: "TenantUser",
-  userName: "Foo"
+  userRole: "Member",
+  email: "foo@bar.com",
+  firstName: "Foo",
+  lastName: "Bar",
+  title: "Founder",
+  avatarUrl: null
 };
 
 const mockAnonymousUserInfo: UserInfo = {
