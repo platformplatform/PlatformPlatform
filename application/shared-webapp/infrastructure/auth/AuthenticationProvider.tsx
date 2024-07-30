@@ -9,6 +9,8 @@ export type UserInfo = {
 
 export const initialUserInfo: UserInfo = createUserInfo({ ...import.meta.user_info_env });
 
+console.log(initialUserInfo);
+
 /**
  * Returns the user info if the user is authenticated or null if logged out
  * If the user data is invalid, it will throw an error
