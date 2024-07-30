@@ -1,7 +1,7 @@
 import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Badge } from "@repo/ui/components/Badge";
 import { Pagination } from "@repo/ui/components/Pagination";
@@ -9,22 +9,56 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { getPascalCase } from "@repo/utils/string/getPascalCase";
-import type { components } from "@/shared/lib/api/api.generated";
+import { SortOrder, SortableUserProperties, useApi } from "@/shared/lib/api/client";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 
-type UserTableProps = {
-  usersData: components["schemas"]["GetUsersResponseDto"] | null;
-  onPageChange: (page: number) => void;
-  onSortChange: [
-    (column: components["schemas"]["SortableUserProperties"]) => void,
-    (direction: components["schemas"]["SortOrder"]) => void
-  ];
-};
+export function UserTable() {
+  const navigate = useNavigate();
+  const { orderBy, pageOffset, sortOrder } = useSearch({ strict: false });
 
-export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<UserTableProps>) {
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>();
-  const handlePageChange = (page: number) => onPageChange(page - 1);
-  const currentPage = (usersData?.currentPageOffset ?? 0) + 1;
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
+    column: orderBy,
+    direction: sortOrder === "Ascending" ? "ascending" : "descending"
+  }));
+
+  const { data } = useApi("/api/account-management/users", {
+    params: {
+      query: {
+        PageOffset: pageOffset,
+        OrderBy: orderBy,
+        SortOrder: sortOrder
+      }
+    }
+  });
+
+  const handlePageChange = useCallback(
+    (pageOffset: number) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          pageOffset: pageOffset
+        })
+      });
+    },
+    [navigate]
+  );
+
+  const handleSortChange = useCallback(
+    (newSortDescriptor: SortDescriptor) => {
+      console.log(newSortDescriptor);
+      setSortDescriptor(newSortDescriptor);
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
+          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending
+        })
+      });
+    },
+    [navigate]
+  );
+
+  const currentPage = (data?.currentPageOffset ?? 0) + 1;
 
   return (
     <div className="flex flex-col gap-2 h-full w-full">
@@ -32,30 +66,23 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
         selectionMode="multiple"
         selectionBehavior="toggle"
         sortDescriptor={sortDescriptor}
-        onSortChange={(newSortDescriptor) => {
-          setSortDescriptor(newSortDescriptor);
-          onSortChange[0](
-            getPascalCase(newSortDescriptor.column as string) as components["schemas"]["SortableUserProperties"]
-          );
-          onSortChange[1](getPascalCase(newSortDescriptor.direction) as components["schemas"]["SortOrder"]);
-          onPageChange(0);
-        }}
+        onSortChange={handleSortChange}
         aria-label="Users"
       >
         <TableHeader>
-          <Column minWidth={50} defaultWidth={200} allowsSorting id="name" isRowHeader>
+          <Column minWidth={50} defaultWidth={200} allowsSorting id={SortableUserProperties.Name} isRowHeader>
             Name
           </Column>
-          <Column minWidth={50} allowsSorting id="email">
+          <Column minWidth={50} allowsSorting id={SortableUserProperties.Email}>
             Email
           </Column>
-          <Column minWidth={55} allowsSorting id="createdAt">
+          <Column minWidth={55} allowsSorting id={SortableUserProperties.CreatedAt}>
             Added
           </Column>
-          <Column minWidth={55} allowsSorting id="modifiedAt">
+          <Column minWidth={55} allowsSorting id={SortableUserProperties.ModifiedAt}>
             Last Seen
           </Column>
-          <Column minWidth={75} allowsSorting id="role">
+          <Column minWidth={75} allowsSorting id={SortableUserProperties.Role}>
             Role
           </Column>
           <Column minWidth={114} defaultWidth={114}>
@@ -63,7 +90,7 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
           </Column>
         </TableHeader>
         <TableBody>
-          {(usersData?.users ?? []).map((user) => (
+          {data?.users.map((user) => (
             <Row key={user.id}>
               <Cell>
                 <div className="flex h-14 items-center gap-2">
@@ -122,7 +149,7 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
       <Pagination
         size={5}
         currentPage={currentPage}
-        totalPages={usersData?.totalPages ?? 1}
+        totalPages={data?.totalPages ?? 1}
         onPageChange={handlePageChange}
         className="w-full pr-12 sm:hidden"
       />
@@ -131,7 +158,7 @@ export function UserTable({ usersData, onPageChange, onSortChange }: Readonly<Us
         nextLabel="Next"
         previousLabel="Previous"
         currentPage={currentPage}
-        totalPages={usersData?.totalPages ?? 1}
+        totalPages={data?.totalPages ?? 1}
         onPageChange={handlePageChange}
         className="hidden sm:flex w-full"
       />
