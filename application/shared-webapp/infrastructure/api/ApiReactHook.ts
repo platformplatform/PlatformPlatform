@@ -70,7 +70,12 @@ export function createApiReactHook<
 
     // Use a memorized object to prevent unnecessary re-renders
     const memorizedOptions = useMemorizedObject(options);
-    const memorizedHookOptions = useMemorizedObject(hookOptions);
+    const memorizedHookOptions = useMemorizedObject({
+      autoFetch: true,
+      cache: false,
+      debounceMs: undefined,
+      ...hookOptions
+    });
 
     const refresh = useCallback(() => {
       if (fetchDataRef.current) fetchDataRef.current("reload");
