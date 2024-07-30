@@ -1,3 +1,4 @@
+import { useMemorizedObject } from "@repo/utils/hooks/useMemorizedObject";
 import type { ClientMethod, MaybeOptionalInit, ParseAsResponse } from "openapi-fetch";
 import type {
   HttpMethod,
@@ -6,8 +7,8 @@ import type {
   ResponseObjectMap,
   SuccessResponse
 } from "openapi-typescript-helpers";
-import { createClientMethodWithProblemDetails, ProblemDetailsError } from "./ClientMethodWithProblemDetails";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createClientMethodWithProblemDetails, ProblemDetailsError } from "./ClientMethodWithProblemDetails";
 import type { ProblemDetails } from "./ProblemDetails";
 
 type UseApiReturnType<Data> = {
@@ -61,19 +62,20 @@ export function createApiReactHook<
     options: Options,
     hookOptions: ApiReactHookOptions = {}
   ): UseApiReturnType<Data> => {
-    const { cache = false, autoFetch = true, debounceMs } = hookOptions;
     const [problemDetails, setProblemDetails] = useState<ProblemDetails | undefined>();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState<boolean | null>(null);
     const [data, setData] = useState<Data | undefined>();
     const fetchDataRef = useRef<((cacheMode?: "reload" | "default") => void) | undefined>();
-    const optionsHash = JSON.stringify(options);
+
+    // Use a memorized object to prevent unnecessary re-renders
+    const memorizedOptions = useMemorizedObject(options);
+    const memorizedHookOptions = useMemorizedObject(hookOptions);
 
     const refresh = useCallback(() => {
       if (fetchDataRef.current) fetchDataRef.current("reload");
     }, []);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: We use the options hash to detect changes
     useEffect(() => {
       let requestPending = false;
       const abortController = new AbortController();
@@ -85,11 +87,11 @@ export function createApiReactHook<
         setLoading(true);
         try {
           const data = await apiMethod(pathname, {
-            ...options,
+            ...memorizedOptions,
             // Use the cache option to determine the cache mode
             cache: cacheMode,
             // Disable the abort controller if caching is enabled
-            signal: cache === true ? undefined : abortController.signal
+            signal: memorizedHookOptions.cache === true ? undefined : abortController.signal
             // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point but expose a type-safe API
           } as any);
           if (!abortController.signal.aborted) {
@@ -116,9 +118,9 @@ export function createApiReactHook<
 
       let timeout: NodeJS.Timeout | undefined;
 
-      if (autoFetch) {
-        if (debounceMs) {
-          timeout = setTimeout(() => fetchData(), debounceMs);
+      if (memorizedHookOptions.autoFetch) {
+        if (memorizedHookOptions.debounceMs) {
+          timeout = setTimeout(() => fetchData(), memorizedHookOptions.debounceMs);
         } else {
           fetchData();
         }
@@ -134,7 +136,7 @@ export function createApiReactHook<
         fetchDataRef.current = undefined;
         abortController.abort();
       };
-    }, [pathname, optionsHash, cache, autoFetch, debounceMs]);
+    }, [pathname, memorizedHookOptions, memorizedOptions]);
 
     return {
       loading,
