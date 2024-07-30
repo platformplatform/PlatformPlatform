@@ -39,7 +39,11 @@ export declare global {
     LOCALE: string;
   }
 
-  interface UserInfoEnv {
+  export interface UserInfoEnv {
+    /**
+     * Identifier
+     */
+    id: string;
     /**
      * Is user authenticated
      **/
@@ -53,17 +57,29 @@ export declare global {
      **/
     email?: string;
     /**
-     * User name
+     * First name
      **/
-    name?: string;
+    firstName?: string;
+    /**
+     * Last name
+     **/
+    lastName?: string;
+    /**
+     * Job title
+     */
+    title?: string;
     /**
      * User role
      **/
-    role?: string;
+    role?: "Owner" | "Admin" | "Member";
     /**
      * Tenant id
      **/
     tenantId?: string;
+    /**
+     * Avatar url
+     **/
+    avatarUrl?: string;
   }
 
   /**
