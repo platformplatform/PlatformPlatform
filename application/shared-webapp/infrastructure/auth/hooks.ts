@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { AuthenticationContext } from "./AuthenticationProvider";
-export type { AuthenticationState } from "./actions";
 
 /**
  * Get the authentication context.
@@ -38,20 +37,4 @@ export function useUserId() {
  */
 export function useUserRole() {
   return useUserInfo()?.userRole ?? null;
-}
-
-/**
- * Return the log in action.
- * [FormAction]
- */
-export function useLogInAction() {
-  return useAuthentication().logInAction;
-}
-
-/**
- * Return the log out action.
- * [FormAction]
- */
-export function useLogOutAction() {
-  return useAuthentication().logOutAction;
 }

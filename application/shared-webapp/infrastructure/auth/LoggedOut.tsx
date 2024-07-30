@@ -6,10 +6,8 @@ export interface LoggedOutProps {
 }
 
 /**
- * Show component if user is logged out.
+ * Show component if no user is logged in.
  */
 export function LoggedOut({ children }: LoggedOutProps) {
-  const isAuthenticated = useIsAuthenticated();
-  if (isAuthenticated) return null;
-  return children;
+  return useIsAuthenticated() ? null : children;
 }
