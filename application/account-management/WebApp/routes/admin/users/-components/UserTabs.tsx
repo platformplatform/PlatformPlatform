@@ -1,17 +1,21 @@
+import { useApi } from "@/shared/lib/api/client";
 import { Badge } from "@repo/ui/components/Badge";
 import { Tab, TabList, Tabs } from "@repo/ui/components/Tabs";
-import type { components } from "@/shared/lib/api/api.generated";
 
-type UserTableProps = {
-  usersData: components["schemas"]["GetUsersResponseDto"] | null;
-};
+export function UserTabs() {
+  const { data } = useApi("/api/account-management/users", {
+    params: {
+      query: {
+        PageSize: 1
+      }
+    }
+  });
 
-export function UserTabs({ usersData }: Readonly<UserTableProps>) {
   return (
     <Tabs>
       <TabList aria-label="User Categories">
         <Tab id="allUsers" href="/admin/users">
-          All Users <Badge variant="secondary">{usersData?.totalCount}</Badge>
+          All Users <Badge variant="secondary">{data?.totalCount}</Badge>
         </Tab>
         <Tab id="invitedUsers" href="/admin/users">
           Invited Users <Badge variant="secondary">2</Badge>
