@@ -1,4 +1,3 @@
-import type { FetchResponse } from "openapi-fetch";
 import type { UserInfo } from "./actions";
 
 const mockAuthUserInfo: UserInfo = {
@@ -37,7 +36,7 @@ export const accountManagementApi = {
             ok: true
           }
           // biome-ignore lint/suspicious/noExplicitAny: This is a mock API
-        } as FetchResponse<UserInfo, any, any>;
+        } as any;
       case "/api/auth/logout":
         return {
           data: {
@@ -47,7 +46,7 @@ export const accountManagementApi = {
             ok: true
           }
           // biome-ignore lint/suspicious/noExplicitAny: This is a mock API
-        } as FetchResponse<UserInfo, any, any>;
+        } as any;
     }
   }
 };
