@@ -3,8 +3,8 @@ import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import Timeout from "@spectrum-icons/illustrations/Timeout";
 import { Link } from "@repo/ui/components/Link";
-import { useRegistration } from "./-shared/actions";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
+import { getRegistration } from "./-shared/registrationState";
 
 export const Route = createFileRoute("/register/expired")({
   component: () => (
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/register/expired")({
 });
 
 export function VerificationCodeExpiredMessage() {
-  const { accountRegistrationId } = useRegistration();
+  const { accountRegistrationId } = getRegistration();
 
   return (
     <IllustratedMessage>

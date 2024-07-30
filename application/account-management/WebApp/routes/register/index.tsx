@@ -15,8 +15,9 @@ import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";
 import { useState } from "react";
-import { startAccountRegistration, type State } from "./-shared/actions";
-import { useIsSubdomainFree } from "./-shared/hooks";
+import { api, useApi } from "@/shared/lib/api/client";
+import { setRegistration } from "./-shared/registrationState";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 export const Route = createFileRoute("/register/")({
   component: () => (
@@ -33,14 +34,36 @@ export const Route = createFileRoute("/register/")({
 
 export function StartAccountRegistrationForm() {
   const { i18n } = useLingui();
-  const initialState: State = { message: null, errors: {} };
+  const [email, setEmail] = useState("");
 
-  const [{ errors, success }, action, isPending] = useFormState(startAccountRegistration, initialState);
+  const [{ success, errors, data, title, message }, action, isPending] = useFormState(
+    api.action("/api/account-management/account-registrations/start"),
+    { success: null }
+  );
 
   const [subdomain, setSubdomain] = useState("");
-  const isSubdomainFree = useIsSubdomainFree(subdomain);
+  const { data: isSubdomainFree } = useApi(
+    "/api/account-management/account-registrations/is-subdomain-free",
+    {
+      params: {
+        query: { Subdomain: subdomain }
+      }
+    },
+    {
+      autoFetch: subdomain.length > 3,
+      debounceMs: 500
+    }
+  );
 
-  if (success) {
+  if (success === true) {
+    const { accountRegistrationId, validForSeconds } = data;
+
+    setRegistration({
+      accountRegistrationId,
+      email,
+      expireAt: new Date(Date.now() + validForSeconds * 1000)
+    });
+
     return <Navigate to="/register/verify" />;
   }
 
@@ -64,6 +87,8 @@ export function StartAccountRegistrationForm() {
         label={i18n.t("Email")}
         autoFocus
         isRequired
+        value={email}
+        onChange={setEmail}
         autoComplete="email webauthn"
         placeholder={i18n.t("yourname@example.com")}
         className="flex w-full flex-col"
@@ -89,6 +114,7 @@ export function StartAccountRegistrationForm() {
       >
         <SelectItem id="europe">Europe</SelectItem>
       </Select>
+      <FormErrorMessage title={title} message={message} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         Create your account
       </Button>
