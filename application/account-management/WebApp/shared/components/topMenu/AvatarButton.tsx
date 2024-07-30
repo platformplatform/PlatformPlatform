@@ -1,28 +1,36 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { useState } from "react";
-import avatarUrl from "./images/avatar.png";
-import AvatarMenuItem from "./AvatarMenuItem";
+import { useMemo, useState } from "react";
+import { AvatarMenuItem } from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 
 export function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const userInfo = useUserInfo();
+
+  if (!userInfo) return null;
 
   return (
     <>
       <MenuTrigger aria-label="account settings">
         <Button aria-label="Menu" variant="icon" className="rounded-full">
-          <Avatar avatarUrl={avatarUrl} initials="MD" isRound size="sm" />
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
         </Button>
         <Menu placement="bottom end">
-          <MenuItem className="h-16 w-60" onAction={() => setIsProfileModalOpen(true)}>
-            <AvatarMenuItem />
+          <MenuItem onAction={() => setIsProfileModalOpen(true)}>
+            <AvatarMenuItem
+              title={userInfo.title}
+              name={userInfo.fullName}
+              avatarUrl={userInfo.avatarUrl}
+              initials={userInfo.initials}
+            />
           </MenuItem>
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
