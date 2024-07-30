@@ -10,7 +10,10 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { useFormState } from "react-dom";
 import { useLingui } from "@lingui/react";
-import { startLogin, type State } from "./-shared/actions";
+import { api } from "@/shared/lib/api/client";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { setVerificationInfo } from "./-shared/verificationState";
+import { useState } from "react";
 
 export const Route = createFileRoute("/login/")({
   component: () => (
@@ -27,11 +30,21 @@ export const Route = createFileRoute("/login/")({
 
 export function LoginForm() {
   const { i18n } = useLingui();
-  const initialState: State = { message: null, errors: {} };
+  const [email, setEmail] = useState("");
 
-  const [{ errors, success }, action, isPending] = useFormState(startLogin, initialState);
+  const [{ data, errors, success, title, message }, action, isPending] = useFormState(
+    api.action("/api/account-management/authentication/start"),
+    { success: null }
+  );
 
   if (success) {
+    const { loginId: id, validForSeconds } = data;
+
+    setVerificationInfo({
+      id,
+      email,
+      expireAt: new Date(Date.now() + validForSeconds * 1000)
+    });
     return <Navigate to="/login/verify" />;
   }
 
@@ -48,15 +61,18 @@ export function LoginForm() {
       <Heading className="text-2xl">Hi! Welcome back</Heading>
       <div className="text-center text-muted-foreground text-sm">Enter your email below to sign in</div>
       <TextField
-        type="email"
         name="email"
-        label="Email"
-        autoComplete="email webauthn"
+        type="email"
+        label={i18n.t("Email")}
         autoFocus
         isRequired
+        value={email}
+        onChange={setEmail}
+        autoComplete="email webauthn"
         placeholder={i18n.t("yourname@example.com")}
         className="flex w-full flex-col"
       />
+      <FormErrorMessage title={title} message={message} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         Continue
       </Button>

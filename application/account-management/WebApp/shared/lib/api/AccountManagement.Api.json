@@ -822,15 +822,7 @@
       },
       "LoginId": {
         "type": "string",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedUlidOfLoginId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "format": "login_{string}"
       },
       "StronglyTypedUlidOfLoginId": {
         "allOf": [

@@ -10,8 +10,10 @@ import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { completeLogin, type State, useLogin } from "./-shared/actions";
 import { useFormState } from "react-dom";
+import { api } from "@/shared/lib/api/client";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { getVerificationInfo } from "./-shared/verificationState";
 
 export const Route = createFileRoute("/login/verify")({
   component: () => (
@@ -27,23 +29,22 @@ export const Route = createFileRoute("/login/verify")({
 });
 
 export function CompleteLoginForm() {
-  const initialState: State = { message: null, errors: {} };
-  const { email, loginId, expireAt } = useLogin();
+  const { email, id, expireAt } = getVerificationInfo();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
+  const [{ success, title, message, errors }, action] = useFormState(
+    api.action("/api/account-management/authentication/{id}/complete"),
+    {
+      success: null
+    }
+  );
 
-  const [state, action] = useFormState(completeLogin, initialState);
+  if (isExpired) return <Navigate to="/register/expired" />;
 
-  if (isExpired) return <Navigate to="/login/expired" />;
-
-  if (state.success) return <Navigate to="/admin" />;
+  if (success) return <Navigate to="/admin/users" />;
 
   return (
-    <Form
-      action={action}
-      validationErrors={state.errors}
-      validationBehavior="aria"
-      className="w-full max-w-sm space-y-3"
-    >
+    <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">
+      <input type="hidden" name="id" value={id} />
       <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
         <div className="flex justify-center">
           <Link href="/">
@@ -67,10 +68,10 @@ export function CompleteLoginForm() {
             <span className="font-normal tabular-nums leading-none">({expiresInString})</span>
           </div>
         </div>
+        <FormErrorMessage title={title} message={message} />
         <Button type="submit" className="mt-4 w-full text-center">
           <Trans>Verify</Trans>
         </Button>
-        <input type="hidden" name="accountRegistrationId" value={loginId} />
         <div className="flex flex-col items-center gap-6 text-neutral-500">
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>

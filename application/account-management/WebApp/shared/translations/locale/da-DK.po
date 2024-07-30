@@ -14,20 +14,12 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. js-lingui-explicit-id
-msgid "Login is not started."
-msgstr "Login er ikke startet."
-
-#. js-lingui-explicit-id
-msgid "An error occured when trying to complete login."
-msgstr "Der opstod en fejl. Kunne ikke færdigøre login."
+msgid "Email"
+msgstr "Email"
 
 #. js-lingui-explicit-id
 msgid "yourname@example.com"
 msgstr "ditnavn@example.com"
-
-#. js-lingui-explicit-id
-msgid "Email"
-msgstr "Email"
 
 #. js-lingui-explicit-id
 msgid "Subdomain"
@@ -52,6 +44,14 @@ msgstr "Skærmbilleder af dashboard-projektet, der viser mobile versioner"
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet, der viser desktop- og mobile versioner"
+
+#. js-lingui-explicit-id
+#~ msgid "Login is not started."
+#~ msgstr "Login er ikke startet."
+
+#. js-lingui-explicit-id
+#~ msgid "An error occured when trying to complete login."
+#~ msgstr "Der opstod en fejl. Kunne ikke færdigøre login."
 
 #. js-lingui-explicit-id
 #~ msgid "Account registration is not started."
