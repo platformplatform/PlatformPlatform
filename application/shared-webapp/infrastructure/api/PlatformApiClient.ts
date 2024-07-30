@@ -48,6 +48,12 @@ export function createPlatformApiClient<Paths extends {}, Media extends MediaTyp
         const shouldCache = clientMethodKey === "GET";
         return createClientMethodWithProblemDetails(client[clientMethodKey], shouldCache);
       }
+      if (name === "addMiddleware") {
+        return client.use;
+      }
+      if (name === "removeMiddleware") {
+        return client.eject;
+      }
       if (isKeyof(name, client)) {
         return client[name];
       }
@@ -78,7 +84,7 @@ type PlatformApiClient<Paths extends {}, Media extends MediaType = MediaType> = 
   /** Call a TRACE endpoint */
   trace: ClientMethodWithProblemDetails<Paths, "trace", Media>;
   /** Register middleware */
-  use(...middleware: Middleware[]): void;
+  addMiddleware(...middleware: Middleware[]): void;
   /** Unregister middleware */
-  eject(...middleware: Middleware[]): void;
+  removeMiddleware(...middleware: Middleware[]): void;
 };
