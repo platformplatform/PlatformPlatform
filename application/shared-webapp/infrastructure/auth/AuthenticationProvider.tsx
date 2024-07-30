@@ -1,20 +1,36 @@
 import type { NavigateOptions } from "@tanstack/react-router";
-import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
-import type { AuthenticationState, UserInfo } from "./actions";
-import { authenticate, getUserInfo, initialUserInfo, logout } from "./actions";
+import type React from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
+
+export type UserInfo = {
+  initials: string;
+  fullName: string;
+} & UserInfoEnv;
+
+export const initialUserInfo: UserInfo = createUserInfo({ ...import.meta.user_info_env });
+
+/**
+ * Returns the user info if the user is authenticated or null if logged out
+ * If the user data is invalid, it will throw an error
+ */
+export async function getUserInfo(): Promise<UserInfo | null> {
+  try {
+    const response = await fetch("/api/auth/user-info");
+    return createUserInfo(await response.json());
+  } catch (error) {
+    console.error("Failed to fetch user info", error);
+    return null;
+  }
+}
 
 export interface AuthenticationContextType {
   userInfo: UserInfo | null;
   reloadUserInfo: () => void;
-  logInAction: (_: AuthenticationState, formData: FormData) => Promise<AuthenticationState>;
-  logOutAction: () => Promise<AuthenticationState>;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
   userInfo: initialUserInfo,
-  reloadUserInfo: () => {},
-  logInAction: async () => ({}),
-  logOutAction: async () => ({})
+  reloadUserInfo: () => {}
 });
 
 export interface AuthenticationProviderProps {
@@ -27,12 +43,7 @@ export interface AuthenticationProviderProps {
 /**
  * Provide authentication context to the application.
  */
-export function AuthenticationProvider({
-  children,
-  navigate,
-  afterLogIn,
-  afterLogOut
-}: Readonly<AuthenticationProviderProps>) {
+export function AuthenticationProvider({ children }: Readonly<AuthenticationProviderProps>) {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(initialUserInfo);
   const fetching = useRef(false);
 
@@ -48,34 +59,22 @@ export function AuthenticationProvider({
     fetching.current = false;
   }, []);
 
-  const logOutAction = useCallback(async () => {
-    const result = await logout();
-    setUserInfo(null);
-    if (navigate && afterLogOut) navigate({ to: afterLogOut });
-
-    return result;
-  }, [navigate, afterLogOut]);
-
-  const logInAction = useCallback(
-    async (state: AuthenticationState, formData: FormData) => {
-      const result = await authenticate(state, formData);
-      if (result.success) setUserInfo(await getUserInfo());
-
-      if (result.success && navigate && afterLogIn) navigate({ to: afterLogIn });
-      return result;
-    },
-    [navigate, afterLogIn]
-  );
-
   const authenticationContext = useMemo(
     () => ({
       userInfo,
-      reloadUserInfo,
-      logInAction,
-      logOutAction
+      reloadUserInfo
     }),
-    [userInfo, reloadUserInfo, logInAction, logOutAction]
+    [userInfo, reloadUserInfo]
   );
 
   return <AuthenticationContext.Provider value={authenticationContext}>{children}</AuthenticationContext.Provider>;
+}
+
+function createUserInfo(userInfoEnv: UserInfoEnv): UserInfo {
+  const { firstName, lastName, email } = userInfoEnv;
+  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : email?.slice(0, 2).toUpperCase() ?? "";
+
+  const fullName = firstName && lastName ? `${userInfoEnv.firstName} ${userInfoEnv.lastName}` : email ?? "";
+
+  return { ...userInfoEnv, initials, fullName };
 }
