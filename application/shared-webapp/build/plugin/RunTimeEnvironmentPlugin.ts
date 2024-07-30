@@ -9,6 +9,7 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
  * @example "account-management/webapp"
  */
 const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
+const BUILD_TYPE = process.env.NODE_ENV === "production" ? "production" : "development";
 
 export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(customBuildEnv: E): RsbuildPlugin {
   return {
@@ -27,6 +28,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             define: {
               "import.meta.build_env": JSON.stringify({
                 APPLICATION_ID,
+                BUILD_TYPE,
                 ...customBuildEnv
               }),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
