@@ -27,10 +27,6 @@ type ProblemDetailsFluentValidation = z.infer<typeof ProblemDetailsFluentValidat
  * @deprecated Use `clientMethodWithProblemDetails` instead. This method is only used internally and will be removed in the future.
  */
 export function parseServerErrorResponse(error: unknown): ProblemDetails | null {
-  // If the error is already in the ProblemDetails format, return it as is
-  const problemDetails = ProblemDetailsSchema.safeParse(error);
-  if (problemDetails.success) return problemDetails.data;
-
   // If the error is in the ProblemDetailsFluentValidation format, convert it to the ProblemDetails format
   const problemDetailsFluentValidation = ProblemDetailsFluentValidationSchema.safeParse(error);
   if (problemDetailsFluentValidation.success) {
@@ -42,6 +38,10 @@ export function parseServerErrorResponse(error: unknown): ProblemDetails | null 
       errors: convertFluentValidationErrors(Errors)
     };
   }
+
+  // If the error is already in the ProblemDetails format, return it as is
+  const problemDetails = ProblemDetailsSchema.safeParse(error);
+  if (problemDetails.success) return problemDetails.data;
 
   return null;
 }
