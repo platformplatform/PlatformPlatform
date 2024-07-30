@@ -7,20 +7,11 @@ import type {
   ResponseObjectMap,
   HasRequiredKeys
 } from "openapi-typescript-helpers";
-import type { ProblemDetails } from "./ProblemDetails";
+import { ProblemDetailsError } from "./ProblemDetails";
 import { parseServerErrorResponse } from "./HandleFluentValidationErrors";
 import { createCachedClientMethod } from "./CachedClientMethod";
 
-export class ProblemDetailsError extends Error {
-  constructor(
-    message: string,
-    public readonly details: ProblemDetails
-  ) {
-    super(message);
-  }
-}
-
-export function isHttpMethod(method: string | HttpMethod | symbol): method is HttpMethod {
+export function isHttpMethod(method: string | symbol): method is HttpMethod {
   return ["get", "put", "post", "delete", "options", "head", "patch", "trace"].includes(method.toString());
 }
 
@@ -59,16 +50,19 @@ export function createClientMethodWithProblemDetails<
       if (error) {
         const problemDetails = parseServerErrorResponse(error);
         if (problemDetails != null) {
-          throw new ProblemDetailsError(problemDetails.title, problemDetails);
+          throw new ProblemDetailsError({
+            status: response?.status,
+            detail: response?.statusText !== "" ? response?.statusText : undefined,
+            ...problemDetails
+          });
         }
 
         // Invalid problem details response
-        throw new ProblemDetailsError(response.statusText, {
+        throw new ProblemDetailsError({
           type: "fetch-error",
           status: response.status,
           title: "An error occurred",
-          message: error.message ?? response.statusText,
-          errors: {}
+          detail: error.message ?? response.statusText
         });
       }
 
@@ -76,25 +70,26 @@ export function createClientMethodWithProblemDetails<
     } catch (error) {
       if (error instanceof ProblemDetailsError) {
         // Server validation errors
+        if (import.meta.build_env.BUILD_TYPE === "development") console.warn("ProblemDetails", error.details);
         throw error;
       }
       if (error instanceof Error) {
         // Client error
-        throw new ProblemDetailsError(error.message, {
-          type: "client-error",
-          status: 400,
+        if (import.meta.build_env.BUILD_TYPE === "development") console.error("Error", error);
+        throw new ProblemDetailsError({
+          type: "tag:client-error",
+          status: -1,
           title: "An error occurred",
-          message: error.message,
-          errors: {}
+          detail: error.message
         });
       }
       // Unknown error
-      throw new ProblemDetailsError(`${error}`, {
-        type: "unknown",
-        status: 400,
+      if (import.meta.build_env.BUILD_TYPE === "development") console.error("error", error);
+      throw new ProblemDetailsError({
+        type: "tag:unknown-error",
+        status: -2,
         title: "An unknown error occurred",
-        message: `An error occurred. Error: ${error}`,
-        errors: {}
+        detail: `${error}`
       });
     }
   };

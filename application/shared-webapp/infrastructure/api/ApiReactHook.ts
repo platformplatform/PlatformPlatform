@@ -8,8 +8,8 @@ import type {
   SuccessResponse
 } from "openapi-typescript-helpers";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createClientMethodWithProblemDetails, ProblemDetailsError } from "./ClientMethodWithProblemDetails";
-import type { ProblemDetails } from "./ProblemDetails";
+import { createClientMethodWithProblemDetails } from "./ClientMethodWithProblemDetails";
+import { ProblemDetailsError, type ProblemDetails } from "./ProblemDetails";
 
 type UseApiReturnType<Data> = {
   loading: boolean;

@@ -7,7 +7,8 @@ import type {
   SuccessResponse
 } from "openapi-typescript-helpers";
 import type { FormProps } from "react-aria-components";
-import { createClientMethodWithProblemDetails, ProblemDetailsError } from "./ClientMethodWithProblemDetails";
+import { createClientMethodWithProblemDetails } from "./ClientMethodWithProblemDetails";
+import { ProblemDetailsError } from "./ProblemDetails";
 
 export type ValidationErrors = NonNullable<FormProps["validationErrors"]>;
 
@@ -26,11 +27,11 @@ export type ActionClientState<D = unknown> =
       success: false;
       data: undefined;
       // Problem details
-      type: string;
-      status: number;
-      title: string;
-      message: string;
-      errors: ValidationErrors;
+      type?: string;
+      status?: number;
+      title?: string;
+      message?: string;
+      errors?: ValidationErrors;
     }
   | {
       success: true;
@@ -104,7 +105,7 @@ export function createPlatformServerAction<
             type: error.details.type,
             status: error.details.status,
             title: error.details.title,
-            message: error.details.message ?? "An error occurred.",
+            message: error.details.detail,
             errors: error.details.errors
           };
         }
@@ -140,3 +141,7 @@ export type PlatformServerAction<
   Method extends HttpMethod,
   Media extends MediaType = MediaType
 > = ReturnType<typeof createPlatformServerAction<Paths, Method, Media>>;
+
+function getParamNamesFromTemplateUrl(templateUrl: string): string[] {
+  return templateUrl.match(/{([^}]+)}/g)?.map((match) => match.slice(1, -1)) ?? [];
+}
