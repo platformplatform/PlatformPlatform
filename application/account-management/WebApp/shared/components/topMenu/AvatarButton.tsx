@@ -1,29 +1,37 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useState } from "react";
-import avatarUrl from "./images/avatar.png";
-import AvatarMenuItem from "./AvatarMenuItem";
+import { AvatarMenuItem } from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { useUserId } from "@repo/infrastructure/auth/hooks";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 
 export function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const userInfo = useUserInfo();
+
+  if (!userInfo) return null;
 
   return (
     <>
       <MenuTrigger aria-label="account settings">
         <Button aria-label="Menu" variant="icon" className="rounded-full">
-          <Avatar avatarUrl={avatarUrl} initials="MD" isRound size="sm" />
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
         </Button>
         <Menu placement="bottom end">
           <MenuItem onAction={() => setIsProfileModalOpen(true)}>
-            <AvatarMenuItem />
+            <AvatarMenuItem
+              name={userInfo.fullName}
+              title={userInfo.title}
+              email={userInfo.email}
+              avatarUrl={userInfo.avatarUrl}
+              initials={userInfo.initials}
+            />
           </MenuItem>
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
@@ -49,7 +57,11 @@ export function AvatarButton() {
           setIsDeleteAccountModalOpen(true);
         }}
       />
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={useUserId() ?? ""} />
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onOpenChange={setIsProfileModalOpen}
+        userId={userInfo.userId ?? ""}
+      />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
   );
