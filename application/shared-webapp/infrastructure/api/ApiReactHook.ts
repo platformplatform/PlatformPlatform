@@ -18,6 +18,31 @@ type UseApiReturnType<Data> = {
   refresh: () => void;
 };
 
+export type ApiReactHookOptions = {
+  /**
+   * Setting cache to "true" will enable caching of the request but disable the abort controller for the request.
+   *
+   * @default false
+   */
+  cache?: boolean;
+  /**
+   * Setting autoFetch to "true" will automatically fetch the data when the component mounts.
+   * This is useful for components that need to fetch data immediately and for loading data that requires more
+   * data to be fetched.
+   *
+   * @default true
+   */
+  autoFetch?: boolean;
+  /**
+   * Debounce the request by the specified number of milliseconds.
+   * This is useful for components that need to fetch data immediately and for "search" components that require
+   * a delay before fetching data.
+   *
+   * @default undefined
+   */
+  debounceMs?: number;
+};
+
 export function createApiReactHook<
   // biome-ignore lint/complexity/noBannedTypes: This is the exact type used in "openapi-typescript"
   Paths extends Record<string, Record<HttpMethod, {}>>,
@@ -33,17 +58,19 @@ export function createApiReactHook<
     Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<T>, Media>, Options>
   >(
     pathname: Path,
-    options: Options
+    options: Options,
+    hookOptions: ApiReactHookOptions = {}
   ): UseApiReturnType<Data> => {
+    const { cache = false, autoFetch = true, debounceMs } = hookOptions;
     const [problemDetails, setProblemDetails] = useState<ProblemDetails | undefined>();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState<boolean | null>(null);
     const [data, setData] = useState<Data | undefined>();
-    const fetchDataRef = useRef<((invalidateCache: boolean) => void) | undefined>();
+    const fetchDataRef = useRef<((cacheMode?: "reload" | "default") => void) | undefined>();
     const optionsHash = JSON.stringify(options);
 
     const refresh = useCallback(() => {
-      if (fetchDataRef.current) fetchDataRef.current(true);
+      if (fetchDataRef.current) fetchDataRef.current("reload");
     }, []);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: We use the options hash to detect changes
@@ -51,7 +78,7 @@ export function createApiReactHook<
       let requestPending = false;
       const abortController = new AbortController();
 
-      const fetchData = async (invalidateCache = false) => {
+      const fetchData = async (cacheMode: "reload" | "default" = "default") => {
         if (abortController.signal.aborted || requestPending) return;
         requestPending = true;
         setSuccess(null);
@@ -59,8 +86,10 @@ export function createApiReactHook<
         try {
           const data = await apiMethod(pathname, {
             ...options,
-            cache: invalidateCache ? "reload" : "default",
-            signal: abortController.signal
+            // Use the cache option to determine the cache mode
+            cache: cacheMode,
+            // Disable the abort controller if caching is enabled
+            signal: cache === true ? undefined : abortController.signal
             // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point but expose a type-safe API
           } as any);
           if (!abortController.signal.aborted) {
@@ -85,13 +114,27 @@ export function createApiReactHook<
         }
       };
 
-      fetchData();
+      let timeout: NodeJS.Timeout | undefined;
+
+      if (autoFetch) {
+        if (debounceMs) {
+          timeout = setTimeout(() => fetchData(), debounceMs);
+        } else {
+          fetchData();
+        }
+      } else {
+        setLoading(false);
+        setSuccess(null);
+        setData(undefined);
+        fetchDataRef.current = fetchData;
+      }
 
       return () => {
+        if (timeout) clearTimeout(timeout);
         fetchDataRef.current = undefined;
         abortController.abort();
       };
-    }, [pathname, optionsHash]);
+    }, [pathname, optionsHash, cache, autoFetch, debounceMs]);
 
     return {
       loading,
