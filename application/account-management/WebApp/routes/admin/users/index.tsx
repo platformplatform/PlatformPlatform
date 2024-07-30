@@ -8,13 +8,11 @@ import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { z } from "zod";
 
-const userPageSearchSchema = z
-  .object({
-    pageOffset: z.number().catch(0),
-    orderBy: z.nativeEnum(SortableUserProperties).catch(SortableUserProperties.Name),
-    sortOrder: z.nativeEnum(SortOrder).catch(SortOrder.Ascending)
-  })
-  .catch({ pageOffset: 0, orderBy: SortableUserProperties.Name, sortOrder: SortOrder.Ascending });
+const userPageSearchSchema = z.object({
+  pageOffset: z.number().default(0).optional(),
+  orderBy: z.nativeEnum(SortableUserProperties).default(SortableUserProperties.Name).optional(),
+  sortOrder: z.nativeEnum(SortOrder).default(SortOrder.Ascending).optional()
+});
 
 export const Route = createFileRoute("/admin/users/")({
   component: UsersPage,
