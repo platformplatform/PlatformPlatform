@@ -1,10 +1,7 @@
+import { githubImageUrl, slackImageUrl, youtubeImageUrl } from "@/shared/images/cdnImages";
 import { Link } from "@repo/ui/components/Link";
 import { ArrowRight } from "lucide-react";
 import type { LinkProps } from "react-aria-components";
-
-const youtubeImageUrl = "https://platformplatformgithub.blob.core.windows.net/youtube.svg?url";
-const slackImageUrl = "https://platformplatformgithub.blob.core.windows.net/slack.svg?url";
-const githubImageUrl = "https://platformplatformgithub.blob.core.windows.net/github.svg?url";
 
 // Props for FeatureBlock component
 interface FeatureBlockProps {

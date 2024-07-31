@@ -1,16 +1,13 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { heroDesktopUrl, heroMobileUrl, logoWrap } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { Badge } from "@repo/ui/components/Badge";
-
-const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
-const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
-const heroimgMobile = "https://platformplatformgithub.blob.core.windows.net/hero-image-mobile.webp";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
@@ -46,8 +43,8 @@ export function HeroSection() {
         <ActionButtons />
       </div>
       <div className=" px-24 justify-center flex">
-        <img className="hidden md:block" src={heroimgDesktop} alt="Footer" />
-        <img className="md:hidden" src={heroimgMobile} alt="Footer" />
+        <img className="hidden md:block" src={heroDesktopUrl} alt="Footer" />
+        <img className="md:hidden" src={heroMobileUrl} alt="Footer" />
       </div>
     </div>
   );

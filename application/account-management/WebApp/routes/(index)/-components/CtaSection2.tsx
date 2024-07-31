@@ -1,6 +1,5 @@
+import { calenderMockupUrl } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
-
-const calenderMockupUrl = "https://platformplatformgithub.blob.core.windows.net/mockup-calender.png";
 
 // CtaSection2: A functional component that displays the second call to action section
 export function CtaSection2() {

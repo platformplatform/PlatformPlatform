@@ -1,3 +1,4 @@
+import { logoWrap } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Modal } from "@repo/ui/components/Modal";
@@ -17,8 +18,6 @@ export default function AccountSettingsModal({
   onOpenChange,
   onDeleteAccount
 }: Readonly<AccountSettingsModal>) {
-  const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
-
   const saveChanges = () => {
     console.log("Saving changes");
     closeDialog();
