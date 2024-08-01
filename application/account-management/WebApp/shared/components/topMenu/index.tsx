@@ -4,7 +4,7 @@ import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { AvatarButton } from "./AvatarButton";
+import AvatarButton from "../AvatarButton";
 
 interface TopMenuProps {
   children?: ReactNode;
