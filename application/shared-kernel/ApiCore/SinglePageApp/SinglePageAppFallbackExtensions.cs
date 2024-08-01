@@ -27,6 +27,25 @@ public static class SinglePageAppFallbackExtensions
 
     public static IApplicationBuilder UseSinglePageAppFallback(this WebApplication app)
     {
+        app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
+            {
+                try
+                {
+                    var remoteEntryJs = singlePageAppConfiguration.GetRemoteEntryJs();
+                    // No cache headers for remote entry
+                    context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+                    context.Response.Headers.Append("Pragma", "no-cache");
+                    context.Response.Headers.Append("Content-Type", "application/javascript");
+                    return context.Response.WriteAsync(remoteEntryJs);
+                }
+                catch (Exception)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    return context.Response.WriteAsync("Not found");
+                }
+            }
+        );
+
         app.MapFallback((HttpContext context, IOptions<JsonOptions> jsonOptions, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
                 SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers);

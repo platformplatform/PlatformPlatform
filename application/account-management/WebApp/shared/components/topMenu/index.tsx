@@ -4,7 +4,7 @@ import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { AvatarButton } from "./AvatarButton";
+import { UserButton } from "../UserButton";
 
 interface TopMenuProps {
   children?: ReactNode;
@@ -25,7 +25,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
           </Button>
           <LocaleSwitcher />
         </span>
-        <AvatarButton />
+        <UserButton />
       </div>
     </div>
   );
