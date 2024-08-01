@@ -1,6 +1,5 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
@@ -15,9 +14,8 @@ import logoMark from "@/shared/images/logo-mark.svg";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
-  const navigate = useNavigate();
   return (
-    <div className="flex flex-col bg-muted">
+    <div className="flex flex-col bg-muted items-center">
       <TopBar />
       <div className="flex flex-col items-center gap-4 py-12 px-8 md:px-48 text-center">
         <FeatureTag />
@@ -27,7 +25,7 @@ export function HeroSection() {
         <ActionButtons />
       </div>
       <div className=" px-24 justify-center flex">
-        <img className="hidden md:block" src={heroDesktopUrl} alt="Footer" />
+        <img className="hidden md:block rounded-t-2xl" src={heroDesktopUrl} alt="Footer" />
         <img className="md:hidden" src={heroMobileUrl} alt="Footer" />
       </div>
     </div>
@@ -36,22 +34,22 @@ export function HeroSection() {
 
 function TopBar() {
   return (
-    <div className="flex flex-col gap-2 md:flex-row pt-8 pb-24 xl:px-24 px-2 items-center">
-      <div className="grow">
-        <img className="hidden md:visible" src={logoWrap} alt="logo" />
-        <img className="md:hidden" src={logoMark} alt="logo" />
+    <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-2 pt-8 pb-24 xl:px-24 px-2 items-center justify-between w-fit md:w-full">
+      <div className="flex pt-4 md:pt-0">
+        <img className="hidden lg:block" src={logoWrap} alt="logo" />
+        <img className="lg:hidden h-20 md:h-12" src={logoMark} alt="logo" />
       </div>
-      <div className="flex flex-col justify-start gap-2 md:gap-4 lg:gap-8 sm:flex-row items-center border border-red-500">
+      <div className="flex flex-col justify-start gap-2 md:gap-4 lg:gap-8 sm:flex-row items-center">
         <ProductLink />
         <ResourcesLink />
         <DocumentationLink />
+      </div>
+      <div className="flex w-full md:w-fit justify-between gap-2 md:gap-4 items-center">
         <Link href="https://github.com/platformplatform/PlatformPlatform">
           <GithubIcon className="wmax-5 h-5" />
           <span className="md:hidden lg:inline">Github</span>
         </Link>
         <ThemeModeSelector />
-      </div>
-      <div className="flex w-fit gap-2 md:gap-4 items-center border border-green-500">
         <SignInButton variant="ghost">Log in</SignInButton>
         <SignUpButton variant="primary">Sign up</SignUpButton>
       </div>
@@ -144,13 +142,10 @@ function ProductDescription() {
 }
 
 function ActionButtons() {
-  const navigate = useNavigate();
   return (
     <div className="flex justify-center gap-4">
       <Button variant="outline">Book a demo</Button>
-      <Button onPress={() => navigate({ to: "/register" })} variant="primary">
-        Get started today
-      </Button>
+      <SignUpButton variant="primary">Get started today</SignUpButton>
     </div>
   );
 }
