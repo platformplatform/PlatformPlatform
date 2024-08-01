@@ -14,6 +14,7 @@ import { useFormState } from "react-dom";
 import { getRegistrationState } from "./-shared/registrationState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { signedUpPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/register/verify")({
   component: () => (
@@ -40,7 +41,7 @@ export function CompleteAccountRegistrationForm() {
 
   if (isExpired) return <Navigate to="/register/expired" />;
 
-  if (success) return <Navigate to="/admin/users" />;
+  if (success) return <Navigate to={signedUpPath} />;
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">

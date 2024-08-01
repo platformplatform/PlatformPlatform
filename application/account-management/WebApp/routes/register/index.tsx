@@ -18,6 +18,7 @@ import { useState } from "react";
 import { api, useApi } from "@/shared/lib/api/client";
 import { setRegistrationState } from "./-shared/registrationState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { signInPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/register/")({
   component: () => (
@@ -120,7 +121,7 @@ export function StartAccountRegistrationForm() {
       </Button>
       <p className="text-muted-foreground text-xs">
         <Trans>Already have an account?</Trans>{" "}
-        <Link href="/login">
+        <Link href={signInPath}>
           <Trans>Log in</Trans>
         </Link>
       </p>

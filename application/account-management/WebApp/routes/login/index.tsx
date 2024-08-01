@@ -14,6 +14,7 @@ import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { signUpPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/login/")({
   component: () => (
@@ -78,7 +79,7 @@ export function LoginForm() {
         Continue
       </Button>
       <div className="text-muted-foreground text-sm">
-        Don't have an account? <Link href="/register">Create one</Link>
+        Don't have an account? <Link href={signUpPath}>Create one</Link>
       </div>
       <img src={poweredByUrl} alt="powered by" />
     </Form>

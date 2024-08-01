@@ -1,16 +1,15 @@
 import type { Middleware } from "openapi-fetch";
+import { createUrlWithReturnUrl } from "./util";
+import { signInPath } from "./constants";
 
 type AuthenticationMiddlewareOptions = {
-  loginPath: string;
+  customSignInPath?: string;
 };
-
-export function createAuthenticationMiddleware({ loginPath }: AuthenticationMiddlewareOptions): Middleware {
+export function createAuthenticationMiddleware(options?: AuthenticationMiddlewareOptions): Middleware {
   return {
-    onResponse(options) {
-      if (options.response.status === 401) {
-        const redirectUrl = new URL(loginPath, window.location.href);
-        redirectUrl.searchParams.set("returnUrl", window.location.pathname + window.location.search);
-        window.location.replace(redirectUrl.href);
+    onResponse(context) {
+      if (context.response.status === 401) {
+        window.location.href = createUrlWithReturnUrl(options?.customSignInPath ?? signInPath);
       }
     }
   };
