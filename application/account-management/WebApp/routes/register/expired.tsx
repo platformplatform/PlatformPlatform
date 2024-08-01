@@ -5,6 +5,7 @@ import Timeout from "@spectrum-icons/illustrations/Timeout";
 import { Link } from "@repo/ui/components/Link";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
 import { getRegistration } from "./-shared/registrationState";
+import { signUpPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/register/expired")({
   component: () => (
@@ -29,7 +30,7 @@ export function VerificationCodeExpiredMessage() {
       <Content>
         The verification code you are trying to use has expired for Account Registration ID: {accountRegistrationId}
       </Content>
-      <Link href="/register">Try again</Link>
+      <Link href={signUpPath}>Try again</Link>
     </IllustratedMessage>
   );
 }

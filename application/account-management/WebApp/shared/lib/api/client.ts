@@ -4,7 +4,7 @@ import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/Authen
 export * from "./api.generated.d";
 
 export const api = createPlatformApiClient<paths>();
-api.addMiddleware(createAuthenticationMiddleware({ loginPath: "/login" }));
+api.addMiddleware(createAuthenticationMiddleware());
 
 export const useApi = api.useApi;
 

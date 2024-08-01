@@ -14,6 +14,7 @@ import { useFormState } from "react-dom";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { getVerificationInfo } from "./-shared/verificationState";
+import { signedInPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/login/verify")({
   component: () => (
@@ -40,7 +41,7 @@ export function CompleteLoginForm() {
 
   if (isExpired) return <Navigate to="/register/expired" />;
 
-  if (success) return <Navigate to="/admin/users" />;
+  if (success) return <Navigate to={signedInPath} />;
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">

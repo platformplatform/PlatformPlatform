@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 import { useIsAuthenticated } from "./hooks";
 
-export interface LoggedOutProps {
+export interface SignedOutProps {
+  fallback?: ReactNode;
   children: ReactNode;
 }
 
 /**
  * Show component if user is logged out.
  */
-export function LoggedOut({ children }: LoggedOutProps) {
+export function SignedOut({ children, fallback }: SignedOutProps) {
   const isAuthenticated = useIsAuthenticated();
-  if (isAuthenticated) return null;
+  if (isAuthenticated) return fallback;
   return children;
 }
