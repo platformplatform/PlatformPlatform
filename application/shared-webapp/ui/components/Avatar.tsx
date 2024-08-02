@@ -5,7 +5,7 @@
 import { type HTMLAttributes, useCallback, useRef, useState } from "react";
 import { tv } from "tailwind-variants";
 
-type AvatarProps = {
+export type AvatarProps = {
   /**
    * The two-letter initials to display.
    */
