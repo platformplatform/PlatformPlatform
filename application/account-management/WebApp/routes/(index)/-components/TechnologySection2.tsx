@@ -1,4 +1,4 @@
-const infrastructure = "https://platformplatformgithub.blob.core.windows.net/infrastructure.png";
+import { infrastructure } from "@/shared/images/cdnImages";
 
 // TechnologySection2: A functional component that displays the technology section
 export function TechnologySection2() {

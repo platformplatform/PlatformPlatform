@@ -1,3 +1,4 @@
+import { logoWrap } from "@/shared/images/cdnImages";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Button } from "@repo/ui/components/Button";
 import { Input } from "@repo/ui/components/Input";
@@ -11,8 +12,6 @@ type AccountSettingsModal = {
 };
 
 export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: Readonly<AccountSettingsModal>) {
-  const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
-
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
       <AlertDialog actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>

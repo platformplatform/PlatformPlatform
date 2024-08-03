@@ -25,6 +25,21 @@ public sealed class AccountRegistrationFailed(int retryCount)
 public sealed class AccountRegistrationStarted(TenantId tenantId)
     : TelemetryEvent(nameof(AccountRegistrationStarted), ("TenantId", tenantId));
 
+public sealed class LoginBlocked(int retryCount)
+    : TelemetryEvent(nameof(LoginBlocked), ("RetryCount", retryCount.ToString()));
+
+public sealed class LoginCompleted(UserId userId, int registrationTimeInSeconds)
+    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
+
+public sealed class LoginExpired(int secondsFromCreation)
+    : TelemetryEvent(nameof(LoginExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
+
+public sealed class LoginFailed(int retryCount)
+    : TelemetryEvent(nameof(LoginFailed), ("RetryCount", retryCount.ToString()));
+
+public sealed class LoginStarted(UserId userId)
+    : TelemetryEvent(nameof(LoginStarted), ("UserId", userId));
+
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
     : TelemetryEvent(nameof(TenantDeleted), ("TenantId", tenantId), ("TenantState", tenantState.ToString()));
 

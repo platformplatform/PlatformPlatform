@@ -1,14 +1,13 @@
+import { useRouter } from "@tanstack/react-router";
+import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import { createContext, useCallback, useContext, useState } from "react";
-import { ChevronsLeftIcon, HelpCircleIcon, type LucideIcon } from "lucide-react";
-import { Button } from "./Button";
 import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
-import { Tooltip, TooltipTrigger } from "./Tooltip";
-import { useRouter } from "@tanstack/react-router";
+import { Button } from "./Button";
 import { Dialog, DialogTrigger } from "./Dialog";
-import { Popover } from "./Popover";
 import { Modal } from "./Modal";
+import { Tooltip, TooltipTrigger } from "./Tooltip";
 
 const collapsedContext = createContext(false);
 
@@ -41,7 +40,11 @@ type MenuButtonProps = {
 export function MenuButton({ icon: Icon, label, href: to }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
   const { navigate } = useRouter();
-  const onPress = useCallback(() => (to != null ? navigate({ to }) : undefined), [to, navigate]);
+  const onPress = useCallback(() => {
+    if (to) {
+      navigate({ to });
+    }
+  }, [to, navigate]);
 
   return (
     <TooltipTrigger delay={300}>
@@ -55,7 +58,7 @@ export function MenuButton({ icon: Icon, label, href: to }: Readonly<MenuButtonP
 }
 
 const sideMenuStyles = tv({
-  base: "relative hidden sm:flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0",
+  base: "relative hidden sm:flex flex-col pr-2 py-4 transition-all duration-300 items-start shrink-0 grow-0 z-50",
   variants: {
     isCollapsed: {
       true: "w-[72px] gap-2 pl-2 ease-out",
@@ -95,10 +98,11 @@ const logoMarkStyles = tv({
 });
 
 type SideMenuProps = {
+  className?: string;
   children: React.ReactNode;
 };
 
-export function SideMenu({ children }: Readonly<SideMenuProps>) {
+export function SideMenu({ className, children }: Readonly<SideMenuProps>) {
   const [isCollapsed, setIsCollapsed] = useState(() => !window.matchMedia("(min-width: 1024px)").matches);
 
   const toggleCollapse = () => {
@@ -108,7 +112,7 @@ export function SideMenu({ children }: Readonly<SideMenuProps>) {
   return (
     <>
       <collapsedContext.Provider value={isCollapsed}>
-        <div className={sideMenuStyles({ isCollapsed })}>
+        <div className={sideMenuStyles({ isCollapsed, className })}>
           <div className="h-20">
             <Button
               variant="ghost"

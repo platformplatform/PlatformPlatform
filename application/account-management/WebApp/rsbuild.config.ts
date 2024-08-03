@@ -6,6 +6,7 @@ import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlu
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
 import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentPlugin";
 import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugin";
+import { MFPlugin } from "@repo/build/plugin/MFPlugin";
 
 const customBuildEnv: CustomBuildEnv = {};
 
@@ -17,6 +18,11 @@ export default defineConfig({
     FileSystemRouterPlugin(),
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
-    DevelopmentServerPlugin({ port: 9101 })
+    DevelopmentServerPlugin({ port: 9101 }),
+    MFPlugin({
+      exposes: {
+        "./UserButton": "./shared/components/UserButton.tsx"
+      }
+    })
   ]
 });

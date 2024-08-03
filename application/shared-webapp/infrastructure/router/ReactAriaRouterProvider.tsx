@@ -1,6 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { RouterProvider } from "react-aria-components";
 import type { NavigateOptions, RegisteredRouter, RoutePaths, ToOptions, ToPathOption } from "@tanstack/react-router";
+import type { AdditionalRoutes } from "./additionalRoutes";
 
 /**
  * Additional paths that are not part of the route tree. These paths are used for external links or
@@ -10,7 +11,7 @@ import type { NavigateOptions, RegisteredRouter, RoutePaths, ToOptions, ToPathOp
  * - `https://example.com`
  * - `http://example.com`
  */
-type AdditionalPathsType = `https://${string}` | `http://${string}`;
+type AdditionalPathsType = `${AdditionalRoutes}${string}`;
 const additionalPathPrefixes: AdditionalPathsType[] = ["https://", "http://"];
 
 /**

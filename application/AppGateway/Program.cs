@@ -1,5 +1,7 @@
 using Azure.Core;
+using Microsoft.AspNetCore.HttpOverrides;
 using PlatformPlatform.AppGateway.Filters;
+using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
@@ -12,7 +14,7 @@ var reverseProxyBuilder = builder.Services
 
 if (InfrastructureCoreConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.GetDefaultAzureCredential());
+    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.DefaultAzureCredential);
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
@@ -32,7 +34,10 @@ else
     );
 }
 
-builder.Services.AddSingleton<BlockInternalApiTransform>();
+builder.Services
+    .AddSingleton<BlockInternalApiTransform>()
+    .AddSingleton<AuthenticationCookieMiddleware>();
+
 reverseProxyBuilder.AddTransforms(context =>
     context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
 );
@@ -41,8 +46,23 @@ builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STOR
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
+// Ensure correct client IP addresses are set for requests
+// This is required when running behind a reverse proxy like YARP or Azure Container Apps
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    }
+);
+
+builder.Services.ConfigureDataProtectionApi();
+
 var app = builder.Build();
 
 app.MapReverseProxy();
+
+app.UseMiddleware<AuthenticationCookieMiddleware>();
 
 app.Run();

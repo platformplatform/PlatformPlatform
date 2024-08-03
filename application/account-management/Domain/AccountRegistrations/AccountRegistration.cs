@@ -24,10 +24,10 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
 
     public string OneTimePasswordHash { get; private set; }
 
-    public int RetryCount { get; private set; }
-
     [UsedImplicitly]
     public DateTimeOffset ValidUntil { get; private set; }
+
+    public int RetryCount { get; private set; }
 
     public bool Completed { get; private set; }
 

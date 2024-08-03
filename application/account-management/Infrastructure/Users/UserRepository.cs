@@ -7,6 +7,11 @@ namespace PlatformPlatform.AccountManagement.Infrastructure.Users;
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
+    public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return await DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+    }
+
     public async Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken)
     {
         return !await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email, cancellationToken);

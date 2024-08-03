@@ -14,7 +14,7 @@ const ignoreDistPattern = `**/${path.relative(applicationRoot, distFolder)}/**`;
 /**
  * Files to write to disk for the development server to serve
  */
-const writeToDisk = ["index.html", "robots.txt", "favicon.ico"];
+const writeToDisk = ["index.html", "remoteEntry.js", "robots.txt", "favicon.ico"];
 
 export type DevelopmentServerPluginOptions = {
   /**

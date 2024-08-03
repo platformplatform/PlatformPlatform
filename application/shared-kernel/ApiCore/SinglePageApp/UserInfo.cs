@@ -11,12 +11,17 @@ public class UserInfo
 
         if (IsAuthenticated)
         {
-            Email = user.Identity?.Name;
-            Name = user.FindFirst(ClaimTypes.Name)?.Value;
+            Id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Email = user.FindFirst(ClaimTypes.Email)?.Value;
+            FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value;
+            LastName = user.FindFirst(ClaimTypes.Surname)?.Value;
             Role = user.FindFirst(ClaimTypes.Role)?.Value;
             TenantId = user.FindFirst("tenantId")?.Value;
+            AvatarUrl = user.FindFirst("picture")?.Value;
         }
     }
+
+    public string? Id { get; init; }
 
     public bool IsAuthenticated { get; init; }
 
@@ -24,9 +29,13 @@ public class UserInfo
 
     public string? Email { get; init; }
 
-    public string? Name { get; init; }
+    public string? FirstName { get; init; }
+
+    public string? LastName { get; init; }
 
     public string? Role { get; init; }
 
     public string? TenantId { get; init; }
+
+    public string? AvatarUrl { get; init; }
 }

@@ -20,6 +20,7 @@ public class SinglePageAppConfiguration
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
+    private readonly string _remoteEntryJsPath;
     private string? _htmlTemplate;
 
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
@@ -43,6 +44,7 @@ public class SinglePageAppConfiguration
 
         _isDevelopment = isDevelopment;
         _htmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
+        _remoteEntryJsPath = Path.Combine(BuildRootPath, "remoteEntry.js");
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies();
     }
@@ -75,6 +77,16 @@ public class SinglePageAppConfiguration
 
         _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
         return _htmlTemplate;
+    }
+
+    public string GetRemoteEntryJs()
+    {
+        if (!File.Exists(_remoteEntryJsPath))
+        {
+            throw new FileNotFoundException("remoteEntry.js does not exist.", _remoteEntryJsPath);
+        }
+
+        return File.ReadAllText(_remoteEntryJsPath, new UTF8Encoding());
     }
 
     [Conditional("DEBUG")]
@@ -136,7 +148,7 @@ public class SinglePageAppConfiguration
 
         if (_isDevelopment)
         {
-            trustedHosts += " wss://localhost:*";
+            trustedHosts += " wss://localhost:* https://localhost:*";
         }
 
         var contentSecurityPolicies = new[]

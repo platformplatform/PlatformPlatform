@@ -16,8 +16,8 @@ const applicationPath = path.join(__dirname, "..", "..", "..");
 const configPath = path.join(applicationPath, "biome.json");
 
 if (!fs.existsSync(configPath)) {
-  console.error(`biome.json not found in ${applicationPath}. Please run \`biome init\` to create the file.`);
-  process.exit(1);
+    console.error(`biome.json not found in ${applicationPath}. Please run \`biome init\` to create the file.`);
+    process.exit(1);
 }
 
 // Get the path of the biome module
@@ -25,8 +25,8 @@ const biomePath = path.join(applicationPath, "node_modules", ".bin", "biome");
 
 // Check if the biome module exists
 if (!fs.existsSync(biomePath)) {
-  console.error("Biome module not found. Please run `npm install` to install the module. ");
-  process.exit(1);
+    console.error("Biome module not found. Please run `npm install` to install the module. ");
+    process.exit(1);
 }
 
 // Set the BIOME_CONFIG_PATH environment variable pointing to the directory of the biome.json file

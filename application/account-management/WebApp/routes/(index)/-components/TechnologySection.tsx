@@ -1,9 +1,4 @@
-const frame1 = "https://platformplatformgithub.blob.core.windows.net/dotnet.svg?url";
-const frame2 = "https://platformplatformgithub.blob.core.windows.net/react.svg?url";
-const frame3 = "https://platformplatformgithub.blob.core.windows.net/github.svg?url";
-const frame4 = "https://platformplatformgithub.blob.core.windows.net/azure.svg?url";
-const frame5 = "https://platformplatformgithub.blob.core.windows.net/help-square.svg?url";
-const frame6 = "https://platformplatformgithub.blob.core.windows.net/shield-star.svg?url";
+import { frame1, frame2, frame3, frame4, frame5, frame6 } from "@/shared/images/cdnImages";
 
 // TechnologySection: A functional component that displays the technology section
 export function TechnologySection() {

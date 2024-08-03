@@ -8,6 +8,7 @@
     "./*": "./dist/*.js",
     "./plugin/*": "./dist/plugin/*.js",
     "./react-env.d.ts": "./react-env.d.ts",
+    "./mf-types/*.d.ts": "./mf-types/*.d.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

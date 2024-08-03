@@ -1,12 +1,14 @@
-const createAccountUrl = "https://platformplatformgithub.blob.core.windows.net/create-account.png";
-const enterCodeUrl = "https://platformplatformgithub.blob.core.windows.net/enter-code.png";
-const profileEditDarkUrl = "https://platformplatformgithub.blob.core.windows.net/profile-edit-dark.png";
-const profileEditLightUrl = "https://platformplatformgithub.blob.core.windows.net/profile-edit.png";
-const editProfileUrl = "https://platformplatformgithub.blob.core.windows.net/edit-profile.png";
-const accountSettingsUrl = "https://platformplatformgithub.blob.core.windows.net/account-setting.png";
-const usersUrl = "https://platformplatformgithub.blob.core.windows.net/users.png";
-const darkModeUrl = "https://platformplatformgithub.blob.core.windows.net/dark-mode.png";
-const lightModeUrl = "https://platformplatformgithub.blob.core.windows.net/light-mode.png";
+import {
+  createAccountUrl,
+  enterCodeUrl,
+  profileEditDarkUrl,
+  darkModeUrl,
+  lightModeUrl,
+  editProfileUrl,
+  accountSettingsUrl,
+  profileEditLightUrl,
+  usersUrl
+} from "@/shared/images/cdnImages";
 
 // FeatureSection: A functional component that displays the feature section
 export function FeatureSection() {
