@@ -11,6 +11,6 @@ type RedirectToSignInProps = {
   returnUrl?: string;
 };
 
-export function RedirectToSignIn({ returnUrl }: RedirectToSignInProps) {
+export function RedirectToSignIn({ returnUrl }: Readonly<RedirectToSignInProps>) {
   return <Navigate to={createUrlWithReturnUrl(signInPath, returnUrl)} />;
 }
