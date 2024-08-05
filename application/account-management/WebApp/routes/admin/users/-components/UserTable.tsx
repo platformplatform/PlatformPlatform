@@ -32,11 +32,11 @@ export function UserTable() {
   });
 
   const handlePageChange = useCallback(
-    (pageOffset: number) => {
+    (page: number) => {
       navigate({
         search: (prev) => ({
           ...prev,
-          pageOffset: pageOffset
+          pageOffset: page === 1 ? undefined : page - 1
         })
       });
     },
