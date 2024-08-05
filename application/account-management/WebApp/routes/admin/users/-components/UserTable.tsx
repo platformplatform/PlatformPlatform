@@ -9,7 +9,7 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { SortOrder, SortableUserProperties, useApi } from "@/shared/lib/api/client";
+import { SortableUserProperties, SortOrder, useApi } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function UserTable() {
