@@ -120,11 +120,11 @@ export function UserTable() {
                     variant="icon"
                     className="group-hover:opacity-100 opacity-0 duration-300 transition-opacity ease-in-out"
                   >
-                    <Trash2Icon className="w-4 h-4" />
+                    <Trash2Icon className="w-5 h-5 text-muted-foreground" />
                   </Button>
                   <MenuTrigger>
                     <Button variant="icon" aria-label="Menu">
-                      <EllipsisVerticalIcon className="w-4 h-4" />
+                      <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
                     </Button>
                     <Popover>
                       <Menu>
