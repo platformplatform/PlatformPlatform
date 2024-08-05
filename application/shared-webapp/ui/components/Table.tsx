@@ -51,7 +51,7 @@ const columnStyles = tv({
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "column-resizer absolute right-0 top-1.5 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
+  base: "column-resizer absolute right-0 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
   variants: {
     isResizing: {
       false: "bg-border forced-colors:bg-[ButtonBorder] ",
