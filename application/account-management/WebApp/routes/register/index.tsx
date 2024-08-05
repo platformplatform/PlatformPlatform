@@ -16,7 +16,7 @@ import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";
 import { useState } from "react";
 import { api, useApi } from "@/shared/lib/api/client";
-import { setRegistration } from "./-shared/registrationState";
+import { setRegistrationState } from "./-shared/registrationState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 export const Route = createFileRoute("/register/")({
@@ -58,7 +58,7 @@ export function StartAccountRegistrationForm() {
   if (success === true) {
     const { accountRegistrationId, validForSeconds } = data;
 
-    setRegistration({
+    setRegistrationState({
       accountRegistrationId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)

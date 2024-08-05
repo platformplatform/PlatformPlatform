@@ -4,7 +4,7 @@ import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import Timeout from "@spectrum-icons/illustrations/Timeout";
 import { Link } from "@repo/ui/components/Link";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
-import { getRegistration } from "./-shared/registrationState";
+import { getRegistrationState } from "./-shared/registrationState";
 
 export const Route = createFileRoute("/register/expired")({
   component: () => (
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/register/expired")({
 });
 
 export function VerificationCodeExpiredMessage() {
-  const { accountRegistrationId } = getRegistration();
+  const { accountRegistrationId } = getRegistrationState();
 
   return (
     <IllustratedMessage>

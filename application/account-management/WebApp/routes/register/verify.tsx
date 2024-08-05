@@ -11,7 +11,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { useFormState } from "react-dom";
-import { getRegistration } from "./-shared/registrationState";
+import { getRegistrationState } from "./-shared/registrationState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/register/verify")({
 });
 
 export function CompleteAccountRegistrationForm() {
-  const { email, accountRegistrationId, expireAt } = getRegistration();
+  const { email, accountRegistrationId, expireAt } = getRegistrationState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const [{ success, title, message, errors }, action] = useFormState(
     api.action("/api/account-management/account-registrations/{id}/complete"),
@@ -72,7 +72,6 @@ export function CompleteAccountRegistrationForm() {
         <Button type="submit" className="mt-4 w-full text-center">
           <Trans>Verify</Trans>
         </Button>
-        <input type="hidden" name="accountRegistrationId" value={accountRegistrationId} />
         <div className="flex flex-col items-center gap-6 text-neutral-500">
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
