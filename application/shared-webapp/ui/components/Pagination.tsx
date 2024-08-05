@@ -5,7 +5,7 @@ import { tv } from "tailwind-variants";
 import type { ReactNode } from "react";
 
 const pageBackgroundStyle = tv({
-  base: "flex gap-1 rounded-md h-10 w-full items-center"
+  base: "flex gap-1 rounded-md h-10 items-center"
 });
 
 const paginationStyles = tv({
@@ -216,8 +216,8 @@ function PageNumberButton({ currentPage, totalPages, onPageChange, page }: Reado
 function Separator() {
   return (
     <li className="flex-1 grow">
-      <Button isDisabled variant="ghost" className="font-bold text-lg tabular-nums">
-        ..
+      <Button isDisabled variant="ghost">
+        ...
       </Button>
     </li>
   );
