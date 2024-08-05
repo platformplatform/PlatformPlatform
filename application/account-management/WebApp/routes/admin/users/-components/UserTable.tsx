@@ -101,10 +101,10 @@ export function UserTable() {
                     isRound
                   />
                   <div className="flex flex-col truncate">
-                    <div className="truncate">
+                    <div className="truncate text-foreground">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div className="text-muted-foreground truncate">{user.title ?? ""}</div>
+                    <div className="truncate">{user.title ?? ""}</div>
                   </div>
                 </div>
               </Cell>
