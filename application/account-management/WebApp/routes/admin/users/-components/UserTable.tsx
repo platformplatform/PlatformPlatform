@@ -144,22 +144,26 @@ export function UserTable() {
           ))}
         </TableBody>
       </Table>
-      <Pagination
-        paginationSize={5}
-        currentPage={currentPage}
-        totalPages={data?.totalPages ?? 1}
-        onPageChange={handlePageChange}
-        className="w-full pr-12 sm:hidden"
-      />
-      <Pagination
-        paginationSize={7}
-        currentPage={currentPage}
-        totalPages={data?.totalPages ?? 1}
-        onPageChange={handlePageChange}
-        previousLabel="Previous"
-        nextLabel="Next"
-        className="hidden sm:flex w-full"
-      />
+      {data && (
+        <>
+          <Pagination
+            paginationSize={5}
+            currentPage={currentPage}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            className="w-full pr-12 sm:hidden"
+          />
+          <Pagination
+            paginationSize={7}
+            currentPage={currentPage}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            previousLabel="Previous"
+            nextLabel="Next"
+            className="hidden sm:flex w-full"
+          />
+        </>
+      )}
     </div>
   );
 }
