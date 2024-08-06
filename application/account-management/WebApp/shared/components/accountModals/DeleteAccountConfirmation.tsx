@@ -6,7 +6,7 @@ type DeleteAccountConfirmationProps = {
   onOpenChange: (isOpen: boolean) => void;
 };
 
-export function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<DeleteAccountConfirmationProps>) {
+export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<DeleteAccountConfirmationProps>) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
       <AlertDialog
@@ -27,5 +27,3 @@ export function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<Del
     </Modal>
   );
 }
-
-export default DeleteAccountConfirmation;
