@@ -13,7 +13,7 @@ const paginationStyles = tv({
 });
 
 type PaginationProps = {
-  size?: number;
+  paginationSize?: number;
   currentPage: number;
   totalPages: number;
   previousLabel?: ReactNode;
@@ -23,7 +23,7 @@ type PaginationProps = {
 };
 
 export function Pagination({
-  size = 9,
+  paginationSize = 9,
   currentPage,
   totalPages,
   onPageChange,
@@ -31,12 +31,9 @@ export function Pagination({
   nextLabel,
   className
 }: Readonly<PaginationProps>) {
-  if (size % 2 === 0) {
-    throw new Error("Pagination size must be an odd number");
+  if (paginationSize % 2 === 0 || paginationSize < 5) {
+    throw new Error("Pagination size must be an odd number greater than or equal to 5.");
   }
-
-  const isEdge = currentPage < Math.floor(size / 2) || currentPage > totalPages - Math.floor(size / 2);
-  const isSmall = totalPages <= size || (size <= 5 && totalPages <= 5);
 
   const handlePrevious = () => {
     onPageChange(currentPage - 1);
@@ -46,28 +43,23 @@ export function Pagination({
     onPageChange(currentPage + 1);
   };
 
-  const isFirstPage = currentPage === 1;
-  const isLastPage = currentPage === totalPages;
-
   return (
     <nav aria-label="Pagination" className={paginationStyles({ className })}>
-      <Button variant="secondary" className="" onPress={handlePrevious} isDisabled={isFirstPage}>
+      <Button variant="secondary" className="" onPress={handlePrevious} isDisabled={currentPage === 1}>
         <ArrowLeftIcon className="w-4 h-4" />
         {previousLabel && <span className="hidden sm:block">{previousLabel}</span>}
       </Button>
+
       <FocusScope>
-        {isEdge && !isSmall && (
-          <EdgePagination size={size} currentPage={currentPage} onPageChange={onPageChange} totalPages={totalPages} />
-        )}
-        {!isEdge && !isSmall && (
-          <CenterPagination size={size} currentPage={currentPage} onPageChange={onPageChange} totalPages={totalPages} />
-        )}
-        {isSmall && (
-          <SmallPagination size={size} currentPage={currentPage} onPageChange={onPageChange} totalPages={totalPages} />
-        )}
+        <PageNumberButtons
+          paginationSize={paginationSize}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </FocusScope>
 
-      <Button variant="secondary" className="" onPress={handleNext} isDisabled={isLastPage}>
+      <Button variant="secondary" className="" onPress={handleNext} isDisabled={currentPage === totalPages}>
         {nextLabel && <span className="hidden sm:block">{nextLabel}</span>}
         <ArrowRightIcon className="w-4 h-4" />
       </Button>
@@ -76,87 +68,55 @@ export function Pagination({
 }
 
 type PageNumberProps = {
+  paginationSize: number;
   currentPage: number;
   totalPages: number;
-  size: number;
   onPageChange: (page: number) => void;
 };
 
-function CenterPagination({ currentPage, onPageChange, totalPages, size }: Readonly<PageNumberProps>) {
-  const centerCount = size - 4;
-  const sideCount = (centerCount - 1) / 2;
-  const pages = Array.from({ length: centerCount }, (_, i) => currentPage - sideCount + i);
-  return (
-    <ul className={pageBackgroundStyle()}>
-      <PageNumberButton
-        key={1}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        page={1}
-        totalPages={totalPages}
-      />
-      <Separator />
-      {pages.map((page) => (
-        <PageNumberButton
-          key={page}
-          currentPage={currentPage}
-          onPageChange={onPageChange}
-          page={page}
-          totalPages={totalPages}
-        />
-      ))}
-      <Separator />
-      <PageNumberButton
-        key={totalPages}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        page={totalPages}
-        totalPages={totalPages}
-      />
-    </ul>
-  );
-}
+function PageNumberButtons({ paginationSize, currentPage, totalPages, onPageChange }: Readonly<PageNumberProps>) {
+  const isSmall = totalPages <= paginationSize;
+  const isBeginning = isSmall || currentPage <= Math.ceil(paginationSize / 2);
+  const isEnd = !isBeginning && currentPage > totalPages - paginationSize + Math.ceil(paginationSize / 2);
+  const isCenter = !isBeginning && !isEnd;
 
-function EdgePagination({ currentPage, onPageChange, totalPages, size }: Readonly<PageNumberProps>) {
-  const edgeCount = Math.floor(size / 2);
-  const startPages = Array.from({ length: edgeCount }, (_, i) => i + 1);
-  const endPages = Array.from({ length: edgeCount }, (_, i) => totalPages - edgeCount + i + 1);
+  const startCount = isSmall ? totalPages : isBeginning ? Math.min(totalPages, Math.max(2, paginationSize - 2)) : 1;
+  const centerCount = isCenter ? Math.max(1, paginationSize - 4) : 0;
+  const endCount = isSmall ? 0 : isEnd ? paginationSize - startCount - centerCount - 1 : 1;
+
+  const startPages = Array.from({ length: startCount }, (_, i) => i + 1);
+  const centerPages = Array.from({ length: centerCount }, (_, i) => currentPage - (centerCount - 1) / 2 + i);
+  const endPages = Array.from({ length: endCount }, (_, i) => totalPages - endCount + i + 1);
+
   return (
     <ul className={pageBackgroundStyle()}>
       {startPages.map((page) => (
         <PageNumberButton
           key={page}
-          currentPage={currentPage}
-          onPageChange={onPageChange}
           page={page}
+          currentPage={currentPage}
           totalPages={totalPages}
+          onPageChange={onPageChange}
         />
       ))}
-      <Separator />
+      {!isSmall && <Separator />}
+      {centerPages.map((page) => (
+        <PageNumberButton
+          key={page}
+          page={page}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      ))}
+      {isCenter && <Separator />}
       {endPages.map((page) => (
         <PageNumberButton
           key={page}
-          currentPage={currentPage}
-          onPageChange={onPageChange}
           page={page}
-          totalPages={totalPages}
-        />
-      ))}
-    </ul>
-  );
-}
-
-function SmallPagination({ currentPage, onPageChange, totalPages }: Readonly<PageNumberProps>) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-  return (
-    <ul className={pageBackgroundStyle()}>
-      {pages.map((page) => (
-        <PageNumberButton
-          key={page}
           currentPage={currentPage}
-          onPageChange={onPageChange}
-          page={page}
           totalPages={totalPages}
+          onPageChange={onPageChange}
         />
       ))}
     </ul>
@@ -170,7 +130,7 @@ type PageNumberButtonProps = {
   onPageChange: (page: number) => void;
 };
 
-function PageNumberButton({ currentPage, totalPages, onPageChange, page }: Readonly<PageNumberButtonProps>) {
+function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Readonly<PageNumberButtonProps>) {
   const focusManager = useFocusManager();
   const { isFocusVisible } = useFocusVisible();
 
@@ -198,7 +158,7 @@ function PageNumberButton({ currentPage, totalPages, onPageChange, page }: Reado
   });
 
   return (
-    <li key={page} {...keyboardProps} className="flex flex-1 grow justify-center">
+    <li key={page} {...keyboardProps}>
       <Button
         aria-label={`Page number ${page}`}
         onPress={() => onPageChange(page)}
@@ -215,7 +175,7 @@ function PageNumberButton({ currentPage, totalPages, onPageChange, page }: Reado
 
 function Separator() {
   return (
-    <li className="flex-1 grow">
+    <li>
       <Button isDisabled variant="ghost">
         ...
       </Button>

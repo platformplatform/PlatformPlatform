@@ -145,19 +145,19 @@ export function UserTable() {
         </TableBody>
       </Table>
       <Pagination
-        size={5}
+        paginationSize={5}
         currentPage={currentPage}
         totalPages={data?.totalPages ?? 1}
         onPageChange={handlePageChange}
         className="w-full pr-12 sm:hidden"
       />
       <Pagination
-        size={7}
-        nextLabel="Next"
-        previousLabel="Previous"
+        paginationSize={7}
         currentPage={currentPage}
         totalPages={data?.totalPages ?? 1}
         onPageChange={handlePageChange}
+        previousLabel="Previous"
+        nextLabel="Next"
         className="hidden sm:flex w-full"
       />
     </div>
