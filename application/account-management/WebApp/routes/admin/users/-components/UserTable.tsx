@@ -45,11 +45,11 @@ export function UserTable() {
 
   const handleSortChange = useCallback(
     (newSortDescriptor: SortDescriptor) => {
-      console.log(newSortDescriptor);
       setSortDescriptor(newSortDescriptor);
       navigate({
         search: (prev) => ({
           ...prev,
+          pageOffset: undefined, // I Just added this to set the PageOffset to 0 when sorting
           orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
           sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending
         })
@@ -63,6 +63,7 @@ export function UserTable() {
   return (
     <div className="flex flex-col gap-2 h-full w-full">
       <Table
+        key={`${orderBy}-${sortOrder}`}
         selectionMode="multiple"
         selectionBehavior="toggle"
         sortDescriptor={sortDescriptor}
