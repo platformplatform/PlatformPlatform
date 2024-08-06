@@ -11,7 +11,7 @@ export function Dialog(props: Readonly<DialogProps>) {
     <AriaDialog
       {...props}
       className={twMerge(
-        "relative max-h-[inherit] overflow-auto p-6 outline outline-0 [[data-placement]>&]:p-4",
+        "relative max-h-[inherit] overflow-auto p-11 outline outline-0 [[data-placement]>&]:p-4",
         props.className
       )}
     />
