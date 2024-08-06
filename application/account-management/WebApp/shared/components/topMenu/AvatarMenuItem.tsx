@@ -11,7 +11,7 @@ const AvatarMenuItem: React.FC = () => {
       </div>
       <div className="flex flex-col">
         <h2>{name}</h2>
-        <p className=" text-slate-500 text-sm font-normal">{title}</p>
+        <p className="text-muted-foreground">{title}</p>
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ export function AvatarButton() {
           <Avatar avatarUrl={avatarUrl} initials="MD" isRound size="sm" />
         </Button>
         <Menu placement="bottom end">
-          <MenuItem className="h-16 w-60" onAction={() => setIsProfileModalOpen(true)}>
+          <MenuItem onAction={() => setIsProfileModalOpen(true)}>
             <AvatarMenuItem />
           </MenuItem>
           <MenuSeparator />
