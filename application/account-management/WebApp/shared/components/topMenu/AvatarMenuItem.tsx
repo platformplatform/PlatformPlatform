@@ -1,6 +1,7 @@
 import avatarUrl from "./images/avatar.png";
+import type { FC } from "react";
 
-const AvatarMenuItem: React.FC = () => {
+const AvatarMenuItem: FC = () => {
   const name = "Mary Doe";
   const title = "DevOps Engineer";
 

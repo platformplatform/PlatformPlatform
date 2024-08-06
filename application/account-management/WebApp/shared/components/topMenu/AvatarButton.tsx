@@ -8,6 +8,7 @@ import AccountModal from "@/shared/components/accountModals/AccountSettingsModal
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
+import { useUserId } from "@repo/infrastructure/auth/hooks";
 
 export function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -48,7 +49,7 @@ export function AvatarButton() {
           setIsDeleteAccountModalOpen(true);
         }}
       />
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={useUserId() ?? ""} />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
   );
