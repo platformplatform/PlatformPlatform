@@ -13,6 +13,7 @@ export type UserRole = z.infer<typeof userRoleScheme>;
 export const UserInfoScheme = z.object({
   isAuthenticated: z.boolean(),
   locale: z.string(),
+  userId: z.string().nullable().optional(),
   email: z.string().email().nullable().optional(),
   tenantId: z.string().nullable().optional(),
   userRole: userRoleScheme.nullable().optional(),
