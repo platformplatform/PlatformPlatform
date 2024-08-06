@@ -70,24 +70,22 @@ export function UserTable() {
         aria-label="Users"
       >
         <TableHeader>
-          <Column minWidth={50} defaultWidth={200} allowsSorting id={SortableUserProperties.Name} isRowHeader>
+          <Column minWidth={180} allowsSorting id={SortableUserProperties.Name} isRowHeader>
             Name
           </Column>
-          <Column minWidth={50} allowsSorting id={SortableUserProperties.Email}>
+          <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
             Email
           </Column>
-          <Column minWidth={55} allowsSorting id={SortableUserProperties.CreatedAt}>
+          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.CreatedAt}>
             Added
           </Column>
-          <Column minWidth={55} allowsSorting id={SortableUserProperties.ModifiedAt}>
+          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.ModifiedAt}>
             Last Seen
           </Column>
-          <Column minWidth={75} allowsSorting id={SortableUserProperties.Role}>
+          <Column minWidth={65} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
             Role
           </Column>
-          <Column minWidth={114} defaultWidth={114}>
-            Actions
-          </Column>
+          <Column width={114}>Actions</Column>
         </TableHeader>
         <TableBody>
           {data?.users.map((user) => (
