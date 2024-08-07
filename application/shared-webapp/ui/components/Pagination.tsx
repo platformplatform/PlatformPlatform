@@ -164,7 +164,6 @@ function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Reado
         onPress={() => onPageChange(page)}
         variant={page === currentPage ? "secondary" : "ghost"}
         size="sm"
-        autoFocus={page === currentPage && isFocusVisible}
         className="tabular-nums duration-0"
       >
         {page}
