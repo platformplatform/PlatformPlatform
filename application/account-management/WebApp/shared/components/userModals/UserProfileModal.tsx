@@ -8,16 +8,17 @@ import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import avatarUrl from "../topMenu/images/avatar.png";
-import type { Schemas } from "@/shared/lib/api/client";
 import { api } from "@/shared/lib/api/client";
 
 type ProfileModalProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  userId: Schemas["UserId"] | null;
+  userId: string;
 };
 
 export default function UserProfileModal({ isOpen, onOpenChange, userId }: Readonly<ProfileModalProps>) {
+  const { data } = api.useApi("/api/account-management/users/{id}", { id: userId });
+
   const [file, setFile] = useState<string | null>(null);
   const onFileSelect = (e: FileList | null) => {
     if (e) {
@@ -29,10 +30,16 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
     onOpenChange(false);
   };
 
-  const [{ success, errors, data, title, message }, action, isPending] = useFormState(
+  const [{ success, errors, title, message }, action, isPending] = useFormState(
     api.actionPut("/api/account-management/users/{id}"),
-    { success: null }
+    {
+      success: null
+    }
   );
+
+  if (success === true) {
+    closeDialog();
+  }
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
@@ -44,6 +51,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
         <p className="text-muted-foreground text-sm">Update photo and personal details here.</p>
 
         <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4 mt-4">
+          <input type="hidden" name="id" value={userId} />
           <Label>Photo</Label>
           <FileTrigger onSelect={onFileSelect}>
             <Button variant="icon" className="rounded-full w-16 h-16 mb-3">
@@ -58,18 +66,26 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
               isRequired
               name="firstName"
               label="First name"
+              defaultValue={data?.firstName}
               placeholder="E.g. Olivia"
               className="sm:w-64"
             />
-            <TextField isRequired name="lastName" label="Last name" placeholder="E.g. Rhye" className="sm:w-64" />
+            <TextField
+              isRequired
+              name="lastName"
+              label="Last name"
+              defaultValue={data?.lastName}
+              placeholder="E.g. Rhye"
+              className="sm:w-64"
+            />
           </div>
-          <TextField name="email" label="Email" value="yourname@example.com" isDisabled={true} />
-          <TextField name="title" label="Title" placeholder="E.g. Marketing Manager" />
+          <TextField name="email" label="Email" value={data?.email} />
+          <TextField name="title" label="Title" defaultValue={data?.title} placeholder="E.g. Marketing Manager" />
 
           <FormErrorMessage title={title} message={message} />
 
           <div className="flex justify-end gap-4 mt-6">
-            <Button onPress={closeDialog} variant="secondary">
+            <Button type="reset" onPress={closeDialog} variant="secondary">
               Cancel
             </Button>
             <Button type="submit" isDisabled={isPending}>
