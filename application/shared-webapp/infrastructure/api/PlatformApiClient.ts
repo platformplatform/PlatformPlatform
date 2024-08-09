@@ -48,7 +48,7 @@ export function createPlatformApiClient<
             url: Path,
             options?: OperationRequestBody<Paths[Path]["get"]>
           ) => {
-            return createClientMethodWithProblemDetails(client.GET, true)(
+            return createClientMethodWithProblemDetails(client.GET)(
               url,
               options as OperationRequestBody<Paths[Path]["get"]>
             );
@@ -58,7 +58,7 @@ export function createPlatformApiClient<
             url: Path,
             options?: OperationRequestBody<Paths[Path]["post"]>
           ) => {
-            return createClientMethodWithProblemDetails(client.POST, false)(
+            return createClientMethodWithProblemDetails(client.POST)(
               url,
               options as OperationRequestBody<Paths[Path]["post"]>
             );
@@ -68,7 +68,7 @@ export function createPlatformApiClient<
             url: Path,
             options?: OperationRequestBody<Paths[Path]["put"]>
           ) => {
-            return createClientMethodWithProblemDetails(client.PUT, false)(
+            return createClientMethodWithProblemDetails(client.PUT)(
               url,
               options as OperationRequestBody<Paths[Path]["put"]>
             );
@@ -78,7 +78,7 @@ export function createPlatformApiClient<
             url: Path,
             options?: OperationRequestBody<Paths[Path]["delete"]>
           ) => {
-            return createClientMethodWithProblemDetails(client.DELETE, false)(
+            return createClientMethodWithProblemDetails(client.DELETE)(
               url,
               options as OperationRequestBody<Paths[Path]["delete"]>
             );
