@@ -37,7 +37,7 @@ export function StartAccountRegistrationForm() {
   const [email, setEmail] = useState("");
 
   const [{ success, errors, data, title, message }, action, isPending] = useFormState(
-    api.action("/api/account-management/account-registrations/start"),
+    api.actionPost("/api/account-management/account-registrations/start"),
     { success: null }
   );
 

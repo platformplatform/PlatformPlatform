@@ -32,7 +32,7 @@ export function CompleteAccountRegistrationForm() {
   const { email, accountRegistrationId, expireAt } = getRegistrationState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const [{ success, title, message, errors }, action] = useFormState(
-    api.action("/api/account-management/account-registrations/{id}/complete"),
+    api.actionPost("/api/account-management/account-registrations/{id}/complete"),
     {
       success: null
     }
