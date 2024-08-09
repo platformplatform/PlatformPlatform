@@ -91,12 +91,20 @@ export function createApiReactHook<
         setSuccess(null);
         setLoading(true);
         try {
-          const data = await apiMethod(pathname, {
+          if (typeof pathname !== "string") {
+            throw new Error("Pathname must be a string");
+          }
+          const url = pathname.replace(
+            /{([^}]+)}/g,
+            (_, key: string) => (memorizedOptions as Record<string, string>)[key]
+          ) as Path;
+
+          const data = await apiMethod(url, {
             ...memorizedOptions,
             // Use the cache option to determine the cache mode
             cache: cacheMode,
             // Disable the abort controller if caching is enabled
-            signal: memorizedHookOptions.cache === true ? undefined : abortController.signal
+            signal: memorizedHookOptions.cache ? undefined : abortController.signal
             // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point but expose a type-safe API
           } as any);
           if (!abortController.signal.aborted) {
