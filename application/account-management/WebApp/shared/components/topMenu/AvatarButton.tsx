@@ -1,5 +1,5 @@
 import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useState } from "react";
 import { AvatarMenuItem } from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
@@ -24,7 +24,7 @@ export function AvatarButton() {
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
         </Button>
         <Menu placement="bottom end">
-          <MenuItem onAction={() => setIsProfileModalOpen(true)}>
+          <MenuHeader>
             <AvatarMenuItem
               name={userInfo.fullName}
               title={userInfo.title}
@@ -32,7 +32,7 @@ export function AvatarButton() {
               avatarUrl={userInfo.avatarUrl}
               initials={userInfo.initials}
             />
-          </MenuItem>
+          </MenuHeader>
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
             <UserIcon size={16} />
