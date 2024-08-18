@@ -14,7 +14,7 @@ import { getLoginState } from "./-shared/loginState";
 import { useFormState } from "react-dom";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { signedInPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath } from "@repo/infrastructure/auth/constants";
 
 export const Route = createFileRoute("/login/verify")({
   component: () => (
@@ -41,7 +41,7 @@ export function CompleteLoginForm() {
 
   if (isExpired) return <Navigate to="/login/expired" />;
 
-  if (success) return <Navigate to={signedInPath} />;
+  if (success) return <Navigate to={loggedInPath} />;
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">

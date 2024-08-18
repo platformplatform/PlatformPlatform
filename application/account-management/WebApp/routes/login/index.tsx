@@ -61,7 +61,7 @@ export function LoginForm() {
         <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
       </Link>
       <Heading className="text-2xl">Hi! Welcome back</Heading>
-      <div className="text-center text-muted-foreground text-sm">Enter your email below to sign in</div>
+      <div className="text-center text-muted-foreground text-sm">Enter your email below to login</div>
       <TextField
         name="email"
         type="email"

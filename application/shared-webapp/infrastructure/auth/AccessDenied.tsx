@@ -7,7 +7,7 @@ type AccessDeniedProps = {
 };
 
 /**
- * Display component if a user is logged in but does not have the required role.
+ * Display component if the user is logged in but does not have the required role.
  */
 export function AccessDenied({ requiredRoles, children }: AccessDeniedProps) {
   return requiredRoles.includes(useUserInfo()?.userRole) ? null : children;

@@ -1,6 +1,6 @@
 import { Navigate } from "@tanstack/react-router";
-import { signOutPath } from "./constants";
+import { signUpPath } from "./constants";
 
-export function RedirectToSignOut() {
-  return <Navigate to={signOutPath} />;
+export function RedirectToSignUp() {
+  return <Navigate to={signUpPath} />;
 }

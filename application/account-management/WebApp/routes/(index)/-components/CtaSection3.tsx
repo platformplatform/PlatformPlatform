@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/Button";
+import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
 
 // CtaSection3: A functional component that displays a call to action
 export function CtaSection3() {
@@ -12,7 +12,7 @@ export function CtaSection3() {
           </p>
           <div className="flex flex-col md:gap-8 items-center">
             {/* Button component is used to display a call to action */}
-            <Button variant="primary">Get started for free</Button>
+            <SignUpButton variant="primary">Get started for free</SignUpButton>
           </div>
         </div>
       </div>

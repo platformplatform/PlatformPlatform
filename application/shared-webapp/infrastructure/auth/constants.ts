@@ -1,24 +1,24 @@
 /**
- * Link to the page users can sign up for an account
+ * Path of the page used when signing up for a new account
  */
 export const signUpPath = "/register";
 /**
- * Link to the page users can sign in to their account
+ * Path of the page shown after successful signing up
  */
-export const signInPath = "/login";
+export const signedUpPath = "/admin";
 /**
- * Link to the page users can sign out of their account
+ * Path of the page used to log in as user
  */
-export const signOutPath = "/logout";
+export const loginPath = "/login";
 /**
- * Link to the page users should see after signing in
+ * Path to the default page shown after successful login
  */
-export const signedInPath = "/admin/users";
+export const loggedInPath = "/admin/users";
 /**
- * Link to the page users should see after signing out
+ * Path of the page used to trigger logout
  */
-export const signedOutPath = "/";
+export const logoutPath = "/logout";
 /**
- * Link to the page users should see after signing up
+ * Path of the page shown after logging out
  */
-export const signedUpPath = "/admin/users";
+export const loggedOutPath = "/";

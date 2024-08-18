@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { useIsAuthenticated } from "./hooks";
 
-export interface SignedOutProps {
+export interface LoggedOutProps {
   children: ReactNode;
 }
 
 /**
  * Show component if no user is logged in.
  */
-export function SignedOut({ children }: SignedOutProps) {
+export function LoggedOut({ children }: LoggedOutProps) {
   return useIsAuthenticated() ? null : children;
 }

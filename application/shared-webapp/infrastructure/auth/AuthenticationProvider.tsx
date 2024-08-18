@@ -10,8 +10,8 @@ export type UserInfo = {
 export const initialUserInfo: UserInfo = createUserInfo({ ...import.meta.user_info_env });
 
 /**
- * Returns the user info if the user is authenticated or null if logged out
- * If the user data is invalid, it will throw an error
+ * Returns the user info if the user is authenticated or null if logged out.
+ * Throw an error if the user data is invalid.
  */
 export async function getUserInfo(): Promise<UserInfo | null> {
   try {
