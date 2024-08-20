@@ -13,12 +13,12 @@ public class UserInfo
         {
             UserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Email = user.FindFirst(ClaimTypes.Email)?.Value;
-            TenantId = user.FindFirst("tenantId")?.Value;
+            TenantId = user.FindFirst("tenant_id")?.Value;
             UserRole = user.FindFirst(ClaimTypes.Role)?.Value;
             FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value;
             LastName = user.FindFirst(ClaimTypes.Surname)?.Value;
             Title = user.FindFirst("title")?.Value;
-            AvatarUrl = user.FindFirst("avatarUrl")?.Value;
+            AvatarUrl = user.FindFirst("avatar_url")?.Value;
         }
     }
 
