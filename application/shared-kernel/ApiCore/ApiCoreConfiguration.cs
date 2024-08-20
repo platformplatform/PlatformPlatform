@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -17,6 +17,7 @@ using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
@@ -76,7 +77,7 @@ public static class ApiCoreConfiguration
             }
         );
 
-        // Add Authentication and Authorization services (This is new code, that has just been added)
+        // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -85,11 +86,14 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
+                var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
+                                            ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
+
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                    ValidIssuer = securityTokenSettings.Issuer,
+                    ValidAudience = securityTokenSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = false,
@@ -166,7 +170,7 @@ public static class ApiCoreConfiguration
         // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
         app.UseForwardedHeaders();
 
-        // Add Authentication and Authorization middleware (This is new code, that has just been added)
+        // Add Authentication and Authorization middleware
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -176,7 +180,7 @@ public static class ApiCoreConfiguration
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
-        // Manually create all endpoints classes to call the MapEndpoints containing the mappings
+        // Manually create all endpoint classes to call the MapEndpoints containing the mappings
         using var scope = app.Services.CreateScope();
         var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
         foreach (var endpoint in endpointServices)
