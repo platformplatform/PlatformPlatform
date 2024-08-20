@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Application.Authentication;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
@@ -23,6 +24,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly JsonSerializerOptions JsonSerializerOptions;
+    protected readonly SecurityTokenGenerator SecurityTokenGenerator;
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
@@ -63,6 +65,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         using var serviceScope = Services.BuildServiceProvider().CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+        SecurityTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<SecurityTokenGenerator>();
 
         JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }

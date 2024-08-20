@@ -18,7 +18,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingUserId = DatabaseSeeder.User1.Id;
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{existingUserId}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{existingUserId}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -56,7 +56,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var unknownUserId = UserId.NewId();
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{unknownUserId}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{unknownUserId}");
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -69,7 +69,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var invalidUserId = Faker.Random.AlphaNumeric(31);
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
 
         // Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
@@ -82,7 +82,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "willgate";
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -99,7 +99,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "Will";
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -116,7 +116,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var searchString = "William Henry Gates";
 
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -131,7 +131,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     {
         // Arrange
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -145,7 +145,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
     public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
     {
         // Act
-        var response = await TestHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
+        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -164,7 +164,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.Member, false);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         await EnsureSuccessPostRequest(response, startsWith: "/api/account-management/users/");
@@ -180,7 +180,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.Member, false);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         var expectedErrors = new[]
@@ -199,7 +199,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.Member, false);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         var expectedErrors = new[]
@@ -217,7 +217,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var command = new CreateUserCommand(unknownTenantId, Faker.Internet.Email(), UserRole.Member, false);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         var expectedErrors = new[]
@@ -241,7 +241,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
 
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
 
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);
@@ -261,7 +261,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
 
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
 
         // Assert
         var expectedErrors = new[]
@@ -288,7 +288,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         };
 
         // Act
-        var response = await TestHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
 
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -301,7 +301,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var unknownUserId = UserId.NewId();
 
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
+        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
 
         //Assert
         await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -314,7 +314,7 @@ public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext
         var existingUserId = DatabaseSeeder.User1.Id;
 
         // Act
-        var response = await TestHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
+        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
 
         // Assert
         EnsureSuccessWithEmptyHeaderAndLocation(response);

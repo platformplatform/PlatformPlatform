@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
             {
                 builder.ConfigureTestServices(services =>
                     {
-                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database 
+                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
                         services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                         services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
@@ -38,10 +39,16 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
             }
         );
 
-        TestHttpClient = _webApplicationFactory.CreateClient();
+        AnonymousHttpClient = _webApplicationFactory.CreateClient();
+
+        var accessToken = SecurityTokenGenerator.GenerateAccessToken(DatabaseSeeder.User1);
+        AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }
 
-    protected HttpClient TestHttpClient { get; }
+    protected HttpClient AnonymousHttpClient { get; }
+
+    protected HttpClient AuthenticatedHttpClient { get; }
 
     protected override void Dispose(bool disposing)
     {

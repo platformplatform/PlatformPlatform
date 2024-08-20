@@ -20,7 +20,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var command = new StartAccountRegistrationCommand(subdomain, email);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -39,7 +39,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var subdomain = Faker.Subdomain();
 
         // Act
-        var response = await TestHttpClient
+        var response = await AnonymousHttpClient
             .GetAsync($"/api/account-management/account-registrations/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
@@ -58,7 +58,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var command = new StartAccountRegistrationCommand(invalidSubdomain, email);
 
         // Act
-        var response = await TestHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/account-registrations/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -79,7 +79,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
 
         // Act
         var response =
-            await TestHttpClient.GetAsync($"/api/account-management/account-registrations/is-subdomain-free?subdomain={subdomain}");
+            await AnonymousHttpClient.GetAsync($"/api/account-management/account-registrations/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
         EnsureSuccessGetRequest(response);
@@ -98,7 +98,7 @@ public sealed class AccountRegistrationsTests : BaseApiTests<AccountManagementDb
         var accountRegistrationId = DatabaseSeeder.AccountRegistration1.Id;
 
         // Act
-        var response = await TestHttpClient
+        var response = await AnonymousHttpClient
             .PostAsJsonAsync($"/api/account-management/account-registrations/{accountRegistrationId}/complete", command);
 
         // Assert
