@@ -1,9 +1,8 @@
-using System.Security.Cryptography;
-using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.Authentication;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
@@ -54,7 +53,7 @@ public sealed class StartLoginCommandHandler(
 
         // TODO: Check if a login process is already started for this user and if it is not expired yet
 
-        var oneTimePassword = GenerateOneTimePassword(6);
+        var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
 
         var loginProcess = Login.Create(user, oneTimePasswordHash);
@@ -72,17 +71,5 @@ public sealed class StartLoginCommandHandler(
         );
 
         return new StartLoginResponse(loginProcess.Id, Login.ValidForSeconds);
-    }
-
-    public static string GenerateOneTimePassword(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        var oneTimePassword = new StringBuilder(length);
-        for (var i = 0; i < length; i++)
-        {
-            oneTimePassword.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
-        }
-
-        return oneTimePassword.ToString();
     }
 }

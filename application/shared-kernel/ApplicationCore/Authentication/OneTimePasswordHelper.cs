@@ -1,9 +1,23 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Identity;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
-public class OneTimePasswordValidator(IPasswordHasher<object> passwordHasher)
+public class OneTimePasswordHelper(IPasswordHasher<object> passwordHasher)
 {
+    public static string GenerateOneTimePassword(int length)
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        var oneTimePassword = new StringBuilder(length);
+        for (var i = 0; i < length; i++)
+        {
+            oneTimePassword.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
+        }
+
+        return oneTimePassword.ToString();
+    }
+
     public bool Validate(string oneTimePasswordHash, string oneTimePassword)
     {
         var passwordVerificationResult = passwordHasher.VerifyHashedPassword(this, oneTimePasswordHash, oneTimePassword);

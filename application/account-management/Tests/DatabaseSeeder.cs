@@ -1,8 +1,8 @@
 using Bogus;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -19,7 +19,7 @@ public sealed class DatabaseSeeder
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        OneTimePassword = StartAccountRegistrationCommandHandler.GenerateOneTimePassword(6);
+        OneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePassword);
 
         AccountRegistration1 = AccountRegistration.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email(), oneTimePasswordHash);

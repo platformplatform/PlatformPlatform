@@ -16,7 +16,7 @@ public sealed record CompleteLoginCommand(string OneTimePassword)
 public sealed class CompleteLoginHandler(
     IUserRepository userRepository,
     ILoginRepository loginProcessRepository,
-    OneTimePasswordValidator oneTimePasswordValidator,
+    OneTimePasswordHelper oneTimePasswordHelper,
     SecurityTokenService securityTokenService,
     ITelemetryEventsCollector events,
     ILogger<CompleteLoginHandler> logger
@@ -31,7 +31,7 @@ public sealed class CompleteLoginHandler(
             return Result.NotFound($"Login with id '{command.Id}' not found.");
         }
 
-        if (oneTimePasswordValidator.Validate(loginProcess.OneTimePasswordHash, command.OneTimePassword))
+        if (oneTimePasswordHelper.Validate(loginProcess.OneTimePasswordHash, command.OneTimePassword))
         {
             loginProcess.RegisterInvalidPasswordAttempt();
             loginProcessRepository.Update(loginProcess);

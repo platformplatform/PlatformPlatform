@@ -1,9 +1,8 @@
-using System.Security.Cryptography;
-using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
@@ -61,7 +60,7 @@ public sealed class StartAccountRegistrationCommandHandler(
             return Result<StartAccountRegistrationResponse>.TooManyRequests("Too many attempts to register this email address. Please try again later.");
         }
 
-        var oneTimePassword = GenerateOneTimePassword(6);
+        var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
         var accountRegistration = AccountRegistration.Create(command.GetTenantId(), command.Email, oneTimePasswordHash);
 
@@ -78,17 +77,5 @@ public sealed class StartAccountRegistrationCommandHandler(
         );
 
         return new StartAccountRegistrationResponse(accountRegistration.Id, accountRegistration.GetValidForSeconds());
-    }
-
-    public static string GenerateOneTimePassword(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        var oneTimePassword = new StringBuilder(length);
-        for (var i = 0; i < length; i++)
-        {
-            oneTimePassword.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
-        }
-
-        return oneTimePassword.ToString();
     }
 }

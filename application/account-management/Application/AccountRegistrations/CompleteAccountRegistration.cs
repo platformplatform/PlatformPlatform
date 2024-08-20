@@ -16,7 +16,7 @@ public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
 public sealed class CompleteAccountRegistrationHandler(
     ITenantRepository tenantRepository,
     IAccountRegistrationRepository accountRegistrationRepository,
-    OneTimePasswordValidator oneTimePasswordValidator,
+    OneTimePasswordHelper oneTimePasswordHelper,
     ITelemetryEventsCollector events,
     ILogger<CompleteAccountRegistrationHandler> logger
 ) : IRequestHandler<CompleteAccountRegistrationCommand, Result>
@@ -30,7 +30,7 @@ public sealed class CompleteAccountRegistrationHandler(
             return Result.NotFound($"AccountRegistration with id '{command.Id}' not found.");
         }
 
-        if (oneTimePasswordValidator.Validate(accountRegistration.OneTimePasswordHash, command.OneTimePassword))
+        if (oneTimePasswordHelper.Validate(accountRegistration.OneTimePasswordHash, command.OneTimePassword))
         {
             accountRegistration.RegisterInvalidPasswordAttempt();
             accountRegistrationRepository.Update(accountRegistration);
