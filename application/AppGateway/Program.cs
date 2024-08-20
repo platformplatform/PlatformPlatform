@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,10 @@ else
         context.RequestTransforms.Add(context.Services.GetRequiredService<SharedAccessSignatureRequestTransform>())
     );
 }
+
+var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
+                            ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
+builder.Services.AddSingleton(securityTokenSettings);
 
 builder.Services
     .AddSingleton<BlockInternalApiTransform>()

@@ -7,9 +7,28 @@ namespace PlatformPlatform.AccountManagement.Application.Authentication;
 
 public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSettings)
 {
-    public RefreshToken GenerateRefreshToken(User user)
+    public string GenerateRefreshToken(User user)
     {
-        return new RefreshToken { UserId = user.Id };
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity([
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim("refresh_token_chain_id", Guid.NewGuid().ToString()),
+                    new Claim("refresh_token_version", 1.ToString())
+                ]
+            ),
+            Expires = TimeProvider.System.GetUtcNow().AddMonths(3).DateTime,
+            Issuer = securityTokenSettings.Issuer,
+            Audience = securityTokenSettings.Audience,
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
+            )
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(securityToken);
     }
 
     public string GenerateAccessToken(User user)
@@ -17,8 +36,6 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
-                    new Claim("id", Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
@@ -30,7 +47,7 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
                     new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
                 ]
             ),
-            Expires = DateTime.UtcNow.AddMinutes(5),
+            Expires = TimeProvider.System.GetUtcNow().AddMinutes(5).DateTime,
             Issuer = securityTokenSettings.Issuer,
             Audience = securityTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(

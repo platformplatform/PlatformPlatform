@@ -1,10 +1,17 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 
-public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtectionProvider, ILogger<AuthenticationCookieMiddleware> logger)
+public class AuthenticationCookieMiddleware(
+    IDataProtectionProvider dataProtectionProvider,
+    SecurityTokenSettings securityTokenSettings,
+    ILogger<AuthenticationCookieMiddleware> logger
+)
     : IMiddleware
 {
     private const string AuthenticationCookieName = "authentication-cookie";
@@ -55,7 +62,8 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
 
     private void ReplaceAuthenticationHeaderWithCookie(HttpContext context, string refreshToken, string accessToken)
     {
-        var refreshTokenExpires = JsonSerializer.Deserialize<RefreshToken>(refreshToken)!.Expires;
+        var refreshTokenExpires = ExtractExpirationFromToken(ValidateAndExtractClaims(refreshToken));
+
         var authenticationTokenPair = new AuthenticationTokenPair(refreshToken, accessToken);
 
         var encryptedToken = Encrypt(authenticationTokenPair);
@@ -85,5 +93,50 @@ public class AuthenticationCookieMiddleware(IDataProtectionProvider dataProtecti
         return _protector.Protect(jsonString);
     }
 
-    private record AuthenticationTokenPair(string RefreshToken, string AccessToken);
+    public ClaimsPrincipal ValidateAndExtractClaims(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        // Ensure the token is valid and can be read
+        if (!tokenHandler.CanReadToken(token))
+        {
+            throw new SecurityTokenMalformedException("The token is not a valid JWT.");
+        }
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = securityTokenSettings.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = securityTokenSettings.Audience,
+
+            ValidateLifetime = true,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
+
+            ClockSkew = TimeSpan.Zero // No clock skew
+        };
+
+        SecurityToken validatedToken;
+
+        var validateAndExtractClaims = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+
+        return validateAndExtractClaims;
+    }
+
+    public DateTime ExtractExpirationFromToken(ClaimsPrincipal principal)
+    {
+        // The 'exp' claim is the number of seconds since Unix epoch (00:00:00 UTC on 1st January 1970)
+        var expClaim = principal.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Exp)
+                       ?? throw new InvalidOperationException("Expiration claim is missing from the token.");
+
+        // Convert the expiration time from seconds since Unix epoch to DateTime
+        var unixSeconds = long.Parse(expClaim.Value);
+
+        return DateTimeOffset.FromUnixTimeSeconds(unixSeconds).UtcDateTime;
+    }
+
+    private sealed record AuthenticationTokenPair(string RefreshToken, string AccessToken);
 }
