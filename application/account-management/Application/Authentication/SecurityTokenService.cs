@@ -10,11 +10,11 @@ public sealed class SecurityTokenService(SecurityTokenGenerator tokenGenerator, 
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
         var refreshToken = tokenGenerator.GenerateRefreshToken(user);
-        httpContext.Response.Headers.Remove(RefreshToken.XRefreshTokenKey);
-        httpContext.Response.Headers.Append(RefreshToken.XRefreshTokenKey, refreshToken);
+        httpContext.Response.Headers.Remove(SecurityTokenSettings.RefreshTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(SecurityTokenSettings.RefreshTokenHttpHeaderKey, refreshToken);
 
         var accessToken = tokenGenerator.GenerateAccessToken(user);
-        httpContext.Response.Headers.Remove(RefreshToken.XAccessTokenKey);
-        httpContext.Response.Headers.Append(RefreshToken.XAccessTokenKey, accessToken);
+        httpContext.Response.Headers.Remove(SecurityTokenSettings.AccessTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(SecurityTokenSettings.AccessTokenHttpHeaderKey, accessToken);
     }
 }

@@ -27,8 +27,8 @@ public class AuthenticationCookieMiddleware(
 
         await next(context);
 
-        if (context.Response.Headers.TryGetValue(RefreshToken.XRefreshTokenKey, out var refreshToken) &&
-            context.Response.Headers.TryGetValue(RefreshToken.XAccessTokenKey, out var accessToken))
+        if (context.Response.Headers.TryGetValue(SecurityTokenSettings.RefreshTokenHttpHeaderKey, out var refreshToken) &&
+            context.Response.Headers.TryGetValue(SecurityTokenSettings.AccessTokenHttpHeaderKey, out var accessToken))
         {
             ReplaceAuthenticationHeaderWithCookie(context, refreshToken.Single()!, accessToken.Single()!);
         }
@@ -36,7 +36,8 @@ public class AuthenticationCookieMiddleware(
 
     private void ConvertAuthenticationCookieToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
     {
-        if (context.Request.Headers.ContainsKey(RefreshToken.XRefreshTokenKey) || context.Request.Headers.ContainsKey(RefreshToken.XAccessTokenKey))
+        if (context.Request.Headers.ContainsKey(SecurityTokenSettings.RefreshTokenHttpHeaderKey) ||
+            context.Request.Headers.ContainsKey(SecurityTokenSettings.AccessTokenHttpHeaderKey))
         {
             // The authentication cookie is used by WebApp, but API requests should use tokens in the headers
             throw new InvalidOperationException("A request cannot contain both a session cookie and tokens in the headers.");
@@ -77,8 +78,8 @@ public class AuthenticationCookieMiddleware(
         };
         context.Response.Cookies.Append(AuthenticationCookieName, encryptedToken, cookieOptions);
 
-        context.Response.Headers.Remove(RefreshToken.XRefreshTokenKey);
-        context.Response.Headers.Remove(RefreshToken.XAccessTokenKey);
+        context.Response.Headers.Remove(SecurityTokenSettings.RefreshTokenHttpHeaderKey);
+        context.Response.Headers.Remove(SecurityTokenSettings.AccessTokenHttpHeaderKey);
     }
 
     private AuthenticationTokenPair Decrypt(string authenticationCookieValue)
