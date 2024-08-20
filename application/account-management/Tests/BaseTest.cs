@@ -6,6 +6,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -35,6 +36,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services = new ServiceCollection();
 
+        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -44,7 +47,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
         Services
-            .AddApplicationServices()
+            .AddApplicationServices(configuration)
             .AddInfrastructureServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
@@ -56,7 +59,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
 
-        // Make sure database is created
+        // Make sure the database is created
         using var serviceScope = Services.BuildServiceProvider().CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
