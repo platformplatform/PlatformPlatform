@@ -134,7 +134,7 @@ public class AuthenticationCookieMiddleware(
             ValidAudience = securityTokenSettings.Audience,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
-            ClockSkew = TimeSpan.Zero,
+            ClockSkew = TimeSpan.FromSeconds(5), // In Azure 5 seconds should be enough
             ValidateLifetime = throwIfExpired
         };
 

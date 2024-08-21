@@ -97,7 +97,8 @@ public static class ApiCoreConfiguration
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.FromSeconds(5) // In Azure 5 seconds should be enough
                 };
             }
         );
