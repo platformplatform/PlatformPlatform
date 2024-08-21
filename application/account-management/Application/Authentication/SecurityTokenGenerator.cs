@@ -18,7 +18,7 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
                     new Claim("refresh_token_version", 1.ToString())
                 ]
             ),
-            Expires = TimeProvider.System.GetUtcNow().AddMonths(3).DateTime,
+            Expires = TimeProvider.System.GetUtcNow().AddMonths(3).UtcDateTime,
             Issuer = securityTokenSettings.Issuer,
             Audience = securityTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(
@@ -47,7 +47,7 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
                     new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
                 ]
             ),
-            Expires = TimeProvider.System.GetUtcNow().AddMinutes(5).DateTime,
+            Expires = TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime,
             Issuer = securityTokenSettings.Issuer,
             Audience = securityTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(

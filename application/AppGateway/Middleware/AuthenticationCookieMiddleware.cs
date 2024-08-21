@@ -22,7 +22,7 @@ public class AuthenticationCookieMiddleware(
     {
         if (context.Request.Cookies.TryGetValue(AuthenticationCookieName, out var authenticationCookieValue))
         {
-            ConvertAuthenticationCookieToHttpBearerHeader(context, authenticationCookieValue);
+            ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, authenticationCookieValue);
         }
 
         await next(context);
@@ -34,36 +34,45 @@ public class AuthenticationCookieMiddleware(
         }
     }
 
-    private void ConvertAuthenticationCookieToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
+    private void ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
     {
         if (context.Request.Headers.ContainsKey(SecurityTokenSettings.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(SecurityTokenSettings.AccessTokenHttpHeaderKey))
         {
             // The authentication cookie is used by WebApp, but API requests should use tokens in the headers
-            throw new InvalidOperationException("A request cannot contain both a session cookie and tokens in the headers.");
+            throw new InvalidOperationException("A request cannot contain both a authentication cookie and security tokens in the headers.");
         }
 
+        var authenticationTokenPair = Decrypt(authenticationCookieValue);
         try
         {
-            var authenticationTokenPair = Decrypt(authenticationCookieValue);
+            if (ExtractExpirationFromToken(authenticationTokenPair.RefreshToken) < TimeProvider.System.GetUtcNow())
+            {
+                context.Response.Cookies.Delete(AuthenticationCookieName);
+                logger.LogWarning("The refresh-token has expired. The authentication cookie is removed.");
+                return;
+            }
 
-            // TODO: Check if AccessToken is expired, call the refresh token endpoint to get a new one here
-            // We will do this by calling a token refresh endpoint that will issue a new access token, but also an
-            // updated refresh token, with a new version number (but same ID), that can be used to detect replay attacks.
+            if (ExtractExpirationFromToken(authenticationTokenPair.AccessToken) < TimeProvider.System.GetUtcNow())
+            {
+                logger.LogDebug("The access-token has expired, and needs to be refreshed");
+                // TODO: Use the refresh-token to geta a new Access Token endpoint.
+                // Update the refresh-token with a new version number (but same ID) to prevent and detect replay attacks.
+            }
 
+            GetValidatedTokenClaims(authenticationTokenPair.AccessToken, true);
             context.Request.Headers.Append("Authorization", $"Bearer {authenticationTokenPair.AccessToken}");
         }
-        catch (Exception ex)
+        catch (SecurityTokenException ex)
         {
             context.Response.Cookies.Delete(AuthenticationCookieName);
-
-            logger.LogWarning(ex, "Failed to decrypt authentication cookie. Removing cookie.");
+            logger.LogWarning(ex, "The access-token could not be validated. The authentication cookie is removed. {Message}", ex.Message);
         }
     }
 
     private void ReplaceAuthenticationHeaderWithCookie(HttpContext context, string refreshToken, string accessToken)
     {
-        var refreshTokenExpires = ExtractExpirationFromToken(ValidateAndExtractClaims(refreshToken));
+        var refreshTokenExpires = ExtractExpirationFromToken(refreshToken);
 
         var authenticationTokenPair = new AuthenticationTokenPair(refreshToken, accessToken);
 
@@ -94,11 +103,24 @@ public class AuthenticationCookieMiddleware(
         return _protector.Protect(jsonString);
     }
 
-    public ClaimsPrincipal ValidateAndExtractClaims(string token)
+    private DateTimeOffset ExtractExpirationFromToken(string refreshToken)
+    {
+        var tokenClaims = GetValidatedTokenClaims(refreshToken, false);
+
+        // The 'exp' claim is the number of seconds since Unix epoch (00:00:00 UTC on 1st January 1970)
+        var expClaim = tokenClaims.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Exp)
+                       ?? throw new InvalidOperationException("Expiration claim is missing from the token.");
+
+        // Convert the expiration time from seconds since Unix epoch to DateTime
+        var unixSeconds = long.Parse(expClaim.Value);
+
+        return DateTimeOffset.FromUnixTimeSeconds(unixSeconds);
+    }
+
+    private ClaimsPrincipal GetValidatedTokenClaims(string token, bool throwIfExpired)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
-        // Ensure the token is valid and can be read
         if (!tokenHandler.CanReadToken(token))
         {
             throw new SecurityTokenMalformedException("The token is not a valid JWT.");
@@ -108,35 +130,16 @@ public class AuthenticationCookieMiddleware(
         {
             ValidateIssuer = true,
             ValidIssuer = securityTokenSettings.Issuer,
-
             ValidateAudience = true,
             ValidAudience = securityTokenSettings.Audience,
-
-            ValidateLifetime = true,
-
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
-
-            ClockSkew = TimeSpan.Zero // No clock skew
+            ClockSkew = TimeSpan.Zero,
+            ValidateLifetime = throwIfExpired
         };
 
-        SecurityToken validatedToken;
-
-        var validateAndExtractClaims = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-        return validateAndExtractClaims;
-    }
-
-    public DateTime ExtractExpirationFromToken(ClaimsPrincipal principal)
-    {
-        // The 'exp' claim is the number of seconds since Unix epoch (00:00:00 UTC on 1st January 1970)
-        var expClaim = principal.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Exp)
-                       ?? throw new InvalidOperationException("Expiration claim is missing from the token.");
-
-        // Convert the expiration time from seconds since Unix epoch to DateTime
-        var unixSeconds = long.Parse(expClaim.Value);
-
-        return DateTimeOffset.FromUnixTimeSeconds(unixSeconds).UtcDateTime;
+        // This will throw if the token is invalid
+        return tokenHandler.ValidateToken(token, validationParameters, out _);
     }
 
     private sealed record AuthenticationTokenPair(string RefreshToken, string AccessToken);

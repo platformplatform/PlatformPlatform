@@ -96,7 +96,7 @@ public static class ApiCoreConfiguration
                     IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = false,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true
                 };
             }
