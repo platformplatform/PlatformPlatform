@@ -17,4 +17,13 @@ public sealed class SecurityTokenService(SecurityTokenGenerator tokenGenerator, 
         httpContext.Response.Headers.Remove(SecurityTokenSettings.AccessTokenHttpHeaderKey);
         httpContext.Response.Headers.Append(SecurityTokenSettings.AccessTokenHttpHeaderKey, accessToken);
     }
+
+    public void Logout()
+    {
+        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
+
+        httpContext.Response.Headers.Remove(SecurityTokenSettings.RefreshTokenHttpHeaderKey);
+        httpContext.Response.Headers.Remove(SecurityTokenSettings.AccessTokenHttpHeaderKey);
+        httpContext.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
+    }
 }

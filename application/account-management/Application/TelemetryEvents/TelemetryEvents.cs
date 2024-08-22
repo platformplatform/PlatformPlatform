@@ -31,6 +31,9 @@ public sealed class LoginBlocked(int retryCount)
 public sealed class LoginCompleted(UserId userId, int registrationTimeInSeconds)
     : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
 
+public sealed class Logout(UserId userId)
+    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId));
+
 public sealed class LoginExpired(int secondsFromCreation)
     : TelemetryEvent(nameof(LoginExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
 

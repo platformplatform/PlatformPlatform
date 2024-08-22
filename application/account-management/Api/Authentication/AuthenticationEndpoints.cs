@@ -20,5 +20,9 @@ public class AuthenticationEndpoints : IEndpoints
         group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, ISender mediator)
             => await mediator.Send(command with { Id = id })
         );
+
+        group.MapPost("logout", async Task<ApiResult> (ISender mediator)
+            => await mediator.Send(new LogoutCommand())
+        );
     }
 }
