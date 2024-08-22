@@ -13,11 +13,11 @@ public class AuthenticationEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").AllowAnonymous();
 
-        group.MapPost("/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, ISender mediator)
+        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, ISender mediator)
             => await mediator.Send(command)
         ).Produces<StartLoginResponse>();
 
-        group.MapPost("{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, ISender mediator)
+        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, ISender mediator)
             => await mediator.Send(command with { Id = id })
         );
     }

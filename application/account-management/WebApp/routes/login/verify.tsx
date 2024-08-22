@@ -33,7 +33,7 @@ export function CompleteLoginForm() {
   const { email, loginId, expireAt } = getLoginState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const [{ success, title, message, errors }, action] = useFormState(
-    api.actionPost("/api/account-management/authentication/{id}/complete"),
+    api.actionPost("/api/account-management/authentication/login/{id}/complete"),
     {
       success: null
     }

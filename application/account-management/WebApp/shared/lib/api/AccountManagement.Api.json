@@ -382,12 +382,12 @@
         }
       }
     },
-    "/api/account-management/authentication/start": {
+    "/api/account-management/authentication/login/start": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationStart",
+        "operationId": "PostApiAccountManagementAuthenticationLoginStart",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -414,12 +414,12 @@
         }
       }
     },
-    "/api/account-management/authentication/{id}/complete": {
+    "/api/account-management/authentication/login/{id}/complete": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationComplete",
+        "operationId": "PostApiAccountManagementAuthenticationLoginComplete",
         "parameters": [
           {
             "name": "id",

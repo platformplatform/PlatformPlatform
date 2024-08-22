@@ -34,7 +34,7 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
 
   const [{ success, errors, data, title, message }, action, isPending] = useFormState(
-    api.actionPost("/api/account-management/authentication/start"),
+    api.actionPost("/api/account-management/authentication/login/start"),
     { success: null }
   );
 
