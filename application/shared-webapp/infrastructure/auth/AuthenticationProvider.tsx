@@ -72,7 +72,10 @@ export function AuthenticationProvider({ children }: Readonly<AuthenticationProv
 
 function createUserInfo(userInfoEnv: UserInfoEnv): UserInfo {
   const { firstName, lastName, email } = userInfoEnv;
-  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : email?.slice(0, 2).toUpperCase() ?? "";
+
+  const getInitial = (name: string | undefined) => name?.[0] ?? '';
+  let initials = `${getInitial(firstName)}${getInitial(lastName)}`.toUpperCase();
+  initials = initials != '' ? initials : email?.slice(0, 2).toUpperCase() ?? '';
 
   const fullName = firstName && lastName ? `${userInfoEnv.firstName} ${userInfoEnv.lastName}` : email ?? "";
 
