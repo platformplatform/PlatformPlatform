@@ -1,6 +1,6 @@
 import type { NavigateOptions } from "@tanstack/react-router";
 import type React from "react";
-import { createContext, useCallback, useMemo, useRef, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 
 export type UserInfo = {
   initials: string;
@@ -9,62 +9,30 @@ export type UserInfo = {
 
 export const initialUserInfo: UserInfo = createUserInfo({ ...import.meta.user_info_env });
 
-/**
- * Returns the user info if the user is authenticated or null if logged out.
- * Throw an error if the user data is invalid.
- */
-export async function getUserInfo(): Promise<UserInfo | null> {
-  try {
-    const response = await fetch("/api/auth/user-info");
-    return createUserInfo(await response.json());
-  } catch (error) {
-    console.error("Failed to fetch user info", error);
-    return null;
-  }
-}
-
 export interface AuthenticationContextType {
   userInfo: UserInfo | null;
-  reloadUserInfo: () => void;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContextType>({
-  userInfo: initialUserInfo,
-  reloadUserInfo: () => {}
+  userInfo: initialUserInfo
 });
 
 export interface AuthenticationProviderProps {
   children: React.ReactNode;
   navigate?: (navigateOptions: NavigateOptions) => void;
-  afterLogOut?: NavigateOptions["to"];
-  afterLogIn?: NavigateOptions["to"];
 }
 
 /**
  * Provide authentication context to the application.
  */
 export function AuthenticationProvider({ children }: Readonly<AuthenticationProviderProps>) {
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(initialUserInfo);
-  const fetching = useRef(false);
-
-  const reloadUserInfo = useCallback(async () => {
-    if (fetching.current) return;
-    fetching.current = true;
-    try {
-      const newUserInfo = await getUserInfo();
-      setUserInfo(newUserInfo);
-    } catch (error) {
-      setUserInfo(null);
-    }
-    fetching.current = false;
-  }, []);
+  const [userInfo] = useState<UserInfo | null>(initialUserInfo);
 
   const authenticationContext = useMemo(
     () => ({
-      userInfo,
-      reloadUserInfo
+      userInfo
     }),
-    [userInfo, reloadUserInfo]
+    [userInfo]
   );
 
   return <AuthenticationContext.Provider value={authenticationContext}>{children}</AuthenticationContext.Provider>;
@@ -73,9 +41,9 @@ export function AuthenticationProvider({ children }: Readonly<AuthenticationProv
 function createUserInfo(userInfoEnv: UserInfoEnv): UserInfo {
   const { firstName, lastName, email } = userInfoEnv;
 
-  const getInitial = (name: string | undefined) => name?.[0] ?? '';
+  const getInitial = (name: string | undefined) => name?.[0] ?? "";
   let initials = `${getInitial(firstName)}${getInitial(lastName)}`.toUpperCase();
-  initials = initials != '' ? initials : email?.slice(0, 2).toUpperCase() ?? '';
+  initials = initials != "" ? initials : email?.slice(0, 2).toUpperCase() ?? "";
 
   const fullName = firstName && lastName ? `${userInfoEnv.firstName} ${userInfoEnv.lastName}` : email ?? "";
 
