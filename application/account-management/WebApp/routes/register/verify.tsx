@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { Trans } from "@lingui/macro";
@@ -15,6 +15,7 @@ import { getRegistrationState } from "./-shared/registrationState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { signedUpPath } from "@repo/infrastructure/auth/constants";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/register/verify")({
   component: () => (
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/register/verify")({
 export function CompleteAccountRegistrationForm() {
   const { email, accountRegistrationId, expireAt } = getRegistrationState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
+
   const [{ success, title, message, errors }, action] = useFormState(
     api.actionPost("/api/account-management/account-registrations/{id}/complete"),
     {
@@ -39,9 +41,17 @@ export function CompleteAccountRegistrationForm() {
     }
   );
 
-  if (isExpired) return <Navigate to="/register/expired" />;
+  useEffect(() => {
+    if (success) {
+      window.location.href = signedUpPath;
+    }
+  }, [success]);
 
-  if (success) return <Navigate to={signedUpPath} />;
+  useEffect(() => {
+    if (isExpired) {
+      window.location.href = "/register/expired";
+    }
+  }, [isExpired]);
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">

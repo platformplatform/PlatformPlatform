@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { Trans } from "@lingui/macro";
@@ -15,6 +15,7 @@ import { useFormState } from "react-dom";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/login/verify")({
   component: () => (
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/login/verify")({
 export function CompleteLoginForm() {
   const { email, loginId, expireAt } = getLoginState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
+
   const [{ success, title, message, errors }, action] = useFormState(
     api.actionPost("/api/account-management/authentication/login/{id}/complete"),
     {
@@ -39,9 +41,18 @@ export function CompleteLoginForm() {
     }
   );
 
-  if (isExpired) return <Navigate to="/login/expired" />;
+  useEffect(() => {
+    if (success) {
+      console.log("success", success);
+      window.location.href = loggedInPath;
+    }
+  }, [success]);
 
-  if (success) return <Navigate to={loggedInPath} />;
+  useEffect(() => {
+    if (isExpired) {
+      window.location.href = "/login/expired";
+    }
+  }, [isExpired]);
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">
