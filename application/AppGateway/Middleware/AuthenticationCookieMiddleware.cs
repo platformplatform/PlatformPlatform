@@ -14,13 +14,11 @@ public class AuthenticationCookieMiddleware(
 )
     : IMiddleware
 {
-    private const string AuthenticationCookieName = "authentication-cookie";
-
     private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("PlatformPlatform");
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.Request.Cookies.TryGetValue(AuthenticationCookieName, out var authenticationCookieValue))
+        if (context.Request.Cookies.TryGetValue(SecurityTokenSettings.AuthenticationCookieName, out var authenticationCookieValue))
         {
             ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, authenticationCookieValue);
         }
@@ -48,7 +46,7 @@ public class AuthenticationCookieMiddleware(
         {
             if (ExtractExpirationFromToken(authenticationTokenPair.RefreshToken) < TimeProvider.System.GetUtcNow())
             {
-                context.Response.Cookies.Delete(AuthenticationCookieName);
+                context.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
                 logger.LogWarning("The refresh-token has expired. The authentication cookie is removed.");
                 return;
             }
@@ -65,7 +63,7 @@ public class AuthenticationCookieMiddleware(
         }
         catch (SecurityTokenException ex)
         {
-            context.Response.Cookies.Delete(AuthenticationCookieName);
+            context.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
             logger.LogWarning(ex, "The access-token could not be validated. The authentication cookie is removed. {Message}", ex.Message);
         }
     }
@@ -85,7 +83,7 @@ public class AuthenticationCookieMiddleware(
         {
             HttpOnly = true, Secure = true, SameSite = SameSiteMode.Lax, Expires = refreshTokenExpires
         };
-        context.Response.Cookies.Append(AuthenticationCookieName, encryptedToken, cookieOptions);
+        context.Response.Cookies.Append(SecurityTokenSettings.AuthenticationCookieName, encryptedToken, cookieOptions);
 
         context.Response.Headers.Remove(SecurityTokenSettings.RefreshTokenHttpHeaderKey);
         context.Response.Headers.Remove(SecurityTokenSettings.AccessTokenHttpHeaderKey);
