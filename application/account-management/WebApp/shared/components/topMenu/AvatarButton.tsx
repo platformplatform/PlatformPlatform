@@ -8,6 +8,7 @@ import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { api } from "@/shared/lib/api/client";
 
 export function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -16,6 +17,11 @@ export function AvatarButton() {
   const userInfo = useUserInfo();
 
   if (!userInfo) return null;
+
+  async function logut() {
+    await api.post("/api/account-management/authentication/logout");
+    window.location.reload();
+  }
 
   return (
     <>
@@ -43,7 +49,7 @@ export function AvatarButton() {
             Account settings
           </MenuItem>
           <MenuSeparator />
-          <MenuItem href="/">
+          <MenuItem id="logout" onAction={logut}>
             <LogOutIcon size={16} /> Log out
           </MenuItem>
         </Menu>
