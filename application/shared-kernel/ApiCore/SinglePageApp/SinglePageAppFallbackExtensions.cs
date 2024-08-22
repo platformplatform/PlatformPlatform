@@ -29,6 +29,14 @@ public static class SinglePageAppFallbackExtensions
     {
         app.MapFallback((HttpContext context, IOptions<JsonOptions> jsonOptions, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
+                if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
+                    context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    context.Response.ContentType = "text/plain";
+                    return context.Response.WriteAsync("404 Not Found");
+                }
+
                 SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers);
 
                 var defaultLocale = context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en-US";
