@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
+using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
@@ -124,17 +125,13 @@ public class AuthenticationCookieMiddleware(
             throw new SecurityTokenMalformedException("The token is not a valid JWT.");
         }
 
-        var validationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = securityTokenSettings.Issuer,
-            ValidateAudience = true,
-            ValidAudience = securityTokenSettings.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
-            ClockSkew = TimeSpan.FromSeconds(5), // In Azure 5 seconds should be enough
-            ValidateLifetime = throwIfExpired
-        };
+        var validationParameters = ApiCoreConfiguration.GetTokenValidationParameters(
+            securityTokenSettings.Issuer,
+            securityTokenSettings.Audience,
+            securityTokenSettings.GetKeyBytes(),
+            validateLifetime: throwIfExpired,
+            clockSkew: TimeSpan.FromSeconds(2) // In Azure we don't need clock skew, but this must be a lower value than in downstream APIs
+        );
 
         // This will throw if the token is invalid
         return tokenHandler.ValidateToken(token, validationParameters, out _);

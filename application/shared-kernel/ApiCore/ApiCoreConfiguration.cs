@@ -89,17 +89,13 @@ public static class ApiCoreConfiguration
                 var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
                                             ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
 
-                o.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = securityTokenSettings.Issuer,
-                    ValidAudience = securityTokenSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ClockSkew = TimeSpan.FromSeconds(5) // In Azure 5 seconds should be enough
-                };
+                o.TokenValidationParameters = GetTokenValidationParameters(
+                    securityTokenSettings.Issuer,
+                    securityTokenSettings.Audience,
+                    securityTokenSettings.GetKeyBytes(),
+                    validateLifetime: true,
+                    clockSkew: TimeSpan.FromSeconds(5) // In Azure we don't need clock skew, but this must be a higher value than the AppGateway
+                );
             }
         );
         services.AddAuthorization();
@@ -137,6 +133,27 @@ public static class ApiCoreConfiguration
         builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
         return services;
+    }
+
+    public static TokenValidationParameters GetTokenValidationParameters(
+        string validIssuer,
+        string validAudience,
+        byte[] securityKey,
+        TimeSpan clockSkew,
+        bool validateLifetime
+    )
+    {
+        return new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = validIssuer,
+            ValidateAudience = true,
+            ValidAudience = validAudience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(securityKey),
+            ClockSkew = clockSkew,
+            ValidateLifetime = validateLifetime
+        };
     }
 
     public static IServiceCollection ConfigureDevelopmentPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
