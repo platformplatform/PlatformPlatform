@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Application.Authentication;
 
-public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSettings)
+public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings authenticationTokenSettings)
 {
     public string GenerateRefreshToken(UserId userId)
     {
@@ -29,10 +29,10 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
                 ]
             ),
             Expires = expires.UtcDateTime,
-            Issuer = securityTokenSettings.Issuer,
-            Audience = securityTokenSettings.Audience,
+            Issuer = authenticationTokenSettings.Issuer,
+            Audience = authenticationTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
+                new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
             )
         };
 
@@ -58,10 +58,10 @@ public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSe
                 ]
             ),
             Expires = TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime,
-            Issuer = securityTokenSettings.Issuer,
-            Audience = securityTokenSettings.Audience,
+            Issuer = authenticationTokenSettings.Issuer,
+            Audience = authenticationTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(securityTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
+                new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
             )
         };
 

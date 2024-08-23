@@ -86,13 +86,13 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
-                var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
-                                            ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
+                var authenticationTokenSettings = builder.Configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
+                                                  ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
 
                 o.TokenValidationParameters = GetTokenValidationParameters(
-                    securityTokenSettings.Issuer,
-                    securityTokenSettings.Audience,
-                    securityTokenSettings.GetKeyBytes(),
+                    authenticationTokenSettings.Issuer,
+                    authenticationTokenSettings.Audience,
+                    authenticationTokenSettings.GetKeyBytes(),
                     validateLifetime: true,
                     clockSkew: TimeSpan.FromSeconds(5) // In Azure we don't need clock skew, but this must be a higher value than the AppGateway
                 );

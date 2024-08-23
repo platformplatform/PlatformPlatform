@@ -35,9 +35,9 @@ else
     );
 }
 
-var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
-                            ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
-builder.Services.AddSingleton(securityTokenSettings);
+var authenticationTokenSettings = builder.Configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
+                                  ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
+builder.Services.AddSingleton(authenticationTokenSettings);
 
 builder.Services.AddHttpClient("AccountManagement", client => { client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_MANAGEMENT_API_URL") ?? "https://localhost:9100"); }
 );

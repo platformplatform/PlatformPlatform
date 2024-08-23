@@ -2,7 +2,7 @@ using System.Text;
 
 namespace PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
-public class SecurityTokenSettings
+public class AuthenticationTokenSettings
 {
     public const string AuthenticationCookieName = "authentication-cookie";
 

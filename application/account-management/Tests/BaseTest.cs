@@ -21,10 +21,10 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
+    protected readonly AuthenticationTokenGenerator AuthenticationTokenGenerator;
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly JsonSerializerOptions JsonSerializerOptions;
-    protected readonly SecurityTokenGenerator SecurityTokenGenerator;
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
@@ -66,7 +66,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
-        SecurityTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<SecurityTokenGenerator>();
+        AuthenticationTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AuthenticationTokenGenerator>();
 
         JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }

@@ -41,7 +41,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var accessToken = SecurityTokenGenerator.GenerateAccessToken(DatabaseSeeder.User1);
+        var accessToken = AuthenticationTokenGenerator.GenerateAccessToken(DatabaseSeeder.User1);
         AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }

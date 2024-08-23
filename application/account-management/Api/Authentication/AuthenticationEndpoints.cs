@@ -26,8 +26,8 @@ public class AuthenticationEndpoints : IEndpoints
         );
 
         // Note: This endpoint must be called with the refresh token as Bear token in the Authorization header
-        group.MapPost("refresh-security-tokens", async Task<ApiResult> (ISender mediator)
-            => await mediator.Send(new RefreshSecuirtyTokensCommand())
+        group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (ISender mediator)
+            => await mediator.Send(new RefreshAuthenticationTokensCommand())
         ).RequireAuthorization();
     }
 }

@@ -16,12 +16,12 @@ public static class ApplicationConfiguration
 
         services.AddHttpContextAccessor();
 
-        var securityTokenSettings = configuration.GetSection("SecurityTokenSettings").Get<SecurityTokenSettings>()
-                                    ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
-        services.AddSingleton(securityTokenSettings);
+        var authenticationTokenSettings = configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
+                                          ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
+        services.AddSingleton(authenticationTokenSettings);
 
-        services.AddSingleton<SecurityTokenGenerator>();
-        services.AddTransient<SecurityTokenService>();
+        services.AddSingleton<AuthenticationTokenGenerator>();
+        services.AddTransient<AuthenticationTokenService>();
 
         return services;
     }

@@ -10,7 +10,7 @@ public sealed record LogoutCommand
     : ICommand, IRequest<Result>;
 
 public sealed class LogutHandler(
-    SecurityTokenService securityTokenService,
+    AuthenticationTokenService authenticationTokenService,
     IHttpContextAccessor httpContextAccessor,
     ITelemetryEventsCollector events,
     ILogger<CompleteLoginHandler> logger
@@ -22,7 +22,7 @@ public sealed class LogutHandler(
 
         var userIdentifier = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
 
-        securityTokenService.Logout();
+        authenticationTokenService.Logout();
 
         if (userIdentifier is null || !UserId.TryParse(userIdentifier.Value, out var userId))
         {

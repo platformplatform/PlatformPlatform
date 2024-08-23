@@ -17,7 +17,7 @@ public sealed class CompleteLoginHandler(
     IUserRepository userRepository,
     ILoginRepository loginProcessRepository,
     OneTimePasswordHelper oneTimePasswordHelper,
-    SecurityTokenService securityTokenService,
+    AuthenticationTokenService authenticationTokenService,
     ITelemetryEventsCollector events,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
@@ -67,7 +67,7 @@ public sealed class CompleteLoginHandler(
         loginProcess.MarkAsCompleted();
         loginProcessRepository.Update(loginProcess);
 
-        securityTokenService.CreateAndSetSecurityTokens(user);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(user);
 
         events.CollectEvent(new LoginCompleted(user.Id, (int)registrationTimeInSeconds));
 

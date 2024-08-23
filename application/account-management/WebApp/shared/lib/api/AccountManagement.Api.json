@@ -463,12 +463,12 @@
         }
       }
     },
-    "/api/account-management/authentication/refresh-security-tokens": {
+    "/api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationRefreshSecurityTokens",
+        "operationId": "PostApiAccountManagementAuthenticationRefreshAuthenticationTokens",
         "responses": {
           "200": {
             "description": ""

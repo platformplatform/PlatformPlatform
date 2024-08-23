@@ -7,18 +7,18 @@ using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Application.Authentication;
 
-public sealed record RefreshSecuirtyTokensCommand
+public sealed record RefreshAuthenticationTokensCommand
     : ICommand, IRequest<Result>;
 
-public sealed class RefreshSecuirtyTokensCommandHandler(
+public sealed class RefreshAuthenticationTokensCommandHandler(
     IUserRepository userRepository,
     IHttpContextAccessor httpContextAccessor,
-    SecurityTokenService securityTokenService,
+    AuthenticationTokenService authenticationTokenService,
     ITelemetryEventsCollector events,
-    ILogger<RefreshSecuirtyTokensCommandHandler> logger
-) : IRequestHandler<RefreshSecuirtyTokensCommand, Result>
+    ILogger<RefreshAuthenticationTokensCommandHandler> logger
+) : IRequestHandler<RefreshAuthenticationTokensCommand, Result>
 {
-    public async Task<Result> Handle(RefreshSecuirtyTokensCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RefreshAuthenticationTokensCommand command, CancellationToken cancellationToken)
     {
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
@@ -46,8 +46,8 @@ public sealed class RefreshSecuirtyTokensCommandHandler(
         }
 
         // TODO: Check if the refreshChainTokenId exists in the database and if the refreshTokenId and version are valid
-        securityTokenService.RefreshSecurityTokens(user, refreshChainTokenId, Convert.ToInt32(refreshTokenVersionValue), refrehTokenExpires);
-        events.CollectEvent(new SecuirtyTokensRefreshed(user.Id));
+        authenticationTokenService.RefreshAuthenticationTokens(user, refreshChainTokenId, Convert.ToInt32(refreshTokenVersionValue), refrehTokenExpires);
+        events.CollectEvent(new AuthenticationTokensRefreshed(user.Id));
 
         return Result.Success();
     }
