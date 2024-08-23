@@ -11,18 +11,18 @@ public class AccountRegistrationsEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations").AllowAnonymous();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("AccountRegistrations").RequireAuthorization();
 
         group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, ISender mediator)
             => await mediator.Send(query)
-        ).Produces<bool>();
+        ).Produces<bool>().AllowAnonymous();
 
         group.MapPost("/start", async Task<ApiResult<StartAccountRegistrationResponse>> (StartAccountRegistrationCommand command, ISender mediator)
             => await mediator.Send(command)
-        ).Produces<StartAccountRegistrationResponse>();
+        ).Produces<StartAccountRegistrationResponse>().AllowAnonymous();
 
         group.MapPost("{id}/complete", async Task<ApiResult> (AccountRegistrationId id, CompleteAccountRegistrationCommand command, ISender mediator)
             => await mediator.Send(command with { Id = id })
-        );
+        ).AllowAnonymous();
     }
 }
