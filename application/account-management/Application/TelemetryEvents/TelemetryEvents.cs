@@ -32,7 +32,7 @@ public sealed class LoginCompleted(UserId userId, int registrationTimeInSeconds)
     : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
 
 public sealed class Logout(UserId userId)
-    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId));
+    : TelemetryEvent(nameof(Logout), ("UserId", userId));
 
 public sealed class LoginExpired(int secondsFromCreation)
     : TelemetryEvent(nameof(LoginExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
@@ -59,7 +59,7 @@ public sealed class UserUpdated()
     : TelemetryEvent(nameof(UserUpdated));
 
 public sealed class UserRoleChanged(UserRole fromRole, UserRole toRole)
-    : TelemetryEvent(nameof(UserUpdated), ("FromRole", fromRole.ToString()), ("ToRole", toRole.ToString()));
+    : TelemetryEvent(nameof(UserRoleChanged), ("FromRole", fromRole.ToString()), ("ToRole", toRole.ToString()));
 
 public sealed class UserAvatarUpdated(string contentType, long size)
     : TelemetryEvent(nameof(UserAvatarUpdated), ("ContentType", contentType), ("Size", size.ToString()));
