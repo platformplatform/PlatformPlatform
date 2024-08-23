@@ -34,6 +34,9 @@ public sealed class LoginCompleted(UserId userId, int registrationTimeInSeconds)
 public sealed class Logout(UserId userId)
     : TelemetryEvent(nameof(Logout), ("UserId", userId));
 
+public sealed class SecuirtyTokensRefreshed(UserId userId)
+    : TelemetryEvent(nameof(SecuirtyTokensRefreshed), ("UserId", userId));
+
 public sealed class LoginExpired(int secondsFromCreation)
     : TelemetryEvent(nameof(LoginExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
 

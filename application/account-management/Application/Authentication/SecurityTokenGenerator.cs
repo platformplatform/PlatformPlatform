@@ -7,18 +7,28 @@ namespace PlatformPlatform.AccountManagement.Application.Authentication;
 
 public sealed class SecurityTokenGenerator(SecurityTokenSettings securityTokenSettings)
 {
-    public string GenerateRefreshToken(User user)
+    public string GenerateRefreshToken(UserId userId)
+    {
+        return GenerateRefreshToken(userId, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddMonths(3));
+    }
+
+    public string UpdateRefreshToken(UserId userId, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
+    {
+        return GenerateRefreshToken(userId, refreshTokenChainId, currentRefreshTokenVersion + 1, expires);
+    }
+
+    private string GenerateRefreshToken(UserId userId, string refreshTokenChainId, int refreshTokenVersion, DateTimeOffset expires)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                    new Claim("refresh_token_chain_id", Guid.NewGuid().ToString()),
-                    new Claim("refresh_token_version", 1.ToString())
+                    new Claim(JwtRegisteredClaimNames.Sub, userId),
+                    new Claim("refresh_token_chain_id", refreshTokenChainId),
+                    new Claim("refresh_token_version", refreshTokenVersion.ToString())
                 ]
             ),
-            Expires = TimeProvider.System.GetUtcNow().AddMonths(3).UtcDateTime,
+            Expires = expires.UtcDateTime,
             Issuer = securityTokenSettings.Issuer,
             Audience = securityTokenSettings.Audience,
             SigningCredentials = new SigningCredentials(
