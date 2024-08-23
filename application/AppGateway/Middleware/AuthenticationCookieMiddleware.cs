@@ -17,6 +17,7 @@ public class AuthenticationCookieMiddleware(
 )
     : IMiddleware
 {
+    private const string? RefreshAuthenticationTokensEndpoint = "/api/account-management/authentication/refresh-authentication-tokens";
     private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("PlatformPlatform");
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -64,6 +65,15 @@ public class AuthenticationCookieMiddleware(
             }
 
             context.Request.Headers["Authorization"] = $"Bearer {authenticationTokenPair.AccessToken}";
+            if (context.Request.Path.Value == RefreshAuthenticationTokensEndpoint)
+            {
+                // When calling the refresh endpoint, use the refresh token as Bearer
+                context.Request.Headers.Authorization = $"Bearer {authenticationTokenPair.RefreshToken}";
+            }
+            else
+            {
+                context.Request.Headers.Authorization = $"Bearer {authenticationTokenPair.AccessToken}";
+            }
         }
         catch (SecurityTokenException ex)
         {
@@ -76,7 +86,7 @@ public class AuthenticationCookieMiddleware(
     {
         logger.LogDebug("The access-token has expired, attempting to refresh...");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, "api/account-management/authentication/refresh-authentication-tokens");
+        var request = new HttpRequestMessage(HttpMethod.Post, RefreshAuthenticationTokensEndpoint);
 
         // Use refresh Token as Bearer when refreshing Access Token
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
