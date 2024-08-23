@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
@@ -11,6 +12,7 @@ namespace PlatformPlatform.AppGateway.Middleware;
 public class AuthenticationCookieMiddleware(
     IDataProtectionProvider dataProtectionProvider,
     SecurityTokenSettings securityTokenSettings,
+    IHttpClientFactory httpClientFactory,
     ILogger<AuthenticationCookieMiddleware> logger
 )
     : IMiddleware
@@ -21,7 +23,7 @@ public class AuthenticationCookieMiddleware(
     {
         if (context.Request.Cookies.TryGetValue(SecurityTokenSettings.AuthenticationCookieName, out var authenticationCookieValue))
         {
-            ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, authenticationCookieValue);
+            await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, authenticationCookieValue);
         }
 
         await next(context);
@@ -33,40 +35,69 @@ public class AuthenticationCookieMiddleware(
         }
     }
 
-    private void ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
+    private async Task ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string authenticationCookieValue)
     {
         if (context.Request.Headers.ContainsKey(SecurityTokenSettings.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(SecurityTokenSettings.AccessTokenHttpHeaderKey))
         {
             // The authentication cookie is used by WebApp, but API requests should use tokens in the headers
-            throw new InvalidOperationException("A request cannot contain both a authentication cookie and security tokens in the headers.");
+            throw new InvalidOperationException("A request cannot contain both an authentication cookie and security tokens in the headers.");
         }
 
-        var authenticationTokenPair = Decrypt(authenticationCookieValue);
         try
         {
-            if (ExtractExpirationFromToken(authenticationTokenPair.RefreshToken) < TimeProvider.System.GetUtcNow())
-            {
-                context.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
-                logger.LogWarning("The refresh-token has expired. The authentication cookie is removed.");
-                return;
-            }
+            var authenticationTokenPair = Decrypt(authenticationCookieValue);
 
             if (ExtractExpirationFromToken(authenticationTokenPair.AccessToken) < TimeProvider.System.GetUtcNow())
             {
-                logger.LogDebug("The access-token has expired, and needs to be refreshed");
-                // TODO: Use the refresh-token to geta a new Access Token endpoint.
-                // Update the refresh-token with a new version number (but same ID) to prevent and detect replay attacks.
+                if (ExtractExpirationFromToken(authenticationTokenPair.RefreshToken) < TimeProvider.System.GetUtcNow())
+                {
+                    context.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
+                    logger.LogDebug("The refresh-token has expired. The authentication cookie is removed.");
+                    return;
+                }
+
+                authenticationTokenPair = await RefreshSecurityTokensAsync(authenticationTokenPair.RefreshToken);
+
+                // Update the authentication cookie with the new tokens
+                ReplaceAuthenticationHeaderWithCookie(context, authenticationTokenPair.RefreshToken, authenticationTokenPair.AccessToken);
             }
 
-            GetValidatedTokenClaims(authenticationTokenPair.AccessToken, true);
-            context.Request.Headers.Append("Authorization", $"Bearer {authenticationTokenPair.AccessToken}");
+            context.Request.Headers["Authorization"] = $"Bearer {authenticationTokenPair.AccessToken}";
         }
         catch (SecurityTokenException ex)
         {
             context.Response.Cookies.Delete(SecurityTokenSettings.AuthenticationCookieName);
-            logger.LogWarning(ex, "The access-token could not be validated. The authentication cookie is removed. {Message}", ex.Message);
+            logger.LogWarning(ex, "Validating or refreshing the authentication cookie tokens failed. {Message}", ex.Message);
         }
+    }
+
+    private async Task<AuthenticationTokenPair> RefreshSecurityTokensAsync(string refreshToken)
+    {
+        logger.LogDebug("The access-token has expired, attempting to refresh...");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/account-management/authentication/refresh-security-tokens");
+
+        // Use refresh Token as Bearer when refreshing Access Token
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
+
+        var accountManagmentHttpClient = httpClientFactory.CreateClient("AccountManagement");
+        var response = await accountManagmentHttpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new SecurityTokenException($"Failed to refresh security tokens. Response status code: {response.StatusCode}");
+        }
+
+        var newRefreshToken = response.Headers.GetValues(SecurityTokenSettings.RefreshTokenHttpHeaderKey).SingleOrDefault();
+        var newAccessToken = response.Headers.GetValues(SecurityTokenSettings.AccessTokenHttpHeaderKey).SingleOrDefault();
+
+        if (newRefreshToken is null || newAccessToken is null)
+        {
+            throw new SecurityTokenException("Failed to get refreshed security tokens from the response.");
+        }
+
+        return new AuthenticationTokenPair(newRefreshToken, newAccessToken);
     }
 
     private void ReplaceAuthenticationHeaderWithCookie(HttpContext context, string refreshToken, string accessToken)
@@ -102,21 +133,7 @@ public class AuthenticationCookieMiddleware(
         return _protector.Protect(jsonString);
     }
 
-    private DateTimeOffset ExtractExpirationFromToken(string refreshToken)
-    {
-        var tokenClaims = GetValidatedTokenClaims(refreshToken, false);
-
-        // The 'exp' claim is the number of seconds since Unix epoch (00:00:00 UTC on 1st January 1970)
-        var expClaim = tokenClaims.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Exp)
-                       ?? throw new InvalidOperationException("Expiration claim is missing from the token.");
-
-        // Convert the expiration time from seconds since Unix epoch to DateTime
-        var unixSeconds = long.Parse(expClaim.Value);
-
-        return DateTimeOffset.FromUnixTimeSeconds(unixSeconds);
-    }
-
-    private ClaimsPrincipal GetValidatedTokenClaims(string token, bool throwIfExpired)
+    private DateTimeOffset ExtractExpirationFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -129,12 +146,17 @@ public class AuthenticationCookieMiddleware(
             securityTokenSettings.Issuer,
             securityTokenSettings.Audience,
             securityTokenSettings.GetKeyBytes(),
-            validateLifetime: throwIfExpired,
+            validateLifetime: false, // We validate the lifetime manually
             clockSkew: TimeSpan.FromSeconds(2) // In Azure we don't need clock skew, but this must be a lower value than in downstream APIs
         );
 
         // This will throw if the token is invalid
-        return tokenHandler.ValidateToken(token, validationParameters, out _);
+        var tokenClaims = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+        // The 'exp' claim is the number of seconds since Unix epoch (00:00:00 UTC on 1st January 1970)
+        var expires = tokenClaims.FindFirstValue(JwtRegisteredClaimNames.Exp)!;
+
+        return DateTimeOffset.FromUnixTimeSeconds(long.Parse(expires));
     }
 
     private sealed record AuthenticationTokenPair(string RefreshToken, string AccessToken);

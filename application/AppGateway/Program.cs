@@ -39,6 +39,9 @@ var securityTokenSettings = builder.Configuration.GetSection("SecurityTokenSetti
                             ?? throw new InvalidOperationException("No SecurityTokenSettings configuration found.");
 builder.Services.AddSingleton(securityTokenSettings);
 
+builder.Services.AddHttpClient("AccountManagement", client => { client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_MANAGEMENT_API_URL") ?? "https://localhost:9100"); }
+);
+
 builder.Services
     .AddSingleton<BlockInternalApiTransform>()
     .AddSingleton<AuthenticationCookieMiddleware>();
@@ -70,4 +73,4 @@ app.MapReverseProxy();
 
 app.UseMiddleware<AuthenticationCookieMiddleware>();
 
-app.Run();
+await app.RunAsync();
