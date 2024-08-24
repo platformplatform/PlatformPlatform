@@ -36,9 +36,18 @@ public static class InfrastructureCoreConfiguration
         {
             var keyIdentifier = $"{Environment.GetEnvironmentVariable("KEYVAULT_URL")}/keys/DataProtectionKey/3186da570c034d9488dcf27fb91b33dc";
 
+            Console.WriteLine("keyIdentifier: " + keyIdentifier);
             services.AddDataProtection()
-                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), DefaultAzureCredential)
-                .SetDefaultKeyLifetime(TimeSpan.FromDays(30)); // Rotate keys every 30 days
+                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), new DefaultAzureCredential())
+                .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
+                .AddKeyManagementOptions(options =>
+                {
+                    options.NewKeyLifetime = TimeSpan.FromDays(30);
+                    options.XmlRepository?.GetAllElements().ToList().ForEach(key =>
+                    {
+                        Console.WriteLine($"Key Found: {key}");
+                    });
+                });
         }
         else
         {
