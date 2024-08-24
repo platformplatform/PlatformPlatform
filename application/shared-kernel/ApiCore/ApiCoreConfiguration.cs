@@ -18,6 +18,7 @@ using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
@@ -76,6 +77,8 @@ public static class ApiCoreConfiguration
                 settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(domainAssembly));
             }
         );
+
+        builder.Services.ConfigureDataProtectionApi();
 
         // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
