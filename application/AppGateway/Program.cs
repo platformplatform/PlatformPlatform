@@ -1,5 +1,4 @@
 using Azure.Core;
-using Microsoft.AspNetCore.HttpOverrides;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
@@ -53,17 +52,6 @@ reverseProxyBuilder.AddTransforms(context =>
 builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
-
-// Ensure correct client IP addresses are set for requests
-// This is required when running behind a reverse proxy like YARP or Azure Container Apps
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
-        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        options.KnownNetworks.Clear();
-        options.KnownProxies.Clear();
-    }
-);
 
 builder.Services.ConfigureDataProtectionApi();
 
