@@ -61,7 +61,7 @@ public sealed class StartLoginCommandHandler(
         await loginProcessRepository.AddAsync(loginProcess, cancellationToken);
         events.CollectEvent(new LoginStarted(user.Id));
 
-        await emailService.SendAsync(command.Email, "Confirm your email address",
+        await emailService.SendAsync(command.Email, "PlatformPlatform login verification code",
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>
