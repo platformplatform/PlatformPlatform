@@ -38,7 +38,7 @@ public static class InfrastructureCoreConfiguration
 
             Console.WriteLine("keyIdentifier: " + keyIdentifier);
             services.AddDataProtection()
-                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), new DefaultAzureCredential())
+                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), DefaultAzureCredential)
                 .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
                 .AddKeyManagementOptions(options =>
                 {
