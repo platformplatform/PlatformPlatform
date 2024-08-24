@@ -34,9 +34,10 @@ public static class InfrastructureCoreConfiguration
     {
         if (IsRunningInAzure)
         {
-            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            var keyIdentifier = $"{Environment.GetEnvironmentVariable("KEYVAULT_URL")}/keys/DataProtectionKey/3186da570c034d9488dcf27fb91b33dc";
+
             services.AddDataProtection()
-                .ProtectKeysWithAzureKeyVault(keyVaultUri, DefaultAzureCredential)
+                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), DefaultAzureCredential)
                 .SetDefaultKeyLifetime(TimeSpan.FromDays(30)); // Rotate keys every 30 days
         }
         else
