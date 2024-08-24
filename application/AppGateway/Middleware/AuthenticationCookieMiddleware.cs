@@ -18,7 +18,7 @@ public class AuthenticationCookieMiddleware(
     : IMiddleware
 {
     private const string? RefreshAuthenticationTokensEndpoint = "/api/account-management/authentication/refresh-authentication-tokens";
-    private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("PlatformPlatform");
+    private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("authentication-cookie");
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
