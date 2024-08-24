@@ -164,7 +164,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         while (true)
         {
             var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
-            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true).Trim();
 
             if (result.StartsWith('[') && result.EndsWith(']'))
             {
