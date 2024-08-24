@@ -11,7 +11,7 @@ public sealed class DatabaseMigrations : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
-            "AccountRegistrations",
+            "Signups",
             table => new
             {
                 Id = table.Column<string>("varchar(33)", nullable: false),
@@ -24,7 +24,7 @@ public sealed class DatabaseMigrations : Migration
                 RetryCount = table.Column<int>("int", nullable: false),
                 Completed = table.Column<bool>("bit", nullable: false)
             },
-            constraints: table => { table.PrimaryKey("PK_AccountRegistrations", x => x.Id); }
+            constraints: table => { table.PrimaryKey("PK_Signups", x => x.Id); }
         );
 
         migrationBuilder.CreateTable(
@@ -95,10 +95,10 @@ public sealed class DatabaseMigrations : Migration
     {
         modelBuilder.UseIdentityColumns();
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.AccountRegistrations.AccountRegistration", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Signups.Signup", b =>
             {
                 b.Property<string>("Id")
-                    .HasColumnType("char(33)");
+                    .HasColumnType("varchar(33)");
 
                 b.Property<DateTimeOffset>("CreatedAt")
                     .HasColumnType("datetimeoffset");
@@ -131,7 +131,7 @@ public sealed class DatabaseMigrations : Migration
 
                 b.HasKey("Id");
 
-                b.ToTable("AccountRegistrations");
+                b.ToTable("Signups");
             }
         );
 

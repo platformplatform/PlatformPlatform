@@ -11,16 +11,16 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { useFormState } from "react-dom";
-import { getRegistrationState } from "./-shared/registrationState";
+import { getSignupState } from "./-shared/signupState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { signedUpPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
 
-export const Route = createFileRoute("/register/verify")({
+export const Route = createFileRoute("/signup/verify")({
   component: () => (
     <HorizontalHeroLayout>
-      <CompleteAccountRegistrationForm />
+      <CompleteSignupForm />
     </HorizontalHeroLayout>
   ),
   errorComponent: (props) => (
@@ -30,12 +30,12 @@ export const Route = createFileRoute("/register/verify")({
   )
 });
 
-export function CompleteAccountRegistrationForm() {
-  const { email, accountRegistrationId, expireAt } = getRegistrationState();
+export function CompleteSignupForm() {
+  const { email, signupId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
   const [{ success, title, message, errors }, action] = useFormState(
-    api.actionPost("/api/account-management/account-registrations/{id}/complete"),
+    api.actionPost("/api/account-management/signups/{id}/complete"),
     {
       success: null
     }
@@ -49,13 +49,13 @@ export function CompleteAccountRegistrationForm() {
 
   useEffect(() => {
     if (isExpired) {
-      window.location.href = "/register/expired";
+      window.location.href = "/signup/expired";
     }
   }, [isExpired]);
 
   return (
     <Form action={action} validationErrors={errors} validationBehavior="aria" className="w-full max-w-sm space-y-3">
-      <input type="hidden" name="id" value={accountRegistrationId} />
+      <input type="hidden" name="id" value={signupId} />
       <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
         <div className="flex justify-center">
           <Link href="/">

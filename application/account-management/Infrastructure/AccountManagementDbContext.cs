@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
 using PlatformPlatform.AccountManagement.Domain.Authentication;
+using PlatformPlatform.AccountManagement.Domain.Signups;
 using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
 
 namespace PlatformPlatform.AccountManagement.Infrastructure;
@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Infrastructure;
 public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options)
     : SharedKernelDbContext<AccountManagementDbContext>(options)
 {
-    public DbSet<AccountRegistration> AccountRegistrations => Set<AccountRegistration>();
+    public DbSet<Signup> Signups => Set<Signup>();
 
     public DbSet<Login> Logins => Set<Login>();
 
@@ -20,9 +20,9 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
     {
         base.OnModelCreating(modelBuilder);
 
-        // AccountRegistration
-        modelBuilder.MapStronglyTypedUuid<AccountRegistration, AccountRegistrationId>(a => a.Id);
-        modelBuilder.MapStronglyTypedNullableId<AccountRegistration, TenantId, string>(u => u.TenantId);
+        // Signup
+        modelBuilder.MapStronglyTypedUuid<Signup, SignupId>(a => a.Id);
+        modelBuilder.MapStronglyTypedNullableId<Signup, TenantId, string>(u => u.TenantId);
 
         // Login
         modelBuilder.MapStronglyTypedId<Login, LoginId, string>(t => t.Id);

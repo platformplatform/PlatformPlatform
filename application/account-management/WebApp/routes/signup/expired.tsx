@@ -4,10 +4,10 @@ import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import Timeout from "@spectrum-icons/illustrations/Timeout";
 import { Link } from "@repo/ui/components/Link";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
-import { getRegistrationState } from "./-shared/registrationState";
+import { getSignupState } from "./-shared/signupState";
 import { signUpPath } from "@repo/infrastructure/auth/constants";
 
-export const Route = createFileRoute("/register/expired")({
+export const Route = createFileRoute("/signup/expired")({
   component: () => (
     <HorizontalHeroLayout>
       <VerificationCodeExpiredMessage />
@@ -21,15 +21,13 @@ export const Route = createFileRoute("/register/expired")({
 });
 
 export function VerificationCodeExpiredMessage() {
-  const { accountRegistrationId } = getRegistrationState();
+  const { signupId } = getSignupState();
 
   return (
     <IllustratedMessage>
       <Timeout />
       <Heading>Error: Verification code expired</Heading>
-      <Content>
-        The verification code you are trying to use has expired for Account Registration ID: {accountRegistrationId}
-      </Content>
+      <Content>The verification code you are trying to use has expired for Signup ID: {signupId}</Content>
       <Link href={signUpPath}>Try again</Link>
     </IllustratedMessage>
   );

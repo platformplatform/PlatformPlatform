@@ -1,6 +1,6 @@
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 
-namespace PlatformPlatform.AccountManagement.Application.AccountRegistrations;
+namespace PlatformPlatform.AccountManagement.Application.Signups;
 
 public sealed record IsSubdomainFreeQuery(string Subdomain) : IRequest<Result<bool>>;
 

@@ -55,10 +55,10 @@ public sealed class CompleteLoginHandler(
             return Result.Forbidden("To many attempts, please request a new code.", true);
         }
 
-        var registrationTimeInSeconds = (TimeProvider.System.GetUtcNow() - loginProcess.CreatedAt).TotalSeconds;
+        var loginTimeInSeconds = (TimeProvider.System.GetUtcNow() - loginProcess.CreatedAt).TotalSeconds;
         if (loginProcess.HasExpired())
         {
-            events.CollectEvent(new LoginExpired((int)registrationTimeInSeconds));
+            events.CollectEvent(new LoginExpired((int)loginTimeInSeconds));
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
@@ -69,7 +69,7 @@ public sealed class CompleteLoginHandler(
 
         authenticationTokenService.CreateAndSetAuthenticationTokens(user);
 
-        events.CollectEvent(new LoginCompleted(user.Id, (int)registrationTimeInSeconds));
+        events.CollectEvent(new LoginCompleted(user.Id, (int)loginTimeInSeconds));
 
         return Result.Success();
     }

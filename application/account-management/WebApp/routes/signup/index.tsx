@@ -16,14 +16,14 @@ import { Form } from "@repo/ui/components/Form";
 import { useFormState } from "react-dom";
 import { useState } from "react";
 import { api, useApi } from "@/shared/lib/api/client";
-import { setRegistrationState } from "./-shared/registrationState";
+import { setSignupState } from "./-shared/signupState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 
-export const Route = createFileRoute("/register/")({
+export const Route = createFileRoute("/signup/")({
   component: () => (
     <HorizontalHeroLayout>
-      <StartAccountRegistrationForm />
+      <StartSignupForm />
     </HorizontalHeroLayout>
   ),
   errorComponent: (props) => (
@@ -33,18 +33,18 @@ export const Route = createFileRoute("/register/")({
   )
 });
 
-export function StartAccountRegistrationForm() {
+export function StartSignupForm() {
   const { i18n } = useLingui();
   const [email, setEmail] = useState("");
 
   const [{ success, errors, data, title, message }, action, isPending] = useFormState(
-    api.actionPost("/api/account-management/account-registrations/start"),
+    api.actionPost("/api/account-management/signups/start"),
     { success: null }
   );
 
   const [subdomain, setSubdomain] = useState("");
   const { data: isSubdomainFree } = useApi(
-    "/api/account-management/account-registrations/is-subdomain-free",
+    "/api/account-management/signups/is-subdomain-free",
     {
       params: {
         query: { Subdomain: subdomain }
@@ -57,15 +57,15 @@ export function StartAccountRegistrationForm() {
   );
 
   if (success === true) {
-    const { accountRegistrationId, validForSeconds } = data;
+    const { signupId, validForSeconds } = data;
 
-    setRegistrationState({
-      accountRegistrationId,
+    setSignupState({
+      signupId: signupId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });
 
-    return <Navigate to="/register/verify" />;
+    return <Navigate to="/signup/verify" />;
   }
 
   return (

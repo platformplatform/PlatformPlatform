@@ -41,7 +41,7 @@ public sealed class StartLoginCommandHandler(
                 $"""
                  <h1 style="text-align:center;font-family=sans-serif;font-size:20px">You or someone else tried to login to PlatformPlatform</h1>
                  <p style="text-align:center;font-family=sans-serif;font-size:16px">This request was made by entering your mail {command.Email}, but we have not record of such user.</p>
-                 <p style="text-align:center;font-family=sans-serif;font-size:16px">You can sign up for an account on www.platformplatform.net/register.</p>
+                 <p style="text-align:center;font-family=sans-serif;font-size:16px">You can sign up for an account on www.platformplatform.net/signup.</p>
                  """,
                 cancellationToken
             );

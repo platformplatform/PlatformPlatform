@@ -382,6 +382,106 @@
         }
       }
     },
+    "/api/account-management/signups/is-subdomain-free": {
+      "get": {
+        "tags": [
+          "Signups"
+        ],
+        "operationId": "GetApiAccountManagementSignupsIsSubdomainFree",
+        "parameters": [
+          {
+            "name": "Subdomain",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/signups/start": {
+      "post": {
+        "tags": [
+          "Signups"
+        ],
+        "operationId": "PostApiAccountManagementSignupsStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSignupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartSignupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/signups/{id}/complete": {
+      "post": {
+        "tags": [
+          "Signups"
+        ],
+        "operationId": "PostApiAccountManagementSignupsComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SignupId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteSignupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/authentication/login/start": {
       "post": {
         "tags": [
@@ -469,106 +569,6 @@
           "Authentication"
         ],
         "operationId": "PostApiAccountManagementAuthenticationRefreshAuthenticationTokens",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api/account-management/account-registrations/is-subdomain-free": {
-      "get": {
-        "tags": [
-          "AccountRegistrations"
-        ],
-        "operationId": "GetApiAccountManagementAccountRegistrationsIsSubdomainFree",
-        "parameters": [
-          {
-            "name": "Subdomain",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account-management/account-registrations/start": {
-      "post": {
-        "tags": [
-          "AccountRegistrations"
-        ],
-        "operationId": "PostApiAccountManagementAccountRegistrationsStart",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartAccountRegistrationCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartAccountRegistrationResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account-management/account-registrations/{id}/complete": {
-      "post": {
-        "tags": [
-          "AccountRegistrations"
-        ],
-        "operationId": "PostApiAccountManagementAccountRegistrationsComplete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/AccountRegistrationId"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteAccountRegistrationCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": ""
@@ -824,6 +824,67 @@
           }
         }
       },
+      "StartSignupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "signupId": {
+            "type": "string"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StartSignupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subdomain": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "SignupId": {
+        "type": "string",
+        "format": "signup_{string}"
+      },
+      "StronglyTypedUlidOfSignupId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSignupId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndSignupId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CompleteSignupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oneTimePassword": {
+            "type": "string"
+          }
+        }
+      },
       "StartLoginResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -874,67 +935,6 @@
         }
       },
       "CompleteLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "oneTimePassword": {
-            "type": "string"
-          }
-        }
-      },
-      "StartAccountRegistrationResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "accountRegistrationId": {
-            "type": "string"
-          },
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "StartAccountRegistrationCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "subdomain": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "AccountRegistrationId": {
-        "type": "string",
-        "format": "accreg_{string}"
-      },
-      "StronglyTypedUlidOfAccountRegistrationId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndAccountRegistrationId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndAccountRegistrationId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CompleteAccountRegistrationCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

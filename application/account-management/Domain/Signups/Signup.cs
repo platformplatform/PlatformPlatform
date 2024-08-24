@@ -2,15 +2,15 @@ using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.DomainCore.Entities;
 using PlatformPlatform.SharedKernel.DomainCore.Identity;
 
-namespace PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+namespace PlatformPlatform.AccountManagement.Domain.Signups;
 
-public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
+public sealed class Signup : AggregateRoot<SignupId>
 {
     public const int MaxAttempts = 3;
     private const int ValidForSeconds = 300;
 
-    private AccountRegistration(TenantId tenantId, string email, string oneTimePasswordHash)
-        : base(AccountRegistrationId.NewId())
+    private Signup(TenantId tenantId, string email, string oneTimePasswordHash)
+        : base(SignupId.NewId())
     {
         TenantId = tenantId;
         Email = email;
@@ -36,9 +36,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
         return ValidUntil < TimeProvider.System.GetUtcNow();
     }
 
-    public static AccountRegistration Create(TenantId tenantId, string email, string oneTimePasswordHash)
+    public static Signup Create(TenantId tenantId, string email, string oneTimePasswordHash)
     {
-        return new AccountRegistration(tenantId, email.ToLowerInvariant(), oneTimePasswordHash);
+        return new Signup(tenantId, email.ToLowerInvariant(), oneTimePasswordHash);
     }
 
     public void RegisterInvalidPasswordAttempt()
@@ -50,7 +50,7 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
     {
         if (HasExpired() || RetryCount >= MaxAttempts)
         {
-            throw new UnreachableException("This account registration has expired.");
+            throw new UnreachableException("This signup has expired.");
         }
 
         if (Completed) throw new UnreachableException("The account has already been created.");
@@ -64,9 +64,9 @@ public sealed class AccountRegistration : AggregateRoot<AccountRegistrationId>
     }
 }
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, AccountRegistrationId>))]
-[IdPrefix("accreg")]
-public sealed record AccountRegistrationId(string Value) : StronglyTypedUlid<AccountRegistrationId>(Value)
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, SignupId>))]
+[IdPrefix("signup")]
+public sealed record SignupId(string Value) : StronglyTypedUlid<SignupId>(Value)
 {
     public override string ToString()
     {

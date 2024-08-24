@@ -8,28 +8,28 @@ namespace PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
-public sealed class AccountRegistrationBlocked(int retryCount)
-    : TelemetryEvent(nameof(AccountRegistrationBlocked), ("RetryCount", retryCount.ToString()));
+public sealed class SignupBlocked(int retryCount)
+    : TelemetryEvent(nameof(SignupBlocked), ("RetryCount", retryCount.ToString()));
 
-public sealed class AccountRegistrationCompleted(TenantId tenantId, TenantState state, int registrationTimeInSeconds)
-    : TelemetryEvent(nameof(AccountRegistrationCompleted),
-        ("TenantId", tenantId), ("TenantState", state.ToString()), ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString())
+public sealed class SignupCompleted(TenantId tenantId, TenantState state, int signupTimeInSeconds)
+    : TelemetryEvent(nameof(SignupCompleted),
+        ("TenantId", tenantId), ("TenantState", state.ToString()), ("SignupTimeInSeconds", signupTimeInSeconds.ToString())
     );
 
-public sealed class AccountRegistrationExpired(int secondsFromCreation)
-    : TelemetryEvent(nameof(AccountRegistrationExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
+public sealed class SignupExpired(int secondsFromCreation)
+    : TelemetryEvent(nameof(SignupExpired), ("SecondsFromCreation", secondsFromCreation.ToString()));
 
-public sealed class AccountRegistrationFailed(int retryCount)
-    : TelemetryEvent(nameof(AccountRegistrationFailed), ("RetryCount", retryCount.ToString()));
+public sealed class SignupFailed(int retryCount)
+    : TelemetryEvent(nameof(SignupFailed), ("RetryCount", retryCount.ToString()));
 
-public sealed class AccountRegistrationStarted(TenantId tenantId)
-    : TelemetryEvent(nameof(AccountRegistrationStarted), ("TenantId", tenantId));
+public sealed class SignupStarted(TenantId tenantId)
+    : TelemetryEvent(nameof(SignupStarted), ("TenantId", tenantId));
 
 public sealed class LoginBlocked(int retryCount)
     : TelemetryEvent(nameof(LoginBlocked), ("RetryCount", retryCount.ToString()));
 
-public sealed class LoginCompleted(UserId userId, int registrationTimeInSeconds)
-    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("RegistrationTimeInSeconds", registrationTimeInSeconds.ToString()));
+public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
+    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("LoginTimeInSeconds", loginTimeInSeconds.ToString()));
 
 public sealed class Logout(UserId userId)
     : TelemetryEvent(nameof(Logout), ("UserId", userId));

@@ -1,22 +1,22 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
+using PlatformPlatform.AccountManagement.Application.Signups;
 using PlatformPlatform.AccountManagement.Application.Tenants;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.AccountRegistrations;
+namespace PlatformPlatform.AccountManagement.Tests.Application.Signups;
 
-public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbContext>
+public sealed class SignupTests : BaseTest<AccountManagementDbContext>
 {
     [Fact]
-    public async Task StartAccountRegistration_WhenValidCommand_ShouldReturnSuccessfulResult()
+    public async Task StartSignup_WhenValidCommand_ShouldReturnSuccessfulResult()
     {
         // Arrange
         var subdomain = Faker.Subdomain();
         var email = Faker.Internet.Email();
-        var command = new StartAccountRegistrationCommand(subdomain, email);
+        var command = new StartSignupCommand(subdomain, email);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -28,7 +28,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
-            e.Name == "AccountRegistrationStarted" &&
+            e.Name == "SignupStarted" &&
             e.Properties["Event_TenantId"] == subdomain
         ).Should().Be(1);
 
@@ -36,11 +36,11 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task StartAccountRegistration_WhenInvalidEmail_ShouldFail()
+    public async Task StartSignup_WhenInvalidEmail_ShouldFail()
     {
         // Arrange
         var subdomain = Faker.Subdomain();
-        var command = new StartAccountRegistrationCommand(subdomain, "invalid email");
+        var command = new StartSignupCommand(subdomain, "invalid email");
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -58,11 +58,11 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
     [InlineData("Subdomain with uppercase", "Tenant2")]
     [InlineData("Subdomain special characters", "tenant%2")]
     [InlineData("Subdomain with spaces", "tenant 2")]
-    public async Task StartAccountRegistration_WhenInvalidSubDomain_ShouldFail(string scenario, string subdomain)
+    public async Task StartSignup_WhenInvalidSubDomain_ShouldFail(string scenario, string subdomain)
     {
         // Arrange
         var email = Faker.Internet.Email();
-        var command = new StartAccountRegistrationCommand(subdomain, email);
+        var command = new StartSignupCommand(subdomain, email);
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
@@ -74,7 +74,7 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task CompleteAccountRegistrationTests_WhenSucceeds_ShouldLogCorrectInformation()
+    public async Task CompleteSignupTests_WhenSucceeds_ShouldLogCorrectInformation()
     {
         // Arrange
         var mockLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
@@ -82,8 +82,8 @@ public sealed class AccountRegistrationTests : BaseTest<AccountManagementDbConte
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
-        var command = new CompleteAccountRegistrationCommand(DatabaseSeeder.OneTimePassword);
-        _ = await mediator.Send(command with { Id = DatabaseSeeder.AccountRegistration1.Id });
+        var command = new CompleteSignupCommand(DatabaseSeeder.OneTimePassword);
+        _ = await mediator.Send(command with { Id = DatabaseSeeder.Signup1.Id });
 
         // Assert
         mockLogger.Received().LogInformation("Raise event to send Welcome mail to tenant.");
