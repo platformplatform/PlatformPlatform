@@ -50,6 +50,6 @@ function createUserInfo(userInfoEnv: UserInfoEnv): UserInfo {
   const getInitial = (name: string | undefined) => name?.[0] ?? "";
   let initials = `${getInitial(firstName)}${getInitial(lastName)}`.toUpperCase();
   initials = initials !== "" ? initials : email?.slice(0, 2).toUpperCase() ?? "";
-  const fullName = firstName && lastName ? `${userInfoEnv.firstName} ${userInfoEnv.lastName}` : email ?? "";
+  const fullName = firstName || lastName ? `${userInfoEnv.firstName} ${userInfoEnv.lastName}` : email ?? "";
   return { ...userInfoEnv, initials, fullName };
 }
