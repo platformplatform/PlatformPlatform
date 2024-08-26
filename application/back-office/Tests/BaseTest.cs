@@ -6,7 +6,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -36,8 +35,6 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services = new ServiceCollection();
 
-        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -48,7 +45,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services
             .AddApplicationServices()
-            .AddInfrastructureServices(configuration);
+            .AddInfrastructureServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

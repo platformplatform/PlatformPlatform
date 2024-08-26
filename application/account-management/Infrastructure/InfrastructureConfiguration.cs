@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
@@ -19,9 +18,9 @@ public static class InfrastructureConfiguration
         return services;
     }
 
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.ConfigureInfrastructureCoreServices<AccountManagementDbContext>(configuration, Assembly);
+        services.ConfigureInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
 
         return services;
     }

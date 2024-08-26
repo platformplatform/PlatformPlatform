@@ -50,7 +50,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services
             .AddApplicationServices(configuration)
-            .AddInfrastructureServices(configuration);
+            .AddInfrastructureServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

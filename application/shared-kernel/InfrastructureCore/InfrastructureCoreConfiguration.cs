@@ -93,11 +93,7 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        Assembly assembly
-    )
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
@@ -105,7 +101,7 @@ public static class InfrastructureCoreConfiguration
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
 
-        var tokenSigningService = GetTokenSigningService(configuration);
+        var tokenSigningService = GetTokenSigningService();
         services.AddSingleton(tokenSigningService);
 
         services.RegisterRepositories(assembly);
@@ -144,15 +140,19 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static ITokenSigningService GetTokenSigningService(IConfiguration configuration)
+    public static ITokenSigningService GetTokenSigningService()
     {
         if (IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
             var keyClient = new KeyClient(keyVaultUri, DefaultAzureCredential);
-            var cryptographyClient = new CryptographyClient(keyClient.GetKey("AuthTokenSigningKey").Value.Id, DefaultAzureCredential);
+            var cryptographyClient = new CryptographyClient(keyClient.GetKey("authentication-token-signing-key").Value.Id, DefaultAzureCredential);
 
-            return new AzureTokenSigningService(cryptographyClient, configuration["AuthenticationTokenSettings:Issuer"]!, configuration["AuthenticationTokenSettings:Audience"]!);
+            var secretClient = new SecretClient(keyVaultUri, DefaultAzureCredential);
+            var issuer = secretClient.GetSecret("authentication-token-issuer").Value.Value;
+            var audience = secretClient.GetSecret("authentication-token-audience").Value.Value;
+
+            return new AzureTokenSigningService(cryptographyClient, issuer, audience);
         }
 
         return new DevelopmentTokenSigningService();

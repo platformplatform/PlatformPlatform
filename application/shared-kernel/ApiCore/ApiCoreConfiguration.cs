@@ -75,7 +75,6 @@ public static class ApiCoreConfiguration
             }
         );
 
-        var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService(builder.Configuration);
         // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
             {
@@ -85,6 +84,7 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
+                var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
                 o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
                     validateLifetime: true,
                     clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway

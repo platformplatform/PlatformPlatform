@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddApplicationServices(builder.Configuration)
-    .AddInfrastructureServices(builder.Configuration)
+    .AddInfrastructureServices()
     .AddConfigureStorage(builder)
     .ConfigureDevelopmentPort(builder, 9199);
 
