@@ -16,6 +16,7 @@ using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -88,11 +89,8 @@ public static class ApiCoreConfiguration
         ).AddJwtBearer(o =>
             {
                 o.TokenValidationParameters = GetTokenValidationParameters(
-                    authenticationTokenSettings.Issuer,
-                    authenticationTokenSettings.Audience,
-                    authenticationTokenSettings.GetKeyBytes(),
-                    validateLifetime: true,
-                    clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
+                    authenticationTokenSettings,
+                    clockSkew: TimeSpan.FromSeconds(5), validateLifetime: true // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
                 );
             }
         );
@@ -134,21 +132,18 @@ public static class ApiCoreConfiguration
     }
 
     public static TokenValidationParameters GetTokenValidationParameters(
-        string validIssuer,
-        string validAudience,
-        byte[] securityKey,
+        AuthenticationTokenSettings authenticationTokenSettings,
         TimeSpan clockSkew,
-        bool validateLifetime
-    )
+        bool validateLifetime)
     {
         return new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = validIssuer,
+            ValidIssuer = authenticationTokenSettings.Issuer,
             ValidateAudience = true,
-            ValidAudience = validAudience,
+            ValidAudience = authenticationTokenSettings.Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(securityKey),
+            IssuerSigningKey = new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()),
             ClockSkew = clockSkew,
             ValidateLifetime = validateLifetime
         };

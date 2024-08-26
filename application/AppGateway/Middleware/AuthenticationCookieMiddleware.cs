@@ -132,9 +132,7 @@ public class AuthenticationCookieMiddleware(
         }
 
         var validationParameters = ApiCoreConfiguration.GetTokenValidationParameters(
-            authenticationTokenSettings.Issuer,
-            authenticationTokenSettings.Audience,
-            authenticationTokenSettings.GetKeyBytes(),
+            authenticationTokenSettings,
             validateLifetime: false, // We validate the lifetime manually
             clockSkew: TimeSpan.FromSeconds(2) // In Azure, we don't need any clock skew, but this must be a lower value than in downstream APIs
         );

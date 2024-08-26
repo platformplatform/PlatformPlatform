@@ -28,17 +28,9 @@ public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings aut
                     new Claim("refresh_token_version", refreshTokenVersion.ToString())
                 ]
             ),
-            Expires = expires.UtcDateTime,
-            Issuer = authenticationTokenSettings.Issuer,
-            Audience = authenticationTokenSettings.Audience,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
-            )
         };
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(securityToken);
+        return GenerateToken(tokenDescriptor, expires);
     }
 
     public string GenerateAccessToken(User user)
@@ -57,13 +49,19 @@ public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings aut
                     new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
                 ]
             ),
-            Expires = TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime,
-            Issuer = authenticationTokenSettings.Issuer,
-            Audience = authenticationTokenSettings.Audience,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
-            )
         };
+
+        return GenerateToken(tokenDescriptor, TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime);
+    }
+
+    private string GenerateToken(SecurityTokenDescriptor tokenDescriptor, DateTimeOffset expires)
+    {
+        tokenDescriptor.Expires = expires.UtcDateTime;
+        tokenDescriptor.Issuer = authenticationTokenSettings.Issuer;
+        tokenDescriptor.Audience = authenticationTokenSettings.Audience;
+        tokenDescriptor.SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
+        );
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var securityToken = tokenHandler.CreateToken(tokenDescriptor);
