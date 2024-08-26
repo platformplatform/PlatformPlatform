@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Application.Authentication;
 
-public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings authenticationTokenSettings)
+public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigningService)
 {
     public string GenerateRefreshToken(UserId userId)
     {
@@ -27,7 +27,7 @@ public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings aut
                     new Claim("refresh_token_chain_id", refreshTokenChainId),
                     new Claim("refresh_token_version", refreshTokenVersion.ToString())
                 ]
-            ),
+            )
         };
 
         return GenerateToken(tokenDescriptor, expires);
@@ -48,7 +48,7 @@ public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings aut
                     new Claim("title", user.Title ?? string.Empty),
                     new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
                 ]
-            ),
+            )
         };
 
         return GenerateToken(tokenDescriptor, TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime);
@@ -57,11 +57,10 @@ public sealed class AuthenticationTokenGenerator(AuthenticationTokenSettings aut
     private string GenerateToken(SecurityTokenDescriptor tokenDescriptor, DateTimeOffset expires)
     {
         tokenDescriptor.Expires = expires.UtcDateTime;
-        tokenDescriptor.Issuer = authenticationTokenSettings.Issuer;
-        tokenDescriptor.Audience = authenticationTokenSettings.Audience;
-        tokenDescriptor.SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()), SecurityAlgorithms.HmacSha512Signature
-        );
+        tokenDescriptor.Expires = expires.UtcDateTime;
+        tokenDescriptor.Issuer = tokenSigningService.Issuer;
+        tokenDescriptor.Audience = tokenSigningService.Audience;
+        tokenDescriptor.SigningCredentials = tokenSigningService.GetSigningCredentials();
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var securityToken = tokenHandler.CreateToken(tokenDescriptor);

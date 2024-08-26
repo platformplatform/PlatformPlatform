@@ -2,13 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 
 public class AuthenticationCookieMiddleware(
-    AuthenticationTokenSettings authenticationTokenSettings,
+    ITokenSigningService tokenSigningService,
     IHttpClientFactory httpClientFactory,
     ILogger<AuthenticationCookieMiddleware> logger
 )
@@ -131,8 +130,7 @@ public class AuthenticationCookieMiddleware(
             throw new SecurityTokenMalformedException("The token is not a valid JWT.");
         }
 
-        var validationParameters = ApiCoreConfiguration.GetTokenValidationParameters(
-            authenticationTokenSettings,
+        var validationParameters = tokenSigningService.GetTokenValidationParameters(
             validateLifetime: false, // We validate the lifetime manually
             clockSkew: TimeSpan.FromSeconds(2) // In Azure, we don't need any clock skew, but this must be a lower value than in downstream APIs
         );

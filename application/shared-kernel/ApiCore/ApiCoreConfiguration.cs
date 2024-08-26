@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.ApiCore.Aspire;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
@@ -16,7 +15,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -77,8 +75,7 @@ public static class ApiCoreConfiguration
             }
         );
 
-        var authenticationTokenSettings = InfrastructureCoreConfiguration.GetAuthenticationTokenSettings(builder.Configuration);
-
+        var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService(builder.Configuration);
         // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
             {
@@ -88,9 +85,9 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
-                o.TokenValidationParameters = GetTokenValidationParameters(
-                    authenticationTokenSettings,
-                    clockSkew: TimeSpan.FromSeconds(5), validateLifetime: true // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
+                o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
+                    TimeSpan.FromSeconds(5),
+                    true // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
                 );
             }
         );
@@ -129,24 +126,6 @@ public static class ApiCoreConfiguration
         builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
         return services;
-    }
-
-    public static TokenValidationParameters GetTokenValidationParameters(
-        AuthenticationTokenSettings authenticationTokenSettings,
-        TimeSpan clockSkew,
-        bool validateLifetime)
-    {
-        return new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = authenticationTokenSettings.Issuer,
-            ValidateAudience = true,
-            ValidAudience = authenticationTokenSettings.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(authenticationTokenSettings.GetKeyBytes()),
-            ClockSkew = clockSkew,
-            ValidateLifetime = validateLifetime
-        };
     }
 
     public static IServiceCollection ConfigureDevelopmentPort(this IServiceCollection services, WebApplicationBuilder builder, int port)

@@ -1,5 +1,7 @@
 using System.Net.Sockets;
 using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
+using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using Microsoft.Data.SqlClient;
@@ -103,8 +105,8 @@ public static class InfrastructureCoreConfiguration
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
 
-        var authenticationTokenSettings = GetAuthenticationTokenSettings(configuration);
-        services.AddSingleton(authenticationTokenSettings);
+        var tokenSigningService = GetTokenSigningService(configuration);
+        services.AddSingleton(tokenSigningService);
 
         services.RegisterRepositories(assembly);
 
@@ -142,25 +144,20 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static AuthenticationTokenSettings GetAuthenticationTokenSettings(IConfiguration configuration)
+    public static ITokenSigningService GetTokenSigningService(IConfiguration configuration)
     {
         if (IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            var secretClient = new SecretClient(keyVaultUri, DefaultAzureCredential);
+            var keyClient = new KeyClient(keyVaultUri, DefaultAzureCredential);
+            var cryptographyClient = new CryptographyClient(keyClient.GetKey("AuthTokenSigningKey").Value.Id, DefaultAzureCredential);
 
-            var secret = secretClient.GetSecret("authentication-token-signing-key");
-
-            return new AuthenticationTokenSettings
-            {
-                Issuer = configuration["AuthenticationTokenSettings:Issuer"],
-                Audience = configuration["AuthenticationTokenSettings:Audience"],
-                Key = secret.Value.Value
-            };
+            return new AzureTokenSigningService(cryptographyClient, configuration["AuthenticationTokenSettings:Issuer"]!, configuration["AuthenticationTokenSettings:Audience"]!);
         }
 
-        return configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
-               ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
+        var authenticationTokenSettings = configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
+                                          ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
+        return new DevelopmentTokenSigningService(authenticationTokenSettings);
     }
 
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
