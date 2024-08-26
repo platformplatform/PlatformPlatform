@@ -10,12 +10,12 @@ public sealed class AuthenticationTokenService(AuthenticationTokenGenerator toke
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
         var refreshToken = tokenGenerator.GenerateRefreshToken(user.Id);
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey, refreshToken);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, refreshToken);
 
         var accessToken = tokenGenerator.GenerateAccessToken(user);
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.AccessTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenSettings.AccessTokenHttpHeaderKey, accessToken);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, accessToken);
     }
 
     public void RefreshAuthenticationTokens(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
@@ -23,21 +23,21 @@ public sealed class AuthenticationTokenService(AuthenticationTokenGenerator toke
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
         var refreshToken = tokenGenerator.UpdateRefreshToken(user.Id, refreshTokenChainId, currentRefreshTokenVersion, expires);
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey, refreshToken);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, refreshToken);
 
         var accessToken = tokenGenerator.GenerateAccessToken(user);
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.AccessTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenSettings.AccessTokenHttpHeaderKey, accessToken);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
+        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, accessToken);
     }
 
     public void Logout()
     {
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey);
-        httpContext.Response.Headers.Remove(AuthenticationTokenSettings.AccessTokenHttpHeaderKey);
-        httpContext.Response.Cookies.Delete(AuthenticationTokenSettings.RefreshTokenCookieName);
-        httpContext.Response.Cookies.Delete(AuthenticationTokenSettings.AccessTokenCookieName);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
+        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
+        httpContext.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
+        httpContext.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
     }
 }
