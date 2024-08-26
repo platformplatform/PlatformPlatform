@@ -3,16 +3,18 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 
-public class DevelopmentTokenSigningService(AuthenticationTokenSettings settings)
+public class DevelopmentTokenSigningService
     : ITokenSigningService
 {
-    public string Issuer => settings.Issuer;
+    private byte[] Key { get; } = "put-64-bytes-key-here"u8.ToArray();
 
-    public string Audience => settings.Audience;
+    public string Issuer => "https://localhost:9000";
+
+    public string Audience => "https://localhost:9000";
 
     public SigningCredentials GetSigningCredentials()
     {
-        var key = new SymmetricSecurityKey(settings.GetKeyBytes());
+        var key = new SymmetricSecurityKey(Key);
         return new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
     }
 
@@ -21,11 +23,11 @@ public class DevelopmentTokenSigningService(AuthenticationTokenSettings settings
         return new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = settings.Issuer,
+            ValidIssuer = Issuer,
             ValidateAudience = true,
-            ValidAudience = settings.Audience,
+            ValidAudience = Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(settings.GetKeyBytes()),
+            IssuerSigningKey = new SymmetricSecurityKey(Key),
             ClockSkew = clockSkew,
             ValidateLifetime = validateLifetime
         };

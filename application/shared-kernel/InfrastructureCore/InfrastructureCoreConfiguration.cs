@@ -155,9 +155,7 @@ public static class InfrastructureCoreConfiguration
             return new AzureTokenSigningService(cryptographyClient, configuration["AuthenticationTokenSettings:Issuer"]!, configuration["AuthenticationTokenSettings:Audience"]!);
         }
 
-        var authenticationTokenSettings = configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
-                                          ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
-        return new DevelopmentTokenSigningService(authenticationTokenSettings);
+        return new DevelopmentTokenSigningService();
     }
 
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext

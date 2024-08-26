@@ -86,8 +86,8 @@ public static class ApiCoreConfiguration
         ).AddJwtBearer(o =>
             {
                 o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
-                    TimeSpan.FromSeconds(5),
-                    true // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
+                    validateLifetime: true,
+                    clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
                 );
             }
         );
