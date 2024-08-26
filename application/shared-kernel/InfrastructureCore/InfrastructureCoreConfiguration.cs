@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
@@ -92,6 +93,7 @@ public static class InfrastructureCoreConfiguration
 
     public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
         this IServiceCollection services,
+        IConfiguration configuration,
         Assembly assembly
     )
         where T : DbContext
@@ -100,6 +102,9 @@ public static class InfrastructureCoreConfiguration
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
+
+        var authenticationTokenSettings = GetAuthenticationTokenSettings(configuration);
+        services.AddSingleton(authenticationTokenSettings);
 
         services.RegisterRepositories(assembly);
 
@@ -135,6 +140,27 @@ public static class InfrastructureCoreConfiguration
         );
 
         return services;
+    }
+
+    public static AuthenticationTokenSettings GetAuthenticationTokenSettings(IConfiguration configuration)
+    {
+        if (IsRunningInAzure)
+        {
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            var secretClient = new SecretClient(keyVaultUri, DefaultAzureCredential);
+
+            var secret = secretClient.GetSecret("authentication-token-signing-key");
+
+            return new AuthenticationTokenSettings
+            {
+                Issuer = configuration["AuthenticationTokenSettings:Issuer"],
+                Audience = configuration["AuthenticationTokenSettings:Audience"],
+                Key = secret.Value.Value
+            };
+        }
+
+        return configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
+               ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
     }
 
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext

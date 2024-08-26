@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -17,7 +16,6 @@ using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
@@ -78,6 +76,8 @@ public static class ApiCoreConfiguration
             }
         );
 
+        var authenticationTokenSettings = InfrastructureCoreConfiguration.GetAuthenticationTokenSettings(builder.Configuration);
+
         // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
             {
@@ -87,9 +87,6 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
-                var authenticationTokenSettings = builder.Configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
-                                                  ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
-
                 o.TokenValidationParameters = GetTokenValidationParameters(
                     authenticationTokenSettings.Issuer,
                     authenticationTokenSettings.Audience,

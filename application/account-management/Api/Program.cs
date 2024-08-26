@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddApplicationServices(builder.Configuration)
-    .AddInfrastructureServices()
+    .AddInfrastructureServices(builder.Configuration)
     .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
     .AddConfigureStorage(builder)
     .AddSinglePageAppFallback()

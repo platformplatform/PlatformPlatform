@@ -2,7 +2,6 @@ using Azure.Core;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,11 +33,12 @@ else
     );
 }
 
-var authenticationTokenSettings = builder.Configuration.GetSection("AuthenticationTokenSettings").Get<AuthenticationTokenSettings>()
-                                  ?? throw new InvalidOperationException("No AuthenticationTokenSettings configuration found.");
+var authenticationTokenSettings = InfrastructureCoreConfiguration.GetAuthenticationTokenSettings(builder.Configuration);
 builder.Services.AddSingleton(authenticationTokenSettings);
 
-builder.Services.AddHttpClient("AccountManagement", client => { client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_MANAGEMENT_API_URL") ?? "https://localhost:9100"); }
+builder.Services.AddHttpClient(
+    "AccountManagement",
+    client => { client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_MANAGEMENT_API_URL") ?? "https://localhost:9100"); }
 );
 
 builder.Services

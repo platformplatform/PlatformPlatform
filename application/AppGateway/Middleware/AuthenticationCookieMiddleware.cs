@@ -122,7 +122,6 @@ public class AuthenticationCookieMiddleware(
         context.Response.Headers.Remove(AuthenticationTokenSettings.AccessTokenHttpHeaderKey);
     }
 
-
     private DateTimeOffset ExtractExpirationFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
