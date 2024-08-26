@@ -37,6 +37,7 @@ public sealed class AuthenticationTokenService(AuthenticationTokenGenerator toke
 
         httpContext.Response.Headers.Remove(AuthenticationTokenSettings.RefreshTokenHttpHeaderKey);
         httpContext.Response.Headers.Remove(AuthenticationTokenSettings.AccessTokenHttpHeaderKey);
-        httpContext.Response.Cookies.Delete(AuthenticationTokenSettings.AuthenticationCookieName);
+        httpContext.Response.Cookies.Delete(AuthenticationTokenSettings.RefreshTokenCookieName);
+        httpContext.Response.Cookies.Delete(AuthenticationTokenSettings.AccessTokenCookieName);
     }
 }

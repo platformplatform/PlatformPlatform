@@ -4,7 +4,9 @@ namespace PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 public class AuthenticationTokenSettings
 {
-    public const string AuthenticationCookieName = "authentication-cookie";
+    public const string RefreshTokenCookieName = "refresh-token";
+
+    public const string AccessTokenCookieName = "access-token";
 
     public const string RefreshTokenHttpHeaderKey = "X-Refresh-Token";
 

@@ -17,7 +17,6 @@
         <PackageReference Include="Aspire.Azure.Storage.Blobs" />
         <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
         <PackageReference Include="Azure.Communication.Email" />
-        <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" />
         <PackageReference Include="Azure.Security.KeyVault.Secrets" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />

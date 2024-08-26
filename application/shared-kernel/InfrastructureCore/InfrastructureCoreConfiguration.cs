@@ -2,7 +2,6 @@ using System.Net.Sockets;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,36 +27,6 @@ public static class InfrastructureCoreConfiguration
         var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
         var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
         return new DefaultAzureCredential(credentialOptions);
-    }
-
-    public static IServiceCollection ConfigureDataProtectionApi(this IServiceCollection services)
-    {
-        if (IsRunningInAzure)
-        {
-            var keyIdentifier = $"{Environment.GetEnvironmentVariable("KEYVAULT_URL")}/keys/DataProtectionKey/3186da570c034d9488dcf27fb91b33dc";
-
-            Console.WriteLine("keyIdentifier: " + keyIdentifier);
-            services.AddDataProtection()
-                .ProtectKeysWithAzureKeyVault(new Uri(keyIdentifier), DefaultAzureCredential)
-                .SetDefaultKeyLifetime(TimeSpan.FromDays(30))
-                .AddKeyManagementOptions(options =>
-                {
-                    options.NewKeyLifetime = TimeSpan.FromDays(30);
-                    options.XmlRepository?.GetAllElements().ToList().ForEach(key =>
-                    {
-                        Console.WriteLine($"Key Found: {key}");
-                    });
-                });
-        }
-        else
-        {
-            var keysPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".aspnet", "DataProtection-Keys");
-            services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
-                .SetDefaultKeyLifetime(TimeSpan.FromDays(7));
-        }
-
-        return services;
     }
 
     public static IServiceCollection ConfigureDatabaseContext<T>(

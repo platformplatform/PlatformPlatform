@@ -53,8 +53,6 @@ builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STOR
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
-builder.Services.ConfigureDataProtectionApi();
-
 var app = builder.Build();
 
 app.MapReverseProxy();

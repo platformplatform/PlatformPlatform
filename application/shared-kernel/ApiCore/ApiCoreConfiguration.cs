@@ -78,8 +78,6 @@ public static class ApiCoreConfiguration
             }
         );
 
-        builder.Services.ConfigureDataProtectionApi();
-
         // Add Authentication and Authorization services
         builder.Services.AddAuthentication(options =>
             {
@@ -97,7 +95,7 @@ public static class ApiCoreConfiguration
                     authenticationTokenSettings.Audience,
                     authenticationTokenSettings.GetKeyBytes(),
                     validateLifetime: true,
-                    clockSkew: TimeSpan.FromSeconds(5) // In Azure we don't need clock skew, but this must be a higher value than the AppGateway
+                    clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
                 );
             }
         );
