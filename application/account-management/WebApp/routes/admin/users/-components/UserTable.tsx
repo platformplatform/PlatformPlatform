@@ -155,7 +155,7 @@ export function UserTable() {
             className="w-full pr-12 sm:hidden"
           />
           <Pagination
-            paginationSize={7}
+            paginationSize={9}
             currentPage={currentPage}
             totalPages={data?.totalPages ?? 1}
             onPageChange={handlePageChange}
