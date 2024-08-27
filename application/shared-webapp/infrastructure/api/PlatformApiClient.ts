@@ -1,10 +1,9 @@
-import type { Middleware, ClientOptions } from "openapi-fetch";
-import type { MediaType, HttpMethod } from "openapi-typescript-helpers";
+import type { ClientOptions, Middleware } from "openapi-fetch";
+import type { MediaType, OperationRequestBody, PathsWithMethod } from "openapi-typescript-helpers";
 import createClient from "openapi-fetch";
 import {
   type ClientMethodWithProblemDetails,
-  createClientMethodWithProblemDetails,
-  isHttpMethod
+  createClientMethodWithProblemDetails
 } from "./ClientMethodWithProblemDetails";
 import { isKeyof } from "@repo/utils/object/isKeyof";
 import { createPlatformServerAction, type PlatformServerAction } from "./PlatformServerAction";
@@ -23,41 +22,77 @@ import { createApiReactHook, type PlatformApiReactHook } from "./ApiReactHook";
  *
  * In PlatformPlatform all Api calls use the ProblemDetails standard and throw errors.
  */
-export function createPlatformApiClient<Paths extends {}, Media extends MediaType = MediaType>(
-  clientOptions?: ClientOptions
-) {
-  const client = createClient<Paths>({
-    baseUrl: import.meta.env.PUBLIC_URL,
-    ...clientOptions
-  });
-  const action = createPlatformServerAction(client.POST);
-  const useApi = createApiReactHook(client.GET);
+export function createPlatformApiClient<
+  // biome-ignore  lint/suspicious/noExplicitAny: We don't know the type at this point
+  Paths extends Record<string, Record<string, any>>,
+  Media extends MediaType = MediaType
+>(clientOptions?: ClientOptions) {
+  const client = createClient<Paths>({ baseUrl: import.meta.env.PUBLIC_URL, ...clientOptions });
   const notImplemented = (name: string | symbol) => {
     throw new Error(`Action client method not implemented: ${name.toString()}`);
   };
+
   return new Proxy({} as PlatformApiClient<Paths, Media>, {
     get(_, name) {
-      if (name === "useApi") {
-        return useApi;
+      switch (name) {
+        case "useApi":
+          return createApiReactHook(client.GET);
+        case "actionPost":
+          return createPlatformServerAction(client.POST);
+        case "actionPut":
+          return createPlatformServerAction(client.PUT);
+        case "actionDelete":
+          return createPlatformServerAction(client.DELETE);
+        case "get":
+          return <Path extends PathsWithMethod<Paths, "get">>(
+            url: Path,
+            options?: OperationRequestBody<Paths[Path]["get"]>
+          ) => {
+            return createClientMethodWithProblemDetails(client.GET, true)(
+              url,
+              options as OperationRequestBody<Paths[Path]["get"]>
+            );
+          };
+        case "post":
+          return <Path extends PathsWithMethod<Paths, "post">>(
+            url: Path,
+            options?: OperationRequestBody<Paths[Path]["post"]>
+          ) => {
+            return createClientMethodWithProblemDetails(client.POST, false)(
+              url,
+              options as OperationRequestBody<Paths[Path]["post"]>
+            );
+          };
+        case "put":
+          return <Path extends PathsWithMethod<Paths, "put">>(
+            url: Path,
+            options?: OperationRequestBody<Paths[Path]["put"]>
+          ) => {
+            return createClientMethodWithProblemDetails(client.PUT, false)(
+              url,
+              options as OperationRequestBody<Paths[Path]["put"]>
+            );
+          };
+        case "delete":
+          return <Path extends PathsWithMethod<Paths, "delete">>(
+            url: Path,
+            options?: OperationRequestBody<Paths[Path]["delete"]>
+          ) => {
+            return createClientMethodWithProblemDetails(client.DELETE, false)(
+              url,
+              options as OperationRequestBody<Paths[Path]["delete"]>
+            );
+          };
+        case "addMiddleware":
+          return client.use;
+        case "removeMiddleware":
+          return client.eject;
+        default:
+          if (isKeyof(name, client)) {
+            return client[name];
+          }
+          return notImplemented(name);
       }
-      if (name === "action") {
-        return action;
-      }
-      if (isHttpMethod(name)) {
-        const clientMethodKey = name.toUpperCase() as Uppercase<HttpMethod>;
-        const shouldCache = clientMethodKey === "GET";
-        return createClientMethodWithProblemDetails(client[clientMethodKey], shouldCache);
-      }
-      if (name === "addMiddleware") {
-        return client.use;
-      }
-      if (name === "removeMiddleware") {
-        return client.eject;
-      }
-      if (isKeyof(name, client)) {
-        return client[name];
-      }
-      return notImplemented(name);
     }
   });
 }
@@ -65,8 +100,12 @@ export function createPlatformApiClient<Paths extends {}, Media extends MediaTyp
 type PlatformApiClient<Paths extends {}, Media extends MediaType = MediaType> = {
   /** Call a GET endpoint using a React hook with state management */
   useApi: PlatformApiReactHook<Paths, "get", Media>;
-  /** Call a server action */
-  action: PlatformServerAction<Paths, "post", Media>;
+  /** Call a server POST action */
+  actionPost: PlatformServerAction<Paths, "post", Media>;
+  /** Call a server PUT action */
+  actionPut: PlatformServerAction<Paths, "put", Media>;
+  /** Call a server DELETE action */
+  actionDelete: PlatformServerAction<Paths, "delete", Media>;
   /** Call a GET endpoint */
   get: ClientMethodWithProblemDetails<Paths, "get", Media>;
   /** Call a PUT endpoint */

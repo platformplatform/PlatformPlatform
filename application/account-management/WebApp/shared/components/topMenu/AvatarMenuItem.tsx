@@ -1,6 +1,7 @@
 import avatarUrl from "./images/avatar.png";
+import type { FC } from "react";
 
-const AvatarMenuItem: React.FC = () => {
+const AvatarMenuItem: FC = () => {
   const name = "Mary Doe";
   const title = "DevOps Engineer";
 
@@ -11,7 +12,7 @@ const AvatarMenuItem: React.FC = () => {
       </div>
       <div className="flex flex-col">
         <h2>{name}</h2>
-        <p className=" text-slate-500 text-sm font-normal">{title}</p>
+        <p className="text-muted-foreground">{title}</p>
       </div>
     </div>
   );

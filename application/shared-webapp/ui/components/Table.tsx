@@ -51,7 +51,7 @@ const columnStyles = tv({
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "column-resizer absolute right-0 top-1.5 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
+  base: "column-resizer absolute right-0 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
   variants: {
     isResizing: {
       false: "bg-border forced-colors:bg-[ButtonBorder] ",
@@ -69,7 +69,7 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "relative h-12 cursor-default text-start text-muted-foreground [&:focus-within]:z-20 [&:hover]:z-20"
+        "relative h-12 cursor-default text-start text-foreground/70 [&:focus-within]:z-20 [&:hover]:z-20"
       )}
     >
       {composeRenderProps(children, (children, { allowsSorting, sortDirection }) => (
@@ -107,7 +107,7 @@ export function TableHeader<T extends object>({
       {...tableHeaderProps}
       className={composeTailwindRenderProps(
         className,
-        "sticky [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 top-0 z-10 h-16 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
+        "sticky [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 top-0 z-10 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
       )}
     >
       {/* Add extra columns for drag and drop and selection. */}
@@ -124,7 +124,7 @@ export function TableHeader<T extends object>({
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "h-16 [&>td:first-child]:pl-4 [&>td:last-child]:pr-4 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-xs font-normal",
+  base: "[&>td:first-child]:pl-4 [&>td:last-child]:pr-4 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-sm font-normal",
   variants: {
     isDisabled: {
       false: "text-muted-foreground hover:bg-muted/80",
@@ -132,9 +132,6 @@ const rowStyles = tv({
     },
     isSelected: {
       true: "bg-muted"
-    },
-    isHovered: {
-      true: "text-foreground"
     }
   }
 });
@@ -161,7 +158,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "px-2 border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring truncate -outline-offset-2"
+  base: "p-2 border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring truncate -outline-offset-2"
 });
 
 export function Cell(props: Readonly<CellProps>) {

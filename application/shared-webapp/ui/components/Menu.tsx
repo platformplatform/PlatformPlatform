@@ -40,7 +40,7 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
           {selectionMode !== "none" && (
             <span className="flex w-4 items-center">{isSelected && <Check aria-hidden className="h-4 w-4" />}</span>
           )}
-          <span className="flex flex-1 px-2 items-center gap-2 truncate font-normal group-selected:font-semibold">
+          <span className="flex flex-1 px-2 py-1 items-center gap-2 truncate font-normal group-selected:font-semibold">
             {children}
           </span>
           {hasSubmenu && <ChevronRight aria-hidden className="absolute right-2 h-4 w-4" />}

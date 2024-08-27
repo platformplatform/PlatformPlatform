@@ -1,6 +1,5 @@
+import { createAccountUrl } from "@/shared/images/cdnImages";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
-
-const createAccountUrl = "https://platformplatformgithub.blob.core.windows.net/create-account-s3.png";
 
 // FeatureSection3: A functional component that displays the third feature section
 export function FeatureSection3() {

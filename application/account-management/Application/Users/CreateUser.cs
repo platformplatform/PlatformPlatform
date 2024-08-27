@@ -9,8 +9,14 @@ using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 
 namespace PlatformPlatform.AccountManagement.Application.Users;
 
-public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
-    : ICommand, IRequest<Result<UserId>>;
+public sealed record CreateUserCommand(string TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
+    : ICommand, IRequest<Result<UserId>>
+{
+    public TenantId GetTenantId()
+    {
+        return new TenantId(TenantId);
+    }
+}
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
@@ -19,13 +25,13 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
 
         RuleFor(x => x.TenantId)
-            .MustAsync(tenantRepository.ExistsAsync)
+            .MustAsync((x, cancellationToken) => tenantRepository.ExistsAsync(new TenantId(x), cancellationToken))
             .WithMessage(x => $"The tenant '{x.TenantId}' does not exist.")
             .When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x)
             .MustAsync((x, cancellationToken)
-                => userRepository.IsEmailFreeAsync(x.TenantId, x.Email, cancellationToken)
+                => userRepository.IsEmailFreeAsync(x.GetTenantId(), x.Email, cancellationToken)
             )
             .WithName("Email")
             .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
@@ -42,11 +48,11 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
     {
         var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
 
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
+        var user = User.Create(command.GetTenantId(), command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
 
         await userRepository.AddAsync(user, cancellationToken);
 
-        events.CollectEvent(new UserCreated(command.TenantId, gravatarUrl is not null));
+        events.CollectEvent(new UserCreated(command.GetTenantId(), gravatarUrl is not null));
 
         return user.Id;
     }

@@ -1,16 +1,18 @@
-interface Registration {
-  accountRegistrationId: string;
+import type { Schemas } from "@/shared/lib/api/client";
+
+interface RegistrationState {
+  accountRegistrationId: Schemas["AccountRegistrationId"];
   email: string;
   expireAt: Date;
 }
 
-let currentRegistration: Registration | undefined;
+let currentRegistrationState: RegistrationState | undefined;
 
-export function setRegistration(newRegistration: Registration): void {
-  currentRegistration = newRegistration;
+export function setRegistrationState(newRegistration: RegistrationState): void {
+  currentRegistrationState = newRegistration;
 }
 
-export function getRegistration() {
-  if (currentRegistration == null) throw new Error("Account registration ID is missing.");
-  return currentRegistration;
+export function getRegistrationState() {
+  if (currentRegistrationState == null) throw new Error("No active account registration.");
+  return currentRegistrationState;
 }

@@ -1,35 +1,36 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
+import { heroDesktopUrl, heroMobileUrl, logoWrap } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { Badge } from "@repo/ui/components/Badge";
-
-const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
-const heroimgDesktop = "https://platformplatformgithub.blob.core.windows.net/hero-image-desktop.png";
-const heroimgMobile = "https://platformplatformgithub.blob.core.windows.net/hero-image-mobile.webp";
+import logoMark from "@/shared/images/logo-mark.svg";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col bg-muted">
-      <div className="flex flex-col gap-2 md:flex-row justify-between pt-8 pb-24 xl:px-24 px-2">
-        <div className="flex flex-col grow justify-start gap-2 md:gap-4 lg:gap-8 lg:justify-start md:flex-row items-center ">
-          <img src={logoWrap} alt="author" />
+    <div className="flex flex-col bg-muted items-center">
+      <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-2 pt-8 pb-24 xl:px-24 px-2 items-center justify-between w-fit md:w-full">
+        <div className="flex pt-4 md:pt-0">
+          <img className="hidden lg:block" src={logoWrap} alt="logo" />
+          <img className="lg:hidden h-20 md:h-12" src={logoMark} alt="logo" />
+        </div>
+        <div className="flex flex-col justify-start gap-2 md:gap-4 lg:gap-8 sm:flex-row items-center">
           <ProductLink />
           <ResourcesLink />
           <DocumentationLink />
+        </div>
+        <div className="flex w-full md:w-fit justify-between gap-2 md:gap-4 items-center">
           <Link href="https://github.com/platformplatform/PlatformPlatform">
             <GithubIcon className="wmax-5 h-5" />
             <span className="md:hidden lg:inline">Github</span>
           </Link>
           <ThemeModeSelector />
-        </div>
-        <div className="flex flex-col md:gap-4 md:flex-row items-center">
           <Button onPress={() => navigate({ to: "/login" })} variant="ghost">
             Log in
           </Button>
@@ -46,8 +47,8 @@ export function HeroSection() {
         <ActionButtons />
       </div>
       <div className=" px-24 justify-center flex">
-        <img className="hidden md:block" src={heroimgDesktop} alt="Footer" />
-        <img className="md:hidden" src={heroimgMobile} alt="Footer" />
+        <img className="hidden md:block rounded-t-2xl" src={heroDesktopUrl} alt="Footer" />
+        <img className="md:hidden" src={heroMobileUrl} alt="Footer" />
       </div>
     </div>
   );

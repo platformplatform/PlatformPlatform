@@ -1,12 +1,6 @@
+import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
-
-const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
-const twitterLogo = "https://platformplatformgithub.blob.core.windows.net/twitter-x.svg?url";
-const linkedinLogo = "https://platformplatformgithub.blob.core.windows.net/linkedin.svg?url";
-const youtubeLogo = "https://platformplatformgithub.blob.core.windows.net/youtube-logo.svg?url";
-const githubLogo = "https://platformplatformgithub.blob.core.windows.net/github2.svg?url";
-const slackLogo = "https://platformplatformgithub.blob.core.windows.net/slack2.svg?url";
 
 // FooterSection: A functional component that displays the footer section
 export function FooterSection() {

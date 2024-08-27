@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Application.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 
@@ -16,7 +16,7 @@ public sealed record CompleteAccountRegistrationCommand(string OneTimePassword)
 public sealed class CompleteAccountRegistrationHandler(
     ITenantRepository tenantRepository,
     IAccountRegistrationRepository accountRegistrationRepository,
-    IPasswordHasher<object> passwordHasher,
+    OneTimePasswordValidator oneTimePasswordValidator,
     ITelemetryEventsCollector events,
     ILogger<CompleteAccountRegistrationHandler> logger
 ) : IRequestHandler<CompleteAccountRegistrationCommand, Result>
@@ -30,8 +30,7 @@ public sealed class CompleteAccountRegistrationHandler(
             return Result.NotFound($"AccountRegistration with id '{command.Id}' not found.");
         }
 
-        if (passwordHasher.VerifyHashedPassword(this, accountRegistration.OneTimePasswordHash, command.OneTimePassword)
-            == PasswordVerificationResult.Failed)
+        if (oneTimePasswordValidator.Validate(accountRegistration.OneTimePasswordHash, command.OneTimePassword))
         {
             accountRegistration.RegisterInvalidPasswordAttempt();
             accountRegistrationRepository.Update(accountRegistration);

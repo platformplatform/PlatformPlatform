@@ -50,7 +50,7 @@ export function createPlatformServerAction<
   Method extends HttpMethod,
   Media extends MediaType = MediaType
 >(clientMethod: ClientMethod<Paths, Method, Media>) {
-  const postMethod = createClientMethodWithProblemDetails(clientMethod);
+  const httpAction = createClientMethodWithProblemDetails(clientMethod);
   return <
     Path extends PathsWithMethod<Paths, Method>,
     Init extends MaybeOptionalInit<Paths[Path], Method>,
@@ -78,7 +78,7 @@ export function createPlatformServerAction<
           delete body[paramName];
         }
 
-        const data = (await postMethod(templateUrl, {
+        const data = (await httpAction(templateUrl, {
           // Make body data available for path parameters
           params: {
             path: paramPaths

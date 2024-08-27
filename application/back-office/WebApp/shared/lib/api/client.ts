@@ -1,5 +1,6 @@
-import type { paths, components } from "./api.generated";
+import type { components, paths } from "./api.generated";
 import { createPlatformApiClient } from "@repo/infrastructure/api/PlatformApiClient";
+
 export * from "./api.generated.d";
 
 export const api = createPlatformApiClient<paths>();

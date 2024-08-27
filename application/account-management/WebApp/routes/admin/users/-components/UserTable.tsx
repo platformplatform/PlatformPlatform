@@ -9,7 +9,7 @@ import { Popover } from "@repo/ui/components/Popover";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { SortOrder, SortableUserProperties, useApi } from "@/shared/lib/api/client";
+import { SortableUserProperties, SortOrder, useApi } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
 export function UserTable() {
@@ -32,11 +32,11 @@ export function UserTable() {
   });
 
   const handlePageChange = useCallback(
-    (pageOffset: number) => {
+    (page: number) => {
       navigate({
         search: (prev) => ({
           ...prev,
-          pageOffset: pageOffset
+          pageOffset: page === 1 ? undefined : page - 1
         })
       });
     },
@@ -45,11 +45,11 @@ export function UserTable() {
 
   const handleSortChange = useCallback(
     (newSortDescriptor: SortDescriptor) => {
-      console.log(newSortDescriptor);
       setSortDescriptor(newSortDescriptor);
       navigate({
         search: (prev) => ({
           ...prev,
+          pageOffset: undefined, // I Just added this to set the PageOffset to 0 when sorting
           orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
           sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending
         })
@@ -63,6 +63,7 @@ export function UserTable() {
   return (
     <div className="flex flex-col gap-2 h-full w-full">
       <Table
+        key={`${orderBy}-${sortOrder}`}
         selectionMode="multiple"
         selectionBehavior="toggle"
         sortDescriptor={sortDescriptor}
@@ -70,24 +71,22 @@ export function UserTable() {
         aria-label="Users"
       >
         <TableHeader>
-          <Column minWidth={50} defaultWidth={200} allowsSorting id={SortableUserProperties.Name} isRowHeader>
+          <Column minWidth={180} allowsSorting id={SortableUserProperties.Name} isRowHeader>
             Name
           </Column>
-          <Column minWidth={50} allowsSorting id={SortableUserProperties.Email}>
+          <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
             Email
           </Column>
-          <Column minWidth={55} allowsSorting id={SortableUserProperties.CreatedAt}>
+          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.CreatedAt}>
             Added
           </Column>
-          <Column minWidth={55} allowsSorting id={SortableUserProperties.ModifiedAt}>
+          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.ModifiedAt}>
             Last Seen
           </Column>
-          <Column minWidth={75} allowsSorting id={SortableUserProperties.Role}>
+          <Column minWidth={65} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
             Role
           </Column>
-          <Column minWidth={114} defaultWidth={114}>
-            Actions
-          </Column>
+          <Column width={114}>Actions</Column>
         </TableHeader>
         <TableBody>
           {data?.users.map((user) => (
@@ -101,10 +100,10 @@ export function UserTable() {
                     isRound
                   />
                   <div className="flex flex-col truncate">
-                    <div className="truncate">
+                    <div className="truncate text-foreground">
                       {user.firstName} {user.lastName}
                     </div>
-                    <div className="text-muted-foreground truncate">{user.title ?? ""}</div>
+                    <div className="truncate">{user.title ?? ""}</div>
                   </div>
                 </div>
               </Cell>
@@ -112,7 +111,7 @@ export function UserTable() {
               <Cell>{toFormattedDate(user.createdAt)}</Cell>
               <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
               <Cell>
-                <Badge variant="outline">Member</Badge>
+                <Badge variant="outline">{user.role}</Badge>
               </Cell>
               <Cell>
                 <div className="group flex gap-2 w-full">
@@ -120,11 +119,11 @@ export function UserTable() {
                     variant="icon"
                     className="group-hover:opacity-100 opacity-0 duration-300 transition-opacity ease-in-out"
                   >
-                    <Trash2Icon className="w-4 h-4" />
+                    <Trash2Icon className="w-5 h-5 text-muted-foreground" />
                   </Button>
                   <MenuTrigger>
                     <Button variant="icon" aria-label="Menu">
-                      <EllipsisVerticalIcon className="w-4 h-4" />
+                      <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
                     </Button>
                     <Popover>
                       <Menu>
@@ -146,22 +145,26 @@ export function UserTable() {
           ))}
         </TableBody>
       </Table>
-      <Pagination
-        size={5}
-        currentPage={currentPage}
-        totalPages={data?.totalPages ?? 1}
-        onPageChange={handlePageChange}
-        className="w-full pr-12 sm:hidden"
-      />
-      <Pagination
-        size={7}
-        nextLabel="Next"
-        previousLabel="Previous"
-        currentPage={currentPage}
-        totalPages={data?.totalPages ?? 1}
-        onPageChange={handlePageChange}
-        className="hidden sm:flex w-full"
-      />
+      {data && (
+        <>
+          <Pagination
+            paginationSize={5}
+            currentPage={currentPage}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            className="w-full pr-12 sm:hidden"
+          />
+          <Pagination
+            paginationSize={9}
+            currentPage={currentPage}
+            totalPages={data?.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            previousLabel="Previous"
+            nextLabel="Next"
+            className="hidden sm:flex w-full"
+          />
+        </>
+      )}
     </div>
   );
 }

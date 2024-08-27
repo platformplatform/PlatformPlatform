@@ -1,8 +1,11 @@
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { logoWrap } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
-import { Input } from "@repo/ui/components/Input";
+import { Dialog } from "@repo/ui/components/Dialog";
 import { Modal } from "@repo/ui/components/Modal";
+import { TextField } from "@repo/ui/components/TextField";
+import { Heading, Label, Separator } from "react-aria-components";
 import { Trash2, XIcon } from "lucide-react";
+import React from "react";
 
 type AccountSettingsModal = {
   isOpen: boolean;
@@ -10,40 +13,44 @@ type AccountSettingsModal = {
   onDeleteAccount: () => void;
 };
 
-export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: Readonly<AccountSettingsModal>) {
-  const logoWrap = "https://platformplatformgithub.blob.core.windows.net/logo-wrap.svg?url";
+export default function AccountSettingsModal({
+  isOpen,
+  onOpenChange,
+  onDeleteAccount
+}: Readonly<AccountSettingsModal>) {
+  const saveChanges = () => {
+    console.log("Saving changes");
+    closeDialog();
+  };
+
+  const closeDialog = () => {
+    onOpenChange(false);
+  };
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-      <AlertDialog actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
-        <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="ghost" size="sm">
-          <XIcon className="w-4 h-4" />
-        </Button>
-        <div className="flex flex-col text-gray-900 text-xl font-semibold pb-8">
-          <div className="pb-4">
-            <h1>Account Settings</h1>
-            <h2 className="text-slate-600 text-sm font-normal">Manage your account here</h2>
-          </div>
-          <div className="w-full flex-col flex pb-8 gap-3 text-slate-700 text-sm font-medium">
+      <Dialog>
+        <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
+        <Heading slot="title" className="text-2xl">
+          Account Settings
+        </Heading>
+        <p className="text-muted-foreground text-sm">Manage your account here.</p>
+
+        <div className="flex flex-col gap-4 mt-4">
+          <Label>Logo</Label>
+          <img src={logoWrap} alt="Logo" className="max-h-16 max-w-64" />
+
+          <TextField autoFocus isRequired name="name" label="Name" placeholder="E.g. CompanyX" />
+          <TextField name="domain" label="Domain" value="subdomain.platformplatform.net" isDisabled={true} />
+        </div>
+
+        <div className="flex flex-col gap-4 mt-6 mb-8">
+          <h3 className="font-semibold">Danger zone</h3>
+          <Separator />
+          <div className="flex flex-wrap items-end gap-4">
             <div>
-              <label>Logo</label>
-              <img src={logoWrap} alt="Logo" className="my-4" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label>Name</label>
-              <Input placeholder="Name" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label>Domain</label>
-              <Input value="subdomain.platformplatform.net" isDisabled={true} />
-            </div>
-          </div>
-          <h3 className="text-base pb-2">Danger zone</h3>
-          <div className="w-full border-b border-border" aria-hidden />
-          <div className="flex flex-wrap items-end pb-12 gap-4 border-b-2 border-gray-200">
-            <div className="flex-1 text-black">
-              <h4 className="text-sm pt-2">Delete Account</h4>
-              <p className="text-xs font-normal">
+              <h4 className="text-sm font-semibold pt-2">Delete Account</h4>
+              <p className="text-xs">
                 Deleting the account and all associated data.
                 <br />
                 This action is not reversible, so please continue with caution.
@@ -55,9 +62,16 @@ export function AccountSettingsModal({ isOpen, onOpenChange, onDeleteAccount }: 
             </Button>
           </div>
         </div>
-      </AlertDialog>
+
+        <Separator className="-ml-20 -mr-20" />
+
+        <div className="flex justify-end gap-4 mt-10">
+          <Button onPress={closeDialog} variant="secondary">
+            Cancel
+          </Button>
+          <Button onPress={saveChanges}>Save changes</Button>
+        </div>
+      </Dialog>
     </Modal>
   );
 }
-
-export default AccountSettingsModal;

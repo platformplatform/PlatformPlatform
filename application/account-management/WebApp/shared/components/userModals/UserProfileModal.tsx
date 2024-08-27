@@ -1,75 +1,143 @@
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { FileTrigger } from "react-aria-components";
+import { useCallback, useEffect, useState } from "react";
+import { useFormState } from "react-dom";
+import { FileTrigger, Form, Heading, Label } from "react-aria-components";
+import { XIcon } from "lucide-react";
 import { Button } from "@repo/ui/components/Button";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
-import { Mail, XIcon } from "lucide-react";
-import avatarUrl from "../topMenu/images/avatar.png";
-import React from "react";
-import { Input } from "@repo/ui/components/Input";
+import { TextField } from "@repo/ui/components/TextField";
+import type { Schemas } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 type ProfileModalProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  userId: string;
 };
 
-export function UserProfileModal({ isOpen, onOpenChange }: Readonly<ProfileModalProps>) {
-  const [file, setFile] = React.useState<string[] | null>(null);
+export default function UserProfileModal({ isOpen, onOpenChange, userId }: Readonly<ProfileModalProps>) {
+  const [data, setData] = useState<Schemas["UserResponseDto"] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [file, setFile] = useState<string | null>(null);
+
+  const onFileSelect = (e: FileList | null) => {
+    if (e) {
+      setFile(Array.from(e)[0].name);
+    }
+  };
+
+  const closeDialog = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
+
+  useEffect(() => {
+    (async () => {
+      if (isOpen) {
+        setLoading(true);
+        setData(null);
+        setError(null);
+
+        try {
+          const response = await api.get("/api/account-management/users/{id}", { params: { path: { id: userId } } });
+          setData(response);
+        } catch (error) {
+          // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point
+          setError(error as any);
+        } finally {
+          setLoading(false);
+        }
+      }
+    })();
+  }, [isOpen, userId]);
+
+  let [{ success, errors, title, message }, action, isPending] = useFormState(
+    api.actionPut("/api/account-management/users/{id}"),
+    {
+      success: null
+    }
+  );
+
+  useEffect(() => {
+    if (isPending) {
+      success = undefined;
+    }
+
+    if (success) {
+      closeDialog();
+    }
+  }, [success, isPending, closeDialog]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-      <AlertDialog actionLabel="Save changes" title="" onAction={() => onOpenChange(false)}>
-        <Button onPress={() => onOpenChange(false)} className="absolute top-0 right-0 m-3" variant="ghost" size="sm">
-          <XIcon className="w-4 h-4" />
-        </Button>
-        <div className="flex flex-col text-gray-900 text-xl font-semibold">
-          <div className="pb-4">
-            <h1>Edit profile</h1>
-            <h2 className=" text-slate-600 text-sm font-normal">Manage your profile here</h2>
-          </div>
-          <div className="w-full flex-col flex gap-3 text-slate-700 text-sm font-medium">
-            <label>Photo</label>
-            <div className="flex flex-row gap-4">
-              <FileTrigger
-                onSelect={(e) => {
-                  if (e) {
-                    const files = Array.from(e);
-                    const filenames = files.map((file) => file.name);
-                    setFile(filenames);
-                  }
-                }}
-              >
-                <Button variant="icon" className="rounded-full bg-transparent">
-                  <img src={avatarUrl} alt="Userprofile" className="aspect-square w-16" />
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!loading}>
+      <Dialog>
+        {!data && (
+          <Heading slot="title">
+            {loading && "Fetching data..."}
+            {error && JSON.stringify(error)}
+          </Heading>
+        )}
+
+        {data && (
+          <>
+            <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
+            <Heading slot="title" className="text-2xl">
+              User profile
+            </Heading>
+            <p className="text-muted-foreground text-sm">Update photo and personal details here.</p>
+
+            <Form
+              action={action}
+              validationErrors={errors}
+              validationBehavior="aria"
+              className="flex flex-col gap-4 mt-4"
+            >
+              <input type="hidden" name="id" value={userId} />
+              <Label>Photo</Label>
+              <FileTrigger onSelect={onFileSelect}>
+                <Button variant="icon" className="rounded-full w-16 h-16 mb-3">
+                  <img src={data.avatarUrl ?? ""} alt="User profile" className="rounded-full" />
                 </Button>
               </FileTrigger>
               {file}
-            </div>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-col gap-1">
-                <label>First name</label>
-                <Input placeholder="E.g. Olivia" />
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <TextField
+                  autoFocus
+                  isRequired
+                  name="firstName"
+                  label="First name"
+                  defaultValue={data.firstName}
+                  placeholder="E.g. Olivia"
+                  className="sm:w-64"
+                />
+                <TextField
+                  isRequired
+                  name="lastName"
+                  label="Last name"
+                  defaultValue={data.lastName}
+                  placeholder="E.g. Rhye"
+                  className="sm:w-64"
+                />
               </div>
-              <div className="flex flex-col gap-1">
-                <label>Last name</label>
-                <Input placeholder="E.g. Rhye" />
+              <TextField name="email" label="Email" value={data?.email} />
+              <TextField name="title" label="Title" defaultValue={data?.title} placeholder="E.g. Marketing Manager" />
+
+              <FormErrorMessage title={title} message={message} />
+
+              <div className="flex justify-end gap-4 mt-6">
+                <Button type="reset" onPress={closeDialog} variant="secondary">
+                  Cancel
+                </Button>
+                <Button type="submit" isDisabled={isPending}>
+                  Save changes
+                </Button>
               </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label>Email</label>
-              <div>
-                <Input value="olivia@companyx.com" isDisabled={true} className="border px-4 py-2 pl-10 w-full" />
-                <Mail className="absolute -translate-y-7 translate-x-2 text-gray-400 size-5" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label>Title</label>
-              <Input placeholder="E.g. Marketing Manager" />
-            </div>
-          </div>
-        </div>
-      </AlertDialog>
+            </Form>
+          </>
+        )}
+      </Dialog>
     </Modal>
   );
 }
-
-export default UserProfileModal;

@@ -52,10 +52,8 @@ export function AlertDialog({
           <div className={alertDialogContents({ variant })}>
             {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
           </div>
-          <div id={contentId} className="mt-3 text-muted-foreground">
-            {children}
-          </div>
-          <div role="group" className="mt-6 flex justify-end gap-2">
+          <div id={contentId}>{children}</div>
+          <div role="group" className="pt-10 flex justify-end gap-2">
             <Button variant="secondary" onPress={close}>
               {cancelLabel ?? "Cancel"}
             </Button>

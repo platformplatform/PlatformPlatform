@@ -3,7 +3,9 @@
   "display": "Node JS Library",
   "extends": "./base.json",
   "compilerOptions": {
-    "lib": ["ES2023"],
+    "lib": [
+      "ES2023"
+    ],
     "noEmit": false,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
