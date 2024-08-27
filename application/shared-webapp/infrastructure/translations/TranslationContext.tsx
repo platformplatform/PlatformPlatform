@@ -7,7 +7,7 @@ export type SetLocalFunction = (locale: Locale) => Promise<void>;
 export type TranslationContext = {
   setLocale: SetLocalFunction;
   locales: Locale[];
-  getLocaleInfo(locale: Locale | "pseudo"): LocaleInfo;
+  getLocaleInfo(locale: Locale): LocaleInfo;
 };
 
 export const translationContext = createContext<TranslationContext>({

@@ -89,15 +89,7 @@ export class Translation {
   /**
    * Get the locale info for the given locale
    */
-  public getLocaleInfo(locale: Locale | "pseudo"): LocaleInfo {
-    if (locale === "pseudo") {
-      return {
-        label: "Pseudo",
-        locale: "pseudo",
-        territory: "pseudo",
-        rtl: false
-      };
-    }
+  public getLocaleInfo(locale: Locale): LocaleInfo {
     return localeMap[locale];
   }
 

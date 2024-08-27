@@ -6,7 +6,6 @@ export function createLinguiConfig(): LinguiConfig {
   return {
     locales: Object.keys(i18nConfig),
     sourceLocale: "en-US",
-    pseudoLocale: "pseudo",
     catalogs: [
       {
         path: "<rootDir>/shared/translations/locale/{locale}",
