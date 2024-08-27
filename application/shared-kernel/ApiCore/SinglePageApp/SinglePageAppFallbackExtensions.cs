@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
 
@@ -29,10 +30,18 @@ public static class SinglePageAppFallbackExtensions
     {
         app.MapFallback((HttpContext context, IOptions<JsonOptions> jsonOptions, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
+                if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
+                    context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    context.Response.ContentType = "text/plain";
+                    return context.Response.WriteAsync("404 Not Found");
+                }
+
                 SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers);
 
                 var defaultLocale = context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en-US";
-                var userInfo = new UserInfo(context.User, defaultLocale);
+                var userInfo = UserInfo.Create(context.User, defaultLocale);
                 var html = GetHtmlWithEnvironment(singlePageAppConfiguration, userInfo, jsonOptions);
                 return context.Response.WriteAsync(html);
             }

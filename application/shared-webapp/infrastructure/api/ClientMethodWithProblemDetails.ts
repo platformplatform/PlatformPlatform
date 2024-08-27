@@ -9,7 +9,6 @@ import type {
 } from "openapi-typescript-helpers";
 import { ProblemDetailsError } from "./ProblemDetails";
 import { parseServerErrorResponse } from "./HandleFluentValidationErrors";
-import { createCachedClientMethod } from "./CachedClientMethod";
 
 export function isHttpMethod(method: string | symbol): method is HttpMethod {
   return ["get", "put", "post", "delete", "options", "head", "patch", "trace"].includes(method.toString());
@@ -36,8 +35,8 @@ export function createClientMethodWithProblemDetails<
   Paths extends Record<string, Record<HttpMethod, {}>>,
   Method extends HttpMethod,
   Media extends MediaType = MediaType
->(func: ClientMethod<Paths, Method, Media>, shouldCache = false) {
-  const clientMethodWithProblemDetails = async <
+>(func: ClientMethod<Paths, Method, Media>) {
+  return async <
     Path extends PathsWithMethod<Paths, Method>,
     Init extends MaybeOptionalInit<Paths[Path], Method>,
     Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<Paths[Path][Method]>, Media>, Init>
@@ -93,9 +92,4 @@ export function createClientMethodWithProblemDetails<
       });
     }
   };
-
-  if (shouldCache) {
-    return createCachedClientMethod(clientMethodWithProblemDetails);
-  }
-  return clientMethodWithProblemDetails;
 }

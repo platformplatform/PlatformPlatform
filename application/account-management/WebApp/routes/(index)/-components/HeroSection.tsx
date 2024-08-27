@@ -1,6 +1,5 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
 import { heroDesktopUrl, heroMobileUrl, logoWrap } from "@/shared/images/cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
@@ -9,10 +8,11 @@ import { Link } from "@repo/ui/components/Link";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { Badge } from "@repo/ui/components/Badge";
 import logoMark from "@/shared/images/logo-mark.svg";
+import { LoginButton } from "@repo/infrastructure/auth/LoginButton";
+import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
-  const navigate = useNavigate();
   return (
     <div className="flex flex-col bg-muted items-center">
       <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-2 pt-8 pb-24 xl:px-24 px-2 items-center justify-between w-fit md:w-full">
@@ -31,12 +31,8 @@ export function HeroSection() {
             <span className="md:hidden lg:inline">Github</span>
           </Link>
           <ThemeModeSelector />
-          <Button onPress={() => navigate({ to: "/login" })} variant="ghost">
-            Log in
-          </Button>
-          <Button onPress={() => navigate({ to: "/register" })} variant="primary">
-            Sign up
-          </Button>
+          <LoginButton variant="ghost">Log in</LoginButton>
+          <SignUpButton variant="primary">Get started today</SignUpButton>
         </div>
       </div>
       <div className="flex flex-col items-center gap-4 py-12 px-8 md:px-48 text-center">
@@ -139,13 +135,10 @@ function ProductDescription() {
 }
 
 function ActionButtons() {
-  const navigate = useNavigate();
   return (
     <div className="flex justify-center gap-4">
       <Button variant="outline">Book a demo</Button>
-      <Button onPress={() => navigate({ to: "/register" })} variant="primary">
-        Get started today
-      </Button>
+      <SignUpButton variant="primary">Get started today</SignUpButton>
     </div>
   );
 }

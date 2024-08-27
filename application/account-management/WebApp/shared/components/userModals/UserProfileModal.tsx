@@ -66,6 +66,9 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
 
     if (success) {
       closeDialog();
+      api
+        .post("/api/account-management/authentication/refresh-authentication-tokens")
+        .then(() => window.location.reload());
     }
   }, [success, isPending, closeDialog]);
 

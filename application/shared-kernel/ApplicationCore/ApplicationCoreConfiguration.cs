@@ -24,7 +24,7 @@ public static class ApplicationCoreConfiguration
         services.AddValidatorsFromAssembly(applicationAssembly);
 
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
-        services.AddScoped<OneTimePasswordValidator>();
+        services.AddScoped<OneTimePasswordHelper>();
 
         return services;
     }

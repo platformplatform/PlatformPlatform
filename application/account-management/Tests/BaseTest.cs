@@ -6,10 +6,12 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Application;
+using PlatformPlatform.AccountManagement.Application.Authentication;
 using PlatformPlatform.AccountManagement.Infrastructure;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
@@ -19,6 +21,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
+    protected readonly AuthenticationTokenGenerator AuthenticationTokenGenerator;
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly JsonSerializerOptions JsonSerializerOptions;
@@ -35,6 +38,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services = new ServiceCollection();
 
+        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -44,7 +49,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
         Services
-            .AddApplicationServices()
+            .AddApplicationServices(configuration)
             .AddInfrastructureServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
@@ -56,10 +61,12 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
 
-        // Make sure database is created
+        // Make sure the database is created
         using var serviceScope = Services.BuildServiceProvider().CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+        AuthenticationTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AuthenticationTokenGenerator>();
 
         JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }

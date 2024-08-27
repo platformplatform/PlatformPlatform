@@ -1,5 +1,7 @@
 using System.Net.Sockets;
 using Azure.Identity;
+using Azure.Security.KeyVault.Keys;
+using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using Microsoft.Data.SqlClient;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
 using PlatformPlatform.SharedKernel.DomainCore.Persistence;
@@ -18,6 +21,16 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore;
 public static class InfrastructureCoreConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
+
+    public static DefaultAzureCredential DefaultAzureCredential => GetDefaultAzureCredential();
+
+    private static DefaultAzureCredential GetDefaultAzureCredential()
+    {
+        // Hack: Remove trailing whitespace from the environment variable, added in Bicep to workaround issue #157.
+        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
+        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
+        return new DefaultAzureCredential(credentialOptions);
+    }
 
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
@@ -42,7 +55,7 @@ public static class InfrastructureCoreConfiguration
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
             services.AddSingleton<IBlobStorage>(
-                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, GetDefaultAzureCredential()))
+                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
             );
         }
         else
@@ -63,12 +76,11 @@ public static class InfrastructureCoreConfiguration
     {
         if (IsRunningInAzure)
         {
-            var defaultAzureCredential = GetDefaultAzureCredential();
             foreach (var connection in connections)
             {
                 var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
                 services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
-                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, defaultAzureCredential))
+                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                 );
             }
         }
@@ -81,10 +93,7 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(
-        this IServiceCollection services,
-        Assembly assembly
-    )
+    public static IServiceCollection ConfigureInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
@@ -92,12 +101,15 @@ public static class InfrastructureCoreConfiguration
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
 
+        var tokenSigningService = GetTokenSigningService();
+        services.AddSingleton(tokenSigningService);
+
         services.RegisterRepositories(assembly);
 
         if (IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            services.AddSingleton(_ => new SecretClient(keyVaultUri, GetDefaultAzureCredential()));
+            services.AddSingleton(_ => new SecretClient(keyVaultUri, DefaultAzureCredential));
 
             services.AddTransient<IEmailService, AzureEmailService>();
         }
@@ -107,14 +119,6 @@ public static class InfrastructureCoreConfiguration
         }
 
         return services;
-    }
-
-    public static DefaultAzureCredential GetDefaultAzureCredential()
-    {
-        // Hack. Remove trailing whitespace from the environment variable, Bicep of bug in Bicep
-        var managedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!.Trim();
-        var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = managedIdentityClientId };
-        return new DefaultAzureCredential(credentialOptions);
     }
 
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
@@ -134,6 +138,24 @@ public static class InfrastructureCoreConfiguration
         );
 
         return services;
+    }
+
+    public static ITokenSigningService GetTokenSigningService()
+    {
+        if (IsRunningInAzure)
+        {
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            var keyClient = new KeyClient(keyVaultUri, DefaultAzureCredential);
+            var cryptographyClient = new CryptographyClient(keyClient.GetKey("authentication-token-signing-key").Value.Id, DefaultAzureCredential);
+
+            var secretClient = new SecretClient(keyVaultUri, DefaultAzureCredential);
+            var issuer = secretClient.GetSecret("authentication-token-issuer").Value.Value;
+            var audience = secretClient.GetSecret("authentication-token-audience").Value.Value;
+
+            return new AzureTokenSigningService(cryptographyClient, issuer, audience);
+        }
+
+        return new DevelopmentTokenSigningService();
     }
 
     public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext

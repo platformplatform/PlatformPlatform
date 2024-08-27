@@ -71,6 +71,15 @@ jobs:
         working-directory: application
         run: dotnet restore
 
+      - name: Generate and set user secret for token signing key
+        working-directory: application/shared-kernel/InfrastructureCore
+        run: |
+          # Extract UserSecretsId from the .csproj file
+          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.InfrastructureCore.csproj)
+          
+          # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
+          dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
+
       - name: Setup Java JDK for SonarScanner
         uses: actions/setup-java@v4
         with:

@@ -1,5 +1,6 @@
 using Azure.Core;
 using PlatformPlatform.AppGateway.Filters;
+using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
@@ -12,7 +13,7 @@ var reverseProxyBuilder = builder.Services
 
 if (InfrastructureCoreConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.GetDefaultAzureCredential());
+    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.DefaultAzureCredential);
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
@@ -32,7 +33,18 @@ else
     );
 }
 
-builder.Services.AddSingleton<BlockInternalApiTransform>();
+var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
+builder.Services.AddSingleton(tokenSigningService);
+
+builder.Services.AddHttpClient(
+    "AccountManagement",
+    client => { client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_MANAGEMENT_API_URL") ?? "https://localhost:9100"); }
+);
+
+builder.Services
+    .AddSingleton<BlockInternalApiTransform>()
+    .AddSingleton<AuthenticationCookieMiddleware>();
+
 reverseProxyBuilder.AddTransforms(context =>
     context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
 );
@@ -45,4 +57,6 @@ var app = builder.Build();
 
 app.MapReverseProxy();
 
-app.Run();
+app.UseMiddleware<AuthenticationCookieMiddleware>();
+
+await app.RunAsync();

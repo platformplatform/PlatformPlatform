@@ -1,18 +1,14 @@
 import type { ReactNode } from "react";
 import { useUserInfo } from "./hooks";
-import type { UserRole } from "./actions";
 
-export interface AccessDeniedProps {
+type AccessDeniedProps = {
+  requiredRoles: UserInfoEnv["userRole"][];
   children: ReactNode;
-  requiredRoles: UserRole[];
-}
+};
 
 /**
- * Display component if a user is logged in but does not have the required role.
+ * Display component if the user is logged in but does not have the required role.
  */
-export function AccessDenied({ children, requiredRoles }: AccessDeniedProps) {
-  const userInfo = useUserInfo();
-  if (userInfo == null) return null;
-  if (userInfo.userRole && requiredRoles.includes(userInfo.userRole)) return null;
-  return children;
+export function AccessDenied({ requiredRoles, children }: AccessDeniedProps) {
+  return requiredRoles.includes(useUserInfo()?.userRole) ? null : children;
 }

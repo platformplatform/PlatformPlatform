@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Json;
@@ -14,6 +15,7 @@ using PlatformPlatform.SharedKernel.ApiCore.Filters;
 using PlatformPlatform.SharedKernel.ApiCore.Middleware;
 using PlatformPlatform.SharedKernel.ApiCore.SchemaProcessor;
 using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel.InfrastructureCore;
 
 namespace PlatformPlatform.SharedKernel.ApiCore;
 
@@ -73,6 +75,24 @@ public static class ApiCoreConfiguration
             }
         );
 
+        // Add Authentication and Authorization services
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }
+        ).AddJwtBearer(o =>
+            {
+                var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
+                o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
+                    validateLifetime: true,
+                    clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
+                );
+            }
+        );
+        services.AddAuthorization();
+
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
             {
@@ -102,10 +122,8 @@ public static class ApiCoreConfiguration
                 )
             );
         }
-        else
-        {
-            builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
-        }
+
+        builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
         return services;
     }
@@ -142,13 +160,17 @@ public static class ApiCoreConfiguration
         // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
         app.UseForwardedHeaders();
 
+        // Add Authentication and Authorization middleware
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         // Enable Swagger UI
         app.UseOpenApi();
         app.UseSwaggerUi();
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
-        // Manually create all endpoints classes to call the MapEndpoints containing the mappings
+        // Manually create all endpoint classes to call the MapEndpoints containing the mappings
         using var scope = app.Services.CreateScope();
         var endpointServices = scope.ServiceProvider.GetServices<IEndpoints>();
         foreach (var endpoint in endpointServices)

@@ -16,7 +16,7 @@ function Root() {
   return (
     <ThemeModeProvider>
       <ReactAriaRouterProvider>
-        <AuthenticationProvider navigate={(options) => navigate(options)} afterLogIn="/" afterLogOut="/">
+        <AuthenticationProvider navigate={(options) => navigate(options)}>
           <Outlet />
         </AuthenticationProvider>
       </ReactAriaRouterProvider>

@@ -7,6 +7,8 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var certificatePassword = builder.CreateSslCertificateIfNotExists();
 
+SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
+
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
     .WithVolume("platform-platform-sql-server-data", "/var/opt/mssql");

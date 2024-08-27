@@ -108,5 +108,32 @@ resource keyVaultMetricDiagnosticSetting 'Microsoft.Insights/diagnosticSettings@
   }
 }
 
+// These keys and secrets are used by all self-contained systems to generate and validate JWT authentication tokens
+// Note: Changing these values will invalidate all existing tokens and log out all users
+resource authenticationTokenSigningKey 'Microsoft.KeyVault/vaults/keys@2023-07-01' = {
+  parent: keyVault
+  name: 'authentication-token-signing-key'
+  properties: {
+    keySize: 2048
+    kty: 'RSA'
+  }
+}
+
+resource authenticationTokenIssuer 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'authentication-token-issuer'
+  properties: {
+    value: 'PlatformPlatform' // Consider using the domain name (https://app.your-company.net) or company name (Your Company) as the issuer
+  }
+}
+
+resource authenticationTokenAudience 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'authentication-token-audience'
+  properties: {
+    value: 'PlatformPlatform' // Consider using the domain name (https://product.your-company.net) or product name (product-name) as the audience
+  }
+}
+
 output name string = keyVault.name
 output keyVaultId string = keyVault.id

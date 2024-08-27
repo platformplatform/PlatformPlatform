@@ -1,21 +1,21 @@
-import avatarUrl from "./images/avatar.png";
-import type { FC } from "react";
+import { Avatar } from "@repo/ui/components/Avatar";
 
-const AvatarMenuItem: FC = () => {
-  const name = "Mary Doe";
-  const title = "DevOps Engineer";
+type AvatarMenuItemProps = {
+  name: string;
+  title?: string;
+  email?: string;
+  avatarUrl?: string;
+  initials?: string;
+};
 
+export function AvatarMenuItem({ name, title, email, avatarUrl, initials }: Readonly<AvatarMenuItemProps>) {
   return (
     <div className="flex flex-row items-center gap-2">
-      <div>
-        <img src={avatarUrl} alt={name} className="mr-2 w-10 h-10 rounded-full bg-transparent" />
-      </div>
-      <div className="flex flex-col">
+      <Avatar avatarUrl={avatarUrl} initials={initials ?? ""} isRound size="sm" />
+      <div className="flex flex-col my-1">
         <h2>{name}</h2>
-        <p className="text-muted-foreground">{title}</p>
+        <p className="text-muted-foreground">{title ?? email}</p>
       </div>
     </div>
   );
-};
-
-export default AvatarMenuItem;
+}

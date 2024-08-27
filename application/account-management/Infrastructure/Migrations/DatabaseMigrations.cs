@@ -11,7 +11,7 @@ public sealed class DatabaseMigrations : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
-            "AccountRegistrations",
+            "Signups",
             table => new
             {
                 Id = table.Column<string>("varchar(33)", nullable: false),
@@ -19,12 +19,12 @@ public sealed class DatabaseMigrations : Migration
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
                 Email = table.Column<string>("varchar(100)", nullable: false),
-                RetryCount = table.Column<int>("int", nullable: false),
-                OneTimePasswordHash = table.Column<string>("varchar(84)", nullable: false),
+                OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
                 ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
+                RetryCount = table.Column<int>("int", nullable: false),
                 Completed = table.Column<bool>("bit", nullable: false)
             },
-            constraints: table => { table.PrimaryKey("PK_AccountRegistrations", x => x.Id); }
+            constraints: table => { table.PrimaryKey("PK_Signups", x => x.Id); }
         );
 
         migrationBuilder.CreateTable(
@@ -45,7 +45,7 @@ public sealed class DatabaseMigrations : Migration
             table => new
             {
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
-                Id = table.Column<long>("char(30)", nullable: false),
+                Id = table.Column<string>("char(30)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
@@ -64,13 +64,38 @@ public sealed class DatabaseMigrations : Migration
         );
 
         migrationBuilder.CreateIndex("IX_Users_TenantId", "Users", "TenantId");
+
+        migrationBuilder.CreateTable(
+            "Logins",
+            table => new
+            {
+                TenantId = table.Column<string>("varchar(30)", nullable: false),
+                UserId = table.Column<string>("char(30)", nullable: false),
+                Id = table.Column<string>("char(32)", nullable: false),
+                CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
+                ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
+                OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
+                ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
+                RetryCount = table.Column<int>("int", nullable: false),
+                Completed = table.Column<bool>("bit", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Logins", x => x.Id);
+                table.ForeignKey("FK_Logins_Tenants_TenantId", x => x.TenantId, "Tenants", "Id");
+                table.ForeignKey("FK_Logins_User_UserId", x => x.UserId, "Users", "Id");
+            }
+        );
+
+        migrationBuilder.CreateIndex("IX_Logins_TenantId", "Logins", "TenantId");
+        migrationBuilder.CreateIndex("IX_Logins_UserId", "Logins", "UserId");
     }
 
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
         modelBuilder.UseIdentityColumns();
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.AccountRegistrations.AccountRegistration", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Signups.Signup", b =>
             {
                 b.Property<string>("Id")
                     .HasColumnType("varchar(33)");
@@ -90,15 +115,15 @@ public sealed class DatabaseMigrations : Migration
                     .IsRequired()
                     .HasColumnType("varchar(100)");
 
-                b.Property<int>("RetryCount")
-                    .HasColumnType("int");
-
                 b.Property<string>("OneTimePasswordHash")
                     .IsRequired()
-                    .HasColumnType("varchar(84)");
+                    .HasColumnType("char(84)");
 
                 b.Property<DateTimeOffset>("ValidUntil")
                     .HasColumnType("datetimeoffset");
+
+                b.Property<int>("RetryCount")
+                    .HasColumnType("int");
 
                 b.Property<bool>("Completed")
                     .IsRequired()
@@ -106,7 +131,48 @@ public sealed class DatabaseMigrations : Migration
 
                 b.HasKey("Id");
 
-                b.ToTable("AccountRegistrations");
+                b.ToTable("Signups");
+            }
+        );
+
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Authentication.Login", b =>
+            {
+                b.Property<string>("TenantId")
+                    .IsRequired()
+                    .HasColumnType("varchar(30)");
+
+                b.Property<string>("UserId")
+                    .IsRequired()
+                    .HasColumnType("char(30)");
+
+                b.Property<string>("Id")
+                    .IsRequired()
+                    .HasColumnType("char(32)");
+
+                b.Property<DateTimeOffset>("CreatedAt")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<DateTimeOffset?>("ModifiedAt")
+                    .IsConcurrencyToken()
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<string>("OneTimePasswordHash")
+                    .IsRequired()
+                    .HasColumnType("char(84)");
+
+                b.Property<DateTimeOffset>("ValidUntil")
+                    .HasColumnType("datetimeoffset");
+
+                b.Property<int>("RetryCount")
+                    .HasColumnType("int");
+
+                b.Property<bool>("Completed")
+                    .IsRequired()
+                    .HasColumnType("bit");
+
+                b.HasKey("Id");
+
+                b.ToTable("Logins");
             }
         );
 
@@ -142,7 +208,7 @@ public sealed class DatabaseMigrations : Migration
                     .IsRequired()
                     .HasColumnType("varchar(30)");
 
-                b.Property<long>("Id")
+                b.Property<string>("Id")
                     .HasColumnType("char(30)");
 
                 b.Property<DateTimeOffset>("CreatedAt")

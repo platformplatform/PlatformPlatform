@@ -1,16 +1,16 @@
 using Bogus;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Application.AccountRegistrations;
-using PlatformPlatform.AccountManagement.Domain.AccountRegistrations;
+using PlatformPlatform.AccountManagement.Domain.Signups;
 using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
 public sealed class DatabaseSeeder
 {
     private readonly Faker _faker = new();
-    public readonly AccountRegistration AccountRegistration1;
     public readonly string OneTimePassword;
+    public readonly Signup Signup1;
     public readonly Tenant Tenant1;
     public readonly Tenant TenantForSearching;
     public readonly User User1;
@@ -19,12 +19,12 @@ public sealed class DatabaseSeeder
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
-        OneTimePassword = StartAccountRegistrationCommandHandler.GenerateOneTimePassword(6);
+        OneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePassword);
 
-        AccountRegistration1 = AccountRegistration.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email(), oneTimePasswordHash);
+        Signup1 = Signup.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email(), oneTimePasswordHash);
 
-        accountManagementDbContext.AccountRegistrations.AddRange(AccountRegistration1);
+        accountManagementDbContext.Signups.AddRange(Signup1);
 
         Tenant1 = Tenant.Create(new TenantId(_faker.Subdomain()), _faker.Internet.Email());
         accountManagementDbContext.Tenants.AddRange(Tenant1);
