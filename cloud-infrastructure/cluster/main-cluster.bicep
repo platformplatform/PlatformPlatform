@@ -144,6 +144,7 @@ module accountManagementIdentity '../modules/user-assigned-managed-identity.bice
     containerRegistryName: containerRegistryName
     environmentResourceGroupName: environmentResourceGroupName
     keyVaultName: keyVault.outputs.name
+    grantKeyVaultWritePermissions: true
   }
 }
 
