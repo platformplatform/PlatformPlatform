@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
@@ -6,7 +8,11 @@ namespace PlatformPlatform.SharedKernel.InfrastructureCore.Services;
 public class DevelopmentTokenSigningService
     : ITokenSigningService
 {
-    private byte[] Key { get; } = "put-64-bytes-key-here"u8.ToArray();
+    private byte[]? _key;
+
+    private static Assembly EntryAssembly => Assembly.GetExecutingAssembly();
+
+    private static string UserSecretsId => EntryAssembly.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
 
     public string Issuer => "https://localhost:9000";
 
@@ -14,7 +20,7 @@ public class DevelopmentTokenSigningService
 
     public SigningCredentials GetSigningCredentials()
     {
-        var key = new SymmetricSecurityKey(Key);
+        var key = new SymmetricSecurityKey(GetKey());
         return new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
     }
 
@@ -27,9 +33,22 @@ public class DevelopmentTokenSigningService
             ValidateAudience = true,
             ValidAudience = Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Key),
+            IssuerSigningKey = new SymmetricSecurityKey(GetKey()),
             ClockSkew = clockSkew,
             ValidateLifetime = validateLifetime
         };
+    }
+
+    private byte[] GetKey()
+    {
+        if (_key is null)
+        {
+            var config = new ConfigurationBuilder().AddUserSecrets(UserSecretsId).Build();
+            var base64Key = config["authentication-token-signing-key"]
+                            ?? throw new InvalidOperationException("The signing key is not configured.");
+            _key = Convert.FromBase64String(base64Key);
+        }
+
+        return _key;
     }
 }
