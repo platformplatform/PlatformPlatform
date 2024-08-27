@@ -1,7 +1,6 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useState } from "react";
-import { AvatarMenuItem } from "./AvatarMenuItem";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
@@ -10,7 +9,7 @@ import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
 
-export function AvatarButton() {
+export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
@@ -31,13 +30,13 @@ export function AvatarButton() {
         </Button>
         <Menu placement="bottom end">
           <MenuHeader>
-            <AvatarMenuItem
-              name={userInfo.fullName}
-              title={userInfo.title}
-              email={userInfo.email}
-              avatarUrl={userInfo.avatarUrl}
-              initials={userInfo.initials}
-            />
+            <div className="flex flex-row items-center gap-2">
+              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound size="sm" />
+              <div className="flex flex-col my-1">
+                <h2>{userInfo.fullName}</h2>
+                <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
+              </div>
+            </div>
           </MenuHeader>
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>

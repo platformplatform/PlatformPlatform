@@ -12,3 +12,9 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
+
+msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operations and support teams."
+msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operations and support teams."
+
+msgid "Welcome the Back Office"
+msgstr "Welcome the Back Office"

@@ -20,7 +20,9 @@ public class SinglePageAppConfiguration
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
+    private readonly string _remoteEntryJsPath;
     private string? _htmlTemplate;
+    private string? _remoteEntryJsContent;
 
     public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
     {
@@ -43,6 +45,7 @@ public class SinglePageAppConfiguration
 
         _isDevelopment = isDevelopment;
         _htmlTemplatePath = Path.Combine(BuildRootPath, "index.html");
+        _remoteEntryJsPath = Path.Combine(BuildRootPath, "remoteEntry.js");
         PermissionPolicies = GetPermissionsPolicies();
         ContentSecurityPolicies = GetContentSecurityPolicies();
     }
@@ -73,8 +76,12 @@ public class SinglePageAppConfiguration
             throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
         }
 
-        _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
-        return _htmlTemplate;
+        return _htmlTemplate ??= File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+    }
+
+    public string GetRemoteEntryJs()
+    {
+        return _remoteEntryJsContent ??= File.ReadAllText(_remoteEntryJsPath, new UTF8Encoding());
     }
 
     [Conditional("DEBUG")]
@@ -136,7 +143,7 @@ public class SinglePageAppConfiguration
 
         if (_isDevelopment)
         {
-            trustedHosts += " wss://localhost:*";
+            trustedHosts += " wss://localhost:* https://localhost:*";
         }
 
         var contentSecurityPolicies = new[]

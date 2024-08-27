@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
 
 namespace PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
@@ -28,6 +29,15 @@ public static class SinglePageAppFallbackExtensions
 
     public static IApplicationBuilder UseSinglePageAppFallback(this WebApplication app)
     {
+        app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
+            {
+                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "application/javascript");
+
+                var javaScript = singlePageAppConfiguration.GetRemoteEntryJs();
+                return context.Response.WriteAsync(javaScript);
+            }
+        );
+
         app.MapFallback((HttpContext context, IOptions<JsonOptions> jsonOptions, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
                 if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
@@ -38,7 +48,7 @@ public static class SinglePageAppFallbackExtensions
                     return context.Response.WriteAsync("404 Not Found");
                 }
 
-                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers);
+                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8");
 
                 var defaultLocale = context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en-US";
                 var userInfo = UserInfo.Create(context.User, defaultLocale);
@@ -54,7 +64,7 @@ public static class SinglePageAppFallbackExtensions
             .UseRequestLocalization("en-US", "da-DK");
     }
 
-    private static void SetResponseHttpHeaders(SinglePageAppConfiguration singlePageAppConfiguration, IHeaderDictionary responseHeaders)
+    private static void SetResponseHttpHeaders(SinglePageAppConfiguration singlePageAppConfiguration, IHeaderDictionary responseHeaders, StringValues contentType)
     {
         // No cache headers
         responseHeaders.Append("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -71,7 +81,7 @@ public static class SinglePageAppFallbackExtensions
         responseHeaders.Append("Content-Security-Policy", singlePageAppConfiguration.ContentSecurityPolicies);
 
         // Content type header
-        responseHeaders.Append("Content-Type", "text/html; charset=utf-8");
+        responseHeaders.Append("Content-Type", contentType);
     }
 
     private static string GetHtmlWithEnvironment(SinglePageAppConfiguration singlePageAppConfiguration, UserInfo userInfo, IOptions<JsonOptions> jsonOptions)
