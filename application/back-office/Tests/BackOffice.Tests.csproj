@@ -13,9 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Api\BackOffice.Api.csproj" />
-        <ProjectReference Include="..\Application\BackOffice.Application.csproj" />
-        <ProjectReference Include="..\Domain\BackOffice.Domain.csproj" />
-        <ProjectReference Include="..\Infrastructure\BackOffice.Infrastructure.csproj" />
+        <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
         <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj" />
     </ItemGroup>
 

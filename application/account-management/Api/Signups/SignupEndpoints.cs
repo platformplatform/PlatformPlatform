@@ -1,5 +1,6 @@
-using PlatformPlatform.AccountManagement.Application.Signups;
-using PlatformPlatform.AccountManagement.Domain.Signups;
+using PlatformPlatform.AccountManagement.Core.Signups.Commands;
+using PlatformPlatform.AccountManagement.Core.Signups.Domain;
+using PlatformPlatform.AccountManagement.Core.Signups.Queries;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 

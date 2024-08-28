@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.BackOffice.Core</AssemblyName>
+        <RootNamespace>PlatformPlatform.BackOffice.Core</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared-kernel\ApplicationCore\SharedKernel.ApplicationCore.csproj" />
+        <ProjectReference Include="..\..\shared-kernel\InfrastructureCore\SharedKernel.InfrastructureCore.csproj" />
+    </ItemGroup>
+
+</Project>

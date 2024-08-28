@@ -18,8 +18,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\shared-kernel\ApiCore\SharedKernel.ApiCore.csproj" />
-        <ProjectReference Include="..\Application\BackOffice.Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\BackOffice.Infrastructure.csproj" />
+        <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

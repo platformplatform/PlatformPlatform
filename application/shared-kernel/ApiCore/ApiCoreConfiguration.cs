@@ -30,7 +30,7 @@ public static class ApiCoreConfiguration
         this IServiceCollection services,
         WebApplicationBuilder builder,
         Assembly apiAssembly,
-        Assembly domainAssembly
+        Assembly coreAssembly
     )
     {
         services.Scan(scan => scan
@@ -71,7 +71,7 @@ public static class ApiCoreConfiguration
                 options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
-                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(domainAssembly));
+                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(coreAssembly));
             }
         );
 

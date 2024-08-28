@@ -9,8 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using PlatformPlatform.BackOffice.Application;
-using PlatformPlatform.BackOffice.Infrastructure;
+using PlatformPlatform.BackOffice.Core;
 using PlatformPlatform.SharedKernel.ApplicationCore.Services;
 using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
@@ -44,8 +43,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
         Services
-            .AddApplicationServices()
-            .AddInfrastructureServices();
+            .AddServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

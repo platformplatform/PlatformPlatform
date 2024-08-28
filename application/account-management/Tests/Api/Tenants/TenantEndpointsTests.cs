@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NJsonSchema;
-using PlatformPlatform.AccountManagement.Application.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
 using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
 using Xunit;
 

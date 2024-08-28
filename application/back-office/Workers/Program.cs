@@ -1,5 +1,5 @@
-using PlatformPlatform.BackOffice.Application;
-using PlatformPlatform.BackOffice.Infrastructure;
+using PlatformPlatform.BackOffice.Core;
+using PlatformPlatform.BackOffice.Core.Database;
 using PlatformPlatform.SharedKernel.ApiCore;
 using PlatformPlatform.SharedKernel.InfrastructureCore;
 
@@ -9,9 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
-    .AddApplicationServices()
-    .AddInfrastructureServices()
-    .AddConfigureStorage(builder)
+    .AddServices()
+    .AddStorage(builder)
     .ConfigureDevelopmentPort(builder, 9299);
 
 var host = builder.Build();

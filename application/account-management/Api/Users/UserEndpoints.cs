@@ -1,4 +1,6 @@
-using PlatformPlatform.AccountManagement.Application.Users;
+using PlatformPlatform.AccountManagement.Core.Users.Commands;
+using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Core.Users.Queries;
 using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
 using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
 
