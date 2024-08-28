@@ -1,7 +1,6 @@
 using PlatformPlatform.BackOffice.Core;
 using PlatformPlatform.BackOffice.Core.Database;
-using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);

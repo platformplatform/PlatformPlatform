@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 

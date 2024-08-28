@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 

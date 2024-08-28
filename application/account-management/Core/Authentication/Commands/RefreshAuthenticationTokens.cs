@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 

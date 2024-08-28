@@ -1,6 +1,6 @@
 using Mapster;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Queries;
 

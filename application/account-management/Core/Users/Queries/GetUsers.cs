@@ -1,8 +1,8 @@
 using FluentValidation;
 using Mapster;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Queries;
 

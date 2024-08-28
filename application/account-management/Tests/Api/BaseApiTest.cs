@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.SinglePageApp;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;
 

@@ -1,8 +1,8 @@
 using PlatformPlatform.AccountManagement.Core.Signups.Commands;
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.Signups.Queries;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Signups;
 

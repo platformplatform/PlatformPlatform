@@ -4,10 +4,7 @@
     "projects": [
       "AppHost\\AppHost.csproj",
       "AppGateway\\AppGateway.csproj",
-      "shared-kernel\\DomainCore\\SharedKernel.DomainCore.csproj",
-      "shared-kernel\\ApplicationCore\\SharedKernel.ApplicationCore.csproj",
-      "shared-kernel\\InfrastructureCore\\SharedKernel.InfrastructureCore.csproj",
-      "shared-kernel\\ApiCore\\SharedKernel.ApiCore.csproj",
+      "shared-kernel\\SharedKernel\\SharedKernel.csproj",
       "shared-kernel\\Tests\\SharedKernel.Tests.csproj",
       "back-office\\Core\\BackOffice.Core.csproj",
       "back-office\\Workers\\BackOffice.Workers.csproj",

@@ -3,7 +3,7 @@ using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
+using PlatformPlatform.SharedKernel.EntityFramework;
 
 namespace PlatformPlatform.AccountManagement.Core.Database;
 

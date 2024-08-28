@@ -1,9 +1,9 @@
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 

@@ -72,10 +72,10 @@ jobs:
         run: dotnet restore
 
       - name: Generate and set user secret for token signing key
-        working-directory: application/shared-kernel/InfrastructureCore
+        working-directory: application/shared-kernel/SharedKernel
         run: |
           # Extract UserSecretsId from the .csproj file
-          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.InfrastructureCore.csproj)
+          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
           
           # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
           dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID

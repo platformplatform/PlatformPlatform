@@ -1,5 +1,5 @@
 using Bogus;
-using PlatformPlatform.SharedKernel.DomainCore.Identity;
+using PlatformPlatform.SharedKernel.Identity;
 
 namespace PlatformPlatform.BackOffice.Tests;
 

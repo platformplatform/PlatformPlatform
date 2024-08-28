@@ -2,7 +2,7 @@ using Azure.Core;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
 

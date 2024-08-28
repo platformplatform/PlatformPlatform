@@ -3,8 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.SharedKernel.ApplicationCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.SharedKernel;
 
 namespace PlatformPlatform.AccountManagement.Core;
 
@@ -15,7 +14,7 @@ public static class DependencyConfiguration
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddApplicationCoreServices(Assembly);
-        services.ConfigureInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
+        services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
 
         services.AddHttpContextAccessor();
 

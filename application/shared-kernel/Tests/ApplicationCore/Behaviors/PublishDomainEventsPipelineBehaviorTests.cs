@@ -1,8 +1,8 @@
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.ApplicationCore.Behaviors;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
-using PlatformPlatform.SharedKernel.DomainCore.DomainEvents;
+using PlatformPlatform.SharedKernel.Behaviors;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.DomainEvents;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 

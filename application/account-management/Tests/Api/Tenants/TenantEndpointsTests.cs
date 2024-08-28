@@ -4,7 +4,7 @@ using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Tenants;

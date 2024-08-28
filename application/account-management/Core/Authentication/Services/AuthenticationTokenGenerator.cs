@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
+using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Services;
 

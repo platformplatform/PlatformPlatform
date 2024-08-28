@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.Entities;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
 

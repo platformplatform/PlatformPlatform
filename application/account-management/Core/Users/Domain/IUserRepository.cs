@@ -1,6 +1,6 @@
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
+using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
 

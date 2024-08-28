@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 

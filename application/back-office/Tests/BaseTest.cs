@@ -10,8 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.BackOffice.Core;
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.BackOffice.Tests;

@@ -1,6 +1,6 @@
 using PlatformPlatform.BackOffice.Core;
-using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 

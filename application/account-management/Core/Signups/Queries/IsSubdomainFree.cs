@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Queries;
 

@@ -1,7 +1,7 @@
 using PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Authentication;
 

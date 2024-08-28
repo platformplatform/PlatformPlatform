@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
-using PlatformPlatform.SharedKernel.DomainCore.Identity;
+using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Identity;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
 

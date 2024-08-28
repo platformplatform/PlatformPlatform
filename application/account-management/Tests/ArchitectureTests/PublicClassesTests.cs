@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NetArchTest.Rules;
 using PlatformPlatform.AccountManagement.Core;
-using PlatformPlatform.SharedKernel.ApplicationCore.Cqrs;
+using PlatformPlatform.SharedKernel.Cqrs;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;

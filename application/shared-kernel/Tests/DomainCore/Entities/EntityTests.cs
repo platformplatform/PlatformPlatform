@@ -1,6 +1,6 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
-using PlatformPlatform.SharedKernel.DomainCore.Identity;
+using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Identity;
 using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;

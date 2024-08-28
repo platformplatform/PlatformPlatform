@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
+using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Services;
 

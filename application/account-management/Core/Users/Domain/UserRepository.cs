@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Persistence;
-using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
 
