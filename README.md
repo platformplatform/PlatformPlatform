@@ -23,11 +23,11 @@
 
 # 👋 Welcome to PlatformPlatform
 
-Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, clean architecture, automated and fast DevOps, and top-notch security. All in one place – at zero cost.
+Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security. All in one place – at zero cost.
 
 This is in the box:
 
-* **Backend** - .NET and C# adhering to the principles of Clean Architecture, DDD, CQRS, and clean code
+* **Backend** - .NET and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
 * **Frontend** - React using TypeScript, with a sleek fully localized UI and a mature accessible design system
 * **CI/CD** - GitHub actions for fast passwordless deployments of application (Docker) and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
@@ -202,11 +202,9 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  ├─ account-management # Self-contained system with account sign-up, user management, etc.
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
-│  │   ├─ Application    # Use Case layer containing CQRS Command and Query handlers 
-│  │   ├─ Domain         # Business logic containing DDD aggregates, entities, etc.
-│  │   ├─ Infrastructure # Integrations for accessing external resources (e.g., database)
+│  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
-│  │   └─ Tests          # Tests for the API, Application, Domain, and Infrastructure
+│  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ shared-kernel      # Reusable components for all self-contained systems
 │  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 │  └─ back-office        # A self-contained system for operations and support (empty for now)
@@ -222,7 +220,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 # Technologies
 
-### .NET 8 Backend With Clean Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 8 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
@@ -241,7 +239,7 @@ The backend is built using the most popular, mature, and commonly used technolog
 
 <summary>Read more about the backend architecture</summary>
 
-- **Clean Architecture**: The codebase is organized into layers that promote separation of concerns and maintainability.
+- **Vertical Slice Architecture**: The codebase is organized around vertical slices, each representing a feature or module, promoting separation of concerns and maintainability.
 - **Domain-Driven Design (DDD)**: DDD principles are applied to ensure a clear and expressive domain model.
 - **Command Query Responsibility Segregation (CQRS)**: This clearly separates read (query) and write (command) operations, adhering to the single responsibility principle (each action is in a separate command).
 - **Screaming architecture**: The architecture is designed with namespaces (folders) per feature, making the concepts easily visible and expressive, rather than organizing the code by types like models and repositories.
@@ -251,7 +249,7 @@ The backend is built using the most popular, mature, and commonly used technolog
 - **Monolith prepared for self-contained systems**: The codebase is organized into a monolith, but the architecture is prepared for splitting in to self-contained systems. A self-contained system is a large microservice (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large monolith and many small microservices. Unlike the popular backend-for-frontend (BFF) style with one shared frontend, this allows teams to work fully independently.
 - **Shared Kernel**: The codebase uses a shared kernel for all the boilerplate code required to build a clean codebase. The shared kernel ensures consistency between self-contained systems, e.g., enforcing tenant isolation, auditing, tracking, implementation of tactical DDD patterns like aggregate, entities, repository base, ID generation, etc.
 
-Although some features like authentication and multi-tenancy are not yet implemented, the current implementation serves as a solid foundation for building business logic without unnecessary boilerplate.
+Although some features like multi-tenancy are not yet implemented, the current implementation serves as a solid foundation for building business logic without unnecessary boilerplate.
 
 </details>
 
@@ -314,5 +312,3 @@ These are the resource groups created when deploying one staging cluster, and tw
 This is the security score after deploying PlatformPlatform resources to Azure. Achieving a 100% security score in Azure Defender for Cloud without exemptions is not trivial.
 
 ![Azure Security Recommendations](https://platformplatformgithub.blob.core.windows.net/AzureSecurityRecommendations.png)
-
-https://123456789012345678901234.blob.core.windows.net/profileimages/01HS13BVF09A8AYYCMR2T9P7ZN.png
