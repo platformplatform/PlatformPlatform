@@ -5,7 +5,6 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,7 +33,7 @@ public static class InfrastructureCoreConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
 
-    public static IServiceCollection AddApplicationCoreServices(this IServiceCollection services, Assembly applicationAssembly)
+    public static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly applicationAssembly)
     {
         // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.
         // So Validation -> Command -> PublishDomainEvents -> UnitOfWork -> PublishTelemetryEvents.
@@ -47,9 +46,6 @@ public static class InfrastructureCoreConfiguration
 
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
         services.AddValidatorsFromAssembly(applicationAssembly);
-
-        services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
-        services.AddScoped<OneTimePasswordHelper>();
 
         return services;
     }

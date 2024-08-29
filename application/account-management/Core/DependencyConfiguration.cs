@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Core;
 
@@ -13,13 +15,16 @@ public static class DependencyConfiguration
 
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddApplicationCoreServices(Assembly);
+        services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
 
         services.AddHttpContextAccessor();
 
-        services.AddSingleton<AuthenticationTokenGenerator>();
-        services.AddTransient<AuthenticationTokenService>();
+        services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
+        services.AddScoped<OneTimePasswordHelper>();
+
+        services.AddScoped<AuthenticationTokenGenerator>();
+        services.AddScoped<AuthenticationTokenService>();
 
         return services;
     }

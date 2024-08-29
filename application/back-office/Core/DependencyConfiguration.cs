@@ -11,7 +11,7 @@ public static class DependencyConfiguration
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddApplicationCoreServices(Assembly);
+        services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<BackOfficeDbContext>(Assembly);
 
         return services;
