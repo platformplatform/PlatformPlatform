@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore.Persistence;
+using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 

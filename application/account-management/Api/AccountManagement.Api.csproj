@@ -17,9 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\ApiCore\SharedKernel.ApiCore.csproj" />
-        <ProjectReference Include="..\Application\AccountManagement.Application.csproj" />
-        <ProjectReference Include="..\Infrastructure\AccountManagement.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj" />
+        <ProjectReference Include="..\Core\AccountManagement.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>

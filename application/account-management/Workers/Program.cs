@@ -1,7 +1,6 @@
-using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore;
+using PlatformPlatform.AccountManagement.Core;
+using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.SharedKernel;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
-    .AddApplicationServices(builder.Configuration)
-    .AddInfrastructureServices()
-    .AddConfigureStorage(builder)
+    .AddServices(builder.Configuration)
+    .AddStorage(builder)
     .ConfigureDevelopmentPort(builder, 9199);
 
 var host = builder.Build();

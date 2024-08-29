@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application.Signups;
-using PlatformPlatform.AccountManagement.Application.Tenants;
-using PlatformPlatform.AccountManagement.Infrastructure;
+using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Core.Signups.Commands;
+using PlatformPlatform.AccountManagement.Core.Tenants.EventHandlers;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Application.Signups;

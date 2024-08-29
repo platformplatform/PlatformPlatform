@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.ApplicationCore.Authentication;
+using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 

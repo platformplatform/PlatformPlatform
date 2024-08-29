@@ -1,4 +1,4 @@
-using PlatformPlatform.BackOffice.Infrastructure;
+using PlatformPlatform.BackOffice.Core.Database;
 
 namespace PlatformPlatform.BackOffice.Tests;
 

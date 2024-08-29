@@ -1,18 +1,15 @@
-using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Domain;
-using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.ApiCore;
-using PlatformPlatform.SharedKernel.ApiCore.SinglePageApp;
+using PlatformPlatform.AccountManagement.Core;
+using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure services for the Application, Infrastructure, and Api layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
-    .AddApplicationServices(builder.Configuration)
-    .AddInfrastructureServices()
-    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DomainConfiguration.Assembly)
-    .AddConfigureStorage(builder)
+    .AddServices(builder.Configuration)
+    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
 

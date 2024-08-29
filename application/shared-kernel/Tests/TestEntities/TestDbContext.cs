@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.InfrastructureCore.EntityFramework;
+using PlatformPlatform.SharedKernel.EntityFramework;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

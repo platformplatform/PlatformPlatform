@@ -1,7 +1,7 @@
-using PlatformPlatform.AccountManagement.Application.Authentication;
-using PlatformPlatform.AccountManagement.Domain.Authentication;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
+using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Authentication;
 
@@ -27,7 +27,7 @@ public class AuthenticationEndpoints : IEndpoints
 
         // Note: This endpoint must be called with the refresh token as Bear token in the Authorization header
         group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (ISender mediator)
-            => await mediator.Send(new RefreshAuthenticationTokensCommand())
+            => await mediator.Send(new RefreshAuthenticationTokens())
         );
     }
 }

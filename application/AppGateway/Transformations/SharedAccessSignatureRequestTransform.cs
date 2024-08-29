@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
+using PlatformPlatform.SharedKernel.Services;
 using Yarp.ReverseProxy.Transforms;
 
 namespace PlatformPlatform.AppGateway.Transformations;

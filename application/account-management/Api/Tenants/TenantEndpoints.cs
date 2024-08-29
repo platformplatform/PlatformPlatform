@@ -1,6 +1,8 @@
-using PlatformPlatform.AccountManagement.Application.Tenants;
-using PlatformPlatform.SharedKernel.ApiCore.ApiResults;
-using PlatformPlatform.SharedKernel.ApiCore.Endpoints;
+using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Core.Tenants.Queries;
+using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Tenants;
 

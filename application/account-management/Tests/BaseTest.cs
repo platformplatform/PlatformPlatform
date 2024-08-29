@@ -10,11 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application;
-using PlatformPlatform.AccountManagement.Application.Authentication;
-using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.ApplicationCore.Services;
-using PlatformPlatform.SharedKernel.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Core;
+using PlatformPlatform.AccountManagement.Core.Authentication.Services;
+using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests;
@@ -48,9 +47,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        Services
-            .AddApplicationServices(configuration)
-            .AddInfrastructureServices();
+        Services.AddServices(configuration);
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.BackOffice.Domain;
-using PlatformPlatform.SharedKernel.DomainCore.Identity;
+using PlatformPlatform.BackOffice.Core;
+using PlatformPlatform.SharedKernel.Identity;
 using Xunit;
 
 namespace PlatformPlatform.BackOffice.Tests.ArchitectureTests;
@@ -9,11 +9,11 @@ namespace PlatformPlatform.BackOffice.Tests.ArchitectureTests;
 public class IdPrefixForAllStronglyTypedUlidTests
 {
     [Fact]
-    public void StronglyTypedUlidsInDomain_ShouldHaveIdPrefixAttribute()
+    public void StronglyTypedUlidsInApplication_ShouldHaveIdPrefixAttribute()
     {
         // Act
         var result = Types
-            .InAssembly(DomainConfiguration.Assembly)
+            .InAssembly(DependencyConfiguration.Assembly)
             .That().Inherit(typeof(StronglyTypedUlid<>))
             .Should().HaveCustomAttribute(typeof(IdPrefixAttribute))
             .GetResult();
@@ -24,11 +24,11 @@ public class IdPrefixForAllStronglyTypedUlidTests
     }
 
     [Fact]
-    public void StronglyTypedUlidsInDomain_ShouldHaveValidIdPrefix()
+    public void StronglyTypedUlidsInApplication_ShouldHaveValidIdPrefix()
     {
         // Arrange
         var stronglyTypedUlidIds = Types
-            .InAssembly(DomainConfiguration.Assembly)
+            .InAssembly(DependencyConfiguration.Assembly)
             .That().Inherit(typeof(StronglyTypedUlid<>))
             .GetTypes();
 

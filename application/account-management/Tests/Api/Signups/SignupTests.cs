@@ -2,9 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Application.Signups;
-using PlatformPlatform.AccountManagement.Infrastructure;
-using PlatformPlatform.SharedKernel.ApplicationCore.Validation;
+using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Core.Signups.Commands;
+using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api.Signups;

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.DomainCore.Entities;
+using PlatformPlatform.SharedKernel.Entities;
 using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;

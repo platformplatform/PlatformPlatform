@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.AccountManagement.Core</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement.Core</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj" />
+    </ItemGroup>
+
+</Project>
