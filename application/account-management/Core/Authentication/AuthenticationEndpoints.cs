@@ -28,7 +28,7 @@ public sealed class AuthenticationEndpoints : IEndpoints
             => await mediator.Send(new LogoutCommand())
         ).AllowAnonymous();
 
-        // Note: This endpoint must be called with the refresh token as Bear token in the Authorization header
+        // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
         group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (ISender mediator)
             => await mediator.Send(new RefreshAuthenticationTokens())
         );
