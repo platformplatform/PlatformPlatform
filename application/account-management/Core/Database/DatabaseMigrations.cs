@@ -95,7 +95,7 @@ public sealed class DatabaseMigrations : Migration
     {
         modelBuilder.UseIdentityColumns();
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Signups.Signup", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Signups.Domain.Signup", b =>
             {
                 b.Property<string>("Id")
                     .HasColumnType("char(33)");
@@ -135,7 +135,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Authentication.Login", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Authentication.Domain.Login", b =>
             {
                 b.Property<string>("TenantId")
                     .IsRequired()
@@ -176,7 +176,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Tenants.Domain.Tenant", b =>
             {
                 b.Property<string>("Id")
                     .HasColumnType("varchar(30)");
@@ -202,7 +202,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Users.Domain.User", b =>
             {
                 b.Property<string>("TenantId")
                     .IsRequired()
