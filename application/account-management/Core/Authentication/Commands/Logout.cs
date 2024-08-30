@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 public sealed record LogoutCommand
     : ICommand, IRequest<Result>;
 
-public sealed class LogutHandler(
+public sealed class LogoutHandler(
     AuthenticationTokenService authenticationTokenService,
     IHttpContextAccessor httpContextAccessor,
     ITelemetryEventsCollector events,
