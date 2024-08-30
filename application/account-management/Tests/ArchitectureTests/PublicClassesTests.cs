@@ -9,7 +9,7 @@ namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;
 public sealed class PublicClassesTests
 {
     [Fact]
-    public void PublicClassesInApplication_ShouldBeSealed()
+    public void PublicClassesInCore_ShouldBeSealed()
     {
         // Act
         var types = Types
