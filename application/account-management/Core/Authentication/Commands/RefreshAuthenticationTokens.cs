@@ -9,8 +9,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
-public sealed record RefreshAuthenticationTokens
-    : ICommand, IRequest<Result>;
+public sealed record RefreshAuthenticationTokens : ICommand, IRequest<Result>;
 
 public sealed class RefreshAuthenticationTokensCommandHandler(
     IUserRepository userRepository,
@@ -40,7 +39,7 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
 
         var expiresClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Exp);
         if (expiresClaim is null) throw new InvalidOperationException("No Expiration claim found in refresh token.");
-        var refrehTokenExpires = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim)); // Convert the expiration time from seconds since Unix epoch
+        var refreshTokenExpires = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim)); // Convert the expiration time from seconds since Unix epoch
 
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
@@ -51,7 +50,7 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
 
         // TODO: Check if the refreshChainTokenId exists in the database and if the refreshTokenId and version are valid
 
-        authenticationTokenService.RefreshAuthenticationTokens(user, refreshChainTokenId, refreshTokenVersion, refrehTokenExpires);
+        authenticationTokenService.RefreshAuthenticationTokens(user, refreshChainTokenId, refreshTokenVersion, refreshTokenExpires);
         events.CollectEvent(new AuthenticationTokensRefreshed(user.Id));
 
         return Result.Success();

@@ -8,8 +8,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
-public sealed record CompleteLoginCommand(string OneTimePassword)
-    : ICommand, IRequest<Result>
+public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
     [JsonIgnore]
     public LoginId Id { get; init; } = null!;

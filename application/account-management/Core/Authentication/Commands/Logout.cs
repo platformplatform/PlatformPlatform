@@ -8,8 +8,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
-public sealed record LogoutCommand
-    : ICommand, IRequest<Result>;
+public sealed record LogoutCommand : ICommand, IRequest<Result>;
 
 public sealed class LogoutHandler(
     AuthenticationTokenService authenticationTokenService,

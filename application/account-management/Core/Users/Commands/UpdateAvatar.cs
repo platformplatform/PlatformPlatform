@@ -9,8 +9,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
 
-public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType)
-    : ICommand, IRequest<Result>;
+public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;
 
 public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
 {

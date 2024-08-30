@@ -11,8 +11,7 @@ using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
-public sealed record StartLoginCommand(string Email)
-    : ICommand, IRequest<Result<StartLoginResponse>>;
+public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
 
 public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {

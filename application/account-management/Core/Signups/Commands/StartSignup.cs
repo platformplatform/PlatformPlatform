@@ -11,8 +11,7 @@ using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 
-public sealed record StartSignupCommand(string Subdomain, string Email)
-    : ICommand, IRequest<Result<StartSignupResponse>>
+public sealed record StartSignupCommand(string Subdomain, string Email) : ICommand, IRequest<Result<StartSignupResponse>>
 {
     public TenantId GetTenantId()
     {
