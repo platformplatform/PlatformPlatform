@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Api.Authentication;
+namespace PlatformPlatform.AccountManagement.Core.Authentication;
 
-public class AuthenticationEndpoints : IEndpoints
+public sealed class AuthenticationEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/authentication";
 

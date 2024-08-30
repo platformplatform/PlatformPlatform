@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddCoreServices(builder.Configuration)
     .AddStorage(builder)
-    .AddApiServices(builder, Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddApiServices(builder, DependencyConfiguration.Assembly)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
 

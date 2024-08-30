@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using PlatformPlatform.AccountManagement.Core.Users.Commands;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.AccountManagement.Core.Users.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Api.Users;
+namespace PlatformPlatform.AccountManagement.Core.Users;
 
-public class UserEndpoints : IEndpoints
+public sealed class UserEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/users";
 
