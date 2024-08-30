@@ -17,4 +17,4 @@ var host = builder.Build();
 // Apply migrations to the database (should be moved to GitHub Actions or similar in production)
 host.Services.ApplyMigrations<AccountManagementDbContext>();
 
-host.Run();
+await host.RunAsync();

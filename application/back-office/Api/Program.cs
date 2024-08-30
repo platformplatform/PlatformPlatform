@@ -21,4 +21,4 @@ app.UseApiCoreConfiguration();
 // Server the SPA and static files if no other endpoints are found
 app.UseSinglePageAppFallback();
 
-app.Run();
+await app.RunAsync();
