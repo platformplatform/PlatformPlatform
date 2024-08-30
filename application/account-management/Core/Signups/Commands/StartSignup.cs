@@ -45,10 +45,9 @@ public sealed class StartSignupCommandHandler(
 {
     public async Task<Result<StartSignupResponse>> Handle(StartSignupCommand command, CancellationToken cancellationToken)
     {
-        var existingSignups
-            = signupRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
+        var existingSignups = signupRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
 
-        if (existingSignups.Any(r => !r.HasExpired()))
+        if (existingSignups.Any(s => !s.HasExpired()))
         {
             return Result<StartSignupResponse>.Conflict("Signup for this subdomain/mail has already been started. Please check your spam folder.");
         }
@@ -74,6 +73,6 @@ public sealed class StartSignupCommandHandler(
             cancellationToken
         );
 
-        return new StartSignupResponse(signup.Id, signup.GetValidForSeconds());
+        return new StartSignupResponse(signup.Id, Signup.ValidForSeconds);
     }
 }

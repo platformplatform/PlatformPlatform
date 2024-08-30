@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
 public sealed class Signup : AggregateRoot<SignupId>
 {
     public const int MaxAttempts = 3;
-    private const int ValidForSeconds = 300;
+    public const int ValidForSeconds = 300;
 
     private Signup(TenantId tenantId, string email, string oneTimePasswordHash)
         : base(SignupId.NewId())
@@ -57,11 +57,6 @@ public sealed class Signup : AggregateRoot<SignupId>
         if (Completed) throw new UnreachableException("The account has already been created.");
 
         Completed = true;
-    }
-
-    public int GetValidForSeconds()
-    {
-        return Convert.ToInt16((ValidUntil - TimeProvider.System.GetUtcNow()).TotalSeconds);
     }
 }
 
