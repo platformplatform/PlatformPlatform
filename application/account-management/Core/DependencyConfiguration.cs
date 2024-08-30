@@ -13,7 +13,7 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);

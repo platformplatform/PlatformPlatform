@@ -25,7 +25,7 @@ public static class ApiCoreConfiguration
     private static readonly string LocalhostUrl =
         Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
-    public static IServiceCollection AddApiCoreServices(
+    public static IServiceCollection AddApiServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
         Assembly apiAssembly,
