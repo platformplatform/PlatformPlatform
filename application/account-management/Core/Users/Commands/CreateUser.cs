@@ -63,7 +63,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
     {
         var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
         var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
-        // The d=404 instructs Gravatar to return 404 the email has no Gravatar account
+        // The d=404 instructs Gravatar to return 404 if the email has no Gravatar account
         var httpResponseMessage = await Client.GetAsync($"{gravatarUrl}?d=404");
         return httpResponseMessage.StatusCode == HttpStatusCode.OK ? gravatarUrl : null;
     }

@@ -6,6 +6,19 @@ namespace PlatformPlatform.AccountManagement.Core.Users.Queries;
 
 public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
+public sealed record UserResponseDto(
+    string Id,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt,
+    string Email,
+    UserRole Role,
+    string FirstName,
+    string LastName,
+    string Title,
+    bool EmailConfirmed,
+    string? AvatarUrl
+);
+
 public sealed class GetUserHandler(IUserRepository userRepository)
     : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
 {

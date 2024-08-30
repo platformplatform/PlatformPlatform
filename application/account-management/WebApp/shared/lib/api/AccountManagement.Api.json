@@ -602,12 +602,12 @@
           "users": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UserResponseDto"
+              "$ref": "#/components/schemas/UsersResponseUserDto"
             }
           }
         }
       },
-      "UserResponseDto": {
+      "UsersResponseUserDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -637,9 +637,6 @@
           },
           "title": {
             "type": "string"
-          },
-          "emailConfirmed": {
-            "type": "boolean"
           },
           "avatarUrl": {
             "type": "string",
@@ -690,6 +687,46 @@
           "Ascending",
           "Descending"
         ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "emailConfirmed": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "UserId": {
         "type": "string",

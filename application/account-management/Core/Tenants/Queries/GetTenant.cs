@@ -6,6 +6,8 @@ namespace PlatformPlatform.AccountManagement.Core.Tenants.Queries;
 
 public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
+public sealed record TenantResponseDto(string Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
+
 public sealed class GetTenantHandler(ITenantRepository tenantRepository)
     : IRequestHandler<GetTenantQuery, Result<TenantResponseDto>>
 {
