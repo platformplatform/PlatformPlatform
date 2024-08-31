@@ -5,7 +5,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Installation;
 
-public record Prerequisite(PrerequisiteType Type, string Name, string? DisplayName = null, Version? Version = null, string? Regex = null);
+public record Prerequisite(PrerequisiteType Type, string Name, string DisplayName, Version Version);
 
 public enum PrerequisiteType
 {
@@ -22,7 +22,7 @@ public static class PrerequisitesChecker
         new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(22, 0)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 61)),
         new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 51)),
-        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", Regex: """aspire\s*8\.0\.2""")
+        new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", new Version(8, 2, 0))
     ];
 
     public static void Check(params string[] prerequisiteName)
@@ -41,14 +41,14 @@ public static class PrerequisitesChecker
             switch (prerequisite.Type)
             {
                 case PrerequisiteType.CommandLineTool:
-                    if (!IsCommandLineToolValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Version!))
+                    if (!IsCommandLineToolValid(prerequisite.Name, prerequisite.DisplayName, prerequisite.Version))
                     {
                         invalid = true;
                     }
 
                     break;
                 case PrerequisiteType.DotnetWorkload:
-                    if (!IsDotnetWorkloadValid(prerequisite.Name, prerequisite.DisplayName!, prerequisite.Regex!))
+                    if (!IsDotnetWorkloadValid(prerequisite.Name, prerequisite.DisplayName, prerequisite.Version))
                     {
                         invalid = true;
                     }
@@ -115,7 +115,7 @@ public static class PrerequisitesChecker
         return false;
     }
 
-    private static bool IsDotnetWorkloadValid(string workloadName, string displayName, string workloadRegex)
+    private static bool IsDotnetWorkloadValid(string workloadName, string displayName, Version minVersion)
     {
         var output = ProcessHelper.StartProcess("dotnet workload list", redirectOutput: true);
 
@@ -137,18 +137,25 @@ public static class PrerequisitesChecker
 
            Use `dotnet workload search` to find additional workloads to install.
          */
-        var regex = new Regex(workloadRegex);
-        var match = regex.Match(output);
-        if (!match.Success)
+        var versionRegex = new Regex($@"{workloadName}\s+(\d+\.\d+\.\d+(\.\d+)?)/");
+        var match = versionRegex.Match(output);
+        if (match.Success)
         {
-            // If the version could not be determined please change the logic here to check for the correct version
+            var versionString = match.Groups[1].Value;
+            var version = Version.Parse(versionString);
+            if (version >= minVersion) return true;
             AnsiConsole.MarkupLine(
-                $"[red].NET '[bold]{displayName}[/]' is installed but not in the expected version. Please run '[bold]dotnet workload update[/]'.[/]"
+                $"[red].NET workload '[bold]{displayName}[/]' is version [bold]{version}[/] but version [bold]{minVersion}[/] is required. Please run '[bold]dotnet workload update[/]'.[/]"
             );
 
             return false;
         }
 
-        return true;
+        // If the version could not be determined please change the logic here to check for the correct version
+        AnsiConsole.MarkupLine(
+            $"[red]The workload '[bold]{workloadName}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]"
+        );
+
+        return false;
     }
 }
