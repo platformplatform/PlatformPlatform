@@ -18,10 +18,10 @@ public static class PrerequisitesChecker
     private static readonly List<Prerequisite> Dependencies =
     [
         new Prerequisite(PrerequisiteType.CommandLineTool, "dotnet", "dotnet", new Version(8, 0, 300)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(26, 0)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(22, 0)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 61)),
-        new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 51)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "docker", "Docker", new Version(27, 1, 1)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "node", "NodeJS", new Version(22, 3, 0)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "az", "Azure CLI", new Version(2, 63)),
+        new Prerequisite(PrerequisiteType.CommandLineTool, "gh", "GitHub CLI", new Version(2, 55)),
         new Prerequisite(PrerequisiteType.DotnetWorkload, "aspire", "Aspire", new Version(8, 2, 0))
     ];
 
