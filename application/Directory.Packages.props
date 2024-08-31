@@ -3,8 +3,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
-    <AspNetCoreVersion>8.0.6</AspNetCoreVersion>
-    <EfCoreVersion>8.0.6</EfCoreVersion>
+    <AspNetCoreVersion>8.0.8</AspNetCoreVersion>
+    <EfCoreVersion>8.0.8</EfCoreVersion>
     <AspireVersion>8.2.0</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -29,7 +29,7 @@
     <PackageVersion Include="IdGen" Version="3.0.7" />
     <PackageVersion Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.0.8" />
     <PackageVersion Include="NSwag.MSBuild" Version="14.0.8" />
