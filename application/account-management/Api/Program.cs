@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddCoreServices(builder.Configuration)
-    .AddStorage(builder)
     .AddApiServices(builder, DependencyConfiguration.Assembly)
+    .AddStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
 
