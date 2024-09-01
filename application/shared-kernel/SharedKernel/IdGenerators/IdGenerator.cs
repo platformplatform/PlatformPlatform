@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace PlatformPlatform.SharedKernel.Identity;
+namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 /// <summary>
 ///     IdGenerator is a utility that can generate IDs in a low-latency, distributed, uncoordinated, roughly

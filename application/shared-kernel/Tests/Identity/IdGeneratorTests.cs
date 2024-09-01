@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 using Xunit;
 
 namespace PlatformPlatform.SharedKernel.Tests.Identity;

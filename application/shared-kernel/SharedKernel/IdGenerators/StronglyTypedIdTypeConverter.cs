@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace PlatformPlatform.SharedKernel.Identity;
+namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 public class StronglyTypedIdTypeConverter<TValue, T> : TypeConverter
     where T : StronglyTypedId<TValue, T> where TValue : IComparable<TValue>

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NetArchTest.Rules;
 using PlatformPlatform.AccountManagement.Core;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.ArchitectureTests;

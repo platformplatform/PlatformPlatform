@@ -1,7 +1,7 @@
 using NJsonSchema;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.SharedKernel.SchemaProcessor;
 

@@ -1,5 +1,5 @@
 using Bogus;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
