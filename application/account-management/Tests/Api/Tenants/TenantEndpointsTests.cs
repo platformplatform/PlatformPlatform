@@ -4,6 +4,7 @@ using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
@@ -22,7 +23,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/tenants/{existingTenantId}");
 
         // Assert
-        EnsureSuccessGetRequest(response);
+        ApiTestHelpers.EnsureSuccessGetRequest(response);
 
         var schema = await JsonSchema.FromJsonAsync(
             """
@@ -55,7 +56,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/tenants/{unknownTenantId}");
 
         // Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
+        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
     }
 
     [Fact]
@@ -68,7 +69,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/tenants/{invalidTenantId}");
 
         // Assert
-        await EnsureErrorStatusCode(response,
+        await ApiTestHelpers.EnsureErrorStatusCode(response,
             HttpStatusCode.BadRequest,
             $"""Failed to bind parameter "TenantId Id" from "{invalidTenantId}"."""
         );
@@ -85,7 +86,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{existingTenantId}", command);
 
         // Assert
-        EnsureSuccessWithEmptyHeaderAndLocation(response);
+        ApiTestHelpers.EnsureSuccessWithEmptyHeaderAndLocation(response);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantUpdated").Should().Be(1);
@@ -108,7 +109,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         {
             new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
         };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
@@ -124,7 +125,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/tenants/{unknownTenantId}", command);
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
+        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
@@ -139,7 +140,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/tenants/{unknownTenantId}");
 
         //Assert
-        await EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
+        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
@@ -157,7 +158,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         {
             new ErrorDetail("Id", "All users must be deleted before the tenant can be deleted.")
         };
-        await EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
@@ -175,7 +176,7 @@ public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbConte
         var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
 
         // Assert
-        EnsureSuccessWithEmptyHeaderAndLocation(response);
+        ApiTestHelpers.EnsureSuccessWithEmptyHeaderAndLocation(response);
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
