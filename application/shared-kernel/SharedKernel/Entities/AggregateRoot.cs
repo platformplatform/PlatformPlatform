@@ -12,7 +12,7 @@ namespace PlatformPlatform.SharedKernel.Entities;
 ///     deleted, all entities belonging to the aggregate are deleted as well. Also, only aggregates can be fetched from
 ///     the database, while entities that are not aggregates cannot (fetch the aggregate to get access to the entities).
 /// </summary>
-public interface IAggregateRoot : IAuditableEntity
+public interface IAggregateRoot
 {
     IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
 
