@@ -12,7 +12,7 @@ using NSubstitute;
 using PlatformPlatform.BackOffice.Core;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 
 namespace PlatformPlatform.BackOffice.Tests;
 

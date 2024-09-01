@@ -14,7 +14,7 @@ using PlatformPlatform.AccountManagement.Core;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 

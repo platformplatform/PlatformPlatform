@@ -4,7 +4,7 @@ using PlatformPlatform.SharedKernel.Identity;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.InfrastructureCore.Persistence;
+namespace PlatformPlatform.SharedKernel.Tests.Persistence;
 
 public sealed class RepositoryTests : IDisposable
 {

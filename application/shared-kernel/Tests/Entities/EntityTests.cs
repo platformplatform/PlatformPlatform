@@ -3,7 +3,7 @@ using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.Identity;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;
+namespace PlatformPlatform.SharedKernel.Tests.Entities;
 
 public static class EntityTests
 {
