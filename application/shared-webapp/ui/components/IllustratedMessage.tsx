@@ -3,7 +3,7 @@
  */
 import type { PropsWithChildren } from "react";
 
-type IllustratedMessageProps = {} & PropsWithChildren;
+type IllustratedMessageProps = PropsWithChildren;
 
 export function IllustratedMessage({ children }: Readonly<IllustratedMessageProps>) {
   return (
