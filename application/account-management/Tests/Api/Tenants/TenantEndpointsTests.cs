@@ -4,6 +4,7 @@ using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 

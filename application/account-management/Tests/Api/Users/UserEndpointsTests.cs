@@ -6,6 +6,7 @@ using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Users.Commands;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.AccountManagement.Core.Users.Queries;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
