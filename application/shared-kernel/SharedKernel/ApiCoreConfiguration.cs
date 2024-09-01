@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -7,7 +6,6 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.Aspire;
 using PlatformPlatform.SharedKernel.Endpoints;
@@ -55,20 +53,14 @@ public static class ApiCoreConfiguration
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
 
-        services.AddOpenApiDocument((settings, serviceProvider) =>
+        services.AddOpenApiDocument((settings, _) =>
             {
                 settings.DocumentName = "v1";
                 settings.Title = "PlatformPlatform API";
                 settings.Version = "v1";
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
-                var serializerOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
-                options.SerializerOptions = new JsonSerializerOptions(serializerOptions);
-
-                // Ensure that enums are serialized as strings and use CamelCase
-                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
+                options.SerializerOptions = InfrastructureCoreConfiguration.JsonSerializerOptions;
                 settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(coreAssembly));
             }
         );
@@ -94,8 +86,12 @@ public static class ApiCoreConfiguration
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
             {
-                options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                foreach (var jsonConverter in InfrastructureCoreConfiguration.JsonSerializerOptions.Converters)
+                {
+                    options.SerializerOptions.Converters.Add(jsonConverter);
+                }
+
+                options.SerializerOptions.PropertyNamingPolicy = InfrastructureCoreConfiguration.JsonSerializerOptions.PropertyNamingPolicy;
             }
         );
 

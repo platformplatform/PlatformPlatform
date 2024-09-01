@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
@@ -127,7 +128,7 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
         if (expectedErrors is not null)
         {
             var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), JsonSerializerOptions);
+            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), InfrastructureCoreConfiguration.JsonSerializerOptions);
 
             actualErrors.Should().BeEquivalentTo(expectedErrors);
         }
@@ -142,13 +143,13 @@ public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext
     {
         var responseStream = await response.Content.ReadAsStreamAsync();
 
-        return await JsonSerializer.DeserializeAsync<T>(responseStream, JsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<T>(responseStream, InfrastructureCoreConfiguration.JsonSerializerOptions);
     }
 
     private async Task<ProblemDetails?> DeserializeProblemDetails(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<ProblemDetails>(content, JsonSerializerOptions);
+        return JsonSerializer.Deserialize<ProblemDetails>(content, InfrastructureCoreConfiguration.JsonSerializerOptions);
     }
 }
