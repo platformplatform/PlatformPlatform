@@ -9,9 +9,9 @@ using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.Signups;
+namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
-public sealed class SignupTests : BaseApiTests<AccountManagementDbContext>
+public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task StartSignup_WhenTenantExists_ShouldReturnBadRequest()

@@ -6,13 +6,13 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 
-namespace PlatformPlatform.BackOffice.Tests.Api;
+namespace PlatformPlatform.BackOffice.Tests;
 
-public abstract class BaseApiTests<TContext> : BaseTest<TContext> where TContext : DbContext
+public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TContext : DbContext
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
-    protected BaseApiTests()
+    protected EndpointBaseTest()
     {
         Environment.SetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey, "https://localhost:9000");
         Environment.SetEnvironmentVariable(SinglePageAppConfiguration.CdnUrlKey, "https://localhost:9201");

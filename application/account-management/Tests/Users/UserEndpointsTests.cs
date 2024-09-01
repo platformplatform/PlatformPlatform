@@ -11,9 +11,9 @@ using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.Users;
+namespace PlatformPlatform.AccountManagement.Tests.Users;
 
-public sealed class UserEndpointsTests : BaseApiTests<AccountManagementDbContext>
+public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task GetUser_WhenUserExists_ShouldReturnUserWithValidContract()

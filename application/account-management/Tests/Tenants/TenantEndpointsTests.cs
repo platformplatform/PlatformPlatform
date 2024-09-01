@@ -9,9 +9,9 @@ using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.Tenants;
+namespace PlatformPlatform.AccountManagement.Tests.Tenants;
 
-public sealed class TenantEndpointsTests : BaseApiTests<AccountManagementDbContext>
+public sealed class TenantEndpointsTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task GetTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()

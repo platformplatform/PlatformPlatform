@@ -6,9 +6,9 @@ using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
+namespace PlatformPlatform.AccountManagement.Tests.SharedKernel;
 
-public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
+public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountManagementDbContext>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 

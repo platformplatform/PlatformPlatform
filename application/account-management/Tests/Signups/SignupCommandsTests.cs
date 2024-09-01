@@ -6,7 +6,7 @@ using PlatformPlatform.AccountManagement.Core.Signups.Commands;
 using PlatformPlatform.AccountManagement.Core.Tenants.EventHandlers;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Application.Signups;
+namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
 public sealed class SignupTests : BaseTest<AccountManagementDbContext>
 {
