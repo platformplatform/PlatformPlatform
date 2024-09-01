@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Tests.Api;

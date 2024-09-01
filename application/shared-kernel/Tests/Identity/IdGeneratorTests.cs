@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.SharedKernel.Identity;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Identity;
+namespace PlatformPlatform.SharedKernel.Tests.Identity;
 
 public sealed class IdGeneratorTests
 {

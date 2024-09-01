@@ -7,8 +7,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 
-public sealed record CompleteSignupCommand(string OneTimePassword)
-    : ICommand, IRequest<Result>
+public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
     [JsonIgnore]
     public SignupId Id { get; init; } = null!;

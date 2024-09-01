@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // FluentValidation validators, Pipelines.
 builder.Services
     .AddServices()
-    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddApiServices(builder, DependencyConfiguration.Assembly)
     .AddStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9200);
@@ -21,4 +21,4 @@ app.UseApiCoreConfiguration();
 // Server the SPA and static files if no other endpoints are found
 app.UseSinglePageAppFallback();
 
-app.Run();
+await app.RunAsync();

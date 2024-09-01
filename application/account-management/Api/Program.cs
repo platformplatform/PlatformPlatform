@@ -7,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure services for the Application, Infrastructure, and Api layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
-    .AddServices(builder.Configuration)
-    .AddApiCoreServices(builder, Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddCoreServices(builder.Configuration)
     .AddStorage(builder)
+    .AddApiServices(builder, DependencyConfiguration.Assembly)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
 
@@ -21,4 +21,4 @@ app.UseApiCoreConfiguration();
 // Server the SPA and static files if no other endpoints are found
 app.UseSinglePageAppFallback();
 
-app.Run();
+await app.RunAsync();

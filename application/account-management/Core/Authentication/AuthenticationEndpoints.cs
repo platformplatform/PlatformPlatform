@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Api.Authentication;
+namespace PlatformPlatform.AccountManagement.Core.Authentication;
 
-public class AuthenticationEndpoints : IEndpoints
+public sealed class AuthenticationEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/authentication";
 
@@ -25,7 +28,7 @@ public class AuthenticationEndpoints : IEndpoints
             => await mediator.Send(new LogoutCommand())
         ).AllowAnonymous();
 
-        // Note: This endpoint must be called with the refresh token as Bear token in the Authorization header
+        // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
         group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (ISender mediator)
             => await mediator.Send(new RefreshAuthenticationTokens())
         );

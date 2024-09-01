@@ -10,12 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj" />
         <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
     <ItemGroup>

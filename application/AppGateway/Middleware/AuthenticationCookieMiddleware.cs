@@ -37,7 +37,7 @@ public class AuthenticationCookieMiddleware(
         if (context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey))
         {
-            // The authentication token cookies is used by WebApp, but API requests should use tokens in the headers
+            // The authentication token cookie is used by WebApp, but API requests should use tokens in the headers
             throw new InvalidOperationException("A request cannot contain both an authentication token cookies and security tokens in the headers.");
         }
 
@@ -58,8 +58,6 @@ public class AuthenticationCookieMiddleware(
                 // Update the authentication token cookies with the new tokens
                 ReplaceAuthenticationHeaderWithCookie(context, refreshToken, accessToken);
             }
-
-            context.Request.Headers["Authorization"] = $"Bearer {accessToken}";
 
             context.Request.Headers.Authorization = context.Request.Path.Value == RefreshAuthenticationTokensEndpoint
                 ? $"Bearer {refreshToken}" // When calling the refresh endpoint, use the refresh token as Bearer

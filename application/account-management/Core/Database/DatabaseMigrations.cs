@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Core.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
-[Migration("1_Initial")]
+[Migration("20240830_Initial")]
 public sealed class DatabaseMigrations : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,7 +14,7 @@ public sealed class DatabaseMigrations : Migration
             "Signups",
             table => new
             {
-                Id = table.Column<string>("varchar(33)", nullable: false),
+                Id = table.Column<string>("char(33)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
@@ -95,10 +95,10 @@ public sealed class DatabaseMigrations : Migration
     {
         modelBuilder.UseIdentityColumns();
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Signups.Signup", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Signups.Domain.Signup", b =>
             {
                 b.Property<string>("Id")
-                    .HasColumnType("varchar(33)");
+                    .HasColumnType("char(33)");
 
                 b.Property<DateTimeOffset>("CreatedAt")
                     .HasColumnType("datetimeoffset");
@@ -135,7 +135,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Authentication.Login", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Authentication.Domain.Login", b =>
             {
                 b.Property<string>("TenantId")
                     .IsRequired()
@@ -176,7 +176,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Tenants.Tenant", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Tenants.Domain.Tenant", b =>
             {
                 b.Property<string>("Id")
                     .HasColumnType("varchar(30)");
@@ -202,7 +202,7 @@ public sealed class DatabaseMigrations : Migration
             }
         );
 
-        modelBuilder.Entity("PlatformPlatform.AccountManagement.Domain.Users.User", b =>
+        modelBuilder.Entity("PlatformPlatform.AccountManagement.Core.Users.Domain.User", b =>
             {
                 b.Property<string>("TenantId")
                     .IsRequired()

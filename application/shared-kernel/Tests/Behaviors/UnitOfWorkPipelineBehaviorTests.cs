@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.ApplicationCore.Behaviors;
+namespace PlatformPlatform.SharedKernel.Tests.Behaviors;
 
 public sealed class UnitOfWorkPipelineBehaviorTests
 {

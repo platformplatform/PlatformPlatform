@@ -8,28 +8,23 @@ public sealed class AuthenticationTokenService(AuthenticationTokenGenerator toke
 {
     public void CreateAndSetAuthenticationTokens(User user)
     {
-        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
-
         var refreshToken = tokenGenerator.GenerateRefreshToken(user.Id);
-        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, refreshToken);
-
         var accessToken = tokenGenerator.GenerateAccessToken(user);
-        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, accessToken);
+        SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
     public void RefreshAuthenticationTokens(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
-
         var refreshToken = tokenGenerator.UpdateRefreshToken(user.Id, refreshTokenChainId, currentRefreshTokenVersion, expires);
-        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, refreshToken);
-
         var accessToken = tokenGenerator.GenerateAccessToken(user);
-        httpContext.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
-        httpContext.Response.Headers.Append(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, accessToken);
+        SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
+    }
+
+    private void SetAuthenticationTokensOnHttpResponse(string refreshToken, string accessToken)
+    {
+        var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
+        httpContext.Response.Headers[AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey] = refreshToken;
+        httpContext.Response.Headers[AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey] = accessToken;
     }
 
     public void Logout()

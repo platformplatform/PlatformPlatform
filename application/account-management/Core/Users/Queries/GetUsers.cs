@@ -15,6 +15,20 @@ public sealed record GetUsersQuery(
     int? PageOffset = null
 ) : IRequest<Result<GetUsersResponseDto>>;
 
+public sealed record GetUsersResponseDto(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UsersResponseUserDto[] Users);
+
+public sealed record UsersResponseUserDto(
+    string Id,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt,
+    string Email,
+    UserRole Role,
+    string FirstName,
+    string LastName,
+    string Title,
+    string? AvatarUrl
+);
+
 public sealed class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 {
     public GetUsersQueryValidator()
@@ -45,7 +59,7 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
             return Result<GetUsersResponseDto>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
         }
 
-        var userResponseDtos = users.Adapt<UserResponseDto[]>();
+        var userResponseDtos = users.Adapt<UsersResponseUserDto[]>();
         return new GetUsersResponseDto(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponseDtos);
     }
 }

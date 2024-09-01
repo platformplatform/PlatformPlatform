@@ -1,8 +1,14 @@
 using PlatformPlatform.AccountManagement.Core.Database;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
+
+public interface ISignupRepository : ICrudRepository<Signup, SignupId>
+{
+    Signup[] GetByEmailOrTenantId(TenantId tenantId, string email);
+}
 
 public sealed class SignupRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<Signup, SignupId>(accountManagementDbContext), ISignupRepository

@@ -59,11 +59,6 @@ public sealed class Login : AggregateRoot<LoginId>
 
         Completed = true;
     }
-
-    public int GetValidForSeconds()
-    {
-        return Convert.ToInt16((ValidUntil - TimeProvider.System.GetUtcNow()).TotalSeconds);
-    }
 }
 
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]

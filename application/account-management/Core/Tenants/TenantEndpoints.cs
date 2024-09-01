@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Core.Tenants.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Api.Tenants;
+namespace PlatformPlatform.AccountManagement.Core.Tenants;
 
-public class TenantEndpoints : IEndpoints
+public sealed class TenantEndpoints : IEndpoints
 {
     private const string RoutesPrefix = "/api/account-management/tenants";
 

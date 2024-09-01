@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.SharedKernel.Entities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.DomainCore.Entities;
+namespace PlatformPlatform.SharedKernel.Tests.Entities;
 
 public sealed class EntityEqualityComparerTests
 {

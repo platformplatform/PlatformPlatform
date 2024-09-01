@@ -11,8 +11,7 @@ using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
-public sealed record StartLoginCommand(string Email)
-    : ICommand, IRequest<Result<StartLoginResponse>>;
+public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
 
 public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {
@@ -26,7 +25,7 @@ public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
 
 public sealed class StartLoginCommandHandler(
     IUserRepository userRepository,
-    ILoginRepository loginProcessRepository,
+    ILoginRepository loginRepository,
     IEmailService emailService,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events
@@ -57,9 +56,9 @@ public sealed class StartLoginCommandHandler(
         var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
 
-        var loginProcess = Login.Create(user, oneTimePasswordHash);
+        var login = Login.Create(user, oneTimePasswordHash);
 
-        await loginProcessRepository.AddAsync(loginProcess, cancellationToken);
+        await loginRepository.AddAsync(login, cancellationToken);
         events.CollectEvent(new LoginStarted(user.Id));
 
         await emailService.SendAsync(command.Email, "PlatformPlatform login verification code",
@@ -71,6 +70,6 @@ public sealed class StartLoginCommandHandler(
             cancellationToken
         );
 
-        return new StartLoginResponse(loginProcess.Id, Login.ValidForSeconds);
+        return new StartLoginResponse(login.Id, Login.ValidForSeconds);
     }
 }

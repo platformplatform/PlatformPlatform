@@ -14,7 +14,7 @@ using PlatformPlatform.AccountManagement.Core;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.ApplicationCore.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -47,7 +47,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        Services.AddServices(configuration);
+        Services.AddCoreServices(configuration);
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

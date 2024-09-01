@@ -25,15 +25,14 @@ public static class ApiCoreConfiguration
     private static readonly string LocalhostUrl =
         Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
-    public static IServiceCollection AddApiCoreServices(
+    public static IServiceCollection AddApiServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
-        Assembly apiAssembly,
         Assembly coreAssembly
     )
     {
         services.Scan(scan => scan
-            .FromAssemblies(apiAssembly, Assembly.GetExecutingAssembly())
+            .FromAssemblies(coreAssembly, Assembly.GetExecutingAssembly())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime()
