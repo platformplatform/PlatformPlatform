@@ -61,8 +61,8 @@ public sealed class Login : AggregateRoot<LoginId>
     }
 }
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]
 [IdPrefix("login")]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]
 public sealed record LoginId(string Value) : StronglyTypedUlid<LoginId>(Value)
 {
     public override string ToString()

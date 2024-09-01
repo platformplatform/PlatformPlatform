@@ -2,8 +2,8 @@ using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, UserId>))]
 [IdPrefix("usr")]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, UserId>))]
 public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
 {
     public override string ToString()
