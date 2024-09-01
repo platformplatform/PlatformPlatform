@@ -9,7 +9,7 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
         services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<BackOfficeDbContext>(Assembly);

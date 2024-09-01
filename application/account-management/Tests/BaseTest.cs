@@ -37,8 +37,6 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services = new ServiceCollection();
 
-        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -47,7 +45,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        Services.AddCoreServices(configuration);
+        Services.AddCoreServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
