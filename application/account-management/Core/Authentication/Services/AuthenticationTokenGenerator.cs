@@ -58,7 +58,6 @@ public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigni
     private string GenerateToken(SecurityTokenDescriptor tokenDescriptor, DateTimeOffset expires)
     {
         tokenDescriptor.Expires = expires.UtcDateTime;
-        tokenDescriptor.Expires = expires.UtcDateTime;
         tokenDescriptor.Issuer = tokenSigningService.Issuer;
         tokenDescriptor.Audience = tokenSigningService.Audience;
         tokenDescriptor.SigningCredentials = tokenSigningService.GetSigningCredentials();
