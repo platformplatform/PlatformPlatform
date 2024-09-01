@@ -10,7 +10,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj" />
         <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
     </ItemGroup>
 

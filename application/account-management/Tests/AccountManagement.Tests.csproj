@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Api\AccountManagement.Api.csproj" />
-        <ProjectReference Include="..\Core\AccountManagement.Core.csproj" />
         <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj" />
     </ItemGroup>
 

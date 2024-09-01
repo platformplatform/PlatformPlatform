@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Api\BackOffice.Api.csproj" />
-        <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
         <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj" />
     </ItemGroup>
 
