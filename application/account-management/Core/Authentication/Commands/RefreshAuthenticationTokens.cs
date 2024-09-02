@@ -26,19 +26,19 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
         // Claims are already validated by the authentication middleware, so any missing claim is a programming error
 
         UserId.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
-        if (userId is null) throw new InvalidOperationException("No user identifier claim found in refresh token.");
+        if (userId is null) throw new InvalidOperationException("No 'sub' claim found in refresh token.");
 
         var refreshTokenId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
-        if (refreshTokenId is null) throw new InvalidOperationException("No JTI claim found in refresh token.");
+        if (refreshTokenId is null) throw new InvalidOperationException("No 'jti' claim found in refresh token.");
 
-        var refreshChainTokenId = httpContext.User.FindFirstValue("refresh_token_chain_id");
-        if (refreshChainTokenId is null) throw new InvalidOperationException("No refresh_token_chain_id claim found in refresh token.");
+        var refreshChainTokenId = httpContext.User.FindFirstValue("rtid");
+        if (refreshChainTokenId is null) throw new InvalidOperationException("No 'rtid' claim found in refresh token.");
 
-        var hasValidRefreshTokenVersion = int.TryParse(httpContext.User.FindFirstValue("refresh_token_version"), out var refreshTokenVersion);
-        if (!hasValidRefreshTokenVersion) throw new InvalidOperationException("No refresh_token_version claim found in refresh token.");
+        var hasValidRefreshTokenVersion = int.TryParse(httpContext.User.FindFirstValue("rtv"), out var refreshTokenVersion);
+        if (!hasValidRefreshTokenVersion) throw new InvalidOperationException("No 'rtv' claim found in refresh token.");
 
         var expiresClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Exp);
-        if (expiresClaim is null) throw new InvalidOperationException("No Expiration claim found in refresh token.");
+        if (expiresClaim is null) throw new InvalidOperationException("No 'exp' claim found in refresh token.");
         var refreshTokenExpires = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim)); // Convert the expiration time from seconds since Unix epoch
 
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);

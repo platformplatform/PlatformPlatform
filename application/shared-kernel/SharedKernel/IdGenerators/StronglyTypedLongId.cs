@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Identity;
+namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 /// <summary>
 ///     This is a special version of <see cref="StronglyTypedLongId{T}" /> for longs which is the recommended type to use.

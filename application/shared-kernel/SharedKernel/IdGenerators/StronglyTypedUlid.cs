@@ -1,6 +1,6 @@
 using NUlid;
 
-namespace PlatformPlatform.SharedKernel.Identity;
+namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 /// <summary>
 ///     This is the recommended ID type to use. It uses the <see cref="Ulid" /> to create unique chronological IDs.

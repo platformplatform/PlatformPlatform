@@ -7,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure services for the Application, Infrastructure, and Api layers like Entity Framework, Repositories, MediatR,
 // FluentValidation validators, Pipelines.
 builder.Services
-    .AddCoreServices(builder.Configuration)
-    .AddStorage(builder)
+    .AddCoreServices()
     .AddApiServices(builder, DependencyConfiguration.Assembly)
+    .AddStorage(builder)
     .AddSinglePageAppFallback()
     .ConfigureDevelopmentPort(builder, 9100);
 

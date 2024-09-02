@@ -25,8 +25,8 @@ public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigni
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, userId),
-                    new Claim("refresh_token_chain_id", refreshTokenChainId),
-                    new Claim("refresh_token_version", refreshTokenVersion.ToString())
+                    new Claim("rtid", refreshTokenChainId),
+                    new Claim("rtv", refreshTokenVersion.ToString())
                 ]
             )
         };
@@ -43,8 +43,8 @@ public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigni
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
+                    new Claim(ClaimTypes.Role, user.Role.ToString()),
                     new Claim("tenant_id", user.TenantId),
-                    new Claim("role", user.Role.ToString()),
                     new Claim("locale", "en"),
                     new Claim("title", user.Title ?? string.Empty),
                     new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
@@ -57,7 +57,6 @@ public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigni
 
     private string GenerateToken(SecurityTokenDescriptor tokenDescriptor, DateTimeOffset expires)
     {
-        tokenDescriptor.Expires = expires.UtcDateTime;
         tokenDescriptor.Expires = expires.UtcDateTime;
         tokenDescriptor.Issuer = tokenSigningService.Issuer;
         tokenDescriptor.Audience = tokenSigningService.Audience;

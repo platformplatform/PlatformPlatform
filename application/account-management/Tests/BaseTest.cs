@@ -1,14 +1,10 @@
-using System.Text.Json;
 using Bogus;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Core;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
@@ -23,7 +19,6 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
     protected readonly AuthenticationTokenGenerator AuthenticationTokenGenerator;
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
-    protected readonly JsonSerializerOptions JsonSerializerOptions;
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
@@ -37,8 +32,6 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
 
         Services = new ServiceCollection();
 
-        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -47,7 +40,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        Services.AddCoreServices(configuration);
+        Services.AddCoreServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
@@ -64,8 +57,6 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
         AuthenticationTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AuthenticationTokenGenerator>();
-
-        JsonSerializerOptions = serviceScope.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
     }
 
     protected SqliteConnection Connection { get; }

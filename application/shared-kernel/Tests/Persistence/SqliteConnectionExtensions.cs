@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace PlatformPlatform.BackOffice.Tests;
+namespace PlatformPlatform.SharedKernel.Tests.Persistence;
 
 public static class SqliteConnectionExtensions
 {

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
@@ -13,7 +12,7 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
         services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);

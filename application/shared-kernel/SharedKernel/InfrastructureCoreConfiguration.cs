@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using System.Text.Json;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
@@ -22,6 +23,13 @@ namespace PlatformPlatform.SharedKernel;
 public static class InfrastructureCoreConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
+
+    // Ensure that enums are serialized as strings and use CamelCase
+    public static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() },
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static DefaultAzureCredential DefaultAzureCredential => GetDefaultAzureCredential();
 

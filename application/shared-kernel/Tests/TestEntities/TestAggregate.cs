@@ -1,5 +1,5 @@
 using PlatformPlatform.SharedKernel.Entities;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

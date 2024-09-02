@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.SharedKernel.Entities;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 
@@ -61,8 +61,8 @@ public sealed class Login : AggregateRoot<LoginId>
     }
 }
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]
 [IdPrefix("login")]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, LoginId>))]
 public sealed record LoginId(string Value) : StronglyTypedUlid<LoginId>(Value)
 {
     public override string ToString()

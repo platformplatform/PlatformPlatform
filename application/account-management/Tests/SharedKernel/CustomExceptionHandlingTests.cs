@@ -3,11 +3,12 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Api.ApiCore;
+namespace PlatformPlatform.AccountManagement.Tests.SharedKernel;
 
-public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagementDbContext>
+public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountManagementDbContext>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 
@@ -44,7 +45,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         else
         {
             // In Production, we use GlobalExceptionHandler, which returns a JSON response.
-            await EnsureErrorStatusCode(
+            await ApiTestHelpers.EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.InternalServerError,
                 "An error occurred while processing the request.",
@@ -88,7 +89,7 @@ public sealed class CustomExceptionHandlingTests : BaseApiTests<AccountManagemen
         else
         {
             // In Production, we use GlobalExceptionHandlerMiddleware, which returns a JSON response.
-            await EnsureErrorStatusCode(
+            await ApiTestHelpers.EnsureErrorStatusCode(
                 response,
                 HttpStatusCode.RequestTimeout,
                 "GET /api/throwTimeoutException",

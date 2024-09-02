@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Entities;
-using PlatformPlatform.SharedKernel.Identity;
+using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
 
@@ -60,8 +60,8 @@ public sealed class Signup : AggregateRoot<SignupId>
     }
 }
 
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, SignupId>))]
 [IdPrefix("signup")]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, SignupId>))]
 public sealed record SignupId(string Value) : StronglyTypedUlid<SignupId>(Value)
 {
     public override string ToString()

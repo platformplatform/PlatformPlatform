@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Identity;
+namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 /// <summary>
 ///     StronglyTypedId is an abstract record type for creating strongly typed IDs with a specified value type. It makes
