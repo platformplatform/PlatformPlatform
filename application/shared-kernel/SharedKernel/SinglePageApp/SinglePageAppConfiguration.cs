@@ -1,5 +1,6 @@
 using System.Security;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Options;
@@ -38,8 +39,15 @@ public class SinglePageAppConfiguration
             { ApplicationVersionKey, applicationVersion }
         };
 
-        var json = JsonSerializer.Serialize(StaticRuntimeEnvironment, jsonOptions.Value.SerializerOptions);
-        StaticRuntimeEnvironmentEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        var jsonHtmlEncodingOptions = new JsonSerializerOptions(jsonOptions.Value.SerializerOptions)
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+
+        var staticRuntimeEnvironmentEncoded = JsonSerializer.Serialize(StaticRuntimeEnvironment, jsonHtmlEncodingOptions);
+
+        // Escape the JSON for use in an HTML attribute
+        StaticRuntimeEnvironmentEscaped = HtmlEncoder.Default.Encode(staticRuntimeEnvironmentEncoded);
 
         VerifyRuntimeEnvironment(StaticRuntimeEnvironment);
 
@@ -56,7 +64,7 @@ public class SinglePageAppConfiguration
 
     public Dictionary<string, string> StaticRuntimeEnvironment { get; }
 
-    public string StaticRuntimeEnvironmentEncoded { get; }
+    public string StaticRuntimeEnvironmentEscaped { get; }
 
     public StringValues PermissionPolicies { get; }
 

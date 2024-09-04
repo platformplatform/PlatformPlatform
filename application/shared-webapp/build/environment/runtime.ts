@@ -19,8 +19,8 @@ if (runtimeEnvElement == null) throw new Error("Runtime environment is not confi
 if (userInfoEnvElement == null) throw new Error("UserInfo environment is not configured.");
 
 try {
-  const runtimeEnv: RuntimeEnv = JSON.parse(atob(runtimeEnvElement.content));
-  const userInfoEnv: UserInfoEnv = JSON.parse(atob(userInfoEnvElement.content));
+  const runtimeEnv: RuntimeEnv = JSON.parse(runtimeEnvElement.content);
+  const userInfoEnv: UserInfoEnv = JSON.parse(userInfoEnvElement.content);
 
   const environment = {
     ...import.meta.build_env,

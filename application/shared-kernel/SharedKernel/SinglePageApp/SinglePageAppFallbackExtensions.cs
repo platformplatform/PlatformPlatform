@@ -1,4 +1,4 @@
-using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -84,15 +84,27 @@ public static class SinglePageAppFallbackExtensions
         responseHeaders.Append("Content-Type", contentType);
     }
 
-    private static string GetHtmlWithEnvironment(SinglePageAppConfiguration singlePageAppConfiguration, UserInfo userInfo, IOptions<JsonOptions> jsonOptions)
+    private static string GetHtmlWithEnvironment(
+        SinglePageAppConfiguration singlePageAppConfiguration,
+        UserInfo userInfo,
+        IOptions<JsonOptions> jsonOptions
+    )
     {
-        var encodedUserInfo = Convert.ToBase64String(
-            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(userInfo, jsonOptions.Value.SerializerOptions))
-        );
+        var providedOptions = jsonOptions.Value.SerializerOptions;
 
+        // Create a new JsonSerializerOptions instance and copy properties
+        var customOptions = new JsonSerializerOptions(providedOptions)
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+
+        var userInfoEncoded = JsonSerializer.Serialize(userInfo, customOptions);
+
+        // Escape the JSON for use in an HTML attribute
+        var userInfoEscaped = HtmlEncoder.Default.Encode(userInfoEncoded);
         var html = singlePageAppConfiguration.GetHtmlTemplate();
-        html = html.Replace("%ENCODED_RUNTIME_ENV%", singlePageAppConfiguration.StaticRuntimeEnvironmentEncoded);
-        html = html.Replace("%ENCODED_USER_INFO_ENV%", encodedUserInfo);
+        html = html.Replace("%ENCODED_RUNTIME_ENV%", singlePageAppConfiguration.StaticRuntimeEnvironmentEscaped);
+        html = html.Replace("%ENCODED_USER_INFO_ENV%", userInfoEscaped);
         html = html.Replace("%LOCALE%", userInfo.Locale);
 
         foreach (var variable in singlePageAppConfiguration.StaticRuntimeEnvironment)
