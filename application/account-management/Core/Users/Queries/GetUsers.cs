@@ -1,4 +1,5 @@
 using FluentValidation;
+using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -6,6 +7,7 @@ using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Queries;
 
+[PublicAPI]
 public sealed record GetUsersQuery(
     string? Search = null,
     UserRole? UserRole = null,
@@ -15,8 +17,10 @@ public sealed record GetUsersQuery(
     int? PageOffset = null
 ) : IRequest<Result<GetUsersResponseDto>>;
 
+[PublicAPI]
 public sealed record GetUsersResponseDto(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UsersResponseUserDto[] Users);
 
+[PublicAPI]
 public sealed record UsersResponseUserDto(
     string Id,
     DateTimeOffset CreatedAt,

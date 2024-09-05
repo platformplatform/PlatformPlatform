@@ -14,7 +14,7 @@ public sealed class LogoutHandler(
     AuthenticationTokenService authenticationTokenService,
     IHttpContextAccessor httpContextAccessor,
     ITelemetryEventsCollector events,
-    ILogger<CompleteLoginHandler> logger
+    ILogger<LogoutHandler> logger
 ) : IRequestHandler<LogoutCommand, Result>
 {
     public Task<Result> Handle(LogoutCommand command, CancellationToken cancellationToken)

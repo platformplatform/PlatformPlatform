@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
@@ -8,6 +9,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
+[PublicAPI]
 public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
     [JsonIgnore]

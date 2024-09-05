@@ -1,4 +1,5 @@
 using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
@@ -19,6 +20,7 @@ public sealed record StartSignupCommand(string Subdomain, string Email) : IComma
     }
 }
 
+[PublicAPI]
 public sealed record StartSignupResponse(string SignupId, int ValidForSeconds);
 
 public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>

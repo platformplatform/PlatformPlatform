@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly name="FluentValidation">
+    <member name="T:FluentValidation.AbstractValidator`1">
+        <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+            <argument>4</argument>
+        </attribute>
+    </member>
+</assembly>

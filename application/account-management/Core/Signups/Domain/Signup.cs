@@ -60,6 +60,7 @@ public sealed class Signup : AggregateRoot<SignupId>
     }
 }
 
+[PublicAPI]
 [IdPrefix("signup")]
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, SignupId>))]
 public sealed record SignupId(string Value) : StronglyTypedUlid<SignupId>(Value)
