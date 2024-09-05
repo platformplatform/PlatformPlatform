@@ -1,6 +1,7 @@
 param name string
 param location string
 param tags object
+param address string
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
   name: name
@@ -10,7 +11,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
     virtualNetworkPeerings: []
     enableDdosProtection: false
     addressSpace: {
-      addressPrefixes: ['10.0.0.0/16']
+      addressPrefixes: ['${address}/16']
     }
     dhcpOptions: {
       dnsServers: []
@@ -19,7 +20,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
       {
         name: 'subnet'
         properties: {
-          addressPrefix: '10.0.0.0/23'
+          addressPrefix: '${address}/23'
           serviceEndpoints: [
             {
               service: 'Microsoft.KeyVault'
@@ -37,5 +38,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-05-01' = {
   }
 }
 
+output virtualNetworkName string = virtualNetwork.name
 output virtualNetworkId string = virtualNetwork.id
 output subnetId string = virtualNetwork.properties.subnets[0].id

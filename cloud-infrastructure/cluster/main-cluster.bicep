@@ -12,7 +12,7 @@ param appGatewayVersion string
 param accountManagementVersion string
 param backOfficeVersion string
 param applicationInsightsConnectionString string
-param communicatoinServicesDataLocation string = 'europe'
+param communicationServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
 
 var storageAccountUniquePrefix = replace(resourceGroupName, '-', '')
@@ -56,6 +56,7 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
     location: location
     name: resourceGroupName
     tags: tags
+    address: '10.0.0.0'
   }
 }
 
@@ -93,7 +94,7 @@ module communicationService '../modules/communication-services.bicep' = {
   params: {
     name: resourceGroupName
     tags: tags
-    dataLocation: communicatoinServicesDataLocation
+    dataLocation: communicationServicesDataLocation
     mailSenderDisplayName: mailSenderDisplayName
     keyVaultName: keyVault.outputs.name
   }
