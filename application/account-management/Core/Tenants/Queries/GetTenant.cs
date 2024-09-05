@@ -1,11 +1,14 @@
+using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Core.Tenants.Queries;
 
+[PublicAPI]
 public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
 
+[PublicAPI]
 public sealed record TenantResponseDto(string Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
 
 public sealed class GetTenantHandler(ITenantRepository tenantRepository)

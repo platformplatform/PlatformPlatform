@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -5,6 +6,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
 
+[PublicAPI]
 public sealed record DeleteUserCommand(UserId Id) : ICommand, IRequest<Result>;
 
 public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)

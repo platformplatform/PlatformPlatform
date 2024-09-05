@@ -1,11 +1,14 @@
+using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Queries;
 
+[PublicAPI]
 public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
 
+[PublicAPI]
 public sealed record UserResponseDto(
     string Id,
     DateTimeOffset CreatedAt,

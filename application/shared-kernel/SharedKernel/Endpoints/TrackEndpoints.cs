@@ -198,8 +198,10 @@ public class TrackEndpoints : IEndpoints
     }
 }
 
+[PublicAPI]
 public record TrackResponseSuccessDto(bool Success, string Message);
 
+[PublicAPI]
 public record TrackRequestDto(
     DateTimeOffset Time,
     // ReSharper disable once InconsistentNaming
@@ -228,6 +230,7 @@ public record TrackRequestBaseDataDto(
     string Id
 );
 
+[PublicAPI]
 public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
 
 public record TrackRequestExceptionDto(

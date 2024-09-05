@@ -1,7 +1,9 @@
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
 
+[PublicAPI]
 [IdPrefix("usr")]
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, UserId>))]
 public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
