@@ -15,6 +15,9 @@ namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 [PublicAPI]
 public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
 
+[PublicAPI]
+public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
+
 public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {
     public StartLoginValidator()
@@ -22,9 +25,6 @@ public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }
-
-[PublicAPI]
-public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
 
 public sealed class StartLoginCommandHandler(
     IUserRepository userRepository,

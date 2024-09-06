@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Core.Authentication.Services;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
@@ -9,6 +10,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 
+[PublicAPI]
 public sealed record RefreshAuthenticationTokens : ICommand, IRequest<Result>;
 
 public sealed class RefreshAuthenticationTokensCommandHandler(

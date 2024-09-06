@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using FluentValidation;
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Core.Users.Domain;
@@ -11,6 +12,7 @@ using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
 
+[PublicAPI]
 public sealed record CreateUserCommand(string TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
     : ICommand, IRequest<Result<UserId>>
 {

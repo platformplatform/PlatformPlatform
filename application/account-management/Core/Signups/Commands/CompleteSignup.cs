@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Core.Signups.Domain;
 using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
@@ -7,6 +8,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 
+[PublicAPI]
 public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
     [JsonIgnore]

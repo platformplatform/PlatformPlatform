@@ -1,7 +1,9 @@
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.AccountManagement.Core.Tenants.Domain;
 
+[PublicAPI]
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, TenantId>))]
 public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(Value)
 {
@@ -35,6 +37,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
     }
 }
 
+[PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TenantState
 {

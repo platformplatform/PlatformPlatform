@@ -14,6 +14,7 @@ public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
     }
 }
 
+[PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
@@ -22,6 +23,7 @@ public enum UserRole
     Owner
 }
 
+[PublicAPI]
 public enum SortableUserProperties
 {
     CreatedAt,
