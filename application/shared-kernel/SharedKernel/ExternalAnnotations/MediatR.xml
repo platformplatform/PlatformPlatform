@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <assembly name="MediatR">
+    <member name="T:MediatR.IRequestHandler`1">
+        <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+            <argument>4</argument>
+        </attribute>
+    </member>
     <member name="T:MediatR.IRequestHandler`2">
         <attribute
             ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
             <argument>4</argument>
         </attribute>
     </member>
-    <member name="T:MediatR.IRequestHandler`1">
+    <member name="T:MediatR.INotificationHandler`1">
         <attribute
             ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
             <argument>4</argument>
