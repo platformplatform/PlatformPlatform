@@ -76,7 +76,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId id" from "{invalidUserId}".""");
     }
 
     [Fact]
