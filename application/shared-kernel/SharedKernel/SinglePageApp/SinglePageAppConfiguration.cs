@@ -126,7 +126,7 @@ public class SinglePageAppConfiguration
         return Path.Join(directoryInfo.FullName, webAppProjectName, webAppDistRootName);
     }
 
-    private StringValues GetPermissionsPolicies()
+    private static StringValues GetPermissionsPolicies()
     {
         var permissionsPolicies = new Dictionary<string, string[]>
         {

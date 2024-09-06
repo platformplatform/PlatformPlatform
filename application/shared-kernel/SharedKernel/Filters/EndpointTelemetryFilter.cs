@@ -21,7 +21,7 @@ public class EndpointTelemetryFilter(ITelemetryProcessor telemetryProcessor) : I
         telemetryProcessor.Process(item);
     }
 
-    private bool IsExcludedPath(RequestTelemetry requestTelemetry)
+    private static bool IsExcludedPath(RequestTelemetry requestTelemetry)
     {
         return Array.Exists(ExcludedPaths, excludePath => requestTelemetry.Url.AbsolutePath.StartsWith(excludePath));
     }

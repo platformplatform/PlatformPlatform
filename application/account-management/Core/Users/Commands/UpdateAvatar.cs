@@ -54,7 +54,7 @@ public sealed class UpdateAvatarHandler(
         return Result.Success();
     }
 
-    private async Task<string> GetFileHash(Stream fileStream, CancellationToken cancellationToken)
+    private static async Task<string> GetFileHash(Stream fileStream, CancellationToken cancellationToken)
     {
         var hashBytes = await SHA1.Create().ComputeHashAsync(fileStream, cancellationToken);
         fileStream.Position = 0;

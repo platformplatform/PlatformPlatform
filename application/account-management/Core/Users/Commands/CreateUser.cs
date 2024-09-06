@@ -61,7 +61,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
         return user.Id;
     }
 
-    private async Task<string?> GetGravatarProfileUrlIfExists(string email)
+    private static async Task<string?> GetGravatarProfileUrlIfExists(string email)
     {
         var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
         var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
