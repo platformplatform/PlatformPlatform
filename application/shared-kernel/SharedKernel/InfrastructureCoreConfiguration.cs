@@ -112,8 +112,7 @@ public static class InfrastructureCoreConfiguration
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
 
-        var tokenSigningService = GetTokenSigningService();
-        services.AddSingleton(tokenSigningService);
+        services.AddSingleton(GetTokenSigningService());
 
         services.RegisterRepositories(assembly);
 

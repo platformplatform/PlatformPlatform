@@ -33,8 +33,7 @@ else
     );
 }
 
-var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
-builder.Services.AddSingleton(tokenSigningService);
+builder.Services.AddSingleton(InfrastructureCoreConfiguration.GetTokenSigningService());
 
 builder.Services.AddHttpClient(
     "AccountManagement",
