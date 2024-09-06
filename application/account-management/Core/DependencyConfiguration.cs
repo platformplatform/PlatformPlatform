@@ -14,7 +14,6 @@ public static class DependencyConfiguration
 
     public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
-        services.AddMediatRPipelineBehaviours(Assembly);
         services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
 
         services.AddHttpContextAccessor();

@@ -41,23 +41,6 @@ public static class InfrastructureCoreConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
 
-    public static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly applicationAssembly)
-    {
-        // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.
-        // So Validation -> Command -> PublishDomainEvents -> UnitOfWork -> PublishTelemetryEvents.
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)); // Post
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
-        services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
-        services.AddScoped<ConcurrentCommandCounter>();
-
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
-        services.AddValidatorsFromAssembly(applicationAssembly);
-
-        return services;
-    }
-
     public static IServiceCollection ConfigureDatabaseContext<T>(
         this IServiceCollection services,
         IHostApplicationBuilder builder,
@@ -122,6 +105,8 @@ public static class InfrastructureCoreConfiguration
     public static IServiceCollection AddInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
+        services.AddMediatRPipelineBehaviours(assembly);
+
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
             new DomainEventCollector(provider.GetRequiredService<T>())
@@ -143,6 +128,23 @@ public static class InfrastructureCoreConfiguration
         {
             services.AddTransient<IEmailService, DevelopmentEmailService>();
         }
+
+        return services;
+    }
+
+    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly applicationAssembly)
+    {
+        // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.
+        // So Validation -> Command -> PublishDomainEvents -> UnitOfWork -> PublishTelemetryEvents.
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)); // Post
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
+        services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
+        services.AddScoped<ConcurrentCommandCounter>();
+
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
+        services.AddValidatorsFromAssembly(applicationAssembly);
 
         return services;
     }
