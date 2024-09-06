@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
 [PublicAPI]
 public sealed record UpdateUserCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes the Id from the API contract
+    [JsonIgnore] // Removes this property from the API contract
     public UserId Id { get; init; } = null!;
 
     public required string Email { get; init; }

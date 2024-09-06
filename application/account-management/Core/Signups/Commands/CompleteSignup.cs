@@ -11,7 +11,7 @@ namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
 [PublicAPI]
 public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
-    [JsonIgnore]
+    [JsonIgnore] // Removes this property from the API contract
     public SignupId Id { get; init; } = null!;
 }
 

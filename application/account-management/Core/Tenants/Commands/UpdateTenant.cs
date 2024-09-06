@@ -10,7 +10,7 @@ namespace PlatformPlatform.AccountManagement.Core.Tenants.Commands;
 [PublicAPI]
 public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes the Id from the API contract
+    [JsonIgnore] // Removes this property from the API contract
     public TenantId Id { get; init; } = null!;
 
     public required string Name { get; init; }

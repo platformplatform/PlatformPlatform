@@ -12,7 +12,7 @@ namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
 [PublicAPI]
 public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
-    [JsonIgnore]
+    [JsonIgnore] // Removes this property from the API contract
     public LoginId Id { get; init; } = null!;
 }
 
