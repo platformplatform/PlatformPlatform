@@ -25,7 +25,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{existingUserId}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
+        response.ShouldBeSuccessfulGetRequest();
 
         var schema = await JsonSchema.FromJsonAsync(
             """
@@ -63,7 +63,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{unknownUserId}");
 
         // Assert
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
 
         // Assert
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
     }
 
     [Fact]
@@ -89,8 +89,8 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
-        var userResponse = await ApiTestHelpers.DeserializeResponse<GetUsersResponseDto>(response);
+        response.ShouldBeSuccessfulGetRequest();
+        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().Email.Should().Be(DatabaseSeeder.User1ForSearching.Email);
@@ -106,8 +106,8 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
-        var userResponse = await ApiTestHelpers.DeserializeResponse<GetUsersResponseDto>(response);
+        response.ShouldBeSuccessfulGetRequest();
+        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().FirstName.Should().Be(DatabaseSeeder.User1ForSearching.FirstName);
@@ -123,8 +123,8 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
-        var userResponse = await ApiTestHelpers.DeserializeResponse<GetUsersResponseDto>(response);
+        response.ShouldBeSuccessfulGetRequest();
+        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().LastName.Should().Be(DatabaseSeeder.User1ForSearching.LastName);
@@ -138,8 +138,8 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
-        var userResponse = await ApiTestHelpers.DeserializeResponse<GetUsersResponseDto>(response);
+        response.ShouldBeSuccessfulGetRequest();
+        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().Role.Should().Be(DatabaseSeeder.User1ForSearching.Role);
@@ -152,8 +152,8 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
-        var userResponse = await ApiTestHelpers.DeserializeResponse<GetUsersResponseDto>(response);
+        response.ShouldBeSuccessfulGetRequest();
+        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(3);
         userResponse.Users.First().Role.Should().Be(UserRole.Member);
@@ -171,7 +171,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
 
         // Assert
-        await ApiTestHelpers.EnsureSuccessPostRequest(response, startsWith: "/api/account-management/users/");
+        await response.ShouldBeSuccessfulPostRequest(startsWith: "/api/account-management/users/");
         response.Headers.Location!.ToString().Length.Should().Be($"/api/account-management/users/{UserId.NewId()}".Length);
     }
 
@@ -191,7 +191,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         {
             new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         {
             new ErrorDetail("Email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -228,7 +228,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         {
             new ErrorDetail("TenantId", $"The tenant '{unknownTenantId}' does not exist.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -248,7 +248,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
 
         // Assert
-        ApiTestHelpers.EnsureSuccessWithEmptyHeaderAndLocation(response);
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
     }
 
     [Fact]
@@ -275,7 +275,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
             new ErrorDetail("LastName", "Last name must be no longer than 30 characters."),
             new ErrorDetail("Title", "Title must be no longer than 50 characters.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
 
     [Fact]
@@ -295,7 +295,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
 
         //Assert
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
 
     [Fact]
@@ -308,7 +308,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
 
         //Assert
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
 
     [Fact]
@@ -321,7 +321,7 @@ public sealed class UserEndpointsTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessWithEmptyHeaderAndLocation(response);
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         Connection.RowExists("Users", existingUserId.ToString()).Should().BeFalse();
     }
 }
