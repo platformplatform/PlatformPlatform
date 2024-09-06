@@ -20,17 +20,17 @@ public static class ApiCoreConfiguration
 {
     private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
 
-    private static readonly string LocalhostUrl =
-        Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
+    private static readonly string LocalhostUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
     public static IServiceCollection AddApiServices(
         this IServiceCollection services,
         WebApplicationBuilder builder,
+        Assembly apiAssembly,
         Assembly coreAssembly
     )
     {
         services.Scan(scan => scan
-            .FromAssemblies(coreAssembly, Assembly.GetExecutingAssembly())
+            .FromAssemblies(apiAssembly, Assembly.GetExecutingAssembly())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime()

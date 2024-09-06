@@ -1,13 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using PlatformPlatform.AccountManagement.Users.Commands;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.AccountManagement.Users.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Users;
+namespace PlatformPlatform.AccountManagement.Api.Endpoints;
 
 public sealed class UserEndpoints : IEndpoints
 {
