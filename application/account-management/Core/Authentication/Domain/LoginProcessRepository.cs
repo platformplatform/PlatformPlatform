@@ -1,8 +1,8 @@
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.Persistence;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Domain;
+namespace PlatformPlatform.AccountManagement.Authentication.Domain;
 
 public interface ILoginRepository : ICrudRepository<Login, LoginId>;
 

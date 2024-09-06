@@ -1,12 +1,12 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
+namespace PlatformPlatform.AccountManagement.Signups.Commands;
 
 [PublicAPI]
 public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, IRequest<Result>

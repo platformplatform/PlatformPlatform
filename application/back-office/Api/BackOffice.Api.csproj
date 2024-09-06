@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
+        <ProjectReference Include="..\Core\BackOffice.csproj" />
     </ItemGroup>
 
     <ItemGroup>

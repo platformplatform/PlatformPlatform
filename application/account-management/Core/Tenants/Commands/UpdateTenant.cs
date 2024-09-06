@@ -1,11 +1,11 @@
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Tenants.Commands;
 
 [PublicAPI]
 public sealed record UpdateTenantCommand : ICommand, IRequest<Result>

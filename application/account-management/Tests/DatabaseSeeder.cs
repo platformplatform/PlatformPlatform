@@ -1,9 +1,9 @@
 using Bogus;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Tests;

@@ -2,7 +2,7 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Tests;
 using Xunit;
 

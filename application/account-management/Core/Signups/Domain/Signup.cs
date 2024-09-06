@@ -1,9 +1,9 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
+namespace PlatformPlatform.AccountManagement.Signups.Domain;
 
 public sealed class Signup : AggregateRoot<SignupId>
 {

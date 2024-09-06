@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+namespace PlatformPlatform.AccountManagement.Tenants.Domain;
 
 [PublicAPI]
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, TenantId>))]

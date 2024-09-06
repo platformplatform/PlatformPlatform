@@ -1,8 +1,8 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Queries;
+namespace PlatformPlatform.AccountManagement.Signups.Queries;
 
 [PublicAPI]
 public sealed record IsSubdomainFreeQuery(string Subdomain) : IRequest<Result<bool>>;

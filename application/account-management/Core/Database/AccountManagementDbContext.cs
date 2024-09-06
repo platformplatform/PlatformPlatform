@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.AccountManagement.Core.Database;
+namespace PlatformPlatform.AccountManagement.Database;
 
 public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options)
     : SharedKernelDbContext<AccountManagementDbContext>(options)

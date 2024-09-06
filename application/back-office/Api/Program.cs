@@ -1,4 +1,4 @@
-using PlatformPlatform.BackOffice.Core;
+using PlatformPlatform.BackOffice;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 

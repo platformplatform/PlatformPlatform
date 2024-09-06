@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using PlatformPlatform.AccountManagement.Core.Authentication.Commands;
-using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Commands;
+using PlatformPlatform.AccountManagement.Authentication.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication;
+namespace PlatformPlatform.AccountManagement.Authentication;
 
 public sealed class AuthenticationEndpoints : IEndpoints
 {

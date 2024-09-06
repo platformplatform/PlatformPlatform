@@ -1,8 +1,8 @@
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.TelemetryEvents;
+namespace PlatformPlatform.AccountManagement.TelemetryEvents;
 
 /// This file contains all the telemetry events that are collected by the application. Telemetry events are important
 /// to understand how the application is being used and collect valuable information for the business. Quality is

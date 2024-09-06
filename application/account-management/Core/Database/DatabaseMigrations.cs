@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PlatformPlatform.AccountManagement.Core.Database;
+namespace PlatformPlatform.AccountManagement.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
 [Migration("20240830_Initial")]

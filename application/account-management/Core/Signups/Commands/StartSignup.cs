@@ -1,16 +1,16 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
+namespace PlatformPlatform.AccountManagement.Signups.Commands;
 
 [PublicAPI]
 public sealed record StartSignupCommand(string Subdomain, string Email) : ICommand, IRequest<Result<StartSignupResponse>>

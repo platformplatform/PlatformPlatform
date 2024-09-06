@@ -6,7 +6,7 @@
       "AppGateway\\AppGateway.csproj",
       "shared-kernel\\SharedKernel\\SharedKernel.csproj",
       "shared-kernel\\Tests\\SharedKernel.Tests.csproj",
-      "back-office\\Core\\BackOffice.Core.csproj",
+      "back-office\\Core\\BackOffice.csproj",
       "back-office\\Workers\\BackOffice.Workers.csproj",
       "back-office\\Api\\BackOffice.Api.csproj",
       "back-office\\WebApp\\BackOffice.WebApp.esproj",

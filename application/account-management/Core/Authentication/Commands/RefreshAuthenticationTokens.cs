@@ -2,13 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 
 [PublicAPI]
 public sealed record RefreshAuthenticationTokensCommand : ICommand, IRequest<Result>;

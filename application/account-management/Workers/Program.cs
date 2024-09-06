@@ -1,5 +1,5 @@
-using PlatformPlatform.AccountManagement.Core;
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero

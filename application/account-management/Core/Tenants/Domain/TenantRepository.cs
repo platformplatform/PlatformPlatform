@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.Persistence;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+namespace PlatformPlatform.AccountManagement.Tenants.Domain;
 
 public interface ITenantRepository : ICrudRepository<Tenant, TenantId>
 {

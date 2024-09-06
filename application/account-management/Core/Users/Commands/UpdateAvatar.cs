@@ -2,13 +2,13 @@ using System.Security.Cryptography;
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
 public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;

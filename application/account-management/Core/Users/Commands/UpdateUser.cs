@@ -1,12 +1,12 @@
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
 public sealed record UpdateUserCommand : ICommand, IRequest<Result>

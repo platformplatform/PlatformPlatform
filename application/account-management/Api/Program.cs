@@ -1,4 +1,4 @@
-using PlatformPlatform.AccountManagement.Core;
+using PlatformPlatform.AccountManagement;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 

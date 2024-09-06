@@ -1,8 +1,8 @@
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Commands;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Users.Commands;
+using PlatformPlatform.AccountManagement.Users.Domain;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.EventHandlers;
+namespace PlatformPlatform.AccountManagement.Tenants.EventHandlers;
 
 public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger, ISender mediator)
     : INotificationHandler<TenantCreatedEvent>

@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.AccountManagement.Core;
+namespace PlatformPlatform.AccountManagement;
 
 public static class DependencyConfiguration
 {

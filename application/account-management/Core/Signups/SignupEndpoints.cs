@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using PlatformPlatform.AccountManagement.Core.Signups.Commands;
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.Signups.Queries;
+using PlatformPlatform.AccountManagement.Signups.Commands;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.Signups.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups;
+namespace PlatformPlatform.AccountManagement.Signups;
 
 public sealed class SignupEndpoints : IEndpoints
 {

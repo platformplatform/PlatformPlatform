@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using PlatformPlatform.AccountManagement.Core.Tenants.Commands;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Tenants.Queries;
+using PlatformPlatform.AccountManagement.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants;
+namespace PlatformPlatform.AccountManagement.Tenants;
 
 public sealed class TenantEndpoints : IEndpoints
 {

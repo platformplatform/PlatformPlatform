@@ -1,6 +1,6 @@
 using PlatformPlatform.SharedKernel.Entities;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+namespace PlatformPlatform.AccountManagement.Tenants.Domain;
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {

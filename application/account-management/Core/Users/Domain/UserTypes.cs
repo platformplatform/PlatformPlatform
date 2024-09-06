@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
+namespace PlatformPlatform.AccountManagement.Users.Domain;
 
 [PublicAPI]
 [IdPrefix("usr")]

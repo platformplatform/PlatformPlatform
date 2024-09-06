@@ -1,7 +1,7 @@
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Entities;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
+namespace PlatformPlatform.AccountManagement.Users.Domain;
 
 public sealed class User : AggregateRoot<UserId>
 {
