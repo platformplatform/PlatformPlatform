@@ -26,7 +26,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
             // Aggregate the results from all validators into a distinct list of errorDetails
             var errorDetails = validationResults
                 .SelectMany(result => result.Errors)
-                .Where(failure => failure != null)
+                .Where(failure => failure is not null)
                 .Select(failure => new ErrorDetail(failure.PropertyName.Split('.')[0], failure.ErrorMessage))
                 .Distinct()
                 .ToArray();
