@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useState } from "react";
-import { ChevronsLeftIcon, HelpCircleIcon, type LucideIcon } from "lucide-react";
+import React, { createContext, useCallback, useContext, useState } from "react";
+import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
@@ -7,7 +7,6 @@ import logoWrapUrl from "../images/logo-wrap.svg";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { useRouter } from "@tanstack/react-router";
 import { Dialog, DialogTrigger } from "./Dialog";
-import { Popover } from "./Popover";
 import { Modal } from "./Modal";
 
 const collapsedContext = createContext(false);

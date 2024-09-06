@@ -50,8 +50,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
               runtimeEnv: "%ENCODED_RUNTIME_ENV%",
               userInfoEnv: "%ENCODED_USER_INFO_ENV%"
             },
-            // Add the CDN URL placeholder to the script and link tags in the
-            // template file
+            // Add the CDN URL placeholder to the script and link tags in the template file
             tags(tags) {
               return tags.map((tag) => {
                 if (tag.tag === "script" && tag.attrs?.src) {

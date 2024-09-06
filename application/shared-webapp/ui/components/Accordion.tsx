@@ -7,11 +7,11 @@ import type { AccordionItemAriaProps, AriaAccordionProps } from "@react-aria/acc
 import { useAccordion, useAccordionItem } from "@react-aria/accordion";
 import { type TreeState, useTreeState } from "@react-stately/tree";
 import { ChevronDown } from "lucide-react";
-import {
+import React, {
   type AriaRole,
   type ButtonHTMLAttributes,
-  type CSSProperties,
   createContext,
+  type CSSProperties,
   forwardRef,
   useContext,
   useMemo,

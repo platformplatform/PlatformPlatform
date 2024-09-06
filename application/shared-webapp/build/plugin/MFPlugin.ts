@@ -64,7 +64,7 @@ function getSystemId() {
 /**
  * Get all the system ids in the application root. This is used to determine the
  * module federation remotes. We also make sure that the system has a WebApp
- * and are formatted as snake_case for the module federation name.
+ * and is formatted as snake_case for the module federation name.
  */
 function getEverySystem() {
   return fs
@@ -85,7 +85,7 @@ function getAllRemotes(currentSystem: string, remotes: Record<string, { port: nu
     if (system === currentSystem) {
       throw new Error(`Cannot add self as remote: ${system}`);
     }
-    if (everySystem.includes(system) === false) {
+    if (!everySystem.includes(system)) {
       throw new Error(`Cannot find system: ${system}`);
     }
 

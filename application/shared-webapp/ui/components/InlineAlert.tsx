@@ -5,6 +5,7 @@
 import { CircleCheckBigIcon, InfoIcon, type LucideIcon, TriangleAlertIcon } from "lucide-react";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
+import React from "react";
 
 const styles = tv({
   extend: focusRing,
