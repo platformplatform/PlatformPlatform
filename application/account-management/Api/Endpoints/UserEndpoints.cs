@@ -38,14 +38,12 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(new DeleteUserCommand(id))
         );
 
-        // The id should be inferred from the authenticated user
-        group.MapPost("/{id}/update-avatar", async Task<ApiResult> (UserId id, IFormFile file, IMediator mediator)
-            => await mediator.Send(new UpdateAvatarCommand(id, file.OpenReadStream(), file.ContentType))
+        group.MapPost("/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
+            => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery(); // Disable anti-forgery until we implement it
 
-        // The id should be inferred from the authenticated user
-        group.MapPost("/{id}/remove-avatar", async Task<ApiResult> (UserId id, IMediator mediator)
-            => await mediator.Send(new RemoveAvatarCommand(id))
+        group.MapDelete("/remove-avatar", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new RemoveAvatarCommand())
         );
     }
 }

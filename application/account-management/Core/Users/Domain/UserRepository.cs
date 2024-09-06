@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Users.Domain;
 
 public interface IUserRepository : ICrudRepository<User, UserId>
 {
+    Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken);
+
     Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken);
@@ -24,9 +27,19 @@ public interface IUserRepository : ICrudRepository<User, UserId>
     );
 }
 
-internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext)
+internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
+    public async Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken)
+    {
+        if (UserId.TryParse(executionContext.UserInfo.UserId, out var userId))
+        {
+            return await GetByIdAsync(userId, cancellationToken);
+        }
+
+        return null;
+    }
+
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
