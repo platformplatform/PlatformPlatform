@@ -10,9 +10,9 @@ namespace PlatformPlatform.AccountManagement.Database;
 public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options)
     : SharedKernelDbContext<AccountManagementDbContext>(options)
 {
-    public DbSet<Signup> Signups => Set<Signup>();
-
     public DbSet<Login> Logins => Set<Login>();
+
+    public DbSet<Signup> Signups => Set<Signup>();
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
 
@@ -22,14 +22,14 @@ public sealed class AccountManagementDbContext(DbContextOptions<AccountManagemen
     {
         base.OnModelCreating(modelBuilder);
 
-        // Signup
-        modelBuilder.MapStronglyTypedUuid<Signup, SignupId>(a => a.Id);
-        modelBuilder.MapStronglyTypedNullableId<Signup, TenantId, string>(u => u.TenantId);
-
         // Login
         modelBuilder.MapStronglyTypedId<Login, LoginId, string>(t => t.Id);
         modelBuilder.MapStronglyTypedId<Login, TenantId, string>(u => u.TenantId);
         modelBuilder.MapStronglyTypedUuid<Login, UserId>(u => u.UserId);
+
+        // Signup
+        modelBuilder.MapStronglyTypedUuid<Signup, SignupId>(a => a.Id);
+        modelBuilder.MapStronglyTypedNullableId<Signup, TenantId, string>(u => u.TenantId);
 
         // Tenant
         modelBuilder.MapStronglyTypedId<Tenant, TenantId, string>(t => t.Id);
