@@ -33,7 +33,7 @@ public sealed class LogoutHandler(
         }
         else
         {
-            events.CollectEvent(new Logout(userId!));
+            events.CollectEvent(new Logout(userId));
         }
 
         return Task.FromResult(Result.Success());

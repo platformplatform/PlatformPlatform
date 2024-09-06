@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
@@ -12,7 +13,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
         return Value;
     }
 
-    public static bool TryParse(string? value, out TenantId? result)
+    public static bool TryParse(string? value, [NotNullWhen(true)] out TenantId? result)
     {
         if (value is not { Length: >= 3 and <= 30 })
         {
