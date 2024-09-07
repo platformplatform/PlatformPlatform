@@ -15,17 +15,9 @@ public static class ServiceDefaultsExtensions
 {
     public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)
     {
-        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
-        {
-            EnableRequestTrackingTelemetryModule = false,
-            EnableDependencyTrackingTelemetryModule = false,
-            RequestCollectionOptions = { TrackExceptions = false }
-        };
-
-        builder.Services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
-        builder.Services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
-
         builder.ConfigureOpenTelemetry();
+
+        builder.Services.ConfigureApplicationInsights();
 
         builder.Services.AddDefaultHealthChecks();
 
@@ -105,6 +97,21 @@ public static class ServiceDefaultsExtensions
         );
 
         return builder;
+    }
+
+    private static IServiceCollection ConfigureApplicationInsights(this IServiceCollection services)
+    {
+        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+        {
+            EnableRequestTrackingTelemetryModule = false,
+            EnableDependencyTrackingTelemetryModule = false,
+            RequestCollectionOptions = { TrackExceptions = false }
+        };
+
+        services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
+        services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
+
+        return services;
     }
 
     private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
