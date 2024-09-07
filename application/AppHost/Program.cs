@@ -73,7 +73,7 @@ builder
     .WithReference(accountManagementApi)
     .WithReference(backOfficeApi);
 
-builder.Build().Run();
+await builder.Build().RunAsync();
 
 return;
 
