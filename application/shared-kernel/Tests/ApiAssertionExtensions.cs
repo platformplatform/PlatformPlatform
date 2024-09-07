@@ -87,7 +87,7 @@ public static class ApiAssertionExtensions
         if (expectedErrors is not null)
         {
             var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), InfrastructureCoreConfiguration.JsonSerializerOptions);
+            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(actualErrorsJson.GetRawText(), SharedDependencyConfiguration.JsonSerializerOptions);
 
             actualErrors.Should().BeEquivalentTo(expectedErrors);
         }
@@ -102,13 +102,13 @@ public static class ApiAssertionExtensions
     {
         var responseStream = await response.Content.ReadAsStreamAsync();
 
-        return await JsonSerializer.DeserializeAsync<T>(responseStream, InfrastructureCoreConfiguration.JsonSerializerOptions);
+        return await JsonSerializer.DeserializeAsync<T>(responseStream, SharedDependencyConfiguration.JsonSerializerOptions);
     }
 
     private static async Task<ProblemDetails?> DeserializeProblemDetails(this HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<ProblemDetails>(content, InfrastructureCoreConfiguration.JsonSerializerOptions);
+        return JsonSerializer.Deserialize<ProblemDetails>(content, SharedDependencyConfiguration.JsonSerializerOptions);
     }
 }

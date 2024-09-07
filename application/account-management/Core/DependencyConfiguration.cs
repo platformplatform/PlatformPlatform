@@ -12,9 +12,9 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
     {
-        services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
+        services.AddSharedServices<AccountManagementDbContext>(Assembly);
 
         services.AddHttpContextAccessor();
 

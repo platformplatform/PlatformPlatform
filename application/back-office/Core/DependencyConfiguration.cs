@@ -9,9 +9,9 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
     {
-        services.AddInfrastructureCoreServices<BackOfficeDbContext>(Assembly);
+        services.AddSharedServices<BackOfficeDbContext>(Assembly);
 
         return services;
     }

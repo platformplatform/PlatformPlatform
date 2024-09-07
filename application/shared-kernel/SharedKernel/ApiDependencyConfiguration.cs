@@ -16,13 +16,13 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 
 namespace PlatformPlatform.SharedKernel;
 
-public static class ApiCoreConfiguration
+public static class ApiDependencyConfiguration
 {
     private const string LocalhostCorsPolicyName = "LocalhostCorsPolicy";
 
     private static readonly string LocalhostUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
-    public static IServiceCollection AddApiServices(
+    public static IServiceCollection AddApiInfrastructure(
         this IServiceCollection services,
         WebApplicationBuilder builder,
         Assembly apiAssembly,
@@ -60,13 +60,13 @@ public static class ApiCoreConfiguration
                 settings.Version = "v1";
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
-                options.SerializerOptions = InfrastructureCoreConfiguration.JsonSerializerOptions;
+                options.SerializerOptions = SharedDependencyConfiguration.JsonSerializerOptions;
                 settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(coreAssembly));
             }
         );
 
         // Add Authentication and Authorization services
-        builder.Services.AddAuthentication(options =>
+        services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -74,7 +74,7 @@ public static class ApiCoreConfiguration
             }
         ).AddJwtBearer(o =>
             {
-                var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
+                var tokenSigningService = SharedDependencyConfiguration.GetTokenSigningService();
                 o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
                     validateLifetime: true,
                     clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
@@ -86,12 +86,12 @@ public static class ApiCoreConfiguration
         // Ensure that enums are serialized as strings
         services.Configure<JsonOptions>(options =>
             {
-                foreach (var jsonConverter in InfrastructureCoreConfiguration.JsonSerializerOptions.Converters)
+                foreach (var jsonConverter in SharedDependencyConfiguration.JsonSerializerOptions.Converters)
                 {
                     options.SerializerOptions.Converters.Add(jsonConverter);
                 }
 
-                options.SerializerOptions.PropertyNamingPolicy = InfrastructureCoreConfiguration.JsonSerializerOptions.PropertyNamingPolicy;
+                options.SerializerOptions.PropertyNamingPolicy = SharedDependencyConfiguration.JsonSerializerOptions.PropertyNamingPolicy;
             }
         );
 
@@ -137,7 +137,7 @@ public static class ApiCoreConfiguration
         return services;
     }
 
-    public static WebApplication UseApiCoreConfiguration(this WebApplication app)
+    public static WebApplication UseApiServices(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
         {

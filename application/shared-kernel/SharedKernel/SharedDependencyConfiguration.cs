@@ -20,7 +20,7 @@ using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.SharedKernel;
 
-public static class InfrastructureCoreConfiguration
+public static class SharedDependencyConfiguration
 {
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
 
@@ -102,7 +102,7 @@ public static class InfrastructureCoreConfiguration
         return services;
     }
 
-    public static IServiceCollection AddInfrastructureCoreServices<T>(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
         services.AddMediatRPipelineBehaviours(assembly);
@@ -133,8 +133,8 @@ public static class InfrastructureCoreConfiguration
 
     private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly applicationAssembly)
     {
-        // Order is important! First all Pre behaviors run, then the command is handled, then all Post behaviors run.
-        // So Validation -> Command -> PublishDomainEvents -> UnitOfWork -> PublishTelemetryEvents.
+        // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
+        // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)); // Post
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
@@ -190,7 +190,7 @@ public static class InfrastructureCoreConfiguration
         using var scope = services.CreateScope();
 
         var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger(nameof(InfrastructureCoreConfiguration));
+        var logger = loggerFactory.CreateLogger(nameof(SharedDependencyConfiguration));
 
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
         logger.LogInformation("Applying database migrations. Version: {Version}.", version);

@@ -38,7 +38,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
         Services
-            .AddCoreServices();
+            .AddBackOfficeServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
