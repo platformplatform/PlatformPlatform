@@ -2,52 +2,64 @@ using System.Security.Claims;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
 
+/// <summary>
+///     Provides details about the authenticated user making the current request, including user identity, role,
+///     contact information, and additional profile details extracted from claims.
+/// </summary>
 public class UserInfo
 {
-    private UserInfo()
+    /// <summary>
+    ///     Represents the system user, typically used for background tasks or where no user is directly authenticated.
+    /// </summary>
+    public static readonly UserInfo System = new()
     {
-    }
+        IsAuthenticated = false,
+        Locale = "en-US"
+    };
 
     public bool IsAuthenticated { get; init; }
 
     public string? Locale { get; init; }
 
-    public string? UserId { get; private set; }
+    public string? UserId { get; init; }
 
-    public string? TenantId { get; private set; }
+    public string? TenantId { get; init; }
 
-    public string? UserRole { get; private set; }
+    public string? UserRole { get; init; }
 
-    public string? Email { get; private set; }
+    public string? Email { get; init; }
 
-    public string? FirstName { get; private set; }
+    public string? FirstName { get; init; }
 
-    public string? LastName { get; private set; }
+    public string? LastName { get; init; }
 
-    public string? Title { get; private set; }
+    public string? Title { get; init; }
 
-    public string? AvatarUrl { get; private set; }
+    public string? AvatarUrl { get; init; }
 
-    public static UserInfo Create(ClaimsPrincipal user, string defaultLocale)
+    public static UserInfo Create(ClaimsPrincipal? user, string defaultLocale)
     {
-        var userInfo = new UserInfo
+        if (user?.Identity?.IsAuthenticated != true)
         {
-            IsAuthenticated = user.Identity?.IsAuthenticated ?? false,
-            Locale = defaultLocale
-        };
-
-        if (userInfo.IsAuthenticated)
-        {
-            userInfo.UserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            userInfo.TenantId = user.FindFirst("tenant_id")?.Value;
-            userInfo.UserRole = user.FindFirst(ClaimTypes.Role)?.Value;
-            userInfo.Email = user.FindFirst(ClaimTypes.Email)?.Value;
-            userInfo.FirstName = user.FindFirst(ClaimTypes.GivenName)?.Value;
-            userInfo.LastName = user.FindFirst(ClaimTypes.Surname)?.Value;
-            userInfo.Title = user.FindFirst("title")?.Value;
-            userInfo.AvatarUrl = user.FindFirst("avatar_url")?.Value;
+            return new UserInfo
+            {
+                IsAuthenticated = user?.Identity?.IsAuthenticated ?? false,
+                Locale = defaultLocale
+            };
         }
 
-        return userInfo;
+        return new UserInfo
+        {
+            IsAuthenticated = true,
+            Locale = defaultLocale,
+            UserId = user.FindFirstValue(ClaimTypes.NameIdentifier),
+            TenantId = user.FindFirstValue("tenant_id"),
+            UserRole = user.FindFirstValue(ClaimTypes.Role),
+            Email = user.FindFirstValue(ClaimTypes.Email),
+            FirstName = user.FindFirstValue(ClaimTypes.GivenName),
+            LastName = user.FindFirstValue(ClaimTypes.Surname),
+            Title = user.FindFirstValue("title"),
+            AvatarUrl = user.FindFirstValue("avatar_url")
+        };
     }
 }
