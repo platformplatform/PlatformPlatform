@@ -2,7 +2,7 @@ using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.AccountManagement.Users.Domain;
 
-public sealed class User : AggregateRoot<UserId>
+public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 {
     private string _email = string.Empty;
 
@@ -14,8 +14,6 @@ public sealed class User : AggregateRoot<UserId>
         Role = role;
         EmailConfirmed = emailConfirmed;
     }
-
-    public TenantId TenantId { get; }
 
     public string Email
     {
@@ -34,6 +32,8 @@ public sealed class User : AggregateRoot<UserId>
     public bool EmailConfirmed { get; private set; }
 
     public Avatar Avatar { get; private set; } = default!;
+
+    public TenantId TenantId { get; }
 
     public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? gravatarUrl)
     {
