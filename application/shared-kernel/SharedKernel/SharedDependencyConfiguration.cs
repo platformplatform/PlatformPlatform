@@ -6,6 +6,7 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using FluentValidation;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +26,7 @@ public static class SharedDependencyConfiguration
     public static readonly bool IsRunningInAzure = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID") is not null;
 
     // Ensure that enums are serialized as strings and use CamelCase
-    public static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    public static readonly JsonSerializerOptions DefaultJsonSerializerOptions = new()
     {
         Converters = { new JsonStringEnumConverter() },
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -105,6 +106,18 @@ public static class SharedDependencyConfiguration
         // worker services register the same CommandHandlers as the API, which may require the HttpContext.
         // Consider making a generic IRequestContextProvider that can return the HttpContext only if it is available.
         services.AddHttpContextAccessor();
+
+        services.Configure<JsonOptions>(options =>
+            {
+                // Copy the default options from the DefaultJsonSerializerOptions to enforce consistency in serialization.
+                foreach (var jsonConverter in DefaultJsonSerializerOptions.Converters)
+                {
+                    options.SerializerOptions.Converters.Add(jsonConverter);
+                }
+
+                options.SerializerOptions.PropertyNamingPolicy = DefaultJsonSerializerOptions.PropertyNamingPolicy;
+            }
+        );
 
         services.AddMediatRPipelineBehaviours(assembly);
 

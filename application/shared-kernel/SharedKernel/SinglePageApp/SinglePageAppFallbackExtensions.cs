@@ -3,12 +3,10 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using PlatformPlatform.SharedKernel.Authentication;
 
@@ -20,9 +18,8 @@ public static class SinglePageAppFallbackExtensions
     {
         return services.AddSingleton<SinglePageAppConfiguration>(serviceProvider =>
             {
-                var jsonOptions = serviceProvider.GetRequiredService<IOptions<JsonOptions>>();
                 var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                return new SinglePageAppConfiguration(jsonOptions, environment.IsDevelopment());
+                return new SinglePageAppConfiguration(environment.IsDevelopment());
             }
         );
     }
@@ -38,7 +35,7 @@ public static class SinglePageAppFallbackExtensions
             }
         );
 
-        app.MapFallback((HttpContext context, IOptions<JsonOptions> jsonOptions, SinglePageAppConfiguration singlePageAppConfiguration) =>
+        app.MapFallback((HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
                 if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
                     context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
@@ -52,7 +49,7 @@ public static class SinglePageAppFallbackExtensions
 
                 var defaultLocale = context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en-US";
                 var userInfo = UserInfo.Create(context.User, defaultLocale);
-                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, userInfo, jsonOptions);
+                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, userInfo);
                 return context.Response.WriteAsync(html);
             }
         );
@@ -84,21 +81,9 @@ public static class SinglePageAppFallbackExtensions
         responseHeaders.Append("Content-Type", contentType);
     }
 
-    private static string GetHtmlWithEnvironment(
-        SinglePageAppConfiguration singlePageAppConfiguration,
-        UserInfo userInfo,
-        IOptions<JsonOptions> jsonOptions
-    )
+    private static string GetHtmlWithEnvironment(SinglePageAppConfiguration singlePageAppConfiguration, UserInfo userInfo)
     {
-        var providedOptions = jsonOptions.Value.SerializerOptions;
-
-        // Create a new JsonSerializerOptions instance and copy properties
-        var customOptions = new JsonSerializerOptions(providedOptions)
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-
-        var userInfoEncoded = JsonSerializer.Serialize(userInfo, customOptions);
+        var userInfoEncoded = JsonSerializer.Serialize(userInfo, SinglePageAppConfiguration.JsonHtmlEncodingOptions);
 
         // Escape the JSON for use in an HTML attribute
         var userInfoEscaped = HtmlEncoder.Default.Encode(userInfoEncoded);

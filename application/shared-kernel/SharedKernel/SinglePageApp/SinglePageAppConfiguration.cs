@@ -2,8 +2,6 @@ using System.Security;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace PlatformPlatform.SharedKernel.SinglePageApp;
@@ -18,6 +16,12 @@ public class SinglePageAppConfiguration
     public static readonly string BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
     private static readonly DateTime StartupTime = DateTime.UtcNow;
 
+    public static readonly JsonSerializerOptions JsonHtmlEncodingOptions =
+        new(SharedDependencyConfiguration.DefaultJsonSerializerOptions)
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+
     private readonly string _htmlTemplatePath;
     private readonly bool _isDevelopment;
     private readonly string[] _publicAllowedKeys = [CdnUrlKey, ApplicationVersionKey];
@@ -25,7 +29,7 @@ public class SinglePageAppConfiguration
     private string? _htmlTemplate;
     private string? _remoteEntryJsContent;
 
-    public SinglePageAppConfiguration(IOptions<JsonOptions> jsonOptions, bool isDevelopment)
+    public SinglePageAppConfiguration(bool isDevelopment)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;
@@ -39,12 +43,8 @@ public class SinglePageAppConfiguration
             { ApplicationVersionKey, applicationVersion }
         };
 
-        var jsonHtmlEncodingOptions = new JsonSerializerOptions(jsonOptions.Value.SerializerOptions)
-        {
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
 
-        var staticRuntimeEnvironmentEncoded = JsonSerializer.Serialize(StaticRuntimeEnvironment, jsonHtmlEncodingOptions);
+        var staticRuntimeEnvironmentEncoded = JsonSerializer.Serialize(StaticRuntimeEnvironment, JsonHtmlEncodingOptions);
 
         // Escape the JSON for use in an HTML attribute
         StaticRuntimeEnvironmentEscaped = HtmlEncoder.Default.Encode(staticRuntimeEnvironmentEncoded);

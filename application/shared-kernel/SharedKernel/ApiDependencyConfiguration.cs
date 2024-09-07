@@ -2,7 +2,6 @@ using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,7 +57,7 @@ public static class ApiDependencyConfiguration
                 settings.Version = "v1";
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
-                options.SerializerOptions = SharedDependencyConfiguration.JsonSerializerOptions;
+                options.SerializerOptions = SharedDependencyConfiguration.DefaultJsonSerializerOptions;
                 settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(coreAssembly));
             }
         );
@@ -80,18 +79,6 @@ public static class ApiDependencyConfiguration
             }
         );
         builder.Services.AddAuthorization();
-
-        // Ensure that enums are serialized as strings
-        builder.Services.Configure<JsonOptions>(options =>
-            {
-                foreach (var jsonConverter in SharedDependencyConfiguration.JsonSerializerOptions.Converters)
-                {
-                    options.SerializerOptions.Converters.Add(jsonConverter);
-                }
-
-                options.SerializerOptions.PropertyNamingPolicy = SharedDependencyConfiguration.JsonSerializerOptions.PropertyNamingPolicy;
-            }
-        );
 
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
