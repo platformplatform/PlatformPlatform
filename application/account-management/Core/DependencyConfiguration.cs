@@ -24,6 +24,8 @@ public static class DependencyConfiguration
         services.AddScoped<AuthenticationTokenGenerator>();
         services.AddScoped<AuthenticationTokenService>();
 
+        services.AddHttpClient("Gravatar").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler());
+
         return services;
     }
 

@@ -43,11 +43,13 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
     }
 }
 
-public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
-    : IRequestHandler<CreateUserCommand, Result<UserId>>
+public sealed class CreateUserHandler(
+    IUserRepository userRepository,
+    ITelemetryEventsCollector events,
+    IHttpClientFactory httpClientFactory,
+    ILogger<CreateUserHandler> logger
+) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
-    private static readonly HttpClient Client = new();
-
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
@@ -61,12 +63,25 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
         return user.Id;
     }
 
-    private static async Task<string?> GetGravatarProfileUrlIfExists(string email)
+    private async Task<string?> GetGravatarProfileUrlIfExists(string email)
     {
+        var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
+        gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
+
         var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
         var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
         // The d=404 instructs Gravatar to return 404 if the email has no Gravatar account
-        var httpResponseMessage = await Client.GetAsync($"{gravatarUrl}?d=404");
-        return httpResponseMessage.StatusCode == HttpStatusCode.OK ? gravatarUrl : null;
+        var httpResponseMessage = await gravatarHttpClient.GetAsync($"{gravatarUrl}?d=404");
+
+        switch (httpResponseMessage.StatusCode)
+        {
+            case HttpStatusCode.OK:
+                return gravatarUrl;
+            case HttpStatusCode.NotFound:
+                return null;
+            default:
+                logger.LogError("Failed to fetch gravatar profile. Status code: {StatusCode}", httpResponseMessage.StatusCode);
+                return null;
+        }
     }
 }
