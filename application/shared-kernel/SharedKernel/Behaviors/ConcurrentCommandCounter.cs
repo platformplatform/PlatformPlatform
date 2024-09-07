@@ -10,7 +10,7 @@ namespace PlatformPlatform.SharedKernel.Behaviors;
 /// </summary>
 public sealed class ConcurrentCommandCounter
 {
-    private int _concurrentCount;
+    private long _concurrentCount;
 
     public void Increment()
     {
@@ -24,6 +24,6 @@ public sealed class ConcurrentCommandCounter
 
     public bool IsZero()
     {
-        return _concurrentCount == 0;
+        return Interlocked.Read(ref _concurrentCount) == 0;
     }
 }
