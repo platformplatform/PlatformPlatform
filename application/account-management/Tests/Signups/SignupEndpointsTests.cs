@@ -108,7 +108,8 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
         Connection.RowExists("Tenants", signupId);
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "SignupCompleted").Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();

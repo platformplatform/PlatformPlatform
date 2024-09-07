@@ -34,10 +34,8 @@ public sealed class Logout(UserId userId)
 public sealed class SignupBlocked(int retryCount)
     : TelemetryEvent(nameof(SignupBlocked), ("RetryCount", retryCount));
 
-public sealed class SignupCompleted(TenantId tenantId, TenantState state, int signupTimeInSeconds)
-    : TelemetryEvent(nameof(SignupCompleted),
-        ("TenantId", tenantId), ("TenantState", state), ("SignupTimeInSeconds", signupTimeInSeconds)
-    );
+public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
+    : TelemetryEvent(nameof(SignupCompleted), ("TenantId", tenantId), ("SignupTimeInSeconds", signupTimeInSeconds));
 
 public sealed class SignupExpired(int secondsFromCreation)
     : TelemetryEvent(nameof(SignupExpired), ("SecondsFromCreation", secondsFromCreation));
@@ -47,6 +45,9 @@ public sealed class SignupFailed(int retryCount)
 
 public sealed class SignupStarted(TenantId tenantId)
     : TelemetryEvent(nameof(SignupStarted), ("TenantId", tenantId));
+
+public sealed class TenantCreated(TenantId tenantId, TenantState state)
+    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state));
 
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
     : TelemetryEvent(nameof(TenantDeleted), ("TenantId", tenantId), ("TenantState", tenantState));

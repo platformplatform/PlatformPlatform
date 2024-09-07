@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
@@ -78,7 +79,14 @@ public sealed class SignupTests : BaseTest<AccountManagementDbContext>
     {
         // Arrange
         var mockLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
+        var mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        var mockHttpContext = new DefaultHttpContext();
+
+        mockHttpContextAccessor.HttpContext.Returns(mockHttpContext);
+
         Services.AddSingleton(mockLogger);
+        Services.AddSingleton(mockHttpContextAccessor);
+
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act
