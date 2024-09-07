@@ -6,12 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure storage infrastructure like Database, BlobStorage, Entity Framework DB Context, etc.
 builder
-    .AddApiInfrastructure(Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddApiInfrastructure()
     .AddDevelopmentPort(9200)
     .AddBackOfficeInfrastructure();
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
+    .AddApiServices(Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
     .AddBackOfficeServices()
     .AddSinglePageAppFallback();
 

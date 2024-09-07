@@ -126,8 +126,6 @@ public static class SharedDependencyConfiguration
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
 
-        services.AddSingleton(GetTokenSigningService());
-
         services.RegisterRepositories(assembly);
 
         if (IsRunningInAzure)
@@ -141,6 +139,8 @@ public static class SharedDependencyConfiguration
         {
             services.AddTransient<IEmailService, DevelopmentEmailService>();
         }
+
+        services.AddSingleton(GetTokenSigningService());
 
         return services;
     }
