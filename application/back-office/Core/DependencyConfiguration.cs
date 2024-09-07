@@ -9,18 +9,18 @@ public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
+    public static IHostApplicationBuilder AddBackOfficeInfrastructure(this IHostApplicationBuilder builder)
+    {
+        // Storage is configured separately from other Infrastructure services to allow mocking in tests
+        builder.ConfigureDatabaseContext<BackOfficeDbContext>("back-office-database");
+        builder.AddDefaultBlobStorage();
+
+        return builder;
+    }
+
     public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
     {
         services.AddSharedServices<BackOfficeDbContext>(Assembly);
-
-        return services;
-    }
-
-    public static IServiceCollection AddStorage(this IServiceCollection services, IHostApplicationBuilder builder)
-    {
-        // Storage is configured separately from other Infrastructure services to allow mocking in tests
-        services.ConfigureDatabaseContext<BackOfficeDbContext>(builder, "back-office-database");
-        services.AddDefaultBlobStorage(builder);
 
         return services;
     }

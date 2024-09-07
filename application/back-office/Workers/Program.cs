@@ -5,12 +5,13 @@ using PlatformPlatform.SharedKernel;
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
-// FluentValidation validators, Pipelines.
-builder.Services
-    .AddBackOfficeServices()
-    .AddStorage(builder)
-    .ConfigureDevelopmentPort(builder, 9299);
+// Configure storage infrastructure like Database, BlobStorage, Entity Framework DB Context, etc.
+builder
+    .AddDevelopmentPort(9299)
+    .AddBackOfficeInfrastructure();
+
+// Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
+builder.Services.AddBackOfficeServices();
 
 var host = builder.Build();
 

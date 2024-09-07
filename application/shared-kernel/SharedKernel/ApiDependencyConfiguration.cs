@@ -22,21 +22,19 @@ public static class ApiDependencyConfiguration
 
     private static readonly string LocalhostUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
 
-    public static IServiceCollection AddApiInfrastructure(
-        this IServiceCollection services,
-        WebApplicationBuilder builder,
+    public static WebApplicationBuilder AddApiInfrastructure(
+        this WebApplicationBuilder builder,
         Assembly apiAssembly,
-        Assembly coreAssembly
-    )
+        Assembly coreAssembly)
     {
-        services.Scan(scan => scan
+        builder.Services.Scan(scan => scan
             .FromAssemblies(apiAssembly, Assembly.GetExecutingAssembly())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime()
         );
 
-        services
+        builder.Services
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
@@ -50,10 +48,10 @@ public static class ApiDependencyConfiguration
             RequestCollectionOptions = { TrackExceptions = false }
         };
 
-        services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
-        services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
+        builder.Services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
+        builder.Services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
 
-        services.AddOpenApiDocument((settings, _) =>
+        builder.Services.AddOpenApiDocument((settings, _) =>
             {
                 settings.DocumentName = "v1";
                 settings.Title = "PlatformPlatform API";
@@ -66,7 +64,7 @@ public static class ApiDependencyConfiguration
         );
 
         // Add Authentication and Authorization services
-        services.AddAuthentication(options =>
+        builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -81,10 +79,10 @@ public static class ApiDependencyConfiguration
                 );
             }
         );
-        services.AddAuthorization();
+        builder.Services.AddAuthorization();
 
         // Ensure that enums are serialized as strings
-        services.Configure<JsonOptions>(options =>
+        builder.Services.Configure<JsonOptions>(options =>
             {
                 foreach (var jsonConverter in SharedDependencyConfiguration.JsonSerializerOptions.Converters)
                 {
@@ -97,7 +95,7 @@ public static class ApiDependencyConfiguration
 
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
-        services.Configure<ForwardedHeadersOptions>(options =>
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
                 // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -119,10 +117,10 @@ public static class ApiDependencyConfiguration
 
         builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
 
-        return services;
+        return builder;
     }
 
-    public static IServiceCollection ConfigureDevelopmentPort(this IServiceCollection services, WebApplicationBuilder builder, int port)
+    public static WebApplicationBuilder AddDevelopmentPort(this WebApplicationBuilder builder, int port)
     {
         builder.WebHost.ConfigureKestrel((context, serverOptions) =>
             {
@@ -134,7 +132,7 @@ public static class ApiDependencyConfiguration
             }
         );
 
-        return services;
+        return builder;
     }
 
     public static WebApplication UseApiServices(this WebApplication app)

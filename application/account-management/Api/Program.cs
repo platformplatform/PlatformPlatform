@@ -4,14 +4,16 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services for the Application, Infrastructure, and Api layers like Entity Framework, Repositories, MediatR,
-// FluentValidation validators, Pipelines.
+// Configure storage infrastructure like Database, BlobStorage, Entity Framework DB Context, etc.
+builder
+    .AddApiInfrastructure(Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddDevelopmentPort(9100)
+    .AddAccountManagementInfrastructure();
+
+// Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
     .AddAccountManagementServices()
-    .AddApiInfrastructure(builder, Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
-    .AddStorage(builder)
-    .AddSinglePageAppFallback()
-    .ConfigureDevelopmentPort(builder, 9100);
+    .AddSinglePageAppFallback();
 
 var app = builder.Build();
 

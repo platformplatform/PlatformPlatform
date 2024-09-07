@@ -41,11 +41,8 @@ public static class SharedDependencyConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
 
-    public static IServiceCollection ConfigureDatabaseContext<T>(
-        this IServiceCollection services,
-        IHostApplicationBuilder builder,
-        string connectionName
-    ) where T : DbContext
+    public static IHostApplicationBuilder ConfigureDatabaseContext<T>(this IHostApplicationBuilder builder, string connectionName)
+        where T : DbContext
     {
         var connectionString = IsRunningInAzure
             ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
@@ -54,32 +51,31 @@ public static class SharedDependencyConfiguration
         builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
         builder.EnrichSqlServerDbContext<T>();
 
-        return services;
+        return builder;
     }
 
     // Register the default storage account for IBlobStorage
-    public static IServiceCollection AddDefaultBlobStorage(this IServiceCollection services, IHostApplicationBuilder builder)
+    public static IHostApplicationBuilder AddDefaultBlobStorage(this IHostApplicationBuilder builder)
     {
         if (IsRunningInAzure)
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-            services.AddSingleton<IBlobStorage>(
+            builder.Services.AddSingleton<IBlobStorage>(
                 _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
             );
         }
         else
         {
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+            builder.Services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
         }
 
-        return services;
+        return builder;
     }
 
     // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
-    public static IServiceCollection AddNamedBlobStorages(
-        this IServiceCollection services,
-        IHostApplicationBuilder builder,
+    public static IHostApplicationBuilder AddNamedBlobStorages(
+        this IHostApplicationBuilder builder,
         params (string ConnectionName, string EnvironmentVariable)[] connections
     )
     {
@@ -88,7 +84,7 @@ public static class SharedDependencyConfiguration
             foreach (var connection in connections)
             {
                 var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
-                services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
+                builder.Services.AddKeyedSingleton<IBlobStorage, BlobStorage>(connection.ConnectionName,
                     (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                 );
             }
@@ -96,10 +92,10 @@ public static class SharedDependencyConfiguration
         else
         {
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+            builder.Services.AddSingleton<IBlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
         }
 
-        return services;
+        return builder;
     }
 
     public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, Assembly assembly)
@@ -131,7 +127,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly applicationAssembly)
+    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly assembly)
     {
         // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
         // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
@@ -142,8 +138,8 @@ public static class SharedDependencyConfiguration
         services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
         services.AddScoped<ConcurrentCommandCounter>();
 
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(applicationAssembly));
-        services.AddValidatorsFromAssembly(applicationAssembly);
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assembly));
+        services.AddValidatorsFromAssembly(assembly);
 
         return services;
     }
