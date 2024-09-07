@@ -101,6 +101,11 @@ public static class SharedDependencyConfiguration
     public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
+        // Even though the HttpContextAccessor is not available in Worker Services, it is still registered here because
+        // worker services register the same CommandHandlers as the API, which may require the HttpContext.
+        // Consider making a generic IRequestContextProvider that can return the HttpContext only if it is available.
+        services.AddHttpContextAccessor();
+
         services.AddMediatRPipelineBehaviours(assembly);
 
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));

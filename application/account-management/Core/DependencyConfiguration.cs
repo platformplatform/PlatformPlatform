@@ -26,8 +26,6 @@ public static class DependencyConfiguration
     {
         services.AddSharedServices<AccountManagementDbContext>(Assembly);
 
-        services.AddHttpContextAccessor();
-
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
         services.AddScoped<OneTimePasswordHelper>();
 
