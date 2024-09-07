@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.Endpoints;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
 using PlatformPlatform.SharedKernel.SchemaProcessor;
 using PlatformPlatform.SharedKernel.SinglePageApp;
@@ -52,6 +53,7 @@ public static class ApiDependencyConfiguration
     public static IServiceCollection AddApiServices(this IServiceCollection services, Assembly apiAssembly, Assembly coreAssembly)
     {
         services
+            .AddApiExecutionContext()
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
@@ -61,6 +63,14 @@ public static class ApiDependencyConfiguration
             .AddOpenApiConfiguration(coreAssembly)
             .AddAuthConfiguration()
             .AddHttpForwardHeaders();
+
+        return services;
+    }
+
+    private static IServiceCollection AddApiExecutionContext(this IServiceCollection services)
+    {
+        // Add the execution context service that will be used to make current user information available to the application
+        services.AddScoped<IExecutionContext, HttpExecutionContext>();
 
         return services;
     }

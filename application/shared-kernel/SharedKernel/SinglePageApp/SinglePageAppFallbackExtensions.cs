@@ -3,12 +3,12 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.SharedKernel.SinglePageApp;
 
@@ -35,7 +35,7 @@ public static class SinglePageAppFallbackExtensions
             }
         );
 
-        app.MapFallback((HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
+        app.MapFallback((HttpContext context, IExecutionContext executionContext, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
                 if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
                     context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
@@ -47,9 +47,7 @@ public static class SinglePageAppFallbackExtensions
 
                 SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8");
 
-                var defaultLocale = context.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name ?? "en-US";
-                var userInfo = UserInfo.Create(context.User, defaultLocale);
-                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, userInfo);
+                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo);
                 return context.Response.WriteAsync(html);
             }
         );
