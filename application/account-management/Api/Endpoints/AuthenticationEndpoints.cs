@@ -13,20 +13,20 @@ public sealed class AuthenticationEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").RequireAuthorization();
 
-        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, ISender mediator)
+        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<StartLoginResponse>().AllowAnonymous();
 
-        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, ISender mediator)
+        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
 
-        group.MapPost("logout", async Task<ApiResult> (ISender mediator)
+        group.MapPost("logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())
         ).AllowAnonymous();
 
         // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
-        group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (ISender mediator)
+        group.MapPost("refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new RefreshAuthenticationTokensCommand())
         );
     }

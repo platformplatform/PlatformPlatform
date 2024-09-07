@@ -12,7 +12,7 @@ namespace PlatformPlatform.AccountManagement.Tenants.Commands;
 public sealed record CreateTenantCommand(TenantId Id, string OwnerEmail, bool EmailConfirmed)
     : ICommand, IRequest<Result<UserId>>;
 
-public sealed class CreateTenantHandler(ITenantRepository tenantRepository, ISender mediator, ITelemetryEventsCollector events)
+public sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMediator mediator, ITelemetryEventsCollector events)
     : IRequestHandler<CreateTenantCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)

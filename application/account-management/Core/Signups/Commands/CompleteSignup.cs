@@ -21,7 +21,7 @@ public sealed class CompleteSignupHandler(
     ISignupRepository signupRepository,
     IUserRepository userRepository,
     AuthenticationTokenService authenticationTokenService,
-    ISender mediator,
+    IMediator mediator,
     OneTimePasswordHelper oneTimePasswordHelper,
     ITelemetryEventsCollector events,
     ILogger<CompleteSignupHandler> logger

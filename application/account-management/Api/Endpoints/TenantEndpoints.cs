@@ -14,15 +14,15 @@ public sealed class TenantEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants").RequireAuthorization();
 
-        group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> (TenantId id, ISender mediator)
+        group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> (TenantId id, IMediator mediator)
             => await mediator.Send(new GetTenantQuery(id))
         ).Produces<TenantResponseDto>();
 
-        group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, ISender mediator)
+        group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         );
 
-        group.MapDelete("/{id}", async Task<ApiResult> (TenantId id, ISender mediator)
+        group.MapDelete("/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new DeleteTenantCommand(id))
         );
     }

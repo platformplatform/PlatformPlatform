@@ -14,15 +14,15 @@ public sealed class SignupEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization();
 
-        group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, ISender mediator)
+        group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<bool>().AllowAnonymous();
 
-        group.MapPost("/start", async Task<ApiResult<StartSignupResponse>> (StartSignupCommand command, ISender mediator)
+        group.MapPost("/start", async Task<ApiResult<StartSignupResponse>> (StartSignupCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<StartSignupResponse>().AllowAnonymous();
 
-        group.MapPost("{id}/complete", async Task<ApiResult> (SignupId id, CompleteSignupCommand command, ISender mediator)
+        group.MapPost("{id}/complete", async Task<ApiResult> (SignupId id, CompleteSignupCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
     }
