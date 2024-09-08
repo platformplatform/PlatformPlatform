@@ -14,9 +14,9 @@ public static class DependencyConfiguration
 
     public static IHostApplicationBuilder AddAccountManagementInfrastructure(this IHostApplicationBuilder builder)
     {
-        // Storage is configured separately from other Infrastructure services to allow mocking in tests
-        builder.ConfigureDatabaseContext<AccountManagementDbContext>("account-management-database");
-        builder.AddDefaultBlobStorage();
+        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+        builder.AddSharedInfrastructure<AccountManagementDbContext>("account-management-database");
+
         builder.AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
 
         return builder;

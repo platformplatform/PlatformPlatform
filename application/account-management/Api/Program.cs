@@ -4,7 +4,7 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure storage infrastructure like Database, BlobStorage, Entity Framework DB Context, etc.
+// Configure storage infrastructure like Database, BlobStorage, Logging, Telemetry, Entity Framework DB Context, etc.
 builder
     .AddApiInfrastructure()
     .AddDevelopmentPort(9100)

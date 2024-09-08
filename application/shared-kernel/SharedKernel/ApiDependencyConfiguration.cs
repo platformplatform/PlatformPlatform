@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NJsonSchema.Generation;
-using PlatformPlatform.SharedKernel.Aspire;
 using PlatformPlatform.SharedKernel.Endpoints;
 using PlatformPlatform.SharedKernel.Middleware;
 using PlatformPlatform.SharedKernel.SchemaProcessor;
@@ -21,8 +20,6 @@ public static class ApiDependencyConfiguration
 
     public static WebApplicationBuilder AddApiInfrastructure(this WebApplicationBuilder builder)
     {
-        builder.AddServiceDefaults();
-
         if (builder.Environment.IsDevelopment())
         {
             builder.Services.AddCors(options => options.AddPolicy(

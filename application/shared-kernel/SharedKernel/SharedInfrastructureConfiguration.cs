@@ -1,9 +1,16 @@
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Storage.Blobs;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using PlatformPlatform.SharedKernel.Filters;
 using PlatformPlatform.SharedKernel.Services;
 
 namespace PlatformPlatform.SharedKernel;
@@ -14,6 +21,31 @@ public static class SharedInfrastructureConfiguration
 
     public static DefaultAzureCredential DefaultAzureCredential => GetDefaultAzureCredential();
 
+    public static IHostApplicationBuilder AddSharedInfrastructure<T>(this IHostApplicationBuilder builder, string connectionName)
+        where T : DbContext
+    {
+        builder.ConfigureDatabaseContext<T>(connectionName);
+        builder.AddDefaultBlobStorage();
+
+        builder
+            .AddConfigureOpenTelemetry()
+            .AddOpenTelemetryExporters();
+
+        builder.Services.AddApplicationInsightsTelemetry();
+
+        builder.Services.ConfigureHttpClientDefaults(http =>
+            {
+                // Turn on resilience by default
+                http.AddStandardResilienceHandler();
+
+                // Turn on service discovery by default
+                http.AddServiceDiscovery();
+            }
+        );
+
+        return builder;
+    }
+
     private static DefaultAzureCredential GetDefaultAzureCredential()
     {
         // Hack: Remove trailing whitespace from the environment variable, added in Bicep to workaround issue #157.
@@ -22,7 +54,7 @@ public static class SharedInfrastructureConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
 
-    public static IHostApplicationBuilder ConfigureDatabaseContext<T>(this IHostApplicationBuilder builder, string connectionName)
+    private static IHostApplicationBuilder ConfigureDatabaseContext<T>(this IHostApplicationBuilder builder, string connectionName)
         where T : DbContext
     {
         var connectionString = IsRunningInAzure
@@ -35,9 +67,9 @@ public static class SharedInfrastructureConfiguration
         return builder;
     }
 
-    // Register the default storage account for IBlobStorage
-    public static IHostApplicationBuilder AddDefaultBlobStorage(this IHostApplicationBuilder builder)
+    private static IHostApplicationBuilder AddDefaultBlobStorage(this IHostApplicationBuilder builder)
     {
+        // Register the default storage account for IBlobStorage
         if (IsRunningInAzure)
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
@@ -54,7 +86,9 @@ public static class SharedInfrastructureConfiguration
         return builder;
     }
 
-    // Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
+    ///<summary>
+    /// Register different storage accounts for IBlobStorage using .NET Keyed services, when a service needs to access multiple storage accounts
+    /// </summary>
     public static IHostApplicationBuilder AddNamedBlobStorages(
         this IHostApplicationBuilder builder,
         params (string ConnectionName, string EnvironmentVariable)[] connections
@@ -77,5 +111,81 @@ public static class SharedInfrastructureConfiguration
         }
 
         return builder;
+    }
+
+    private static IHostApplicationBuilder AddConfigureOpenTelemetry(this IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
+            {
+                options.Filter = httpContext =>
+                {
+                    // Add filtering to exclude health check endpoints
+                    var requestPath = httpContext.Request.Path.ToString();
+                    return !Array.Exists(EndpointTelemetryFilter.ExcludedPaths, requestPath.StartsWith);
+                };
+            }
+        );
+
+        builder.Logging.AddOpenTelemetry(logging =>
+            {
+                logging.IncludeFormattedMessage = true;
+                logging.IncludeScopes = true;
+            }
+        );
+
+        builder.Services.AddOpenTelemetry()
+            .WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddRuntimeInstrumentation();
+                }
+            )
+            .WithTracing(tracing =>
+                {
+                    // We want to view all traces in development
+                    if (builder.Environment.IsDevelopment()) tracing.SetSampler(new AlwaysOnSampler());
+
+                    tracing.AddAspNetCoreInstrumentation().AddGrpcClientInstrumentation().AddHttpClientInstrumentation();
+                }
+            );
+
+        return builder;
+    }
+
+    private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
+    {
+        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+        if (useOtlpExporter)
+        {
+            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+        }
+
+        builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+            {
+                options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
+                                           "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
+            }
+        );
+
+        return builder;
+    }
+
+    private static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
+    {
+        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+        {
+            EnableRequestTrackingTelemetryModule = false,
+            EnableDependencyTrackingTelemetryModule = false,
+            RequestCollectionOptions = { TrackExceptions = false }
+        };
+
+        services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
+        services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
+
+        return services;
     }
 }

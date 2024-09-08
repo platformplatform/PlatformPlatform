@@ -11,9 +11,8 @@ public static class DependencyConfiguration
 
     public static IHostApplicationBuilder AddBackOfficeInfrastructure(this IHostApplicationBuilder builder)
     {
-        // Storage is configured separately from other Infrastructure services to allow mocking in tests
-        builder.ConfigureDatabaseContext<BackOfficeDbContext>("back-office-database");
-        builder.AddDefaultBlobStorage();
+        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+        builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
 
         return builder;
     }
