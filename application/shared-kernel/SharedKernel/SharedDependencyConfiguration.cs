@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Behaviors;
 using PlatformPlatform.SharedKernel.DomainEvents;
@@ -27,6 +28,47 @@ public static class SharedDependencyConfiguration
     public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, Assembly assembly)
         where T : DbContext
     {
+        // Even though the HttpContextAccessor is not available in Worker Services, it is still registered here because
+        // workers register the same CommandHandlers as the API, which may require the HttpContext.
+        // Consider making a generic IRequestContextProvider that can return the HttpContext only if it is available.
+        services.AddHttpContextAccessor();
+
+        services
+            .AddSingleton(GetTokenSigningService())
+            .AddServiceDiscovery()
+            .AddDefaultJsonSerializerOptions()
+            .AddPersistenceHelpers<T>()
+            .AddMediatRPipelineBehaviours(assembly)
+            .RegisterRepositories(assembly)
+            .AddDefaultHealthChecks()
+            .AddEmailSignatureService();
+
+        return services;
+    }
+
+    public static ITokenSigningService GetTokenSigningService()
+    {
+        if (SharedInfrastructureConfiguration.IsRunningInAzure)
+        {
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            var keyClient = new KeyClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential);
+            var cryptographyClient = new CryptographyClient(
+                keyClient.GetKey("authentication-token-signing-key").Value.Id,
+                SharedInfrastructureConfiguration.DefaultAzureCredential
+            );
+
+            var secretClient = new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential);
+            var issuer = secretClient.GetSecret("authentication-token-issuer").Value.Value;
+            var audience = secretClient.GetSecret("authentication-token-audience").Value.Value;
+
+            return new AzureTokenSigningService(cryptographyClient, issuer, audience);
+        }
+
+        return new DevelopmentTokenSigningService();
+    }
+
+    private static IServiceCollection AddDefaultJsonSerializerOptions(this IServiceCollection services)
+    {
         services.Configure<JsonOptions>(options =>
             {
                 // Copy the default options from the DefaultJsonSerializerOptions to enforce consistency in serialization.
@@ -38,34 +80,15 @@ public static class SharedDependencyConfiguration
                 options.SerializerOptions.PropertyNamingPolicy = DefaultJsonSerializerOptions.PropertyNamingPolicy;
             }
         );
+        return services;
+    }
 
-        // Even though the HttpContextAccessor is not available in Worker Services, it is still registered here because
-        // worker services register the same CommandHandlers as the API, which may require the HttpContext.
-        // Consider making a generic IRequestContextProvider that can return the HttpContext only if it is available.
-        services.AddHttpContextAccessor();
-
-        services.AddMediatRPipelineBehaviours(assembly);
-
+    private static IServiceCollection AddPersistenceHelpers<T>(this IServiceCollection services) where T : DbContext
+    {
         services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
         services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
             new DomainEventCollector(provider.GetRequiredService<T>())
         );
-
-        services.RegisterRepositories(assembly);
-
-        if (SharedInfrastructureConfiguration.IsRunningInAzure)
-        {
-            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            services.AddSingleton(_ => new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential));
-            services.AddTransient<IEmailService, AzureEmailService>();
-        }
-        else
-        {
-            services.AddTransient<IEmailService, DevelopmentEmailService>();
-        }
-
-        services.AddSingleton(GetTokenSigningService());
-
         return services;
     }
 
@@ -105,24 +128,25 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    public static ITokenSigningService GetTokenSigningService()
+    private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
+    {
+        // Add a default liveness check to ensure the app is responsive
+        services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+        return services;
+    }
+
+    private static void AddEmailSignatureService(this IServiceCollection services)
     {
         if (SharedInfrastructureConfiguration.IsRunningInAzure)
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            var keyClient = new KeyClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential);
-            var cryptographyClient = new CryptographyClient(
-                keyClient.GetKey("authentication-token-signing-key").Value.Id,
-                SharedInfrastructureConfiguration.DefaultAzureCredential
-            );
-
-            var secretClient = new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential);
-            var issuer = secretClient.GetSecret("authentication-token-issuer").Value.Value;
-            var audience = secretClient.GetSecret("authentication-token-audience").Value.Value;
-
-            return new AzureTokenSigningService(cryptographyClient, issuer, audience);
+            services.AddSingleton(_ => new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential));
+            services.AddTransient<IEmailService, AzureEmailService>();
         }
-
-        return new DevelopmentTokenSigningService();
+        else
+        {
+            services.AddTransient<IEmailService, DevelopmentEmailService>();
+        }
     }
 }

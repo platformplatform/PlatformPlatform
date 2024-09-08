@@ -1,7 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
@@ -18,10 +17,6 @@ public static class ServiceDefaultsExtensions
         builder.ConfigureOpenTelemetry();
 
         builder.Services.ConfigureApplicationInsights();
-
-        builder.Services.AddDefaultHealthChecks();
-
-        builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http =>
             {
@@ -110,14 +105,6 @@ public static class ServiceDefaultsExtensions
 
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
-    {
-        // Add a default liveness check to ensure app is responsive
-        services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return services;
     }
