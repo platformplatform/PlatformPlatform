@@ -189,6 +189,7 @@ public static class SharedInfrastructureConfiguration
     {
         var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
         {
+            EnableQuickPulseMetricStream = false,
             EnableRequestTrackingTelemetryModule = false,
             EnableDependencyTrackingTelemetryModule = false,
             RequestCollectionOptions = { TrackExceptions = false }
