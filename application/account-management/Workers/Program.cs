@@ -12,7 +12,9 @@ builder
     .AddAccountManagementInfrastructure();
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
-builder.Services.AddAccountManagementServices();
+builder.Services
+    .AddApiServices()
+    .AddAccountManagementServices();
 
 builder.Services.AddTransient<DatabaseMigrationService<AccountManagementDbContext>>();
 
