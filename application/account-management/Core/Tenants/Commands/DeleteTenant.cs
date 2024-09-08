@@ -4,6 +4,7 @@ using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tenants.Commands;

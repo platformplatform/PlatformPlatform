@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Entities;
 
 namespace PlatformPlatform.AccountManagement.Users.Queries;
 

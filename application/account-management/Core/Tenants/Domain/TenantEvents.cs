@@ -1,4 +1,5 @@
 using PlatformPlatform.SharedKernel.DomainEvents;
+using PlatformPlatform.SharedKernel.Entities;
 
 namespace PlatformPlatform.AccountManagement.Tenants.Domain;
 

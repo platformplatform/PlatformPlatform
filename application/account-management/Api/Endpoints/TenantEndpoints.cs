@@ -1,8 +1,8 @@
 using PlatformPlatform.AccountManagement.Tenants.Commands;
-using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Tenants.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
+using PlatformPlatform.SharedKernel.Entities;
 
 namespace PlatformPlatform.AccountManagement.Api.Endpoints;
 

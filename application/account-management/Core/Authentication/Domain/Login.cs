@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.IdGenerators;

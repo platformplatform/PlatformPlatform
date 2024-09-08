@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 

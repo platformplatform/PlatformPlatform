@@ -3,8 +3,8 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Authentication.Services;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Entities;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Authentication.Commands;
