@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using System.Text.Json;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
@@ -7,7 +6,6 @@ using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -197,57 +195,5 @@ public static class SharedDependencyConfiguration
         }
 
         return new DevelopmentTokenSigningService();
-    }
-
-    public static void ApplyMigrations<T>(this IServiceProvider services) where T : DbContext
-    {
-        using var scope = services.CreateScope();
-
-        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger(nameof(SharedDependencyConfiguration));
-
-        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
-        logger.LogInformation("Applying database migrations. Version: {Version}.", version);
-
-        var retryCount = 1;
-        while (retryCount <= 20)
-        {
-            try
-            {
-                if (retryCount % 5 == 0) logger.LogInformation("Waiting for databases to be ready...");
-
-                var dbContext = scope.ServiceProvider.GetService<T>() ??
-                                throw new UnreachableException("Missing DbContext.");
-
-                var strategy = dbContext.Database.CreateExecutionStrategy();
-
-                strategy.Execute(() => dbContext.Database.Migrate());
-
-                logger.LogInformation("Finished migrating database.");
-
-                break;
-            }
-            catch (SqlException ex) when (ex.Message.Contains("an error occurred during the pre-login handshake"))
-            {
-                // Known error in Aspire, when SQL Server is not ready
-                retryCount++;
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-            catch (SocketException ex) when (ex.Message.Contains("Invalid argument"))
-            {
-                // Known error in Aspire, when SQL Server is not ready
-                retryCount++;
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while applying migrations.");
-
-                // Wait for the logger to flush
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-
-                break;
-            }
-        }
     }
 }
