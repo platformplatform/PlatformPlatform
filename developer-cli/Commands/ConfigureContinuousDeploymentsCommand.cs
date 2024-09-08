@@ -33,7 +33,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private int Execute(bool verboseLogging = false)
     {
-        PrerequisitesChecker.Check("dotnet", "az", "gh");
+        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.AzureCli, Prerequisite.GithubCli);
 
         Configuration.VerboseLogging = verboseLogging;
 

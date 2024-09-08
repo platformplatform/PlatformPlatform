@@ -22,7 +22,7 @@ public class CodeCoverageCommand : Command
 
     private int Execute(string? solutionName)
     {
-        PrerequisitesChecker.Check("dotnet");
+        Prerequisite.Ensure(Prerequisite.Dotnet);
 
         var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application")).FullName;
 

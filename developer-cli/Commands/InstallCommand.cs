@@ -46,7 +46,7 @@ public class InstallCommand : Command
 
     private void Execute()
     {
-        PrerequisitesChecker.Check("dotnet");
+        Prerequisite.Ensure(Prerequisite.Dotnet);
 
         if (IsAliasRegistered())
         {

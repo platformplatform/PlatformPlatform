@@ -21,7 +21,7 @@ public class TestCommand : Command
 
     private int Execute(string? solutionName)
     {
-        PrerequisitesChecker.Check("dotnet");
+        Prerequisite.Ensure(Prerequisite.Dotnet);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 
