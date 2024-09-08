@@ -11,9 +11,9 @@ var reverseProxyBuilder = builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>();
 
-if (SharedDependencyConfiguration.IsRunningInAzure)
+if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(SharedDependencyConfiguration.DefaultAzureCredential);
+    builder.Services.AddSingleton<TokenCredential>(SharedInfrastructureConfiguration.DefaultAzureCredential);
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
