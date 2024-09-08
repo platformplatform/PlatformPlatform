@@ -9,7 +9,7 @@ namespace PlatformPlatform.SharedKernel.Filters;
 /// </summary>
 public class EndpointTelemetryFilter(ITelemetryProcessor telemetryProcessor) : ITelemetryProcessor
 {
-    public static readonly string[] ExcludedPaths = ["/swagger", "/health", "/alive", "/api/track"];
+    public static readonly string[] ExcludedPaths = ["/swagger", "/internal-api/live", "/internal-api/ready", "/api/track"];
 
     public void Process(ITelemetry item)
     {
