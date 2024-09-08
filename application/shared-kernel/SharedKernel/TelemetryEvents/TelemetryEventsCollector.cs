@@ -30,5 +30,5 @@ public abstract class TelemetryEvent(string name, params (string Key, object Val
 {
     public string Name { get; } = name;
 
-    public Dictionary<string, string> Properties { get; } = properties.ToDictionary(p => $"Event_{p.Key}", p => p.Value.ToString() ?? "");
+    public Dictionary<string, string> Properties { get; } = properties.ToDictionary(p => $"event_{p.Key}", p => p.Value.ToString() ?? "");
 }

@@ -30,7 +30,7 @@ public sealed class SignupTests : BaseTest<AccountManagementDbContext>
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "SignupStarted" &&
-            e.Properties["Event_TenantId"] == subdomain
+            e.Properties["event_TenantId"] == subdomain
         ).Should().Be(1);
 
         await EmailService.Received().SendAsync(email.ToLower(), "Confirm your email address", Arg.Any<string>(), CancellationToken.None);
