@@ -6,7 +6,7 @@ using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Users.Commands;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.AccountManagement.Users.Queries;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 /// <summary>
 ///     The Entity class is a base class for entities which represents business objects.

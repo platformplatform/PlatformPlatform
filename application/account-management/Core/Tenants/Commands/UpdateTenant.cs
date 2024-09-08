@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Tenants.Commands;

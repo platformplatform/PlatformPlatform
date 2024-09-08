@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 public interface ICrudRepository<T, in TId> where T : IAggregateRoot
 {

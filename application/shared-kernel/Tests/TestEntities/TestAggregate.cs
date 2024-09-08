@@ -1,4 +1,4 @@
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.IdGenerators;
 using Xunit;
 

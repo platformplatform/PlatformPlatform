@@ -1,6 +1,6 @@
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 [PublicAPI]
 [IdPrefix("usr")]

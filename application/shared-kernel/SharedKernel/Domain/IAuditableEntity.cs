@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 /// <summary>
 ///     IAuditableEntity interface contains properties and methods for maintaining audit information for when

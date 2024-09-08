@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.DomainEvents;
-using PlatformPlatform.SharedKernel.Entities;
 
 namespace PlatformPlatform.SharedKernel.Persistence;
 

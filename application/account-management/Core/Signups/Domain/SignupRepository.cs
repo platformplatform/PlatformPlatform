@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Signups.Domain;

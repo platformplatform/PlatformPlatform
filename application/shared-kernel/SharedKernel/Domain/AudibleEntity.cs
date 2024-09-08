@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 /// <summary>
 ///     The AudibleEntity class extends Entity and implements IAuditableEntity, which adds

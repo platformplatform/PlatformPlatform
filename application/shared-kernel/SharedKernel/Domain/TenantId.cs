@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.SharedKernel.Entities;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 [PublicAPI]
 [TypeConverter(typeof(StronglyTypedIdTypeConverter<string, TenantId>))]

@@ -5,7 +5,7 @@ using PlatformPlatform.AccountManagement.Signups.Domain;
 using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
