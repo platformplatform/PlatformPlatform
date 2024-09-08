@@ -120,9 +120,19 @@ public static class SharedInfrastructureConfiguration
             {
                 options.Filter = httpContext =>
                 {
-                    // Add filtering to exclude health check endpoints
                     var requestPath = httpContext.Request.Path.ToString();
-                    return !Array.Exists(EndpointTelemetryFilter.ExcludedPaths, requestPath.StartsWith);
+
+                    if (EndpointTelemetryFilter.ExcludedPaths.Any(excludePath => requestPath.StartsWith(excludePath)))
+                    {
+                        return false;
+                    }
+
+                    if (EndpointTelemetryFilter.ExcludedFileExtensions.Any(excludeExtension => requestPath.EndsWith(excludeExtension)))
+                    {
+                        return false;
+                    }
+
+                    return true;
                 };
             }
         );
