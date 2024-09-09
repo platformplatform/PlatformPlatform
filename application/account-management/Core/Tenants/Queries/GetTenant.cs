@@ -1,9 +1,10 @@
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Queries;
+namespace PlatformPlatform.AccountManagement.Tenants.Queries;
 
 [PublicAPI]
 public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;

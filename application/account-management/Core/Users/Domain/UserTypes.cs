@@ -1,19 +1,8 @@
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Domain;
+namespace PlatformPlatform.AccountManagement.Users.Domain;
 
 [PublicAPI]
-[IdPrefix("usr")]
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, UserId>))]
-public sealed record UserId(string Value) : StronglyTypedUlid<UserId>(Value)
-{
-    public override string ToString()
-    {
-        return Value;
-    }
-}
-
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
@@ -22,6 +11,7 @@ public enum UserRole
     Owner
 }
 
+[PublicAPI]
 public enum SortableUserProperties
 {
     CreatedAt,

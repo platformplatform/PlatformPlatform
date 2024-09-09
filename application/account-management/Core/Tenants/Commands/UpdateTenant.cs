@@ -1,14 +1,17 @@
 using FluentValidation;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using JetBrains.Annotations;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Tenants.Commands;
 
+[PublicAPI]
 public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes the Id from the API contract
+    [JsonIgnore] // Removes this property from the API contract
     public TenantId Id { get; init; } = null!;
 
     public required string Name { get; init; }

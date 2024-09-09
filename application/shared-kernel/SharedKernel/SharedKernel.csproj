@@ -16,57 +16,44 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" />
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
+        <PackageReference Include="Azure.Communication.Email" />
         <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" />
+        <PackageReference Include="Azure.Security.KeyVault.Keys" />
+        <PackageReference Include="Azure.Security.KeyVault.Secrets" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+        <PackageReference Include="IdGen" />
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="Mapster" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="MediatR.Contracts" />
+        <PackageReference Include="Microsoft.ApplicationInsights" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
         <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentFiles; analyzers; buildTransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+        <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
         <PackageReference Include="NSwag.AspNetCore" />
         <PackageReference Include="NSwag.MSBuild">
             <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <IncludeAssets>runtime; build; native; contentFiles; analyzers; buildTransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="NUlid" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
         <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-        <PackageReference Include="Mapster" />
-        <PackageReference Include="MediatR" />
-        <PackageReference Include="Microsoft.ApplicationInsights" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-        <PackageReference Include="Microsoft.Extensions.Identity.Core" />
-    </ItemGroup>
-
-
-    <ItemGroup>
-        <PackageReference Include="IdGen" />
-        <PackageReference Include="JetBrains.Annotations" />
-        <PackageReference Include="MediatR.Contracts" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <PackageReference Include="NUlid" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Aspire.Azure.Storage.Blobs" />
-        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" />
-        <PackageReference Include="Azure.Communication.Email" />
-        <PackageReference Include="Azure.Security.KeyVault.Keys" />
-        <PackageReference Include="Azure.Security.KeyVault.Secrets" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
         <PackageReference Include="Scrutor" />
     </ItemGroup>
+
 </Project>

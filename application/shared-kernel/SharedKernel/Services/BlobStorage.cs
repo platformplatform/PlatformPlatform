@@ -4,7 +4,7 @@ using Azure.Storage.Sas;
 
 namespace PlatformPlatform.SharedKernel.Services;
 
-public class BlobStorage(BlobServiceClient blobServiceClient) : IBlobStorage
+public class BlobStorage(BlobServiceClient blobServiceClient)
 {
     public async Task UploadAsync(string containerName, string blobName, string contentType, Stream stream, CancellationToken cancellationToken)
     {

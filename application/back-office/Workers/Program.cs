@@ -1,20 +1,26 @@
-using PlatformPlatform.BackOffice.Core;
-using PlatformPlatform.BackOffice.Core.Database;
+using PlatformPlatform.BackOffice;
+using PlatformPlatform.BackOffice.Database;
 using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.Database;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure services for the Application, Infrastructure layers like Entity Framework, Repositories, MediatR,
-// FluentValidation validators, Pipelines.
-builder.Services
-    .AddCoreServices()
-    .AddStorage(builder)
-    .ConfigureDevelopmentPort(builder, 9299);
+// Configure storage infrastructure like Database, BlobStorage, Logging, Telemetry, Entity Framework DB Context, etc.
+builder
+    .AddDevelopmentPort(9299)
+    .AddBackOfficeInfrastructure();
+
+// Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
+builder.Services.AddBackOfficeServices();
+
+builder.Services.AddTransient<DatabaseMigrationService<BackOfficeDbContext>>();
 
 var host = builder.Build();
 
 // Apply migrations to the database (should be moved to GitHub Actions or similar in production)
-host.Services.ApplyMigrations<BackOfficeDbContext>();
+using var scope = host.Services.CreateScope();
+var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<BackOfficeDbContext>>();
+migrationService.ApplyMigrations();
 
 await host.RunAsync();

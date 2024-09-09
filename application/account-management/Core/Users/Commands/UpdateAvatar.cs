@@ -1,14 +1,17 @@
 using System.Security.Cryptography;
 using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Users.Commands;
 
+[PublicAPI]
 public sealed record UpdateAvatarCommand(UserId Id, Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;
 
 public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
@@ -27,7 +30,7 @@ public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarComman
 
 public sealed class UpdateAvatarHandler(
     IUserRepository userRepository,
-    [FromKeyedServices("avatars-storage")] IBlobStorage blobStorage,
+    [FromKeyedServices("avatars-storage")] BlobStorage blobStorage,
     ITelemetryEventsCollector events
 ) : IRequestHandler<UpdateAvatarCommand, Result>
 {
@@ -52,7 +55,7 @@ public sealed class UpdateAvatarHandler(
         return Result.Success();
     }
 
-    private async Task<string> GetFileHash(Stream fileStream, CancellationToken cancellationToken)
+    private static async Task<string> GetFileHash(Stream fileStream, CancellationToken cancellationToken)
     {
         var hashBytes = await SHA1.Create().ComputeHashAsync(fileStream, cancellationToken);
         fileStream.Position = 0;

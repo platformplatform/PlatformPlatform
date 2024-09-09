@@ -70,7 +70,7 @@ export function Avatar({ initials, avatarUrl, size, variant, isRound, className,
 
   return (
     <div {...props} className={backgroundStyles({ isRound, size, variant, className })}>
-      {avatarUrl && imageFailed === false ? (
+      {avatarUrl && !imageFailed ? (
         <img ref={imgRef} className="" src={avatarUrl} alt="User avatar" onError={handleError} />
       ) : (
         initials?.slice(0, 2)

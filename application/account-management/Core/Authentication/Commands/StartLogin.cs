@@ -1,19 +1,22 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 
 [PublicAPI]
 public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
+
+[PublicAPI]
+public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
 
 public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {
@@ -22,9 +25,6 @@ public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }
-
-[PublicAPI]
-public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
 
 public sealed class StartLoginCommandHandler(
     IUserRepository userRepository,

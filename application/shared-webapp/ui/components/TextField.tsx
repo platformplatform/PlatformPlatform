@@ -1,4 +1,4 @@
-import type { Attributes, HtmlHTMLAttributes, RefAttributes } from "react";
+import type { RefAttributes } from "react";
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
  */

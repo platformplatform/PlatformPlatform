@@ -6,6 +6,7 @@ import type { InputProps as AriaInputProps } from "react-aria-components";
 import { Input as AriaInput, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
+import React from "react";
 
 export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefAttributes<HTMLInputElement> {
   isDisabled?: boolean;

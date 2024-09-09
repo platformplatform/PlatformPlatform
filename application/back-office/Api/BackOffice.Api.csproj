@@ -17,20 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core\BackOffice.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Update="appsettings.development.json">
-            <DependentUpon>appsettings.json</DependentUpon>
-        </Content>
+        <ProjectReference Include="..\Core\BackOffice.csproj" />
     </ItemGroup>
 
 </Project>

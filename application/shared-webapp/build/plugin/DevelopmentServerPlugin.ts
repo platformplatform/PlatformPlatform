@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { logger } from "@rsbuild/core";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import { logger } from "@rsbuild/core";
 
 /**
  * Build ignore pattern for the dist folder
@@ -35,7 +35,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
     setup(api) {
       api.modifyRsbuildConfig((userConfig, { mergeRsbuildConfig }) => {
         if (process.env.NODE_ENV === "production") {
-          // Do not modify the rsbuild config in production
+          // Do not modify the Rsbuild config in production
           return userConfig;
         }
 
@@ -43,7 +43,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
         const pfxPath = path.join(os.homedir(), ".aspnet", "dev-certs", "https", "platformplatform.pfx");
         const passphrase = process.env.CERTIFICATE_PASSWORD ?? "";
 
-        if (fs.existsSync(pfxPath) === false) {
+        if (!fs.existsSync(pfxPath)) {
           throw new Error(`Certificate not found at path: ${pfxPath}`);
         }
 
@@ -55,7 +55,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
 
         const extraConfig: RsbuildConfig = {
           server: {
-            // If the port is occupied the server will exit with an error
+            // If the port is in use, the server will exit with an error
             strictPort: true,
             // Allow CORS for the platformplatform server
             headers: {

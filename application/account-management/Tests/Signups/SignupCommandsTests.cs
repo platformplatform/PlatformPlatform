@@ -1,9 +1,10 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.AccountManagement.Core.Signups.Commands;
-using PlatformPlatform.AccountManagement.Core.Tenants.EventHandlers;
+using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Signups.Commands;
+using PlatformPlatform.AccountManagement.Tenants.EventHandlers;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
@@ -29,7 +30,7 @@ public sealed class SignupTests : BaseTest<AccountManagementDbContext>
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.Name == "SignupStarted" &&
-            e.Properties["Event_TenantId"] == subdomain
+            e.Properties["event_TenantId"] == subdomain
         ).Should().Be(1);
 
         await EmailService.Received().SendAsync(email.ToLower(), "Confirm your email address", Arg.Any<string>(), CancellationToken.None);
@@ -78,7 +79,14 @@ public sealed class SignupTests : BaseTest<AccountManagementDbContext>
     {
         // Arrange
         var mockLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
+        var mockHttpContextAccessor = Substitute.For<IHttpContextAccessor>();
+        var mockHttpContext = new DefaultHttpContext();
+
+        mockHttpContextAccessor.HttpContext.Returns(mockHttpContext);
+
         Services.AddSingleton(mockLogger);
+        Services.AddSingleton(mockHttpContextAccessor);
+
         var mediator = Provider.GetRequiredService<ISender>();
 
         // Act

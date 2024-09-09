@@ -1,23 +1,30 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.Database;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.AccountManagement.Core;
+namespace PlatformPlatform.AccountManagement;
 
 public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    public static IHostApplicationBuilder AddAccountManagementInfrastructure(this IHostApplicationBuilder builder)
     {
-        services.AddMediatRPipelineBehaviours(Assembly);
-        services.AddInfrastructureCoreServices<AccountManagementDbContext>(Assembly);
+        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+        builder.AddSharedInfrastructure<AccountManagementDbContext>("account-management-database");
 
-        services.AddHttpContextAccessor();
+        builder.AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
+
+        return builder;
+    }
+
+    public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
+    {
+        services.AddSharedServices<AccountManagementDbContext>(Assembly);
 
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
         services.AddScoped<OneTimePasswordHelper>();
@@ -25,15 +32,7 @@ public static class DependencyConfiguration
         services.AddScoped<AuthenticationTokenGenerator>();
         services.AddScoped<AuthenticationTokenService>();
 
-        return services;
-    }
-
-    public static IServiceCollection AddStorage(this IServiceCollection services, IHostApplicationBuilder builder)
-    {
-        // Storage is configured separately from other Infrastructure services to allow mocking in tests
-        services.ConfigureDatabaseContext<AccountManagementDbContext>(builder, "account-management-database");
-        services.AddDefaultBlobStorage(builder);
-        services.AddNamedBlobStorages(builder, ("avatars-storage", "BLOB_STORAGE_URL"));
+        services.AddHttpClient("Gravatar").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler());
 
         return services;
     }

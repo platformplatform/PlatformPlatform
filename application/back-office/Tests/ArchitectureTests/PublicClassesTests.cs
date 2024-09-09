@@ -1,6 +1,5 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.BackOffice.Core;
 using PlatformPlatform.SharedKernel.Cqrs;
 using Xunit;
 

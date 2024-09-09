@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using NUlid;
 
 namespace PlatformPlatform.SharedKernel.IdGenerators;
@@ -18,7 +19,7 @@ public abstract record StronglyTypedUlid<T>(string Value) : StronglyTypedId<stri
         return FormUlid(newValue);
     }
 
-    public static bool TryParse(string? value, out T? result)
+    public static bool TryParse(string? value, [NotNullWhen(true)] out T? result)
     {
         if (value is null || !value.StartsWith($"{Prefix}_"))
         {

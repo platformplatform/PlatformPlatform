@@ -1,15 +1,16 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
 public sealed record ChangeUserRoleCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes the Id from the API contract
+    [JsonIgnore] // Removes this property from the API contract
     public UserId Id { get; init; } = null!;
 
     public required UserRole UserRole { get; init; }

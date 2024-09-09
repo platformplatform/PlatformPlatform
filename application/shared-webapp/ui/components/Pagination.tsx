@@ -1,4 +1,4 @@
-import { FocusScope, useFocusManager, useFocusVisible, useKeyboard } from "react-aria";
+import { FocusScope, useFocusManager, useKeyboard } from "react-aria";
 import { Button } from "./Button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { tv } from "tailwind-variants";
@@ -32,7 +32,7 @@ export function Pagination({
   className
 }: Readonly<PaginationProps>) {
   if (paginationSize % 2 === 0 || paginationSize < 5) {
-    throw new Error("Pagination size must be an odd number greater than or equal to 5.");
+    throw new Error("Pagination size must be an odd number greater than or equal to 5");
   }
 
   const handlePrevious = () => {
@@ -132,7 +132,6 @@ type PageNumberButtonProps = {
 
 function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Readonly<PageNumberButtonProps>) {
   const focusManager = useFocusManager();
-  const { isFocusVisible } = useFocusVisible();
 
   const { keyboardProps } = useKeyboard({
     onKeyUp(event) {

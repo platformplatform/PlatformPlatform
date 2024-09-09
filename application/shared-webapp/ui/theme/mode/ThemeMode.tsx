@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { getStorageThemeMode, useStorageThemeMode } from "./useStorageThemeMode";
 import { getSystemThemeMode, useSystemThemeMode } from "./useSystemThemeMode";
 import { type SystemThemeMode, type ThemeMode, resolveThemeMode, setClassNameThemeMode } from "./utils";

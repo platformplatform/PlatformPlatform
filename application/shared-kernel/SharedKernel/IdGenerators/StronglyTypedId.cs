@@ -20,7 +20,7 @@ public abstract record StronglyTypedId<TValue, T>(TValue Value)
 
     public virtual bool Equals(StronglyTypedId<TValue, T>? other)
     {
-        return other != null && Value.Equals(other.Value);
+        return other is not null && Value.Equals(other.Value);
     }
 
     public override int GetHashCode()

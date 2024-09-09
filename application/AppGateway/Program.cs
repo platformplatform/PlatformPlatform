@@ -11,9 +11,9 @@ var reverseProxyBuilder = builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>();
 
-if (InfrastructureCoreConfiguration.IsRunningInAzure)
+if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
-    builder.Services.AddSingleton<TokenCredential>(InfrastructureCoreConfiguration.DefaultAzureCredential);
+    builder.Services.AddSingleton<TokenCredential>(SharedInfrastructureConfiguration.DefaultAzureCredential);
     builder.Services.AddSingleton<ManagedIdentityTransform>();
     builder.Services.AddSingleton<ApiVersionHeaderTransform>();
     builder.Services.AddSingleton<HttpStrictTransportSecurityTransform>();
@@ -33,8 +33,7 @@ else
     );
 }
 
-var tokenSigningService = InfrastructureCoreConfiguration.GetTokenSigningService();
-builder.Services.AddSingleton(tokenSigningService);
+builder.Services.AddSingleton(SharedDependencyConfiguration.GetTokenSigningService());
 
 builder.Services.AddHttpClient(
     "AccountManagement",
@@ -49,7 +48,7 @@ reverseProxyBuilder.AddTransforms(context =>
     context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
 );
 
-builder.Services.AddNamedBlobStorages(builder, ("avatars-storage", "AVATARS_STORAGE_URL"));
+builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 

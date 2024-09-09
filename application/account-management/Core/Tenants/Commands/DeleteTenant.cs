@@ -1,12 +1,13 @@
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Tenants.Commands;
+namespace PlatformPlatform.AccountManagement.Tenants.Commands;
 
 [PublicAPI]
 public sealed record DeleteTenantCommand(TenantId Id) : ICommand, IRequest<Result>;

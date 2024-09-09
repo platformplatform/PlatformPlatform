@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Services;
+namespace PlatformPlatform.AccountManagement.Authentication.Services;
 
 public sealed class AuthenticationTokenService(AuthenticationTokenGenerator tokenGenerator, IHttpContextAccessor httpContextAccessor)
 {

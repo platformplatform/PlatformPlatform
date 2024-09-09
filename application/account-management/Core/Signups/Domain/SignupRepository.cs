@@ -1,9 +1,8 @@
-using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Persistence;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Domain;
+namespace PlatformPlatform.AccountManagement.Signups.Domain;
 
 public interface ISignupRepository : ICrudRepository<Signup, SignupId>
 {

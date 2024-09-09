@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedKernel.Tests", "share
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "account-management", "account-management", "{EEA1463E-71F8-44E6-8055-787DAA5E62D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Core", "account-management\Core\AccountManagement.Core.csproj", "{B155D1D9-4F6E-42AE-A8F0-92CD50BF182D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement", "account-management\Core\AccountManagement.csproj", "{B155D1D9-4F6E-42AE-A8F0-92CD50BF182D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Workers", "account-management\Workers\AccountManagement.Workers.csproj", "{25F28E3C-84F0-44D6-8EB2-259398C2D14A}"
 EndProject
@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "back-office", "back-office", "{E6B8D5DB-DA05-42EA-8DD0-EAE366870126}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackOffice.Core", "back-office\Core\BackOffice.Core.csproj", "{1C858857-C5E6-41C6-AFA9-E845F6DDBDF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackOffice", "back-office\Core\BackOffice.csproj", "{1C858857-C5E6-41C6-AFA9-E845F6DDBDF0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackOffice.Workers", "back-office\Workers\BackOffice.Workers.csproj", "{B165AE99-0B83-4EDC-8BBF-99FB726E5634}"
 EndProject

@@ -1,18 +1,18 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 
 [PublicAPI]
 public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
-    [JsonIgnore]
+    [JsonIgnore] // Removes this property from the API contract
     public LoginId Id { get; init; } = null!;
 }
 

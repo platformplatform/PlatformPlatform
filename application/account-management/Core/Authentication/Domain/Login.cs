@@ -1,10 +1,9 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.AccountManagement.Users.Domain;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Domain;
+namespace PlatformPlatform.AccountManagement.Authentication.Domain;
 
 public sealed class Login : AggregateRoot<LoginId>
 {

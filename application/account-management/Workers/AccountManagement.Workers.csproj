@@ -10,13 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core\AccountManagement.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Update="appsettings.development.json">
-            <DependentUpon>appsettings.json</DependentUpon>
-        </Content>
+        <ProjectReference Include="..\Core\AccountManagement.csproj" />
     </ItemGroup>
 
 </Project>

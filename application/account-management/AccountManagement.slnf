@@ -6,7 +6,7 @@
       "AppGateway\\AppGateway.csproj",
       "shared-kernel\\SharedKernel\\SharedKernel.csproj",
       "shared-kernel\\Tests\\SharedKernel.Tests.csproj",
-      "account-management\\Core\\AccountManagement.Core.csproj",
+      "account-management\\Core\\AccountManagement.csproj",
       "account-management\\Workers\\AccountManagement.Workers.csproj",
       "account-management\\Api\\AccountManagement.Api.csproj",
       "account-management\\WebApp\\AccountManagement.WebApp.esproj",

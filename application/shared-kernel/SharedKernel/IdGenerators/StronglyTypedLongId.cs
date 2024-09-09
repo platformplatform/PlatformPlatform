@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PlatformPlatform.SharedKernel.IdGenerators;
 
 /// <summary>
@@ -13,7 +15,7 @@ public abstract record StronglyTypedLongId<T>(long Value) : StronglyTypedId<long
         return FormLong(newValue);
     }
 
-    public static bool TryParse(string? value, out T? result)
+    public static bool TryParse(string? value, [NotNullWhen(true)] out T? result)
     {
         var success = long.TryParse(value, out var parsedValue);
         result = success ? FormLong(parsedValue) : null;

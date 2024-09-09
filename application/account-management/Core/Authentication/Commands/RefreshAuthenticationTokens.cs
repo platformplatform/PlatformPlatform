@@ -1,15 +1,18 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 
-public sealed record RefreshAuthenticationTokens : ICommand, IRequest<Result>;
+[PublicAPI]
+public sealed record RefreshAuthenticationTokensCommand : ICommand, IRequest<Result>;
 
 public sealed class RefreshAuthenticationTokensCommandHandler(
     IUserRepository userRepository,
@@ -17,9 +20,9 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
     AuthenticationTokenService authenticationTokenService,
     ITelemetryEventsCollector events,
     ILogger<RefreshAuthenticationTokensCommandHandler> logger
-) : IRequestHandler<RefreshAuthenticationTokens, Result>
+) : IRequestHandler<RefreshAuthenticationTokensCommand, Result>
 {
-    public async Task<Result> Handle(RefreshAuthenticationTokens command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RefreshAuthenticationTokensCommand command, CancellationToken cancellationToken)
     {
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 

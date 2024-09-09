@@ -1,27 +1,25 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.BackOffice.Core.Database;
+using PlatformPlatform.BackOffice.Database;
 using PlatformPlatform.SharedKernel;
 
-namespace PlatformPlatform.BackOffice.Core;
+namespace PlatformPlatform.BackOffice;
 
 public static class DependencyConfiguration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IServiceCollection AddCoreServices(this IServiceCollection services)
+    public static IHostApplicationBuilder AddBackOfficeInfrastructure(this IHostApplicationBuilder builder)
     {
-        services.AddMediatRPipelineBehaviours(Assembly);
-        services.AddInfrastructureCoreServices<BackOfficeDbContext>(Assembly);
+        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+        builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
 
-        return services;
+        return builder;
     }
 
-    public static IServiceCollection AddStorage(this IServiceCollection services, IHostApplicationBuilder builder)
+    public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
     {
-        // Storage is configured separately from other Infrastructure services to allow mocking in tests
-        services.ConfigureDatabaseContext<BackOfficeDbContext>(builder, "back-office-database");
-        services.AddDefaultBlobStorage(builder);
+        services.AddSharedServices<BackOfficeDbContext>(Assembly);
 
         return services;
     }

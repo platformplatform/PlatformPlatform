@@ -1,13 +1,15 @@
 using System.Security.Claims;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Core.Authentication.Services;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 
+[PublicAPI]
 public sealed record LogoutCommand : ICommand, IRequest<Result>;
 
 public sealed class LogoutHandler(
@@ -31,7 +33,7 @@ public sealed class LogoutHandler(
         }
         else
         {
-            events.CollectEvent(new Logout(userId!));
+            events.CollectEvent(new Logout(userId));
         }
 
         return Task.FromResult(Result.Success());

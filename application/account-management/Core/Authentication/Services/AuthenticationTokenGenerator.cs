@@ -1,10 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Domain;
 
-namespace PlatformPlatform.AccountManagement.Core.Authentication.Services;
+namespace PlatformPlatform.AccountManagement.Authentication.Services;
 
 public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigningService)
 {

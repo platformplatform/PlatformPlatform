@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Entities;
+using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.SharedKernel.Persistence;
 
@@ -14,6 +14,7 @@ namespace PlatformPlatform.SharedKernel.Persistence;
 ///     marked to be added, updated, or deleted, and it's not until the <see cref="IUnitOfWork" /> is committed that the
 ///     changes are actually persisted to the database.
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class RepositoryBase<T, TId>(DbContext context)
     where T : AggregateRoot<TId> where TId : IComparable<TId>
 {

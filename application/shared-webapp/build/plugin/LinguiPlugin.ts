@@ -1,10 +1,10 @@
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 
 /**
- * For now there's not a lingui plugin for rsbuild, so we need to configure the
- * swc plugin to use the lingui swc plugin.
+ * For now there's not a Lingui plugin for Rsbuild, so we need to configure the
+ * swc plugin to use the Lingui swc plugin.
  *
- * Note: This plugin should be removed once the lingui plugin is available.
+ * Note: This plugin should be removed once the Lingui plugin is available.
  */
 
 export function LinguiPlugin(): RsbuildPlugin {
@@ -14,7 +14,7 @@ export function LinguiPlugin(): RsbuildPlugin {
       api.modifyRsbuildConfig((userConfig, { mergeRsbuildConfig }) => {
         const extraConfig: RsbuildConfig = {
           tools: {
-            // Configure the swc plugin to use the lingui swc plugin
+            // Configure the swc plugin to use the Lingui swc plugin
             swc: {
               jsc: {
                 experimental: {

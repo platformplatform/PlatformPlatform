@@ -1,15 +1,18 @@
 using FluentValidation;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Users.Domain;
+using JetBrains.Annotations;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Core.Users.Commands;
+namespace PlatformPlatform.AccountManagement.Users.Commands;
 
+[PublicAPI]
 public sealed record UpdateUserCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes the Id from the API contract
+    [JsonIgnore] // Removes this property from the API contract
     public UserId Id { get; init; } = null!;
 
     public required string Email { get; init; }

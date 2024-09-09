@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Core.Database;
-using PlatformPlatform.AccountManagement.Core.Signups.Commands;
+using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Signups.Commands;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
@@ -29,7 +29,7 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
         {
             new ErrorDetail("Subdomain", "The subdomain is not available.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
@@ -45,7 +45,7 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
             .GetAsync($"/api/account-management/signups/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
+        response.ShouldBeSuccessfulGetRequest();
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be("true");
@@ -67,7 +67,7 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
         {
             new ErrorDetail("Subdomain", "Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
         };
-        await ApiTestHelpers.EnsureErrorStatusCode(response, HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
         await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
@@ -84,7 +84,7 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
             await AnonymousHttpClient.GetAsync($"/api/account-management/signups/is-subdomain-free?subdomain={subdomain}");
 
         // Assert
-        ApiTestHelpers.EnsureSuccessGetRequest(response);
+        response.ShouldBeSuccessfulGetRequest();
 
         var responseBody = await response.Content.ReadAsStringAsync();
         responseBody.Should().Be("false");
@@ -104,11 +104,12 @@ public sealed class SignupEndpointsTests : EndpointBaseTest<AccountManagementDbC
             .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
 
         // Assert
-        await ApiTestHelpers.EnsureSuccessPostRequest(response, hasLocation: false);
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         Connection.RowExists("Tenants", signupId);
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email }).Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantCreated").Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "SignupCompleted").Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "UserCreated").Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();

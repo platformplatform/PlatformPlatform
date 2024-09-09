@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.BackOffice.Core</AssemblyName>
-        <RootNamespace>PlatformPlatform.BackOffice.Core</RootNamespace>
+        <AssemblyName>PlatformPlatform.AccountManagement</AssemblyName>
+        <RootNamespace>PlatformPlatform.AccountManagement</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

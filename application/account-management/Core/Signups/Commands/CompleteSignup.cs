@@ -1,21 +1,27 @@
-using PlatformPlatform.AccountManagement.Core.Signups.Domain;
-using PlatformPlatform.AccountManagement.Core.TelemetryEvents;
-using PlatformPlatform.AccountManagement.Core.Tenants.Domain;
+using JetBrains.Annotations;
+using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.AccountManagement.Signups.Domain;
+using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.AccountManagement.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
-namespace PlatformPlatform.AccountManagement.Core.Signups.Commands;
+namespace PlatformPlatform.AccountManagement.Signups.Commands;
 
+[PublicAPI]
 public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, IRequest<Result>
 {
-    [JsonIgnore]
+    [JsonIgnore] // Removes this property from the API contract
     public SignupId Id { get; init; } = null!;
 }
 
 public sealed class CompleteSignupHandler(
-    ITenantRepository tenantRepository,
     ISignupRepository signupRepository,
+    IUserRepository userRepository,
+    AuthenticationTokenService authenticationTokenService,
+    IMediator mediator,
     OneTimePasswordHelper oneTimePasswordHelper,
     ITelemetryEventsCollector events,
     ILogger<CompleteSignupHandler> logger
@@ -57,13 +63,14 @@ public sealed class CompleteSignupHandler(
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
-        var tenant = Tenant.Create(signup.TenantId, signup.Email);
-        await tenantRepository.AddAsync(tenant, cancellationToken);
+        var result = await mediator.Send(new CreateTenantCommand(signup.TenantId, signup.Email, true), cancellationToken);
+
+        var user = await userRepository.GetByIdAsync(result.Value!, cancellationToken);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(user!);
 
         signup.MarkAsCompleted();
         signupRepository.Update(signup);
-
-        events.CollectEvent(new SignupCompleted(tenant.Id, tenant.State, (int)signupTimeInSeconds));
+        events.CollectEvent(new SignupCompleted(signup.TenantId, (int)signupTimeInSeconds));
 
         return Result.Success();
     }

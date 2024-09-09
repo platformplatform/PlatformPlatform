@@ -188,7 +188,7 @@ public class TrackEndpoints : IEndpoints
 
     private static void CopyDictionary<TValue>(IDictionary<string, TValue>? source, IDictionary<string, TValue> target)
     {
-        if (source == null) return;
+        if (source is null) return;
 
         foreach (var pair in source)
         {
@@ -211,8 +211,10 @@ public record TrackRequestDto(
     TrackRequestDataDto Data
 );
 
+[PublicAPI]
 public record TrackRequestDataDto(string BaseType, TrackRequestBaseDataDto BaseData);
 
+[PublicAPI]
 public record TrackRequestBaseDataDto(
     string Name,
     string Url,
@@ -233,6 +235,7 @@ public record TrackRequestBaseDataDto(
 [PublicAPI]
 public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
 
+[PublicAPI]
 public record TrackRequestExceptionDto(
     string TypeName,
     string Message,
@@ -241,4 +244,5 @@ public record TrackRequestExceptionDto(
     List<TrackRequestParsedStackDto> ParsedStack
 );
 
+[PublicAPI]
 public record TrackRequestParsedStackDto(string Assembly, string FileName, string Method, int Line, int Level);

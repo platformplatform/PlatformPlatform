@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PlatformPlatform.BackOffice.Core.Database;
+namespace PlatformPlatform.BackOffice.Database;
 
 [DbContext(typeof(BackOfficeDbContext))]
 [Migration("1_Initial")]
