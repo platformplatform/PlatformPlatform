@@ -17,7 +17,7 @@ public sealed class DatabaseMigrations : Migration
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
-                Email = table.Column<string>("varchar(100)", nullable: false),
+                Email = table.Column<string>("nvarchar(100)", nullable: false),
                 OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
                 ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 RetryCount = table.Column<int>("int", nullable: false),
