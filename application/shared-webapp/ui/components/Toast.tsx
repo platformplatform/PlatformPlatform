@@ -3,11 +3,12 @@
  * ref: https://react-spectrum.adobe.com/react-spectrum/Toast.html
  * ref: https://ui.shadcn.com/docs/components/toast
  */
+import type React from "react";
 import type { AriaToastProps, AriaToastRegionProps } from "@react-aria/toast";
 import { useToast, useToastRegion } from "@react-aria/toast";
 import { ToastQueue, type ToastState, useToastQueue } from "@react-stately/toast";
 import { XIcon } from "lucide-react";
-import React, { createContext, isValidElement, type RefObject, useContext, useRef } from "react";
+import { createContext, isValidElement, type RefObject, useContext, useRef } from "react";
 import { Button as AriaButton } from "react-aria-components";
 import { createPortal } from "react-dom";
 import { tv } from "tailwind-variants";

@@ -17,7 +17,7 @@ import {
 import { tv } from "tailwind-variants";
 import { DropdownSection, type DropdownSectionProps, dropdownItemStyles } from "./Dropdown";
 import { Popover, type PopoverProps } from "./Popover";
-import React from "react";
+import type React from "react";
 
 export { MenuTrigger, SubmenuTrigger } from "react-aria-components";
 
