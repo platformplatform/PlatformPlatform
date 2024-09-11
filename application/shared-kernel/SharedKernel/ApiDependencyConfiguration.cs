@@ -132,7 +132,7 @@ public static class ApiDependencyConfiguration
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
                 options.SerializerOptions = SharedDependencyConfiguration.DefaultJsonSerializerOptions;
-                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(assembly));
+                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor([assembly, Assembly.GetExecutingAssembly()]));
             }
         );
 

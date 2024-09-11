@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
+import type React from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
