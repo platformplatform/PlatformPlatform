@@ -737,15 +737,7 @@
         ]
       },
       "TenantId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndTenantId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "type": "string"
       },
       "StronglyTypedIdOfStringAndTenantId": {
         "type": "object",
@@ -917,15 +909,8 @@
         }
       },
       "UserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedUlidOfUserId"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
+        "type": "string",
+        "format": "usr_{string}"
       },
       "StronglyTypedUlidOfUserId": {
         "allOf": [
