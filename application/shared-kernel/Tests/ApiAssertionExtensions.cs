@@ -9,6 +9,40 @@ namespace PlatformPlatform.SharedKernel.Tests;
 
 public static class ApiAssertionExtensions
 {
+    // Not all 4xx and 5xx status codes has a corresponding https://datatracker.ietf.org/doc/html/rfc9110#section-15. link
+    // E.g. 429 ToManyRequests does not
+    private static readonly HashSet<HttpStatusCode> StatusCodesWithLink =
+    [
+        HttpStatusCode.BadRequest,
+        HttpStatusCode.Unauthorized,
+        HttpStatusCode.PaymentRequired,
+        HttpStatusCode.Forbidden,
+        HttpStatusCode.NotFound,
+        HttpStatusCode.MethodNotAllowed,
+        HttpStatusCode.NotAcceptable,
+        HttpStatusCode.ProxyAuthenticationRequired,
+        HttpStatusCode.RequestTimeout,
+        HttpStatusCode.Conflict,
+        HttpStatusCode.Gone,
+        HttpStatusCode.LengthRequired,
+        HttpStatusCode.PreconditionFailed,
+        HttpStatusCode.RequestEntityTooLarge,
+        HttpStatusCode.RequestUriTooLong,
+        HttpStatusCode.UnsupportedMediaType,
+        HttpStatusCode.RequestedRangeNotSatisfiable,
+        HttpStatusCode.ExpectationFailed,
+        (HttpStatusCode)418, // Unused
+        (HttpStatusCode)421, // Misdirected Request
+        (HttpStatusCode)422, // Unprocessable Content
+        HttpStatusCode.UpgradeRequired,
+        HttpStatusCode.InternalServerError,
+        HttpStatusCode.NotImplemented,
+        HttpStatusCode.BadGateway,
+        HttpStatusCode.ServiceUnavailable,
+        HttpStatusCode.GatewayTimeout,
+        HttpStatusCode.HttpVersionNotSupported
+    ];
+
     public static void ShouldBeSuccessfulGetRequest(this HttpResponseMessage response)
     {
         response.EnsureSuccessStatusCode();
@@ -76,7 +110,11 @@ public static class ApiAssertionExtensions
 
         problemDetails.Should().NotBeNull();
         problemDetails!.Status.Should().Be((int)statusCode);
-        problemDetails.Type.Should().StartWith("https://tools.ietf.org/html/rfc9110#section-15.");
+        if (StatusCodesWithLink.Contains(statusCode))
+        {
+            problemDetails.Type.Should().StartWith("https://tools.ietf.org/html/rfc9110#section-15.");
+        }
+
         problemDetails.Title.Should().Be(ApiResult.GetHttpStatusDisplayName(statusCode));
 
         if (expectedDetail is not null)
