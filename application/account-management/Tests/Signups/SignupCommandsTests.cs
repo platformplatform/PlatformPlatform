@@ -9,7 +9,7 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
-public sealed class SignupTests : BaseTest<AccountManagementDbContext>
+public sealed class SignupCommandsTests : BaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task StartSignup_WhenValidCommand_ShouldReturnSuccessfulResult()

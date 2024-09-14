@@ -86,7 +86,7 @@ public sealed class TenantEndpointsTests : EndpointBaseTest<AccountManagementDbC
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantUpdated").Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("TenantUpdated");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -177,7 +177,7 @@ public sealed class TenantEndpointsTests : EndpointBaseTest<AccountManagementDbC
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.Name == "TenantDeleted").Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("TenantDeleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 }
