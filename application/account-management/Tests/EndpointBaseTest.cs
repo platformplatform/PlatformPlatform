@@ -32,6 +32,8 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
 
                         services.Remove(services.Single(d => d.ServiceType == typeof(IEmailService)));
                         services.AddTransient<IEmailService>(_ => EmailService);
+
+                        RegisterMockLoggers(services);
                     }
                 );
             }
@@ -47,6 +49,10 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
     protected HttpClient AnonymousHttpClient { get; }
 
     protected HttpClient AuthenticatedHttpClient { get; }
+
+    protected virtual void RegisterMockLoggers(IServiceCollection services)
+    {
+    }
 
     protected override void Dispose(bool disposing)
     {

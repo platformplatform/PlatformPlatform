@@ -36,14 +36,6 @@ public sealed class CompleteSignupHandler(
             return Result.NotFound($"Signup with id '{command.Id}' not found.");
         }
 
-        if (oneTimePasswordHelper.Validate(signup.OneTimePasswordHash, command.OneTimePassword))
-        {
-            signup.RegisterInvalidPasswordAttempt();
-            signupRepository.Update(signup);
-            events.CollectEvent(new SignupFailed(signup.RetryCount));
-            return Result.BadRequest("The code is wrong or no longer valid.", true);
-        }
-
         if (signup.Completed)
         {
             logger.LogWarning("Signup with id '{SignupId}' has already been completed.", signup.Id);
@@ -52,8 +44,18 @@ public sealed class CompleteSignupHandler(
 
         if (signup.RetryCount >= Signup.MaxAttempts)
         {
+            signup.RegisterInvalidPasswordAttempt();
+            signupRepository.Update(signup);
             events.CollectEvent(new SignupBlocked(signup.RetryCount));
             return Result.Forbidden("To many attempts, please request a new code.", true);
+        }
+
+        if (oneTimePasswordHelper.Validate(signup.OneTimePasswordHash, command.OneTimePassword))
+        {
+            signup.RegisterInvalidPasswordAttempt();
+            signupRepository.Update(signup);
+            events.CollectEvent(new SignupFailed(signup.RetryCount));
+            return Result.BadRequest("The code is wrong or no longer valid.", true);
         }
 
         var signupTimeInSeconds = (TimeProvider.System.GetUtcNow() - signup.CreatedAt).TotalSeconds;
