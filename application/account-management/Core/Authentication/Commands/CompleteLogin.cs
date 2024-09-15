@@ -34,14 +34,6 @@ public sealed class CompleteLoginHandler(
             return Result.NotFound($"Login with id '{command.Id}' not found.");
         }
 
-        if (oneTimePasswordHelper.Validate(login.OneTimePasswordHash, command.OneTimePassword))
-        {
-            login.RegisterInvalidPasswordAttempt();
-            loginRepository.Update(login);
-            events.CollectEvent(new LoginFailed(login.RetryCount));
-            return Result.BadRequest("The code is wrong or no longer valid.", true);
-        }
-
         if (login.Completed)
         {
             logger.LogWarning("Login with id '{LoginId}' has already been completed.", login.Id);
@@ -50,8 +42,18 @@ public sealed class CompleteLoginHandler(
 
         if (login.RetryCount >= Login.MaxAttempts)
         {
+            login.RegisterInvalidPasswordAttempt();
+            loginRepository.Update(login);
             events.CollectEvent(new LoginBlocked(login.RetryCount));
             return Result.Forbidden("To many attempts, please request a new code.", true);
+        }
+
+        if (oneTimePasswordHelper.Validate(login.OneTimePasswordHash, command.OneTimePassword))
+        {
+            login.RegisterInvalidPasswordAttempt();
+            loginRepository.Update(login);
+            events.CollectEvent(new LoginFailed(login.RetryCount));
+            return Result.BadRequest("The code is wrong or no longer valid.", true);
         }
 
         var loginTimeInSeconds = (TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;

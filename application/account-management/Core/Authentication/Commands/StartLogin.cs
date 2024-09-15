@@ -40,7 +40,7 @@ public sealed class StartLoginCommandHandler(
 
         if (user is null)
         {
-            await emailService.SendAsync(command.Email, "Unknown user tried to login to PlatformPlatform",
+            await emailService.SendAsync(command.Email.ToLower(), "Unknown user tried to login to PlatformPlatform",
                 $"""
                  <h1 style="text-align:center;font-family=sans-serif;font-size:20px">You or someone else tried to login to PlatformPlatform</h1>
                  <p style="text-align:center;font-family=sans-serif;font-size:16px">This request was made by entering your mail {command.Email}, but we have not record of such user.</p>
@@ -64,7 +64,7 @@ public sealed class StartLoginCommandHandler(
         await loginRepository.AddAsync(login, cancellationToken);
         events.CollectEvent(new LoginStarted(user.Id));
 
-        await emailService.SendAsync(command.Email, "PlatformPlatform login verification code",
+        await emailService.SendAsync(user.Email, "PlatformPlatform login verification code",
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>
