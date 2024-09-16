@@ -27,6 +27,8 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
 
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
+
+                        RegisterMockLoggers(services);
                     }
                 );
             }
@@ -36,6 +38,10 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
     }
 
     protected HttpClient TestHttpClient { get; }
+
+    protected virtual void RegisterMockLoggers(IServiceCollection services)
+    {
+    }
 
     protected override void Dispose(bool disposing)
     {

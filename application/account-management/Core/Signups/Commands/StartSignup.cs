@@ -29,13 +29,13 @@ public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
 {
     public StartSignupValidator(ITenantRepository tenantRepository)
     {
-        RuleFor(x => x.Subdomain).NotEmpty();
         RuleFor(x => x.Subdomain)
+            .NotEmpty()
+            .WithMessage("Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
             .Matches("^(?=.{3,30}$)[a-z0-9]+(?:-[a-z0-9]+)*$")
             .WithMessage("Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
             .MustAsync(tenantRepository.IsSubdomainFreeAsync)
-            .WithMessage("The subdomain is not available.")
-            .When(x => !string.IsNullOrEmpty(x.Subdomain));
+            .WithMessage("The subdomain is not available.");
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }
