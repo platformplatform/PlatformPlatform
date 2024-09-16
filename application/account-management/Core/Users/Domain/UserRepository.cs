@@ -8,6 +8,8 @@ namespace PlatformPlatform.AccountManagement.Users.Domain;
 
 public interface IUserRepository : ICrudRepository<User, UserId>
 {
+    Task<User?> GetByIdGlobalAsync(UserId id, CancellationToken cancellationToken);
+
     Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken);
 
     Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken);
@@ -30,6 +32,17 @@ public interface IUserRepository : ICrudRepository<User, UserId>
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
+    /// <summary>
+    ///     Retrieves a user by ID without applying tenant query filters.
+    ///     This method should only be used during authentication processes where tenant context is not yet established.
+    /// </summary>
+    public async Task<User?> GetByIdGlobalAsync(UserId id, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
+    }
+
     public async Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken)
     {
         if (UserId.TryParse(executionContext.UserInfo.UserId, out var userId))
@@ -40,14 +53,22 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         return null;
     }
 
+    /// <summary>
+    ///     Retrieves a user by email without applying tenant query filters.
+    ///     This method should only be used during the login processes where tenant context is not yet established.
+    /// </summary>
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
-        return await DbSet.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        return await DbSet
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken);
     }
 
     public async Task<bool> IsEmailFreeAsync(TenantId tenantId, string email, CancellationToken cancellationToken)
     {
-        return !await DbSet.AnyAsync(u => u.TenantId == tenantId && u.Email == email.ToLowerInvariant(), cancellationToken);
+        return !await DbSet
+            .IgnoreQueryFilters()
+            .AnyAsync(u => u.TenantId == tenantId && u.Email == email.ToLowerInvariant(), cancellationToken);
     }
 
     public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
