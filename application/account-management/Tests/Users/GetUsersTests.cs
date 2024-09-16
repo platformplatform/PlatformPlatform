@@ -1,14 +1,54 @@
+using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.AccountManagement.Users.Queries;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
 
 public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 {
+    private const string Email = "willgates@email.com";
+    private const string FirstName = "William Henry";
+    private const string LastName = "Gates";
+    private const UserRole UserRole = AccountManagement.Users.Domain.UserRole.Member;
+
+    public GetUsersTests()
+    {
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", UserId.NewId().ToString()),
+                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("ModifiedAt", null),
+                ("Email", Email),
+                ("FirstName", FirstName),
+                ("LastName", LastName),
+                ("Title", "Philanthropist & Innovator"),
+                ("Role", UserRole.ToString()),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar()))
+            ]
+        );
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", UserId.NewId().ToString()),
+                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("ModifiedAt", null),
+                ("Email", Faker.Internet.Email()),
+                ("FirstName", Faker.Name.FirstName()),
+                ("LastName", Faker.Name.LastName()),
+                ("Title", Faker.Name.JobTitle()),
+                ("Role", UserRole.ToString()),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar()))
+            ]
+        );
+    }
+
     [Fact]
     public async Task GetUsers_WhenSearchingBasedOnUserEmail_ShouldReturnUser()
     {
@@ -23,7 +63,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
-        userResponse.Users.First().Email.Should().Be(DatabaseSeeder.User1ForSearching.Email);
+        userResponse.Users.First().Email.Should().Be(Email);
     }
 
     [Fact]
@@ -40,7 +80,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
-        userResponse.Users.First().FirstName.Should().Be(DatabaseSeeder.User1ForSearching.FirstName);
+        userResponse.Users.First().FirstName.Should().Be(FirstName);
     }
 
     [Fact]
@@ -48,6 +88,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     {
         // Arrange
         const string searchString = "William Henry Gates";
+
 
         // Act
         var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
@@ -57,7 +98,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
-        userResponse.Users.First().LastName.Should().Be(DatabaseSeeder.User1ForSearching.LastName);
+        userResponse.Users.First().LastName.Should().Be(LastName);
     }
 
     [Fact]
@@ -71,8 +112,8 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
         userResponse.Should().NotBeNull();
-        userResponse!.TotalCount.Should().Be(1);
-        userResponse.Users.First().Role.Should().Be(DatabaseSeeder.User1ForSearching.Role);
+        userResponse!.TotalCount.Should().Be(2);
+        userResponse.Users.First().Role.Should().Be(UserRole);
     }
 
     [Fact]

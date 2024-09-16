@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Authentication.Services;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
@@ -50,8 +51,13 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
 
+        Services.AddScoped<IExecutionContext, HttpExecutionContext>();
+
+        // Build the ServiceProvider
+        _provider = Services.BuildServiceProvider();
+
         // Make sure the database is created
-        using var serviceScope = Services.BuildServiceProvider().CreateScope();
+        using var serviceScope = Provider.CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 

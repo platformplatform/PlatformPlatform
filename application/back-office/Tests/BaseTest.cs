@@ -6,6 +6,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
@@ -36,9 +37,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
-
-        Services
-            .AddBackOfficeServices();
+        Services.AddBackOfficeServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
@@ -49,8 +48,13 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
 
-        // Make sure database is created
-        using var serviceScope = Services.BuildServiceProvider().CreateScope();
+        Services.AddScoped<IExecutionContext, HttpExecutionContext>();
+
+        // Build the ServiceProvider
+        _provider = Services.BuildServiceProvider();
+
+        // Make sure the database is created
+        using var serviceScope = Provider.CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     }
