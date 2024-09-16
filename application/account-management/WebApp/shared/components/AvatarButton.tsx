@@ -17,7 +17,7 @@ export default function AvatarButton() {
 
   if (!userInfo) return null;
 
-  async function logut() {
+  async function logout() {
     await api.post("/api/account-management/authentication/logout");
     window.location.reload();
   }
@@ -48,7 +48,7 @@ export default function AvatarButton() {
             Account settings
           </MenuItem>
           <MenuSeparator />
-          <MenuItem id="logout" onAction={logut}>
+          <MenuItem id="logout" onAction={logout}>
             <LogOutIcon size={16} /> Log out
           </MenuItem>
         </Menu>

@@ -8,7 +8,6 @@ const applicationRoot = path.resolve(process.cwd(), "..", "..");
 const systemRoot = path.resolve(process.cwd(), "..");
 const applicationPackageJson = path.join(applicationRoot, "package.json");
 const mfTypesPath = path.join(applicationRoot, "shared-webapp", "build", "mf-types");
-const isDevelopment = process.env.NODE_ENV !== "production";
 
 if (!fs.existsSync(applicationPackageJson)) {
   throw new Error(`Cannot find package.json in the application root: ${applicationRoot}`);
@@ -81,7 +80,7 @@ function snakeCase(str: string) {
 function getAllRemotes(currentSystem: string, remotes: Record<string, { port: number }>) {
   const result: Record<string, string> = {};
   const everySystem = getEverySystem();
-  for (const [system, config] of Object.entries(remotes)) {
+  for (const [system] of Object.entries(remotes)) {
     if (system === currentSystem) {
       throw new Error(`Cannot add self as remote: ${system}`);
     }
@@ -89,10 +88,7 @@ function getAllRemotes(currentSystem: string, remotes: Record<string, { port: nu
       throw new Error(`Cannot find system: ${system}`);
     }
 
-    result[system] =
-      isDevelopment && config.port
-        ? `${snakeCase(system)}@https://localhost:${config.port}/${manifestFile}`
-        : `${snakeCase(system)}@/${system}/${manifestFile}`;
+    result[system] =`${snakeCase(system)}@/${system}/${manifestFile}`;
 
     logger.info(`[Module Federation] Remote: "${system}" => ${result[system]}`);
   }
