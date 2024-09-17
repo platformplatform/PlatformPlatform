@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.IdGenerators;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
@@ -14,7 +15,8 @@ public sealed class RepositoryTests : IDisposable
 
     public RepositoryTests()
     {
-        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>();
+        var executionContext = new BackgroundWorkerExecutionContext();
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext);
         _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _testAggregateRepository = new TestAggregateRepository(_testDbContext);
     }
