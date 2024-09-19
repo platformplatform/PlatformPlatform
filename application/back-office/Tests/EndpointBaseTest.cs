@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
@@ -24,11 +25,12 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
                         services.Remove(services.Single(d => d.ServiceType == typeof(DbContextOptions<TContext>)));
                         services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
-
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
                         RegisterMockLoggers(services);
+
+                        services.AddScoped<IExecutionContext, HttpExecutionContext>();
                     }
                 );
             }

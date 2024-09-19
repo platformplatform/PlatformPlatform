@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
@@ -34,6 +35,8 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
                         services.AddTransient<IEmailService>(_ => EmailService);
 
                         RegisterMockLoggers(services);
+
+                        services.AddScoped<IExecutionContext, HttpExecutionContext>();
                     }
                 );
             }

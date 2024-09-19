@@ -12,7 +12,9 @@ builder
     .AddBackOfficeInfrastructure();
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
-builder.Services.AddBackOfficeServices();
+builder.Services
+    .AddApiServices()
+    .AddBackOfficeServices();
 
 builder.Services.AddTransient<DatabaseMigrationService<BackOfficeDbContext>>();
 

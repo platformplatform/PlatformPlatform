@@ -512,23 +512,12 @@
         }
       }
     },
-    "/api/account-management/users/{id}/update-avatar": {
+    "/api/account-management/users/update-avatar": {
       "post": {
         "tags": [
           "Users"
         ],
         "operationId": "PostApiAccountManagementUsersUpdateAvatar",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -552,23 +541,12 @@
         }
       }
     },
-    "/api/account-management/users/{id}/remove-avatar": {
-      "post": {
+    "/api/account-management/users/remove-avatar": {
+      "delete": {
         "tags": [
           "Users"
         ],
-        "operationId": "PostApiAccountManagementUsersRemoveAvatar",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "DeleteApiAccountManagementUsersRemoveAvatar",
         "responses": {
           "200": {
             "description": ""
