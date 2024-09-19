@@ -20,11 +20,7 @@ public class DevCommand : Command
 
         var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application", "AppHost");
 
-        if (!ProcessHelper.IsProcessRunning("Docker"))
-        {
-            AnsiConsole.MarkupLine("[green]Starting Docker Desktop[/]");
-            ProcessHelper.StartProcess("open -a Docker", waitForExit: true);
-        }
+        StartDockerIfNotRunning();
 
         AnsiConsole.MarkupLine("\n[green]Ensuring Docker image for SQL Server is up to date ...[/]");
         ProcessHelper.StartProcessWithSystemShell("docker pull mcr.microsoft.com/mssql/server:2022-latest");
@@ -47,6 +43,66 @@ public class DevCommand : Command
 
         AnsiConsole.MarkupLine("\n[green]Starting the Aspire AppHost...[/]");
         ProcessHelper.StartProcess("dotnet run", workingDirectory);
+    }
+
+    private static void StartDockerIfNotRunning()
+    {
+        var dockerProcessName = Configuration.IsWindows ? "Docker Desktop" : "Docker";
+
+        if (!ProcessHelper.IsProcessRunning(dockerProcessName))
+        {
+            StartDocker();
+        }
+
+        WaitUntilDockerIsResponsive();
+
+        void StartDocker()
+        {
+            AnsiConsole.MarkupLine("[green]Starting Docker Desktop[/]");
+            if (Configuration.IsWindows)
+            {
+                // Docker Desktop folder is not registered in the path by default, and cannot be found using "where" command.
+                // The default install location is the best guess.
+                var dockerDesktopPath = @"C:\Program Files\Docker\Docker\Docker Desktop.exe";
+                if (!File.Exists(dockerDesktopPath))
+                {
+                    AnsiConsole.MarkupLine("[red]Docker Desktop is not found in default location.[/]");
+                    Environment.Exit(1);
+                }
+
+                ProcessHelper.StartProcess(new ProcessStartInfo { FileName = dockerDesktopPath, CreateNoWindow = true });
+            }
+            else
+            {
+                ProcessHelper.StartProcess("open -a Docker", waitForExit: true);
+            }
+        }
+
+        void WaitUntilDockerIsResponsive()
+        {
+            var maxRetries = 30;
+            var retriesLeft = maxRetries;
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = "ps",
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+            };
+
+            while (retriesLeft > 0)
+            {
+                var output = ProcessHelper.StartProcess(processStartInfo, waitForExit: true);
+                if (output.Contains("CONTAINER ID")) return;
+
+                retriesLeft--;
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
+            AnsiConsole.MarkupLine($"[red]Docker Desktop is not responsive after {maxRetries} seconds.[/]");
+            Environment.Exit(1);
+        }
     }
 
     private static async Task StartBrowserWhenSiteIsReady(int port)
