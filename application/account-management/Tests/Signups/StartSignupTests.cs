@@ -58,6 +58,8 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     [InlineData("Subdomain with uppercase", "Tenant2")]
     [InlineData("Subdomain special characters", "tenant%2")]
     [InlineData("Subdomain with spaces", "tenant 2")]
+    [InlineData("Subdomain ends with hyphen", "tenant-")]
+    [InlineData("Subdomain starts with hyphen", "-tenant")]
     public async Task StartSignupCommand_WhenSubdomainInvalid_ShouldFail(string scenario, string subdomain)
     {
         // Arrange
