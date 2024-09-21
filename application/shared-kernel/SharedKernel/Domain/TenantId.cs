@@ -20,7 +20,7 @@ public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(
             return false;
         }
 
-        if (!value.All(c => char.IsLower(c) || char.IsDigit(c) || char.IsDigit('-')))
+        if (!value.All(c => char.IsLower(c) || char.IsDigit(c) || c == '-'))
         {
             result = null;
             return false;
