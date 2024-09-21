@@ -38,6 +38,10 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(new DeleteUserCommand(id))
         );
 
+        group.MapPost("/invite", async Task<ApiResult> (InviteUserCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapPost("/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery(); // Disable anti-forgery until we implement it

@@ -68,6 +68,9 @@ public sealed class UserCreated(TenantId tenantId, bool gravatarProfileFound)
 public sealed class UserDeleted()
     : TelemetryEvent(nameof(UserDeleted));
 
+public sealed class UserInvited()
+    : TelemetryEvent(nameof(UserInvited));
+
 public sealed class UserRoleChanged(UserRole fromRole, UserRole toRole)
     : TelemetryEvent(nameof(UserRoleChanged), ("FromRole", fromRole), ("ToRole", toRole));
 

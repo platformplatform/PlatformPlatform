@@ -512,6 +512,31 @@
         }
       }
     },
+    "/api/account-management/users/invite": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountManagementUsersInvite",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/users/update-avatar": {
       "post": {
         "tags": [
@@ -955,6 +980,15 @@
         "properties": {
           "userRole": {
             "$ref": "#/components/schemas/UserRole"
+          }
+        }
+      },
+      "InviteUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
           }
         }
       }
