@@ -821,6 +821,9 @@
           "title": {
             "type": "string"
           },
+          "emailConfirmed": {
+            "type": "boolean"
+          },
           "avatarUrl": {
             "type": "string",
             "nullable": true
@@ -901,9 +904,6 @@
           },
           "title": {
             "type": "string"
-          },
-          "emailConfirmed": {
-            "type": "boolean"
           },
           "avatarUrl": {
             "type": "string",

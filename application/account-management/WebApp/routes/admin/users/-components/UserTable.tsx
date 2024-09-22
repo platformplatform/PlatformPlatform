@@ -102,6 +102,7 @@ export function UserTable() {
                   <div className="flex flex-col truncate">
                     <div className="truncate text-foreground">
                       {user.firstName} {user.lastName}
+                      {user.emailConfirmed ? "" : <Badge variant="outline">Pending</Badge>}
                     </div>
                     <div className="truncate">{user.title ?? ""}</div>
                   </div>

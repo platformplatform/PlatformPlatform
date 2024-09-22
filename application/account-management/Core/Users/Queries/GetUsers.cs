@@ -30,6 +30,7 @@ public sealed record UsersResponseUserDto(
     string FirstName,
     string LastName,
     string Title,
+    bool EmailConfirmed,
     string? AvatarUrl
 );
 

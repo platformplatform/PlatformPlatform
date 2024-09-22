@@ -19,7 +19,6 @@ public sealed record UserResponseDto(
     string FirstName,
     string LastName,
     string Title,
-    bool EmailConfirmed,
     string? AvatarUrl
 );
 
