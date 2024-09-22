@@ -3,29 +3,29 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.AccountManagement.Authentication.Services;
 
 public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigningService)
 {
-    public string GenerateRefreshToken(UserId userId)
+    public string GenerateRefreshToken(User user)
     {
-        return GenerateRefreshToken(userId, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddMonths(3));
+        return GenerateRefreshToken(user, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddMonths(3));
     }
 
-    public string UpdateRefreshToken(UserId userId, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
+    public string UpdateRefreshToken(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        return GenerateRefreshToken(userId, refreshTokenChainId, currentRefreshTokenVersion + 1, expires);
+        return GenerateRefreshToken(user, refreshTokenChainId, currentRefreshTokenVersion + 1, expires);
     }
 
-    private string GenerateRefreshToken(UserId userId, string refreshTokenChainId, int refreshTokenVersion, DateTimeOffset expires)
+    private string GenerateRefreshToken(User user, string refreshTokenChainId, int refreshTokenVersion, DateTimeOffset expires)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, userId),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                    new Claim("tenant_id", user.TenantId),
                     new Claim("rtid", refreshTokenChainId),
                     new Claim("rtv", refreshTokenVersion.ToString())
                 ]

@@ -8,14 +8,14 @@ public sealed class AuthenticationTokenService(AuthenticationTokenGenerator toke
 {
     public void CreateAndSetAuthenticationTokens(User user)
     {
-        var refreshToken = tokenGenerator.GenerateRefreshToken(user.Id);
+        var refreshToken = tokenGenerator.GenerateRefreshToken(user);
         var accessToken = tokenGenerator.GenerateAccessToken(user);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
     public void RefreshAuthenticationTokens(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        var refreshToken = tokenGenerator.UpdateRefreshToken(user.Id, refreshTokenChainId, currentRefreshTokenVersion, expires);
+        var refreshToken = tokenGenerator.UpdateRefreshToken(user, refreshTokenChainId, currentRefreshTokenVersion, expires);
         var accessToken = tokenGenerator.GenerateAccessToken(user);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
