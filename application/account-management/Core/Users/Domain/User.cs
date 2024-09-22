@@ -53,6 +53,11 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
         Email = email;
     }
 
+    public void ConfirmEmail()
+    {
+        EmailConfirmed = true;
+    }
+
     public void ChangeUserRole(UserRole userRole)
     {
         Role = userRole;
