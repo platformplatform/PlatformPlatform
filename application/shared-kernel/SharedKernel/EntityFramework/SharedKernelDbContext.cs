@@ -32,25 +32,30 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
         base.OnModelCreating(modelBuilder);
     }
 
+    /// <summary>
+    ///     Applies global tenant filters to all entities implementing <see cref="ITenantScopedEntity" /> interface.
+    ///     This ensures that only data belonging to the current tenant is queried.
+    /// </summary>
     private void ApplyGlobalTenantFilters(ModelBuilder modelBuilder)
     {
         var tenantScopedEntityTypes = modelBuilder.Model.GetEntityTypes()
-            .Where(t => typeof(ITenantScopedEntity).IsAssignableFrom(t.ClrType));
+            .Where(t => typeof(ITenantScopedEntity).IsAssignableFrom(t.ClrType))
+            .Select(t => t.ClrType);
 
         foreach (var entityType in tenantScopedEntityTypes)
         {
-            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var parameter = Expression.Parameter(entityType, "entity");
             var tenantIdProperty = Expression.Property(parameter, nameof(ITenantScopedEntity.TenantId));
             var tenantIdValue = Expression.Property(Expression.Constant(this), nameof(TenantId));
 
-            var tenantIdNotNull = Expression.NotEqual(tenantIdValue, Expression.Constant(null, typeof(TenantId)));
-            var tenantIdEqual = Expression.Equal(tenantIdProperty, tenantIdValue);
+            var condition = Expression.AndAlso(
+                Expression.NotEqual(tenantIdValue, Expression.Constant(null, typeof(TenantId))),
+                Expression.Equal(tenantIdProperty, tenantIdValue)
+            );
 
-            var body = Expression.AndAlso(tenantIdNotNull, tenantIdEqual);
+            var lambda = Expression.Lambda(condition, parameter);
 
-            var lambda = Expression.Lambda(body, parameter);
-
-            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            modelBuilder.Entity(entityType).HasQueryFilter(lambda);
         }
     }
 }
