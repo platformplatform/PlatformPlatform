@@ -35,9 +35,7 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
             .When(x => !string.IsNullOrEmpty(x.Email));
 
         RuleFor(x => x)
-            .MustAsync((x, cancellationToken)
-                => userRepository.IsEmailFreeAsync(x.GetTenantId(), x.Email, cancellationToken)
-            )
+            .MustAsync((x, cancellationToken) => userRepository.IsEmailFreeAsync(x.Email, cancellationToken))
             .WithName("Email")
             .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
             .When(x => !string.IsNullOrEmpty(x.Email));

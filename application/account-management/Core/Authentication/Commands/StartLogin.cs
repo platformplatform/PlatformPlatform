@@ -36,7 +36,7 @@ public sealed class StartLoginCommandHandler(
 {
     public async Task<Result<StartLoginResponse>> Handle(StartLoginCommand command, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByEmailAsync(command.Email, cancellationToken);
+        var user = await userRepository.GetUserByEmailUnfilteredAsync(command.Email, cancellationToken);
 
         if (user is null)
         {

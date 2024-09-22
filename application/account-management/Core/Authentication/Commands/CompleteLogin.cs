@@ -63,7 +63,7 @@ public sealed class CompleteLoginHandler(
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
-        var user = (await userRepository.GetByIdGlobalAsync(login.UserId, cancellationToken))!;
+        var user = (await userRepository.GetByIdUnfilteredAsync(login.UserId, cancellationToken))!;
 
         login.MarkAsCompleted();
         loginRepository.Update(login);
