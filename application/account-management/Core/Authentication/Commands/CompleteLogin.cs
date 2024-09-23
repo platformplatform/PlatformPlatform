@@ -56,22 +56,35 @@ public sealed class CompleteLoginHandler(
             return Result.BadRequest("The code is wrong or no longer valid.", true);
         }
 
-        var loginTimeInSeconds = (TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;
+        var loginTimeInSeconds = (int)(TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;
         if (login.HasExpired())
         {
-            events.CollectEvent(new LoginExpired((int)loginTimeInSeconds));
+            events.CollectEvent(new LoginExpired(loginTimeInSeconds));
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
         var user = (await userRepository.GetByIdUnfilteredAsync(login.UserId, cancellationToken))!;
+
+        if (!user.EmailConfirmed)
+        {
+            CompleteUserInvite(user);
+        }
 
         login.MarkAsCompleted();
         loginRepository.Update(login);
 
         authenticationTokenService.CreateAndSetAuthenticationTokens(user);
 
-        events.CollectEvent(new LoginCompleted(user.Id, (int)loginTimeInSeconds));
+        events.CollectEvent(new LoginCompleted(user.Id, loginTimeInSeconds));
 
         return Result.Success();
+    }
+
+    private void CompleteUserInvite(User user)
+    {
+        user.ConfirmEmail();
+        userRepository.Update(user);
+        var inviteAcceptedTimeInMinutes = (int)(TimeProvider.System.GetUtcNow() - user.CreatedAt).TotalMinutes;
+        events.CollectEvent(new UserInviteAccepted(user.Id, inviteAcceptedTimeInMinutes));
     }
 }

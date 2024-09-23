@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Users.Commands;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -170,9 +171,37 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
-    private async Task<string> StartLogin(string emai)
+    [Fact]
+    public async Task CompleteLogin_WhenUserInviteCompleted_ShouldTrackUserInviteAcceptedEvent()
     {
-        var command = new StartLoginCommand(emai);
+        // Arrange
+        var email = Faker.Internet.Email();
+        var inviteUserCommand = new InviteUserCommand(email);
+        await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);
+        TelemetryEventsCollectorSpy.Reset();
+
+        var loginId = await StartLogin(email);
+        var command = new CompleteLoginCommand(CorrectOneTimePassword);
+
+        // Act
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+        // Assert
+        Connection.ExecuteScalar(
+            "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 1",
+            new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }
+        ).Should().Be(1);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("UserInviteAccepted");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    private async Task<string> StartLogin(string email)
+    {
+        var command = new StartLoginCommand(email);
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
         var responseBody = await response.DeserializeResponse<StartLoginResponse>();
         return responseBody!.LoginId;

@@ -88,7 +88,7 @@ function getAllRemotes(currentSystem: string, remotes: Record<string, { port: nu
       throw new Error(`Cannot find system: ${system}`);
     }
 
-    result[system] =`${snakeCase(system)}@/${system}/${manifestFile}`;
+    result[system] = `${snakeCase(system)}@/${system}/${manifestFile}`;
 
     logger.info(`[Module Federation] Remote: "${system}" => ${result[system]}`);
   }

@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { UserTabs } from "./-components/UserTabs";
 import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
@@ -9,6 +8,8 @@ import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import InviteUserModal from "./-components/InviteUserModal";
 
 const userPageSearchSchema = z.object({
   pageOffset: z.number().default(0).optional(),
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
   return (
     <div className="flex gap-4 w-full h-full">
       <SharedSideMenu />
@@ -35,15 +38,15 @@ export default function UsersPage() {
             <h1>Users</h1>
             <p className="text-muted-foreground text-sm font-normal">Manage your users and permissions here.</p>
           </div>
-          <Button variant="primary">
+          <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="w-4 h-4" />
             Invite Users
           </Button>
         </div>
-        <UserTabs />
         <UserQuerying />
         <UserTable />
       </div>
+      <InviteUserModal isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
     </div>
   );
 }

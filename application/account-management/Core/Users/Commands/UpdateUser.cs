@@ -29,8 +29,8 @@ public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
     public UpdateUserValidator()
     {
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-        RuleFor(x => x.FirstName).MaximumLength(30).WithMessage("First name must be no longer than 30 characters.");
-        RuleFor(x => x.LastName).MaximumLength(30).WithMessage("Last name must be no longer than 30 characters.");
+        RuleFor(x => x.FirstName).NotEmpty().MaximumLength(30).WithMessage("First name must be no longer than 30 characters.");
+        RuleFor(x => x.LastName).NotEmpty().MaximumLength(30).WithMessage("Last name must be no longer than 30 characters.");
         RuleFor(x => x.Title).MaximumLength(50).WithMessage("Title must be no longer than 50 characters.");
     }
 }
