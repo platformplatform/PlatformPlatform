@@ -77,10 +77,10 @@ export function UserTable() {
           <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
             Email
           </Column>
-          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.CreatedAt}>
+          <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
             Added
           </Column>
-          <Column minWidth={65} defaultWidth={105} allowsSorting id={SortableUserProperties.ModifiedAt}>
+          <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
             Last Seen
           </Column>
           <Column minWidth={65} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
