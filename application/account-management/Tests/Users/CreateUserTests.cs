@@ -70,7 +70,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task CreateUser_WhenTenantDoesNotExists_ShouldReturnBadRequest()
     {
         // Arrange
-        var unknownTenantId = Faker.Subdomain();
+        var unknownTenantId = new TenantId(Faker.Subdomain());
         var command = new CreateUserCommand(unknownTenantId, Faker.Internet.Email(), UserRole.Member, false);
 
         // Act

@@ -14,7 +14,7 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
-public sealed record CreateUserCommand(string TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
+public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
     : ICommand, IRequest<Result<UserId>>
 {
     public TenantId GetTenantId()
