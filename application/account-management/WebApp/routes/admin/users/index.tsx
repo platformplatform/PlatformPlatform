@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { UserTabs } from "./-components/UserTabs";
 import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
@@ -44,7 +43,6 @@ export default function UsersPage() {
             Invite Users
           </Button>
         </div>
-        <UserTabs />
         <UserQuerying />
         <UserTable />
       </div>
