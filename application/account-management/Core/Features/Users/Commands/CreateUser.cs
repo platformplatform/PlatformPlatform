@@ -7,6 +7,7 @@ using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
@@ -39,11 +40,17 @@ public sealed class CreateUserHandler(
     IUserRepository userRepository,
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    IExecutionContext executionContext
 ) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
+        if (executionContext.TenantId is not null && executionContext.TenantId != command.TenantId)
+        {
+            throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
+        }
+
         var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed);
 
         await userRepository.AddAsync(user, cancellationToken);
