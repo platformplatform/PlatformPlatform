@@ -182,8 +182,8 @@ public static class SharedInfrastructureConfiguration
 
         builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
             {
-                options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
-                                           "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
+                options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+                    ?? throw new InvalidOperationException("APPLICATIONINSIGHTS_CONNECTION_STRING is not configured.");
             }
         );
 
