@@ -8,6 +8,7 @@ using PlatformPlatform.AccountManagement.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
@@ -15,13 +16,7 @@ namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
 public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
-    : ICommand, IRequest<Result<UserId>>
-{
-    public TenantId GetTenantId()
-    {
-        return new TenantId(TenantId);
-    }
-}
+    : ICommand, IRequest<Result<UserId>>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
@@ -46,18 +41,24 @@ public sealed class CreateUserHandler(
     IUserRepository userRepository,
     ITelemetryEventsCollector events,
     IHttpClientFactory httpClientFactory,
+    IExecutionContext executionContext,
     ILogger<CreateUserHandler> logger
 ) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
+        if (executionContext.TenantId is not null && executionContext.TenantId != command.TenantId)
+        {
+            throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
+        }
+
         var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
 
-        var user = User.Create(command.GetTenantId(), command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
 
         await userRepository.AddAsync(user, cancellationToken);
 
-        events.CollectEvent(new UserCreated(command.GetTenantId(), gravatarUrl is not null));
+        events.CollectEvent(new UserCreated(command.TenantId, gravatarUrl is not null));
 
         return user.Id;
     }
