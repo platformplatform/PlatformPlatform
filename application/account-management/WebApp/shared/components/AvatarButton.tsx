@@ -1,6 +1,6 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
@@ -15,6 +15,12 @@ export default function AvatarButton() {
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
   const userInfo = useUserInfo();
+
+  useEffect(() => {
+    if (userInfo?.isAuthenticated && (!userInfo.firstName || !userInfo.lastName)) {
+      setIsProfileModalOpen(true);
+    }
+  }, [userInfo]);
 
   if (!userInfo) return null;
 
@@ -69,6 +75,14 @@ export default function AvatarButton() {
         userId={userInfo.userId ?? ""}
       />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
+
+      {userInfo?.isAuthenticated && (
+        <UserProfileModal
+          isOpen={isProfileModalOpen}
+          onOpenChange={setIsProfileModalOpen}
+          userId={userInfo.userId ?? ""}
+        />
+      )}
     </>
   );
 }
