@@ -65,23 +65,31 @@ public sealed class CreateUserHandler(
 
     private async Task<string?> GetGravatarProfileUrlIfExists(string email)
     {
-        var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
-        gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
-
-        var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
-        var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
-        // The d=404 instructs Gravatar to return 404 if the email has no Gravatar account
-        var httpResponseMessage = await gravatarHttpClient.GetAsync($"{gravatarUrl}?d=404");
-
-        switch (httpResponseMessage.StatusCode)
+        try
         {
-            case HttpStatusCode.OK:
-                return gravatarUrl;
-            case HttpStatusCode.NotFound:
-                return null;
-            default:
-                logger.LogError("Failed to fetch gravatar profile. Status code: {StatusCode}", httpResponseMessage.StatusCode);
-                return null;
+            var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
+            gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
+
+            var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
+            var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
+            // The d=404 instructs Gravatar to return 404 if the email has no Gravatar account
+            var httpResponseMessage = await gravatarHttpClient.GetAsync($"{gravatarUrl}?d=404");
+
+            switch (httpResponseMessage.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return gravatarUrl;
+                case HttpStatusCode.NotFound:
+                    return null;
+                default:
+                    logger.LogError("Failed to fetch gravatar profile. Status code: {StatusCode}", httpResponseMessage.StatusCode);
+                    return null;
+            }
+        }
+        catch(TaskCanceledException e)
+        {
+            logger.LogError(e, "Time when fetching gravatar profile.");
+            return null;
         }
     }
 }
