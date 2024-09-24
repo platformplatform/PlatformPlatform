@@ -23,6 +23,8 @@ public sealed class GravatarClient(
             var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
 
             var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
+            gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
+
             var response = await gravatarHttpClient.GetAsync(gravatarUrl, cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -46,9 +48,9 @@ public sealed class GravatarClient(
                 events.CollectEvent(new GravatarUpdated(user.Id, imageStream.Length));
             }
         }
-        catch (Exception ex)
+        catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Exception occurred while fetching Gravatar for user {UserId}", user.Id);
+            logger.LogError(ex, "Timeout when fetching gravatar  for user {UserId}", user.Id);
         }
     }
 }
