@@ -2,8 +2,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Text;
 using Karambolo.PO;
-using OllamaSharp;
-using OllamaSharp.Models.Chat;
+using OpenAI.Chat;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -12,14 +11,11 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class TranslateCommand : Command
 {
-    private const string InstanceName = "platform-platform-ollama";
-    private const string DockerImageName = "ollama/ollama";
-    private const int Port = 11434;
-    private const string ModelName = "llama2";
+    private const string ModelName = "gpt-4o";
 
     public TranslateCommand() : base(
         "translate",
-        $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}"
+        $"Update language files with missing translations powered by {ModelName}"
     )
     {
         var languageOption = new Option<string?>(
@@ -84,7 +80,7 @@ public class TranslateCommand : Command
 
         AnsiConsole.MarkupLine($"Language detected: {poCatalog.Language}");
 
-        using var translationService = await OllamaTranslationService.Create();
+        var translationService = OpenAiTranslationService.Create();
         var translator = new Translator(translationService, poCatalog.Language);
         var translated = await translator.Translate(entries);
 
@@ -131,7 +127,7 @@ public class TranslateCommand : Command
         AnsiConsole.MarkupLine("[yellow]WARNING: Please proofread to make sure the language is inclusive.[/]");
     }
 
-    private sealed class Translator(ITranslationService translationService, string targetLanguage)
+    private sealed class Translator(OpenAiTranslationService translationService, string targetLanguage)
     {
         private readonly string _englishToTargetLanguagePrompt = CreatePrompt("English", targetLanguage);
         private readonly string _targetLanguageToEnglishPrompt = CreatePrompt(targetLanguage, "English");
@@ -155,11 +151,14 @@ public class TranslateCommand : Command
                 toReturn.Add(translated);
             }
 
-            AnsiConsole.MarkupLine("[green]Translation completed.[/]");
+            AnsiConsole.MarkupLine("[green]All missing values have been translated.[/]");
             return toReturn;
         }
 
-        private async Task<POSingularEntry> TranslateSingleEntry(IReadOnlyCollection<POSingularEntry> translatedEntries, POSingularEntry nonTranslatedEntry)
+        private async Task<POSingularEntry> TranslateSingleEntry(
+            IReadOnlyCollection<POSingularEntry> translatedEntries,
+            POSingularEntry nonTranslatedEntry
+        )
         {
             AnsiConsole.MarkupLine($"Translating: [cyan]{nonTranslatedEntry.Key.Id}[/]");
 
@@ -167,17 +166,19 @@ public class TranslateCommand : Command
             POSingularEntry reverseTranslated = null!;
             await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
                 {
-                    translated = await translationService.Translate(_englishToTargetLanguagePrompt, translatedEntries, nonTranslatedEntry, context);
+                    translated = await translationService.Translate(
+                        _englishToTargetLanguagePrompt, translatedEntries, nonTranslatedEntry, context
+                    );
 
                     // translate back into the original language and check if translation matches
                     AnsiConsole.MarkupLine($"Translated to: [cyan]{translated.GetTranslation()}[/]");
 
                     AnsiConsole.MarkupLine("Checking translation...");
-                    var reverseTranslations = translatedEntries.Select(x => x.Reverse()).ToArray();
+                    var reverseTranslations = translatedEntries.Select(x => x.ReverseKeyAndTranslation()).ToArray();
                     reverseTranslated = await translationService.Translate(
                         _targetLanguageToEnglishPrompt,
                         reverseTranslations,
-                        translated.Reverse(),
+                        translated.ReverseKeyAndTranslation(),
                         context
                     );
                 }
@@ -189,7 +190,7 @@ public class TranslateCommand : Command
                 return translated;
             }
 
-            AnsiConsole.MarkupLine("[yellow]Reverse translation is not matching. [/]");
+            AnsiConsole.MarkupLine($"[yellow]Reverse translation is not matching. Reverse translation is[/] [cyan]{reverseTranslated.GetTranslation()}[/]");
             if (AnsiConsole.Confirm("Is translation acceptable?"))
             {
                 AnsiConsole.MarkupLine("[green]Translation accepted.[/]");
@@ -214,109 +215,75 @@ public class TranslateCommand : Command
         }
     }
 
-    private interface ITranslationService : IDisposable
+    private sealed class OpenAiTranslationService
     {
-        public Task<POSingularEntry> Translate(string systemPrompt, IReadOnlyCollection<POSingularEntry> existingTranslations, POSingularEntry nonTranslatedEntry, StatusContext context);
-    }
+        private readonly ChatClient _client;
 
-    private sealed class OllamaTranslationService : ITranslationService
-    {
-        private readonly DockerServer _dockerServer;
-        private readonly IOllamaApiClient _ollamaApiClient;
-
-        private OllamaTranslationService(IOllamaApiClient ollamaApiClient, DockerServer dockerServer)
+        private OpenAiTranslationService(string apiKey)
         {
-            _ollamaApiClient = ollamaApiClient;
-            _dockerServer = dockerServer;
+            _client = new ChatClient(ModelName, apiKey);
         }
 
-        public async Task<POSingularEntry> Translate(string systemPrompt, IReadOnlyCollection<POSingularEntry> existingTranslations, POSingularEntry nonTranslatedEntry, StatusContext context)
+        public static OpenAiTranslationService Create()
         {
-            var messages = new List<Message>
+            var apiKey = GetApiKey();
+            return new OpenAiTranslationService(apiKey);
+        }
+
+        private static string GetApiKey()
+        {
+            const string apiKeySecretName = "OpenAIApiKey";
+            var apiKey = SecretHelper.GetSecret(apiKeySecretName);
+            if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                new()
-                {
-                    Role = ChatRole.System,
-                    Content = systemPrompt
-                }
+                return apiKey;
+            }
+
+            AnsiConsole.MarkupLine("OpenAPI Key is missing.");
+            apiKey = AnsiConsole.Ask<string>("[yellow]Please enter your OpenAPI Key.[/]");
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                SecretHelper.SetSecret(apiKeySecretName, apiKey);
+                return apiKey;
+            }
+
+            throw new InvalidOperationException("Invalid OpenAPI Key provided.");
+        }
+
+        public async Task<POSingularEntry> Translate(
+            string systemPrompt,
+            IReadOnlyCollection<POSingularEntry> existingTranslations,
+            POSingularEntry nonTranslatedEntry,
+            StatusContext context
+        )
+        {
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage(systemPrompt)
             };
 
             foreach (var translation in existingTranslations)
             {
-                messages.Add(new Message(ChatRole.User, translation.Key.Id));
-                messages.Add(new Message(ChatRole.Assistant, translation.GetTranslation()));
+                messages.Add(new UserChatMessage(translation.Key.Id));
+                messages.Add(new AssistantChatMessage(translation.GetTranslation()));
             }
 
-            messages.Add(new Message { Role = ChatRole.User, Content = nonTranslatedEntry.Key.Id });
-            StringBuilder content = new();
-
+            messages.Add(new UserChatMessage(nonTranslatedEntry.Key.Id));
             context.Status("Translating (thinking...)");
 
-            var response = (await _ollamaApiClient.SendChat(
-                new ChatRequest { Model = ModelName, Messages = messages },
-                status =>
-                {
-                    content.Append(status?.Message.Content ?? "");
-                    var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
-                    context.Status($"Translating {Math.Min(100, percent)}%");
-                }
-            )).ToList();
+            StringBuilder content = new();
+            var streamingUpdate = _client.CompleteChatStreamingAsync(messages);
+            await foreach (var update in streamingUpdate)
+            {
+                content.Append(update?.ContentUpdate.FirstOrDefault()?.Text ?? "");
+                var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
+                context.Status($"Translating {Math.Min(100, percent)}%");
+            }
 
             context.Status("Translating 100%");
 
-            var translated = response.Last().Content!;
+            var translated = content.ToString();
             return nonTranslatedEntry.ApplyTranslation(translated);
-        }
-
-        public void Dispose()
-        {
-            _dockerServer.StopServer();
-        }
-
-        public static async Task<ITranslationService> Create()
-        {
-            var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
-
-            IOllamaApiClient ollamaApiClient;
-            try
-            {
-                dockerServer.StartServer();
-                ollamaApiClient = await GetTranslationClient();
-            }
-            catch
-            {
-                dockerServer.StopServer();
-                throw;
-            }
-
-            return new OllamaTranslationService(ollamaApiClient, dockerServer);
-        }
-
-        private static async Task<OllamaApiClient> GetTranslationClient()
-        {
-            AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
-            var ollamaApiClient = new OllamaApiClient(
-                new HttpClient { BaseAddress = new Uri($"http://localhost:{Port}"), Timeout = TimeSpan.FromMinutes(15) }
-            );
-
-            await AnsiConsole.Status().StartAsync("Checking base model...", async context =>
-                {
-                    var models = await ollamaApiClient.ListLocalModels();
-                    var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{ModelName}:"));
-
-                    context.Status("Checking base model.");
-                    if (baseModel is null)
-                    {
-                        context.Status("Downloading base model.");
-                        await ollamaApiClient.PullModel(
-                            ModelName,
-                            status => context.Status($"({status.Percent}%) ## {status.Status}")
-                        );
-                        AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
-                    }
-                }
-            );
-            return ollamaApiClient;
         }
     }
 }
@@ -339,7 +306,7 @@ public static class Extensions
         return !string.IsNullOrWhiteSpace(poEntry.Translation);
     }
 
-    public static POSingularEntry Reverse(this POSingularEntry poEntry)
+    public static POSingularEntry ReverseKeyAndTranslation(this POSingularEntry poEntry)
     {
         var key = new POKey(poEntry.GetTranslation(), null, poEntry.Key.ContextId);
         var entry = new POSingularEntry(key)
