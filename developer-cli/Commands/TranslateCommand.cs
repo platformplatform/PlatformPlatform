@@ -211,6 +211,10 @@ public class TranslateCommand : Command
             return $"""
                     You are a translation service translating from {sourceLanguage} to {targetLanguage}.
                     Return only the translation, not the original text or any other information.
+                    If the original text contains punctuation or special characters, it is very important to replicate them. Do not try to correct bad grammar in the original text.
+
+                    E.g., if the original text is "enter **Your-Name* with no-more-than/#five%characters..!"
+                    Then a translation to, e.g., Danish should be "Indtast **Dit-Navn* med maksimalt/#fem%bogstaver..!"
                     """;
         }
     }
