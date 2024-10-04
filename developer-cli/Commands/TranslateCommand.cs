@@ -117,7 +117,7 @@ public class TranslateCommand : Command
 
     private static async Task WriteTranslationFile(string translationFile, POCatalog poCatalog)
     {
-        var poGenerator = new POGenerator(new POGeneratorSettings { IgnoreEncoding = true });
+        var poGenerator = new POGenerator(new POGeneratorSettings { IgnoreEncoding = true, IgnoreLongLines = true });
         var fileStream = File.OpenWrite(translationFile);
         poGenerator.Generate(fileStream, poCatalog);
         await fileStream.FlushAsync();
