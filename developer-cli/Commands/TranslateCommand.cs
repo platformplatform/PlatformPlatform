@@ -184,7 +184,7 @@ public class TranslateCommand : Command
                 }
             );
 
-            if (reverseTranslated.GetTranslation() == translated.Key.Id)
+            if (string.Equals(reverseTranslated.GetTranslation(), translated.Key.Id, StringComparison.OrdinalIgnoreCase))
             {
                 AnsiConsole.MarkupLine("[green]Reverse translation is matching.[/]");
                 return translated;
