@@ -11,6 +11,8 @@
 
     <ItemGroup>
         <PackageReference Include="Yarp.ReverseProxy" />
+        <PackageReference Include="Microsoft.OpenApi" />
+        <PackageReference Include="Microsoft.OpenApi.Readers" />
     </ItemGroup>
 
     <ItemGroup>
