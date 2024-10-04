@@ -1,4 +1,6 @@
 using Azure.Core;
+using Microsoft.OpenApi.Writers;
+using PlatformPlatform.AppGateway.ApiAggregation;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
@@ -9,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 var reverseProxyBuilder = builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddConfigFilter<ClusterDestinationConfigFilter>();
+    .AddConfigFilter<ClusterDestinationConfigFilter>()
+    .AddConfigFilter<ApiDocsFilter>();
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
@@ -52,7 +55,15 @@ builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ApiAggregationService>();
+builder.Services.AddOutputCache();
+
 var app = builder.Build();
+
+app.UseOutputCache();
+
+Endpoints.MapEndpoints(app);
 
 app.MapReverseProxy();
 
