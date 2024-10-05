@@ -15,11 +15,11 @@ msgstr ""
 
 #. js-lingui-explicit-id
 msgid "Email"
-msgstr "Email"
+msgstr "E-mail"
 
 #. js-lingui-explicit-id
 msgid "yourname@example.com"
-msgstr "ditnavn@example.com"
+msgstr "ditnavn@eksempel.com"
 
 #. js-lingui-explicit-id
 msgid "Subdomain"
@@ -35,15 +35,15 @@ msgstr "Region"
 
 #. js-lingui-explicit-id
 msgid "This is the region where your data is stored"
-msgstr ""
+msgstr "Dette er den region, hvor dine data er gemt"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing mobile versions"
-msgstr "Skærmbilleder af dashboard-projektet, der viser mobile versioner"
+msgstr "Skærmbilleder af dashboardprojektet, der viser mobilversioner"
 
 #. js-lingui-explicit-id
 msgid "Screenshots of the dashboard project showing desktop and mobile versions"
-msgstr "Skærmbilleder af dashboard-projektet, der viser desktop- og mobile versioner"
+msgstr "Skærmbilleder af dashboardprojektet, der viser desktop- og mobilversioner"
 
 msgid "Active Users"
 msgstr "Aktive brugere"
@@ -52,31 +52,31 @@ msgid "Active users the past 30 days"
 msgstr "Aktive brugere de seneste 30 dage"
 
 msgid "Add more in the Users menu"
-msgstr "Tilføj flere i Bruger-menuen"
+msgstr "Tilføj flere i brugermenuen"
 
 msgid "Already have an account?"
 msgstr "Har du allerede en konto?"
 
 msgid "Can't find your code? Check your spam folder"
-msgstr "Kan du ikke finde din kode? Tjek din spam-mappe"
+msgstr "Kan du ikke finde din kode? Tjek din spammappe"
 
 msgid "Didn't receive the code? Resend"
-msgstr "Modtog ikke koden? Send igen"
+msgstr "Modtog du ikke koden? Send igen"
 
 msgid "Enter your verification code"
-msgstr "Indtast din verifikationskode"
+msgstr "Indtast din bekræftelseskode"
 
 msgid "Filters"
 msgstr "Filtre"
 
 msgid "Here’s your overview of what’s going on."
-msgstr "Her er en oversigt over, hvad der sker"
+msgstr "Her er dit overblik over, hvad der sker."
 
 msgid "Log in"
 msgstr "Log ind"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
-msgstr "Tjek venligst din e-mail for en verifikationskode sendt til <0>{email}</0>"
+msgstr "Tjek venligst din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
 msgid "Total Users"
 msgstr "Totalt antal brugere"
