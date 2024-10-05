@@ -160,12 +160,11 @@ public class TranslateCommand : Command
             POSingularEntry nonTranslatedEntry
         )
         {
-            AnsiConsole.MarkupLine($"Translating: [cyan]{nonTranslatedEntry.Key.Id}[/]");
-
             var currentPrompt = _englishToTargetLanguagePrompt;
 
             while (true)
             {
+                AnsiConsole.MarkupLine($"Translating: [cyan]{nonTranslatedEntry.Key.Id}[/]");
                 POSingularEntry translated = null!;
                 POSingularEntry reverseTranslated = null!;
                 await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
@@ -199,7 +198,7 @@ public class TranslateCommand : Command
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("What would you like to do?")
-                        .AddChoices("Accept translation", "Provide context for retranslation", "Input own translation")
+                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation")
                 );
 
                 switch (choice)
@@ -207,6 +206,9 @@ public class TranslateCommand : Command
                     case "Accept translation":
                         AnsiConsole.MarkupLine("[green]Translation accepted.[/]");
                         return translated;
+                    case "Try again":
+                        AnsiConsole.MarkupLine("[green]Trying translation again...[/]");
+                        continue;
                     case "Provide context for retranslation":
                         var context = AnsiConsole.Ask<string>("Please provide context for the translation:");
                         currentPrompt = _englishToTargetLanguagePrompt + $"\nAdditional context for translation: {context}";
@@ -221,6 +223,9 @@ public class TranslateCommand : Command
                         }
 
                         return translated.ApplyTranslation(userTranslation);
+                    case "Skip":
+                        AnsiConsole.MarkupLine("[yellow]Translation skipped.[/]");
+                        return translated.ApplyTranslation(string.Empty);
                 }
             }
         }
