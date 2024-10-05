@@ -162,48 +162,67 @@ public class TranslateCommand : Command
         {
             AnsiConsole.MarkupLine($"Translating: [cyan]{nonTranslatedEntry.Key.Id}[/]");
 
-            POSingularEntry translated = null!;
-            POSingularEntry reverseTranslated = null!;
-            await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
+            var currentPrompt = _englishToTargetLanguagePrompt;
+
+            while (true)
+            {
+                POSingularEntry translated = null!;
+                POSingularEntry reverseTranslated = null!;
+                await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
+                    {
+                        translated = await translationService.Translate(
+                            currentPrompt, translatedEntries, nonTranslatedEntry, context
+                        );
+
+                        // Translate back into the original language and check if translation matches
+                        AnsiConsole.MarkupLine($"Translated to: [cyan]{translated.GetTranslation()}[/]");
+
+                        AnsiConsole.MarkupLine("Checking translation...");
+                        var reverseTranslations = translatedEntries.Select(x => x.ReverseKeyAndTranslation()).ToArray();
+                        reverseTranslated = await translationService.Translate(
+                            _targetLanguageToEnglishPrompt,
+                            reverseTranslations,
+                            translated.ReverseKeyAndTranslation(),
+                            context
+                        );
+                    }
+                );
+
+                if (string.Equals(reverseTranslated.GetTranslation(), translated.Key.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    translated = await translationService.Translate(
-                        _englishToTargetLanguagePrompt, translatedEntries, nonTranslatedEntry, context
-                    );
-
-                    // translate back into the original language and check if translation matches
-                    AnsiConsole.MarkupLine($"Translated to: [cyan]{translated.GetTranslation()}[/]");
-
-                    AnsiConsole.MarkupLine("Checking translation...");
-                    var reverseTranslations = translatedEntries.Select(x => x.ReverseKeyAndTranslation()).ToArray();
-                    reverseTranslated = await translationService.Translate(
-                        _targetLanguageToEnglishPrompt,
-                        reverseTranslations,
-                        translated.ReverseKeyAndTranslation(),
-                        context
-                    );
+                    AnsiConsole.MarkupLine("[green]Reverse translation is matching.[/]");
+                    return translated;
                 }
-            );
 
-            if (string.Equals(reverseTranslated.GetTranslation(), translated.Key.Id, StringComparison.OrdinalIgnoreCase))
-            {
-                AnsiConsole.MarkupLine("[green]Reverse translation is matching.[/]");
-                return translated;
+                AnsiConsole.MarkupLine($"[yellow]Reverse translation is not matching. Reverse translation is[/] [cyan]{reverseTranslated.GetTranslation()}[/]");
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("What would you like to do?")
+                        .AddChoices("Accept translation", "Provide context for retranslation", "Input own translation")
+                );
+
+                switch (choice)
+                {
+                    case "Accept translation":
+                        AnsiConsole.MarkupLine("[green]Translation accepted.[/]");
+                        return translated;
+                    case "Provide context for retranslation":
+                        var context = AnsiConsole.Ask<string>("Please provide context for the translation:");
+                        currentPrompt = _englishToTargetLanguagePrompt + $"\nAdditional context for translation: {context}";
+                        AnsiConsole.MarkupLine("[green]Context added. Retranslating...[/]");
+                        continue;
+                    case "Input own translation":
+                        var userTranslation = AnsiConsole.Ask<string>("Please input your own translation:");
+                        if (string.IsNullOrWhiteSpace(userTranslation))
+                        {
+                            AnsiConsole.MarkupLine("[red]Invalid translation. Please try again.[/]");
+                            continue;
+                        }
+
+                        return translated.ApplyTranslation(userTranslation);
+                }
             }
-
-            AnsiConsole.MarkupLine($"[yellow]Reverse translation is not matching. Reverse translation is[/] [cyan]{reverseTranslated.GetTranslation()}[/]");
-            if (AnsiConsole.Confirm("Is translation acceptable?"))
-            {
-                AnsiConsole.MarkupLine("[green]Translation accepted.[/]");
-                return translated;
-            }
-
-            var userTranslation = AnsiConsole.Ask<string>("Please input your own translation.");
-            if (string.IsNullOrWhiteSpace(userTranslation))
-            {
-                throw new InvalidOperationException("Invalid translation.");
-            }
-
-            return translated.ApplyTranslation(userTranslation);
         }
 
         private static string CreatePrompt(string sourceLanguage, string targetLanguage)
