@@ -7,6 +7,7 @@ namespace PlatformPlatform.SharedKernel.ExecutionContext;
 
 public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IExecutionContext
 {
+    private bool _isTenantIdCalculated;
     private TenantId? _tenantId;
     private UserInfo? _userInfo;
 
@@ -14,14 +15,13 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
     {
         get
         {
-            // The first time this property is accessed, _userInfo might be null, but when TenantId.TryParse() is called,
-            // it will be set. So even if _tenantId is null, we know if this property has been accessed before.
-            if (_userInfo is not null)
+            if (_isTenantIdCalculated)
             {
                 return _tenantId;
             }
 
             TenantId.TryParse(UserInfo.TenantId, out _tenantId);
+            _isTenantIdCalculated = true;
             return _tenantId;
         }
     }
