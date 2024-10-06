@@ -99,13 +99,13 @@ public class SinglePageAppConfiguration
         while (stopwatch.Elapsed < TimeSpan.FromSeconds(30))
         {
             // A new index.html is created when starting, so we ensure the index.html is not from an old build
-            if (new FileInfo(_htmlTemplatePath).CreationTimeUtc > StartupTime.AddSeconds(-10)) break;
+            if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > StartupTime.AddSeconds(-10)) break;
 
             Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }
 
         // If the index.html was just created, the Web App Dev server needs a few moments to warm up
-        if (new FileInfo(_htmlTemplatePath).CreationTimeUtc > DateTime.UtcNow.AddSeconds(-1))
+        if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > DateTime.UtcNow.AddSeconds(-1))
         {
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
         }
