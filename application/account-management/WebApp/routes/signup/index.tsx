@@ -2,8 +2,7 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { DotIcon } from "lucide-react";
-import { Trans } from "@lingui/macro";
-import { useLingui } from "@lingui/react";
+import { t, Trans } from "@lingui/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
@@ -34,7 +33,6 @@ export const Route = createFileRoute("/signup/")({
 });
 
 export function StartSignupForm() {
-  const { i18n } = useLingui();
   const [email, setEmail] = useState("");
 
   const [{ success, errors, data, title, message }, action, isPending] = useFormState(
@@ -76,29 +74,31 @@ export function StartSignupForm() {
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
       <Link href="/">
-        <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">Create your account</Heading>
+      <Heading className="text-2xl">
+        <Trans>Create your account</Trans>
+      </Heading>
       <div className="text-center text-muted-foreground text-sm">
-        Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.
+        <Trans>Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.</Trans>
       </div>
       <TextField
         name="email"
         type="email"
-        label={i18n.t("Email")}
+        label={t`Email`}
         autoFocus
         isRequired
         value={email}
         onChange={setEmail}
         autoComplete="email webauthn"
-        placeholder={i18n.t("yourname@example.com")}
+        placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
       <DomainInputField
         name="subdomain"
         domain=".platformplatform.net"
-        label={i18n.t("Subdomain")}
-        placeholder={i18n.t("subdomain")}
+        label={t`Subdomain`}
+        placeholder={t`subdomain`}
         isRequired
         value={subdomain}
         onChange={setSubdomain}
@@ -108,16 +108,18 @@ export function StartSignupForm() {
       <Select
         name="region"
         selectedKey="europe"
-        label={i18n.t("Region")}
-        description={i18n.t("This is the region where your data is stored")}
+        label={t`Region`}
+        description={t`This is the region where your data is stored`}
         isRequired
         className="flex w-full flex-col"
       >
-        <SelectItem id="europe">Europe</SelectItem>
+        <SelectItem id="europe">
+          <Trans>Europe</Trans>
+        </SelectItem>
       </Select>
       <FormErrorMessage title={title} message={message} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
-        Create your account
+        <Trans>Create your account</Trans>
       </Button>
       <p className="text-muted-foreground text-xs">
         <Trans>Already have an account?</Trans>{" "}
@@ -126,14 +128,18 @@ export function StartSignupForm() {
         </Link>
       </p>
       <div className="text-muted-foreground text-sm">
-        By continuing, you agree to our policies
+        <Trans>By continuing, you agree to our policies</Trans>
         <div className="flex items-center justify-center">
-          <Link href="/">Terms of use</Link>
+          <Link href="/">
+            <Trans>Terms of use</Trans>
+          </Link>
           <DotIcon className="h-4 w-4" />
-          <Link href="/">Privacy Policies</Link>
+          <Link href="/">
+            <Trans>Privacy Policies</Trans>
+          </Link>
         </div>
       </div>
-      <img src={poweredByUrl} alt="powered by" />
+      <img src={poweredByUrl} alt={t`Powered by`} />
     </Form>
   );
 }

@@ -6,6 +6,7 @@ import { Link } from "@repo/ui/components/Link";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
 import { getSignupState } from "./-shared/signupState";
 import { signUpPath } from "@repo/infrastructure/auth/constants";
+import { Trans } from "@lingui/macro";
 
 export const Route = createFileRoute("/signup/expired")({
   component: () => (
@@ -26,9 +27,15 @@ export function VerificationCodeExpiredMessage() {
   return (
     <IllustratedMessage>
       <Timeout />
-      <Heading>Error: Verification code expired</Heading>
-      <Content>The verification code you are trying to use has expired for Signup ID: {signupId}</Content>
-      <Link href={signUpPath}>Try again</Link>
+      <Heading>
+        <Trans>Error: Verification code expired</Trans>
+      </Heading>
+      <Content>
+        <Trans>The verification code you are trying to use has expired for Signup ID: {signupId}</Trans>
+      </Content>
+      <Link href={signUpPath}>
+        <Trans>Try again</Trans>
+      </Link>
     </IllustratedMessage>
   );
 }

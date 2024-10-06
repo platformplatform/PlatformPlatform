@@ -11,6 +11,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { SortableUserProperties, SortOrder, useApi } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { t, Trans } from "@lingui/macro";
 
 export function UserTable() {
   const navigate = useNavigate();
@@ -68,25 +69,27 @@ export function UserTable() {
         selectionBehavior="toggle"
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
-        aria-label="Users"
+        aria-label={t`Users`}
       >
         <TableHeader>
           <Column minWidth={180} allowsSorting id={SortableUserProperties.Name} isRowHeader>
-            Name
+            <Trans>Name</Trans>
           </Column>
           <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
-            Email
+            <Trans>Email</Trans>
           </Column>
           <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
-            Added
+            <Trans>Added</Trans>
           </Column>
           <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
-            Last Seen
+            <Trans>Last Seen</Trans>
           </Column>
           <Column minWidth={65} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
-            Role
+            <Trans>Role</Trans>
           </Column>
-          <Column width={114}>Actions</Column>
+          <Column width={114}>
+            <Trans>Actions</Trans>
+          </Column>
         </TableHeader>
         <TableBody>
           {data?.users.map((user) => (
@@ -102,7 +105,13 @@ export function UserTable() {
                   <div className="flex flex-col truncate">
                     <div className="truncate text-foreground">
                       {user.firstName} {user.lastName}
-                      {user.emailConfirmed ? "" : <Badge variant="outline">Pending</Badge>}
+                      {user.emailConfirmed ? (
+                        ""
+                      ) : (
+                        <Badge variant="outline">
+                          <Trans>Pending</Trans>
+                        </Badge>
+                      )}
                     </div>
                     <div className="truncate">{user.title ?? ""}</div>
                   </div>
@@ -123,19 +132,21 @@ export function UserTable() {
                     <Trash2Icon className="w-5 h-5 text-muted-foreground" />
                   </Button>
                   <MenuTrigger>
-                    <Button variant="icon" aria-label="Menu">
+                    <Button variant="icon" aria-label={t`Menu`}>
                       <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
                     </Button>
                     <Popover>
                       <Menu>
                         <MenuItem onAction={() => alert("open")}>
                           <UserIcon className="w-4 h-4" />
-                          View Profile
+                          <Trans>View Profile</Trans>
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem onAction={() => alert("rename")}>
                           <Trash2Icon className="w-4 h-4 text-destructive" />
-                          <span className="text-destructive">Delete</span>
+                          <span className="text-destructive">
+                            <Trans>Delete</Trans>
+                          </span>
                         </MenuItem>
                       </Menu>
                     </Popover>
@@ -160,8 +171,8 @@ export function UserTable() {
             currentPage={currentPage}
             totalPages={data?.totalPages ?? 1}
             onPageChange={handlePageChange}
-            previousLabel="Previous"
-            nextLabel="Next"
+            previousLabel={t`Previous`}
+            nextLabel={t`Next`}
             className="hidden sm:flex w-full"
           />
         </>

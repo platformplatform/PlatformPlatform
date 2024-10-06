@@ -22,7 +22,7 @@ export default function Home() {
               <Trans>Welcome home</Trans>
             </h1>
             <p className="text-muted-foreground text-sm font-normal">
-              <Trans>Here’s your overview of what’s going on.</Trans>
+              <Trans>Here is your overview of what's happening.</Trans>
             </p>
           </div>
         </div>

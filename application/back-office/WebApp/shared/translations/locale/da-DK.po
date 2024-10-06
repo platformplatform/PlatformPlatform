@@ -13,6 +13,12 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "Help"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operations and support teams."
 msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
 

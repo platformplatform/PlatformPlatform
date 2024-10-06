@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import { Trans } from "@lingui/macro";
+import { t, Trans } from "@lingui/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
@@ -60,7 +60,7 @@ export function CompleteLoginForm() {
       <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
         <div className="flex justify-center">
           <Link href="/">
-            <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+            <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
           </Link>
         </div>
         <h1 className="mb-3 w-full text-center text-2xl">
@@ -88,7 +88,7 @@ export function CompleteLoginForm() {
           <p className="text-xs ">
             <Trans>Can't find your code? Check your spam folder</Trans>
           </p>
-          <img src={poweredByUrl} alt="powered by" />
+          <img src={poweredByUrl} alt={t`Powered by`} />
         </div>
       </div>
     </Form>

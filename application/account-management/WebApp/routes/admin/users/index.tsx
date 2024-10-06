@@ -10,6 +10,7 @@ import { Button } from "@repo/ui/components/Button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import InviteUserModal from "./-components/InviteUserModal";
+import { Trans } from "@lingui/macro";
 
 const userPageSearchSchema = z.object({
   pageOffset: z.number().default(0).optional(),
@@ -30,17 +31,25 @@ export default function UsersPage() {
       <SharedSideMenu />
       <div className="flex flex-col gap-4 py-3 px-4 w-full">
         <TopMenu>
-          <Breadcrumb href="/admin/users">Users</Breadcrumb>
-          <Breadcrumb>All Users</Breadcrumb>
+          <Breadcrumb href="/admin/users">
+            <Trans>Users</Trans>
+          </Breadcrumb>
+          <Breadcrumb>
+            <Trans>All Users</Trans>
+          </Breadcrumb>
         </TopMenu>
         <div className="flex 20 w-full items-center justify-between space-x-2 sm:mt-4 mb-4">
           <div className="text-foreground text-3xl font-semibold flex gap-2 flex-col mt-3">
-            <h1>Users</h1>
-            <p className="text-muted-foreground text-sm font-normal">Manage your users and permissions here.</p>
+            <h1>
+              <Trans>Users</Trans>
+            </h1>
+            <p className="text-muted-foreground text-sm font-normal">
+              <Trans>Manage your users and permissions here.</Trans>
+            </p>
           </div>
           <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="w-4 h-4" />
-            Invite Users
+            <Trans>Invite Users</Trans>
           </Button>
         </div>
         <UserQuerying />

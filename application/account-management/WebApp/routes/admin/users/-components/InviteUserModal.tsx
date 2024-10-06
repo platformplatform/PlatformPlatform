@@ -9,6 +9,7 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
 import { api } from "@/shared/lib/api/client";
+import { t, Trans } from "@lingui/macro";
 
 type InviteUserModalProps = {
   isOpen: boolean;
@@ -41,10 +42,10 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
       <Dialog>
         <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
         <Heading slot="title" className="text-2xl">
-          Invite User
+          <Trans>Invite User</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
-          Invite users and assign them roles. They will appear once they've signed in.
+          <Trans>Invite users and assign them roles. They will appear once they've logged in.</Trans>
         </p>
 
         <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4 mt-4">
@@ -52,18 +53,18 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
             autoFocus
             isRequired
             name="email"
-            label="Email"
-            placeholder="user@email.com"
+            label={t`Email`}
+            placeholder={t`user@email.com`}
             className="flex-grow"
           />
           <FormErrorMessage title={title} message={message} />
 
           <div className="flex justify-end gap-4 mt-6">
             <Button type="reset" onPress={closeDialog} variant="secondary">
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={isPending}>
-              Send invite
+              <Trans>Send invite</Trans>
             </Button>
           </div>
         </Form>
