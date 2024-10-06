@@ -88,7 +88,7 @@ public class DevCommand : Command
                 Arguments = "ps",
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
-                CreateNoWindow = true,
+                CreateNoWindow = true
             };
 
             while (retriesLeft > 0)

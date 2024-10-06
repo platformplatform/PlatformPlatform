@@ -1,8 +1,8 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Text;
 using Karambolo.PO;
-using OllamaSharp;
-using OllamaSharp.Models.Chat;
+using OpenAI.Chat;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -11,14 +11,11 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class TranslateCommand : Command
 {
-    private const string InstanceName = "platform-platform-ollama";
-    private const string DockerImageName = "ollama/ollama";
-    private const int Port = 11434;
-    private const string ModelName = "llama2";
+    private const string ModelName = "gpt-4o";
 
     public TranslateCommand() : base(
         "translate",
-        $"Update language files with missing translations 🐡 (ALPHA) powered by {ModelName}"
+        $"Update language files with missing translations powered by {ModelName}"
     )
     {
         var languageOption = new Option<string?>(
@@ -31,19 +28,14 @@ public class TranslateCommand : Command
         Handler = CommandHandler.Create<string?>(Execute);
     }
 
-    private async Task<int> Execute(string? language)
+    private static async Task<int> Execute(string? language)
     {
-        Prerequisite.Ensure(Prerequisite.Dotnet,Prerequisite.Docker);
+        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Docker);
 
-        var dockerServer = new DockerServer(DockerImageName, InstanceName, Port, "/root/.ollama");
         try
         {
             var translationFile = GetTranslationFile(language);
-
-            dockerServer.StartServer();
-
             await RunTranslation(translationFile);
-
             return 0;
         }
         catch (Exception e)
@@ -51,13 +43,9 @@ public class TranslateCommand : Command
             AnsiConsole.MarkupLine($"[red]Translation failed. {e.Message}[/]");
             return 1;
         }
-        finally
-        {
-            dockerServer.StopServer();
-        }
     }
 
-    private string GetTranslationFile(string? language)
+    private static string GetTranslationFile(string? language)
     {
         var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
         var translationFiles = workingDirectory
@@ -85,103 +73,31 @@ public class TranslateCommand : Command
         return translationFiles[selection].FullName;
     }
 
-    private async Task RunTranslation(string translationFile)
+    private static async Task RunTranslation(string translationFile)
     {
-        AnsiConsole.MarkupLine("[green]Connecting to Ollama API.[/]");
-        var ollamaApiClient = new OllamaApiClient(
-            new HttpClient { BaseAddress = new Uri($"http://localhost:{Port}"), Timeout = TimeSpan.FromMinutes(15) }
-        );
+        var poCatalog = await ReadTranslationFile(translationFile);
+        var entries = poCatalog.EnsureOnlySingularEntries();
 
-        await AnsiConsole.Status().StartAsync("Checking base model...", async context =>
-            {
-                var models = (await ollamaApiClient.ListLocalModels()).ToArray();
-                var baseModel = models.FirstOrDefault(m => m.Name.StartsWith($"{ModelName}:"));
-
-                context.Status("Checking base model.");
-                if (baseModel is null)
-                {
-                    context.Status("Downloading base model.");
-                    await ollamaApiClient.PullModel(
-                        ModelName,
-                        status => context.Status($"({status.Percent}%) ## {status.Status}")
-                    );
-                    AnsiConsole.MarkupLine("[green]Base model downloaded.[/]");
-                }
-            }
-        );
-
-        var poParseResult = await ReadTranslationFile(translationFile);
-
-        var poCatalog = poParseResult.Catalog;
         AnsiConsole.MarkupLine($"Language detected: {poCatalog.Language}");
 
-        await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
-            {
-                var missingTranslations = new List<POKey>();
-                var messages = new List<Message>
-                {
-                    new()
-                    {
-                        Role = "system",
-                        Content = $"""
-                                   You are a translation service translating from English to {poCatalog.Language}.
-                                   Return only the translation, not the original text or any other information.
-                                   """
-                    }
-                };
+        var translationService = OpenAiTranslationService.Create();
+        var translator = new Translator(translationService, poCatalog.Language);
+        var translated = await translator.Translate(entries);
 
-                foreach (var key in poCatalog.Keys)
-                {
-                    var translation = poCatalog.GetTranslation(key);
-                    if (translation.Length == 0)
-                    {
-                        missingTranslations.Add(key);
-                    }
-                    else
-                    {
-                        messages.Add(new Message { Role = "user", Content = key.Id });
-                        messages.Add(new Message { Role = "assistant", Content = translation });
-                    }
-                }
+        if (!translated.Any())
+        {
+            return;
+        }
 
-                AnsiConsole.MarkupLine($"Keys missing translation: {missingTranslations.Count}");
-                if (missingTranslations.Count == 0)
-                {
-                    AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
-                    return;
-                }
+        foreach (var translatedEntry in translated)
+        {
+            poCatalog.UpdateEntry(translatedEntry);
+        }
 
-                for (var index = 0; index < missingTranslations.Count; index++)
-                {
-                    var key = missingTranslations[index];
-                    var content = "";
-
-                    AnsiConsole.MarkupLine($"[green]Translating {key.Id}[/]");
-                    context.Status($"Translating {index + 1}/{missingTranslations.Count} (thinking...)");
-
-                    messages.Add(new Message { Role = "user", Content = key.Id });
-
-                    messages = (await ollamaApiClient.SendChat(
-                        new ChatRequest { Model = ModelName, Messages = messages },
-                        status =>
-                        {
-                            content += status?.Message.Content ?? "";
-                            var percent = Math.Round(content.Length / (key.Id.Length * 1.2) * 100); // +20% is a guess
-                            context.Status($"Translating {index + 1}/{missingTranslations.Count} ({Math.Min(100, percent)}%)");
-                        }
-                    )).ToList();
-
-                    UpdateCatalogTranslation(poCatalog, key, messages.Last().Content!);
-                }
-
-                AnsiConsole.MarkupLine("[green]Translation completed.[/]");
-
-                await WriteTranslationFile(translationFile, poCatalog);
-            }
-        );
+        await WriteTranslationFile(translationFile, poCatalog);
     }
 
-    private static async Task<POParseResult> ReadTranslationFile(string translationFile)
+    private static async Task<POCatalog> ReadTranslationFile(string translationFile)
     {
         var translationContent = await File.ReadAllTextAsync(translationFile);
         var poParser = new POParser();
@@ -196,12 +112,12 @@ public class TranslateCommand : Command
             throw new InvalidOperationException($"Failed to parse PO file {translationFile}. Language not found.");
         }
 
-        return poParseResult;
+        return poParseResult.Catalog;
     }
 
     private static async Task WriteTranslationFile(string translationFile, POCatalog poCatalog)
     {
-        var poGenerator = new POGenerator(new POGeneratorSettings { IgnoreEncoding = true });
+        var poGenerator = new POGenerator(new POGeneratorSettings { IgnoreEncoding = true, IgnoreLongLines = true });
         var fileStream = File.OpenWrite(translationFile);
         poGenerator.Generate(fileStream, poCatalog);
         await fileStream.FlushAsync();
@@ -211,15 +127,253 @@ public class TranslateCommand : Command
         AnsiConsole.MarkupLine("[yellow]WARNING: Please proofread to make sure the language is inclusive.[/]");
     }
 
-    private static void UpdateCatalogTranslation(POCatalog poCatalog, POKey key, string translation)
+    private sealed class Translator(OpenAiTranslationService translationService, string targetLanguage)
     {
+        private readonly string _englishToTargetLanguagePrompt = CreatePrompt("English", targetLanguage);
+        private readonly string _targetLanguageToEnglishPrompt = CreatePrompt(targetLanguage, "English");
+
+        public async Task<IReadOnlyCollection<POSingularEntry>> Translate(IReadOnlyCollection<POSingularEntry> translationEntries)
+        {
+            var translatedEntries = translationEntries.Where(x => x.HasTranslation()).ToList();
+            var nonTranslatedEntries = translationEntries.Where(x => !x.HasTranslation()).ToList();
+            AnsiConsole.MarkupLine($"Keys missing translation: {nonTranslatedEntries.Count}");
+            if (nonTranslatedEntries.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[green]Translation completed, nothing to translate.[/]");
+                return [];
+            }
+
+            var toReturn = new List<POSingularEntry>();
+            foreach (var nonTranslatedEntry in nonTranslatedEntries)
+            {
+                var translated = await TranslateSingleEntry(translatedEntries.AsReadOnly(), nonTranslatedEntry);
+                translatedEntries.Add(translated);
+                toReturn.Add(translated);
+            }
+
+            AnsiConsole.MarkupLine("[green]All missing values have been translated.[/]");
+            return toReturn;
+        }
+
+        private async Task<POSingularEntry> TranslateSingleEntry(
+            IReadOnlyCollection<POSingularEntry> translatedEntries,
+            POSingularEntry nonTranslatedEntry
+        )
+        {
+            var currentPrompt = _englishToTargetLanguagePrompt;
+
+            while (true)
+            {
+                AnsiConsole.MarkupLine($"Translating: [cyan]{nonTranslatedEntry.Key.Id}[/]");
+                POSingularEntry translated = null!;
+                POSingularEntry reverseTranslated = null!;
+                await AnsiConsole.Status().StartAsync("Initialize translation...", async context =>
+                    {
+                        translated = await translationService.Translate(
+                            currentPrompt, translatedEntries, nonTranslatedEntry, context
+                        );
+
+                        // Translate back into the original language and check if translation matches
+                        AnsiConsole.MarkupLine($"Translated to: [cyan]{translated.GetTranslation()}[/]");
+
+                        AnsiConsole.MarkupLine("Checking translation...");
+                        var reverseTranslations = translatedEntries.Select(x => x.ReverseKeyAndTranslation()).ToArray();
+                        reverseTranslated = await translationService.Translate(
+                            _targetLanguageToEnglishPrompt,
+                            reverseTranslations,
+                            translated.ReverseKeyAndTranslation(),
+                            context
+                        );
+                    }
+                );
+
+                if (string.Equals(reverseTranslated.GetTranslation(), translated.Key.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    AnsiConsole.MarkupLine("[green]Reverse translation is matching.[/]");
+                    return translated;
+                }
+
+                AnsiConsole.MarkupLine($"[yellow]Reverse translation is not matching. Reverse translation is[/] [cyan]{reverseTranslated.GetTranslation()}[/]");
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("What would you like to do?")
+                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation")
+                );
+
+                switch (choice)
+                {
+                    case "Accept translation":
+                        AnsiConsole.MarkupLine("[green]Translation accepted.[/]");
+                        return translated;
+                    case "Try again":
+                        AnsiConsole.MarkupLine("[green]Trying translation again...[/]");
+                        continue;
+                    case "Provide context for retranslation":
+                        var context = AnsiConsole.Ask<string>("Please provide context for the translation:");
+                        currentPrompt = _englishToTargetLanguagePrompt + $"\nAdditional context for translation: {context}";
+                        AnsiConsole.MarkupLine("[green]Context added. Retranslating...[/]");
+                        continue;
+                    case "Input own translation":
+                        var userTranslation = AnsiConsole.Ask<string>("Please input your own translation:");
+                        if (string.IsNullOrWhiteSpace(userTranslation))
+                        {
+                            AnsiConsole.MarkupLine("[red]Invalid translation. Please try again.[/]");
+                            continue;
+                        }
+
+                        return translated.ApplyTranslation(userTranslation);
+                    case "Skip":
+                        AnsiConsole.MarkupLine("[yellow]Translation skipped.[/]");
+                        return translated.ApplyTranslation(string.Empty);
+                }
+            }
+        }
+
+        private static string CreatePrompt(string sourceLanguage, string targetLanguage)
+        {
+            return $"""
+                    You are a translation service translating from {sourceLanguage} to {targetLanguage}.
+                    Return only the translation, not the original text or any other information.
+                    If the original text contains punctuation or special characters, it is very important to replicate them. Do not try to correct bad grammar in the original text.
+
+                    E.g., if the original text is "enter **Your-Name* with no-more-than/#five%characters..!"
+                    Then a translation to, e.g., Danish should be "Indtast **Dit-Navn* med maksimalt/#fem%bogstaver..!"
+                    """;
+        }
+    }
+
+    private sealed class OpenAiTranslationService
+    {
+        private readonly ChatClient _client;
+
+        private OpenAiTranslationService(string apiKey)
+        {
+            _client = new ChatClient(ModelName, apiKey);
+        }
+
+        public static OpenAiTranslationService Create()
+        {
+            var apiKey = GetApiKey();
+            return new OpenAiTranslationService(apiKey);
+        }
+
+        private static string GetApiKey()
+        {
+            const string apiKeySecretName = "OpenAIApiKey";
+            var apiKey = SecretHelper.GetSecret(apiKeySecretName);
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                return apiKey;
+            }
+
+            AnsiConsole.MarkupLine("OpenAPI Key is missing.");
+            apiKey = AnsiConsole.Ask<string>("[yellow]Please enter your OpenAPI Key.[/]");
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                SecretHelper.SetSecret(apiKeySecretName, apiKey);
+                return apiKey;
+            }
+
+            throw new InvalidOperationException("Invalid OpenAPI Key provided.");
+        }
+
+        public async Task<POSingularEntry> Translate(
+            string systemPrompt,
+            IReadOnlyCollection<POSingularEntry> existingTranslations,
+            POSingularEntry nonTranslatedEntry,
+            StatusContext context
+        )
+        {
+            var messages = new List<ChatMessage>
+            {
+                new SystemChatMessage(systemPrompt)
+            };
+
+            foreach (var translation in existingTranslations)
+            {
+                messages.Add(new UserChatMessage(translation.Key.Id));
+                messages.Add(new AssistantChatMessage(translation.GetTranslation()));
+            }
+
+            messages.Add(new UserChatMessage(nonTranslatedEntry.Key.Id));
+            context.Status("Translating (thinking...)");
+
+            StringBuilder content = new();
+            var streamingUpdate = _client.CompleteChatStreamingAsync(messages);
+            await foreach (var update in streamingUpdate)
+            {
+                content.Append(update?.ContentUpdate.FirstOrDefault()?.Text ?? "");
+                var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
+                context.Status($"Translating {Math.Min(100, percent)}%");
+            }
+
+            context.Status("Translating 100%");
+
+            var translated = content.ToString();
+            return nonTranslatedEntry.ApplyTranslation(translated);
+        }
+    }
+}
+
+public static class Extensions
+{
+    public static string GetTranslation(this POSingularEntry poEntry)
+    {
+        var translation = poEntry.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(translation))
+        {
+            throw new InvalidOperationException("No translation was found.");
+        }
+
+        return translation;
+    }
+
+    public static bool HasTranslation(this POSingularEntry poEntry)
+    {
+        return !string.IsNullOrWhiteSpace(poEntry.Translation);
+    }
+
+    public static POSingularEntry ReverseKeyAndTranslation(this POSingularEntry poEntry)
+    {
+        var key = new POKey(poEntry.GetTranslation(), null, poEntry.Key.ContextId);
+        var entry = new POSingularEntry(key)
+        {
+            Translation = poEntry.Key.Id,
+            Comments = poEntry.Comments
+        };
+
+        return entry;
+    }
+
+    public static POSingularEntry ApplyTranslation(this POSingularEntry poEntry, string translation)
+    {
+        return new POSingularEntry(poEntry.Key)
+        {
+            Translation = translation,
+            Comments = poEntry.Comments
+        };
+    }
+
+    public static IReadOnlyCollection<POSingularEntry> EnsureOnlySingularEntries(this POCatalog catalog)
+    {
+        if (catalog.Values.Any(x => x is not POSingularEntry))
+        {
+            throw new NotSupportedException("Only single translations are supported.");
+        }
+
+        return catalog.Values.OfType<POSingularEntry>().ToArray();
+    }
+
+    public static void UpdateEntry(this POCatalog poCatalog, POSingularEntry translatedEntry)
+    {
+        var key = translatedEntry.Key;
         var poEntry = poCatalog[key];
         if (poEntry is POSingularEntry)
         {
-            AnsiConsole.MarkupLine($"Singular {key.Id}");
-            AnsiConsole.MarkupLine("Last message: " + translation);
+            var index = poCatalog.IndexOf(poEntry);
             poCatalog.Remove(key);
-            poCatalog.Add(new POSingularEntry(key) { Translation = translation });
+            poCatalog.Insert(index, translatedEntry);
         }
         else
         {
