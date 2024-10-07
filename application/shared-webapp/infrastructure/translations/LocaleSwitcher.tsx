@@ -1,17 +1,19 @@
 import { LanguagesIcon } from "lucide-react";
 import { type Locale, translationContext } from "./TranslationContext";
-import { use, useCallback, useMemo, useState } from "react";
+import { use, useContext, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react";
 import { Button } from "@repo/ui/components/Button";
 import { ListBox, ListBoxItem } from "@repo/ui/components/ListBox";
 import { Popover } from "@repo/ui/components/Popover";
 import { DialogTrigger } from "@repo/ui/components/Dialog";
 import type { Selection } from "react-aria-components";
+import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 
 export function LocaleSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const { setLocale, getLocaleInfo, locales } = use(translationContext);
   const { i18n } = useLingui();
+  const { userInfo } = useContext(AuthenticationContext);
 
   const items = useMemo(
     () =>
@@ -22,16 +24,33 @@ export function LocaleSwitcher() {
     [locales, getLocaleInfo]
   );
 
-  const handleLocaleChange = useCallback(
-    async (selection: Selection) => {
-      const newLocale = [...selection][0] as Locale | undefined;
-      if (newLocale != null) {
+  const handleLocaleChange = async (selection: Selection) => {
+    const newLocale = [...selection][0] as Locale;
+    if (newLocale != null) {
+      if (userInfo?.isAuthenticated) {
+        await fetch("/api/account-management/users/change-locale", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locale: newLocale })
+        })
+          .then(() => {
+            // Refresh the authentication tokens to update the JWT locale claim
+            fetch("/api/account-management/authentication/refresh-authentication-tokens", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            }).then(() => {
+              // Reload the page to
+              window.location.reload();
+            });
+          })
+          .catch((error) => console.error("Failed to update locale:", error));
+      } else {
         await setLocale(newLocale);
       }
+
       setIsOpen(false);
-    },
-    [setLocale]
-  );
+    }
+  };
 
   const currentLocale = i18n.locale as Locale;
 
@@ -59,5 +78,3 @@ export function LocaleSwitcher() {
     </DialogTrigger>
   );
 }
-
-// onSelectionChange={handleLocaleChange} selectedKey={currentLocale} className="flex flex-col"
