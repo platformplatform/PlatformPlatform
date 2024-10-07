@@ -51,7 +51,6 @@ public class UserInfo
         return new UserInfo
         {
             IsAuthenticated = true,
-            Locale = defaultLocale,
             UserId = user.FindFirstValue(ClaimTypes.NameIdentifier),
             TenantId = user.FindFirstValue("tenant_id"),
             UserRole = user.FindFirstValue(ClaimTypes.Role),
@@ -59,7 +58,8 @@ public class UserInfo
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),
             LastName = user.FindFirstValue(ClaimTypes.Surname),
             Title = user.FindFirstValue("title"),
-            AvatarUrl = user.FindFirstValue("avatar_url")
+            AvatarUrl = user.FindFirstValue("avatar_url"),
+            Locale = user.FindFirstValue("locale")
         };
     }
 }
