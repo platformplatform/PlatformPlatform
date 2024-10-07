@@ -33,6 +33,8 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 
     public Avatar Avatar { get; private set; } = default!;
 
+    public string Locale { get; private set; } = string.Empty;
+
     public TenantId TenantId { get; }
 
     public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? gravatarUrl)
@@ -71,6 +73,11 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
     public void RemoveAvatar()
     {
         Avatar = new Avatar(Version: Avatar.Version);
+    }
+
+    public void ChangeLocale(string locale)
+    {
+        Locale = locale;
     }
 }
 

@@ -74,6 +74,9 @@ public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMi
 public sealed class UserInvited()
     : TelemetryEvent(nameof(UserInvited));
 
+public sealed class UserLocaleChanged(UserId userId, string oldLocale, string newLocale)
+    : TelemetryEvent(nameof(UserLocaleChanged), ("UserId", userId), ("OldLocale", oldLocale), ("NewLocale", newLocale));
+
 public sealed class UserRoleChanged(UserRole fromRole, UserRole toRole)
     : TelemetryEvent(nameof(UserRoleChanged), ("FromRole", fromRole), ("ToRole", toRole));
 
