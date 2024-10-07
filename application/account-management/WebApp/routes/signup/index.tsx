@@ -80,7 +80,7 @@ export function StartSignupForm() {
         <Trans>Create your account</Trans>
       </Heading>
       <div className="text-center text-muted-foreground text-sm">
-        <Trans>Sign up in seconds to get started building on PlatformPlatform - just like thousands of others.</Trans>
+        <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
       </div>
       <TextField
         name="email"
@@ -122,13 +122,13 @@ export function StartSignupForm() {
         <Trans>Create your account</Trans>
       </Button>
       <p className="text-muted-foreground text-xs">
-        <Trans>Already have an account?</Trans>{" "}
+        <Trans>Do you already have an account?</Trans>{" "}
         <Link href={loginPath}>
           <Trans>Log in</Trans>
         </Link>
       </p>
       <div className="text-muted-foreground text-sm">
-        <Trans>By continuing, you agree to our policies</Trans>
+        <Trans>By continuing, you accept our policies</Trans>
         <div className="flex items-center justify-center">
           <Link href="/">
             <Trans>Terms of use</Trans>

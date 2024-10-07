@@ -45,7 +45,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
           <Trans>Invite User</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
-          <Trans>Invite users and assign them roles. They will appear once they've logged in.</Trans>
+          <Trans>Invite users and assign them roles. They will appear once they log in.</Trans>
         </p>
 
         <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4 mt-4">

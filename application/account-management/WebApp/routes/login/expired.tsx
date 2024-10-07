@@ -28,7 +28,7 @@ export function VerificationCodeExpiredMessage() {
     <IllustratedMessage>
       <Timeout />
       <Heading>
-        <Trans>Error: Verification code expired</Trans>
+        <Trans>Error: Verification code has expired</Trans>
       </Heading>
       <Content>
         <Trans>The verification code you are trying to use has expired for Login ID: {loginId}</Trans>

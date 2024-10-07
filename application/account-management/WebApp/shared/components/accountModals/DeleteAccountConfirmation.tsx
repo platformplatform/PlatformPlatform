@@ -17,7 +17,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
         onAction={() => onOpenChange(false)}
       >
         <Trans>
-          You're about to permanently delete the account and all data environment through PlatformPlatform.
+          You are about to permanently delete the account and the entire data environment via PlatformPlatform.
           <br />
           <br />
           This action is permanent and irreversible.

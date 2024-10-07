@@ -86,7 +86,7 @@ export function CompleteLoginForm() {
         </Button>
         <div className="flex flex-col items-center gap-6 text-neutral-500">
           <p className="text-xs ">
-            <Trans>Can't find your code? Check your spam folder</Trans>
+            <Trans>Can't find your code? Check your spam folder.</Trans>
           </p>
           <img src={poweredByUrl} alt={t`Powered by`} />
         </div>

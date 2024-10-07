@@ -90,7 +90,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
               <Trans>User profile</Trans>
             </Heading>
             <p className="text-muted-foreground text-sm">
-              <Trans>Update photo and personal details here.</Trans>
+              <Trans>Update your photo and personal details here.</Trans>
             </p>
 
             <Form
@@ -117,7 +117,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                   name="firstName"
                   label={t`First name`}
                   defaultValue={data.firstName}
-                  placeholder={t`E.g. Olivia`}
+                  placeholder={t`E.g., Olivia`}
                   className="sm:w-64"
                 />
                 <TextField
@@ -125,7 +125,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                   name="lastName"
                   label={t`Last name`}
                   defaultValue={data.lastName}
-                  placeholder={t`E.g. Rhye`}
+                  placeholder={t`E.g., Rhye`}
                   className="sm:w-64"
                 />
               </div>
@@ -134,7 +134,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                 name="title"
                 label={t`Title`}
                 defaultValue={data?.title}
-                placeholder={t`E.g. Marketing Manager`}
+                placeholder={t`E.g., Marketing Manager`}
               />
 
               <FormErrorMessage title={title} message={message} />

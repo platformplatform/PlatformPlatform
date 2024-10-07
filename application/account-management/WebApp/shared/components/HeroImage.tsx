@@ -12,7 +12,7 @@ export function HeroImage() {
         width={560}
         height={620}
         className="block md:hidden"
-        alt={t`Screenshots of the dashboard project showing mobile versions`}
+        alt={t`Screenshots of the dashboard project with mobile versions`}
         priority
       />
       <Image
@@ -21,7 +21,7 @@ export function HeroImage() {
         width={1000}
         height={760}
         className="hidden md:block"
-        alt={t`Screenshots of the dashboard project showing desktop and mobile versions`}
+        alt={t`Screenshots of the dashboard project with desktop and mobile versions`}
         priority
       />
     </>

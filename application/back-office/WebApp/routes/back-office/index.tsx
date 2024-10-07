@@ -16,11 +16,11 @@ export default function Home() {
         <div className="flex h-20 w-full items-center justify-between space-x-2 sm:mt-4 mb-4">
           <div className="text-foreground text-3xl font-semibold flex gap-2 flex-col mt-3">
             <h1>
-              <Trans>Welcome the Back Office</Trans>
+              <Trans>Welcome to the Back Office</Trans>
             </h1>
             <p className="text-muted-foreground text-sm font-normal">
               <Trans>
-                Manage tenants, view system data, see exceptions, and perform various tasks for operations and support
+                Manage tenants, view system data, see exceptions, and perform various tasks for operational and support
                 teams.
               </Trans>
             </p>

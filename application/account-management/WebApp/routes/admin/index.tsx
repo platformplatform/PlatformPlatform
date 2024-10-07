@@ -22,7 +22,7 @@ export default function Home() {
               <Trans>Welcome home</Trans>
             </h1>
             <p className="text-muted-foreground text-sm font-normal">
-              <Trans>Here is your overview of what's happening.</Trans>
+              <Trans>Here's your overview of what's happening.</Trans>
             </p>
           </div>
         </div>
@@ -43,7 +43,7 @@ export default function Home() {
               <Trans>Active Users</Trans>
             </div>
             <div className="text-sm text-gray-500">
-              <Trans>Active users the past 30 days</Trans>
+              <Trans>Active users in the past 30 days</Trans>
             </div>
             <div className="py-2 text-black text-2xl font-semibold">
               {data?.totalCount ? <p>{data?.totalCount}</p> : <p>-</p>}

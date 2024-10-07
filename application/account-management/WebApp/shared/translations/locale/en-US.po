@@ -28,8 +28,8 @@ msgstr "Actions"
 msgid "Active Users"
 msgstr "Active Users"
 
-msgid "Active users the past 30 days"
-msgstr "Active users the past 30 days"
+msgid "Active users in the past 30 days"
+msgstr "Active users in the past 30 days"
 
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
@@ -40,17 +40,14 @@ msgstr "Added"
 msgid "All Users"
 msgstr "All Users"
 
-msgid "Already have an account?"
-msgstr "Already have an account?"
-
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
-msgid "By continuing, you agree to our policies"
-msgstr "By continuing, you agree to our policies"
+msgid "By continuing, you accept our policies"
+msgstr "By continuing, you accept our policies"
 
-msgid "Can't find your code? Check your spam folder"
-msgstr "Can't find your code? Check your spam folder"
+msgid "Can't find your code? Check your spam folder."
+msgstr "Can't find your code? Check your spam folder."
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -76,23 +73,26 @@ msgstr "Deleting the account and all associated data. This action cannot be undo
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"
 
+msgid "Do you already have an account?"
+msgstr "Do you already have an account?"
+
 msgid "Domain"
 msgstr "Domain"
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g. Marketing Manager"
-msgstr "E.g. Marketing Manager"
-
-msgid "E.g. Olivia"
-msgstr "E.g. Olivia"
-
-msgid "E.g. Rhye"
-msgstr "E.g. Rhye"
-
 msgid "E.g., CompanyX"
 msgstr "E.g., CompanyX"
+
+msgid "E.g., Marketing Manager"
+msgstr "E.g., Marketing Manager"
+
+msgid "E.g., Olivia"
+msgstr "E.g., Olivia"
+
+msgid "E.g., Rhye"
+msgstr "E.g., Rhye"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -109,8 +109,8 @@ msgstr "Enter your verification code"
 msgid "Error: Something went wrong!"
 msgstr "Error: Something went wrong!"
 
-msgid "Error: Verification code expired"
-msgstr "Error: Verification code expired"
+msgid "Error: Verification code has expired"
+msgstr "Error: Verification code has expired"
 
 msgid "Europe"
 msgstr "Europe"
@@ -127,8 +127,8 @@ msgstr "First name"
 msgid "Help"
 msgstr "Help"
 
-msgid "Here is your overview of what's happening."
-msgstr "Here is your overview of what's happening."
+msgid "Here's your overview of what's happening."
+msgstr "Here's your overview of what's happening."
 
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
@@ -142,8 +142,8 @@ msgstr "Invite User"
 msgid "Invite Users"
 msgstr "Invite Users"
 
-msgid "Invite users and assign them roles. They will appear once they've logged in."
-msgstr "Invite users and assign them roles. They will appear once they've logged in."
+msgid "Invite users and assign them roles. They will appear once they log in."
+msgstr "Invite users and assign them roles. They will appear once they log in."
 
 msgid "Last name"
 msgstr "Last name"
@@ -178,8 +178,8 @@ msgstr "Next"
 msgid "No active login"
 msgstr "No active login"
 
-msgid "No active signup"
-msgstr "No active signup"
+msgid "No active signup session"
+msgstr "No active signup session"
 
 msgid "Organization"
 msgstr "Organization"
@@ -196,9 +196,6 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 msgid "Powered by"
 msgstr "Powered by"
 
-msgid "Powered by\")"
-msgstr "Powered by\")"
-
 msgid "Previous"
 msgstr "Previous"
 
@@ -214,11 +211,11 @@ msgstr "Role"
 msgid "Save changes"
 msgstr "Save changes"
 
-msgid "Screenshots of the dashboard project showing desktop and mobile versions"
-msgstr "Screenshots of the dashboard project showing desktop and mobile versions"
+msgid "Screenshots of the dashboard project with desktop and mobile versions"
+msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
-msgid "Screenshots of the dashboard project showing mobile versions"
-msgstr "Screenshots of the dashboard project showing mobile versions"
+msgid "Screenshots of the dashboard project with mobile versions"
+msgstr "Screenshots of the dashboard project with mobile versions"
 
 msgid "Search"
 msgstr "Search"
@@ -226,8 +223,8 @@ msgstr "Search"
 msgid "Send invite"
 msgstr "Send invite"
 
-msgid "Sign up in seconds to get started building on PlatformPlatform - just like thousands of others."
-msgstr "Sign up in seconds to get started building on PlatformPlatform - just like thousands of others."
+msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 
 msgid "subdomain"
 msgstr "subdomain"
@@ -256,8 +253,8 @@ msgstr "Total Users"
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Update photo and personal details here."
-msgstr "Update photo and personal details here."
+msgid "Update your photo and personal details here."
+msgstr "Update your photo and personal details here."
 
 msgid "User profile"
 msgstr "User profile"
@@ -277,8 +274,8 @@ msgstr "View Profile"
 msgid "Welcome home"
 msgstr "Welcome home"
 
-msgid "You're about to permanently delete the account and all data environment through PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "You're about to permanently delete the account and all data environment through PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 
 msgid "yourname@example.com"
 msgstr "yourname@example.com"
