@@ -14,271 +14,268 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 msgid "Account"
-msgstr ""
+msgstr "Konto"
 
 msgid "Account settings"
-msgstr ""
+msgstr "Kontoindstillinger"
 
 msgid "Account Settings"
-msgstr ""
+msgstr "Kontoindstillinger"
 
 msgid "Actions"
-msgstr ""
+msgstr "Handlinger"
 
 msgid "Active Users"
 msgstr "Aktive brugere"
 
-msgid "Active users the past 30 days"
-msgstr "Aktive brugere de seneste 30 dage"
+msgid "Active users in the past 30 days"
+msgstr "Aktive brugere i de sidste 30 dage"
 
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i brugermenuen"
 
 msgid "Added"
-msgstr ""
+msgstr "Tilføjet"
 
 msgid "All Users"
-msgstr ""
-
-msgid "Already have an account?"
-msgstr "Har du allerede en konto?"
+msgstr "Alle brugere"
 
 msgid "An error occurred while processing your request. {0}"
-msgstr ""
+msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
-msgid "By continuing, you agree to our policies"
-msgstr ""
+msgid "By continuing, you accept our policies"
+msgstr "Ved at fortsætte accepterer du vores vilkår"
 
-msgid "Can't find your code? Check your spam folder"
-msgstr "Kan du ikke finde din kode? Tjek din spammappe"
+msgid "Can't find your code? Check your spam folder."
+msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annuller"
 
 msgid "Continue"
-msgstr ""
+msgstr "Fortsæt"
 
 msgid "Create your account"
-msgstr ""
+msgstr "Opret din konto"
 
 msgid "Danger zone"
-msgstr ""
+msgstr "Farezone"
 
 msgid "Delete"
-msgstr ""
+msgstr "Slet"
 
 msgid "Delete Account"
-msgstr ""
+msgstr "Slet konto"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr ""
+msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt venligst med forsigtighed."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
 
+msgid "Do you already have an account?"
+msgstr "Har du allerede en konto?"
+
 msgid "Domain"
-msgstr ""
+msgstr "Domæne"
 
 msgid "Don't have an account? <0>Create one</0>"
-msgstr ""
-
-msgid "E.g. Marketing Manager"
-msgstr ""
-
-msgid "E.g. Olivia"
-msgstr ""
-
-msgid "E.g. Rhye"
-msgstr ""
+msgstr "Har du ikke en konto? <0>Opret en</0>"
 
 msgid "E.g., CompanyX"
-msgstr ""
+msgstr "F.eks. FirmaX"
+
+msgid "E.g., Marketing Manager"
+msgstr "F.eks. Marketingchef"
+
+msgid "E.g., Olivia"
+msgstr "F.eks. Olivia"
+
+msgid "E.g., Rhye"
+msgstr "F.eks. Rhye"
 
 msgid "Edit profile"
-msgstr ""
+msgstr "Rediger profil"
 
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 msgid "Enter your email below to log in"
-msgstr ""
+msgstr "Indtast din e-mail nedenfor for at logge ind"
 
 msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
 
 msgid "Error: Something went wrong!"
-msgstr ""
+msgstr "Fejl: Noget gik galt!"
 
-msgid "Error: Verification code expired"
-msgstr ""
+msgid "Error: Verification code has expired"
+msgstr "Fejl: Bekræftelseskoden er udløbet"
 
 msgid "Europe"
-msgstr ""
+msgstr "Europa"
 
 msgid "Fetching data..."
-msgstr ""
+msgstr "Henter data..."
 
 msgid "Filters"
 msgstr "Filtre"
 
 msgid "First name"
-msgstr ""
+msgstr "Fornavn"
 
 msgid "Help"
-msgstr ""
+msgstr "Hjælp"
 
-msgid "Here is your overview of what's happening."
-msgstr ""
+msgid "Here's your overview of what's happening."
+msgstr "Her er din oversigt over, hvad der sker."
 
 msgid "Hi! Welcome back"
-msgstr ""
+msgstr "Hej! Velkommen tilbage"
 
 msgid "Home"
-msgstr ""
+msgstr "Hjem"
 
 msgid "Invite User"
-msgstr ""
+msgstr "Inviter bruger"
 
 msgid "Invite Users"
-msgstr ""
+msgstr "Inviter Brugere"
 
-msgid "Invite users and assign them roles. They will appear once they've logged in."
-msgstr ""
+msgid "Invite users and assign them roles. They will appear once they log in."
+msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger ind."
 
 msgid "Last name"
-msgstr ""
+msgstr "Efternavn"
 
 msgid "Last Seen"
-msgstr ""
+msgstr "Sidst set"
 
 msgid "Log in"
 msgstr "Log ind"
 
 msgid "Log out"
-msgstr ""
+msgstr "Log ud"
 
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 msgid "Manage your account here."
-msgstr ""
+msgstr "Administrer din konto her."
 
 msgid "Manage your users and permissions here."
-msgstr ""
+msgstr "Administrer dine brugere og tilladelser her."
 
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
 msgid "Next"
-msgstr ""
+msgstr "Næste"
 
 msgid "No active login"
-msgstr ""
+msgstr "Ingen aktiv login"
 
-msgid "No active signup"
-msgstr ""
+msgid "No active signup session"
+msgstr "Ingen aktiv tilmeldingssession"
 
 msgid "Organization"
-msgstr ""
+msgstr "Organisation"
 
 msgid "Pending"
-msgstr ""
+msgstr "Afventer"
 
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek venligst din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
 msgid "Powered by"
-msgstr ""
-
-msgid "Powered by\")"
-msgstr ""
+msgstr "Drevet af"
 
 msgid "Previous"
-msgstr ""
+msgstr "Forrige"
 
 msgid "Privacy Policies"
-msgstr ""
+msgstr "Fortrolighedspolitikker"
 
 msgid "Region"
-msgstr ""
+msgstr "Region"
 
 msgid "Role"
-msgstr ""
+msgstr "Rolle"
 
 msgid "Save changes"
-msgstr ""
+msgstr "Gem ændringer"
 
-msgid "Screenshots of the dashboard project showing desktop and mobile versions"
-msgstr ""
+msgid "Screenshots of the dashboard project with desktop and mobile versions"
+msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 
-msgid "Screenshots of the dashboard project showing mobile versions"
-msgstr ""
+msgid "Screenshots of the dashboard project with mobile versions"
+msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 
 msgid "Search"
-msgstr ""
+msgstr "Søg"
 
 msgid "Send invite"
-msgstr ""
+msgstr "Send invitation"
 
-msgid "Sign up in seconds to get started building on PlatformPlatform - just like thousands of others."
-msgstr ""
+msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
 
 msgid "subdomain"
-msgstr ""
+msgstr "Underdomæne"
 
 msgid "Subdomain"
-msgstr ""
+msgstr "Underdomæne"
 
 msgid "Terms of use"
-msgstr ""
+msgstr "Brugsvilkår"
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr ""
+msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
 
 msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
-msgstr ""
+msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for tilmeldings-ID: {signupId}"
 
 msgid "This is the region where your data is stored"
-msgstr ""
+msgstr "Dette er den region, hvor dine data er lagret"
 
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 msgid "Total Users"
 msgstr "Totalt antal brugere"
 
 msgid "Try again"
-msgstr ""
+msgstr "Prøv igen"
 
-msgid "Update photo and personal details here."
-msgstr ""
+msgid "Update your photo and personal details here."
+msgstr "Opdater dit foto og dine personlige oplysninger her."
 
 msgid "User profile"
-msgstr ""
+msgstr "Brugerprofil"
 
 msgid "user@email.com"
-msgstr ""
+msgstr "user@email.com"
 
 msgid "Users"
-msgstr ""
+msgstr "Brugere"
 
 msgid "Verify"
 msgstr "Bekræft"
 
 msgid "View Profile"
-msgstr ""
+msgstr "Se profil"
 
 msgid "Welcome home"
 msgstr "Velkommen hjem"
 
-msgid "You're about to permanently delete the account and all data environment through PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr ""
+msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
 
 msgid "yourname@example.com"
-msgstr ""
+msgstr "ditnavn@eksempel.com"
