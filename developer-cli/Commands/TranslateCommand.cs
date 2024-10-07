@@ -147,16 +147,28 @@ public class TranslateCommand : Command
             foreach (var nonTranslatedEntry in nonTranslatedEntries)
             {
                 var translated = await TranslateSingleEntry(translatedEntries.AsReadOnly(), nonTranslatedEntry);
+                if (translated == null) // User chose to stop
+                {
+                    AnsiConsole.MarkupLine("[yellow]Translation process stopped. Saving changes collected so far.[/]");
+                    break;
+                }
                 if (!translated.HasTranslation()) continue;
                 translatedEntries.Add(translated);
                 toReturn.Add(translated);
             }
 
-            AnsiConsole.MarkupLine("[green]All missing values have been translated.[/]");
+            if (toReturn.Count > 0)
+            {
+                AnsiConsole.MarkupLine($"[green]{toReturn.Count} entries have been translated.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[yellow]No entries were translated.[/]");
+            }
             return toReturn;
         }
 
-        private async Task<POSingularEntry> TranslateSingleEntry(
+        private async Task<POSingularEntry?> TranslateSingleEntry(
             IReadOnlyCollection<POSingularEntry> translatedEntries,
             POSingularEntry nonTranslatedEntry
         )
@@ -199,7 +211,7 @@ public class TranslateCommand : Command
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("What would you like to do?")
-                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation", "Skip")
+                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation", "Skip", "Stop and save")
                 );
 
                 switch (choice)
@@ -226,6 +238,9 @@ public class TranslateCommand : Command
                     case "Skip":
                         AnsiConsole.MarkupLine("[yellow]Translation skipped.[/]");
                         return translated.ApplyTranslation(string.Empty);
+                    case "Stop and save":
+                        AnsiConsole.MarkupLine("[yellow]Stopping translation process.[/]");
+                        return null;
                 }
             }
         }
