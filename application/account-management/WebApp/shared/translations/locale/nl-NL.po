@@ -1,281 +1,281 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2024-10-07 23:40+0200\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: nl-NL\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-07 23:40+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: nl-NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
+"X-Generator: @lingui/cli\n"
 
 msgid "Account"
-msgstr ""
+msgstr "Account"
 
 msgid "Account settings"
-msgstr ""
+msgstr "Accountinstellingen"
 
 msgid "Account Settings"
-msgstr ""
+msgstr "Accountinstellingen"
 
 msgid "Actions"
-msgstr ""
+msgstr "Acties"
 
 msgid "Active Users"
-msgstr ""
+msgstr "Actieve gebruikers"
 
 msgid "Active users in the past 30 days"
-msgstr ""
+msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
 msgid "Add more in the Users menu"
-msgstr ""
+msgstr "Nieuwe toevoegen via het gebruikersmenu"
 
 msgid "Added"
-msgstr ""
+msgstr "Toegevoegd"
 
 msgid "All Users"
-msgstr ""
+msgstr "Alle gebruikers"
 
 msgid "An error occurred while processing your request. {0}"
-msgstr ""
+msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
 
 msgid "By continuing, you accept our policies"
-msgstr ""
+msgstr "Door verder te gaan, accepteer je onze voorwaarden"
 
 msgid "Can't find your code? Check your spam folder."
-msgstr ""
+msgstr "Kun je je code niet vinden? Controleer je spammap."
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleren"
 
 msgid "Continue"
-msgstr ""
+msgstr "Verder"
 
 msgid "Create your account"
-msgstr ""
+msgstr "Maak je account aan"
 
 msgid "Danger zone"
-msgstr ""
+msgstr "Gevaarzone"
 
 msgid "Delete"
-msgstr ""
+msgstr "Verwijderen"
 
 msgid "Delete Account"
-msgstr ""
+msgstr "Account verwijderen"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr ""
+msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
 
 msgid "Didn't receive the code? Resend"
-msgstr ""
+msgstr "Code niet ontvangen? Verstuur opnieuw"
 
 msgid "Do you already have an account?"
-msgstr ""
+msgstr "Heb je al een account?"
 
 msgid "Domain"
-msgstr ""
+msgstr "Domein"
 
 msgid "Don't have an account? <0>Create one</0>"
-msgstr ""
+msgstr "Heb je geen account? <0>Maak er één aan</0>"
 
 msgid "E.g., CompanyX"
-msgstr ""
+msgstr "Bijv. BedrijfX"
 
 msgid "E.g., Marketing Manager"
-msgstr ""
+msgstr "Bijv. Marketing Manager"
 
 msgid "E.g., Olivia"
-msgstr ""
+msgstr "Bijv. Olivia"
 
 msgid "E.g., Rhye"
-msgstr ""
+msgstr "Bijv. Rhye"
 
 msgid "Edit profile"
-msgstr ""
+msgstr "Profiel bewerken"
 
 msgid "Email"
-msgstr ""
+msgstr "E-mailadres"
 
 msgid "Enter your email below to log in"
-msgstr ""
+msgstr "Voer je e-mailadres hieronder in om in te loggen"
 
 msgid "Enter your verification code"
-msgstr ""
+msgstr "Voer je verificatiecode in"
 
 msgid "Error: Something went wrong!"
-msgstr ""
+msgstr "Fout: Er is iets misgegaan!"
 
 msgid "Error: Verification code has expired"
-msgstr ""
+msgstr "Fout: Verificatiecode is verlopen"
 
 msgid "Europe"
-msgstr ""
+msgstr "Europa"
 
 msgid "Fetching data..."
-msgstr ""
+msgstr "Gegevens ophalen..."
 
 msgid "Filters"
-msgstr ""
+msgstr "Filters"
 
 msgid "First name"
-msgstr ""
+msgstr "Voornaam"
 
 msgid "Help"
-msgstr ""
+msgstr "Help"
 
 msgid "Here's your overview of what's happening."
-msgstr ""
+msgstr "Hier is je overzicht van wat er gebeurt."
 
 msgid "Hi! Welcome back"
-msgstr ""
+msgstr "Hallo! Welkom terug"
 
 msgid "Home"
-msgstr ""
+msgstr "Home"
 
 msgid "Invite User"
-msgstr ""
+msgstr "Gebruiker uitnodigen"
 
 msgid "Invite Users"
-msgstr ""
+msgstr "Gebruikers uitnodigen"
 
 msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr ""
+msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inloggen."
 
 msgid "Last name"
-msgstr ""
+msgstr "Achternaam"
 
 msgid "Last Seen"
-msgstr ""
+msgstr "Laatst gezien"
 
 msgid "Log in"
-msgstr ""
+msgstr "Inloggen"
 
 msgid "Log out"
-msgstr ""
+msgstr "Uitloggen"
 
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 msgid "Manage your account here."
-msgstr ""
+msgstr "Beheer je account hier."
 
 msgid "Manage your users and permissions here."
-msgstr ""
+msgstr "Beheer je gebruikers en rechten hier."
 
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 msgid "Name"
-msgstr ""
+msgstr "Naam"
 
 msgid "Next"
-msgstr ""
+msgstr "Volgende"
 
 msgid "No active login"
-msgstr ""
+msgstr "Geen actieve login"
 
 msgid "No active signup session"
-msgstr ""
+msgstr "Geen actieve registratiesessie"
 
 msgid "Organization"
-msgstr ""
+msgstr "Organisatie"
 
 msgid "Pending"
-msgstr ""
+msgstr "In behandeling"
 
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
-msgstr ""
+msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
 msgid "Powered by"
-msgstr ""
+msgstr "Mogelijk gemaakt door"
 
 msgid "Previous"
-msgstr ""
+msgstr "Vorige"
 
 msgid "Privacy Policies"
-msgstr ""
+msgstr "Privacybeleid"
 
 msgid "Region"
-msgstr ""
+msgstr "Regio"
 
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 msgid "Save changes"
-msgstr ""
+msgstr "Wijzigingen opslaan"
 
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
-msgstr ""
+msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versies"
 
 msgid "Screenshots of the dashboard project with mobile versions"
-msgstr ""
+msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
 
 msgid "Search"
-msgstr ""
+msgstr "Zoeken"
 
 msgid "Send invite"
-msgstr ""
+msgstr "Uitnodiging verzenden"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr ""
+msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
 
 msgid "subdomain"
-msgstr ""
+msgstr "subdomein"
 
 msgid "Subdomain"
-msgstr ""
+msgstr "Subdomein"
 
 msgid "Terms of use"
-msgstr ""
+msgstr "Gebruiksvoorwaarden"
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr ""
+msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
 
 msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
-msgstr ""
+msgstr "De verificatiecode die u probeert te gebruiken is verlopen voor Registratie-ID: {signupId}"
 
 msgid "This is the region where your data is stored"
-msgstr ""
+msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 msgid "Total Users"
-msgstr ""
+msgstr "Totale gebruikers"
 
 msgid "Try again"
-msgstr ""
+msgstr "Probeer opnieuw"
 
 msgid "Update your photo and personal details here."
-msgstr ""
+msgstr "Werk je foto en persoonlijke gegevens hier bij."
 
 msgid "User profile"
-msgstr ""
+msgstr "Gebruikersprofiel"
 
 msgid "user@email.com"
-msgstr ""
+msgstr "gebruiker@email.com"
 
 msgid "Users"
-msgstr ""
+msgstr "Gebruikers"
 
 msgid "Verify"
-msgstr ""
+msgstr "Verifiëren"
 
 msgid "View Profile"
-msgstr ""
+msgstr "Profiel bekijken"
 
 msgid "Welcome home"
-msgstr ""
+msgstr "Welkom home"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr ""
+msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
 msgid "yourname@example.com"
-msgstr ""
+msgstr "jouwnaam@voorbeeld.com"
