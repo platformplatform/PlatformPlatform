@@ -147,6 +147,7 @@ public class TranslateCommand : Command
             foreach (var nonTranslatedEntry in nonTranslatedEntries)
             {
                 var translated = await TranslateSingleEntry(translatedEntries.AsReadOnly(), nonTranslatedEntry);
+                if (!translated.HasTranslation()) continue;
                 translatedEntries.Add(translated);
                 toReturn.Add(translated);
             }
@@ -198,7 +199,7 @@ public class TranslateCommand : Command
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("What would you like to do?")
-                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation")
+                        .AddChoices("Accept translation", "Try again", "Provide context for retranslation", "Input own translation", "Skip")
                 );
 
                 switch (choice)
@@ -221,7 +222,6 @@ public class TranslateCommand : Command
                             AnsiConsole.MarkupLine("[red]Invalid translation. Please try again.[/]");
                             continue;
                         }
-
                         return translated.ApplyTranslation(userTranslation);
                     case "Skip":
                         AnsiConsole.MarkupLine("[yellow]Translation skipped.[/]");
