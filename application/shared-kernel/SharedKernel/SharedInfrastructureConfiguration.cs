@@ -108,7 +108,12 @@ public static class SharedInfrastructureConfiguration
         else
         {
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            builder.Services.AddSingleton(new BlobStorage(new BlobServiceClient(connectionString)));
+            foreach (var connection in connections)
+            {
+                builder.Services.AddKeyedSingleton(connection.ConnectionName,
+                    (_, _) => new BlobStorage(new BlobServiceClient(connectionString))
+                );
+            }
         }
 
         return builder;
