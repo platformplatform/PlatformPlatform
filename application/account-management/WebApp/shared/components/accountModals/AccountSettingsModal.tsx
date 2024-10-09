@@ -6,6 +6,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { Heading, Label, Separator } from "react-aria-components";
 import { Trash2, XIcon } from "lucide-react";
 import React from "react";
+import { t, Trans } from "@lingui/macro";
 
 type AccountSettingsModal = {
   isOpen: boolean;
@@ -32,33 +33,42 @@ export default function AccountSettingsModal({
       <Dialog>
         <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
         <Heading slot="title" className="text-2xl">
-          Account Settings
+          <Trans>Account Settings</Trans>
         </Heading>
-        <p className="text-muted-foreground text-sm">Manage your account here.</p>
+        <p className="text-muted-foreground text-sm">
+          <Trans>Manage your account here.</Trans>
+        </p>
 
         <div className="flex flex-col gap-4 mt-4">
-          <Label>Logo</Label>
-          <img src={logoWrap} alt="Logo" className="max-h-16 max-w-64" />
+          <Label>
+            <Trans>Logo</Trans>
+          </Label>
+          <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
-          <TextField autoFocus isRequired name="name" label="Name" placeholder="E.g. CompanyX" />
-          <TextField name="domain" label="Domain" value="subdomain.platformplatform.net" isDisabled={true} />
+          <TextField autoFocus isRequired name="name" label={t`Name`} placeholder={t`E.g., CompanyX`} />
+          <TextField name="domain" label={t`Domain`} value="subdomain.platformplatform.net" isDisabled={true} />
         </div>
 
         <div className="flex flex-col gap-4 mt-6 mb-8">
-          <h3 className="font-semibold">Danger zone</h3>
+          <h3 className="font-semibold">
+            <Trans>Danger zone</Trans>
+          </h3>
           <Separator />
           <div className="flex flex-wrap items-end gap-4">
             <div>
-              <h4 className="text-sm font-semibold pt-2">Delete Account</h4>
+              <h4 className="text-sm font-semibold pt-2">
+                <Trans>Delete Account</Trans>
+              </h4>
               <p className="text-xs">
-                Deleting the account and all associated data.
-                <br />
-                This action is not reversible, so please continue with caution.
+                <Trans>
+                  Deleting the account and all associated data. This action cannot be undone, so please proceed with
+                  caution.
+                </Trans>
               </p>
             </div>
             <Button variant="destructive" onPress={onDeleteAccount}>
               <Trash2 />
-              Delete Account
+              <Trans>Delete Account</Trans>
             </Button>
           </div>
         </div>
@@ -67,9 +77,11 @@ export default function AccountSettingsModal({
 
         <div className="flex justify-end gap-4 mt-10">
           <Button onPress={closeDialog} variant="secondary">
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
-          <Button onPress={saveChanges}>Save changes</Button>
+          <Button onPress={saveChanges}>
+            <Trans>Save changes</Trans>
+          </Button>
         </div>
       </Dialog>
     </Modal>

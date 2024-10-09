@@ -9,7 +9,7 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { useFormState } from "react-dom";
-import { useLingui } from "@lingui/react";
+import { t, Trans } from "@lingui/macro";
 import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
@@ -30,7 +30,6 @@ export const Route = createFileRoute("/login/")({
 });
 
 export function LoginForm() {
-  const { i18n } = useLingui();
   const [email, setEmail] = useState("");
 
   const [{ success, errors, data, title, message }, action, isPending] = useFormState(
@@ -58,30 +57,36 @@ export function LoginForm() {
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
       <Link href="/">
-        <img src={logoMarkUrl} className="h-12 w-12" alt="logo mark" />
+        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">Hi! Welcome back</Heading>
-      <div className="text-center text-muted-foreground text-sm">Enter your email below to login</div>
+      <Heading className="text-2xl">
+        <Trans>Hi! Welcome back</Trans>
+      </Heading>
+      <div className="text-center text-muted-foreground text-sm">
+        <Trans>Enter your email below to log in</Trans>
+      </div>
       <TextField
         name="email"
         type="email"
-        label={i18n.t("Email")}
+        label={t`Email`}
         autoFocus
         isRequired
         value={email}
         onChange={setEmail}
         autoComplete="email webauthn"
-        placeholder={i18n.t("yourname@example.com")}
+        placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
       <FormErrorMessage title={title} message={message} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
-        Continue
+        <Trans>Continue</Trans>
       </Button>
       <div className="text-muted-foreground text-sm">
-        Don't have an account? <Link href={signUpPath}>Create one</Link>
+        <Trans>
+          Don't have an account? <Link href={signUpPath}>Create one</Link>
+        </Trans>
       </div>
-      <img src={poweredByUrl} alt="powered by" />
+      <img src={poweredByUrl} alt={t`Powered by`} />
     </Form>
   );
 }

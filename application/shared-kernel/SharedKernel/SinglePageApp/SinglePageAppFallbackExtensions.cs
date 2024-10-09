@@ -56,7 +56,7 @@ public static class SinglePageAppFallbackExtensions
 
         return app
             .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) })
-            .UseRequestLocalization("en-US", "da-DK");
+            .UseRequestLocalization(SinglePageAppConfiguration.SupportedLocalizations);
     }
 
     private static void SetResponseHttpHeaders(SinglePageAppConfiguration singlePageAppConfiguration, IHeaderDictionary responseHeaders, StringValues contentType)

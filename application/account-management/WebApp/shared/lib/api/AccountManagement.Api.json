@@ -578,6 +578,31 @@
           }
         }
       }
+    },
+    "/api/account-management/users/change-locale": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountManagementUsersChangeLocale",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeLocaleCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -988,6 +1013,15 @@
         "additionalProperties": false,
         "properties": {
           "email": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeLocaleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locale": {
             "type": "string"
           }
         }

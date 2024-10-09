@@ -9,6 +9,7 @@ import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import type { Schemas } from "@/shared/lib/api/client";
 import { api } from "@/shared/lib/api/client";
+import { t, Trans } from "@lingui/macro";
 
 type ProfileModalProps = {
   isOpen: boolean;
@@ -77,7 +78,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
       <Dialog>
         {!data && (
           <Heading slot="title">
-            {loading && "Fetching data..."}
+            {loading && <Trans>Fetching data...</Trans>}
             {error && JSON.stringify(error)}
           </Heading>
         )}
@@ -86,9 +87,11 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
           <>
             <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
             <Heading slot="title" className="text-2xl">
-              User profile
+              <Trans>User profile</Trans>
             </Heading>
-            <p className="text-muted-foreground text-sm">Update photo and personal details here.</p>
+            <p className="text-muted-foreground text-sm">
+              <Trans>Update your photo and personal details here.</Trans>
+            </p>
 
             <Form
               action={action}
@@ -97,10 +100,12 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
               className="flex flex-col gap-4 mt-4"
             >
               <input type="hidden" name="id" value={userId} />
-              <Label>Photo</Label>
+              <Label>
+                <Trans>Photo</Trans>
+              </Label>
               <FileTrigger onSelect={onFileSelect}>
                 <Button variant="icon" className="rounded-full w-16 h-16 mb-3">
-                  <img src={data.avatarUrl ?? ""} alt="User profile" className="rounded-full" />
+                  <img src={data.avatarUrl ?? ""} alt={t`User profile`} className="rounded-full" />
                 </Button>
               </FileTrigger>
               {file}
@@ -110,31 +115,36 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                   autoFocus
                   isRequired
                   name="firstName"
-                  label="First name"
+                  label={t`First name`}
                   defaultValue={data.firstName}
-                  placeholder="E.g. Olivia"
+                  placeholder={t`E.g., Olivia`}
                   className="sm:w-64"
                 />
                 <TextField
                   isRequired
                   name="lastName"
-                  label="Last name"
+                  label={t`Last name`}
                   defaultValue={data.lastName}
-                  placeholder="E.g. Rhye"
+                  placeholder={t`E.g., Rhye`}
                   className="sm:w-64"
                 />
               </div>
-              <TextField name="email" label="Email" value={data?.email} />
-              <TextField name="title" label="Title" defaultValue={data?.title} placeholder="E.g. Marketing Manager" />
+              <TextField name="email" label={t`Email`} value={data?.email} />
+              <TextField
+                name="title"
+                label={t`Title`}
+                defaultValue={data?.title}
+                placeholder={t`E.g., Marketing Manager`}
+              />
 
               <FormErrorMessage title={title} message={message} />
 
               <div className="flex justify-end gap-4 mt-6">
                 <Button type="reset" onPress={closeDialog} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Button type="submit" isDisabled={isPending}>
-                  Save changes
+                  <Trans>Save changes</Trans>
                 </Button>
               </div>
             </Form>

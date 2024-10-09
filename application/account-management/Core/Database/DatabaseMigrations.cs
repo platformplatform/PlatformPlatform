@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
-[Migration("20240830_Initial")]
+[Migration("20241007_Initial")]
 public sealed class DatabaseMigrations : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,7 +53,8 @@ public sealed class DatabaseMigrations : Migration
                 Title = table.Column<string>("nvarchar(50)", nullable: true),
                 Role = table.Column<string>("varchar(20)", nullable: false),
                 EmailConfirmed = table.Column<bool>("bit", nullable: false),
-                Avatar = table.Column<string>("varchar(200)", nullable: false)
+                Avatar = table.Column<string>("varchar(200)", nullable: false),
+                Locale = table.Column<string>("varchar(5)", nullable: false)
             },
             constraints: table =>
             {

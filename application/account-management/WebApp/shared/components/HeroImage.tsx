@@ -1,11 +1,9 @@
-import { useLingui } from "@lingui/react";
+import { t } from "@lingui/macro";
 import { Image } from "@repo/ui/components/Image";
 import heroMobileBlurImage from "@/public/images/hero-mobile-blur.webp";
 import heroDesktopBlurImage from "@/public/images/hero-desktop-blur.webp";
 
 export function HeroImage() {
-  const { i18n } = useLingui();
-
   return (
     <>
       <Image
@@ -14,7 +12,7 @@ export function HeroImage() {
         width={560}
         height={620}
         className="block md:hidden"
-        alt={i18n.t("Screenshots of the dashboard project showing mobile versions")}
+        alt={t`Screenshots of the dashboard project with mobile versions`}
         priority
       />
       <Image
@@ -23,7 +21,7 @@ export function HeroImage() {
         width={1000}
         height={760}
         className="hidden md:block"
-        alt={i18n.t("Screenshots of the dashboard project showing desktop and mobile versions")}
+        alt={t`Screenshots of the dashboard project with desktop and mobile versions`}
         priority
       />
     </>

@@ -46,9 +46,9 @@ public sealed class AuthenticationTokenGenerator(ITokenSigningService tokenSigni
                     new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
                     new Claim(ClaimTypes.Role, user.Role.ToString()),
                     new Claim("tenant_id", user.TenantId),
-                    new Claim("locale", "en"),
                     new Claim("title", user.Title ?? string.Empty),
-                    new Claim("avatar_url", user.Avatar.Url ?? string.Empty)
+                    new Claim("avatar_url", user.Avatar.Url ?? string.Empty),
+                    new Claim("locale", user.Locale)
                 ]
             )
         };

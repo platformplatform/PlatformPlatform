@@ -30,12 +30,12 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
 
-        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
-        );
-
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new DeleteUserCommand(id))
+        );
+
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
+            => await mediator.Send(command with { Id = id })
         );
 
         group.MapPost("/invite", async Task<ApiResult> (InviteUserCommand command, IMediator mediator)
@@ -48,6 +48,10 @@ public sealed class UserEndpoints : IEndpoints
 
         group.MapDelete("/remove-avatar", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new RemoveAvatarCommand())
+        );
+
+        group.MapPut("/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
+            => await mediator.Send(command)
         );
     }
 }

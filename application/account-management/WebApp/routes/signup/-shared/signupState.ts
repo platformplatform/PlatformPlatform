@@ -1,4 +1,5 @@
 import type { Schemas } from "@/shared/lib/api/client";
+import { t } from "@lingui/macro";
 
 interface SignupState {
   signupId: Schemas["SignupId"];
@@ -13,6 +14,6 @@ export function setSignupState(newSignup: SignupState): void {
 }
 
 export function getSignupState() {
-  if (currentSignupState == null) throw new Error("No active signup.");
+  if (currentSignupState == null) throw new Error(t`No active signup session`);
   return currentSignupState;
 }

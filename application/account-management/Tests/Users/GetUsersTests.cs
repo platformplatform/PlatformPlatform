@@ -30,7 +30,8 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
                 ("Title", "Philanthropist & Innovator"),
                 ("Role", UserRole.ToString()),
                 ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar()))
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
             ]
         );
         Connection.Insert("Users", [
@@ -44,7 +45,8 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
                 ("Title", Faker.Name.JobTitle()),
                 ("Role", UserRole.ToString()),
                 ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar()))
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
             ]
         );
     }

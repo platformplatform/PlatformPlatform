@@ -25,7 +25,7 @@ const TranslationContextProvider = translationContext.Provider;
 
 export class Translation {
   private _messageCache = new Map<Locale, LocaleFile>();
-  private _defaultLocale: Locale = "en-US";
+  private _defaultLocale = document.documentElement.lang as Locale;
   private _locales: Locale[] = Object.keys(localeMap) as Locale[];
 
   /**

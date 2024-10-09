@@ -8,6 +8,7 @@ import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountC
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
+import { t, Trans } from "@lingui/macro";
 
 export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -24,8 +25,8 @@ export default function AvatarButton() {
 
   return (
     <>
-      <MenuTrigger aria-label="account settings">
-        <Button aria-label="Menu" variant="icon" className="rounded-full">
+      <MenuTrigger aria-label={t`Account settings`}>
+        <Button aria-label={t`Menu`} variant="icon" className="rounded-full">
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
         </Button>
         <Menu placement="bottom end">
@@ -41,15 +42,15 @@ export default function AvatarButton() {
           <MenuSeparator />
           <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
             <UserIcon size={16} />
-            Edit profile
+            <Trans>Edit profile</Trans>
           </MenuItem>
           <MenuItem id="account" onAction={() => setIsAccountModalOpen(true)}>
             <SettingsIcon size={16} />
-            Account settings
+            <Trans>Account settings</Trans>
           </MenuItem>
           <MenuSeparator />
           <MenuItem id="logout" onAction={logout}>
-            <LogOutIcon size={16} /> Log out
+            <LogOutIcon size={16} /> <Trans>Log out</Trans>
           </MenuItem>
         </Menu>
       </MenuTrigger>
