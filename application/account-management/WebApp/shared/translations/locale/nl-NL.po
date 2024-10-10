@@ -1,0 +1,281 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-07 23:40+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: nl-NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: @lingui/cli\n"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Account settings"
+msgstr "Accountinstellingen"
+
+msgid "Account Settings"
+msgstr "Accountinstellingen"
+
+msgid "Actions"
+msgstr "Acties"
+
+msgid "Active Users"
+msgstr "Actieve gebruikers"
+
+msgid "Active users in the past 30 days"
+msgstr "Actieve gebruikers in de afgelopen 30 dagen"
+
+msgid "Add more in the Users menu"
+msgstr "Nieuwe toevoegen via het gebruikersmenu"
+
+msgid "Added"
+msgstr "Toegevoegd"
+
+msgid "All Users"
+msgstr "Alle gebruikers"
+
+msgid "An error occurred while processing your request. {0}"
+msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
+
+msgid "By continuing, you accept our policies"
+msgstr "Door verder te gaan, accepteer je onze voorwaarden"
+
+msgid "Can't find your code? Check your spam folder."
+msgstr "Kun je je code niet vinden? Controleer je spammap."
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Continue"
+msgstr "Verder"
+
+msgid "Create your account"
+msgstr "Maak je account aan"
+
+msgid "Danger zone"
+msgstr "Gevaarzone"
+
+msgid "Delete"
+msgstr "Verwijderen"
+
+msgid "Delete Account"
+msgstr "Account verwijderen"
+
+msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
+msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
+
+msgid "Didn't receive the code? Resend"
+msgstr "Code niet ontvangen? Verstuur opnieuw"
+
+msgid "Do you already have an account?"
+msgstr "Heb je al een account?"
+
+msgid "Domain"
+msgstr "Domein"
+
+msgid "Don't have an account? <0>Create one</0>"
+msgstr "Heb je geen account? <0>Maak er één aan</0>"
+
+msgid "E.g., CompanyX"
+msgstr "Bijv. BedrijfX"
+
+msgid "E.g., Marketing Manager"
+msgstr "Bijv. Marketing Manager"
+
+msgid "E.g., Olivia"
+msgstr "Bijv. Olivia"
+
+msgid "E.g., Rhye"
+msgstr "Bijv. Rhye"
+
+msgid "Edit profile"
+msgstr "Profiel bewerken"
+
+msgid "Email"
+msgstr "E-mailadres"
+
+msgid "Enter your email below to log in"
+msgstr "Voer je e-mailadres hieronder in om in te loggen"
+
+msgid "Enter your verification code"
+msgstr "Voer je verificatiecode in"
+
+msgid "Error: Something went wrong!"
+msgstr "Fout: Er is iets misgegaan!"
+
+msgid "Error: Verification code has expired"
+msgstr "Fout: Verificatiecode is verlopen"
+
+msgid "Europe"
+msgstr "Europa"
+
+msgid "Fetching data..."
+msgstr "Gegevens ophalen..."
+
+msgid "Filters"
+msgstr "Filters"
+
+msgid "First name"
+msgstr "Voornaam"
+
+msgid "Help"
+msgstr "Help"
+
+msgid "Here's your overview of what's happening."
+msgstr "Hier is je overzicht van wat er gebeurt."
+
+msgid "Hi! Welcome back"
+msgstr "Hallo! Welkom terug"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "Invite User"
+msgstr "Gebruiker uitnodigen"
+
+msgid "Invite Users"
+msgstr "Gebruikers uitnodigen"
+
+msgid "Invite users and assign them roles. They will appear once they log in."
+msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inloggen."
+
+msgid "Last name"
+msgstr "Achternaam"
+
+msgid "Last Seen"
+msgstr "Laatst gezien"
+
+msgid "Log in"
+msgstr "Inloggen"
+
+msgid "Log out"
+msgstr "Uitloggen"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Manage your account here."
+msgstr "Beheer je account hier."
+
+msgid "Manage your users and permissions here."
+msgstr "Beheer je gebruikers en rechten hier."
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Next"
+msgstr "Volgende"
+
+msgid "No active login"
+msgstr "Geen actieve login"
+
+msgid "No active signup session"
+msgstr "Geen actieve registratiesessie"
+
+msgid "Organization"
+msgstr "Organisatie"
+
+msgid "Pending"
+msgstr "In behandeling"
+
+msgid "Photo"
+msgstr "Foto"
+
+msgid "Please check your email for a verification code sent to <0>{email}</0>"
+msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
+
+msgid "Powered by"
+msgstr "Mogelijk gemaakt door"
+
+msgid "Previous"
+msgstr "Vorige"
+
+msgid "Privacy Policies"
+msgstr "Privacybeleid"
+
+msgid "Region"
+msgstr "Regio"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "Save changes"
+msgstr "Wijzigingen opslaan"
+
+msgid "Screenshots of the dashboard project with desktop and mobile versions"
+msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versies"
+
+msgid "Screenshots of the dashboard project with mobile versions"
+msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
+
+msgid "Search"
+msgstr "Zoeken"
+
+msgid "Send invite"
+msgstr "Uitnodiging verzenden"
+
+msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
+
+msgid "subdomain"
+msgstr "subdomein"
+
+msgid "Subdomain"
+msgstr "Subdomein"
+
+msgid "Terms of use"
+msgstr "Gebruiksvoorwaarden"
+
+msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
+msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
+
+msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
+msgstr "De verificatiecode die u probeert te gebruiken is verlopen voor Registratie-ID: {signupId}"
+
+msgid "This is the region where your data is stored"
+msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Total Users"
+msgstr "Totale gebruikers"
+
+msgid "Try again"
+msgstr "Probeer opnieuw"
+
+msgid "Update your photo and personal details here."
+msgstr "Werk je foto en persoonlijke gegevens hier bij."
+
+msgid "User profile"
+msgstr "Gebruikersprofiel"
+
+msgid "user@email.com"
+msgstr "gebruiker@email.com"
+
+msgid "Users"
+msgstr "Gebruikers"
+
+msgid "Verify"
+msgstr "Verifiëren"
+
+msgid "View Profile"
+msgstr "Profiel bekijken"
+
+msgid "Welcome home"
+msgstr "Welkom home"
+
+msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
+
+msgid "yourname@example.com"
+msgstr "jouwnaam@voorbeeld.com"
