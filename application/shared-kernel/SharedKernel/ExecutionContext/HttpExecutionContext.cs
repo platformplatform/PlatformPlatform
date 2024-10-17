@@ -35,9 +35,9 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
                 return _userInfo;
             }
 
-            var defaultLocale = httpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+            var browserLocale = httpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
 
-            return _userInfo = UserInfo.Create(httpContextAccessor.HttpContext?.User, defaultLocale ?? "en-US");
+            return _userInfo = UserInfo.Create(httpContextAccessor.HttpContext?.User, browserLocale);
         }
     }
 }
