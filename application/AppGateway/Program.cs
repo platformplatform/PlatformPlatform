@@ -66,9 +66,12 @@ app.UseOutputCache();
 app.MapEndpoints();
 
 app.MapScalarApiReference(options =>
-{
-    options.OpenApiRoutePattern = "/openapi/v1.json";
-});
+    {
+        options
+            .WithOpenApiRoutePattern("/openapi/v1.json")
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    }
+);
 
 app.MapReverseProxy();
 
