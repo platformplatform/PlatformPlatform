@@ -68,6 +68,7 @@ app.MapEndpoints();
 app.MapScalarApiReference(options =>
     {
         options
+            .WithEndpointPrefix("/openapi/{documentName}")
             .WithOpenApiRoutePattern("/openapi/v1.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     }
