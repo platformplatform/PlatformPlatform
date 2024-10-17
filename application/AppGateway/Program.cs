@@ -1,10 +1,10 @@
 using Azure.Core;
-using Microsoft.OpenApi.Writers;
 using PlatformPlatform.AppGateway.ApiAggregation;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +12,7 @@ var reverseProxyBuilder = builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>()
-    .AddConfigFilter<ApiDocsFilter>();
+    .AddConfigFilter<ApiExplorerRouteFilter>();
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
@@ -63,7 +63,12 @@ var app = builder.Build();
 
 app.UseOutputCache();
 
-Endpoints.MapEndpoints(app);
+app.MapEndpoints();
+
+app.MapScalarApiReference(options =>
+{
+    options.OpenApiRoutePattern = "/openapi/v1.json";
+});
 
 app.MapReverseProxy();
 

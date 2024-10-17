@@ -10,9 +10,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Yarp.ReverseProxy" />
         <PackageReference Include="Microsoft.OpenApi" />
         <PackageReference Include="Microsoft.OpenApi.Readers" />
+        <PackageReference Include="Scalar.AspNetCore" />
+        <PackageReference Include="Yarp.ReverseProxy" />
     </ItemGroup>
 
     <ItemGroup>
