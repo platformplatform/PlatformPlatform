@@ -6,6 +6,20 @@ public static class Endpoints
 {
     public static WebApplication ApiAggregationEndpoints(this WebApplication app)
     {
+        app.MapGet("/swagger", context =>
+            {
+                context.Response.Redirect("/openapi/v1");
+                return Task.CompletedTask;
+            }
+        );
+
+        app.MapGet("/openapi", context =>
+            {
+                context.Response.Redirect("/openapi/v1");
+                return Task.CompletedTask;
+            }
+        );
+
         app.MapGet("/openapi/v1.json", async (ApiAggregationService openApiAggregationService) =>
                 {
                     var openApiDocument = await openApiAggregationService.GetAggregatedSpecificationAsync();

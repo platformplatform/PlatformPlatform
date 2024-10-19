@@ -24,7 +24,7 @@ public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfi
         {
             try
             {
-                var url = $"{cluster.Value.Destinations!.Single().Value.Address}/swagger/v1/swagger.json";
+                var url = $"{cluster.Value.Destinations!.Single().Value.Address}/openapi/v1.json";
                 var specification = await FetchSpecificationAsync(url);
                 CombineOpenApiDocuments(aggregatedSpecification, specification);
             }
