@@ -1,15 +1,18 @@
 using Azure.Core;
+using PlatformPlatform.AppGateway.ApiAggregation;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var reverseProxyBuilder = builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddConfigFilter<ClusterDestinationConfigFilter>();
+    .AddConfigFilter<ClusterDestinationConfigFilter>()
+    .AddConfigFilter<ApiExplorerRouteFilter>();
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
@@ -52,7 +55,26 @@ builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ApiAggregationService>();
+builder.Services.AddOutputCache();
+
 var app = builder.Build();
+
+app.UseOutputCache();
+
+app.ApiAggregationEndpoints();
+
+app.MapScalarApiReference(options =>
+    {
+        options
+            .WithEndpointPrefix("/openapi/{documentName}")
+            .WithOpenApiRoutePattern("/openapi/v1.json")
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+            .WithTitle("PlatformPlatform API")
+            .WithSidebar(true);
+    }
+);
 
 app.MapReverseProxy();
 

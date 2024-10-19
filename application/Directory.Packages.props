@@ -39,6 +39,9 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="1.6.3" />
+    <PackageVersion Include="Microsoft.OpenApi.Readers" Version="1.6.3" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="1.2.10" />
     <PackageVersion Include="Scrutor" Version="4.2.2" />
     <!-- PlatformPlatform dependencies - Tests -->
     <PackageVersion Include="Bogus" Version="35.6.0" />

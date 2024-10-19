@@ -96,9 +96,8 @@ public static class ApiDependencyConfiguration
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // Enable Swagger UI
-        app.UseOpenApi();
-        app.UseSwaggerUi();
+        // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer
+        app.UseOpenApi(options => options.Path = "/openapi/v1.json");
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
 
