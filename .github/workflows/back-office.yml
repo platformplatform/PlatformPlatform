@@ -9,8 +9,6 @@ on:
       - "application/shared-kernel/**"
       - "application/shared-webapp/**"
       - "application/back-office/**"
-      - ".github/workflows/back-office.yml"
-      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -18,8 +16,6 @@ on:
       - "application/shared-kernel/**"
       - "application/shared-webapp/**"
       - "application/back-office/**"
-      - ".github/workflows/back-office.yml"
-      - ".github/workflows/_deploy-container.yml"
       - "!**.md"
   workflow_dispatch:
 
