@@ -2,7 +2,7 @@ param storageAccountName string
 param userAssignedIdentityName string = ''
 param principalId string = ''
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if(userAssignedIdentityName != '') {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (userAssignedIdentityName != '') {
   scope: resourceGroup()
   name: userAssignedIdentityName ?? principalId
 }

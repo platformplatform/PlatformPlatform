@@ -4,7 +4,6 @@ param tags object
 param subnetId string
 param environmentResourceGroupName string
 
-
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
   scope: resourceGroup('${environmentResourceGroupName}')
   name: environmentResourceGroupName

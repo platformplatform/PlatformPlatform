@@ -28,30 +28,27 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 var certificateName = '${domainName}-certificate' // Note: The `-certificate` is used to detect if a certificate in deploy-cluster.sh
 var isCustomDomainSet = domainName != ''
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing =
-  if (isCustomDomainSet) {
-    name: containerAppsEnvironmentName
-  }
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing = if (isCustomDomainSet) {
+  name: containerAppsEnvironmentName
+}
 
-module newManagedCertificate './managed-certificate.bicep' =
-  if (isCustomDomainSet) {
-    name: '${resourceGroupName}-${name}-managed-certificate'
-    scope: resourceGroup(resourceGroupName)
-    dependsOn: [containerApp]
-    params: {
-      name: certificateName
-      location: location
-      tags: tags
-      containerAppsEnvironmentName: containerAppsEnvironmentName
-      domainName: domainName
-    }
-  }
-
-resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing =
-  if (isDomainConfigured) {
+module newManagedCertificate './managed-certificate.bicep' = if (isCustomDomainSet) {
+  name: '${resourceGroupName}-${name}-managed-certificate'
+  scope: resourceGroup(resourceGroupName)
+  dependsOn: [containerApp]
+  params: {
     name: certificateName
-    parent: containerAppsEnvironment
+    location: location
+    tags: tags
+    containerAppsEnvironmentName: containerAppsEnvironmentName
+    domainName: domainName
   }
+}
+
+resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing = if (isDomainConfigured) {
+  name: certificateName
+  parent: containerAppsEnvironment
+}
 
 var customDomainConfiguration = isCustomDomainSet
   ? [
@@ -67,7 +64,9 @@ var customDomainConfiguration = isCustomDomainSet
 // This allows for the container app to be created before the container image is pushed to the registry.
 var useQuickStartImage = containerImageTag == 'initial'
 var containerRegistryServerUrl = '${containerRegistryName}.azurecr.io'
-var image = useQuickStartImage ? 'ghcr.io/platformplatform/quickstart:latest' : '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
+var image = useQuickStartImage
+  ? 'ghcr.io/platformplatform/quickstart:latest'
+  : '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
 
 // Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
 var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
@@ -161,22 +160,26 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
-      ingress: ingress ? {
-        external: external
-        targetPort: 8080
-        exposedPort: 0
-        allowInsecure: false
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
+      ingress: ingress
+        ? {
+            external: external
+            targetPort: 8080
+            exposedPort: 0
+            allowInsecure: false
+            traffic: [
+              {
+                latestRevision: true
+                weight: 100
+              }
+            ]
+            customDomains: customDomainConfiguration
+            stickySessions: null
           }
-        ]
-        customDomains: customDomainConfiguration
-        stickySessions: null
-      } : null
+        : null
     }
   }
 }
 
-output containerAppUrl string = containerApp.properties.configuration.ingress != null ? containerApp.properties.configuration.ingress.fqdn : ''
+output containerAppUrl string = containerApp.properties.configuration.ingress != null
+  ? containerApp.properties.configuration.ingress.fqdn
+  : ''
