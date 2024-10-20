@@ -1,12 +1,22 @@
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi.Writers;
 using Yarp.ReverseProxy.Configuration;
 
 namespace PlatformPlatform.AppGateway.ApiAggregation;
 
 public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
 {
-    public async Task<OpenApiDocument> GetAggregatedOpenApiDocumentAsync()
+    public async Task<string> GetAggregatedOpenApiJson()
+    {
+        var openApiDocument = await GetAggregatedOpenApiDocumentAsync();
+        var stringWriter = new StringWriter();
+        var jsonWriter = new OpenApiJsonWriter(stringWriter);
+        openApiDocument.SerializeAsV3(jsonWriter);
+        return stringWriter.ToString();
+    }
+
+    private async Task<OpenApiDocument> GetAggregatedOpenApiDocumentAsync()
     {
         var aggregatedOpenApiDocument = new OpenApiDocument
         {
