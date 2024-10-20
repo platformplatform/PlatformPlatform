@@ -5,7 +5,11 @@ using Yarp.ReverseProxy.Configuration;
 
 namespace PlatformPlatform.AppGateway.ApiAggregation;
 
-public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+public class ApiAggregationService(
+    ILogger<ApiAggregationService> logger,
+    IProxyConfigProvider proxyConfigProvider,
+    IHttpClientFactory httpClientFactory
+)
 {
     public async Task<string> GetAggregatedOpenApiJson()
     {
@@ -28,25 +32,28 @@ public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfi
             }
         };
 
-        var clusters = configuration.GetSection("ReverseProxy:Clusters").Get<Dictionary<string, ClusterConfig>>()!;
+        var proxyConfiguration = proxyConfigProvider.GetConfig();
 
-        foreach (var cluster in clusters!.Where(c => c.Key.EndsWith("-api")))
+        foreach (var cluster in proxyConfiguration.Clusters.Where(c => c.ClusterId.EndsWith("-api")))
         {
-            var clusterUrl = $"{cluster.Value.Destinations!.Single().Value.Address}/openapi/v1.json";
+            var clusterBasePath = cluster.Destinations!.FirstOrDefault().Value.Address;
+            var clusterOpenApiUrl = $"{clusterBasePath}/openapi/v1.json";
+            logger.LogInformation("Fetching OpenAPI document for cluster {ClusterId} from {Url}", cluster.ClusterId, clusterOpenApiUrl);
+
             try
             {
-                var openApiDocument = await FetchOpenApiDocument(clusterUrl);
+                var openApiDocument = await FetchOpenApiDocument(clusterOpenApiUrl);
                 CombineOpenApiDocuments(aggregatedOpenApiDocument, openApiDocument);
+                logger.LogInformation("Successfully fetched and merged OpenAPI document for cluster {ClusterId}", cluster.ClusterId);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex,
-                    "Failed to fetch or merge open api document for cluster {ClusterKey}: {ClusterUrl}", cluster.Key, clusterUrl
-                );
+                logger.LogWarning(ex, "Failed to fetch or merge OpenAPI document from {Url}", clusterOpenApiUrl);
             }
         }
 
         FilterInternalEndpoints(aggregatedOpenApiDocument);
+
         return aggregatedOpenApiDocument;
     }
 
@@ -61,7 +68,7 @@ public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfi
         return reader.Read(stream, out _);
     }
 
-    private static void CombineOpenApiDocuments(OpenApiDocument aggregatedOpenApiDocument, OpenApiDocument openApiDocument)
+    private void CombineOpenApiDocuments(OpenApiDocument aggregatedOpenApiDocument, OpenApiDocument openApiDocument)
     {
         // Merge paths
         foreach (var path in openApiDocument.Paths)
@@ -79,7 +86,7 @@ public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfi
             {
                 if (aggregatedOpenApiDocument.Components.Schemas.ContainsKey(schema.Key))
                 {
-                    Console.Error.WriteLine($"Duplicate schema for {schema.Key}");
+                    logger.LogWarning("Duplicate schema found for {SchemaKey}", schema.Key);
                 }
                 else
                 {
