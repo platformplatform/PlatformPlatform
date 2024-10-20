@@ -6,9 +6,9 @@ namespace PlatformPlatform.AppGateway.ApiAggregation;
 
 public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
 {
-    public async Task<OpenApiDocument> GetAggregatedSpecificationAsync()
+    public async Task<OpenApiDocument> GetAggregatedOpenApiDocumentAsync()
     {
-        var aggregatedSpecification = new OpenApiDocument
+        var aggregatedOpenApiDocument = new OpenApiDocument
         {
             Info = new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" },
             Paths = new OpenApiPaths(),
@@ -22,23 +22,25 @@ public class ApiAggregationService(ILogger<ApiAggregationService> logger, IConfi
 
         foreach (var cluster in clusters!.Where(c => c.Key.EndsWith("-api")))
         {
+            var clusterUrl = $"{cluster.Value.Destinations!.Single().Value.Address}/openapi/v1.json";
             try
             {
-                var url = $"{cluster.Value.Destinations!.Single().Value.Address}/openapi/v1.json";
-                var specification = await FetchSpecificationAsync(url);
-                CombineOpenApiDocuments(aggregatedSpecification, specification);
+                var openApiDocument = await FetchOpenApiDocument(clusterUrl);
+                CombineOpenApiDocuments(aggregatedOpenApiDocument, openApiDocument);
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to fetch or merge specification for cluster {ClusterKey}", cluster.Key);
+                logger.LogWarning(ex,
+                    "Failed to fetch or merge open api document for cluster {ClusterKey}: {ClusterUrl}", cluster.Key, clusterUrl
+                );
             }
         }
 
-        FilterInternalEndpoints(aggregatedSpecification);
-        return aggregatedSpecification;
+        FilterInternalEndpoints(aggregatedOpenApiDocument);
+        return aggregatedOpenApiDocument;
     }
 
-    private async Task<OpenApiDocument> FetchSpecificationAsync(string url)
+    private async Task<OpenApiDocument> FetchOpenApiDocument(string url)
     {
         using var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.GetAsync(url);

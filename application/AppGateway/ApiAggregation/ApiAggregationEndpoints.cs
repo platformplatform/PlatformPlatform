@@ -20,9 +20,9 @@ public static class Endpoints
             }
         );
 
-        app.MapGet("/openapi/v1.json", async (ApiAggregationService openApiAggregationService) =>
+        app.MapGet("/openapi/v1.json", async (ApiAggregationService apiAggregationService) =>
                 {
-                    var openApiDocument = await openApiAggregationService.GetAggregatedSpecificationAsync();
+                    var openApiDocument = await apiAggregationService.GetAggregatedOpenApiDocumentAsync();
                     await using var stringWriter = new StringWriter();
                     var jsonWriter = new OpenApiJsonWriter(stringWriter);
                     openApiDocument.SerializeAsV3(jsonWriter);
