@@ -46,13 +46,15 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobContainers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = [for container in containers: {
-  name: '${name}/default/${container.name}'
-  properties: {
-    publicAccess: container.publicAccess
+resource blobContainers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = [
+  for container in containers: {
+    name: '${name}/default/${container.name}'
+    properties: {
+      publicAccess: container.publicAccess
+    }
+    dependsOn: [storageAccount]
   }
-  dependsOn: [storageAccount]
-}]
+]
 
 module storageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (userAssignedIdentityName != '') {
   name: '${userAssignedIdentityName}-blob-contributer'
@@ -60,7 +62,7 @@ module storageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-d
     storageAccountName: name
     userAssignedIdentityName: userAssignedIdentityName
   }
-  dependsOn: [ storageAccount ]
+  dependsOn: [storageAccount]
 }
 
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
