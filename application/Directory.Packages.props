@@ -3,16 +3,13 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CentralPackageVersionOverrideEnabled>false</CentralPackageVersionOverrideEnabled>
-    <AspNetCoreVersion>8.0.8</AspNetCoreVersion>
-    <EfCoreVersion>8.0.8</EfCoreVersion>
-    <AspireVersion>8.2.0</AspireVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- PlatformPlatform dependencies - Api -->
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="$(AspNetCoreVersion)">
+    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="8.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageVersion>
@@ -31,12 +28,12 @@
     <PackageVersion Include="NSwag.MSBuild" Version="14.1.0" />
     <PackageVersion Include="NUlid" Version="1.7.2" />
     <!-- PlatformPlatform dependencies - Infrastructure -->
-    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="8.2.0" />
     <PackageVersion Include="Azure.Communication.Email" Version="1.0.1" />
-    <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting.Azure" Version="8.2.0" />
     <PackageVersion Include="Azure.Security.KeyVault.Keys" Version="4.6.0" />
     <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
     <PackageVersion Include="Microsoft.OpenApi" Version="1.6.3" />
@@ -51,8 +48,8 @@
     </PackageVersion>
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Meziantou.Xunit.ParallelTestFramework" Version="2.3.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <PackageVersion Include="NJsonSchema" Version="11.0.2" />
     <PackageVersion Include="NSubstitute" Version="5.1.0" />
@@ -64,16 +61,16 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Version together with Aspire -->
-    <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="$(AspireVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(AspireVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(AspireVersion)" />
+    <PackageVersion Include="Aspire.Hosting" Version="8.2.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="8.2.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="8.2.0" />
+    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="8.2.0" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="8.2.0" />
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="8.2.0" />
     <!-- Version together with EF -->
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
     <!-- Version together with runtime -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
