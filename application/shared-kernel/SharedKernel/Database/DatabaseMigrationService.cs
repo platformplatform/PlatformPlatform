@@ -37,13 +37,8 @@ public class DatabaseMigrationService<T>(T dbContext, ILogger<DatabaseMigrationS
                 // Known error in Aspire, when SQL Server is not ready
                 Thread.Sleep(TimeSpan.FromSeconds(1));
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "An error occurred while applying database migrations.");
-                return;
-            }
         }
 
-        logger.LogError(" Migration failed after {MaxRetryCount} retries.", maxRetryCount);
+        throw new TimeoutException($"Database migration failed after {maxRetryCount} retries.");
     }
 }
