@@ -6,7 +6,7 @@
     "dev": "rsbuild dev",
     "dev:setup": "npm run update-translations && npm run swagger",
     "build": "npm run update-translations && npm run swagger && rsbuild build",
-    "update-translations": "lingui extract && lingui compile --typescript",
+    "update-translations": "lingui extract --clean && lingui compile --typescript",
     "check": "biome check",
     "lint": "biome lint --write",
     "format": "biome format --write",
