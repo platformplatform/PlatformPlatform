@@ -112,4 +112,151 @@
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpPlaceEmbeddedOnSameLineMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpUseContinuousIndentInsideBracesMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EMigrateBlankLinesAroundFieldToBlankLinesAroundProperty/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/@KeyIndexDefined">True</s:Boolean>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=2CBD6971A7955044AD2624B84FB49E38/Position/@EntryValue">9</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=567DCF4B487C244A9F6BB46E4E9F3B84/Position/@EntryValue">6</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=7F2A1BE8D0078241A9AE7802038BAD3C/Position/@EntryValue">7</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=9E4409F545C6F945BF1D7865C50F1C61/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=9E4409F545C6F945BF1D7865C50F1C61/EntryName/@EntryValue">&lt;No Name&gt;</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=9E4409F545C6F945BF1D7865C50F1C61/Position/@EntryValue">10</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/QuickList/=F0CA621CDF5AB24282D8CDC11C520997/Entry/=C4795E57DDEC1C4F97BBC8C7173EBBCA/Position/@EntryValue">8</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/@KeyIndexDefined">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Applicability/=File/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/CustomProperties/=Extension/@EntryIndexedValue">cs</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/CustomProperties/=FileName/@EntryIndexedValue">$CLASS_NAME$</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/CustomProperties/=ValidateFileName/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Description/@EntryValue"></s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME/Expression/@EntryValue">getFileNameWithoutExtension()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME/Order/@EntryValue">2</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME_005FFIRSTLETTER/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME_005FFIRSTLETTER/Expression/@EntryValue">suggestIndexVariable()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=CLASS_005FNAME_005FFIRSTLETTER/Order/@EntryValue">8</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=HEADER/@KeyIndexDefined">False</s:Boolean>
+	
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ID_005FPREFIX/@KeyIndexDefined">True</s:Boolean>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ID_005FPREFIX/Order/@EntryValue">1</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ID_005FPREFIX_005FLENTH_005FPLUS_005F27/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ID_005FPREFIX_005FLENTH_005FPLUS_005F27/Expression/@EntryValue">list("29,30,31,32,33")</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ID_005FPREFIX_005FLENTH_005FPLUS_005F27/Order/@EntryValue">7</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ISO_005FDATE/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ISO_005FDATE/Expression/@EntryValue">getCurrentDate("yyyyMMdd")</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ISO_005FDATE/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=ISO_005FDATE/Order/@EntryValue">6</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=NAME/@KeyIndexDefined">False</s:Boolean>
+	
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=NAMESPACE/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=NAMESPACE/Expression/@EntryValue">fileDefaultNamespace()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=NAMESPACE/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=NAMESPACE/Order/@EntryValue">0</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FCAMEL_005FCASE/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FCAMEL_005FCASE/Expression/@EntryValue">decapitalize(PROJECT_NAME_PACAL_CASE)</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FCAMEL_005FCASE/Order/@EntryValue">4</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FPACAL_005FCASE/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FPACAL_005FCASE/Expression/@EntryValue">getProjectName()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FPACAL_005FCASE/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=PROJECT_005FNAME_005FPACAL_005FCASE/Order/@EntryValue">3</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME/Expression/@EntryValue">getSolutionName()</s:String>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME/InitialRange/@EntryValue">-1</s:Int64>
+	<s:Int64 x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME/Order/@EntryValue">5</s:Int64>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME_005FCAMEL_005FCASE/@KeyIndexDefined">False</s:Boolean>
+	
+	
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Field/=SOLUTION_005FNAME_005FPACAL_005FCASE/@KeyIndexDefined">False</s:Boolean>
+	
+	
+	
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Reformat/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Scope/=E8F0594528C33E45BBFEC6CFE851095D/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Scope/=E8F0594528C33E45BBFEC6CFE851095D/Type/@EntryValue">InCSharpProjectFile</s:String>
+	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/Text/@EntryValue">using JetBrains.Annotations;
+using $SOLUTION_NAME$.$PROJECT_NAME_PACAL_CASE$.Database;
+using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.IdGenerators;
+using PlatformPlatform.SharedKernel.Persistence;
+
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+namespace $NAMESPACE$;
+
+public sealed class $CLASS_NAME$ : AggregateRoot&lt;$CLASS_NAME$Id&gt;, ITenantScopedEntity
+{
+    private $CLASS_NAME$(TenantId tenantId)
+        : base($CLASS_NAME$Id.NewId())
+    {
+        TenantId = tenantId;
+    }
+
+    public TenantId TenantId { get; }
+
+    public static $CLASS_NAME$ Create(TenantId tenantId)
+    {
+        return new $CLASS_NAME$(tenantId);
+    }
+}
+
+[PublicAPI]
+[IdPrefix("$ID_PREFIX$")]
+[TypeConverter(typeof(StronglyTypedIdTypeConverter&lt;string, $CLASS_NAME$Id&gt;))]
+public sealed record $CLASS_NAME$Id(string Value) : StronglyTypedUlid&lt;$CLASS_NAME$Id&gt;(Value)
+{
+    public override string ToString()
+    {
+        return Value;
+    }
+}
+
+// Move this two Repository types to a file called $CLASS_NAME$Repository.cs
+
+public interface I$CLASS_NAME$Repository : ICrudRepository&lt;$CLASS_NAME$, $CLASS_NAME$Id&gt;;
+
+public sealed class $CLASS_NAME$Repository($PROJECT_NAME_PACAL_CASE$DbContext $PROJECT_NAME_CAMEL_CASE$DbContext)
+    : RepositoryBase&lt;$CLASS_NAME$, $CLASS_NAME$Id&gt;($PROJECT_NAME_CAMEL_CASE$DbContext), I$CLASS_NAME$Repository;
+
+// Refractor this to it's own file and move it to the /Database folder
+
+[DbContext(typeof($PROJECT_NAME_PACAL_CASE$DbContext))]
+[Migration("$ISO_DATE$_Add_$CLASS_NAME$")]
+public sealed class Add$CLASS_NAME$AggregateMigration : Migration
+{
+    protected override void Up(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.CreateTable(
+            "$CLASS_NAME$s",
+            table =&gt; new
+            {
+                TenantId = table.Column&lt;string&gt;("varchar(30)", nullable: false),
+                Id = table.Column&lt;string&gt;("char($ID_PREFIX_LENTH_PLUS_27$)", nullable: false),
+                CreatedAt = table.Column&lt;DateTimeOffset&gt;("datetimeoffset", nullable: false),
+                ModifiedAt = table.Column&lt;DateTimeOffset&gt;("datetimeoffset", nullable: true)
+            },
+            constraints: table =&gt; {
+               table.PrimaryKey("PK_$CLASS_NAME$s", $CLASS_NAME_FIRSTLETTER$ =&gt; $CLASS_NAME_FIRSTLETTER$.Id);
+               table.ForeignKey("FK_$CLASS_NAME$s_Tenants_TenantId", $CLASS_NAME_FIRSTLETTER$ =&gt; $CLASS_NAME_FIRSTLETTER$.TenantId, "Tenants", "Id");
+            }
+        );
+
+        migrationBuilder.CreateIndex("IX_$CLASS_NAME$_TenantId", "Logins", "TenantId");
+    }
+}
+
+/*
+// Add this property to $PROJECT_NAME_PACAL_CASE$DbContext
+public DbSet&lt;$CLASS_NAME$&gt; $CLASS_NAME$s =&gt; Set&lt;$CLASS_NAME$&gt;();
+
+// Add this to OnModelCreating in to $PROJECT_NAME_PACAL_CASE$DbContext (rename x to the first letter of $CLASS_NAME$
+
+// $CLASS_NAME$
+modelBuilder.MapStronglyTypedUuid&lt;$CLASS_NAME$, $CLASS_NAME$Id&gt;($CLASS_NAME_FIRSTLETTER$ =&gt; $CLASS_NAME_FIRSTLETTER$.Id);
+modelBuilder.MapStronglyTypedId&lt;$CLASS_NAME$, TenantId, string&gt;($CLASS_NAME_FIRSTLETTER$ =&gt; $CLASS_NAME_FIRSTLETTER$.TenantId);
+modelBuilder.Entity&lt;$CLASS_NAME$&gt;()
+    .HasOne&lt;Tenant&gt;()
+    .WithMany()
+    .HasForeignKey($CLASS_NAME_FIRSTLETTER$ =&gt; $CLASS_NAME_FIRSTLETTER$.TenantId)
+    .HasPrincipalKey(t =&gt; t.Id);
+*/</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=9E4409F545C6F945BF1D7865C50F1C61/UITag/@EntryValue">PlatformPlatform Aggregate</s:String>
 </wpf:ResourceDictionary>
