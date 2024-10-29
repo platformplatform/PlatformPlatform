@@ -16,5 +16,29 @@
     "label": "Nederlands",
     "territory": "NL",
     "rtl": false
+  },
+  "de-DE": {
+    "locale": "de-DE",
+    "label": "Deutsch",
+    "territory": "DE",
+    "rtl": false
+  },
+  "no-NO": {
+    "locale": "no-NO",
+    "label": "Norsk",
+    "territory": "NO",
+    "rtl": false
+  },
+  "sv-SE": {
+    "locale": "sv-SE",
+    "label": "Svenska",
+    "territory": "SE",
+    "rtl": false
+  },
+  "zh-CN": {
+    "locale": "zh-CN",
+    "label": "中文",
+    "territory": "CN",
+    "rtl": false
   }
 }

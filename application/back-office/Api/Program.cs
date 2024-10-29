@@ -12,7 +12,7 @@ builder
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
-    .AddApiServices(Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddApiServices(Assembly.GetExecutingAssembly(), [DependencyConfiguration.Assembly])
     .AddBackOfficeServices()
     .AddSinglePageAppFallback();
 

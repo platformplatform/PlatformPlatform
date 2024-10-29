@@ -50,7 +50,7 @@ public static class ApiDependencyConfiguration
         return builder;
     }
 
-    public static IServiceCollection AddApiServices(this IServiceCollection services, Assembly apiAssembly, Assembly coreAssembly)
+    public static IServiceCollection AddApiServices(this IServiceCollection services, Assembly apiAssembly, Assembly[] assemblies)
     {
         services
             .AddApiExecutionContext()
@@ -60,7 +60,7 @@ public static class ApiDependencyConfiguration
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
             .AddApiEndpoints(apiAssembly)
-            .AddOpenApiConfiguration(coreAssembly)
+            .AddOpenApiConfiguration(assemblies.Concat([apiAssembly]).ToArray())
             .AddAuthConfiguration()
             .AddHttpForwardHeaders();
 
@@ -131,7 +131,7 @@ public static class ApiDependencyConfiguration
         return app;
     }
 
-    private static IServiceCollection AddOpenApiConfiguration(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection AddOpenApiConfiguration(this IServiceCollection services, Assembly[] assemblies)
     {
         services.AddOpenApiDocument((settings, _) =>
             {
@@ -141,7 +141,7 @@ public static class ApiDependencyConfiguration
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
                 options.SerializerOptions = SharedDependencyConfiguration.DefaultJsonSerializerOptions;
-                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor([assembly, Assembly.GetExecutingAssembly()]));
+                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray()));
             }
         );
 

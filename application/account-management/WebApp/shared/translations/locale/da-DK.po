@@ -43,6 +43,9 @@ msgstr "Alle brugere"
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "Back Office"
+msgstr "Back Office"
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 

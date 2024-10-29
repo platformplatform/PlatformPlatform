@@ -10,7 +10,7 @@ import {
   Table as AriaTable,
   TableHeader as AriaTableHeader,
   Button,
-  type CellProps,
+  type CellProps as AriaCellProps,
   Collection,
   type ColumnProps,
   ColumnResizer,
@@ -161,6 +161,10 @@ const cellStyles = tv({
   base: "p-2 border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring truncate -outline-offset-2"
 });
 
-export function Cell(props: Readonly<CellProps>) {
-  return <AriaCell {...props} className={cellStyles} />;
+type CellProps = {
+  className?: string;
+} & AriaCellProps;
+
+export function Cell({ className, ...props }: Readonly<CellProps>) {
+  return <AriaCell {...props} className={(renderProps) => cellStyles({ ...renderProps, className })} />;
 }

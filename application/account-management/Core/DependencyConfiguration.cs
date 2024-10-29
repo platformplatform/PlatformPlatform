@@ -24,7 +24,8 @@ public static class DependencyConfiguration
 
     public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
     {
-        services.AddSharedServices<AccountManagementDbContext>(Assembly);
+        services.AddSharedServices<AccountManagementDbContext>();
+        services.AddProjectServices(Assembly);
 
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
         services.AddScoped<OneTimePasswordHelper>();

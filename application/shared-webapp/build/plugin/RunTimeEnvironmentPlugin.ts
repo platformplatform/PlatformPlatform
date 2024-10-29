@@ -20,7 +20,7 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
           source: {
             entry: {
               // Add the runtime environment file as the first entry point
-              index: [path.join(__dirname, "..", "environment", "runtime.js"), "./bootstrap.tsx"]
+              index: [path.join(__dirname, "..", "environment", "runtime.js"), "./main.tsx"]
             },
             // Define the runtime environment variables as part of import.meta.*
             // The method getApplicationEnvironment() is defined in the runtime

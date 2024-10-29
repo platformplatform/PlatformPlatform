@@ -11,6 +11,8 @@ namespace AppHost;
 public static class SslCertificateManager
 {
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    public static readonly bool IsMacOs = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+    public static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     private static string UserSecretsId =>
         Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
@@ -23,7 +25,7 @@ public static class SslCertificateManager
         var certificatePassword = config[certificatePasswordKey]
                                   ?? builder.CreateStablePassword(certificatePasswordKey).Resource.Value;
 
-        var certificateLocation = GetLocalhostCertificateLocation();
+        var certificateLocation = GetCertificateLocation("localhost");
         if (!IsValidCertificate(certificatePassword, certificateLocation))
         {
             CreateNewSelfSignedDeveloperCertificate(certificatePassword, certificateLocation);
@@ -32,10 +34,10 @@ public static class SslCertificateManager
         return certificatePassword;
     }
 
-    private static string GetLocalhostCertificateLocation()
+    private static string GetCertificateLocation(string domain)
     {
         var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return $"{userFolder}/.aspnet/dev-certs/https/platformplatform.pfx";
+        return $"{userFolder}/.aspnet/dev-certs/https/{domain}.pfx";
     }
 
     private static bool IsValidCertificate(string? password, string certificateLocation)

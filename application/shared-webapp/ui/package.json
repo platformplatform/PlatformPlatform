@@ -11,7 +11,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "dev": "tsc -p . -w",
+    "dev": "npm run copyImages && tsc -p . -w",
     "dev:setup": "rimraf ./dist && npm run copyImages && tsc -p .",
     "build": "rimraf ./dist && npm run copyImages && tsc -p .",
     "copyImages": "node ./copyImages.js",

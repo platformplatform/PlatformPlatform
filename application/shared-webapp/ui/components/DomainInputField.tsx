@@ -15,7 +15,7 @@ import { Group } from "./Group";
 import { Input } from "./Input";
 import { FormValidationContext } from "react-aria-components";
 import { useFocusRing } from "react-aria";
-import { CheckIcon, TriangleAlertIcon } from "lucide-react";
+import { CheckIcon, DotIcon, TriangleAlertIcon } from "lucide-react";
 
 const inputStyles = tv({
   extend: focusRing,
@@ -85,5 +85,5 @@ function AvailabilityIcon({ isAvailable }: Readonly<AvailabilityIconProps>) {
   if (isAvailable === false) return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
   if (isAvailable === true) return <CheckIcon className="h-4 w-4 stroke-success" />;
 
-  return null;
+  return <DotIcon className="h-4 w-4 stroke-muted-foreground" />;
 }

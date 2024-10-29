@@ -19,7 +19,8 @@ public static class DependencyConfiguration
 
     public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
     {
-        services.AddSharedServices<BackOfficeDbContext>(Assembly);
+        services.AddSharedServices<BackOfficeDbContext>();
+        services.AddProjectServices(Assembly);
 
         return services;
     }
