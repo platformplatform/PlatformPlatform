@@ -25,7 +25,7 @@ public static class SharedDependencyConfiguration
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddSharedServices<T>(this IServiceCollection services, params Assembly[] assemblies)
         where T : DbContext
     {
         // Even though the HttpContextAccessor is not available in Worker Services, it is still registered here because
@@ -38,10 +38,11 @@ public static class SharedDependencyConfiguration
             .AddServiceDiscovery()
             .AddDefaultJsonSerializerOptions()
             .AddPersistenceHelpers<T>()
-            .AddMediatRPipelineBehaviours(assembly)
-            .RegisterRepositories(assembly)
+            .AddMediatRPipelineBehaviours()
             .AddDefaultHealthChecks()
-            .AddEmailSignatureService();
+            .AddEmailSignatureService()
+            .RegisterMediatRRequest(assemblies)
+            .RegisterRepositories(assemblies);
 
         return services;
     }
@@ -92,7 +93,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services)
     {
         // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
         // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
@@ -103,18 +104,23 @@ public static class SharedDependencyConfiguration
         services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
         services.AddScoped<ConcurrentCommandCounter>();
 
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assembly));
-        services.AddValidatorsFromAssembly(assembly);
+        return services;
+    }
+
+    private static IServiceCollection RegisterMediatRRequest(this IServiceCollection services, params Assembly[] assemblies)
+    {
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies));
+        services.AddValidatorsFromAssemblies(assemblies);
 
         return services;
     }
 
-    private static IServiceCollection RegisterRepositories(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection RegisterRepositories(this IServiceCollection services, params Assembly[] assemblies)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.
         services.Scan(scan => scan
-            .FromAssemblies(assembly)
+            .FromAssemblies(assemblies)
             .AddClasses(classes => classes.Where(type =>
                     type.IsClass && (type.IsNotPublic || type.IsPublic)
                                  && type.BaseType is { IsGenericType: true } &&
@@ -136,7 +142,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static void AddEmailSignatureService(this IServiceCollection services)
+    private static IServiceCollection AddEmailSignatureService(this IServiceCollection services)
     {
         if (SharedInfrastructureConfiguration.IsRunningInAzure)
         {
@@ -148,5 +154,7 @@ public static class SharedDependencyConfiguration
         {
             services.AddTransient<IEmailService, DevelopmentEmailService>();
         }
+
+        return services;
     }
 }
