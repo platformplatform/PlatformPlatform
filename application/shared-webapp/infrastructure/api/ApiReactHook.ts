@@ -54,7 +54,7 @@ export function createApiReactHook<
   return <
     Path extends PathsWithMethod<Paths, Method>,
     Init extends MaybeOptionalInit<Paths[Path], Method>,
-    T = Paths[Path][Method],
+    T extends Record<string, unknown> = Paths[Path][Method],
     Options = Init,
     Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<T>, Media>, Options>
   >(

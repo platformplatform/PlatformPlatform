@@ -61,7 +61,7 @@ export function createClientMethodWithProblemDetails<
           type: "fetch-error",
           status: response.status,
           title: "An error occurred",
-          detail: error.message ?? response.statusText
+          detail: response.statusText
         });
       }
 
