@@ -26,7 +26,20 @@ const TranslationContextProvider = translationContext.Provider;
 export class Translation {
   private _messageCache = new Map<Locale, LocaleFile>();
   private _defaultLocale = document.documentElement.lang as Locale;
+
+  /**
+   * Prefer using `TranslationConfig.create` instead of this constructor
+   */
+  constructor(private localeLoader: LocalLoaderFunction) {}
+
   private _locales: Locale[] = Object.keys(localeMap) as Locale[];
+
+  /**
+   * Get the list of available locales
+   */
+  public get locales(): Locale[] {
+    return this._locales;
+  }
 
   /**
    * Create a new TranslationConfig instance and load the initial locale
@@ -38,16 +51,30 @@ export class Translation {
   }
 
   /**
-   * Prefer using `TranslationConfig.create` instead of this constructor
+   * Load and activate the given locale
    */
-  constructor(private localeLoader: LocalLoaderFunction) {}
+  public async dynamicActivate(newLocale?: string | undefined) {
+    const locale = this.getLocale(newLocale);
+    const { messages } = await this.loadCatalog(locale);
+    i18n.loadAndActivate({ locale: locale as string, messages });
+  }
 
   /**
-   * Get the list of available locales
+   * Get the locale info for the given locale
    */
-  public get locales(): Locale[] {
-    return this._locales;
+  public getLocaleInfo(locale: Locale): LocaleInfo {
+    return localeMap[locale];
   }
+
+  /**
+   * This component should be used as a wrapper around the application to provide
+   * the translation context to the rest of the application
+   *
+   * @param children The children to render
+   */
+  public TranslationProvider = ({ children }: { children: React.ReactNode }) => {
+    return <TranslationProvider translation={this}>{children}</TranslationProvider>;
+  };
 
   /**
    * Get the locale for the application
@@ -78,37 +105,11 @@ export class Translation {
   }
 
   /**
-   * Load and activate the given locale
-   */
-  public async dynamicActivate(newLocale?: string | undefined) {
-    const locale = this.getLocale(newLocale);
-    const { messages } = await this.loadCatalog(locale);
-    i18n.loadAndActivate({ locale: locale as string, messages });
-  }
-
-  /**
-   * Get the locale info for the given locale
-   */
-  public getLocaleInfo(locale: Locale): LocaleInfo {
-    return localeMap[locale];
-  }
-
-  /**
    * Assert that the given string is a valid locale
    */
   private isLocale(locale: string): locale is Locale {
     return locale in localeMap;
   }
-
-  /**
-   * This component should be used as a wrapper around the application to provide
-   * the translation context to the rest of the application
-   *
-   * @param children The children to render
-   */
-  public TranslationProvider = ({ children }: { children: React.ReactNode }) => {
-    return <TranslationProvider translation={this}>{children}</TranslationProvider>;
-  };
 }
 
 type TranslationProviderProps = {

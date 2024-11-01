@@ -1,6 +1,6 @@
 import type { ClientOptions, Middleware } from "openapi-fetch";
-import type { MediaType, OperationRequestBody, PathsWithMethod } from "openapi-typescript-helpers";
 import createClient from "openapi-fetch";
+import type { MediaType, OperationRequestBody, PathsWithMethod } from "openapi-typescript-helpers";
 import {
   type ClientMethodWithProblemDetails,
   createClientMethodWithProblemDetails

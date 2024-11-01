@@ -9,7 +9,7 @@ import type {
 } from "openapi-typescript-helpers";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClientMethodWithProblemDetails } from "./ClientMethodWithProblemDetails";
-import { ProblemDetailsError, type ProblemDetails } from "./ProblemDetails";
+import { type ProblemDetails, ProblemDetailsError } from "./ProblemDetails";
 
 type UseApiReturnType<Data> = {
   loading: boolean;
