@@ -94,6 +94,26 @@ public sealed class RepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task Update_WhenAlreadyTracked_ShouldUpdateDatabase()
+    {
+        // Arrange
+        var testAggregateAdd = TestAggregate.Create("TestAggregate");
+        _testDbContext.TestAggregates.Add(testAggregateAdd);
+        var initialName = testAggregateAdd.Name;
+
+        // Act
+        var testAggregateUpdate = new TestAggregate("UpdatedName") { Id = testAggregateAdd.Id };
+        _testAggregateRepository.Update(testAggregateUpdate);
+        await _testDbContext.SaveChangesAsync();
+
+        // Assert
+        var updatedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregateUpdate.Id, CancellationToken.None);
+        updatedAggregate.Should().NotBeNull();
+        updatedAggregate!.Name.Should().NotBe(initialName);
+        updatedAggregate.Name.Should().Be("UpdatedName");
+    }
+
+    [Fact]
     public async Task Remove_WhenExistingAggregate_ShouldRemoveFromDatabase()
     {
         // Arrange
