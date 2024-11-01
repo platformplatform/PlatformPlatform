@@ -1,11 +1,11 @@
 import type { ClientMethod, MaybeOptionalInit, ParseAsResponse } from "openapi-fetch";
 import type {
+  HasRequiredKeys,
   HttpMethod,
   MediaType,
   PathsWithMethod,
-  SuccessResponse,
   ResponseObjectMap,
-  HasRequiredKeys
+  SuccessResponse
 } from "openapi-typescript-helpers";
 import { ProblemDetailsError } from "./ProblemDetails";
 import { parseServerErrorResponse } from "./HandleFluentValidationErrors";
@@ -61,7 +61,7 @@ export function createClientMethodWithProblemDetails<
           type: "fetch-error",
           status: response.status,
           title: "An error occurred",
-          detail: error.message ?? response.statusText
+          detail: response.statusText
         });
       }
 

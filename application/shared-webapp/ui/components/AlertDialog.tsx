@@ -53,7 +53,7 @@ export function AlertDialog({
             {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
           </div>
           <div id={contentId}>{children}</div>
-          <div role="group" className="pt-10 flex justify-end gap-2">
+          <fieldset className="pt-10 flex justify-end gap-2">
             <Button variant="secondary" onPress={close}>
               {cancelLabel ?? "Cancel"}
             </Button>
@@ -64,7 +64,7 @@ export function AlertDialog({
             >
               {actionLabel}
             </Button>
-          </div>
+          </fieldset>
         </>
       )}
     </Dialog>

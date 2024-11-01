@@ -69,6 +69,9 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
             }
           },
           dev: {
+            client: {
+              port: options.port
+            },
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",
             // Write files to "dist" folder enabling the Api to serve them

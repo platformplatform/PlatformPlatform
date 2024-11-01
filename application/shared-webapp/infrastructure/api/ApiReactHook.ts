@@ -9,7 +9,7 @@ import type {
 } from "openapi-typescript-helpers";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClientMethodWithProblemDetails } from "./ClientMethodWithProblemDetails";
-import { ProblemDetailsError, type ProblemDetails } from "./ProblemDetails";
+import { type ProblemDetails, ProblemDetailsError } from "./ProblemDetails";
 
 type UseApiReturnType<Data> = {
   loading: boolean;
@@ -54,7 +54,7 @@ export function createApiReactHook<
   return <
     Path extends PathsWithMethod<Paths, Method>,
     Init extends MaybeOptionalInit<Paths[Path], Method>,
-    T = Paths[Path][Method],
+    T extends Record<string, unknown> = Paths[Path][Method],
     Options = Init,
     Data = ParseAsResponse<SuccessResponse<ResponseObjectMap<T>, Media>, Options>
   >(

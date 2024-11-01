@@ -5,7 +5,7 @@
  */
 
 import { getCamelCase } from "@repo/utils/string/getCamelCase";
-import { ProblemDetailsSchema, type ProblemDetailErrors, type ProblemDetails } from "./ProblemDetails";
+import { type ProblemDetailErrors, type ProblemDetails, ProblemDetailsSchema } from "./ProblemDetails";
 import { z } from "zod";
 
 const FluentValidationErrorsScheme = z.array(z.object({ code: z.string(), message: z.string() }));
