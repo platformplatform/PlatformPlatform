@@ -62,7 +62,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
+        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().Email.Should().Be(Email);
@@ -79,7 +79,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
+        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().FirstName.Should().Be(FirstName);
@@ -97,7 +97,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
+        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(1);
         userResponse.Users.First().LastName.Should().Be(LastName);
@@ -112,7 +112,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
+        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(2);
         userResponse.Users.First().Role.Should().Be(UserRole);
@@ -126,7 +126,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponseDto>();
+        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse!.TotalCount.Should().Be(3);
         userResponse.Users.First().Role.Should().Be(UserRole.Member);

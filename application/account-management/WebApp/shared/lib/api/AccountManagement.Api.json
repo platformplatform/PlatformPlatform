@@ -223,7 +223,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TenantResponseDto"
+                  "$ref": "#/components/schemas/TenantResponse"
                 }
               }
             }
@@ -358,7 +358,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponseDto"
+                  "$ref": "#/components/schemas/GetUsersResponse"
                 }
               }
             }
@@ -412,7 +412,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -726,7 +726,7 @@
           }
         }
       },
-      "TenantResponseDto": {
+      "TenantResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -787,7 +787,7 @@
           }
         }
       },
-      "GetUsersResponseDto": {
+      "GetUsersResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -810,12 +810,12 @@
           "users": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UsersResponseUserDto"
+              "$ref": "#/components/schemas/UserDetails"
             }
           }
         }
       },
-      "UsersResponseUserDto": {
+      "UserDetails": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -899,7 +899,7 @@
           "Descending"
         ]
       },
-      "UserResponseDto": {
+      "UserResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

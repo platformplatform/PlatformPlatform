@@ -14,9 +14,9 @@ public sealed class TenantEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants").RequireAuthorization();
 
-        group.MapGet("/{id}", async Task<ApiResult<TenantResponseDto>> (TenantId id, IMediator mediator)
+        group.MapGet("/{id}", async Task<ApiResult<TenantResponse>> (TenantId id, IMediator mediator)
             => await mediator.Send(new GetTenantQuery(id))
-        ).Produces<TenantResponseDto>();
+        ).Produces<TenantResponse>();
 
         group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })

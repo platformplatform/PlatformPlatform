@@ -14,13 +14,13 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization();
 
-        group.MapGet("/", async Task<ApiResult<GetUsersResponseDto>> ([AsParameters] GetUsersQuery query, IMediator mediator)
+        group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<GetUsersResponseDto>();
+        ).Produces<GetUsersResponse>();
 
-        group.MapGet("/{id}", async Task<ApiResult<UserResponseDto>> (UserId id, IMediator mediator)
+        group.MapGet("/{id}", async Task<ApiResult<UserResponse>> (UserId id, IMediator mediator)
             => await mediator.Send(new GetUserQuery(id))
-        ).Produces<UserResponseDto>();
+        ).Produces<UserResponse>();
 
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
