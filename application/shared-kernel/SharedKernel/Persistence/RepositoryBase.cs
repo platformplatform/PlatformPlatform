@@ -40,6 +40,21 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
     public void Update(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
+
+        var existingEntity = DbSet.Find(aggregate.Id);
+        if (existingEntity is not null)
+        {
+            var entry = DbSet.Entry(existingEntity);
+
+            if (entry.State == EntityState.Detached)
+            {
+                DbSet.Attach(existingEntity);
+            }
+
+            entry.CurrentValues.SetValues(aggregate);
+            return;
+        }
+
         DbSet.Update(aggregate);
     }
 
