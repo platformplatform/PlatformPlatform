@@ -2,11 +2,11 @@ namespace PlatformPlatform.SharedKernel.Authentication;
 
 public static class AuthenticationTokenHttpKeys
 {
-    public const string RefreshTokenCookieName = "refresh-token";
+    public const string RefreshTokenCookieName = "refresh_token";
 
-    public const string AccessTokenCookieName = "access-token";
+    public const string AccessTokenCookieName = "access_token";
 
-    public const string RefreshTokenHttpHeaderKey = "X-Refresh-Token";
+    public const string RefreshTokenHttpHeaderKey = "x-refresh-token";
 
-    public const string AccessTokenHttpHeaderKey = "X-Access-Token";
+    public const string AccessTokenHttpHeaderKey = "x-access-token";
 }

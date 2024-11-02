@@ -39,8 +39,8 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
-        response.Headers.Count(h => h.Key == "X-Refresh-Token").Should().Be(1);
-        response.Headers.Count(h => h.Key == "X-Access-Token").Should().Be(1);
+        response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
+        response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
     }
 
     [Fact]
