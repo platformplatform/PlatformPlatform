@@ -16,7 +16,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
-    protected readonly AuthenticationTokenGenerator AuthenticationTokenGenerator;
+    protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
@@ -61,7 +61,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
-        AuthenticationTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AuthenticationTokenGenerator>();
+        AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
     }
 
     protected SqliteConnection Connection { get; }

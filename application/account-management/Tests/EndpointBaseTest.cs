@@ -44,7 +44,7 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var accessToken = AuthenticationTokenGenerator.GenerateAccessToken(DatabaseSeeder.User1);
+        var accessToken = AccessTokenGenerator.Generate(DatabaseSeeder.User1);
         AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }

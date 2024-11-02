@@ -31,7 +31,8 @@ public static class DependencyConfiguration
         services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
         services.AddScoped<OneTimePasswordHelper>();
 
-        services.AddScoped<AuthenticationTokenGenerator>();
+        services.AddScoped<RefreshTokenGenerator>();
+        services.AddScoped<AccessTokenGenerator>();
         services.AddScoped<AuthenticationTokenService>();
 
         services.AddScoped<AvatarUpdater>();

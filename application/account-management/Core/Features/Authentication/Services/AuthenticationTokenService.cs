@@ -4,19 +4,23 @@ using PlatformPlatform.SharedKernel.Authentication;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
 
-public sealed class AuthenticationTokenService(AuthenticationTokenGenerator tokenGenerator, IHttpContextAccessor httpContextAccessor)
+public sealed class AuthenticationTokenService(
+    RefreshTokenGenerator refreshTokenGenerator,
+    AccessTokenGenerator accessTokenGenerator,
+    IHttpContextAccessor httpContextAccessor
+)
 {
     public void CreateAndSetAuthenticationTokens(User user)
     {
-        var refreshToken = tokenGenerator.GenerateRefreshToken(user);
-        var accessToken = tokenGenerator.GenerateAccessToken(user);
+        var refreshToken = refreshTokenGenerator.Generate(user);
+        var accessToken = accessTokenGenerator.Generate(user);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
     public void RefreshAuthenticationTokens(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        var refreshToken = tokenGenerator.UpdateRefreshToken(user, refreshTokenChainId, currentRefreshTokenVersion, expires);
-        var accessToken = tokenGenerator.GenerateAccessToken(user);
+        var refreshToken = refreshTokenGenerator.Update(user, refreshTokenChainId, currentRefreshTokenVersion, expires);
+        var accessToken = accessTokenGenerator.Generate(user);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
