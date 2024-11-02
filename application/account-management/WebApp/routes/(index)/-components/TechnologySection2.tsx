@@ -1,4 +1,4 @@
-import { infrastructure } from "@/shared/images/cdnImages";
+import { infrastructure } from "./cdnImages";
 
 // TechnologySection2: A functional component that displays the technology section
 export function TechnologySection2() {

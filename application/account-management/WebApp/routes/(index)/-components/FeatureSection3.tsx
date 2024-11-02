@@ -1,4 +1,4 @@
-import { createAccountUrl } from "@/shared/images/cdnImages";
+import { createAccountUrl } from "./cdnImages";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 
 // FeatureSection3: A functional component that displays the third feature section
