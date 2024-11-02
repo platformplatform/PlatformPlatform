@@ -29,25 +29,43 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
         // Claims are already validated by the authentication middleware, so any missing claim is a programming error
         if (!UserId.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
-            throw new InvalidOperationException("No 'sub' claim found in refresh token.");
+            logger.LogWarning("No valid 'sub' claim found in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
         }
 
         if (!RefreshTokenId.TryParse(httpContext.User.FindFirstValue("rtid"), out var refreshTokenId))
         {
-            throw new InvalidOperationException("No 'rtid' claim found in refresh token.");
+            logger.LogWarning("No valid 'rtid' claim found in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
         }
 
         if (!int.TryParse(httpContext.User.FindFirstValue("rtv"), out var refreshTokenVersion))
         {
-            throw new InvalidOperationException("No 'rtv' claim found in refresh token.");
+            logger.LogWarning("No valid 'rtv' claim found in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
         }
 
         var jwtId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
-        if (jwtId is null) throw new InvalidOperationException("No 'jti' claim found in refresh token.");
+        if (jwtId is null)
+        {
+            logger.LogWarning("No 'jti' claim found in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
+        }
 
         var expiresClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Exp);
-        if (expiresClaim is null) throw new InvalidOperationException("No 'exp' claim found in refresh token.");
-        var refreshTokenExpires = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim)); // Convert the expiration time from seconds since Unix epoch
+        if (expiresClaim is null)
+        {
+            logger.LogWarning("No 'exp' claim found in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
+        }
+
+        if (!long.TryParse(expiresClaim, out var expiresUnixSeconds))
+        {
+            logger.LogWarning("Invalid 'exp' claim format in refresh token");
+            return Result.Unauthorized("Invalid refresh token");
+        }
+
+        var refreshTokenExpires = DateTimeOffset.FromUnixTimeSeconds(expiresUnixSeconds);
 
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
