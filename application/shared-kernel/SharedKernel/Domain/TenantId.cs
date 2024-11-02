@@ -4,7 +4,7 @@ using PlatformPlatform.SharedKernel.IdGenerators;
 namespace PlatformPlatform.SharedKernel.Domain;
 
 [PublicAPI]
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, TenantId>))]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, TenantId>))]
 public sealed record TenantId(string Value) : StronglyTypedId<string, TenantId>(Value)
 {
     public override string ToString()

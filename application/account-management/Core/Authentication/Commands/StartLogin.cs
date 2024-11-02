@@ -16,7 +16,7 @@ namespace PlatformPlatform.AccountManagement.Authentication.Commands;
 public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
 
 [PublicAPI]
-public sealed record StartLoginResponse(string LoginId, int ValidForSeconds);
+public sealed record StartLoginResponse(LoginId LoginId, int ValidForSeconds);
 
 public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {

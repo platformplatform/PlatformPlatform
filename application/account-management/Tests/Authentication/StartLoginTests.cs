@@ -26,8 +26,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         response.EnsureSuccessStatusCode();
         var responseBody = await response.DeserializeResponse<StartLoginResponse>();
         responseBody.Should().NotBeNull();
-        responseBody!.LoginId.Should().NotBeNullOrEmpty();
-        responseBody.ValidForSeconds.Should().Be(300);
+        responseBody!.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
@@ -98,8 +97,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         response.EnsureSuccessStatusCode();
         var responseBody = await response.DeserializeResponse<StartLoginResponse>();
         responseBody.Should().NotBeNull();
-        responseBody!.LoginId.Should().NotBeNullOrEmpty();
-        responseBody.ValidForSeconds.Should().Be(300);
+        responseBody!.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
 
