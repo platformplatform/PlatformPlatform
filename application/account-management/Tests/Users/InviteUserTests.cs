@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Users.Commands;
+using PlatformPlatform.AccountManagement.Features.Users.Commands;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;

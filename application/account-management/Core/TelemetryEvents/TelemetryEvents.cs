@@ -1,5 +1,5 @@
-using PlatformPlatform.AccountManagement.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Users.Domain;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 

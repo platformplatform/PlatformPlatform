@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Users.Commands;
+using PlatformPlatform.AccountManagement.Features.Users.Commands;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Validation;

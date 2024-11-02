@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.AccountManagement.Authentication.Services;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
 

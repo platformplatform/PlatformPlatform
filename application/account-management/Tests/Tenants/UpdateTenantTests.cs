@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;

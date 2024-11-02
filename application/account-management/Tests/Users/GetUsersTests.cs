@@ -1,8 +1,8 @@
 using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Users.Domain;
-using PlatformPlatform.AccountManagement.Users.Queries;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Queries;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -15,7 +15,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     private const string Email = "willgates@email.com";
     private const string FirstName = "William Henry";
     private const string LastName = "Gates";
-    private const UserRole UserRole = AccountManagement.Users.Domain.UserRole.Member;
+    private const UserRole UserRole = Features.Users.Domain.UserRole.Member;
 
     public GetUsersTests()
     {

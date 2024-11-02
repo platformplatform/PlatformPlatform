@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.AccountManagement.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Signups.Domain;
-using PlatformPlatform.AccountManagement.Tenants.Domain;
-using PlatformPlatform.AccountManagement.Users.Domain;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Signups.Domain;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.EntityFramework;
 using PlatformPlatform.SharedKernel.ExecutionContext;
