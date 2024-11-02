@@ -13,6 +13,9 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "Account Management"
+msgstr "Accountbeheer"
+
 msgid "Help"
 msgstr "Helpen"
 

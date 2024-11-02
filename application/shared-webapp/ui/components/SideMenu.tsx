@@ -193,3 +193,7 @@ export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>
     </div>
   );
 }
+
+export function SideMenuSpacer() {
+  return <div className="grow" />;
+}

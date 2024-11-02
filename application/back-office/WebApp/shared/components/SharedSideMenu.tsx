@@ -1,5 +1,5 @@
-import { MenuButton, SideMenu } from "@repo/ui/components/SideMenu";
-import { HomeIcon } from "lucide-react";
+import { MenuButton, SideMenu, SideMenuSpacer } from "@repo/ui/components/SideMenu";
+import { BoxIcon, HomeIcon } from "lucide-react";
 import { t } from "@lingui/macro";
 
 type SharedSideMenuProps = {
@@ -11,6 +11,10 @@ export function SharedSideMenu({ children }: Readonly<SharedSideMenuProps>) {
     <SideMenu>
       <MenuButton icon={HomeIcon} label={t`Home`} href="/back-office" />
       {children}
+
+      <SideMenuSpacer />
+
+      <MenuButton icon={BoxIcon} label={t`Account Management`} href="/admin" forceReload />
     </SideMenu>
   );
 }
