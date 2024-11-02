@@ -7,17 +7,17 @@ using PlatformPlatform.SharedKernel.Domain;
 namespace PlatformPlatform.AccountManagement.Tenants.Queries;
 
 [PublicAPI]
-public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponseDto>>;
+public sealed record GetTenantQuery(TenantId Id) : IRequest<Result<TenantResponse>>;
 
 [PublicAPI]
-public sealed record TenantResponseDto(string Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
+public sealed record TenantResponse(string Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
 
 public sealed class GetTenantHandler(ITenantRepository tenantRepository)
-    : IRequestHandler<GetTenantQuery, Result<TenantResponseDto>>
+    : IRequestHandler<GetTenantQuery, Result<TenantResponse>>
 {
-    public async Task<Result<TenantResponseDto>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
+    public async Task<Result<TenantResponse>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return tenant?.Adapt<TenantResponseDto>() ?? Result<TenantResponseDto>.NotFound($"Tenant with id '{request.Id}' not found.");
+        return tenant?.Adapt<TenantResponse>() ?? Result<TenantResponse>.NotFound($"Tenant with id '{request.Id}' not found.");
     }
 }

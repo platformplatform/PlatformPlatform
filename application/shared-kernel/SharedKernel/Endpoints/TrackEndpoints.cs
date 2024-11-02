@@ -24,32 +24,32 @@ public class TrackEndpoints : IEndpoints
     }
 
     [OpenApiIgnore]
-    private static TrackResponseSuccessDto Track(
+    private static TrackResponse Track(
         HttpContext context,
-        List<TrackRequestDto> trackRequests,
+        List<TrackRequest> trackRequests,
         TelemetryClient telemetryClient,
         ILogger<string> logger
     )
     {
         var ip = context.Connection.RemoteIpAddress?.ToString();
-        foreach (var trackRequestDto in trackRequests)
+        foreach (var trackRequest in trackRequests)
         {
-            switch (trackRequestDto.Data.BaseType)
+            switch (trackRequest.Data.BaseType)
             {
                 case "PageviewData":
                 {
                     var telemetry = new PageViewTelemetry
                     {
-                        Name = trackRequestDto.Data.BaseData.Name,
-                        Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = trackRequestDto.Data.BaseData.Duration,
-                        Timestamp = trackRequestDto.Time,
-                        Id = trackRequestDto.Data.BaseData.Id
+                        Name = trackRequest.Data.BaseData.Name,
+                        Url = new Uri(trackRequest.Data.BaseData.Url),
+                        Duration = trackRequest.Data.BaseData.Duration,
+                        Timestamp = trackRequest.Time,
+                        Id = trackRequest.Data.BaseData.Id
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
+                    CopyContextTags(telemetry.Context, trackRequest.Tags, ip);
+                    CopyDictionary(trackRequest.Data.BaseData.Properties, telemetry.Properties);
+                    CopyDictionary(trackRequest.Data.BaseData.Measurements, telemetry.Metrics);
 
                     telemetryClient.TrackPageView(telemetry);
                     break;
@@ -58,58 +58,58 @@ public class TrackEndpoints : IEndpoints
                 {
                     var telemetry = new PageViewPerformanceTelemetry
                     {
-                        Name = trackRequestDto.Data.BaseData.Name,
-                        Url = new Uri(trackRequestDto.Data.BaseData.Url),
-                        Duration = trackRequestDto.Data.BaseData.Duration,
-                        Timestamp = trackRequestDto.Time,
-                        Id = trackRequestDto.Data.BaseData.Id,
-                        PerfTotal = trackRequestDto.Data.BaseData.PerfTotal,
-                        NetworkConnect = trackRequestDto.Data.BaseData.NetworkConnect,
-                        SentRequest = trackRequestDto.Data.BaseData.SentRequest,
-                        ReceivedResponse = trackRequestDto.Data.BaseData.ReceivedResponse,
-                        DomProcessing = trackRequestDto.Data.BaseData.DomProcessing
+                        Name = trackRequest.Data.BaseData.Name,
+                        Url = new Uri(trackRequest.Data.BaseData.Url),
+                        Duration = trackRequest.Data.BaseData.Duration,
+                        Timestamp = trackRequest.Time,
+                        Id = trackRequest.Data.BaseData.Id,
+                        PerfTotal = trackRequest.Data.BaseData.PerfTotal,
+                        NetworkConnect = trackRequest.Data.BaseData.NetworkConnect,
+                        SentRequest = trackRequest.Data.BaseData.SentRequest,
+                        ReceivedResponse = trackRequest.Data.BaseData.ReceivedResponse,
+                        DomProcessing = trackRequest.Data.BaseData.DomProcessing
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
+                    CopyContextTags(telemetry.Context, trackRequest.Tags, ip);
+                    CopyDictionary(trackRequest.Data.BaseData.Properties, telemetry.Properties);
+                    CopyDictionary(trackRequest.Data.BaseData.Measurements, telemetry.Metrics);
 
                     telemetryClient.Track(telemetry);
                     break;
                 }
                 case "ExceptionData":
                 {
-                    var exceptionDetailsInfos = GetExceptionDetailsInfos(trackRequestDto);
+                    var exceptionDetailsInfos = GetExceptionDetailsInfos(trackRequest);
                     var telemetry = new ExceptionTelemetry(exceptionDetailsInfos,
-                        trackRequestDto.Data.BaseData.SeverityLevel, trackRequestDto.Data.BaseType,
-                        trackRequestDto.Data.BaseData.Properties, new Dictionary<string, double>()
+                        trackRequest.Data.BaseData.SeverityLevel, trackRequest.Data.BaseType,
+                        trackRequest.Data.BaseData.Properties, new Dictionary<string, double>()
                     )
                     {
-                        SeverityLevel = trackRequestDto.Data.BaseData.SeverityLevel,
-                        Timestamp = trackRequestDto.Time
+                        SeverityLevel = trackRequest.Data.BaseData.SeverityLevel,
+                        Timestamp = trackRequest.Time
                     };
 
-                    CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
-                    CopyDictionary(trackRequestDto.Data.BaseData.Measurements, telemetry.Metrics);
+                    CopyContextTags(telemetry.Context, trackRequest.Tags, ip);
+                    CopyDictionary(trackRequest.Data.BaseData.Properties, telemetry.Properties);
+                    CopyDictionary(trackRequest.Data.BaseData.Measurements, telemetry.Metrics);
 
                     telemetryClient.TrackException(telemetry);
                     break;
                 }
                 case "MetricData":
                 {
-                    foreach (var metric in trackRequestDto.Data.BaseData.Metrics)
+                    foreach (var metric in trackRequest.Data.BaseData.Metrics)
                     {
                         var telemetry = new MetricTelemetry
                         {
                             Name = metric.Name,
                             Sum = metric.Value,
                             Count = metric.Count,
-                            Timestamp = trackRequestDto.Time
+                            Timestamp = trackRequest.Time
                         };
 
-                        CopyContextTags(telemetry.Context, trackRequestDto.Tags, ip);
-                        CopyDictionary(trackRequestDto.Data.BaseData.Properties, telemetry.Properties);
+                        CopyContextTags(telemetry.Context, trackRequest.Tags, ip);
+                        CopyDictionary(trackRequest.Data.BaseData.Properties, telemetry.Properties);
 
                         telemetryClient.TrackMetric(telemetry);
                     }
@@ -123,18 +123,18 @@ public class TrackEndpoints : IEndpoints
                 }
                 default:
                 {
-                    logger.LogWarning("Unsupported telemetry type: {BaseType}", trackRequestDto.Data.BaseType);
+                    logger.LogWarning("Unsupported telemetry type: {BaseType}", trackRequest.Data.BaseType);
                     break;
                 }
             }
         }
 
-        return new TrackResponseSuccessDto(true, "Telemetry sent.");
+        return new TrackResponse(true, "Telemetry sent.");
     }
 
-    private static IEnumerable<ExceptionDetailsInfo> GetExceptionDetailsInfos(TrackRequestDto trackRequestDto)
+    private static IEnumerable<ExceptionDetailsInfo> GetExceptionDetailsInfos(TrackRequest trackRequest)
     {
-        var exceptionDetailsInfos = trackRequestDto.Data.BaseData.Exceptions
+        var exceptionDetailsInfos = trackRequest.Data.BaseData.Exceptions
             .Select(exception => new ExceptionDetailsInfo(
                     0,
                     0,
@@ -199,23 +199,23 @@ public class TrackEndpoints : IEndpoints
 }
 
 [PublicAPI]
-public record TrackResponseSuccessDto(bool Success, string Message);
+public record TrackResponse(bool Success, string Message);
 
 [PublicAPI]
-public record TrackRequestDto(
+public record TrackRequest(
     DateTimeOffset Time,
     // ReSharper disable once InconsistentNaming
     string IKey,
     string Name,
     Dictionary<string, string> Tags,
-    TrackRequestDataDto Data
+    TrackData Data
 );
 
 [PublicAPI]
-public record TrackRequestDataDto(string BaseType, TrackRequestBaseDataDto BaseData);
+public record TrackData(string BaseType, TrackBaseData BaseData);
 
 [PublicAPI]
-public record TrackRequestBaseDataDto(
+public record TrackBaseData(
     string Name,
     string Url,
     TimeSpan Duration,
@@ -226,23 +226,17 @@ public record TrackRequestBaseDataDto(
     TimeSpan DomProcessing,
     Dictionary<string, string> Properties,
     Dictionary<string, double> Measurements,
-    List<TrackRequestMetricsDto> Metrics,
-    List<TrackRequestExceptionDto> Exceptions,
+    List<TrackMetric> Metrics,
+    List<TrackException> Exceptions,
     SeverityLevel SeverityLevel,
     string Id
 );
 
 [PublicAPI]
-public record TrackRequestMetricsDto(string Name, int Kind, double Value, int Count);
+public record TrackMetric(string Name, int Kind, double Value, int Count);
 
 [PublicAPI]
-public record TrackRequestExceptionDto(
-    string TypeName,
-    string Message,
-    bool HasFullStack,
-    string Stack,
-    List<TrackRequestParsedStackDto> ParsedStack
-);
+public record TrackException(string TypeName, string Message, bool HasFullStack, string Stack, List<TrackExceptionParsedStack> ParsedStack);
 
 [PublicAPI]
-public record TrackRequestParsedStackDto(string Assembly, string FileName, string Method, int Line, int Level);
+public record TrackExceptionParsedStack(string Assembly, string FileName, string Method, int Line, int Level);

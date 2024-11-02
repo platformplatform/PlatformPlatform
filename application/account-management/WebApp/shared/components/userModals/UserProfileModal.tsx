@@ -18,7 +18,7 @@ type ProfileModalProps = {
 };
 
 export default function UserProfileModal({ isOpen, onOpenChange, userId }: Readonly<ProfileModalProps>) {
-  const [data, setData] = useState<Schemas["UserResponseDto"] | null>(null);
+  const [data, setData] = useState<Schemas["UserResponse"] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [file, setFile] = useState<string | null>(null);

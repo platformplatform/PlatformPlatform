@@ -15,13 +15,13 @@ public sealed record GetUsersQuery(
     SortOrder SortOrder = SortOrder.Ascending,
     int PageSize = 25,
     int? PageOffset = null
-) : IRequest<Result<GetUsersResponseDto>>;
+) : IRequest<Result<GetUsersResponse>>;
 
 [PublicAPI]
-public sealed record GetUsersResponseDto(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UsersResponseUserDto[] Users);
+public sealed record GetUsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UserDetails[] Users);
 
 [PublicAPI]
-public sealed record UsersResponseUserDto(
+public sealed record UserDetails(
     string Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
@@ -45,9 +45,9 @@ public sealed class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 }
 
 public sealed class GetUsersHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUsersQuery, Result<GetUsersResponseDto>>
+    : IRequestHandler<GetUsersQuery, Result<GetUsersResponse>>
 {
-    public async Task<Result<GetUsersResponseDto>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
+    public async Task<Result<GetUsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
         var (users, count, totalPages) = await userRepository.Search(
             query.Search,
@@ -61,10 +61,10 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
 
         if (query.PageOffset.HasValue && query.PageOffset.Value >= totalPages)
         {
-            return Result<GetUsersResponseDto>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
+            return Result<GetUsersResponse>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
         }
 
-        var userResponseDtos = users.Adapt<UsersResponseUserDto[]>();
-        return new GetUsersResponseDto(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponseDtos);
+        var userResponses = users.Adapt<UserDetails[]>();
+        return new GetUsersResponse(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponses);
     }
 }

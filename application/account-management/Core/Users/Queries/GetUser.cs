@@ -7,10 +7,10 @@ using PlatformPlatform.SharedKernel.Domain;
 namespace PlatformPlatform.AccountManagement.Users.Queries;
 
 [PublicAPI]
-public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponseDto>>;
+public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponse>>;
 
 [PublicAPI]
-public sealed record UserResponseDto(
+public sealed record UserResponse(
     string Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
@@ -23,11 +23,11 @@ public sealed record UserResponseDto(
 );
 
 public sealed class GetUserHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUserQuery, Result<UserResponseDto>>
+    : IRequestHandler<GetUserQuery, Result<UserResponse>>
 {
-    public async Task<Result<UserResponseDto>> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByIdAsync(request.Id, cancellationToken);
-        return user?.Adapt<UserResponseDto>() ?? Result<UserResponseDto>.NotFound($"User with id '{request.Id}' not found.");
+        return user?.Adapt<UserResponse>() ?? Result<UserResponse>.NotFound($"User with id '{request.Id}' not found.");
     }
 }
