@@ -8,6 +8,10 @@ namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
 
 public sealed class AccessTokenGenerator(ITokenSigningService tokenSigningService)
 {
+    // Access tokens should only be valid for a very short time and cannot be revoked.
+    // For example, if a user gets a new role, the changes will not take effect until the access token expires.
+    private const int ValidForMinutes = 5;
+
     public string Generate(User user)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -27,7 +31,7 @@ public sealed class AccessTokenGenerator(ITokenSigningService tokenSigningServic
         };
 
         return tokenDescriptor.GenerateToken(
-            TimeProvider.System.GetUtcNow().AddMinutes(5).UtcDateTime,
+            TimeProvider.System.GetUtcNow().AddMinutes(ValidForMinutes).UtcDateTime,
             tokenSigningService.Issuer,
             tokenSigningService.Audience,
             tokenSigningService.GetSigningCredentials()

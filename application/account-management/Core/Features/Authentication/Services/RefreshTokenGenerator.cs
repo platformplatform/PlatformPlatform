@@ -8,9 +8,13 @@ namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
 
 public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningService)
 {
+    // Refresh tokens are stored as a persistent cookie in the user's browser.
+    // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
+    private const int ValidForHours = 2160; // 24 hours * 90 days
+
     public string Generate(User user)
     {
-        return GenerateRefreshToken(user, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddMonths(3));
+        return GenerateRefreshToken(user, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
     }
 
     public string Update(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
@@ -22,6 +26,8 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
+            // Avoid changing these claims in the refresh token, as refresh tokens are valid for a very long time.
+            // Changing this might have unintended side effects for already logged-in users.
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
