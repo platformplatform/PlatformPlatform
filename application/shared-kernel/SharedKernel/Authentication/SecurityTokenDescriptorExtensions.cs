@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
+namespace PlatformPlatform.SharedKernel.Authentication;
 
 internal static class SecurityTokenDescriptorExtensions
 {

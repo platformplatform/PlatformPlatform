@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.AccountManagement.Features.Authentication.Services;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;

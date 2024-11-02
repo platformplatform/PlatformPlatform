@@ -1,10 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using JetBrains.Annotations;
+using Mapster;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
@@ -76,7 +77,7 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
 
         // TODO: Check if the refreshTokenId exists in the database and if the jwtId and refreshTokenVersion are valid
 
-        authenticationTokenService.RefreshAuthenticationTokens(user, refreshTokenId, refreshTokenVersion, refreshTokenExpires);
+        authenticationTokenService.RefreshAuthenticationTokens(user.Adapt<UserInfo>(), refreshTokenId, refreshTokenVersion, refreshTokenExpires);
         events.CollectEvent(new AuthenticationTokensRefreshed());
 
         return Result.Success();

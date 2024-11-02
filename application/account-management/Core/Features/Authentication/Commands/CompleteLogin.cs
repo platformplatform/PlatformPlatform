@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
+using Mapster;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
@@ -89,7 +89,7 @@ public sealed class CompleteLoginHandler(
         login.MarkAsCompleted();
         loginRepository.Update(login);
 
-        authenticationTokenService.CreateAndSetAuthenticationTokens(user);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(user.Adapt<UserInfo>());
 
         events.CollectEvent(new LoginCompleted(user.Id, loginTimeInSeconds));
 

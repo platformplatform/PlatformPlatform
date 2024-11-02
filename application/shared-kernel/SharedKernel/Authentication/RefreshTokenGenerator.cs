@@ -1,10 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
+namespace PlatformPlatform.SharedKernel.Authentication;
 
 public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningService)
 {
@@ -12,17 +10,17 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
     // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
     private const int ValidForHours = 2160; // 24 hours * 90 days
 
-    public string Generate(User user)
+    public string Generate(UserInfo userInfo)
     {
-        return GenerateRefreshToken(user, RefreshTokenId.NewId(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
+        return GenerateRefreshToken(userInfo, RefreshTokenId.NewId(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
     }
 
-    public string Update(User user, RefreshTokenId refreshTokenId, int currentRefreshTokenVersion, DateTimeOffset expires)
+    public string Update(UserInfo userInfo, RefreshTokenId refreshTokenId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        return GenerateRefreshToken(user, refreshTokenId, currentRefreshTokenVersion + 1, expires);
+        return GenerateRefreshToken(userInfo, refreshTokenId, currentRefreshTokenVersion + 1, expires);
     }
 
-    private string GenerateRefreshToken(User user, RefreshTokenId refreshTokenId, int refreshTokenVersion, DateTimeOffset expires)
+    private string GenerateRefreshToken(UserInfo userInfo, RefreshTokenId refreshTokenId, int refreshTokenVersion, DateTimeOffset expires)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -30,8 +28,8 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
             // Changing this might have unintended side effects for already logged-in users.
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                    new Claim("tenant_id", user.TenantId),
+                    new Claim(JwtRegisteredClaimNames.Sub, userInfo.Id!),
+                    new Claim("tenant_id", userInfo.TenantId!),
                     new Claim("rtid", refreshTokenId),
                     new Claim("rtv", refreshTokenVersion.ToString())
                 ]

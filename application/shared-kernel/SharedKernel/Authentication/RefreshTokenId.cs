@@ -1,7 +1,6 @@
-using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
+namespace PlatformPlatform.SharedKernel.Authentication;
 
 [PublicAPI]
 [IdPrefix("rt")]

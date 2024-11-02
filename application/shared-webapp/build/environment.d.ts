@@ -51,7 +51,7 @@ export declare global {
     /**
      * User Id
      */
-    userId?: string;
+    id?: string;
     /**
      * Tenant Id
      **/
@@ -59,7 +59,7 @@ export declare global {
     /**
      * User role
      **/
-    userRole?: "Owner" | "Admin" | "Member";
+    role?: "Owner" | "Admin" | "Member";
     /**
      * User email
      **/

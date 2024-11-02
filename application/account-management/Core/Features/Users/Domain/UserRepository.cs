@@ -45,7 +45,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
     public async Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken)
     {
-        if (UserId.TryParse(executionContext.UserInfo.UserId, out var userId))
+        if (UserId.TryParse(executionContext.UserInfo.Id ?? "", out var userId))
         {
             return await GetByIdAsync(userId, cancellationToken);
         }
