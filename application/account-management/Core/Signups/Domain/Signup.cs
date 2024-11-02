@@ -61,7 +61,7 @@ public sealed class Signup : AggregateRoot<SignupId>
 
 [PublicAPI]
 [IdPrefix("signup")]
-[TypeConverter(typeof(StronglyTypedIdTypeConverter<string, SignupId>))]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, SignupId>))]
 public sealed record SignupId(string Value) : StronglyTypedUlid<SignupId>(Value)
 {
     public override string ToString()
