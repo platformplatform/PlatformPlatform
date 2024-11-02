@@ -1,5 +1,4 @@
-import type React from "react";
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import { Button } from "./Button";
 import { tv } from "tailwind-variants";
@@ -9,6 +8,7 @@ import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { useRouter } from "@tanstack/react-router";
 import { Dialog, DialogTrigger } from "./Dialog";
 import { Modal } from "./Modal";
+import type { Href } from "@react-types/shared";
 
 const collapsedContext = createContext(false);
 
@@ -35,17 +35,39 @@ const menuTextStyles = tv({
 type MenuButtonProps = {
   icon: LucideIcon;
   label: string;
-  href?: string;
-};
+  isDisabled?: boolean;
+} & (
+  | {
+      forceReload?: false;
+      href: Href;
+    }
+  | {
+      forceReload: true;
+      href: string;
+    }
+);
 
-export function MenuButton({ icon: Icon, label, href: to }: Readonly<MenuButtonProps>) {
+export function MenuButton({
+  icon: Icon,
+  label,
+  href: to,
+  isDisabled = false,
+  forceReload = false
+}: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
   const { navigate } = useRouter();
-  const onPress = useCallback(() => (to != null ? navigate({ to }) : undefined), [to, navigate]);
+  const onPress = () => {
+    if (to == null) return;
+    if (forceReload) {
+      window.location.href = to;
+    } else {
+      navigate({ to });
+    }
+  };
 
   return (
     <TooltipTrigger delay={300}>
-      <Button variant="link" className={menuButtonStyles({ isCollapsed })} onPress={onPress}>
+      <Button variant="link" className={menuButtonStyles({ isCollapsed })} onPress={onPress} isDisabled={isDisabled}>
         <Icon className="w-6 h-6 shrink-0 grow-0" />
         <div className={menuTextStyles({ isCollapsed })}>{label}</div>
       </Button>
@@ -75,7 +97,7 @@ const chevronStyles = tv({
 });
 
 const logoWrapStyles = tv({
-  base: "self-start  transition-all duration-300",
+  base: "self-start transition-all duration-300",
   variants: {
     isCollapsed: {
       true: "h-8 opacity-0 ease-out",
@@ -149,7 +171,7 @@ export function SideMenu({ children }: Readonly<SideMenuProps>) {
   );
 }
 
-const menuSeparatorStyles = tv({
+const sideMenuSeparatorStyles = tv({
   base: "text-muted-foreground border-b-0 font-semibold uppercase transition-all duration-300 leading-4",
   variants: {
     isCollapsed: {
@@ -159,15 +181,15 @@ const menuSeparatorStyles = tv({
   }
 });
 
-type MenuSeparatorProps = {
+type SideMenuSeparatorProps = {
   children: React.ReactNode;
 };
 
-export function MenuSeparator({ children }: Readonly<MenuSeparatorProps>) {
+export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>) {
   const isCollapsed = useContext(collapsedContext);
   return (
     <div className="pl-4">
-      <div className={menuSeparatorStyles({ isCollapsed })}>{children}</div>
+      <div className={sideMenuSeparatorStyles({ isCollapsed })}>{children}</div>
     </div>
   );
 }
