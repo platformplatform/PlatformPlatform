@@ -612,20 +612,11 @@
         "additionalProperties": false,
         "properties": {
           "loginId": {
-            "type": "string"
+            "$ref": "#/components/schemas/LoginId"
           },
           "validForSeconds": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "StartLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
           }
         }
       },
@@ -653,6 +644,15 @@
           "value": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "StartLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
           }
         }
       },
@@ -731,7 +731,7 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/TenantId"
           },
           "createdAt": {
             "type": "string",
@@ -750,20 +750,6 @@
           }
         }
       },
-      "TenantState": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Trial",
-          "Active",
-          "Suspended"
-        ],
-        "enum": [
-          "Trial",
-          "Active",
-          "Suspended"
-        ]
-      },
       "TenantId": {
         "type": "string"
       },
@@ -777,6 +763,20 @@
             "nullable": true
           }
         }
+      },
+      "TenantState": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Trial",
+          "Active",
+          "Suspended"
+        ],
+        "enum": [
+          "Trial",
+          "Active",
+          "Suspended"
+        ]
       },
       "UpdateTenantCommand": {
         "type": "object",
@@ -820,7 +820,7 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/UserId"
           },
           "createdAt": {
             "type": "string",
@@ -850,6 +850,33 @@
             "type": "boolean"
           },
           "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
             "type": "string",
             "nullable": true
           }
@@ -904,7 +931,7 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string"
+            "$ref": "#/components/schemas/UserId"
           },
           "createdAt": {
             "type": "string",
@@ -931,33 +958,6 @@
             "type": "string"
           },
           "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserId": {
-        "type": "string",
-        "format": "usr_{string}"
-      },
-      "StronglyTypedUlidOfUserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndUserId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
             "type": "string",
             "nullable": true
           }

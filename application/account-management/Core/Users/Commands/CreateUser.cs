@@ -15,13 +15,7 @@ namespace PlatformPlatform.AccountManagement.Users.Commands;
 
 [PublicAPI]
 public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
-    : ICommand, IRequest<Result<UserId>>
-{
-    public TenantId GetTenantId()
-    {
-        return new TenantId(TenantId);
-    }
-}
+    : ICommand, IRequest<Result<UserId>>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
@@ -53,11 +47,11 @@ public sealed class CreateUserHandler(
     {
         var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
 
-        var user = User.Create(command.GetTenantId(), command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
 
         await userRepository.AddAsync(user, cancellationToken);
 
-        events.CollectEvent(new UserCreated(command.GetTenantId(), gravatarUrl is not null));
+        events.CollectEvent(new UserCreated(command.TenantId, gravatarUrl is not null));
 
         return user.Id;
     }

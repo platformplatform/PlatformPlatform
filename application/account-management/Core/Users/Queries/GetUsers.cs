@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Users.Queries;
@@ -22,7 +23,7 @@ public sealed record GetUsersResponse(int TotalCount, int PageSize, int TotalPag
 
 [PublicAPI]
 public sealed record UserDetails(
-    string Id,
+    UserId Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
     string Email,

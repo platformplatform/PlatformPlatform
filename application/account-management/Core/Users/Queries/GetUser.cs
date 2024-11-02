@@ -11,7 +11,7 @@ public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponse>>;
 
 [PublicAPI]
 public sealed record UserResponse(
-    string Id,
+    UserId Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
     string Email,
