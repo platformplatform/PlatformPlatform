@@ -27,18 +27,23 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
         var httpContext = httpContextAccessor.HttpContext ?? throw new InvalidOperationException("HttpContext is null.");
 
         // Claims are already validated by the authentication middleware, so any missing claim is a programming error
+        if (!UserId.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            throw new InvalidOperationException("No 'sub' claim found in refresh token.");
+        }
 
-        UserId.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
-        if (userId is null) throw new InvalidOperationException("No 'sub' claim found in refresh token.");
+        if (!RefreshTokenId.TryParse(httpContext.User.FindFirstValue("rtid"), out var refreshTokenId))
+        {
+            throw new InvalidOperationException("No 'rtid' claim found in refresh token.");
+        }
 
-        var refreshTokenId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
-        if (refreshTokenId is null) throw new InvalidOperationException("No 'jti' claim found in refresh token.");
+        if (!int.TryParse(httpContext.User.FindFirstValue("rtv"), out var refreshTokenVersion))
+        {
+            throw new InvalidOperationException("No 'rtv' claim found in refresh token.");
+        }
 
-        var refreshChainTokenId = httpContext.User.FindFirstValue("rtid");
-        if (refreshChainTokenId is null) throw new InvalidOperationException("No 'rtid' claim found in refresh token.");
-
-        var hasValidRefreshTokenVersion = int.TryParse(httpContext.User.FindFirstValue("rtv"), out var refreshTokenVersion);
-        if (!hasValidRefreshTokenVersion) throw new InvalidOperationException("No 'rtv' claim found in refresh token.");
+        var jwtId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
+        if (jwtId is null) throw new InvalidOperationException("No 'jti' claim found in refresh token.");
 
         var expiresClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Exp);
         if (expiresClaim is null) throw new InvalidOperationException("No 'exp' claim found in refresh token.");
@@ -51,9 +56,9 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
             return Result.Unauthorized($"No user found with user id {userId} found.");
         }
 
-        // TODO: Check if the refreshChainTokenId exists in the database and if the refreshTokenId and version are valid
+        // TODO: Check if the refreshTokenId exists in the database and if the jwtId and refreshTokenVersion are valid
 
-        authenticationTokenService.RefreshAuthenticationTokens(user, refreshChainTokenId, refreshTokenVersion, refreshTokenExpires);
+        authenticationTokenService.RefreshAuthenticationTokens(user, refreshTokenId, refreshTokenVersion, refreshTokenExpires);
         events.CollectEvent(new AuthenticationTokensRefreshed());
 
         return Result.Success();

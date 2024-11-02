@@ -14,15 +14,15 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
 
     public string Generate(User user)
     {
-        return GenerateRefreshToken(user, Guid.NewGuid().ToString(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
+        return GenerateRefreshToken(user, RefreshTokenId.NewId(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
     }
 
-    public string Update(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
+    public string Update(User user, RefreshTokenId refreshTokenId, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        return GenerateRefreshToken(user, refreshTokenChainId, currentRefreshTokenVersion + 1, expires);
+        return GenerateRefreshToken(user, refreshTokenId, currentRefreshTokenVersion + 1, expires);
     }
 
-    private string GenerateRefreshToken(User user, string refreshTokenChainId, int refreshTokenVersion, DateTimeOffset expires)
+    private string GenerateRefreshToken(User user, RefreshTokenId refreshTokenId, int refreshTokenVersion, DateTimeOffset expires)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -32,7 +32,7 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                     new Claim("tenant_id", user.TenantId),
-                    new Claim("rtid", refreshTokenChainId),
+                    new Claim("rtid", refreshTokenId),
                     new Claim("rtv", refreshTokenVersion.ToString())
                 ]
             )
