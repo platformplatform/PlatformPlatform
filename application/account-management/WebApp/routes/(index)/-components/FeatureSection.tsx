@@ -8,7 +8,7 @@ import {
   profileEditDarkUrl,
   profileEditLightUrl,
   usersUrl
-} from "@/shared/images/cdnImages";
+} from "./cdnImages";
 
 // FeatureSection: A functional component that displays the feature section
 export function FeatureSection() {

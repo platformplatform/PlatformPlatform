@@ -1,27 +1,11 @@
-import "@repo/ui/tailwind.css";
-import { router } from "@/shared/lib/router/router";
-import { RouterProvider } from "@tanstack/react-router";
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { Translation } from "@repo/infrastructure/translations/Translation";
-import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
-
-const { TranslationProvider } = await Translation.create(
-  (locale) => import(`@/shared/translations/locale/${locale}.ts`)
-);
-
-const rootElement = document.getElementById("root");
-
-if (!rootElement) {
-  throw new Error("Root element not found");
-}
-
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <TranslationProvider>
-      <ApplicationInsightsProvider>
-        <RouterProvider router={router} />
-      </ApplicationInsightsProvider>
-    </TranslationProvider>
-  </React.StrictMode>
-);
+/**
+ * This file serves as the entry point for the SPA, dynamically importing the main application module `bootstrap.tsx`.
+ * Separating the files ensures they are loaded correctly in a Module Federation (micro frontend) setup.
+ *
+ * Using Module Federation to build micro frontends, this approach allows one micro frontend to dynamically load UI
+ * from another micro frontend at runtime (e.g. the User Profile editor dialog).
+ *
+ * This enables independent development and deployment of shared UI without having to use NPM packages or deploy all
+ * frontends when the UI is updated.
+ */
+import("./bootstrap");

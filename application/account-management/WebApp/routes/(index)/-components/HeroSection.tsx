@@ -1,6 +1,6 @@
 import { DialogTrigger } from "react-aria-components";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
-import { heroDesktopUrl, heroMobileUrl, logoWrap } from "@/shared/images/cdnImages";
+import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { Popover } from "@repo/ui/components/Popover";
 import { Dialog } from "@repo/ui/components/Dialog";

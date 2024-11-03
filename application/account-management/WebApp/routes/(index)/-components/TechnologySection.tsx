@@ -1,4 +1,4 @@
-import { frame1, frame2, frame3, frame4, frame5, frame6 } from "@/shared/images/cdnImages";
+import { frame1, frame2, frame3, frame4, frame5, frame6 } from "./cdnImages";
 
 // TechnologySection: A functional component that displays the technology section
 export function TechnologySection() {

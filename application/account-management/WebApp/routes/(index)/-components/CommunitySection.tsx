@@ -1,4 +1,4 @@
-import { githubImageUrl, slackImageUrl, youtubeImageUrl } from "@/shared/images/cdnImages";
+import { githubImageUrl, slackImageUrl, youtubeImageUrl } from "./cdnImages";
 import { Link } from "@repo/ui/components/Link";
 import { ArrowRight } from "lucide-react";
 import type { LinkProps } from "react-aria-components";
