@@ -164,8 +164,8 @@ public class SinglePageAppConfiguration
             $"script-src {trustedHosts} 'strict-dynamic' https:",
             $"script-src-elem {trustedHosts}",
             $"default-src {trustedHosts}",
-            $"connect-src {trustedHosts}",
-            $"img-src {trustedHosts} data:",
+            $"connect-src {trustedHosts} data:",
+            $"img-src {trustedHosts} data: blob:",
             "object-src 'none'",
             "base-uri 'none'"
             // "require-trusted-types-for 'script'"
