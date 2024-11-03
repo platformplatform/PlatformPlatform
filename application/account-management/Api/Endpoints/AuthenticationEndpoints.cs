@@ -1,5 +1,5 @@
-using PlatformPlatform.AccountManagement.Authentication.Commands;
-using PlatformPlatform.AccountManagement.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 

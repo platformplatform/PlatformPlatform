@@ -1,5 +1,5 @@
-using PlatformPlatform.AccountManagement.Users.Commands;
-using PlatformPlatform.AccountManagement.Users.Queries;
+using PlatformPlatform.AccountManagement.Features.Users.Commands;
+using PlatformPlatform.AccountManagement.Features.Users.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Endpoints;
