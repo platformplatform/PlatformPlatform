@@ -95,5 +95,9 @@ export default {
       }
     }
   },
-  plugins: [require("tailwindcss-react-aria-components"), require("tailwindcss-animate")]
+  plugins: [
+    require("tailwindcss-react-aria-components"),
+    require("tailwindcss-animate"),
+    require("@tailwindcss/container-queries")
+  ]
 } satisfies Config;
