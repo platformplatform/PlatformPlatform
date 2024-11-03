@@ -50,7 +50,7 @@ public static class ApiDependencyConfiguration
         return builder;
     }
 
-    public static IServiceCollection AddApiServices(this IServiceCollection services, Assembly apiAssembly, Assembly coreAssembly)
+    public static IServiceCollection AddApiServices(this IServiceCollection services, params Assembly[] assemblies)
     {
         services
             .AddApiExecutionContext()
@@ -59,8 +59,8 @@ public static class ApiDependencyConfiguration
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
-            .AddApiEndpoints(apiAssembly)
-            .AddOpenApiConfiguration(coreAssembly)
+            .AddApiEndpoints(assemblies)
+            .AddOpenApiConfiguration(assemblies)
             .AddAuthConfiguration()
             .AddHttpForwardHeaders();
 
@@ -106,10 +106,10 @@ public static class ApiDependencyConfiguration
         return app;
     }
 
-    private static IServiceCollection AddApiEndpoints(this IServiceCollection services, Assembly apiAssembly)
+    private static IServiceCollection AddApiEndpoints(this IServiceCollection services, params Assembly[] assemblies)
     {
         services.Scan(scan => scan
-            .FromAssemblies(apiAssembly, Assembly.GetExecutingAssembly())
+            .FromAssemblies(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime()
@@ -131,7 +131,7 @@ public static class ApiDependencyConfiguration
         return app;
     }
 
-    private static IServiceCollection AddOpenApiConfiguration(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection AddOpenApiConfiguration(this IServiceCollection services, params Assembly[] assemblies)
     {
         services.AddOpenApiDocument((settings, _) =>
             {
@@ -141,7 +141,7 @@ public static class ApiDependencyConfiguration
 
                 var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
                 options.SerializerOptions = SharedDependencyConfiguration.DefaultJsonSerializerOptions;
-                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor([assembly, Assembly.GetExecutingAssembly()]));
+                settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray()));
             }
         );
 

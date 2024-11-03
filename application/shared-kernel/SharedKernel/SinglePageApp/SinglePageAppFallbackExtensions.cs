@@ -14,12 +14,15 @@ namespace PlatformPlatform.SharedKernel.SinglePageApp;
 
 public static class SinglePageAppFallbackExtensions
 {
-    public static IServiceCollection AddSinglePageAppFallback(this IServiceCollection services)
+    public static IServiceCollection AddSinglePageAppFallback(
+        this IServiceCollection services,
+        params (string Key, string Value)[] environmentVariables
+    )
     {
         return services.AddSingleton<SinglePageAppConfiguration>(serviceProvider =>
             {
                 var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                return new SinglePageAppConfiguration(environment.IsDevelopment());
+                return new SinglePageAppConfiguration(environment.IsDevelopment(), environmentVariables);
             }
         );
     }

@@ -30,7 +30,7 @@ public class SinglePageAppConfiguration
     private string? _htmlTemplate;
     private string? _remoteEntryJsContent;
 
-    public SinglePageAppConfiguration(bool isDevelopment)
+    public SinglePageAppConfiguration(bool isDevelopment, params (string Key, string Value)[] environmentVariables)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;
@@ -44,6 +44,10 @@ public class SinglePageAppConfiguration
             { ApplicationVersionKey, applicationVersion }
         };
 
+        foreach (var environmentVariable in environmentVariables)
+        {
+            StaticRuntimeEnvironment.Add(environmentVariable.Key, environmentVariable.Value);
+        }
 
         var staticRuntimeEnvironmentEncoded = JsonSerializer.Serialize(StaticRuntimeEnvironment, JsonHtmlEncodingOptions);
 
@@ -160,8 +164,8 @@ public class SinglePageAppConfiguration
             $"script-src {trustedHosts} 'strict-dynamic' https:",
             $"script-src-elem {trustedHosts}",
             $"default-src {trustedHosts}",
-            $"connect-src {trustedHosts}",
-            $"img-src {trustedHosts} data:",
+            $"connect-src {trustedHosts} data:",
+            $"img-src {trustedHosts} data: blob:",
             "object-src 'none'",
             "base-uri 'none'"
             // "require-trusted-types-for 'script'"
