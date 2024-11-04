@@ -13,6 +13,7 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
         TenantId = tenantId;
         Role = role;
         EmailConfirmed = emailConfirmed;
+        Avatar = new Avatar();
     }
 
     public string Email
@@ -31,16 +32,15 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 
     public bool EmailConfirmed { get; private set; }
 
-    public Avatar Avatar { get; private set; } = default!;
+    public Avatar Avatar { get; private set; }
 
     public string Locale { get; private set; } = string.Empty;
 
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? gravatarUrl)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed)
     {
-        var avatar = new Avatar(gravatarUrl, IsGravatar: gravatarUrl is not null);
-        return new User(tenantId, email, role, emailConfirmed) { Avatar = avatar };
+        return new User(tenantId, email, role, emailConfirmed);
     }
 
     public void Update(string firstName, string lastName, string title)
@@ -65,9 +65,9 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
         Role = userRole;
     }
 
-    public void UpdateAvatar(string avatarUrl)
+    public void UpdateAvatar(string avatarUrl, bool isGravatar)
     {
-        Avatar = new Avatar(avatarUrl, Avatar.Version + 1);
+        Avatar = new Avatar(avatarUrl, Avatar.Version + 1, isGravatar);
     }
 
     public void RemoveAvatar()

@@ -1,10 +1,8 @@
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
@@ -39,42 +37,19 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 public sealed class CreateUserHandler(
     IUserRepository userRepository,
     ITelemetryEventsCollector events,
-    IHttpClientFactory httpClientFactory,
-    ILogger<CreateUserHandler> logger
+    GravatarClient gravatarClient
 ) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        var gravatarUrl = await GetGravatarProfileUrlIfExists(command.Email);
-
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, gravatarUrl);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed);
 
         await userRepository.AddAsync(user, cancellationToken);
 
-        events.CollectEvent(new UserCreated(command.TenantId, gravatarUrl is not null));
+        await gravatarClient.DownloadGravatar(user, cancellationToken);
+
+        events.CollectEvent(new UserCreated(user.TenantId, user.Avatar.IsGravatar));
 
         return user.Id;
-    }
-
-    private async Task<string?> GetGravatarProfileUrlIfExists(string email)
-    {
-        var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
-        gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
-
-        var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
-        var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
-        // The d=404 instructs Gravatar to return 404 if the email has no Gravatar account
-        var httpResponseMessage = await gravatarHttpClient.GetAsync($"{gravatarUrl}?d=404");
-
-        switch (httpResponseMessage.StatusCode)
-        {
-            case HttpStatusCode.OK:
-                return gravatarUrl;
-            case HttpStatusCode.NotFound:
-                return null;
-            default:
-                logger.LogError("Failed to fetch gravatar profile. Status code: {StatusCode}", httpResponseMessage.StatusCode);
-                return null;
-        }
     }
 }
