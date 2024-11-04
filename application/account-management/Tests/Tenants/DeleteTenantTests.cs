@@ -62,7 +62,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("TenantDeleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantDeleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 }

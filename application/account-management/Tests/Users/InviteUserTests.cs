@@ -32,8 +32,8 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("UserCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("UserInvited");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInvited");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         await EmailService.Received(1).SendAsync(

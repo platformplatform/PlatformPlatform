@@ -34,8 +34,8 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         updatedLoginCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event_UserId"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
@@ -82,8 +82,8 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         updatedRetryCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("LoginFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginFailed");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -129,11 +129,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         updatedRetryCount.Should().Be(4);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("LoginFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].Name.Should().Be("LoginFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].Name.Should().Be("LoginFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[4].Name.Should().Be("LoginBlocked");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("LoginFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[4].GetType().Name.Should().Be("LoginBlocked");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -167,7 +167,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginExpired");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginExpired");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -193,9 +193,9 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("UserInviteAccepted");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInviteAccepted");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

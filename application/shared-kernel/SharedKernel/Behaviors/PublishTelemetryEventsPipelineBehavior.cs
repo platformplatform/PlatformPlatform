@@ -19,7 +19,7 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
             while (telemetryEventsCollector.HasEvents)
             {
                 var telemetryEvent = telemetryEventsCollector.Dequeue();
-                telemetryClient.TrackEvent(telemetryEvent.Name, telemetryEvent.Properties);
+                telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
             }
         }
 
