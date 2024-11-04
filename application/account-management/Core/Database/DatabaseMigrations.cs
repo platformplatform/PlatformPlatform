@@ -53,7 +53,7 @@ public sealed class DatabaseMigrations : Migration
                 Title = table.Column<string>("nvarchar(50)", nullable: true),
                 Role = table.Column<string>("varchar(20)", nullable: false),
                 EmailConfirmed = table.Column<bool>("bit", nullable: false),
-                Avatar = table.Column<string>("varchar(200)", nullable: false),
+                Avatar = table.Column<string>("varchar(150)", nullable: false),
                 Locale = table.Column<string>("varchar(5)", nullable: false)
             },
             constraints: table =>

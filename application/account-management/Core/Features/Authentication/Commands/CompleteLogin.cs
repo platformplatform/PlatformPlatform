@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -21,6 +22,7 @@ public sealed class CompleteLoginHandler(
     ILoginRepository loginRepository,
     OneTimePasswordHelper oneTimePasswordHelper,
     AuthenticationTokenService authenticationTokenService,
+    GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
@@ -45,7 +47,7 @@ public sealed class CompleteLoginHandler(
             login.RegisterInvalidPasswordAttempt();
             loginRepository.Update(login);
             events.CollectEvent(new LoginBlocked(login.RetryCount));
-            return Result.Forbidden("To many attempts, please request a new code.", true);
+            return Result.Forbidden("Too many attempts, please request a new code.", true);
         }
 
         if (oneTimePasswordHelper.Validate(login.OneTimePasswordHash, command.OneTimePassword))
@@ -68,6 +70,11 @@ public sealed class CompleteLoginHandler(
         if (!user.EmailConfirmed)
         {
             CompleteUserInvite(user);
+        }
+
+        if (user.Avatar.IsGravatar)
+        {
+            await gravatarClient.DownloadGravatar(user, cancellationToken);
         }
 
         login.MarkAsCompleted();

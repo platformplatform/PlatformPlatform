@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Services;
+using PlatformPlatform.AccountManagement.Features.Users.Avatars;
+using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
 
@@ -32,6 +34,8 @@ public static class DependencyConfiguration
         services.AddScoped<AuthenticationTokenGenerator>();
         services.AddScoped<AuthenticationTokenService>();
 
+        services.AddScoped<AvatarUpdater>();
+        services.AddScoped<GravatarClient>();
         services.AddHttpClient("Gravatar").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler());
 
         return services;

@@ -120,7 +120,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "To many attempts, please request a new code.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
 
         // Verify retry count increment and event collection
         var loginCompleted = Connection.ExecuteScalar("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId });

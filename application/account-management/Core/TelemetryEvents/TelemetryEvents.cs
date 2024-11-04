@@ -62,6 +62,9 @@ public sealed class UserAvatarRemoved()
 public sealed class UserAvatarUpdated(string contentType, long size)
     : TelemetryEvent(nameof(UserAvatarUpdated), ("ContentType", contentType), ("Size", size));
 
+public sealed class GravatarUpdated(UserId userId, long size)
+    : TelemetryEvent(nameof(UserAvatarUpdated), ("UserId", userId), ("Size", size));
+
 public sealed class UserCreated(TenantId tenantId, bool gravatarProfileFound)
     : TelemetryEvent(nameof(UserCreated), ("TenantId", tenantId), ("GravatarProfileFound", gravatarProfileFound));
 
