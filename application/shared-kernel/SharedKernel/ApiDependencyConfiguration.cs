@@ -55,7 +55,6 @@ public static class ApiDependencyConfiguration
     {
         services
             .AddApiExecutionContext()
-            .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddTransient<TelemetryContextMiddleware>()

@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Http;
 
 namespace PlatformPlatform.SharedKernel.Middleware;
@@ -13,10 +12,13 @@ public sealed class ModelBindingExceptionHandlerMiddleware : IMiddleware
         }
         catch (BadHttpRequestException exception)
         {
+            var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
+
             await Results.Problem(
                 title: "Bad Request",
                 detail: exception.Message,
-                statusCode: (int)HttpStatusCode.BadRequest
+                statusCode: StatusCodes.Status400BadRequest,
+                extensions: new Dictionary<string, object?> { { "traceId", traceId } }
             ).ExecuteAsync(context);
         }
     }
