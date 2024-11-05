@@ -20,7 +20,7 @@ public sealed class GravatarClient(
         try
         {
             var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(user.Email)));
-            var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}";
+            var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}?d=404";
 
             var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
             gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
