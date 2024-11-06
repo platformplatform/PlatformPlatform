@@ -41,17 +41,10 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
 
-        var existingEntity = DbSet.Find(aggregate.Id);
+        var existingEntity = context.ChangeTracker.Entries<T>().SingleOrDefault(e => e.Entity.Id.Equals(aggregate.Id));
         if (existingEntity is not null)
         {
-            var entry = DbSet.Entry(existingEntity);
-
-            if (entry.State == EntityState.Detached)
-            {
-                DbSet.Attach(existingEntity);
-            }
-
-            entry.CurrentValues.SetValues(aggregate);
+            existingEntity.CurrentValues.SetValues(aggregate);
             return;
         }
 
