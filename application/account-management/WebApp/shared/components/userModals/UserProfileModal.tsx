@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
-import { XIcon, CameraIcon } from "lucide-react";
+import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
@@ -10,6 +11,9 @@ import { TextField } from "@repo/ui/components/TextField";
 import type { Schemas } from "@/shared/lib/api/client";
 import { api } from "@/shared/lib/api/client";
 import { t, Trans } from "@lingui/macro";
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 type ProfileModalProps = {
   isOpen: boolean;
@@ -21,44 +25,57 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
   const [data, setData] = useState<Schemas["UserResponse"] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [file, setFile] = useState<string | null>(null);
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
 
-  const onFileSelect = (e: FileList | null) => {
-    if (e) {
-      setFile(Array.from(e)[0].name);
-    }
-  };
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
-  const closeDialog = useCallback(() => {
-    onOpenChange(false);
-  }, [onOpenChange]);
-
+  // Fetch user data when modal opens
   useEffect(() => {
-    (async () => {
-      if (isOpen) {
-        setLoading(true);
-        setData(null);
-        setError(null);
+    if (isOpen) {
+      setLoading(true);
+      setData(null);
+      setError(null);
+      setSelectedAvatarFile(null);
+      setAvatarPreviewUrl(null);
+      setAvatarMenuOpen(false);
+      setRemoveAvatarFlag(false);
 
-        try {
-          const response = await api.get("/api/account-management/users/{id}", { params: { path: { id: userId } } });
-          setData(response);
-        } catch (error) {
-          // biome-ignore lint/suspicious/noExplicitAny: We don't know the type at this point
-          setError(error as any);
-        } finally {
-          setLoading(false);
-        }
-      }
-    })();
+      api
+        .get("/api/account-management/users/{id}", { params: { path: { id: userId } } })
+        .then((response) => setData(response))
+        .catch((error) => setError(error))
+        .finally(() => setLoading(false));
+    }
   }, [isOpen, userId]);
 
+  // Close dialog and cleanup
+  const closeDialog = useCallback(() => {
+    onOpenChange(false);
+    setSelectedAvatarFile(null);
+    if (avatarPreviewUrl) {
+      URL.revokeObjectURL(avatarPreviewUrl);
+      setAvatarPreviewUrl(null);
+    }
+  }, [onOpenChange, avatarPreviewUrl]);
+
+  // Handle form submission
   let [{ success, errors, title, message }, action, isPending] = useFormState(
     api.actionPut("/api/account-management/users/{id}"),
-    {
-      success: null
-    }
+    { success: null }
   );
+
+  const handleFormSubmit = async (formData: FormData) => {
+    if (selectedAvatarFile) {
+      await api.uploadFile("/api/account-management/users/update-avatar", selectedAvatarFile);
+    } else if (removeAvatarFlag) {
+      await api.delete("/api/account-management/users/remove-avatar");
+      setRemoveAvatarFlag(false);
+    }
+    action(formData);
+  };
 
   useEffect(() => {
     if (isPending) {
@@ -72,6 +89,28 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
         .then(() => window.location.reload());
     }
   }, [success, isPending, closeDialog]);
+
+  // Handle file selection
+  const onFileSelect = (files: FileList | null) => {
+    if (files?.[0]) {
+      const file = files[0];
+
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        alert(t`Please select a JPEG, PNG, GIF, or WebP image.`);
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert(t`Image must be smaller than 1 MB.`);
+        return;
+      }
+
+      setSelectedAvatarFile(file);
+      const objectUrl = URL.createObjectURL(file);
+      setAvatarPreviewUrl(objectUrl);
+      setRemoveAvatarFlag(false);
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!loading}>
@@ -94,25 +133,71 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
             </p>
 
             <Form
-              action={action}
+              action={handleFormSubmit}
               validationErrors={errors}
               validationBehavior="aria"
               className="flex flex-col gap-4 mt-4"
             >
               <input type="hidden" name="id" value={userId} />
+              <FileTrigger
+                ref={avatarFileInputRef}
+                onSelect={(files) => {
+                  setAvatarMenuOpen(false);
+                  onFileSelect(files);
+                }}
+                acceptedFileTypes={ALLOWED_FILE_TYPES}
+              />
+
               <Label>
                 <Trans>Photo</Trans>
               </Label>
-              <FileTrigger onSelect={onFileSelect}>
-                <Button variant="icon" className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80">
-                  {data.avatarUrl == null ? (
-                    <img src={data.avatarUrl ?? ""} className="rounded-full" alt={t`Change user avatar`} />
+
+              <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+                <Button
+                  variant="icon"
+                  className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80"
+                  aria-label={t`Change avatar options`}
+                >
+                  {data.avatarUrl || avatarPreviewUrl ? (
+                    <img
+                      src={avatarPreviewUrl ?? data.avatarUrl ?? ""}
+                      className="rounded-full h-full w-full object-cover"
+                      alt={t`Preview avatar`}
+                    />
                   ) : (
-                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Change user avatar`} />
+                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add avatar`} />
                   )}
                 </Button>
-              </FileTrigger>
-              {file}
+                <Menu>
+                  <MenuItem
+                    onAction={() => {
+                      avatarFileInputRef.current?.click();
+                    }}
+                  >
+                    <CameraIcon className="w-4 h-4" />
+                    <Trans>Upload photo</Trans>
+                  </MenuItem>
+                  {(data.avatarUrl || avatarPreviewUrl) && (
+                    <>
+                      <MenuSeparator />
+                      <MenuItem
+                        onAction={() => {
+                          setAvatarMenuOpen(false);
+                          setRemoveAvatarFlag(true);
+                          setSelectedAvatarFile(null);
+                          setAvatarPreviewUrl(null);
+                          data.avatarUrl = null;
+                        }}
+                      >
+                        <Trash2Icon className="w-4 h-4 text-destructive" />
+                        <span className="text-destructive">
+                          <Trans>Remove photo</Trans>
+                        </span>
+                      </MenuItem>
+                    </>
+                  )}
+                </Menu>
+              </MenuTrigger>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <TextField

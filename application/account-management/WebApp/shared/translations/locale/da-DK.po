@@ -31,6 +31,9 @@ msgstr "Aktive brugere"
 msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
+msgid "Add avatar"
+msgstr "Tilføj avatar"
+
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i brugermenuen"
 
@@ -52,8 +55,8 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
-msgid "Change user avatar"
-msgstr "Skift brugeravatar"
+msgid "Change avatar options"
+msgstr "Skift avatarindstillinger"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -71,7 +74,7 @@ msgid "Delete Account"
 msgstr "Slet konto"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt venligst med forsigtighed."
+msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
@@ -139,6 +142,9 @@ msgstr "Hej! Velkommen tilbage"
 msgid "Home"
 msgstr "Hjem"
 
+msgid "Image must be smaller than 1 MB."
+msgstr "Billedet skal være mindre end 1 MB."
+
 msgid "Invite User"
 msgstr "Inviter bruger"
 
@@ -194,10 +200,16 @@ msgid "Photo"
 msgstr "Foto"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
-msgstr "Tjek venligst din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
+msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
+
+msgid "Please select a JPEG, PNG, GIF, or WebP image."
+msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Powered by"
 msgstr "Drevet af"
+
+msgid "Preview avatar"
+msgstr "Forhåndsvisning af avatar"
 
 msgid "Previous"
 msgstr "Forrige"
@@ -207,6 +219,9 @@ msgstr "Fortrolighedspolitikker"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Remove photo"
+msgstr "Fjern foto"
 
 msgid "Role"
 msgstr "Rolle"
@@ -258,6 +273,9 @@ msgstr "Prøv igen"
 
 msgid "Update your photo and personal details here."
 msgstr "Opdater dit foto og dine personlige oplysninger her."
+
+msgid "Upload photo"
+msgstr "Upload foto"
 
 msgid "User profile"
 msgstr "Brugerprofil"
