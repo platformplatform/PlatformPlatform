@@ -63,6 +63,15 @@ export function createPlatformApiClient<
               options as OperationRequestBody<Paths[Path]["post"]>
             );
           };
+        case "uploadFile":
+          return <Path extends PathsWithMethod<Paths, "post">>(url: Path, file: File) => {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            return createClientMethodWithProblemDetails(client.POST)(url, { body: formData } as OperationRequestBody<
+              Paths[Path]["post"]
+            >);
+          };
         case "put":
           return <Path extends PathsWithMethod<Paths, "put">>(
             url: Path,
@@ -112,6 +121,11 @@ type PlatformApiClient<Paths extends {}, Media extends MediaType = MediaType> = 
   put: ClientMethodWithProblemDetails<Paths, "put", Media>;
   /** Call a POST endpoint */
   post: ClientMethodWithProblemDetails<Paths, "post", Media>;
+  /** Call a POST endpoint  that accepts multipart/form-data */
+  uploadFile: <Path extends PathsWithMethod<Paths, "post">>(
+    url: Path,
+    file: File
+  ) => ReturnType<ClientMethodWithProblemDetails<Paths, "post", Media>>;
   /** Call a DELETE endpoint */
   delete: ClientMethodWithProblemDetails<Paths, "delete", Media>;
   /** Call a OPTIONS endpoint */
