@@ -52,6 +52,9 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Change user avatar"
+msgstr "Change user avatar"
+
 msgid "Continue"
 msgstr "Continue"
 

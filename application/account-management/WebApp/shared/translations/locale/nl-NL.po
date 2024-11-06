@@ -52,6 +52,9 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
+msgid "Change user avatar"
+msgstr "Gebruikersavatar wijzigen"
+
 msgid "Continue"
 msgstr "Verder"
 

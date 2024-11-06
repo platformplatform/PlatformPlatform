@@ -52,6 +52,9 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
+msgid "Change user avatar"
+msgstr "Skift brugeravatar"
+
 msgid "Continue"
 msgstr "Fortsæt"
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
-import { XIcon } from "lucide-react";
+import { XIcon, CameraIcon } from "lucide-react";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
@@ -104,8 +104,12 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                 <Trans>Photo</Trans>
               </Label>
               <FileTrigger onSelect={onFileSelect}>
-                <Button variant="icon" className="rounded-full w-16 h-16 mb-3">
-                  <img src={data.avatarUrl ?? ""} alt={t`User profile`} className="rounded-full" />
+                <Button variant="icon" className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80">
+                  {data.avatarUrl == null ? (
+                    <img src={data.avatarUrl ?? ""} className="rounded-full" alt={t`Change user avatar`} />
+                  ) : (
+                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Change user avatar`} />
+                  )}
                 </Button>
               </FileTrigger>
               {file}
