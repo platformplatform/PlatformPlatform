@@ -16,7 +16,7 @@ public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServ
         var blobName = $"{user.TenantId}/{user.Id}/{fileHash}.{fileExtension}";
         var avatarUrl = $"/{ContainerName}/{blobName}";
 
-        if (user.Avatar.Url == avatarUrl && user.Avatar.IsGravatar != isGravatar)
+        if (user.Avatar.Url == avatarUrl && user.Avatar.IsGravatar == isGravatar)
         {
             return false;
         }
