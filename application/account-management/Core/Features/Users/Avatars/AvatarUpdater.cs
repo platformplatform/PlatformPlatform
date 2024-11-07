@@ -12,10 +12,11 @@ public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServ
     public async Task<bool> UpdateAvatar(User user, bool isGravatar, string contentType, Stream stream, CancellationToken cancellationToken)
     {
         var fileHash = await GetFileHash(stream, cancellationToken);
-        var blobName = $"{user.TenantId}/{user.Id}/{fileHash}.jpg";
+        var fileExtension = contentType.Split('/')[1];
+        var blobName = $"{user.TenantId}/{user.Id}/{fileHash}.{fileExtension}";
         var avatarUrl = $"/{ContainerName}/{blobName}";
 
-        if (user.Avatar.Url == avatarUrl && user.Avatar.IsGravatar != isGravatar)
+        if (user.Avatar.Url == avatarUrl && user.Avatar.IsGravatar == isGravatar)
         {
             return false;
         }

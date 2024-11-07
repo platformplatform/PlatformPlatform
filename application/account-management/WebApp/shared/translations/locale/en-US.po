@@ -31,6 +31,9 @@ msgstr "Active Users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
+msgid "Add avatar"
+msgstr "Add avatar"
+
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
@@ -51,6 +54,9 @@ msgstr "Can't find your code? Check your spam folder."
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Change avatar options"
+msgstr "Change avatar options"
 
 msgid "Continue"
 msgstr "Continue"
@@ -136,6 +142,9 @@ msgstr "Hi! Welcome back"
 msgid "Home"
 msgstr "Home"
 
+msgid "Image must be smaller than 1 MB."
+msgstr "Image must be smaller than 1 MB."
+
 msgid "Invite User"
 msgstr "Invite User"
 
@@ -193,8 +202,14 @@ msgstr "Photo"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
+msgid "Please select a JPEG, PNG, GIF, or WebP image."
+msgstr "Please select a JPEG, PNG, GIF, or WebP image."
+
 msgid "Powered by"
 msgstr "Powered by"
+
+msgid "Preview avatar"
+msgstr "Preview avatar"
 
 msgid "Previous"
 msgstr "Previous"
@@ -204,6 +219,9 @@ msgstr "Privacy Policies"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Remove photo"
+msgstr "Remove photo"
 
 msgid "Role"
 msgstr "Role"
@@ -255,6 +273,9 @@ msgstr "Try again"
 
 msgid "Update your photo and personal details here."
 msgstr "Update your photo and personal details here."
+
+msgid "Upload photo"
+msgstr "Upload photo"
 
 msgid "User profile"
 msgstr "User profile"

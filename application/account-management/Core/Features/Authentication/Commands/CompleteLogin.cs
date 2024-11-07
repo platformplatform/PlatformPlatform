@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Authentication.Services;
+using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
@@ -22,6 +23,7 @@ public sealed class CompleteLoginHandler(
     ILoginRepository loginRepository,
     OneTimePasswordHelper oneTimePasswordHelper,
     AuthenticationTokenService authenticationTokenService,
+    AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
     ILogger<CompleteLoginHandler> logger
@@ -74,7 +76,14 @@ public sealed class CompleteLoginHandler(
 
         if (user.Avatar.IsGravatar)
         {
-            await gravatarClient.DownloadGravatar(user, cancellationToken);
+            var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);
+            if (gravatar is not null)
+            {
+                if (await avatarUpdater.UpdateAvatar(user, true, gravatar.ContentType, gravatar.Stream, cancellationToken))
+                {
+                    events.CollectEvent(new GravatarUpdated(user.Id, gravatar.Stream.Length));
+                }
+            }
         }
 
         login.MarkAsCompleted();

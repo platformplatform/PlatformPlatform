@@ -31,6 +31,9 @@ msgstr "Actieve gebruikers"
 msgid "Active users in the past 30 days"
 msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
+msgid "Add avatar"
+msgstr "Avatar toevoegen"
+
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het gebruikersmenu"
 
@@ -51,6 +54,9 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 
 msgid "Cancel"
 msgstr "Annuleren"
+
+msgid "Change avatar options"
+msgstr "Opties voor avatar wijzigen"
 
 msgid "Continue"
 msgstr "Verder"
@@ -136,6 +142,9 @@ msgstr "Hallo! Welkom terug"
 msgid "Home"
 msgstr "Home"
 
+msgid "Image must be smaller than 1 MB."
+msgstr "Afbeelding moet kleiner zijn dan 1 MB."
+
 msgid "Invite User"
 msgstr "Gebruiker uitnodigen"
 
@@ -193,8 +202,14 @@ msgstr "Foto"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
+msgid "Please select a JPEG, PNG, GIF, or WebP image."
+msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
+
 msgid "Powered by"
 msgstr "Mogelijk gemaakt door"
+
+msgid "Preview avatar"
+msgstr "Voorbeeld avatar"
 
 msgid "Previous"
 msgstr "Vorige"
@@ -204,6 +219,9 @@ msgstr "Privacybeleid"
 
 msgid "Region"
 msgstr "Regio"
+
+msgid "Remove photo"
+msgstr "Foto verwijderen"
 
 msgid "Role"
 msgstr "Rol"
@@ -255,6 +273,9 @@ msgstr "Probeer opnieuw"
 
 msgid "Update your photo and personal details here."
 msgstr "Werk je foto en persoonlijke gegevens hier bij."
+
+msgid "Upload photo"
+msgstr "Foto uploaden"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
