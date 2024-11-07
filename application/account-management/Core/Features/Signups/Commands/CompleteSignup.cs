@@ -46,7 +46,7 @@ public sealed class CompleteSignupHandler(
         {
             signup.RegisterInvalidPasswordAttempt();
             signupRepository.Update(signup);
-            events.CollectEvent(new SignupBlocked(signup.RetryCount));
+            events.CollectEvent(new SignupBlocked(signup.TenantId, signup.RetryCount));
             return Result.Forbidden("To many attempts, please request a new code.", true);
         }
 
@@ -54,14 +54,14 @@ public sealed class CompleteSignupHandler(
         {
             signup.RegisterInvalidPasswordAttempt();
             signupRepository.Update(signup);
-            events.CollectEvent(new SignupFailed(signup.RetryCount));
+            events.CollectEvent(new SignupFailed(signup.TenantId, signup.RetryCount));
             return Result.BadRequest("The code is wrong or no longer valid.", true);
         }
 
         var signupTimeInSeconds = (TimeProvider.System.GetUtcNow() - signup.CreatedAt).TotalSeconds;
         if (signup.HasExpired())
         {
-            events.CollectEvent(new SignupExpired((int)signupTimeInSeconds));
+            events.CollectEvent(new SignupExpired(signup.TenantId, (int)signupTimeInSeconds));
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 

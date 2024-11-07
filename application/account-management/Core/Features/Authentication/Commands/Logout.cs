@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
@@ -27,13 +26,13 @@ public sealed class LogoutHandler(
 
         authenticationTokenService.Logout();
 
-        if (userIdentifier is null || !UserId.TryParse(userIdentifier.Value, out var userId))
+        if (userIdentifier is null)
         {
             logger.LogWarning("No user identifier found in claims.");
         }
         else
         {
-            events.CollectEvent(new Logout(userId));
+            events.CollectEvent(new Logout());
         }
 
         return Task.FromResult(Result.Success());

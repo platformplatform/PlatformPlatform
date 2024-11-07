@@ -33,7 +33,7 @@ public sealed class ChangeLocaleHandler(IUserRepository userRepository, ITelemet
         user.ChangeLocale(command.Locale);
         userRepository.Update(user);
 
-        events.CollectEvent(new UserLocaleChanged(user.Id, oldLocale, command.Locale));
+        events.CollectEvent(new UserLocaleChanged(oldLocale, command.Locale));
 
         return Result.Success();
     }

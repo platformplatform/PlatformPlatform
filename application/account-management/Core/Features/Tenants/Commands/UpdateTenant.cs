@@ -39,7 +39,7 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
         tenant.Update(command.Name);
         tenantRepository.Update(tenant);
 
-        events.CollectEvent(new TenantUpdated(tenant.Id));
+        events.CollectEvent(new TenantUpdated());
 
         return Result.Success();
     }
