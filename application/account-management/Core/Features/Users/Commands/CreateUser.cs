@@ -1,6 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
@@ -36,8 +37,9 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 
 public sealed class CreateUserHandler(
     IUserRepository userRepository,
-    ITelemetryEventsCollector events,
-    GravatarClient gravatarClient
+    AvatarUpdater avatarUpdater,
+    GravatarClient gravatarClient,
+    ITelemetryEventsCollector events
 ) : IRequestHandler<CreateUserCommand, Result<UserId>>
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
@@ -45,8 +47,12 @@ public sealed class CreateUserHandler(
         var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed);
 
         await userRepository.AddAsync(user, cancellationToken);
-
-        await gravatarClient.DownloadGravatar(user, cancellationToken);
+        var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);
+        if (gravatar is not null)
+        {
+            await avatarUpdater.UpdateAvatar(user, true, gravatar.ContentType, gravatar.Stream, cancellationToken);
+            events.CollectEvent(new GravatarUpdated(user.Id, gravatar.Stream.Length));
+        }
 
         events.CollectEvent(new UserCreated(user.TenantId, user.Avatar.IsGravatar));
 
