@@ -28,7 +28,7 @@ public sealed class ChangeUserRoleHandler(IUserRepository userRepository, ITelem
         user.ChangeUserRole(command.UserRole);
         userRepository.Update(user);
 
-        events.CollectEvent(new UserRoleChanged(oldUserRole, command.UserRole));
+        events.CollectEvent(new UserRoleChanged(user.Id, oldUserRole, command.UserRole));
 
         return Result.Success();
     }

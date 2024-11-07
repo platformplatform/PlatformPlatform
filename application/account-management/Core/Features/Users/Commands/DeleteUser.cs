@@ -20,7 +20,7 @@ public sealed class DeleteUserHandler(IUserRepository userRepository, ITelemetry
 
         userRepository.Remove(user);
 
-        events.CollectEvent(new UserDeleted());
+        events.CollectEvent(new UserDeleted(user.Id));
 
         return Result.Success();
     }

@@ -26,9 +26,7 @@ public class TelemetryEventsCollector : ITelemetryEventsCollector
     }
 }
 
-public abstract class TelemetryEvent(string name, params (string Key, object Value)[] properties)
+public abstract class TelemetryEvent(params (string Key, object Value)[] properties)
 {
-    public string Name { get; } = name;
-
     public Dictionary<string, string> Properties { get; } = properties.ToDictionary(p => $"event_{p.Key}", p => p.Value.ToString() ?? "");
 }

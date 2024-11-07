@@ -48,7 +48,7 @@ public sealed class CompleteLoginHandler(
         {
             login.RegisterInvalidPasswordAttempt();
             loginRepository.Update(login);
-            events.CollectEvent(new LoginBlocked(login.RetryCount));
+            events.CollectEvent(new LoginBlocked(login.UserId, login.RetryCount));
             return Result.Forbidden("Too many attempts, please request a new code.", true);
         }
 
@@ -56,14 +56,14 @@ public sealed class CompleteLoginHandler(
         {
             login.RegisterInvalidPasswordAttempt();
             loginRepository.Update(login);
-            events.CollectEvent(new LoginFailed(login.RetryCount));
+            events.CollectEvent(new LoginFailed(login.UserId, login.RetryCount));
             return Result.BadRequest("The code is wrong or no longer valid.", true);
         }
 
         var loginTimeInSeconds = (int)(TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;
         if (login.HasExpired())
         {
-            events.CollectEvent(new LoginExpired(loginTimeInSeconds));
+            events.CollectEvent(new LoginExpired(login.UserId, loginTimeInSeconds));
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
@@ -81,7 +81,7 @@ public sealed class CompleteLoginHandler(
             {
                 if (await avatarUpdater.UpdateAvatar(user, true, gravatar.ContentType, gravatar.Stream, cancellationToken))
                 {
-                    events.CollectEvent(new GravatarUpdated(user.Id, gravatar.Stream.Length));
+                    events.CollectEvent(new GravatarUpdated(gravatar.Stream.Length));
                 }
             }
         }

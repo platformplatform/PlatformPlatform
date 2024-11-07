@@ -51,10 +51,10 @@ public sealed class CreateUserHandler(
         if (gravatar is not null)
         {
             await avatarUpdater.UpdateAvatar(user, true, gravatar.ContentType, gravatar.Stream, cancellationToken);
-            events.CollectEvent(new GravatarUpdated(user.Id, gravatar.Stream.Length));
+            events.CollectEvent(new GravatarUpdated(gravatar.Stream.Length));
         }
 
-        events.CollectEvent(new UserCreated(user.TenantId, user.Avatar.IsGravatar));
+        events.CollectEvent(new UserCreated(user.Id, user.Avatar.IsGravatar));
 
         return user.Id;
     }

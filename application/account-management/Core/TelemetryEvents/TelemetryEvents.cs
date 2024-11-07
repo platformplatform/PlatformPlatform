@@ -11,77 +11,77 @@ namespace PlatformPlatform.AccountManagement.TelemetryEvents;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
-public sealed class AuthenticationTokensRefreshed(UserId userId)
-    : TelemetryEvent(nameof(AuthenticationTokensRefreshed), ("UserId", userId));
+public sealed class AuthenticationTokensRefreshed
+    : TelemetryEvent;
 
-public sealed class LoginBlocked(int retryCount)
-    : TelemetryEvent(nameof(LoginBlocked), ("RetryCount", retryCount));
+public sealed class LoginBlocked(UserId userId, int retryCount)
+    : TelemetryEvent(("UserId", userId), ("RetryCount", retryCount));
 
 public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
-    : TelemetryEvent(nameof(LoginCompleted), ("UserId", userId), ("LoginTimeInSeconds", loginTimeInSeconds));
+    : TelemetryEvent(("UserId", userId), ("LoginTimeInSeconds", loginTimeInSeconds));
 
-public sealed class LoginExpired(int secondsFromCreation)
-    : TelemetryEvent(nameof(LoginExpired), ("SecondsFromCreation", secondsFromCreation));
+public sealed class LoginExpired(UserId userId, int secondsFromCreation)
+    : TelemetryEvent(("UserId", userId), ("SecondsFromCreation", secondsFromCreation));
 
-public sealed class LoginFailed(int retryCount)
-    : TelemetryEvent(nameof(LoginFailed), ("RetryCount", retryCount));
+public sealed class LoginFailed(UserId userId, int retryCount)
+    : TelemetryEvent(("UserId", userId), ("RetryCount", retryCount));
 
 public sealed class LoginStarted(UserId userId)
-    : TelemetryEvent(nameof(LoginStarted), ("UserId", userId));
+    : TelemetryEvent(("UserId", userId));
 
-public sealed class Logout(UserId userId)
-    : TelemetryEvent(nameof(Logout), ("UserId", userId));
+public sealed class Logout
+    : TelemetryEvent;
 
-public sealed class SignupBlocked(int retryCount)
-    : TelemetryEvent(nameof(SignupBlocked), ("RetryCount", retryCount));
+public sealed class SignupBlocked(TenantId tenantId, int retryCount)
+    : TelemetryEvent(("TenantId", tenantId), ("RetryCount", retryCount));
 
 public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
-    : TelemetryEvent(nameof(SignupCompleted), ("TenantId", tenantId), ("SignupTimeInSeconds", signupTimeInSeconds));
+    : TelemetryEvent(("TenantId", tenantId), ("SignupTimeInSeconds", signupTimeInSeconds));
 
-public sealed class SignupExpired(int secondsFromCreation)
-    : TelemetryEvent(nameof(SignupExpired), ("SecondsFromCreation", secondsFromCreation));
+public sealed class SignupExpired(TenantId tenantId, int secondsFromCreation)
+    : TelemetryEvent(("TenantId", tenantId), ("SecondsFromCreation", secondsFromCreation));
 
-public sealed class SignupFailed(int retryCount)
-    : TelemetryEvent(nameof(SignupFailed), ("RetryCount", retryCount));
+public sealed class SignupFailed(TenantId tenantId, int retryCount)
+    : TelemetryEvent(("TenantId", tenantId), ("RetryCount", retryCount));
 
 public sealed class SignupStarted(TenantId tenantId)
-    : TelemetryEvent(nameof(SignupStarted), ("TenantId", tenantId));
+    : TelemetryEvent(("TenantId", tenantId));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
-    : TelemetryEvent(nameof(TenantCreated), ("TenantId", tenantId), ("TenantState", state));
+    : TelemetryEvent(("TenantId", tenantId), ("TenantState", state));
 
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
-    : TelemetryEvent(nameof(TenantDeleted), ("TenantId", tenantId), ("TenantState", tenantState));
+    : TelemetryEvent(("TenantId", tenantId), ("TenantState", tenantState));
 
-public sealed class TenantUpdated(TenantId tenantId)
-    : TelemetryEvent(nameof(TenantUpdated), ("TenantId", tenantId));
+public sealed class TenantUpdated
+    : TelemetryEvent;
 
-public sealed class UserAvatarRemoved()
-    : TelemetryEvent(nameof(UserAvatarUpdated));
+public sealed class UserAvatarRemoved
+    : TelemetryEvent;
 
 public sealed class UserAvatarUpdated(string contentType, long size)
-    : TelemetryEvent(nameof(UserAvatarUpdated), ("ContentType", contentType), ("Size", size));
+    : TelemetryEvent(("ContentType", contentType), ("Size", size));
 
-public sealed class GravatarUpdated(UserId userId, long size)
-    : TelemetryEvent(nameof(UserAvatarUpdated), ("UserId", userId), ("Size", size));
+public sealed class GravatarUpdated(long size)
+    : TelemetryEvent(("Size", size));
 
-public sealed class UserCreated(TenantId tenantId, bool gravatarProfileFound)
-    : TelemetryEvent(nameof(UserCreated), ("TenantId", tenantId), ("GravatarProfileFound", gravatarProfileFound));
+public sealed class UserCreated(UserId userId, bool gravatarProfileFound)
+    : TelemetryEvent(("UserId", userId), ("GravatarProfileFound", gravatarProfileFound));
 
-public sealed class UserDeleted()
-    : TelemetryEvent(nameof(UserDeleted));
+public sealed class UserDeleted(UserId userId)
+    : TelemetryEvent(("UserId", userId));
 
 public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMinutes)
-    : TelemetryEvent(nameof(UserInviteAccepted), ("UserId", userId), ("InviteAcceptedTimeInMinutes", inviteAcceptedTimeInMinutes));
+    : TelemetryEvent(("UserId", userId), ("InviteAcceptedTimeInMinutes", inviteAcceptedTimeInMinutes));
 
-public sealed class UserInvited()
-    : TelemetryEvent(nameof(UserInvited));
+public sealed class UserInvited(UserId userId)
+    : TelemetryEvent(("UserId", userId));
 
-public sealed class UserLocaleChanged(UserId userId, string oldLocale, string newLocale)
-    : TelemetryEvent(nameof(UserLocaleChanged), ("UserId", userId), ("OldLocale", oldLocale), ("NewLocale", newLocale));
+public sealed class UserLocaleChanged(string oldLocale, string newLocale)
+    : TelemetryEvent(("OldLocale", oldLocale), ("NewLocale", newLocale));
 
-public sealed class UserRoleChanged(UserRole fromRole, UserRole toRole)
-    : TelemetryEvent(nameof(UserRoleChanged), ("FromRole", fromRole), ("ToRole", toRole));
+public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole toRole)
+    : TelemetryEvent(("UserId", userId), ("FromRole", fromRole), ("ToRole", toRole));
 
-public sealed class UserUpdated()
-    : TelemetryEvent(nameof(UserUpdated));
+public sealed class UserUpdated
+    : TelemetryEvent;

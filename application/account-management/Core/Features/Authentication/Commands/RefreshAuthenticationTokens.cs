@@ -54,7 +54,7 @@ public sealed class RefreshAuthenticationTokensCommandHandler(
         // TODO: Check if the refreshChainTokenId exists in the database and if the refreshTokenId and version are valid
 
         authenticationTokenService.RefreshAuthenticationTokens(user, refreshChainTokenId, refreshTokenVersion, refreshTokenExpires);
-        events.CollectEvent(new AuthenticationTokensRefreshed(user.Id));
+        events.CollectEvent(new AuthenticationTokensRefreshed());
 
         return Result.Success();
     }

@@ -36,9 +36,9 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         responseBody.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
-            e.Name == "SignupStarted" &&
+            e.GetType().Name == "SignupStarted" &&
             e.Properties["event_TenantId"] == subdomain
         ).Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
@@ -136,7 +136,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Conflict, "Signup for this subdomain/mail has already been started. Please check your spam folder.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1); // Only the first signup should create an event
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
         await EmailService.Received(1).SendAsync(
             Arg.Is<string>(s => s.Equals(email.ToLower())),

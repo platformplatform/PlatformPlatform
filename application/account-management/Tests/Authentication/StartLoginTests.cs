@@ -29,7 +29,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         responseBody!.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event_UserId"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 

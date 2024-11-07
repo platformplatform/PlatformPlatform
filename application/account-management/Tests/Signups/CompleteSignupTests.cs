@@ -45,10 +45,10 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email = email.ToLower() }).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("TenantCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].Name.Should().Be("UserCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].Name.Should().Be("SignupCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("TenantCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("UserCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SignupCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         _tenantCreatedEventHandlerLogger.Received().LogInformation("Raise event to send Welcome mail to tenant.");
@@ -86,8 +86,8 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("SignupFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SignupFailed");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -128,11 +128,11 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "To many attempts, please request a new code.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[4].Name.Should().Be("SignupBlocked");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SignupFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("SignupFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SignupFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[4].GetType().Name.Should().Be("SignupBlocked");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -167,7 +167,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("SignupExpired");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupExpired");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

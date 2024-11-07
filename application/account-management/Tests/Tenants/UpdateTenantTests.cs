@@ -25,7 +25,7 @@ public sealed class UpdateTenantTests : EndpointBaseTest<AccountManagementDbCont
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Name.Should().Be("TenantUpdated");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantUpdated");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

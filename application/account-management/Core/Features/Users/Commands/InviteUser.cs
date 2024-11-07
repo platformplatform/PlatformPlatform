@@ -42,9 +42,9 @@ public sealed class InviteUserHandler(
             return Result.Forbidden("Only owners are allowed to invite other users.");
         }
 
-        await mediator.Send(new CreateUserCommand(executionContext.TenantId!, command.Email, UserRole.Member, false), cancellationToken);
+        var result = await mediator.Send(new CreateUserCommand(executionContext.TenantId!, command.Email, UserRole.Member, false), cancellationToken);
 
-        events.CollectEvent(new UserInvited());
+        events.CollectEvent(new UserInvited(result.Value!));
 
         var loginPath = $"{Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)}/login";
         var inviter = $"{executionContext.UserInfo.FirstName} {executionContext.UserInfo.LastName}".Trim();
