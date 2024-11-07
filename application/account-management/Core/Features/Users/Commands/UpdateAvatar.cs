@@ -16,12 +16,12 @@ public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarComman
     public UpdateAvatarValidator()
     {
         RuleFor(x => x.ContentType)
-            .Must(x => x == "image/jpeg")
-            .WithMessage(_ => "Image must be of type Jpeg.");
+            .Must(x => x is "image/jpeg" or "image/png" or "image/gif" or "image/webp") // Align with frontend
+            .WithMessage(_ => "Image must be of type JPEG, PNG, GIF, or WebP.");
 
         RuleFor(x => x.FileSteam.Length)
             .LessThanOrEqualTo(1024 * 1024)
-            .WithMessage(_ => "Image must be less than 1MB.");
+            .WithMessage(_ => "Image must be smaller than 1 MB");
     }
 }
 

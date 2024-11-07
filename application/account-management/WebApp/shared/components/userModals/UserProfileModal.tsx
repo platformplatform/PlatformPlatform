@@ -13,7 +13,7 @@ import { api } from "@/shared/lib/api/client";
 import { t, Trans } from "@lingui/macro";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
 
 type ProfileModalProps = {
   isOpen: boolean;
