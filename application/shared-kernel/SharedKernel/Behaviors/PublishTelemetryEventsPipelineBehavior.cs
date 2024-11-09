@@ -22,11 +22,11 @@ public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
             {
                 var telemetryEvent = telemetryEventsCollector.Dequeue();
 
-                AddPropertyIfNotNull(telemetryEvent, "tenant_TenantId", executionContext.TenantId);
+                AddPropertyIfNotNull(telemetryEvent, "tenant_Id", executionContext.TenantId);
                 AddPropertyIfNotNull(telemetryEvent, "user_IsAuthenticated", executionContext.UserInfo.IsAuthenticated.ToString());
-                AddPropertyIfNotNull(telemetryEvent, "user_UserId", executionContext.UserInfo.UserId);
+                AddPropertyIfNotNull(telemetryEvent, "user_Id", executionContext.UserInfo.UserId);
                 AddPropertyIfNotNull(telemetryEvent, "user_Locale", executionContext.UserInfo.Locale);
-                AddPropertyIfNotNull(telemetryEvent, "user_UserRole", executionContext.UserInfo.UserRole);
+                AddPropertyIfNotNull(telemetryEvent, "user_Role", executionContext.UserInfo.UserRole);
 
                 telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
             }
