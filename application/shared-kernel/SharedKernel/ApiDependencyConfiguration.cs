@@ -10,6 +10,7 @@ using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
 using PlatformPlatform.SharedKernel.SchemaProcessor;
 using PlatformPlatform.SharedKernel.SinglePageApp;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
 
@@ -57,6 +58,7 @@ public static class ApiDependencyConfiguration
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
+            .AddTransient<TelemetryContextMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
             .AddApiEndpoints(assemblies)
@@ -100,6 +102,8 @@ public static class ApiDependencyConfiguration
         app.UseOpenApi(options => options.Path = "/openapi/v1.json");
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
+
+        app.UseMiddleware<TelemetryContextMiddleware>();
 
         app.UseApiEndpoints();
 

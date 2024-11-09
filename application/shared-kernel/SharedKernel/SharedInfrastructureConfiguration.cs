@@ -2,6 +2,7 @@ using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Storage.Blobs;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using PlatformPlatform.SharedKernel.Filters;
 using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
 
@@ -202,6 +204,7 @@ public static class SharedInfrastructureConfiguration
 
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
+        services.AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
 
         return services;
     }
