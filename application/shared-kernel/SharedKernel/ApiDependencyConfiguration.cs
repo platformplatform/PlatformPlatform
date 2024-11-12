@@ -175,7 +175,7 @@ public static class ApiDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
+    public static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
     {
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
