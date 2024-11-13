@@ -9,6 +9,9 @@ public sealed class TelemetryContextMiddleware(IExecutionContext executionContex
     {
         ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
 
+        // Set standard OpenTelemetry semantic convention for getting the geo data form the Client IP Address
+        Activity.Current?.SetTag("client.address", executionContext.ClientIpAddress.ToString());
+
         await next(context);
     }
 }

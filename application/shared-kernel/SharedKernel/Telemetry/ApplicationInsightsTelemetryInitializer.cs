@@ -16,6 +16,8 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
             return;
         }
 
+        telemetry.Context.Location.Ip = executionContext.ClientIpAddress.ToString();
+
         if (executionContext.TenantId is not null)
         {
             telemetry.Context.User.AccountId = executionContext.TenantId.Value;
