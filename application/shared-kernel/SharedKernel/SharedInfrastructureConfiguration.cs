@@ -204,6 +204,7 @@ public static class SharedInfrastructureConfiguration
 
         services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
         services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
+        services.AddScoped<OpenTelemetryEnricher>();
         services.AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
 
         return services;

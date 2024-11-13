@@ -6,12 +6,13 @@ namespace PlatformPlatform.SharedKernel.Telemetry;
 
 public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
 {
-    private static readonly AsyncLocal<IExecutionContext> CurrentContext = new();
+    private static readonly AsyncLocal<IExecutionContext> ExecutionContext = new();
 
     public void Initialize(ITelemetry telemetry)
     {
-        var executionContext = CurrentContext.Value;
-        if (executionContext == null)
+        var executionContext = ExecutionContext.Value;
+
+        if (executionContext is null)
         {
             return;
         }
@@ -33,17 +34,18 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
             telemetry.Context.User.AuthenticatedUserId = executionContext.UserInfo.UserId;
         }
 
+        // Also track TenantId and UserId as custom properties, to be consistent with OpenTelemetry where build-in properties cannot be tracked
+        // Set custom properties, ensure any changes here are also added to OpenTelemetryEnricher
+        AddCustomProperty(telemetry, "tenant_id", executionContext.TenantId?.Value);
+        AddCustomProperty(telemetry, "user_id", executionContext.UserInfo.UserId);
+        AddCustomProperty(telemetry, "user_IsAuthenticated", executionContext.UserInfo.IsAuthenticated);
         AddCustomProperty(telemetry, "user_Locale", executionContext.UserInfo.Locale);
         AddCustomProperty(telemetry, "user_Role", executionContext.UserInfo.UserRole);
-
-        // If you have the user creation date in your execution context, you can set it like this:
-        // The format should be ISO 8601: "2024-03-19T10:30:00.000Z"
-        // telemetry.Context.User.AcquisitionDate = executionContext.UserInfo.CreatedDate.ToString("o");
     }
 
     public static void SetContext(IExecutionContext executionContext)
     {
-        CurrentContext.Value = executionContext;
+        ExecutionContext.Value = executionContext;
     }
 
     private static void AddCustomProperty(ITelemetry telemetry, string name, object? value)
