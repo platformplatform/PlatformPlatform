@@ -39,7 +39,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e =>
             e.GetType().Name == "SignupStarted" &&
-            e.Properties["event_TenantId"] == subdomain
+            e.Properties["event.tenant_id"] == subdomain
         ).Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 

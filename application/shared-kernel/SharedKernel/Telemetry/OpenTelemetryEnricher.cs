@@ -17,10 +17,10 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
         }
 
         // Set custom properties, ensure any changes here are also added to ApplicationInsightsTelemetryInitializer
-        Activity.Current.SetTag("tenant_id", executionContext.TenantId?.Value);
-        Activity.Current.SetTag("user_id", executionContext.UserInfo.UserId);
-        Activity.Current.SetTag("user_IsAuthenticated", executionContext.UserInfo.IsAuthenticated);
-        Activity.Current.SetTag("user_Locale", executionContext.UserInfo.Locale);
-        Activity.Current.SetTag("user_Role", executionContext.UserInfo.UserRole);
+        Activity.Current.SetTag("tenant.id", executionContext.TenantId?.Value);
+        Activity.Current.SetTag("user.id", executionContext.UserInfo.UserId);
+        Activity.Current.SetTag("user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
+        Activity.Current.SetTag("user.locale", executionContext.UserInfo.Locale);
+        Activity.Current.SetTag("user.role", executionContext.UserInfo.UserRole);
     }
 }

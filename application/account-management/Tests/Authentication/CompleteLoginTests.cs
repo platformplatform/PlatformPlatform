@@ -36,7 +36,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event_UserId"].Should().Be(DatabaseSeeder.User1.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         response.Headers.Count(h => h.Key == "X-Refresh-Token").Should().Be(1);

@@ -36,11 +36,11 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
 
         // Also track TenantId and UserId as custom properties, to be consistent with OpenTelemetry where build-in properties cannot be tracked
         // Set custom properties, ensure any changes here are also added to OpenTelemetryEnricher
-        AddCustomProperty(telemetry, "tenant_id", executionContext.TenantId?.Value);
-        AddCustomProperty(telemetry, "user_id", executionContext.UserInfo.UserId);
-        AddCustomProperty(telemetry, "user_IsAuthenticated", executionContext.UserInfo.IsAuthenticated);
-        AddCustomProperty(telemetry, "user_Locale", executionContext.UserInfo.Locale);
-        AddCustomProperty(telemetry, "user_Role", executionContext.UserInfo.UserRole);
+        AddCustomProperty(telemetry, "tenant.id", executionContext.TenantId?.Value);
+        AddCustomProperty(telemetry, "user.id", executionContext.UserInfo.UserId);
+        AddCustomProperty(telemetry, "user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
+        AddCustomProperty(telemetry, "user.locale", executionContext.UserInfo.Locale);
+        AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.UserRole);
     }
 
     public static void SetContext(IExecutionContext executionContext)
