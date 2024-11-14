@@ -1,3 +1,4 @@
+using System.Net;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Domain;
 
@@ -9,4 +10,6 @@ public class BackgroundWorkerExecutionContext(TenantId? tenantId = null, UserInf
     public TenantId? TenantId { get; } = tenantId;
 
     public UserInfo UserInfo { get; } = userInfo ?? UserInfo.System;
+
+    public IPAddress ClientIpAddress { get; } = IPAddress.None;
 }

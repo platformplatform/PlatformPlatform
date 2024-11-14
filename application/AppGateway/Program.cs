@@ -47,6 +47,9 @@ builder.Services
     .AddSingleton<BlockInternalApiTransform>()
     .AddSingleton<AuthenticationCookieMiddleware>();
 
+// Ensure correct client IP addresses are set for requests
+builder.Services.AddHttpForwardHeaders();
+
 reverseProxyBuilder.AddTransforms(context =>
     context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
 );
@@ -60,6 +63,9 @@ builder.Services.AddScoped<ApiAggregationService>();
 builder.Services.AddOutputCache();
 
 var app = builder.Build();
+
+// Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
+app.UseForwardedHeaders();
 
 app.UseOutputCache();
 

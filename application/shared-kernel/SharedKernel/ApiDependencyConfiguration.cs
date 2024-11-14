@@ -10,6 +10,7 @@ using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
 using PlatformPlatform.SharedKernel.SchemaProcessor;
 using PlatformPlatform.SharedKernel.SinglePageApp;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
 
@@ -57,6 +58,7 @@ public static class ApiDependencyConfiguration
             .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
+            .AddTransient<TelemetryContextMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
             .AddApiEndpoints(assemblies)
@@ -100,6 +102,8 @@ public static class ApiDependencyConfiguration
         app.UseOpenApi(options => options.Path = "/openapi/v1.json");
 
         app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
+
+        app.UseMiddleware<TelemetryContextMiddleware>();
 
         app.UseApiEndpoints();
 
@@ -171,7 +175,7 @@ public static class ApiDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
+    public static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
     {
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps

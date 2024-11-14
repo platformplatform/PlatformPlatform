@@ -1,5 +1,6 @@
 import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import type { ReactNode } from "react";
 
 const reactPlugin = new ReactPlugin();
@@ -10,6 +11,13 @@ export interface AppInsightsProviderProps {
 }
 
 export function ApplicationInsightsProvider({ children }: Readonly<AppInsightsProviderProps>) {
+  const userInfo = useUserInfo();
+  if (userInfo?.isAuthenticated) {
+    applicationInsights.setAuthenticatedUserContext(userInfo.userId as string, userInfo.tenantId as string, true);
+  } else {
+    applicationInsights.clearAuthenticatedUserContext();
+  }
+
   return (
     <AppInsightsErrorBoundary onError={ErrorFallback} appInsights={reactPlugin}>
       <AppInsightsContext.Provider value={reactPlugin}>{children}</AppInsightsContext.Provider>

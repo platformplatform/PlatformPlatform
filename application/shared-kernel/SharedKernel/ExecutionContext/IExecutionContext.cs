@@ -1,3 +1,4 @@
+using System.Net;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Domain;
 
@@ -20,4 +21,6 @@ public interface IExecutionContext
     ///     If the user is not authenticated, it will be set to <see cref="Authentication.UserInfo.System" />.
     /// </summary>
     UserInfo UserInfo { get; }
+
+    IPAddress ClientIpAddress { get; }
 }

@@ -150,9 +150,8 @@ public class SinglePageAppConfiguration
 
     private string GetContentSecurityPolicies()
     {
-        var trustedCdnHost = "https://platformplatformgithub.blob.core.windows.net";
-        var gravatarHost = "https://gravatar.com";
-        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHost} {gravatarHost}";
+        const string trustedCdnHost = "https://platformplatformgithub.blob.core.windows.net";
+        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHost}";
 
         if (_isDevelopment)
         {

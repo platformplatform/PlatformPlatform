@@ -30,7 +30,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event_UserId"].Should().Be(DatabaseSeeder.User1.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         await EmailService.Received(1).SendAsync(
