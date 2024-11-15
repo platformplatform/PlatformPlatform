@@ -2,7 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
 
-public interface ITokenSigningService
+public interface ITokenSigningClient
 {
     string Issuer { get; }
 

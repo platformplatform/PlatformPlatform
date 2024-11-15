@@ -2,9 +2,9 @@ using Azure;
 using Azure.Communication.Email;
 using Azure.Security.KeyVault.Secrets;
 
-namespace PlatformPlatform.SharedKernel.Services;
+namespace PlatformPlatform.SharedKernel.Integrations.Email;
 
-public sealed class AzureEmailService(SecretClient secretClient) : IEmailService
+public sealed class AzureEmailClient(SecretClient secretClient) : IEmailClient
 {
     private const string SecretName = "communication-services-connection-string";
 

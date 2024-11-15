@@ -1,8 +1,8 @@
 using System.Net.Mail;
 
-namespace PlatformPlatform.SharedKernel.Services;
+namespace PlatformPlatform.SharedKernel.Integrations.Email;
 
-public sealed class DevelopmentEmailService : IEmailService
+public sealed class DevelopmentEmailClient : IEmailClient
 {
     private const string Sender = "no-reply@localhost";
     private readonly SmtpClient _emailSender = new("localhost", 9004);

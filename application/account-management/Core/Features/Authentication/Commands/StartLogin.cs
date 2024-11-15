@@ -6,7 +6,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
@@ -29,7 +29,7 @@ public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 public sealed class StartLoginCommandHandler(
     IUserRepository userRepository,
     ILoginRepository loginRepository,
-    IEmailService emailService,
+    IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events
 ) : IRequestHandler<StartLoginCommand, Result<StartLoginResponse>>
@@ -40,7 +40,7 @@ public sealed class StartLoginCommandHandler(
 
         if (user is null)
         {
-            await emailService.SendAsync(command.Email.ToLower(), "Unknown user tried to login to PlatformPlatform",
+            await emailClient.SendAsync(command.Email.ToLower(), "Unknown user tried to login to PlatformPlatform",
                 $"""
                  <h1 style="text-align:center;font-family=sans-serif;font-size:20px">You or someone else tried to login to PlatformPlatform</h1>
                  <p style="text-align:center;font-family=sans-serif;font-size:16px">This request was made by entering your mail {command.Email}, but we have not record of such user.</p>
@@ -64,7 +64,7 @@ public sealed class StartLoginCommandHandler(
         await loginRepository.AddAsync(login, cancellationToken);
         events.CollectEvent(new LoginStarted(user.Id));
 
-        await emailService.SendAsync(user.Email, "PlatformPlatform login verification code",
+        await emailClient.SendAsync(user.Email, "PlatformPlatform login verification code",
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>

@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
 
-public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningService)
+public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient)
 {
     // Refresh tokens are stored as a persistent cookie in the user's browser.
     // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
@@ -38,9 +38,9 @@ public sealed class RefreshTokenGenerator(ITokenSigningService tokenSigningServi
 
         return tokenDescriptor.GenerateToken(
             expires,
-            tokenSigningService.Issuer,
-            tokenSigningService.Audience,
-            tokenSigningService.GetSigningCredentials()
+            tokenSigningClient.Issuer,
+            tokenSigningClient.Audience,
+            tokenSigningClient.GetSigningCredentials()
         );
     }
 }

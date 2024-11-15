@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Avatars;
 
-public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServices("avatars-storage")] BlobStorage blobStorage)
+public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServices("avatars-storage")] BlobStorageClient blobStorageClient)
 {
     private const string ContainerName = "avatars";
 
@@ -21,7 +21,7 @@ public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServ
             return false;
         }
 
-        await blobStorage.UploadAsync(ContainerName, blobName, contentType, stream, cancellationToken);
+        await blobStorageClient.UploadAsync(ContainerName, blobName, contentType, stream, cancellationToken);
 
         user.UpdateAvatar(avatarUrl, isGravatar);
         userRepository.Update(user);

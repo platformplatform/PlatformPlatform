@@ -33,7 +33,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
-        await EmailService.Received(1).SendAsync(
+        await EmailClient.Received(1).SendAsync(
             email.ToLower(),
             "PlatformPlatform login verification code",
             Arg.Is<string>(s => s.Contains("Your confirmation code is below")),
@@ -58,7 +58,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 
     [Theory]
@@ -80,7 +80,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse(scenario);
-        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
 
-        await EmailService.Received(1).SendAsync(
+        await EmailClient.Received(1).SendAsync(
             email.ToLower(),
             "Unknown user tried to login to PlatformPlatform",
             Arg.Is<string>(s => s.Contains("You or someone else tried to login to PlatformPlatform")),

@@ -1,6 +1,6 @@
-namespace PlatformPlatform.SharedKernel.Services;
+namespace PlatformPlatform.SharedKernel.Integrations.Email;
 
-public interface IEmailService
+public interface IEmailClient
 {
     Task SendAsync(string recipient, string subject, string htmlContent, CancellationToken cancellationToken);
 }

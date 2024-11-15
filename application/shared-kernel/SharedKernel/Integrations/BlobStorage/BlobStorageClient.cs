@@ -2,9 +2,9 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace PlatformPlatform.SharedKernel.Services;
+namespace PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 
-public class BlobStorage(BlobServiceClient blobServiceClient)
+public class BlobStorageClient(BlobServiceClient blobServiceClient)
 {
     public async Task UploadAsync(string containerName, string blobName, string contentType, Stream stream, CancellationToken cancellationToken)
     {

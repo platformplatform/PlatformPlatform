@@ -3,10 +3,10 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.SharedKernel.Services;
+namespace PlatformPlatform.SharedKernel.Integrations.TokenSigning;
 
-public class DevelopmentTokenSigningService
-    : ITokenSigningService
+public class DevelopmentTokenSigningClient
+    : ITokenSigningClient
 {
     private byte[]? _key;
 

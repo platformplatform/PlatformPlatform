@@ -36,7 +36,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInvited");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
-        await EmailService.Received(1).SendAsync(
+        await EmailClient.Received(1).SendAsync(
             email.ToLower(),
             $"You have been invited to join {tenantId} on PlatformPlatform",
             Arg.Is<string>(s => s.Contains("To gain access")),

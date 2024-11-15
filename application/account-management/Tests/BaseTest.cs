@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
 
@@ -17,7 +17,7 @@ namespace PlatformPlatform.AccountManagement.Tests;
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
     protected readonly AccessTokenGenerator AccessTokenGenerator;
-    protected readonly IEmailService EmailService;
+    protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     private ServiceProvider? _provider;
@@ -45,8 +45,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
-        EmailService = Substitute.For<IEmailService>();
-        Services.AddScoped<IEmailService>(_ => EmailService);
+        EmailClient = Substitute.For<IEmailClient>();
+        Services.AddScoped<IEmailClient>(_ => EmailClient);
 
         var telemetryChannel = Substitute.For<ITelemetryChannel>();
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));

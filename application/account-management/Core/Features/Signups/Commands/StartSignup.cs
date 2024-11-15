@@ -7,7 +7,7 @@ using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
 
@@ -42,7 +42,7 @@ public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
 
 public sealed class StartSignupCommandHandler(
     ISignupRepository signupRepository,
-    IEmailService emailService,
+    IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events
 ) : IRequestHandler<StartSignupCommand, Result<StartSignupResponse>>
@@ -68,7 +68,7 @@ public sealed class StartSignupCommandHandler(
         await signupRepository.AddAsync(signup, cancellationToken);
         events.CollectEvent(new SignupStarted(command.GetTenantId()));
 
-        await emailService.SendAsync(signup.Email, "Confirm your email address",
+        await emailClient.SendAsync(signup.Email, "Confirm your email address",
             $"""
              <h1 style="text-align:center;font-family=sans-serif;font-size:20px">Your confirmation code is below</h1>
              <p style="text-align:center;font-family=sans-serif;font-size:16px">Enter it in your open browser window. It is only valid for a few minutes.</p>

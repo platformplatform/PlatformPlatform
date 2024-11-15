@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Validation;
@@ -29,7 +29,7 @@ public sealed class InviteUserValidator : AbstractValidator<InviteUserCommand>
 }
 
 public sealed class InviteUserHandler(
-    IEmailService emailService,
+    IEmailClient emailClient,
     IExecutionContext executionContext,
     IMediator mediator,
     ITelemetryEventsCollector events
@@ -49,7 +49,7 @@ public sealed class InviteUserHandler(
         var loginPath = $"{Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)}/login";
         var inviter = $"{executionContext.UserInfo.FirstName} {executionContext.UserInfo.LastName}".Trim();
         inviter = inviter.Length > 0 ? inviter : executionContext.UserInfo.Email;
-        await emailService.SendAsync(command.Email.ToLower(), $"You have been invited to join {executionContext.TenantId} on PlatformPlatform",
+        await emailClient.SendAsync(command.Email.ToLower(), $"You have been invited to join {executionContext.TenantId} on PlatformPlatform",
             $"""
              <h1 style="text-align:center;font-family:sans-serif;font-size:20px">
                <b>{inviter}</b> invited you to join <b>{executionContext.TenantId}</b> on PlatformPlatform.
