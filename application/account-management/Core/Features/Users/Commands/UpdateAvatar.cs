@@ -4,7 +4,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 

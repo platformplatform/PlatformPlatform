@@ -7,7 +7,7 @@ using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;

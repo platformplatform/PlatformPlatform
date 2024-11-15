@@ -12,7 +12,7 @@ using PlatformPlatform.SharedKernel.Behaviors;
 using PlatformPlatform.SharedKernel.DomainEvents;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Persistence;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
 

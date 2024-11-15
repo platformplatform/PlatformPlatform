@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.TelemetryEvents;
+namespace PlatformPlatform.SharedKernel.Telemetry;
 
 public interface ITelemetryEventsCollector
 {

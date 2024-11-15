@@ -9,8 +9,8 @@ using NSubstitute;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
+using PlatformPlatform.SharedKernel.Tests.Telemetry;
 
 namespace PlatformPlatform.BackOffice.Tests;
 

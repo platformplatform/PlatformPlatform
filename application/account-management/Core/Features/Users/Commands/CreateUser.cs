@@ -8,7 +8,7 @@ using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;

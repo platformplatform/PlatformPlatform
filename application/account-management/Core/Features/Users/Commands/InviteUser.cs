@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;

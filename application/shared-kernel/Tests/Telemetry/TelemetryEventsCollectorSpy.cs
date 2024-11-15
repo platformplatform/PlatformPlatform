@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
+namespace PlatformPlatform.SharedKernel.Tests.Telemetry;
 
 public class TelemetryEventsCollectorSpy(ITelemetryEventsCollector realTelemetryEventsCollector)
     : ITelemetryEventsCollector

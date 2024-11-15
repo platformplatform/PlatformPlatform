@@ -1,6 +1,6 @@
 using Microsoft.ApplicationInsights;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel.Behaviors;
 

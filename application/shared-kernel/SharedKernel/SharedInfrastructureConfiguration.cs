@@ -11,7 +11,6 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using PlatformPlatform.SharedKernel.Filters;
 using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 using PlatformPlatform.SharedKernel.Telemetry;
 
