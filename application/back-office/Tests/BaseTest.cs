@@ -6,6 +6,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
@@ -15,6 +16,7 @@ namespace PlatformPlatform.BackOffice.Tests;
 
 public abstract class BaseTest<TContext> : IDisposable where TContext : DbContext
 {
+    protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailService EmailService;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
@@ -37,6 +39,7 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+
         Services.AddBackOfficeServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
@@ -57,6 +60,8 @@ public abstract class BaseTest<TContext> : IDisposable where TContext : DbContex
         using var serviceScope = Provider.CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+
+        AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
     }
 
     protected SqliteConnection Connection { get; }
