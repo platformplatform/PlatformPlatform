@@ -6,6 +6,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
 

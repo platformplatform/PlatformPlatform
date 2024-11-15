@@ -1,6 +1,6 @@
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 [PublicAPI]
 [IdPrefix("rt")]

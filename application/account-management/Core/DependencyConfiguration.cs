@@ -6,6 +6,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 namespace PlatformPlatform.AccountManagement;
 

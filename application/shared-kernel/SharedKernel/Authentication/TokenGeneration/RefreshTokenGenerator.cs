@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient)
 {
