@@ -13,7 +13,7 @@ public sealed class DatabaseMigrations : Migration
             "Signups",
             table => new
             {
-                Id = table.Column<string>("char(33)", nullable: false),
+                Id = table.Column<string>("varchar(33)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
@@ -44,7 +44,7 @@ public sealed class DatabaseMigrations : Migration
             table => new
             {
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
-                Id = table.Column<string>("char(30)", nullable: false),
+                Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
@@ -70,8 +70,8 @@ public sealed class DatabaseMigrations : Migration
             table => new
             {
                 TenantId = table.Column<string>("varchar(30)", nullable: false),
-                UserId = table.Column<string>("char(30)", nullable: false),
-                Id = table.Column<string>("char(32)", nullable: false),
+                UserId = table.Column<string>("varchar(32)", nullable: false),
+                Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
