@@ -37,7 +37,7 @@ public sealed class InviteUserHandler(
 {
     public async Task<Result> Handle(InviteUserCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.UserInfo.UserRole != UserRole.Owner.ToString())
+        if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
         {
             return Result.Forbidden("Only owners are allowed to invite other users.");
         }

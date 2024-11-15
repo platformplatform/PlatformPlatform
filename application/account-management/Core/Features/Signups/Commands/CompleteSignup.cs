@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Features.Authentication.Services;
+using Mapster;
 using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -68,7 +68,7 @@ public sealed class CompleteSignupHandler(
         var result = await mediator.Send(new CreateTenantCommand(signup.TenantId, signup.Email, true), cancellationToken);
 
         var user = await userRepository.GetByIdAsync(result.Value!, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(user!);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(user!.Adapt<UserInfo>());
 
         signup.MarkAsCompleted();
         signupRepository.Update(signup);

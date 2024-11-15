@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Features.Authentication.Services;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 

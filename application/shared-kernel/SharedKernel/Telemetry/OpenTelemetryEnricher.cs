@@ -13,14 +13,14 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
 
         if (executionContext.UserInfo.IsAuthenticated)
         {
-            Activity.Current.SetTag("enduser.id", executionContext.UserInfo.UserId);
+            Activity.Current.SetTag("enduser.id", executionContext.UserInfo.Id);
         }
 
         // Set custom properties, ensure any changes here are also added to ApplicationInsightsTelemetryInitializer
         Activity.Current.SetTag("tenant.id", executionContext.TenantId?.Value);
-        Activity.Current.SetTag("user.id", executionContext.UserInfo.UserId);
+        Activity.Current.SetTag("user.id", executionContext.UserInfo.Id);
         Activity.Current.SetTag("user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
         Activity.Current.SetTag("user.locale", executionContext.UserInfo.Locale);
-        Activity.Current.SetTag("user.role", executionContext.UserInfo.UserRole);
+        Activity.Current.SetTag("user.role", executionContext.UserInfo.Role);
     }
 }

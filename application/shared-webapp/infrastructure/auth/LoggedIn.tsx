@@ -3,7 +3,7 @@ import { useUserInfo } from "./hooks";
 import type { UserInfo } from "./AuthenticationProvider";
 
 export interface LoggedInProps {
-  requiredRoles?: UserInfo["userRole"][];
+  requiredRoles?: UserInfo["role"][];
   children: ReactNode;
 }
 
@@ -11,5 +11,5 @@ export interface LoggedInProps {
  * Show component if the user is logged in and has the required role.
  */
 export function LoggedIn({ requiredRoles, children }: LoggedInProps) {
-  return requiredRoles?.includes(useUserInfo()?.userRole) ? children : null;
+  return requiredRoles?.includes(useUserInfo()?.role) ? children : null;
 }

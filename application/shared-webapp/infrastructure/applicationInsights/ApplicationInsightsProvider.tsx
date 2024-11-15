@@ -13,7 +13,7 @@ export interface AppInsightsProviderProps {
 export function ApplicationInsightsProvider({ children }: Readonly<AppInsightsProviderProps>) {
   const userInfo = useUserInfo();
   if (userInfo?.isAuthenticated) {
-    applicationInsights.setAuthenticatedUserContext(userInfo.userId as string, userInfo.tenantId as string, true);
+    applicationInsights.setAuthenticatedUserContext(userInfo.id as string, userInfo.tenantId as string, true);
   } else {
     applicationInsights.clearAuthenticatedUserContext();
   }

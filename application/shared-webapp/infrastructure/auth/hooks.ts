@@ -29,12 +29,12 @@ export function useIsAuthenticated() {
  * Return the current user ID. If the user is not logged in, return null.
  */
 export function useUserId() {
-  return useUserInfo()?.userId ?? null;
+  return useUserInfo()?.id ?? null;
 }
 
 /**
  * Return the current user role. If the user is not logged in, return null.
  */
 export function useUserRole() {
-  return useUserInfo()?.userRole ?? null;
+  return useUserInfo()?.role ?? null;
 }

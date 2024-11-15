@@ -1,8 +1,10 @@
 using System.Net.Http.Headers;
+using Mapster;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Services;
 using PlatformPlatform.SharedKernel.SinglePageApp;
@@ -44,7 +46,7 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var accessToken = AuthenticationTokenGenerator.GenerateAccessToken(DatabaseSeeder.User1);
+        var accessToken = AccessTokenGenerator.Generate(DatabaseSeeder.User1.Adapt<UserInfo>());
         AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }

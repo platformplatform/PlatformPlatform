@@ -9,24 +9,9 @@ namespace PlatformPlatform.SharedKernel.ExecutionContext;
 public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IExecutionContext
 {
     private IPAddress? _clientIpAddress;
-    private bool _isTenantIdCalculated;
-    private TenantId? _tenantId;
     private UserInfo? _userInfo;
 
-    public TenantId? TenantId
-    {
-        get
-        {
-            if (_isTenantIdCalculated)
-            {
-                return _tenantId;
-            }
-
-            TenantId.TryParse(UserInfo.TenantId, out _tenantId);
-            _isTenantIdCalculated = true;
-            return _tenantId;
-        }
-    }
+    public TenantId? TenantId => UserInfo.TenantId;
 
     public UserInfo UserInfo
     {

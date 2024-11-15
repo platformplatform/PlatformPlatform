@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
@@ -24,11 +25,11 @@ public class UserInfo
 
     public string? Locale { get; init; }
 
-    public string? UserId { get; init; }
+    public UserId? Id { get; init; }
 
-    public string? TenantId { get; init; }
+    public TenantId? TenantId { get; init; }
 
-    public string? UserRole { get; init; }
+    public string? Role { get; init; }
 
     public string? Email { get; init; }
 
@@ -51,12 +52,14 @@ public class UserInfo
             };
         }
 
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        var tenantId = user.FindFirstValue("tenant_id");
         return new UserInfo
         {
             IsAuthenticated = true,
-            UserId = user.FindFirstValue(ClaimTypes.NameIdentifier),
-            TenantId = user.FindFirstValue("tenant_id"),
-            UserRole = user.FindFirstValue(ClaimTypes.Role),
+            Id = userId == null ? null : new UserId(userId),
+            TenantId = tenantId == null ? null : new TenantId(tenantId),
+            Role = user.FindFirstValue(ClaimTypes.Role),
             Email = user.FindFirstValue(ClaimTypes.Email),
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),
             LastName = user.FindFirstValue(ClaimTypes.Surname),

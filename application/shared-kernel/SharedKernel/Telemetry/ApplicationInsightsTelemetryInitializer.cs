@@ -24,23 +24,23 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
             telemetry.Context.User.AccountId = executionContext.TenantId.Value;
         }
 
-        if (executionContext.UserInfo.UserId is not null)
+        if (executionContext.UserInfo.Id is not null)
         {
-            telemetry.Context.User.Id = executionContext.UserInfo.UserId;
+            telemetry.Context.User.Id = executionContext.UserInfo.Id;
         }
 
         if (executionContext.UserInfo.IsAuthenticated)
         {
-            telemetry.Context.User.AuthenticatedUserId = executionContext.UserInfo.UserId;
+            telemetry.Context.User.AuthenticatedUserId = executionContext.UserInfo.Id!;
         }
 
         // Also track TenantId and UserId as custom properties, to be consistent with OpenTelemetry where build-in properties cannot be tracked
         // Set custom properties, ensure any changes here are also added to OpenTelemetryEnricher
         AddCustomProperty(telemetry, "tenant.id", executionContext.TenantId?.Value);
-        AddCustomProperty(telemetry, "user.id", executionContext.UserInfo.UserId);
+        AddCustomProperty(telemetry, "user.id", executionContext.UserInfo.Id);
         AddCustomProperty(telemetry, "user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
         AddCustomProperty(telemetry, "user.locale", executionContext.UserInfo.Locale);
-        AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.UserRole);
+        AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
     }
 
     public static void SetContext(IExecutionContext executionContext)

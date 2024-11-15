@@ -69,19 +69,11 @@ export default function AvatarButton() {
           setIsDeleteAccountModalOpen(true);
         }}
       />
-      <UserProfileModal
-        isOpen={isProfileModalOpen}
-        onOpenChange={setIsProfileModalOpen}
-        userId={userInfo.userId ?? ""}
-      />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={userInfo.id ?? ""} />
       <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
 
       {userInfo?.isAuthenticated && (
-        <UserProfileModal
-          isOpen={isProfileModalOpen}
-          onOpenChange={setIsProfileModalOpen}
-          userId={userInfo.userId ?? ""}
-        />
+        <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={userInfo.id ?? ""} />
       )}
     </>
   );

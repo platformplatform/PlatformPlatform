@@ -1,22 +1,28 @@
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Services;
+namespace PlatformPlatform.SharedKernel.Authentication;
 
-public sealed class AuthenticationTokenService(AuthenticationTokenGenerator tokenGenerator, IHttpContextAccessor httpContextAccessor)
+public sealed class AuthenticationTokenService(
+    RefreshTokenGenerator refreshTokenGenerator,
+    AccessTokenGenerator accessTokenGenerator,
+    IHttpContextAccessor httpContextAccessor
+)
 {
-    public void CreateAndSetAuthenticationTokens(User user)
+    public void CreateAndSetAuthenticationTokens(UserInfo userInfo)
     {
-        var refreshToken = tokenGenerator.GenerateRefreshToken(user);
-        var accessToken = tokenGenerator.GenerateAccessToken(user);
+        var refreshToken = refreshTokenGenerator.Generate(userInfo);
+        var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
-    public void RefreshAuthenticationTokens(User user, string refreshTokenChainId, int currentRefreshTokenVersion, DateTimeOffset expires)
+    public void RefreshAuthenticationTokens(
+        UserInfo userInfo,
+        RefreshTokenId refreshTokenId,
+        int currentRefreshTokenVersion,
+        DateTimeOffset expires)
     {
-        var refreshToken = tokenGenerator.UpdateRefreshToken(user, refreshTokenChainId, currentRefreshTokenVersion, expires);
-        var accessToken = tokenGenerator.GenerateAccessToken(user);
+        var refreshToken = refreshTokenGenerator.Update(userInfo, refreshTokenId, currentRefreshTokenVersion, expires);
+        var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
