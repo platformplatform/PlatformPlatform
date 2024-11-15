@@ -2,7 +2,7 @@ using Microsoft.ApplicationInsights;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel.Behaviors;
+namespace PlatformPlatform.SharedKernel.PipelineBehaviors;
 
 public sealed class PublishTelemetryEventsPipelineBehavior<TRequest, TResponse>(
     ITelemetryEventsCollector telemetryEventsCollector,

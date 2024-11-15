@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Behaviors;
+namespace PlatformPlatform.SharedKernel.PipelineBehaviors;
 
 /// <summary>
 ///     The ConcurrentCommandCounter class is a concurrent counter used to count the number of concurrent commands that

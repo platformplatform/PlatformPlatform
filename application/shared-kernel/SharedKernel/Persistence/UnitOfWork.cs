@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Behaviors;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.PipelineBehaviors;
 
 namespace PlatformPlatform.SharedKernel.Persistence;
 
