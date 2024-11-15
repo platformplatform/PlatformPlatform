@@ -43,7 +43,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         ).Should().Be(1);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
-        await EmailService.Received(1).SendAsync(
+        await EmailClient.Received(1).SendAsync(
             email.ToLower(),
             "Confirm your email address",
             Arg.Is<string>(s => s.Contains("Your confirmation code is below")),
@@ -96,7 +96,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1); // Only the first signup should create an event
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
-        await EmailService.Received(1).SendAsync(
+        await EmailClient.Received(1).SendAsync(
             Arg.Is<string>(s => s.Equals(email.ToLower())),
             Arg.Any<string>(),
             Arg.Any<string>(),
@@ -180,6 +180,6 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to signup with this email address. Please try again later.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-        await EmailService.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
     }
 }

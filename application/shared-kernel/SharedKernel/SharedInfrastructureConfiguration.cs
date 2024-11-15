@@ -11,8 +11,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
-using PlatformPlatform.SharedKernel.Filters;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
@@ -75,14 +74,14 @@ public static class SharedInfrastructureConfiguration
         if (IsRunningInAzure)
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-            builder.Services.AddSingleton<BlobStorage>(
-                _ => new BlobStorage(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
+            builder.Services.AddSingleton<BlobStorageClient>(
+                _ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
             );
         }
         else
         {
             var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            builder.Services.AddSingleton<BlobStorage>(_ => new BlobStorage(new BlobServiceClient(connectionString)));
+            builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
         }
 
         return builder;
@@ -103,7 +102,7 @@ public static class SharedInfrastructureConfiguration
             {
                 var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
                 builder.Services.AddKeyedSingleton(connection.ConnectionName,
-                    (_, _) => new BlobStorage(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
+                    (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                 );
             }
         }
@@ -113,7 +112,7 @@ public static class SharedInfrastructureConfiguration
             foreach (var connection in connections)
             {
                 builder.Services.AddKeyedSingleton(connection.ConnectionName,
-                    (_, _) => new BlobStorage(new BlobServiceClient(connectionString))
+                    (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
                 );
             }
         }

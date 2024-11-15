@@ -1,13 +1,14 @@
 using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.Users.Avatars;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 

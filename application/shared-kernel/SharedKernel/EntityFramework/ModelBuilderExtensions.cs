@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.SharedKernel.IdGenerators;
+using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 namespace PlatformPlatform.SharedKernel.EntityFramework;
 

@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Behaviors;
+using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 using PlatformPlatform.SharedKernel.DomainEvents;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Persistence;
-using PlatformPlatform.SharedKernel.Services;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
+using PlatformPlatform.SharedKernel.PipelineBehaviors;
+using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
 
@@ -47,7 +47,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    public static ITokenSigningService GetTokenSigningService()
+    public static ITokenSigningClient GetTokenSigningService()
     {
         if (SharedInfrastructureConfiguration.IsRunningInAzure)
         {
@@ -62,10 +62,10 @@ public static class SharedDependencyConfiguration
             var issuer = secretClient.GetSecret("authentication-token-issuer").Value.Value;
             var audience = secretClient.GetSecret("authentication-token-audience").Value.Value;
 
-            return new AzureTokenSigningService(cryptographyClient, issuer, audience);
+            return new AzureTokenSigningClient(cryptographyClient, issuer, audience);
         }
 
-        return new DevelopmentTokenSigningService();
+        return new DevelopmentTokenSigningClient();
     }
 
     private static IServiceCollection AddDefaultJsonSerializerOptions(this IServiceCollection services)
@@ -148,11 +148,11 @@ public static class SharedDependencyConfiguration
         {
             var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
             services.AddSingleton(_ => new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential));
-            services.AddTransient<IEmailService, AzureEmailService>();
+            services.AddTransient<IEmailClient, AzureEmailClient>();
         }
         else
         {
-            services.AddTransient<IEmailService, DevelopmentEmailService>();
+            services.AddTransient<IEmailClient, DevelopmentEmailClient>();
         }
 
         return services;

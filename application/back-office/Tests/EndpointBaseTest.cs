@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Services;
+using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.TelemetryEvents;
-using PlatformPlatform.SharedKernel.Tests.TelemetryEvents;
+using PlatformPlatform.SharedKernel.Telemetry;
+using PlatformPlatform.SharedKernel.Tests.Telemetry;
 
 namespace PlatformPlatform.BackOffice.Tests;
 
@@ -31,8 +31,8 @@ public abstract class EndpointBaseTest<TContext> : BaseTest<TContext> where TCon
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IEmailService)));
-                        services.AddTransient<IEmailService>(_ => EmailService);
+                        services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
+                        services.AddTransient<IEmailClient>(_ => EmailClient);
 
                         RegisterMockLoggers(services);
 

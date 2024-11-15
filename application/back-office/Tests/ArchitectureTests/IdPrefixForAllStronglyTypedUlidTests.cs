@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.SharedKernel.IdGenerators;
+using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using Xunit;
 
 namespace PlatformPlatform.BackOffice.Tests.ArchitectureTests;

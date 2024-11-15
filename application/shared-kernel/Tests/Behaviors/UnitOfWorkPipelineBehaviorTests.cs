@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.Behaviors;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Persistence;
+using PlatformPlatform.SharedKernel.PipelineBehaviors;
 using PlatformPlatform.SharedKernel.Tests.TestEntities;
 using Xunit;
 

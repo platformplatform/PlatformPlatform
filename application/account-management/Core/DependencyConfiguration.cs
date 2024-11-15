@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Users.Avatars;
+using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 namespace PlatformPlatform.AccountManagement;
 

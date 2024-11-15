@@ -8,8 +8,8 @@ using NJsonSchema.Generation;
 using PlatformPlatform.SharedKernel.Endpoints;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
-using PlatformPlatform.SharedKernel.SchemaProcessor;
 using PlatformPlatform.SharedKernel.SinglePageApp;
+using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel;
@@ -55,7 +55,6 @@ public static class ApiDependencyConfiguration
     {
         services
             .AddApiExecutionContext()
-            .AddExceptionHandler<TimeoutExceptionHandler>()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddTransient<TelemetryContextMiddleware>()
