@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.DomainEvents;
 
-namespace PlatformPlatform.SharedKernel.Persistence;
+namespace PlatformPlatform.SharedKernel.DomainEvents;
 
 public sealed class DomainEventCollector(DbContext dbContext) : IDomainEventCollector
 {
