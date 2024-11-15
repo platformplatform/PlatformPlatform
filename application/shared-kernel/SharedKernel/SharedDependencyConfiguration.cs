@@ -7,11 +7,10 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 using PlatformPlatform.SharedKernel.Behaviors;
 using PlatformPlatform.SharedKernel.DomainEvents;
 using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.Integrations.TokenSigning;
 using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.TelemetryEvents;
 

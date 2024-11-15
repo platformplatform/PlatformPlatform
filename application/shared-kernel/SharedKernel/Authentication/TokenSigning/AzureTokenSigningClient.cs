@@ -1,8 +1,7 @@
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.SharedKernel.Integrations.TokenSigning;
+namespace PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
 public class AzureTokenSigningClient(CryptographyClient cryptographyClient, string issuer, string audience)
     : ITokenSigningClient

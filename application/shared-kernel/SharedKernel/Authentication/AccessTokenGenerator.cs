@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
 

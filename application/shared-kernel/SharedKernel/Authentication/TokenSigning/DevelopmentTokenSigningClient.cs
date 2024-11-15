@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.Authentication;
 
-namespace PlatformPlatform.SharedKernel.Integrations.TokenSigning;
+namespace PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
 public class DevelopmentTokenSigningClient
     : ITokenSigningClient
