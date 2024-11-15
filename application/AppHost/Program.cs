@@ -17,7 +17,7 @@ var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
         {
-            resourceBuilder.WithVolume("platform-platform-azure-storage-data", "/data");
+            resourceBuilder.WithDataVolume("platform-platform-azure-storage-data");
             resourceBuilder.WithBlobPort(10000);
         }
     )
@@ -35,43 +35,48 @@ builder
     .WithHttpEndpoint(9003, 8025)
     .WithEndpoint(9004, 1025);
 
-var accountManagementDatabase = sqlServer
-    .AddDatabase("account-management-database", "account-management");
-
 CreateBlobContainer("avatars");
 
 var frontendBuild = builder
     .AddNpmApp("frontend-build", "../")
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
+var accountManagementDatabase = sqlServer
+    .AddDatabase("account-management-database", "account-management");
+
+var accountManagementWorkers = builder
+    .AddProject<AccountManagement_Workers>("account-management-workers")
+    .WithReference(accountManagementDatabase)
+    .WithReference(azureStorage)
+    .WaitFor(accountManagementDatabase);
+
 var accountManagementApi = builder
     .AddProject<AccountManagement_Api>("account-management-api")
     .WithReference(accountManagementDatabase)
-    .WithReference(azureStorage);
-
-builder
-    .AddProject<AccountManagement_Workers>("account-management-workers")
-    .WithReference(accountManagementDatabase)
-    .WithReference(azureStorage);
+    .WithReference(azureStorage)
+    .WaitFor(accountManagementWorkers);
 
 var backOfficeDatabase = sqlServer
     .AddDatabase("back-office-database", "back-office");
 
+var backOfficeWorkers = builder
+    .AddProject<BackOffice_Workers>("back-office-workers")
+    .WithReference(backOfficeDatabase)
+    .WithReference(azureStorage)
+    .WaitFor(backOfficeDatabase);
+
 var backOfficeApi = builder
     .AddProject<BackOffice_Api>("back-office-api")
     .WithReference(backOfficeDatabase)
-    .WithReference(azureStorage);
-
-builder
-    .AddProject<BackOffice_Workers>("back-office-workers")
-    .WithReference(backOfficeDatabase)
-    .WithReference(azureStorage);
+    .WithReference(azureStorage)
+    .WaitFor(backOfficeWorkers);
 
 builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(frontendBuild)
     .WithReference(accountManagementApi)
-    .WithReference(backOfficeApi);
+    .WithReference(backOfficeApi)
+    .WaitFor(accountManagementApi);
 
 await builder.Build().RunAsync();
 
