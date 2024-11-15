@@ -1,9 +1,8 @@
 using NJsonSchema;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
-using PlatformPlatform.SharedKernel.IdGenerators;
 
-namespace PlatformPlatform.SharedKernel.SchemaProcessor;
+namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 public class StronglyTypedDocumentProcessor(Assembly[] assemblies)
     : IDocumentProcessor

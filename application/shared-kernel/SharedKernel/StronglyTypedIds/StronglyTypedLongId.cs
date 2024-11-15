@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace PlatformPlatform.SharedKernel.IdGenerators;
+namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 /// <summary>
 ///     This is a special version of <see cref="StronglyTypedLongId{T}" /> for longs which is the recommended type to use.

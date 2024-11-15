@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using PlatformPlatform.SharedKernel.IdGenerators;
+using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 namespace PlatformPlatform.SharedKernel.Domain;
 

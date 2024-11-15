@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using NUlid;
 
-namespace PlatformPlatform.SharedKernel.IdGenerators;
+namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 /// <summary>
 ///     This is the recommended ID type to use. It uses the <see cref="Ulid" /> to create unique chronological IDs.

@@ -1,5 +1,5 @@
 using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.IdGenerators;
+using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 

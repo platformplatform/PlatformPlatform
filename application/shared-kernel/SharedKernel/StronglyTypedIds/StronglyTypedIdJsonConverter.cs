@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace PlatformPlatform.SharedKernel.IdGenerators;
+namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 public class StronglyTypedIdJsonConverter<TValue, TStronglyTypedId> : JsonConverter<TStronglyTypedId>
     where TStronglyTypedId : StronglyTypedId<TValue, TStronglyTypedId>
