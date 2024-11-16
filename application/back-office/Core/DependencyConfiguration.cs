@@ -12,15 +12,11 @@ public static class DependencyConfiguration
     public static IHostApplicationBuilder AddBackOfficeInfrastructure(this IHostApplicationBuilder builder)
     {
         // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
-        builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
-
-        return builder;
+        return builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
     }
 
     public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
     {
-        services.AddSharedServices<BackOfficeDbContext>(Assembly);
-
-        return services;
+        return services.AddSharedServices<BackOfficeDbContext>(Assembly);
     }
 }

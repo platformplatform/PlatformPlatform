@@ -95,12 +95,13 @@ public static class ApiDependencyConfiguration
 
     private static IServiceCollection AddApiEndpoints(this IServiceCollection services, params Assembly[] assemblies)
     {
-        return services.Scan(scan => scan
-            .FromAssemblies(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray())
-            .AddClasses(classes => classes.AssignableTo<IEndpoints>())
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-        );
+        return services
+            .Scan(scan => scan
+                .FromAssemblies(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray())
+                .AddClasses(classes => classes.AssignableTo<IEndpoints>())
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            );
     }
 
     private static WebApplication UseApiEndpoints(this WebApplication app)

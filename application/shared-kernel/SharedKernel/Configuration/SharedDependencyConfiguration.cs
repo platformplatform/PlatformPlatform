@@ -83,11 +83,11 @@ public static class SharedDependencyConfiguration
 
     private static IServiceCollection AddPersistenceHelpers<T>(this IServiceCollection services) where T : DbContext
     {
-        services.AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()));
-        services.AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
-            new DomainEventCollector(provider.GetRequiredService<T>())
-        );
-        return services;
+        return services
+            .AddScoped<IUnitOfWork, UnitOfWork>(provider => new UnitOfWork(provider.GetRequiredService<T>()))
+            .AddScoped<IDomainEventCollector, DomainEventCollector>(provider =>
+                new DomainEventCollector(provider.GetRequiredService<T>())
+            );
     }
 
     private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
@@ -138,16 +138,17 @@ public static class SharedDependencyConfiguration
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.
-        return services.Scan(scan => scan
-            .FromAssemblies(assemblies)
-            .AddClasses(classes => classes.Where(type =>
-                    type.IsClass && (type.IsNotPublic || type.IsPublic)
-                                 && type.BaseType is { IsGenericType: true } &&
-                                 type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
+        return services
+            .Scan(scan => scan
+                .FromAssemblies(assemblies)
+                .AddClasses(classes => classes.Where(type =>
+                        type.IsClass && (type.IsNotPublic || type.IsPublic)
+                                     && type.BaseType is { IsGenericType: true } &&
+                                     type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
+                    )
                 )
-            )
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-        );
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            );
     }
 }

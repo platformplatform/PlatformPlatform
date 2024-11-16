@@ -18,10 +18,8 @@ builder.Services
 
 var app = builder.Build();
 
-// Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
-app.UseApiServices();
-
-// Server the SPA and static files if no other endpoints are found
-app.UseSinglePageAppFallback();
+app
+    .UseApiServices() // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
+    .UseSinglePageAppFallback(); // Server the SPA and static files if no other endpoints are found
 
 await app.RunAsync();
