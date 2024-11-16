@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Configuration;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.SharedKernel.Tests;

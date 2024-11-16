@@ -1,6 +1,6 @@
 using PlatformPlatform.AccountManagement;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.Configuration;
 using PlatformPlatform.SharedKernel.Database;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
@@ -13,7 +13,7 @@ builder
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
-    .AddApiServices()
+    .AddWorkerServices()
     .AddAccountManagementServices();
 
 builder.Services.AddTransient<DatabaseMigrationService<AccountManagementDbContext>>();

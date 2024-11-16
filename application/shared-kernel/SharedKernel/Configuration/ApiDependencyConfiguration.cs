@@ -12,7 +12,7 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel;
+namespace PlatformPlatform.SharedKernel.Configuration;
 
 public static class ApiDependencyConfiguration
 {
@@ -32,7 +32,6 @@ public static class ApiDependencyConfiguration
         }
 
         builder.WebHost.ConfigureKestrel(options => { options.AddServerHeader = false; });
-
         return builder;
     }
 
@@ -41,19 +40,16 @@ public static class ApiDependencyConfiguration
         builder.WebHost.ConfigureKestrel((context, serverOptions) =>
             {
                 if (!context.HostingEnvironment.IsDevelopment()) return;
-
                 serverOptions.ConfigureEndpointDefaults(listenOptions => listenOptions.UseHttps());
-
                 serverOptions.ListenLocalhost(port, listenOptions => listenOptions.UseHttps());
             }
         );
-
         return builder;
     }
 
     public static IServiceCollection AddApiServices(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services
+        return services
             .AddApiExecutionContext()
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
@@ -64,16 +60,12 @@ public static class ApiDependencyConfiguration
             .AddOpenApiConfiguration(assemblies)
             .AddAuthConfiguration()
             .AddHttpForwardHeaders();
-
-        return services;
     }
 
     private static IServiceCollection AddApiExecutionContext(this IServiceCollection services)
     {
         // Add the execution context service that will be used to make current user information available to the application
-        services.AddScoped<IExecutionContext, HttpExecutionContext>();
-
-        return services;
+        return services.AddScoped<IExecutionContext, HttpExecutionContext>();
     }
 
     public static WebApplication UseApiServices(this WebApplication app)
@@ -90,35 +82,25 @@ public static class ApiDependencyConfiguration
             app.UseExceptionHandler(_ => { });
         }
 
-        // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
-        app.UseForwardedHeaders();
+        app
+            .UseForwardedHeaders() // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
+            .UseAuthentication()
+            .UseAuthorization()
+            .UseOpenApi(options => options.Path = "/openapi/v1.json") // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer
+            .UseMiddleware<ModelBindingExceptionHandlerMiddleware>()
+            .UseMiddleware<TelemetryContextMiddleware>();
 
-        // Add Authentication and Authorization middleware
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer
-        app.UseOpenApi(options => options.Path = "/openapi/v1.json");
-
-        app.UseMiddleware<ModelBindingExceptionHandlerMiddleware>();
-
-        app.UseMiddleware<TelemetryContextMiddleware>();
-
-        app.UseApiEndpoints();
-
-        return app;
+        return app.UseApiEndpoints();
     }
 
     private static IServiceCollection AddApiEndpoints(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services.Scan(scan => scan
+        return services.Scan(scan => scan
             .FromAssemblies(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray())
             .AddClasses(classes => classes.AssignableTo<IEndpoints>())
             .AsImplementedInterfaces()
             .WithScopedLifetime()
         );
-
-        return services;
     }
 
     private static WebApplication UseApiEndpoints(this WebApplication app)
@@ -136,7 +118,7 @@ public static class ApiDependencyConfiguration
 
     private static IServiceCollection AddOpenApiConfiguration(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services.AddOpenApiDocument((settings, _) =>
+        return services.AddOpenApiDocument((settings, _) =>
             {
                 settings.DocumentName = "v1";
                 settings.Title = "PlatformPlatform API";
@@ -147,38 +129,37 @@ public static class ApiDependencyConfiguration
                 settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray()));
             }
         );
-
-        return services;
     }
 
     private static IServiceCollection AddAuthConfiguration(this IServiceCollection services)
     {
         // Add Authentication and Authorization services
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }
-        ).AddJwtBearer(o =>
-            {
-                var tokenSigningService = SharedDependencyConfiguration.GetTokenSigningService();
-                o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
-                    validateLifetime: true,
-                    clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
-                );
-            }
-        );
-        services.AddAuthorization();
+        services
+            .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                }
+            )
+            .AddJwtBearer(o =>
+                {
+                    var tokenSigningService = SharedDependencyConfiguration.GetTokenSigningService();
+                    o.TokenValidationParameters = tokenSigningService.GetTokenValidationParameters(
+                        validateLifetime: true,
+                        clockSkew: TimeSpan.FromSeconds(5) // In Azure, we don't need any clock skew, but this must be a higher value than the AppGateway
+                    );
+                }
+            );
 
-        return services;
+        return services.AddAuthorization();
     }
 
     public static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
     {
         // Ensure correct client IP addresses are set for requests
         // This is required when running behind a reverse proxy like YARP or Azure Container Apps
-        services.Configure<ForwardedHeadersOptions>(options =>
+        return services.Configure<ForwardedHeadersOptions>(options =>
             {
                 // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -186,7 +167,5 @@ public static class ApiDependencyConfiguration
                 options.KnownProxies.Clear();
             }
         );
-
-        return services;
     }
 }

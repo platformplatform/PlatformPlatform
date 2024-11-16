@@ -24,11 +24,11 @@ public sealed class ChangeUserRoleHandler(IUserRepository userRepository, ITelem
         var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
 
-        var oldUserRole = user.Role;
+        var fromUserRole = user.Role;
         user.ChangeUserRole(command.UserRole);
         userRepository.Update(user);
 
-        events.CollectEvent(new UserRoleChanged(user.Id, oldUserRole, command.UserRole));
+        events.CollectEvent(new UserRoleChanged(user.Id, fromUserRole, command.UserRole));
 
         return Result.Success();
     }

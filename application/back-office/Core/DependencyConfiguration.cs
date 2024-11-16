@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.BackOffice.Database;
-using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.BackOffice;
 

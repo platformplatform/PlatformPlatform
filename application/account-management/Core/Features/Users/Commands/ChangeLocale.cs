@@ -29,11 +29,11 @@ public sealed class ChangeLocaleHandler(IUserRepository userRepository, ITelemet
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
         if (user is null) return Result.BadRequest("User not found.");
 
-        var oldLocale = user.Locale;
+        var fromLocale = user.Locale;
         user.ChangeLocale(command.Locale);
         userRepository.Update(user);
 
-        events.CollectEvent(new UserLocaleChanged(oldLocale, command.Locale));
+        events.CollectEvent(new UserLocaleChanged(fromLocale, command.Locale));
 
         return Result.Success();
     }
