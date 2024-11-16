@@ -12,7 +12,9 @@ var reverseProxyBuilder = builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>()
-    .AddConfigFilter<ApiExplorerRouteFilter>();
+    .AddConfigFilter<ApiExplorerRouteFilter>().AddTransforms(
+        context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
+    );
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
@@ -31,12 +33,14 @@ if (SharedInfrastructureConfiguration.IsRunningInAzure)
 else
 {
     builder.Services.AddSingleton<SharedAccessSignatureRequestTransform>();
-    reverseProxyBuilder.AddTransforms(context =>
-        context.RequestTransforms.Add(context.Services.GetRequiredService<SharedAccessSignatureRequestTransform>())
+    reverseProxyBuilder.AddTransforms(
+        context => context.RequestTransforms.Add(context.Services.GetRequiredService<SharedAccessSignatureRequestTransform>())
     );
 }
 
-builder.Services.AddSingleton(SharedDependencyConfiguration.GetTokenSigningService());
+builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
+
+builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
 builder.Services.AddHttpClient(
     "AccountManagement",
@@ -44,32 +48,23 @@ builder.Services.AddHttpClient(
 );
 
 builder.Services
+    .AddHttpClient()
+    .AddHttpForwardHeaders() // Ensure the correct client IP addresses are set for downstream requests
+    .AddOutputCache();
+
+builder.Services
+    .AddSingleton(SharedDependencyConfiguration.GetTokenSigningService())
     .AddSingleton<BlockInternalApiTransform>()
-    .AddSingleton<AuthenticationCookieMiddleware>();
-
-// Ensure correct client IP addresses are set for requests
-builder.Services.AddHttpForwardHeaders();
-
-reverseProxyBuilder.AddTransforms(context =>
-    context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
-);
-
-builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
-
-builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
-
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<ApiAggregationService>();
-builder.Services.AddOutputCache();
+    .AddSingleton<AuthenticationCookieMiddleware>()
+    .AddScoped<ApiAggregationService>();
 
 var app = builder.Build();
 
-// Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
-app.UseForwardedHeaders();
-
-app.UseOutputCache();
-
 app.ApiAggregationEndpoints();
+
+app.UseForwardedHeaders() // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
+    .UseOutputCache()
+    .UseMiddleware<AuthenticationCookieMiddleware>();
 
 app.MapScalarApiReference(options =>
     {
@@ -83,7 +78,5 @@ app.MapScalarApiReference(options =>
 );
 
 app.MapReverseProxy();
-
-app.UseMiddleware<AuthenticationCookieMiddleware>();
 
 await app.RunAsync();
