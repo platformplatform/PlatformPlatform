@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.BackOffice;
 
-public static class DependencyConfiguration
+public static class Configuration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
