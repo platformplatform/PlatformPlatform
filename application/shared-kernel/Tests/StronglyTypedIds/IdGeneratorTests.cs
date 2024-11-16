@@ -2,7 +2,7 @@ using FluentAssertions;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.IdGenerators;
+namespace PlatformPlatform.SharedKernel.Tests.StronglyTypedIds;
 
 public sealed class IdGeneratorTests
 {
