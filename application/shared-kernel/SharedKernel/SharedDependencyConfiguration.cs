@@ -40,7 +40,7 @@ public static class SharedDependencyConfiguration
             .AddPersistenceHelpers<T>()
             .AddMediatRPipelineBehaviours()
             .AddDefaultHealthChecks()
-            .AddEmailSignatureService()
+            .AddEmailSignatureClient()
             .RegisterMediatRRequest(assemblies)
             .RegisterRepositories(assemblies);
 
@@ -142,7 +142,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddEmailSignatureService(this IServiceCollection services)
+    private static IServiceCollection AddEmailSignatureClient(this IServiceCollection services)
     {
         if (SharedInfrastructureConfiguration.IsRunningInAzure)
         {
