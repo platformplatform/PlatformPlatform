@@ -25,24 +25,20 @@ public static class SharedInfrastructureConfiguration
     public static IHostApplicationBuilder AddSharedInfrastructure<T>(this IHostApplicationBuilder builder, string connectionName)
         where T : DbContext
     {
-        builder.ConfigureDatabaseContext<T>(connectionName);
-        builder.AddDefaultBlobStorage();
-
         builder
+            .ConfigureDatabaseContext<T>(connectionName)
+            .AddDefaultBlobStorage()
             .AddConfigureOpenTelemetry()
             .AddOpenTelemetryExporters();
 
-        builder.Services.AddApplicationInsightsTelemetry();
-
-        builder.Services.ConfigureHttpClientDefaults(http =>
-            {
-                // Turn on resilience by default
-                http.AddStandardResilienceHandler();
-
-                // Turn on service discovery by default
-                http.AddServiceDiscovery();
-            }
-        );
+        builder.Services
+            .AddApplicationInsightsTelemetry()
+            .ConfigureHttpClientDefaults(http =>
+                {
+                    http.AddStandardResilienceHandler(); // Turn on resilience by default
+                    http.AddServiceDiscovery(); // Turn on service discovery by default
+                }
+            );
 
         return builder;
     }
@@ -176,9 +172,10 @@ public static class SharedInfrastructureConfiguration
 
         if (useOtlpExporter)
         {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
-            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+            builder.Services
+                .Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter())
+                .ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter())
+                .ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
         }
 
         builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
@@ -201,11 +198,10 @@ public static class SharedInfrastructureConfiguration
             RequestCollectionOptions = { TrackExceptions = false }
         };
 
-        services.AddApplicationInsightsTelemetry(applicationInsightsServiceOptions);
-        services.AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>();
-        services.AddScoped<OpenTelemetryEnricher>();
-        services.AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
-
-        return services;
+        return services
+            .AddApplicationInsightsTelemetry(applicationInsightsServiceOptions)
+            .AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>()
+            .AddScoped<OpenTelemetryEnricher>()
+            .AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
     }
 }

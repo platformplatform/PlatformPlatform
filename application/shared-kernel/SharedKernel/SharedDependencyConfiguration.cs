@@ -33,18 +33,16 @@ public static class SharedDependencyConfiguration
         // Consider making a generic IRequestContextProvider that can return the HttpContext only if it is available.
         services.AddHttpContextAccessor();
 
-        services
-            .AddSingleton(GetTokenSigningService())
+        return services
             .AddServiceDiscovery()
+            .AddSingleton(GetTokenSigningService())
             .AddDefaultJsonSerializerOptions()
             .AddPersistenceHelpers<T>()
-            .AddMediatRPipelineBehaviours()
             .AddDefaultHealthChecks()
             .AddEmailSignatureClient()
+            .AddMediatRPipelineBehaviours()
             .RegisterMediatRRequest(assemblies)
             .RegisterRepositories(assemblies);
-
-        return services;
     }
 
     public static ITokenSigningClient GetTokenSigningService()
@@ -70,7 +68,7 @@ public static class SharedDependencyConfiguration
 
     private static IServiceCollection AddDefaultJsonSerializerOptions(this IServiceCollection services)
     {
-        services.Configure<JsonOptions>(options =>
+        return services.Configure<JsonOptions>(options =>
             {
                 // Copy the default options from the DefaultJsonSerializerOptions to enforce consistency in serialization.
                 foreach (var jsonConverter in DefaultJsonSerializerOptions.Converters)
@@ -81,7 +79,6 @@ public static class SharedDependencyConfiguration
                 options.SerializerOptions.PropertyNamingPolicy = DefaultJsonSerializerOptions.PropertyNamingPolicy;
             }
         );
-        return services;
     }
 
     private static IServiceCollection AddPersistenceHelpers<T>(this IServiceCollection services) where T : DbContext
@@ -93,33 +90,55 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services)
+    private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
     {
-        // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
-        // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)); // Pre
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)); // Post
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)); // Post
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
-        services.AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>();
-        services.AddScoped<ConcurrentCommandCounter>();
+        // Add a default liveness check to ensure the app is responsive
+        services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+        return services;
+    }
+
+    private static IServiceCollection AddEmailSignatureClient(this IServiceCollection services)
+    {
+        if (SharedInfrastructureConfiguration.IsRunningInAzure)
+        {
+            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+            services
+                .AddSingleton(_ => new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential))
+                .AddTransient<IEmailClient, AzureEmailClient>();
+        }
+        else
+        {
+            services.AddTransient<IEmailClient, DevelopmentEmailClient>();
+        }
 
         return services;
     }
 
+    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services)
+    {
+        // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
+        // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
+        return services
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)) // Pre
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)) // Post
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)) // Post
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)) // Post
+            .AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>()
+            .AddScoped<ConcurrentCommandCounter>();
+    }
+
     private static IServiceCollection RegisterMediatRRequest(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies));
-        services.AddValidatorsFromAssemblies(assemblies);
-
-        return services;
+        return services
+            .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies))
+            .AddValidatorsFromAssemblies(assemblies);
     }
 
     private static IServiceCollection RegisterRepositories(this IServiceCollection services, params Assembly[] assemblies)
     {
         // Scrutor will scan the assembly for all classes that implement the IRepository
         // and register them as a service in the container.
-        services.Scan(scan => scan
+        return services.Scan(scan => scan
             .FromAssemblies(assemblies)
             .AddClasses(classes => classes.Where(type =>
                     type.IsClass && (type.IsNotPublic || type.IsPublic)
@@ -130,31 +149,5 @@ public static class SharedDependencyConfiguration
             .AsImplementedInterfaces()
             .WithScopedLifetime()
         );
-
-        return services;
-    }
-
-    private static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services)
-    {
-        // Add a default liveness check to ensure the app is responsive
-        services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
-
-        return services;
-    }
-
-    private static IServiceCollection AddEmailSignatureClient(this IServiceCollection services)
-    {
-        if (SharedInfrastructureConfiguration.IsRunningInAzure)
-        {
-            var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
-            services.AddSingleton(_ => new SecretClient(keyVaultUri, SharedInfrastructureConfiguration.DefaultAzureCredential));
-            services.AddTransient<IEmailClient, AzureEmailClient>();
-        }
-        else
-        {
-            services.AddTransient<IEmailClient, DevelopmentEmailClient>();
-        }
-
-        return services;
     }
 }
