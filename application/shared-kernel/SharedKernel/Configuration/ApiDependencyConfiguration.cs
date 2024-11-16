@@ -12,7 +12,7 @@ using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel;
+namespace PlatformPlatform.SharedKernel.Configuration;
 
 public static class ApiDependencyConfiguration
 {

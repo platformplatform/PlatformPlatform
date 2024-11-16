@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel;
+namespace PlatformPlatform.SharedKernel.Configuration;
 
 public static class WorkerDependencyConfiguration
 {

@@ -4,9 +4,9 @@ using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
-using PlatformPlatform.SharedKernel;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
 

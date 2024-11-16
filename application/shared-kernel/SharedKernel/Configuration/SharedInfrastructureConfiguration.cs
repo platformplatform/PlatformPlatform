@@ -14,7 +14,7 @@ using OpenTelemetry.Trace;
 using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel;
+namespace PlatformPlatform.SharedKernel.Configuration;
 
 public static class SharedInfrastructureConfiguration
 {

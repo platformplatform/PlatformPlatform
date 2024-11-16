@@ -14,7 +14,7 @@ using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.PipelineBehaviors;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel;
+namespace PlatformPlatform.SharedKernel.Configuration;
 
 public static class SharedDependencyConfiguration
 {

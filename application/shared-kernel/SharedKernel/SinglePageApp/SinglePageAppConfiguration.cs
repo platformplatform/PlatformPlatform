@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.Extensions.Primitives;
+using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.SharedKernel.SinglePageApp;
 

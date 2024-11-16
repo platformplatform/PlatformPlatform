@@ -3,7 +3,7 @@ using PlatformPlatform.AppGateway.ApiAggregation;
 using PlatformPlatform.AppGateway.Filters;
 using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
-using PlatformPlatform.SharedKernel;
+using PlatformPlatform.SharedKernel.Configuration;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
