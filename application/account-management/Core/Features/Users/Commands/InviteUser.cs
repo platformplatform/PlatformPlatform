@@ -1,7 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Integrations.Email;

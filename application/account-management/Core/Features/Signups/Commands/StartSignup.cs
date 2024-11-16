@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
-using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;

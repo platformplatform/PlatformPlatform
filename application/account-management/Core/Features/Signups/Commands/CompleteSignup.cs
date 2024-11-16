@@ -3,7 +3,6 @@ using Mapster;
 using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.AccountManagement.TelemetryEvents;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
