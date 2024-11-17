@@ -12,7 +12,6 @@ public abstract record Prerequisite
     public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(22, 3, 0));
     public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 63));
     public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 55));
-    public static readonly Prerequisite Aspire = new DotnetWorkloadPrerequisite("aspire", "Aspire", new Version(8, 2, 0));
 
     protected abstract bool IsValid();
 
@@ -75,53 +74,6 @@ file sealed record CommandLineToolPrerequisite(string Command, string DisplayNam
         // If the version could not be determined please change the logic here to check for the correct version
         AnsiConsole.MarkupLine(
             $"[red]Command '[bold]{Command}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]"
-        );
-
-        return false;
-    }
-}
-
-file sealed record DotnetWorkloadPrerequisite(string WorkloadName, string DisplayName, Version MinVersion) : Prerequisite
-{
-    protected override bool IsValid()
-    {
-        var output = ProcessHelper.StartProcess("dotnet workload list", redirectOutput: true);
-
-        if (!output.Contains(WorkloadName))
-        {
-            AnsiConsole.MarkupLine(
-                $"[red].NET '[bold]{DisplayName}[/]' should be installed. Please run '[bold]dotnet workload update[/]' and then '[bold]dotnet workload install {WorkloadName}[/]'.[/]"
-            );
-
-            return false;
-        }
-
-        /*
-           The output is on the form:
-
-           Installed Workload Id      Manifest Version      Installation Source
-           --------------------------------------------------------------------
-           aspire                     8.0.2/8.0.100         SDK 8.0.300
-
-           Use `dotnet workload search` to find additional workloads to install.
-         */
-        var versionRegex = new Regex($@"{WorkloadName}\s+(\d+\.\d+\.\d+(\.\d+)?)/");
-        var match = versionRegex.Match(output);
-        if (match.Success)
-        {
-            var versionString = match.Groups[1].Value;
-            var version = Version.Parse(versionString);
-            if (version >= MinVersion) return true;
-            AnsiConsole.MarkupLine(
-                $"[red].NET workload '[bold]{DisplayName}[/]' is version [bold]{version}[/] but version [bold]{MinVersion}[/] is required. Please run '[bold]dotnet workload update[/]'.[/]"
-            );
-
-            return false;
-        }
-
-        // If the version could not be determined please change the logic here to check for the correct version
-        AnsiConsole.MarkupLine(
-            $"[red]The workload '[bold]{WorkloadName}[/]' is installed but version could not be determined. Please update the CLI to check for correct version.[/]"
         );
 
         return false;

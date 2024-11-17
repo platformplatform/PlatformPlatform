@@ -33,7 +33,7 @@ This is in the box:
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 
-Still pre-alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+Still in alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
 
 Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐
 
@@ -41,22 +41,34 @@ Show your support for our project – Give us a star on GitHub! It truly means a
 
 TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
-<img src="https://github.com/tjementum/PlatformPlatformScreenshots/blob/screenhosts/GettingStarted.gif?raw=true" alt="Getting Started" title="Getting Started" width="800"/>
+<img src="https://platformplatformgithub.blob.core.windows.net/$root/local-developer-experience.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
 ### Prerequisites
 
-For development, you need .NET, Aspire, Docker, and Node. And GitHub and Azure CLI for setting up CI/CD.
+For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for setting up CI/CD.
 
 <details>
 
 <summary>Install prerequisites for Windows</summary>
+	
+1.	Open a PowerShell terminal as Administrator and run the following command to install Windows Subsystem for Linux (required for Docker):
+  
+    `wsl --install`
 
-Open a PowerShell terminal as Administrator and run the following commands:
+2.	Restart your computer if prompted.
 
-- `wsl --install` (Windows Subsystem for Linux, required for Docker)
-- Install [Chocolatey](https://chocolatey.org/install), a package manager for Windows
-- `choco install dotnet-sdk git docker-desktop nodejs azure-cli gh`
-- `dotnet workload update` and `dotnet workload install aspire`
+3.	Install .NET, Git, Docker Desktop, Node.js, Azure CLI, and GitHub CLI using winget (available only on Windows 11):
+
+    ```powershell
+    @(
+        "Microsoft.DotNet.SDK.8",
+        "Git.Git",
+        "Docker.DockerDesktop",
+        "OpenJS.NodeJS",
+        "Microsoft.AzureCLI",
+        "GitHub.cli"
+    ) | ForEach-Object { winget install --accept-package-agreements --accept-source-agreements --id $_ }
+    ```
 
 </details>
 
@@ -69,8 +81,6 @@ Open a terminal and run the following commands:
 - Install [Homebrew](https://brew.sh/), a package manager for Mac
 - `brew install --cask dotnet-sdk`
 - `brew install git docker node azure-cli gh`
-- `dotnet workload update` and `dotnet workload install aspire`
-- `dotnet dev-certs https --trust`
 
 </details>
 
@@ -123,12 +133,6 @@ Open a terminal and run the following commands:
   sudo apt-get install -y dotnet-sdk-8.0 nodejs gh
   ```
 
-- Install .NET Aspire workload
-
-  ```bash
-  sudo dotnet workload update && dotnet workload install aspire
-  ```
-
 - Install Azure CLI
 
   ```bash
@@ -164,8 +168,8 @@ Our clean commit history serves as a great learning and troubleshooting resource
 Using .NET Aspire, docker images with SQL Server, Blob Storage, and mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 ```bash
-cd developer-cli
-dotnet run dev # First run will be slow as Docker images are downloaded
+cd application/AppHost
+dotnet dotnet run # First run will be slow as Docker images are downloaded
 ```
 
 Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
@@ -189,6 +193,8 @@ Except for adding a DNS record, everything is fully automated. After successful 
 
 The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
 
+![Azure Costs](https://platformplatformgithub.blob.core.windows.net/$root/azure-costs-center.png)
+
 # Inside Our Monorepo
 
 PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all application code, infrastructure, tools, libraries, documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber, Microsoft, etc.
@@ -210,8 +216,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  └─ back-office        # A self-contained system for operations and support (empty for now)
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
-│  ├─ environment        # Shared resources like App Insights for all Production clusters
-│  ├─ shared             # Azure Container Registry shared between all environments
+│  ├─ environment        # Shared resources like App Insights, Container Registry, etc.
 │  └─ modules            # Reusable Bicep modules like Container App, SQL Server, etc.
 └─ development-cli       # A .NET CLI tool for automating common developer tasks
 ```

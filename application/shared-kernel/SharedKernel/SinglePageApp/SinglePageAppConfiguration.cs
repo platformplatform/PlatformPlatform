@@ -101,11 +101,13 @@ public class SinglePageAppConfiguration
     [Conditional("DEBUG")]
     private void AwaitSinglePageAppGeneration()
     {
+        if (_htmlTemplate is not null) return;
+
         var stopwatch = Stopwatch.StartNew();
-        while (stopwatch.Elapsed < TimeSpan.FromSeconds(30))
+        while (stopwatch.Elapsed < TimeSpan.FromSeconds(25))
         {
             // A new index.html is created when starting, so we ensure the index.html is not from an old build
-            if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > StartupTime.AddSeconds(-10)) break;
+            if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > StartupTime.AddSeconds(-15)) break;
 
             Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }

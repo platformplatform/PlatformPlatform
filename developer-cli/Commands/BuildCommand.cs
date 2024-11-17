@@ -21,7 +21,7 @@ public class BuildCommand : Command
 
     private int Execute(string? solutionName)
     {
-        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Aspire, Prerequisite.Node);
+        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 
