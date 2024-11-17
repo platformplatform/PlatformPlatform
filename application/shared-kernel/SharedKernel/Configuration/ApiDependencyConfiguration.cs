@@ -52,8 +52,8 @@ public static class ApiDependencyConfiguration
         return services
             .AddApiExecutionContext()
             .AddExceptionHandler<GlobalExceptionHandler>()
-            .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddTransient<TelemetryContextMiddleware>()
+            .AddTransient<ModelBindingExceptionHandlerMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
             .AddApiEndpoints(assemblies)
@@ -83,12 +83,12 @@ public static class ApiDependencyConfiguration
         }
 
         app
-            .UseForwardedHeaders() // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware.
-            .UseAuthentication()
+            .UseForwardedHeaders()
+            .UseAuthentication() // Must be above TelemetryContextMiddleware to ensure authentication happens first
             .UseAuthorization()
-            .UseOpenApi(options => options.Path = "/openapi/v1.json") // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer
-            .UseMiddleware<ModelBindingExceptionHandlerMiddleware>()
-            .UseMiddleware<TelemetryContextMiddleware>();
+            .UseMiddleware<TelemetryContextMiddleware>() // It must be above ModelBindingExceptionHandlerMiddleware to ensure that model binding problems are annotated correctly
+            .UseMiddleware<ModelBindingExceptionHandlerMiddleware>() // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware
+            .UseOpenApi(options => options.Path = "/openapi/v1.json"); // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer
 
         return app.UseApiEndpoints();
     }
