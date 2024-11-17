@@ -152,6 +152,7 @@ public class TranslateCommand : Command
                     AnsiConsole.MarkupLine("[yellow]Translation process stopped. Saving changes collected so far.[/]");
                     break;
                 }
+
                 if (!translated.HasTranslation()) continue;
                 translatedEntries.Add(translated);
                 toReturn.Add(translated);
@@ -165,6 +166,7 @@ public class TranslateCommand : Command
             {
                 AnsiConsole.MarkupLine("[yellow]No entries were translated.[/]");
             }
+
             return toReturn;
         }
 
@@ -234,6 +236,7 @@ public class TranslateCommand : Command
                             AnsiConsole.MarkupLine("[red]Invalid translation. Please try again.[/]");
                             continue;
                         }
+
                         return translated.ApplyTranslation(userTranslation);
                     case "Skip":
                         AnsiConsole.MarkupLine("[yellow]Translation skipped.[/]");
