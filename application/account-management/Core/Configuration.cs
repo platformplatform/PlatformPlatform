@@ -10,35 +10,30 @@ using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
 
-public static class DependencyConfiguration
+public static class Configuration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
     public static IHostApplicationBuilder AddAccountManagementInfrastructure(this IHostApplicationBuilder builder)
     {
         // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
-        builder.AddSharedInfrastructure<AccountManagementDbContext>("account-management-database");
-
-        builder.AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
-
-        return builder;
+        return builder
+            .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
+            .AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
     }
 
     public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
     {
-        services.AddSharedServices<AccountManagementDbContext>(Assembly);
-
-        services.AddScoped<IPasswordHasher<object>, PasswordHasher<object>>();
-        services.AddScoped<OneTimePasswordHelper>();
-
-        services.AddScoped<RefreshTokenGenerator>();
-        services.AddScoped<AccessTokenGenerator>();
-        services.AddScoped<AuthenticationTokenService>();
-
-        services.AddScoped<AvatarUpdater>();
-        services.AddScoped<GravatarClient>();
         services.AddHttpClient("Gravatar").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler());
 
-        return services;
+        return services
+            .AddSharedServices<AccountManagementDbContext>(Assembly)
+            .AddScoped<IPasswordHasher<object>, PasswordHasher<object>>()
+            .AddScoped<OneTimePasswordHelper>()
+            .AddScoped<RefreshTokenGenerator>()
+            .AddScoped<AccessTokenGenerator>()
+            .AddScoped<AuthenticationTokenService>()
+            .AddScoped<AvatarUpdater>()
+            .AddScoped<GravatarClient>();
     }
 }

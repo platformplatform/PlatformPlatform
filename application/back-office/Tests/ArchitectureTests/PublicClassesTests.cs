@@ -12,7 +12,7 @@ public sealed class PublicClassesTests
     {
         // Act
         var types = Types
-            .InAssembly(DependencyConfiguration.Assembly)
+            .InAssembly(Configuration.Assembly)
             .That().ArePublic()
             .And().AreNotAbstract()
             .And().DoNotHaveName(typeof(Result<>).Name);

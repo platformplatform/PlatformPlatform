@@ -12,16 +12,14 @@ builder
 
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
-    .AddApiServices(Assembly.GetExecutingAssembly(), DependencyConfiguration.Assembly)
+    .AddApiServices(Assembly.GetExecutingAssembly(), Configuration.Assembly)
     .AddAccountManagementServices()
     .AddSinglePageAppFallback();
 
 var app = builder.Build();
 
-// Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
-app.UseApiServices();
-
-// Server the SPA and static files if no other endpoints are found
-app.UseSinglePageAppFallback();
+app
+    .UseApiServices() // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
+    .UseSinglePageAppFallback(); // Server the SPA and static files if no other endpoints are found
 
 await app.RunAsync();
