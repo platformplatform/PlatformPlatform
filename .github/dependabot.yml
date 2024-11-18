@@ -5,7 +5,50 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # NPM dependencies for frontend applications
+  - package-ecosystem: "npm"
+    directory: "/application"
     schedule:
       interval: "daily"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    secrets:
+      SONAR_TOKEN: true
+
+  # .NET dependencies for backend applications
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/application"
+    schedule:
+      interval: "daily"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    secrets:
+      SONAR_TOKEN: true
+
+  # .NET dependencies for developer CLI
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/developer-cli"
+    schedule:
+      interval: "daily"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    secrets:
+      SONAR_TOKEN: true
+
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    secrets:
+      SONAR_TOKEN: true
