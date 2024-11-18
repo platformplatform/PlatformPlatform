@@ -62,8 +62,7 @@ jobs:
       - name: Restore .NET tools
         working-directory: application
         run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
+          dotnet tool restore
 
       - name: Restore .NET dependencies
         working-directory: application
@@ -113,8 +112,7 @@ jobs:
       - name: Restore .NET tools
         working-directory: application
         run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
+          dotnet tool restore
 
       - name: Restore .NET dependencies
         working-directory: application
