@@ -380,6 +380,10 @@ FodyWeavers.xsd
 *.tfstate.lock.info
 *.tfstate.backup
 
+# AI IDEs
+.cursorrules
+.windsurfrules
+
 # macOS files
 .DS_Store
 
