@@ -11,7 +11,8 @@ SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
-    .WithDataVolume("platform-platform-sql-server-data");
+    .WithDataVolume("platform-platform-sql-server-data")
+    .WithLifetime(ContainerLifetime.Persistent);
 
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
