@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <AssemblyName>PlatformPlatform.AccountManagement</AssemblyName>
         <RootNamespace>PlatformPlatform.AccountManagement</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
         <ShouldRunBuildScript>false</ShouldRunBuildScript>
-        <TargetFrameworkMoniker>net8.0</TargetFrameworkMoniker>
+        <TargetFrameworkMoniker>net9.0</TargetFrameworkMoniker>
         <DefaultItemExcludes>$(DefaultItemExcludes);dist\**;*.config.*;*.d.ts</DefaultItemExcludes>
         <NpmInstallCheck>$(MSBuildProjectDirectory)\..\..\package-lock.json</NpmInstallCheck>
     </PropertyGroup>
