@@ -16,7 +16,6 @@ public class SinglePageAppConfiguration
     public static readonly string[] SupportedLocalizations = ["en-US", "da-DK", "nl-NL"];
 
     public static readonly string BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
-    private static readonly DateTime StartupTime = DateTime.UtcNow;
 
     public static readonly JsonSerializerOptions JsonHtmlEncodingOptions =
         new(SharedDependencyConfiguration.DefaultJsonSerializerOptions)
@@ -78,45 +77,34 @@ public class SinglePageAppConfiguration
 
     public string GetHtmlTemplate()
     {
-        if (_htmlTemplate is not null && !_isDevelopment)
-        {
-            return _htmlTemplate;
-        }
-
         AwaitSinglePageAppGeneration();
-
-        if (!File.Exists(_htmlTemplatePath))
-        {
-            throw new FileNotFoundException("index.html does not exist.", _htmlTemplatePath);
-        }
-
         return _htmlTemplate ??= File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+    }
+
+    /// <summary>
+    ///     This only runs locally, where the frontend is generating the index.html at startup, and it might not exist.
+    ///     This method is called every time, so any changes to the index.html will be updated while debugging.
+    ///     In rare cases, the index.html contains RsBuild info when generating it. A simple reload will fix this.
+    /// </summary>
+    [Conditional("DEBUG")]
+    private void AwaitSinglePageAppGeneration()
+    {
+        var tryUntil = DateTime.Now.AddSeconds(30);
+        while (DateTime.Now < tryUntil)
+        {
+            if (File.Exists(_htmlTemplatePath))
+            {
+                _htmlTemplate = File.ReadAllText(_htmlTemplatePath, new UTF8Encoding());
+                return;
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
     }
 
     public string GetRemoteEntryJs()
     {
         return _remoteEntryJsContent ??= File.ReadAllText(_remoteEntryJsPath, new UTF8Encoding());
-    }
-
-    [Conditional("DEBUG")]
-    private void AwaitSinglePageAppGeneration()
-    {
-        if (_htmlTemplate is not null) return;
-
-        var stopwatch = Stopwatch.StartNew();
-        while (stopwatch.Elapsed < TimeSpan.FromSeconds(25))
-        {
-            // A new index.html is created when starting, so we ensure the index.html is not from an old build
-            if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > StartupTime.AddSeconds(-15)) break;
-
-            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-        }
-
-        // If the index.html was just created, the Web App Dev server needs a few moments to warm up
-        if (new FileInfo(_htmlTemplatePath).LastWriteTimeUtc > DateTime.UtcNow.AddSeconds(-1))
-        {
-            Thread.Sleep(TimeSpan.FromMilliseconds(500));
-        }
     }
 
     private static string GetWebAppDistRoot(string webAppProjectName, string webAppDistRootName)
