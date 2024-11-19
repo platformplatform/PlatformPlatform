@@ -1,7 +1,11 @@
+using System.Diagnostics;
 using AppHost;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Projects;
+
+// Detect if Aspire ports from the previous run are released. See https://github.com/dotnet/aspire/issues/6704
+EnsureDeveloperControlPaneIsNotRunning();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -11,7 +15,8 @@ SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
-    .WithDataVolume("platform-platform-sql-server-data");
+    .WithDataVolume("platform-platform-sql-server-data")
+    .WithLifetime(ContainerLifetime.Persistent);
 
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
@@ -76,11 +81,36 @@ builder
     .WithReference(frontendBuild)
     .WithReference(accountManagementApi)
     .WithReference(backOfficeApi)
-    .WaitFor(accountManagementApi);
+    .WaitFor(accountManagementApi)
+    .WaitFor(frontendBuild);
 
 await builder.Build().RunAsync();
 
 return;
+
+void EnsureDeveloperControlPaneIsNotRunning()
+{
+    const string processName = "dcpctrl"; // The Aspire Developer Control Pane process name
+
+    var process = Process.GetProcesses()
+        .SingleOrDefault(p => p.ProcessName.Contains(processName, StringComparison.OrdinalIgnoreCase));
+
+    if (process == null) return;
+
+    Console.WriteLine($"Shutting down developer control pane from previous run. Process: {process.ProcessName} (ID: {process.Id})");
+
+    Thread.Sleep(TimeSpan.FromSeconds(5)); // Allow Docker containers to shut down to avoid orphaned containers
+
+    try
+    {
+        process.Kill();
+        Console.WriteLine($"Process {process.Id} killed successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to kill process {process.Id}: {ex.Message}");
+    }
+}
 
 void CreateBlobContainer(string containerName)
 {

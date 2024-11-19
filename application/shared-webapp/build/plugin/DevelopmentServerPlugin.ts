@@ -40,7 +40,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
         }
 
         // Path to the platformplatform.pfx certificate generated as part of the Aspire setup
-        const pfxPath = path.join(os.homedir(), ".aspnet", "dev-certs", "https", "platformplatform.pfx");
+        const pfxPath = path.join(os.homedir(), ".aspnet", "dev-certs", "https", "localhost.pfx");
         const passphrase = process.env.CERTIFICATE_PASSWORD ?? "";
 
         if (!fs.existsSync(pfxPath)) {

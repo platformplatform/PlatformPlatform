@@ -169,7 +169,7 @@ Using .NET Aspire, docker images with SQL Server, Blob Storage, and mail server 
 
 ```bash
 cd application/AppHost
-dotnet dotnet run # First run will be slow as Docker images are downloaded
+dotnet run # First run will be slow as Docker images are downloaded
 ```
 
 Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
