@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <AssemblyName>PlatformPlatform.BackOffice.Tests</AssemblyName>
         <RootNamespace>PlatformPlatform.BackOffice.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>

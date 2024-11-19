@@ -59,13 +59,12 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Restore .NET tools
         working-directory: application
         run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
+          dotnet tool restore
 
       - name: Restore .NET dependencies
         working-directory: application
@@ -160,13 +159,12 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Restore .NET tools
         working-directory: application
         run: |
-          dotnet tool restore &&
-          dotnet workload install aspire
+          dotnet tool restore
 
       - name: Restore .NET dependencies
         working-directory: application

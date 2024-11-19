@@ -3,6 +3,7 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Azure.Storage.Blobs;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -120,7 +121,8 @@ public static class SharedInfrastructureConfiguration
     {
         builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
             {
-                options.Filter = httpContext =>
+                // ReSharper disable once RedundantLambdaParameterType
+                options.Filter = (HttpContext httpContext) =>
                 {
                     var requestPath = httpContext.Request.Path.ToString();
 
