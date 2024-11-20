@@ -6,7 +6,7 @@ import { Modal as AriaModal, ModalOverlay, type ModalOverlayProps } from "react-
 import { tv } from "tailwind-variants";
 
 const overlayStyles = tv({
-  base: "fixed top-0 left-0 w-full h-[--visual-viewport-height] isolate z-20 bg-black/[15%] text-center flex backdrop-blur-lg",
+  base: "fixed top-0 left-0 w-full h-[--visual-viewport-height] isolate z-20 bg-black/[15%] text-center flex",
   variants: {
     isEntering: {
       true: "animate-in fade-in duration-200 ease-out"
@@ -24,11 +24,16 @@ const overlayStyles = tv({
     fullSize: {
       true: "",
       false: "p-4"
+    },
+    blur: {
+      true: "backdrop-blur-lg",
+      false: ""
     }
   },
   defaultVariants: {
     position: "center",
-    fullSize: false
+    fullSize: false,
+    blur: true
   }
 });
 
@@ -47,11 +52,12 @@ const modalStyles = tv({
 type ModalProps = {
   position?: "center" | "top" | "left" | "right" | "bottom";
   fullSize?: boolean;
+  blur?: boolean;
 } & ModalOverlayProps;
 
-export function Modal({ position, fullSize, ...props }: Readonly<ModalProps>) {
+export function Modal({ position, fullSize, blur, ...props }: Readonly<ModalProps>) {
   return (
-    <ModalOverlay {...props} className={(renderProps) => overlayStyles({ position, fullSize, ...renderProps })}>
+    <ModalOverlay {...props} className={(renderProps) => overlayStyles({ position, fullSize, blur, ...renderProps })}>
       <AriaModal {...props} className={modalStyles} />
     </ModalOverlay>
   );

@@ -46,6 +46,9 @@ msgstr "Alle brugere"
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "Are you sure you want to delete {0}?"
+msgstr "Er du sikker på, at du vil slette {0}?"
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 
@@ -72,6 +75,9 @@ msgstr "Slet"
 
 msgid "Delete Account"
 msgstr "Slet konto"
+
+msgid "Delete User"
+msgstr "Slet bruger"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."

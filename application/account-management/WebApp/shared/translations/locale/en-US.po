@@ -46,6 +46,9 @@ msgstr "All Users"
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
+msgid "Are you sure you want to delete {0}?"
+msgstr "Are you sure you want to delete {0}?"
+
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
 
@@ -72,6 +75,9 @@ msgstr "Delete"
 
 msgid "Delete Account"
 msgstr "Delete Account"
+
+msgid "Delete User"
+msgstr "Delete User"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
