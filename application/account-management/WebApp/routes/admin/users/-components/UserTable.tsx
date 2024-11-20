@@ -84,7 +84,7 @@ export function UserTable() {
 
   return (
     <>
-      <Modal isOpen={userToDelete !== null} onOpenChange={() => setUserToDelete(null)} variant="alert">
+      <Modal isOpen={userToDelete !== null} onOpenChange={() => setUserToDelete(null)} blur={false}>
         <AlertDialog
           title={t`Delete User`}
           variant="destructive"
