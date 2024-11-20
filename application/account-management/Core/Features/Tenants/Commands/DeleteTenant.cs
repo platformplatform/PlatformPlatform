@@ -17,7 +17,7 @@ public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantComman
     {
         RuleFor(x => x.Id)
             .MustAsync(async (tenantId, cancellationToken) =>
-                await userRepository.CountTenantUsersAsync(tenantId, cancellationToken) == 0
+                await userRepository.CountTenantUsersAsync(tenantId, cancellationToken) <= 1
             )
             .WithMessage("All users must be deleted before the tenant can be deleted.");
     }
