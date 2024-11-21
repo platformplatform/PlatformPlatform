@@ -23,12 +23,12 @@
 
 # 👋 Welcome to PlatformPlatform
 
-Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security. All in one place – at zero cost.
+Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security.
 
 This is in the box:
 
-* **Backend** - .NET and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
-* **Frontend** - React using TypeScript, with a sleek fully localized UI and a mature accessible design system
+* **Backend** - .NET 9 and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
+* **Frontend** - React 19 and TypeScript, fully localized using React Aria components for world-class accessibility
 * **CI/CD** - GitHub actions for fast passwordless deployments of application (Docker) and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
@@ -61,7 +61,7 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 
     ```powershell
     @(
-        "Microsoft.DotNet.SDK.8",
+        "Microsoft.DotNet.SDK.9",
         "Git.Git",
         "Docker.DockerDesktop",
         "OpenJS.NodeJS",
@@ -80,7 +80,8 @@ Open a terminal and run the following commands:
 
 - Install [Homebrew](https://brew.sh/), a package manager for Mac
 - `brew install --cask dotnet-sdk`
-- `brew install git docker node azure-cli gh`
+- `brew install --cask docker`
+- `brew install git node azure-cli gh`
 
 </details>
 
@@ -127,10 +128,10 @@ Open a terminal and run the following commands:
   sudo apt-get update
   ```
 
-- Install .NET SDK 8.0, Node, GitHub CLI
+- Install .NET SDK 9.0, Node, GitHub CLI
 
   ```bash
-  sudo apt-get install -y dotnet-sdk-8.0 nodejs gh
+  sudo apt-get install -y dotnet-sdk-9.0 nodejs gh
   ```
 
 - Install Azure CLI
@@ -157,7 +158,7 @@ Open a terminal and run the following commands:
 
 </details>
 
-## 1. Fork and clone the repository
+## 1. Clone the repository
 
 Forking is only required to configure GitHub repository with continuous deployments to Azure ([step 3](#4-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
 
@@ -211,7 +212,8 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
-│  ├─ shared-kernel      # Reusable components for all self-contained systems
+│  ├─ shared-kernel      # Reusable components and default configuration for all systems
+│  ├─ shared-webapp      # Reusable and styled React Aria Components that affect all systems 
 │  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 │  └─ back-office        # A self-contained system for operations and support (empty for now)
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
@@ -225,11 +227,11 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 # Technologies
 
-### .NET 8 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 9 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
-- [.NET 8](https://dotnet.microsoft.com) and [C# 12](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [.NET 9](https://dotnet.microsoft.com) and [C# 13](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
 - [.NET Aspire](https://aka.ms/dotnet-aspire)
 - [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
@@ -258,11 +260,11 @@ Although some features like multi-tenancy are not yet implemented, the current i
 
 </details>
 
-### React Frontend With TypeScript, React Aria Components, and Node
+### React 19 Frontend With TypeScript, React Aria Components, and Node
 
 The frontend is built with these technologies:
 
-- [React](https://react.dev)
+- [React 19](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
 - [Tanstack Router](https://tanstack.com)
