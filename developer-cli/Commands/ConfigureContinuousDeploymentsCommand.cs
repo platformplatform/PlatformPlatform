@@ -242,6 +242,14 @@ public class ConfigureContinuousDeploymentsCommand : Command
         Config.StagingSubscription = SelectSubscription("Staging");
         Config.ProductionSubscription = SelectSubscription("Production");
 
+        if(Config.StagingSubscription.TenantId != Config.ProductionSubscription.TenantId)
+        {
+            AnsiConsole.MarkupLine($"[red]ERROR:[/] Please select two subscriptions from the same tenant, and try again.");
+            Environment.Exit(1);
+        }
+
+        RunAzureCliCommand($"""account set --subscription "{Config.StagingSubscription.Id}" """);
+
         return;
 
         Subscription SelectSubscription(string environmentName)
