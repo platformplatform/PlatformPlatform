@@ -61,7 +61,7 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 
     ```powershell
     @(
-        "Microsoft.DotNet.SDK.8",
+        "Microsoft.DotNet.SDK.9",
         "Git.Git",
         "Docker.DockerDesktop",
         "OpenJS.NodeJS",
@@ -80,7 +80,8 @@ Open a terminal and run the following commands:
 
 - Install [Homebrew](https://brew.sh/), a package manager for Mac
 - `brew install --cask dotnet-sdk`
-- `brew install git docker node azure-cli gh`
+- `brew install --cask docker`
+- `brew install git node azure-cli gh`
 
 </details>
 
@@ -157,7 +158,7 @@ Open a terminal and run the following commands:
 
 </details>
 
-## 1. Fork and clone the repository
+## 1. Clone the repository
 
 Forking is only required to configure GitHub repository with continuous deployments to Azure ([step 3](#4-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
 
