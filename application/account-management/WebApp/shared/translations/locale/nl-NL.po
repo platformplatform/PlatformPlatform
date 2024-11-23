@@ -40,6 +40,9 @@ msgstr "Nieuwe toevoegen via het gebruikersmenu"
 msgid "Added"
 msgstr "Toegevoegd"
 
+msgid "Admin"
+msgstr "Beheerder"
+
 msgid "All Users"
 msgstr "Alle gebruikers"
 
@@ -48,8 +51,8 @@ msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
 
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
-msgid "Are you sure you want to delete {0}?"
-msgstr "Weet je zeker dat je {0} wilt verwijderen?"
+msgid "Are you sure you want to delete <0>{0}?</0>"
+msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
 
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
@@ -62,6 +65,12 @@ msgstr "Annuleren"
 
 msgid "Change avatar options"
 msgstr "Opties voor avatar wijzigen"
+
+msgid "Change Role"
+msgstr "Rol wijzigen"
+
+msgid "Change User Role"
+msgstr "Gebruikersrol wijzigen"
 
 msgid "Continue"
 msgstr "Verder"
@@ -183,6 +192,9 @@ msgstr "Beheer je account hier."
 msgid "Manage your users and permissions here."
 msgstr "Beheer je gebruikers en rechten hier."
 
+msgid "Member"
+msgstr "Lid"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -200,6 +212,9 @@ msgstr "Geen actieve registratiesessie"
 
 msgid "Organization"
 msgstr "Organisatie"
+
+msgid "Owner"
+msgstr "Eigenaar"
 
 msgid "Pending"
 msgstr "In behandeling"
@@ -246,6 +261,10 @@ msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
 msgid "Search"
 msgstr "Zoeken"
 
+#. placeholder {0}: `${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() || userToChangeRole?.email
+msgid "Select a new role for <0>{0}</0>"
+msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
+
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
@@ -287,6 +306,9 @@ msgstr "Foto uploaden"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
+
+msgid "User Role"
+msgstr "Gebruikersrol"
 
 msgid "user@email.com"
 msgstr "gebruiker@email.com"
