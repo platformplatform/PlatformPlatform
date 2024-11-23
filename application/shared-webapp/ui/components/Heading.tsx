@@ -6,10 +6,23 @@ import { Heading as AriaHeading } from "react-aria-components";
 import type { HeadingProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
+interface ExtendedHeadingProps extends HeadingProps {
+  size?: "md" | "lg";
+}
+
 const headingStyles = tv({
-  base: "my-0 font-semibold text-xl leading-6"
+  base: "my-0 font-semibold leading-6",
+  variants: {
+    size: {
+      md: "text-lg",
+      lg: "text-xl"
+    }
+  },
+  defaultVariants: {
+    size: "lg"
+  }
 });
 
-export function Heading({ className, slot = "title", ...props }: Readonly<HeadingProps>) {
-  return <AriaHeading {...props} slot={slot} className={headingStyles({ className })} />;
+export function Heading({ className, slot = "title", size, ...props }: Readonly<ExtendedHeadingProps>) {
+  return <AriaHeading {...props} slot={slot} className={headingStyles({ size, className })} />;
 }
