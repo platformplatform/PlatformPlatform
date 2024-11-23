@@ -13,9 +13,9 @@ public class DevelopmentTokenSigningClient
 
     private static string UserSecretsId => EntryAssembly.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
 
-    public string Issuer => "https://localhost:9000";
+    public string Issuer => "Localhost";
 
-    public string Audience => "https://localhost:9000";
+    public string Audience => "Localhost";
 
     public SigningCredentials GetSigningCredentials()
     {
