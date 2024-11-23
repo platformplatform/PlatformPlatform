@@ -1,14 +1,15 @@
-import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
 import type { SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
 import { useCallback, useState } from "react";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Badge } from "@repo/ui/components/Badge";
 import { Pagination } from "@repo/ui/components/Pagination";
+import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { api, type components, SortableUserProperties, SortOrder, useApi } from "@/shared/lib/api/client";
+import { api, type components, SortableUserProperties, SortOrder, UserRole, useApi } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { t, Trans } from "@lingui/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
@@ -41,6 +42,7 @@ export function UserTable() {
   });
 
   const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
+  const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -80,11 +82,70 @@ export function UserTable() {
     setUserToDelete(null);
   }, [userToDelete]);
 
+  const handleRoleChange = useCallback(
+    async (newRole: UserRole) => {
+      if (!userToChangeRole) return;
+
+      await api.put("/api/account-management/users/{id}/change-user-role", {
+        params: { path: { id: userToChangeRole.id } },
+        body: { userRole: newRole }
+      });
+
+      setRefreshKey((prev) => prev + 1);
+      setUserToChangeRole(null);
+    },
+    [userToChangeRole]
+  );
+
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
 
   return (
     <>
-      <Modal isOpen={userToDelete !== null} onOpenChange={() => setUserToDelete(null)} blur={false}>
+      <Modal
+        isOpen={userToChangeRole !== null}
+        onOpenChange={() => setUserToChangeRole(null)}
+        blur={false}
+        isDismissable={true}
+      >
+        <AlertDialog title={t`Change User Role`}>
+          <p className="text-muted-foreground text-sm">
+            <Trans>
+              Select a new role for{" "}
+              <b>
+                {`${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() ||
+                  userToChangeRole?.email}
+              </b>
+            </Trans>
+          </p>
+
+          <div className="flex flex-col gap-4 mt-4">
+            <Select
+              autoFocus
+              aria-label={t`Role`}
+              selectedKey={userToChangeRole?.role}
+              onSelectionChange={(key) => handleRoleChange(key as UserRole)}
+              className="flex w-full flex-col"
+            >
+              <SelectItem id={UserRole.Member}>
+                <Trans>Member</Trans>
+              </SelectItem>
+              <SelectItem id={UserRole.Admin}>
+                <Trans>Admin</Trans>
+              </SelectItem>
+              <SelectItem id={UserRole.Owner}>
+                <Trans>Owner</Trans>
+              </SelectItem>
+            </Select>
+          </div>
+        </AlertDialog>
+      </Modal>
+
+      <Modal
+        isOpen={userToDelete !== null}
+        onOpenChange={() => setUserToDelete(null)}
+        blur={false}
+        isDismissable={true}
+      >
         <AlertDialog
           title={t`Delete User`}
           variant="destructive"
@@ -94,7 +155,7 @@ export function UserTable() {
         >
           <Trans>
             Are you sure you want to delete{" "}
-            {`${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email}?
+            <b>{`${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email}?</b>
           </Trans>
         </AlertDialog>
       </Modal>
@@ -174,23 +235,25 @@ export function UserTable() {
                       <Button variant="icon" aria-label={t`Menu`}>
                         <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
                       </Button>
-                      <Menu
-                        onAction={(key) => {
-                          if (key === "viewProfile") {
-                            alert("open");
-                          } else if (key === "deleteUser") {
-                            setUserToDelete(user);
-                          }
-                        }}
-                      >
+                      <Menu>
                         <MenuItem id="viewProfile">
                           <UserIcon className="w-4 h-4" />
                           <Trans>View Profile</Trans>
                         </MenuItem>
+                        <MenuItem
+                          id="changeRole"
+                          isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
+                          onAction={() => setUserToChangeRole(user)}
+                        >
+                          <PencilIcon className="w-4 h-4 group-disabled:text-muted-foreground" />
+                          <span className="group-disabled:text-muted-foreground">
+                            <Trans>Change Role</Trans>
+                          </span>
+                        </MenuItem>
                         <MenuSeparator />
                         <MenuItem
                           id="deleteUser"
-                          isDisabled={user.id === userInfo?.id}
+                          isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
                           onAction={() => setUserToDelete(user)}
                         >
                           <Trash2Icon className="w-4 h-4 text-destructive" />
