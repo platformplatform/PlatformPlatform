@@ -15,7 +15,7 @@ interface AlertDialogProps extends Omit<DialogProps, "children"> {
   title: string;
   children: ReactNode;
   variant?: "info" | "destructive";
-  actionLabel: string;
+  actionLabel?: string;
   cancelLabel?: string;
   onAction?: () => void;
 }
@@ -53,18 +53,20 @@ export function AlertDialog({
             {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
           </div>
           <div id={contentId}>{children}</div>
-          <fieldset className="pt-10 flex justify-end gap-2">
-            <Button variant="secondary" onPress={close}>
-              {cancelLabel ?? "Cancel"}
-            </Button>
-            <Button
-              variant={variant === "destructive" ? "destructive" : "primary"}
-              autoFocus
-              onPress={chain(onAction, close)}
-            >
-              {actionLabel}
-            </Button>
-          </fieldset>
+          {actionLabel && (
+            <fieldset className="pt-10 flex justify-end gap-2">
+              <Button variant="secondary" onPress={close}>
+                {cancelLabel ?? "Cancel"}
+              </Button>
+              <Button
+                variant={variant === "destructive" ? "destructive" : "primary"}
+                autoFocus
+                onPress={chain(onAction, close)}
+              >
+                {actionLabel}
+              </Button>
+            </fieldset>
+          )}
         </>
       )}
     </Dialog>
