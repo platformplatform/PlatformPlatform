@@ -6,7 +6,7 @@
         <RootNamespace>PlatformPlatform.AccountManagement.Api</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../WebApp/shared/lib/api/</OpenApiDocumentsDirectory>
+        <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\WebApp\shared\lib\api\</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
         <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;Dockerfile</DefaultItemExcludes>
