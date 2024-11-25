@@ -7,7 +7,7 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 
 public abstract record Prerequisite
 {
-    public static readonly Prerequisite Dotnet = new CommandLineToolPrerequisite("dotnet", "dotnet", new Version(8, 0, 300));
+    public static readonly Prerequisite Dotnet = new CommandLineToolPrerequisite("dotnet", "dotnet", new Version(9, 0, 100));
     public static readonly Prerequisite Docker = new CommandLineToolPrerequisite("docker", "Docker", new Version(27, 1, 1));
     public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(22, 3, 0));
     public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 63));
