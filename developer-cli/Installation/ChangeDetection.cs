@@ -60,7 +60,7 @@ public static class ChangeDetection
 
         try
         {
-            // Build project before renaming exe on Windows
+            // Build the project before renaming exe on Windows
             ProcessHelper.StartProcess("dotnet build", Configuration.GetSourceCodeFolder());
 
             if (Configuration.IsWindows)
