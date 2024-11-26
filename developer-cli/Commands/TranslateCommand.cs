@@ -30,7 +30,7 @@ public class TranslateCommand : Command
 
     private static async Task<int> Execute(string? language)
     {
-        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Docker);
+        Prerequisite.Ensure(Prerequisite.Dotnet);
 
         try
         {

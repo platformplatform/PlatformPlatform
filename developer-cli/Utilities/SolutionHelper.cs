@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
 
-public class SolutionHelper
+public static class SolutionHelper
 {
     public static FileInfo GetSolution(string? solutionName)
     {

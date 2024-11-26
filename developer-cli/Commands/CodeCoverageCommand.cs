@@ -32,10 +32,10 @@ public class CodeCoverageCommand : Command
 
         ProcessHelper.StartProcess("dotnet build", solutionFile.Directory!.FullName);
 
-        var solutionFileWithoutExtentsion = solutionFile.Name.Replace(solutionFile.Extension, "");
+        var solutionFileWithoutExtension = solutionFile.Name.Replace(solutionFile.Extension, "");
 
         ProcessHelper.StartProcess(
-            $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:{solutionFileWithoutExtentsion}.*;-:*.Tests;-:type=*.AppHost.*\"",
+            $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:{solutionFileWithoutExtension}.*;-:*.Tests;-:type=*.AppHost.*\"",
             workingDirectory
         );
 

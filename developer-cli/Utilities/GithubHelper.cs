@@ -4,7 +4,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Utilities;
 
-public class GithubHelper
+public static class GithubHelper
 {
     public static string GetGithubUri()
     {
