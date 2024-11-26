@@ -24,6 +24,7 @@ var azureStorage = builder
         {
             resourceBuilder.WithDataVolume("platform-platform-azure-storage-data");
             resourceBuilder.WithBlobPort(10000);
+            resourceBuilder.WithLifetime(ContainerLifetime.Persistent);
         }
     )
     .WithAnnotation(new ContainerImageAnnotation
@@ -38,7 +39,8 @@ var azureStorage = builder
 builder
     .AddContainer("mail-server", "axllent/mailpit")
     .WithHttpEndpoint(9003, 8025)
-    .WithEndpoint(9004, 1025);
+    .WithEndpoint(9004, 1025)
+    .WithLifetime(ContainerLifetime.Persistent);
 
 CreateBlobContainer("avatars");
 
