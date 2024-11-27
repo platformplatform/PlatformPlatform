@@ -6,13 +6,16 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 
 public static class GithubHelper
 {
-    public static string GetGithubUri()
+    public static string GetGithubUri(string? remote = null)
     {
         // Get all Git remotes
         var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
 
         // Sort the output lines so that the "origin" is at the top
-        output = string.Join('\n', output.Split('\n').OrderBy(line => line.Contains("origin") ? 0 : 1));
+        output = string.Join('\n', output.Split('\n')
+            .Where(line => remote == null || line.StartsWith(remote))
+            .OrderBy(line => line.Contains("origin") ? 0 : 1)
+        );
 
         var regex = new Regex(@"(?<githubUri>(https://github\.com/.*/.*\.git)|(git@github\.com:.*/.*\.git)) \(push\)");
         var matches = regex.Matches(output);
