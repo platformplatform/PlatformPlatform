@@ -18,8 +18,8 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<GetUsersResponse>();
 
-        group.MapGet("/{id}", async Task<ApiResult<UserResponse>> (UserId id, IMediator mediator)
-            => await mediator.Send(new GetUserQuery(id))
+        group.MapGet("/{id}", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
+            => await mediator.Send(query)
         ).Produces<UserResponse>();
 
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, IMediator mediator)
