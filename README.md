@@ -128,7 +128,7 @@ Open a terminal and run the following commands:
   sudo apt-get update
   ```
 
-- Install .NET SDK 8.0, Node, GitHub CLI
+- Install .NET SDK 9.0, Node, GitHub CLI
 
   ```bash
   sudo apt-get install -y dotnet-sdk-8.0 nodejs gh
@@ -226,11 +226,11 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 # Technologies
 
-### .NET 8 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 9 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
-- [.NET 8](https://dotnet.microsoft.com) and [C# 12](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [.NET 9](https://dotnet.microsoft.com) and [C# 13](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
 - [.NET Aspire](https://aka.ms/dotnet-aspire)
 - [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
