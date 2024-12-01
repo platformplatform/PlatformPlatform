@@ -21,7 +21,7 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { orderBy, pageOffset, sortOrder } = useSearch({ strict: false });
+  const { orderBy, pageOffset, sortOrder, search } = useSearch({ strict: false });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -36,7 +36,8 @@ export function UserTable() {
       query: {
         PageOffset: pageOffset,
         OrderBy: orderBy,
-        SortOrder: sortOrder
+        SortOrder: sortOrder,
+        Search: search
       }
     },
     key: refreshKey
