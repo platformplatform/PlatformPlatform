@@ -15,7 +15,8 @@ import { Trans } from "@lingui/macro";
 const userPageSearchSchema = z.object({
   pageOffset: z.number().default(0).optional(),
   orderBy: z.nativeEnum(SortableUserProperties).default(SortableUserProperties.Name).optional(),
-  sortOrder: z.nativeEnum(SortOrder).default(SortOrder.Ascending).optional()
+  sortOrder: z.nativeEnum(SortOrder).default(SortOrder.Ascending).optional(),
+  search: z.string().optional()
 });
 
 export const Route = createFileRoute("/admin/users/")({
