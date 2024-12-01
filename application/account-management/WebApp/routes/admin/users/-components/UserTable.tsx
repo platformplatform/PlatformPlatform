@@ -22,7 +22,7 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { orderBy, pageOffset, sortOrder } = useSearch({ strict: false });
+  const { search, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -35,9 +35,10 @@ export function UserTable() {
   const { data } = useApi("/api/account-management/users", {
     params: {
       query: {
-        PageOffset: pageOffset,
+        Search: search,
         OrderBy: orderBy,
-        SortOrder: sortOrder
+        SortOrder: sortOrder,
+        PageOffset: pageOffset
       }
     },
     key: refreshKey
@@ -160,7 +161,7 @@ export function UserTable() {
 
       <div className="flex flex-col gap-2 h-full w-full">
         <Table
-          key={`${orderBy}-${sortOrder}`}
+          key={`${orderBy}-${sortOrder}-${search}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
           sortDescriptor={sortDescriptor}
