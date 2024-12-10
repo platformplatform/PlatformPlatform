@@ -11,6 +11,11 @@ public static class ProcessHelper
         var processStartInfo = CreateProcessStartInfo(command, solutionFolder, useShellExecute: true, createNoWindow: false);
         using var process = Process.Start(processStartInfo)!;
         process.WaitForExit();
+
+        if (process.ExitCode != 0)
+        {
+            Environment.Exit(process.ExitCode);
+        }
     }
 
     public static void OpenBrowser(string url)
@@ -33,11 +38,13 @@ public static class ProcessHelper
         string command,
         string? solutionFolder = null,
         bool redirectOutput = false,
-        bool waitForExit = true
+        bool waitForExit = true,
+        bool exitOnError = true,
+        bool throwOnError = false
     )
     {
         var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
-        return StartProcess(processStartInfo, waitForExit: waitForExit);
+        return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
     }
 
     private static ProcessStartInfo CreateProcessStartInfo(
@@ -68,7 +75,13 @@ public static class ProcessHelper
         return processStartInfo;
     }
 
-    public static string StartProcess(ProcessStartInfo processStartInfo, string? input = null, bool waitForExit = true)
+    public static string StartProcess(
+        ProcessStartInfo processStartInfo,
+        string? input = null,
+        bool waitForExit = true,
+        bool exitOnError = true,
+        bool throwOnError = false
+    )
     {
         if (Configuration.VerboseLogging)
         {
@@ -90,6 +103,19 @@ public static class ProcessHelper
         if (!waitForExit) return string.Empty;
         process.WaitForExit();
 
+        if (process.ExitCode != 0)
+        {
+            if (throwOnError)
+            {
+                throw new ProcessExecutionException(process.ExitCode, $"Process exited with code {process.ExitCode}");
+            }
+
+            if (exitOnError)
+            {
+                Environment.Exit(process.ExitCode);
+            }
+        }
+
         return output;
     }
 
@@ -97,4 +123,10 @@ public static class ProcessHelper
     {
         return Process.GetProcessesByName(process).Length > 0;
     }
+}
+
+public class ProcessExecutionException(int exitCode, string message)
+    : Exception(message)
+{
+    public int ExitCode { get; } = exitCode;
 }

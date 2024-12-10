@@ -24,6 +24,8 @@ public static class Configuration
 
     public static bool VerboseLogging { get; set; }
 
+    public static bool AutoConfirm { get; set; }
+
     public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
 
     public static string GetSourceCodeFolder()
