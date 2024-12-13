@@ -78,7 +78,6 @@ public static class ChangeDetection
             );
 
             var configurationSetting = Configuration.GetConfigurationSetting();
-            configurationSetting.SourceCodeFolder = Configuration.CliFolder;
             configurationSetting.Hash = currentHash;
             Configuration.SaveConfigurationSetting(configurationSetting);
         }
