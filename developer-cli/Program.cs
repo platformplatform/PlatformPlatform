@@ -17,15 +17,18 @@ if (args.Length == 0)
     args = ["--help"];
 }
 
+var solutionName = new DirectoryInfo(Configuration.SourceCodeFolder).Name;
 if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
 {
-    var figletText = new FigletText("PlatformPlatform");
+    var figletText = new FigletText(solutionName);
     AnsiConsole.Write(figletText);
 }
 
+AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+
 var rootCommand = new RootCommand
 {
-    Description = "Welcome to the PlatformPlatform Developer CLI!"
+    Description = $"Welcome to the {solutionName} Developer CLI!"
 };
 
 var allCommands = Assembly.GetExecutingAssembly().GetTypes()
