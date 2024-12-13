@@ -7,10 +7,8 @@ public static class SolutionHelper
 {
     public static FileInfo GetSolution(string? solutionName)
     {
-        var workingDirectory = Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application");
-
         var solutionsFiles = Directory
-            .GetFiles(workingDirectory, "*.sln", SearchOption.AllDirectories)
+            .GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.AllDirectories)
             .ToDictionary(s => new FileInfo(s).Name.Replace(".sln", ""), s => s);
 
         if (solutionName is not null && !solutionsFiles.ContainsKey(solutionName))

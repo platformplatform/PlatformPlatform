@@ -47,21 +47,19 @@ public class TranslateCommand : Command
 
     private static string GetTranslationFile(string? language)
     {
-        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application"));
-        var translationFiles = workingDirectory
-            .GetFiles("*.po", SearchOption.AllDirectories)
-            .Where(f => !f.FullName.Contains("node_modules") &&
-                        !f.FullName.EndsWith("en-US.po") &&
-                        !f.FullName.EndsWith("pseudo.po")
+        var translationFiles = Directory.GetFiles(Configuration.ApplicationFolder, "*.po", SearchOption.AllDirectories)
+            .Where(f => !f.Contains("node_modules") &&
+                        !f.EndsWith("en-US.po") &&
+                        !f.EndsWith("pseudo.po")
             )
-            .ToDictionary(s => s.FullName.Replace(workingDirectory.FullName, ""), f => f);
+            .ToDictionary(s => s.Replace(Configuration.ApplicationFolder, ""), f => f);
 
         if (language is not null)
         {
             var translationFile = translationFiles.Values
-                .FirstOrDefault(f => f.Name.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(f => f.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
 
-            return translationFile?.FullName
+            return translationFile
                    ?? throw new InvalidOperationException($"Translation file for language '{language}' not found.");
         }
 
@@ -70,7 +68,7 @@ public class TranslateCommand : Command
             .AddChoices(translationFiles.Keys);
 
         var selection = AnsiConsole.Prompt(prompt);
-        return translationFiles[selection].FullName;
+        return translationFiles[selection];
     }
 
     private static async Task RunTranslation(string translationFile)

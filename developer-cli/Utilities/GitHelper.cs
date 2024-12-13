@@ -19,7 +19,7 @@ public record Commit1(string Date, string Hash, string Message)
 {
     public string GetCommitMessage()
     {
-        return ProcessHelper.StartProcess($"git log -1 --pretty=%B {Hash}", Configuration.GetSourceCodeFolder(), true);
+        return ProcessHelper.StartProcess($"git log -1 --pretty=%B {Hash}", Configuration.SourceCodeFolder, true);
     }
 }
 
@@ -49,6 +49,6 @@ public record Commit
 
     public string GetFullCommitMessage()
     {
-        return ProcessHelper.StartProcess($"git log -1 --pretty=%B {Hash}", Configuration.GetSourceCodeFolder(), true);
+        return ProcessHelper.StartProcess($"git log -1 --pretty=%B {Hash}", Configuration.SourceCodeFolder, true);
     }
 }

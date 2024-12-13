@@ -9,7 +9,7 @@ public static class GithubHelper
     public static string GetGithubUri(string? remote = null)
     {
         // Get all Git remotes
-        var output = ProcessHelper.StartProcess("git remote -v", Configuration.GetSourceCodeFolder(), true);
+        var output = ProcessHelper.StartProcess("git remote -v", Configuration.SourceCodeFolder, true);
 
         // Sort the output lines so that the "origin" is at the top
         output = string.Join('\n', output.Split('\n')

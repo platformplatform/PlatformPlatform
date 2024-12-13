@@ -164,7 +164,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         while (true)
         {
             var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
-            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true).Trim();
+            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.CliFolder, true).Trim();
 
             if (result.StartsWith('[') && result.EndsWith(']'))
             {
@@ -460,55 +460,55 @@ public class ConfigureContinuousDeploymentsCommand : Command
              [bold]Please review planned changes before continuing.[/]
 
              1. The following will be created or updated in Azure:
-
+             
                 [bold]Active Directory App Registrations/Service Principals:[/]
                 * [blue]{Config.StagingSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.StagingSubscription.Name}[/] subscription.
                 * [blue]{Config.ProductionSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.ProductionSubscription.Name}[/] subscription.
-
+             
                 [yellow]** The Service Principals will get 'Contributor' and 'User Access Administrator' role on the Azure Subscriptions.[/]
-
+             
                 [bold]Active Directory Security Groups:[/]
                 * [blue]{Config.StagingSubscription.SqlAdminsGroup.Name}[/]
                 * [blue]{Config.ProductionSubscription.SqlAdminsGroup.Name}[/]
-
+             
                 [yellow]** The SQL Admins Security Groups are used to grant Managed Identities and CI/CD permissions to SQL Databases.[/]
 
              2. The following GitHub environments will be created if not exists:
                 * [blue]staging[/]
                 * [blue]production[/]
-
+             
                 [yellow]** Environments are used to require approval when infrastructure is deployed. In private GitHub repositories, this requires a paid plan.[/]
 
              3. The following GitHub repository variables will be created:
-
+             
                 [bold]Shared Variables:[/]
                 * TENANT_ID: [blue]{Config.TenantId}[/]
                 * UNIQUE_PREFIX: [blue]{Config.UniquePrefix}[/]
-
+             
                 [bold]Staging Shared Variables:[/]
                 * STAGING_SUBSCRIPTION_ID: [blue]{Config.StagingSubscription.Id}[/]
                 * STAGING_SHARED_LOCATION: [blue]{Config.StagingLocation.SharedLocation}[/]
                 * STAGING_SERVICE_PRINCIPAL_ID: [blue]{stagingServicePrincipal}[/]
                 * STAGING_SQL_ADMIN_OBJECT_ID: [blue]{stagingSqlAdminObject}[/]
                 * STAGING_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
-
+             
                 [bold]Staging Cluster Variables:[/]
                 * STAGING_CLUSTER_ENABLED: [blue]true[/]
                 * STAGING_CLUSTER_LOCATION: [blue]{Config.StagingLocation.ClusterLocation}[/]
                 * STAGING_CLUSTER_LOCATION_ACRONYM: [blue]{Config.StagingLocation.ClusterLocationAcronym}[/]
-
+             
                 [bold]Production Shared Variables:[/]
                 * PRODUCTION_SUBSCRIPTION_ID: [blue]{Config.ProductionSubscription.Id}[/]
                 * PRODUCTION_SHARED_LOCATION: [blue]{Config.ProductionLocation.SharedLocation}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
                 * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/]
                 * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
-
+             
                 [bold]Production Cluster 1 Variables:[/]
                 * PRODUCTION_CLUSTER1_ENABLED: [blue]false[/] ([yellow]Change this to 'true' when ready to deploy to production[/])
                 * PRODUCTION_CLUSTER1_LOCATION: [blue]{Config.ProductionLocation.ClusterLocation}[/]
                 * PRODUCTION_CLUSTER1_LOCATION_ACRONYM: [blue]{Config.ProductionLocation.ClusterLocationAcronym}[/]
-
+             
                 [yellow]** All variables can be changed on the GitHub Settings page. For example, if you want to deploy production or staging to different locations.[/]
 
              4. Disable the reusable GitHub workflows [blue]Deploy Container[/] and [blue]Plan and Deploy Infrastructure[/].
@@ -610,23 +610,23 @@ public class ConfigureContinuousDeploymentsCommand : Command
         void CreateFederatedCredential(string appRegistrationId, string displayName, string refRefsHeadsMain)
         {
             var parameters = JsonSerializer.Serialize(new
-            {
-                name = displayName,
-                issuer = "https://token.actions.githubusercontent.com",
-                subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
-                audiences = new[] { "api://AzureADTokenExchange" }
-            }
+                {
+                    name = displayName,
+                    issuer = "https://token.actions.githubusercontent.com",
+                    subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
+                    audiences = new[] { "api://AzureADTokenExchange" }
+                }
             );
 
             ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
-                Arguments =
+                {
+                    FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                    Arguments =
                         $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
-                RedirectStandardInput = true,
-                RedirectStandardOutput = !Configuration.VerboseLogging,
-                RedirectStandardError = !Configuration.VerboseLogging
-            }, parameters
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = !Configuration.VerboseLogging,
+                    RedirectStandardError = !Configuration.VerboseLogging
+                }, parameters
             );
         }
     }
@@ -742,7 +742,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         {
             // Command to list workflows
             var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
-            var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+            var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.CliFolder, true);
 
             // Parse JSON to find the specific workflow and check if it's active
             using var jsonDocument = JsonDocument.Parse(workflowsJson);
@@ -756,7 +756,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 // Disable the workflow if it is active
                 var workflowId = element.GetProperty("id").GetInt64();
                 var disableCommand = $"gh workflow disable {workflowId} --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
+                ProcessHelper.StartProcess(disableCommand, Configuration.CliFolder, true);
 
                 AnsiConsole.MarkupLine($"[green]Reusable Git Workflow '{workflowName}' has been disabled.[/]");
 
@@ -794,7 +794,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
                 var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
+                ProcessHelper.StartProcess(runWorkflowCommand, Configuration.CliFolder, true);
 
                 // Wait briefly to ensure the run has started
                 Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -802,7 +802,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 // Fetch and filter the workflows to find a "running" one
                 var listWorkflowRunsCommand =
                     $"gh run list --workflow={workflowFileName} --json databaseId,status --repo={Config.GithubInfo!.Path}";
-                var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
+                var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.CliFolder, true);
 
                 long? workflowId = null;
                 using (var jsonDocument = JsonDocument.Parse(workflowsJson))
@@ -826,10 +826,10 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 }
 
                 var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+                ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.CliFolder);
 
                 // Run the command one more time to get the result
-                var runResult = ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder(), true);
+                var runResult = ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.CliFolder, true);
                 if (runResult.Contains("completed") && runResult.Contains("success")) return;
 
                 AnsiConsole.MarkupLine($"[red]Error: Failed to run the {workflowName} GitHub workflow.[/]");
@@ -864,9 +864,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
              - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo!.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
 
              - Configure the Domain Name for the staging and production environments. This involves two steps:
-
+             
                  a. Go to [blue]{Config.GithubInfo!.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
-
+             
                  b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, re-run the failed jobs.
 
              - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.

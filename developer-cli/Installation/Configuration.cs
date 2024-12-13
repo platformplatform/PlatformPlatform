@@ -14,11 +14,22 @@ public static class Configuration
 
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
+    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
+
     public static readonly string PublishFolder = IsWindows
         ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlatformPlatform")
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".PlatformPlatform");
 
-    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
+    public static readonly string SourceCodeFolder = IsDebugMode
+        // In debug mode, the ProcessPath is in /developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
+        ? new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.Parent!.FullName
+        : new DirectoryInfo(GetConfigurationSetting().CliSourceCodeFolder!).Parent!.FullName;
+
+    public static readonly string ApplicationFolder = new(Path.Combine(SourceCodeFolder, "application"));
+
+    public static readonly string CliFolder = new(Path.Combine(SourceCodeFolder, "developer-cli"));
+
+    public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
@@ -26,30 +37,28 @@ public static class Configuration
 
     public static bool AutoConfirm { get; set; }
 
-    public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
-
-    public static string GetSourceCodeFolder()
-    {
-        if (IsDebugMode)
-        {
-            // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
-            return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
-        }
-
-        return GetConfigurationSetting().SourceCodeFolder!;
-    }
-
     public static ConfigurationSetting GetConfigurationSetting()
     {
         if (!File.Exists(ConfigFile) && IsDebugMode)
         {
-            return new ConfigurationSetting();
+            return new ConfigurationSetting { CliSourceCodeFolder = CliFolder };
         }
 
         try
         {
             var readAllText = File.ReadAllText(ConfigFile);
             var configurationSetting = JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
+
+#pragma warning disable CS0612 // Type or member is obsolete
+            // SourceCodeFolder is being renamed to CliSourceCodeFolder to align with the naming in Configuration
+            // Remove this migration when all CLI users of downstream projects have upgraded (sometime in early 2025)
+            if (configurationSetting.SourceCodeFolder?.EndsWith("/developer-cli") == true)
+            {
+                configurationSetting.CliSourceCodeFolder = configurationSetting.SourceCodeFolder;
+                configurationSetting.SourceCodeFolder = null;
+                SaveConfigurationSetting(configurationSetting);
+            }
+#pragma warning restore CS0612 // Type or member is obsolete
 
             if (configurationSetting.IsValid) return configurationSetting;
         }
@@ -74,6 +83,11 @@ public static class Configuration
 
     public static void SaveConfigurationSetting(ConfigurationSetting configurationSetting)
     {
+        if (!configurationSetting.IsValid)
+        {
+            throw new ArgumentException("Invalid configuration setting", nameof(configurationSetting));
+        }
+
         var jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
         var configuration = JsonSerializer.Serialize(configurationSetting, jsonSerializerOptions);
         File.WriteAllText(ConfigFile, configuration);
@@ -175,7 +189,10 @@ public static class Configuration
 
 public class ConfigurationSetting
 {
+    [Obsolete]
     public string? SourceCodeFolder { get; set; }
+
+    public string? CliSourceCodeFolder { get; set; }
 
     public string? Hash { get; set; }
 
@@ -184,7 +201,11 @@ public class ConfigurationSetting
     {
         get
         {
-            if (string.IsNullOrEmpty(SourceCodeFolder)) return false;
+#pragma warning disable CS0612 // Type or member is obsolete
+            if (SourceCodeFolder is not null) return false;
+#pragma warning restore CS0612 // Type or member is obsolete
+
+            if (CliSourceCodeFolder is null) return false;
 
             return !string.IsNullOrEmpty(Hash);
         }
