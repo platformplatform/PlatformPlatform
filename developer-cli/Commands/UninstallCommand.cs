@@ -19,7 +19,7 @@ public class UninstallCommand : Command
     {
         if (Configuration.IsWindows && !Configuration.IsDebugMode)
         {
-            AnsiConsole.MarkupLine($"[yellow]Please run 'dotnet run uninstall' from {Configuration.GetSourceCodeFolder()}.[/]");
+            AnsiConsole.MarkupLine($"[yellow]Please run 'dotnet run uninstall' from {Configuration.CliFolder}.[/]");
             Environment.Exit(0);
         }
 

@@ -24,8 +24,6 @@ public class CodeCoverageCommand : Command
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        var workingDirectory = new DirectoryInfo(Path.Combine(Configuration.GetSourceCodeFolder(), "..", "application")).FullName;
-
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
@@ -36,12 +34,12 @@ public class CodeCoverageCommand : Command
 
         ProcessHelper.StartProcess(
             $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:{solutionFileWithoutExtension}.*;-:*.Tests;-:type=*.AppHost.*\"",
-            workingDirectory
+            Configuration.ApplicationFolder
         );
 
-        var codeCoverageReport = Path.Combine(workingDirectory, "coverage", "dotCover.html");
+        var codeCoverageReport = Path.Combine(Configuration.ApplicationFolder, "coverage", "dotCover.html");
         AnsiConsole.MarkupLine($"[green]Code Coverage Report[/] {codeCoverageReport}");
-        ProcessHelper.StartProcess($"open {codeCoverageReport}", workingDirectory);
+        ProcessHelper.StartProcess($"open {codeCoverageReport}", Configuration.ApplicationFolder);
 
         return 0;
     }

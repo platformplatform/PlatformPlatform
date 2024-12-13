@@ -14,30 +14,28 @@ public static class Configuration
 
     private static readonly string UserFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
+    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
+
     public static readonly string PublishFolder = IsWindows
         ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PlatformPlatform")
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".PlatformPlatform");
 
-    public static readonly string AliasName = Assembly.GetExecutingAssembly().GetName().Name!;
+    public static readonly string SourceCodeFolder = IsDebugMode
+        // In debug mode, the ProcessPath is in /developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
+        ? new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.Parent!.FullName
+        : new DirectoryInfo(GetConfigurationSetting().SourceCodeFolder!).Parent!.FullName;
+
+    public static readonly string ApplicationFolder = new(Path.Combine(SourceCodeFolder, "application"));
+
+    public static readonly string CliFolder = new(Path.Combine(SourceCodeFolder, "developer-cli"));
+
+    public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
     public static bool VerboseLogging { get; set; }
 
     public static bool AutoConfirm { get; set; }
-
-    public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
-
-    public static string GetSourceCodeFolder()
-    {
-        if (IsDebugMode)
-        {
-            // In debug mode the ProcessPath is in developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
-            return new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.FullName;
-        }
-
-        return GetConfigurationSetting().SourceCodeFolder!;
-    }
 
     public static ConfigurationSetting GetConfigurationSetting()
     {

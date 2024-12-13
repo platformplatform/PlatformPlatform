@@ -17,10 +17,6 @@ public class PullPlatformPlatformChangesCommand : Command
     private const string PlatformplatformGitPath = "https://github.com/platformplatform/PlatformPlatform.git";
     private const string PlatformplatformPullRequestPrefix = "PlatformPlatform PR ";
 
-    private static readonly string GitFolder = Path.Combine(Configuration.GetSourceCodeFolder(), "..");
-    private static readonly DirectoryInfo WorkingDirectory = new(Path.Combine(GitFolder, "application"));
-    private static readonly Config Config = new();
-
     public PullPlatformPlatformChangesCommand() : base("pull-platformplatform-changes", "Pull new updates from PlatformPlatform into a pull-request branch")
     {
         AddOption(new Option<bool>(["--verbose-logging"], "Show git command and output"));
@@ -120,7 +116,7 @@ public class PullPlatformPlatformChangesCommand : Command
         // Find all pull request merge commits on the PlatformPlatform main branch since the last merge
         return ProcessHelper.StartProcess(
                 $"""git --no-pager log {lastMergedPullRequestHashFromPlatformPlatform.Hash}..{UpstreamRemote}/main --min-parents=2 --oneline --format="%cd %h %s" --date=short""",
-                GitFolder,
+                Configuration.SourceCodeFolder,
                 true
             )
             .ToCommits()
@@ -133,7 +129,7 @@ public class PullPlatformPlatformChangesCommand : Command
             // When pull requests from PlatformPlatform are cherry-picked, they are prefixed with "PlatformPlatform PR ### - Original pull request title"
             var latestPlatformPlatformCommit = ProcessHelper.StartProcess(
                     $"""git --no-pager log {activeBranchName} --grep="^{PlatformplatformPullRequestPrefix}" --format="%cd %h %s" --date=short""",
-                    GitFolder,
+                    Configuration.SourceCodeFolder,
                     true
                 )
                 .ToCommits()
@@ -146,7 +142,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
                 return ProcessHelper.StartProcess(
                         $"""git --no-pager log {UpstreamRemote}/main --grep=" (#{pullRequestNumber})$" --format="%cd %h %s" --date=short""",
-                        GitFolder,
+                        Configuration.SourceCodeFolder,
                         true
                     )
                     .ToCommits()
@@ -156,13 +152,13 @@ public class PullPlatformPlatformChangesCommand : Command
             // This is the first time pulling updates from PlatformPlatform, find the original commit
             var originalMergeCommitHash = ProcessHelper.StartProcess(
                 $"git merge-base main {UpstreamRemote}/main",
-                GitFolder,
+                Configuration.SourceCodeFolder,
                 true
             ).Trim();
 
             return ProcessHelper.StartProcess(
                     $"""git --no-pager log {originalMergeCommitHash} -1 --oneline --format="%cd %h %s" --date=short""",
-                    GitFolder,
+                    Configuration.SourceCodeFolder,
                     true
                 )
                 .ToCommits()
@@ -204,7 +200,7 @@ public class PullPlatformPlatformChangesCommand : Command
     {
         if (GetActiveBranchName() == PullRequestBranchName) return;
         var gitBranchCommand = DoesBranchExist(PullRequestBranchName) ? $"git switch {PullRequestBranchName}" : $"git switch -c {PullRequestBranchName}";
-        ProcessHelper.StartProcess(gitBranchCommand, GitFolder);
+        ProcessHelper.StartProcess(gitBranchCommand, Configuration.SourceCodeFolder);
     }
 
     private static bool StartCherryPick(Commit commit)
@@ -239,7 +235,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         var cherryPickResult = ProcessHelper.StartProcess(
             $"git cherry-pick -m 1 --no-commit --strategy=recursive -X theirs {commit.Hash}",
-            GitFolder,
+            Configuration.SourceCodeFolder,
             true,
             exitOnError: false
         );
@@ -278,7 +274,7 @@ public class PullPlatformPlatformChangesCommand : Command
         var updatedMessage = $"PlatformPlatform PR {pullRequestNumber} - {fullCommitMessage
             .Replace($" (#{pullRequestNumber})", "")
             .Replace("\"", "\"\"").TrimEnd()}";
-        ProcessHelper.StartProcess($"""git commit -m "{updatedMessage}" """, GitFolder);
+        ProcessHelper.StartProcess($"""git commit -m "{updatedMessage}" """, Configuration.SourceCodeFolder);
 
         if (fullCommitMessage.Contains("Downstream") && !AnsiConsole.Confirm($"{fullCommitMessage.EscapeMarkup()}{Environment.NewLine}[red]Before we continue, please follow the instructions described for Downstream Projects, and press enter to continue?[/]"))
         {
@@ -305,10 +301,10 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 try
                 {
-                    ProcessHelper.StartProcess("dotnet tool restore", WorkingDirectory.FullName, throwOnError: true);
-                    ProcessHelper.StartProcess("dotnet build", WorkingDirectory.FullName, throwOnError: true);
-                    ProcessHelper.StartProcess("npm install", WorkingDirectory.FullName, throwOnError: true);
-                    ProcessHelper.StartProcess("npm run build", WorkingDirectory.FullName, throwOnError: true);
+                    ProcessHelper.StartProcess("dotnet tool restore", Configuration.ApplicationFolder, throwOnError: true);
+                    ProcessHelper.StartProcess("dotnet build", Configuration.ApplicationFolder, throwOnError: true);
+                    ProcessHelper.StartProcess("npm install", Configuration.ApplicationFolder, throwOnError: true);
+                    ProcessHelper.StartProcess("npm run build", Configuration.ApplicationFolder, throwOnError: true);
 
                     AmendCommit();
                     break;
@@ -330,7 +326,7 @@ public class PullPlatformPlatformChangesCommand : Command
                 try
                 {
                     AnsiConsole.MarkupLine("[green]Running tests[/]");
-                    ProcessHelper.StartProcess("dotnet test", WorkingDirectory.FullName, throwOnError: true);
+                    ProcessHelper.StartProcess("dotnet test", Configuration.ApplicationFolder, throwOnError: true);
                     break;
                 }
                 catch (ProcessExecutionException)
@@ -352,8 +348,13 @@ public class PullPlatformPlatformChangesCommand : Command
                 try
                 {
                     AnsiConsole.MarkupLine("[green]Running cleanup[/]");
-                    var solutionFile = WorkingDirectory.GetFiles("*.sln", SearchOption.TopDirectoryOnly).Single();
-                    ProcessHelper.StartProcess($"""dotnet jb cleanupcode {solutionFile.Name} --profile=".NET only" """, WorkingDirectory.FullName, throwOnError: true);
+
+                    var solutionFile = Directory.GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.TopDirectoryOnly).Single();
+                    ProcessHelper.StartProcess(
+                        $"""dotnet jb cleanupcode {solutionFile} --profile=".NET only" """,
+                        Configuration.ApplicationFolder,
+                        throwOnError: true
+                    );
 
                     break;
                 }
@@ -374,9 +375,9 @@ public class PullPlatformPlatformChangesCommand : Command
                 try
                 {
                     AnsiConsole.MarkupLine("[green]Validating frontend code[/]");
-                    ProcessHelper.StartProcess("npm run format", WorkingDirectory.FullName, throwOnError: true);
-                    ProcessHelper.StartProcess("npm run lint", WorkingDirectory.FullName, throwOnError: true);
-                    ProcessHelper.StartProcess("npm run check", WorkingDirectory.FullName, throwOnError: true);
+                    ProcessHelper.StartProcess("npm run format", Configuration.ApplicationFolder, throwOnError: true);
+                    ProcessHelper.StartProcess("npm run lint", Configuration.ApplicationFolder, throwOnError: true);
+                    ProcessHelper.StartProcess("npm run check", Configuration.ApplicationFolder, throwOnError: true);
                     break;
                 }
                 catch (ProcessExecutionException)
@@ -413,8 +414,8 @@ public class PullPlatformPlatformChangesCommand : Command
         void CreateChangeCommit(string message)
         {
             AnsiConsole.MarkupLine("[green]Adding changes[/]");
-            ProcessHelper.StartProcess("git add .", GitFolder);
-            ProcessHelper.StartProcess($"git commit -m \"{message}\"", GitFolder);
+            ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
+            ProcessHelper.StartProcess($"git commit -m \"{message}\"", Configuration.SourceCodeFolder);
         }
     }
 
@@ -474,7 +475,7 @@ public class PullPlatformPlatformChangesCommand : Command
         AnsiConsole.MarkupLine(pullRequestDescription);
         AnsiConsole.Confirm("Copy the above text as a description and use it for the pull request description. Continue?");
 
-        ProcessHelper.StartProcess($"git push {DefaultRemote} {PullRequestBranchName}", GitFolder, true);
+        ProcessHelper.StartProcess($"git push {DefaultRemote} {PullRequestBranchName}", Configuration.SourceCodeFolder, true);
 
         var githubUri = GithubHelper.GetGithubUri(DefaultRemote);
         var githubInfo = GithubHelper.GetGithubInfo(githubUri);
@@ -489,12 +490,17 @@ public class PullPlatformPlatformChangesCommand : Command
             return [];
         }
 
-        var lastCommitHash = ProcessHelper.StartProcess("git --no-pager log -1 --pretty=format:\"%H\"", GitFolder, true).Trim();
-        var lastMainHash = ProcessHelper.StartProcess("git merge-base HEAD main", GitFolder, true).Trim();
+        var lastCommitHash = ProcessHelper.StartProcess(
+            "git --no-pager log -1 --pretty=format:\"%H\"",
+            Configuration.SourceCodeFolder,
+            true
+        ).Trim();
+
+        var lastMainHash = ProcessHelper.StartProcess("git merge-base HEAD main", Configuration.SourceCodeFolder, true).Trim();
 
         var startProcess = ProcessHelper.StartProcess(
             $"""git --no-pager log {lastMainHash}..{lastCommitHash} --oneline --format="%cd %h %s" --date=short""",
-            GitFolder,
+            Configuration.SourceCodeFolder,
             true
         );
 
@@ -507,43 +513,43 @@ public class PullPlatformPlatformChangesCommand : Command
 
     private static bool HasPendingChanges()
     {
-        var pendingChanges = ProcessHelper.StartProcess("git status --porcelain", GitFolder, true).Trim();
+        var pendingChanges = ProcessHelper.StartProcess("git status --porcelain", Configuration.SourceCodeFolder, true).Trim();
         return !string.IsNullOrEmpty(pendingChanges);
     }
 
     private static bool HasUnstagedChanges()
     {
-        var unstagedChanges = ProcessHelper.StartProcess("git diff --name-only", GitFolder, true).Trim();
+        var unstagedChanges = ProcessHelper.StartProcess("git diff --name-only", Configuration.SourceCodeFolder, true).Trim();
         return !string.IsNullOrEmpty(unstagedChanges);
     }
 
     private static bool DoesBranchExist(string branchName)
     {
-        var branches = ProcessHelper.StartProcess("git branch", GitFolder, true).Split(Environment.NewLine);
+        var branches = ProcessHelper.StartProcess("git branch", Configuration.SourceCodeFolder, true).Split(Environment.NewLine);
         return branches.Select(b => b.Trim('*').Trim()).Contains(branchName);
     }
 
     private static string GetActiveBranchName()
     {
-        return ProcessHelper.StartProcess("git rev-parse --abbrev-ref HEAD", GitFolder, true).Trim();
+        return ProcessHelper.StartProcess("git rev-parse --abbrev-ref HEAD", Configuration.SourceCodeFolder, true).Trim();
     }
 
     private static bool HasOriginRemote()
     {
-        var remotes = ProcessHelper.StartProcess("git remote -v", GitFolder, true).Split(Environment.NewLine);
+        var remotes = ProcessHelper.StartProcess("git remote -v", Configuration.SourceCodeFolder, true).Split(Environment.NewLine);
         return remotes.Any(r => r.Contains(DefaultRemote));
     }
 
     private static void AmendCommit()
     {
         AnsiConsole.MarkupLine("[green]Amending changes[/]");
-        ProcessHelper.StartProcess("git add .", GitFolder);
-        ProcessHelper.StartProcess("git commit --amend --no-edit", GitFolder);
+        ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
+        ProcessHelper.StartProcess("git commit --amend --no-edit", Configuration.SourceCodeFolder);
     }
 
     private static void EnsurePlatformPlatformUpstreamRemoteExists()
     {
-        var remotes = ProcessHelper.StartProcess("git remote -v", GitFolder, true).Split(Environment.NewLine);
+        var remotes = ProcessHelper.StartProcess("git remote -v", Configuration.SourceCodeFolder, true).Split(Environment.NewLine);
 
         if (remotes.Any(r => r.Contains(UpstreamRemote) && r.Contains("github.com/platformplatform/PlatformPlatform.git")))
         {
@@ -555,31 +561,30 @@ public class PullPlatformPlatformChangesCommand : Command
             Environment.Exit(0);
         }
 
-        ProcessHelper.StartProcess($"git remote add {UpstreamRemote} {PlatformplatformGitPath}", GitFolder);
+        ProcessHelper.StartProcess($"git remote add {UpstreamRemote} {PlatformplatformGitPath}", Configuration.SourceCodeFolder);
     }
 
     private static void EnsureBranchIsUpToDate()
     {
         var activeBranchName = GetActiveBranchName();
-        ProcessHelper.StartProcess($"git fetch {DefaultRemote}", GitFolder);
-        ProcessHelper.StartProcess($"git fetch {UpstreamRemote}", GitFolder);
+        ProcessHelper.StartProcess($"git fetch {DefaultRemote}", Configuration.SourceCodeFolder);
+        ProcessHelper.StartProcess($"git fetch {UpstreamRemote}", Configuration.SourceCodeFolder);
 
-        var remoteBranches = ProcessHelper.StartProcess("git branch -r", GitFolder, true)
+        var remoteBranches = ProcessHelper.StartProcess("git branch -r", Configuration.SourceCodeFolder, true)
             .Split(Environment.NewLine)
             .Select(b => b.Trim());
         if (!remoteBranches.Contains($"{DefaultRemote}/{PullRequestBranchName}")) return;
 
         var latestOriginCommit = ProcessHelper.StartProcess(
                 $"""git --no-pager log {DefaultRemote}/{activeBranchName} --oneline --format="%cd %h %s" --date=short -n 1 """,
-                GitFolder,
+                Configuration.SourceCodeFolder,
                 true
             )
             .ToCommits()
             .First();
 
         var localCommits = ProcessHelper.StartProcess(
-                $"""git --no-pager log {activeBranchName} --oneline --format="%cd %h %s" --date=short""",
-                GitFolder,
+                $"""git --no-pager log {activeBranchName} --oneline --format="%cd %h %s" --date=short""", Configuration.SourceCodeFolder,
                 true
             )
             .ToCommits();

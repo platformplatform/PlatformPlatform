@@ -164,7 +164,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         while (true)
         {
             var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
-            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true).Trim();
+            var result = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.CliFolder, true).Trim();
 
             if (result.StartsWith('[') && result.EndsWith(']'))
             {
@@ -742,7 +742,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         {
             // Command to list workflows
             var listWorkflowsCommand = $"gh workflow list --json name,state,id --repo={Config.GithubInfo!.Path}";
-            var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.GetSourceCodeFolder(), true);
+            var workflowsJson = ProcessHelper.StartProcess(listWorkflowsCommand, Configuration.CliFolder, true);
 
             // Parse JSON to find the specific workflow and check if it's active
             using var jsonDocument = JsonDocument.Parse(workflowsJson);
@@ -756,7 +756,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 // Disable the workflow if it is active
                 var workflowId = element.GetProperty("id").GetInt64();
                 var disableCommand = $"gh workflow disable {workflowId} --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcess(disableCommand, Configuration.GetSourceCodeFolder(), true);
+                ProcessHelper.StartProcess(disableCommand, Configuration.CliFolder, true);
 
                 AnsiConsole.MarkupLine($"[green]Reusable Git Workflow '{workflowName}' has been disabled.[/]");
 
@@ -794,7 +794,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 AnsiConsole.MarkupLine($"[green]Starting {workflowName} GitHub workflow...[/]");
 
                 var runWorkflowCommand = $"gh workflow run {workflowFileName} --ref main --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcess(runWorkflowCommand, Configuration.GetSourceCodeFolder(), true);
+                ProcessHelper.StartProcess(runWorkflowCommand, Configuration.CliFolder, true);
 
                 // Wait briefly to ensure the run has started
                 Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -802,7 +802,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 // Fetch and filter the workflows to find a "running" one
                 var listWorkflowRunsCommand =
                     $"gh run list --workflow={workflowFileName} --json databaseId,status --repo={Config.GithubInfo!.Path}";
-                var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.GetSourceCodeFolder(), true);
+                var workflowsJson = ProcessHelper.StartProcess(listWorkflowRunsCommand, Configuration.CliFolder, true);
 
                 long? workflowId = null;
                 using (var jsonDocument = JsonDocument.Parse(workflowsJson))
@@ -826,10 +826,10 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 }
 
                 var watchWorkflowRunCommand = $"gh run watch {workflowId.Value} --repo={Config.GithubInfo!.Path}";
-                ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder());
+                ProcessHelper.StartProcessWithSystemShell(watchWorkflowRunCommand, Configuration.CliFolder);
 
                 // Run the command one more time to get the result
-                var runResult = ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.GetSourceCodeFolder(), true);
+                var runResult = ProcessHelper.StartProcess(watchWorkflowRunCommand, Configuration.CliFolder, true);
                 if (runResult.Contains("completed") && runResult.Contains("success")) return;
 
                 AnsiConsole.MarkupLine($"[red]Error: Failed to run the {workflowName} GitHub workflow.[/]");
