@@ -50,7 +50,11 @@ public class InstallCommand : Command
 
         if (IsAliasRegistered())
         {
-            AnsiConsole.MarkupLine($"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]");
+            var installedAliasPath = Configuration.GetConfigurationSetting().CliSourceCodeFolder!;
+            AnsiConsole.MarkupLine(Environment.ProcessPath!.StartsWith(installedAliasPath)
+                ? $"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]"
+                : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}.[/]");
+
             return;
         }
 
