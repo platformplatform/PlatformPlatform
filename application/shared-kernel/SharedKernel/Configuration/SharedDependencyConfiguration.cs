@@ -4,9 +4,12 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 using PlatformPlatform.SharedKernel.DomainEvents;
 using PlatformPlatform.SharedKernel.Integrations.Email;
@@ -36,6 +39,7 @@ public static class SharedDependencyConfiguration
         return services
             .AddServiceDiscovery()
             .AddSingleton(GetTokenSigningService())
+            .AddAuthentication()
             .AddDefaultJsonSerializerOptions()
             .AddPersistenceHelpers<T>()
             .AddDefaultHealthChecks()
@@ -64,6 +68,16 @@ public static class SharedDependencyConfiguration
         }
 
         return new DevelopmentTokenSigningClient();
+    }
+
+    private static IServiceCollection AddAuthentication(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IPasswordHasher<object>, PasswordHasher<object>>()
+            .AddScoped<OneTimePasswordHelper>()
+            .AddScoped<RefreshTokenGenerator>()
+            .AddScoped<AccessTokenGenerator>()
+            .AddScoped<AuthenticationTokenService>();
     }
 
     private static IServiceCollection AddDefaultJsonSerializerOptions(this IServiceCollection services)
