@@ -30,6 +30,9 @@ export function DndGridList<T extends ItemData[]>({
     getItems(keys) {
       return [...keys].map((key) => {
         const item = list.getItem(key);
+        if (!item) {
+          throw new Error(`Item with key ${key} not found`);
+        }
         return {
           [dataTypeId]: JSON.stringify(item),
           "text/plain": item.name

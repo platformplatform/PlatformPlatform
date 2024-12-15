@@ -23,7 +23,7 @@ export function UserTable() {
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
-    column: orderBy,
+    column: orderBy ?? "email",
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
 
