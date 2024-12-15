@@ -32,9 +32,9 @@
     "@tanstack/react-router": "1.90.0",
     "lucide-react": "0.468.0",
     "openapi-fetch": "0.13.3",
-    "react": "18.3.0-canary-c3048aab4-20240326",
+    "react": "19.0.0",
     "react-aria-components": "1.5.0",
-    "react-dom": "18.3.0-canary-c3048aab4-20240326",
+    "react-dom": "19.0.0",
     "tailwind-merge": "2.5.5",
     "tailwind-variants": "0.3.0",
     "zod": "3.24.1"
@@ -52,8 +52,8 @@
     "@tailwindcss/container-queries": "0.1.1",
     "@tanstack/router-devtools": "1.90.0",
     "@tanstack/router-plugin": "1.87.13",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
     "openapi-typescript": "7.4.4",
     "openapi-typescript-helpers": "0.0.15",
     "rimraf": "6.0.1",
@@ -66,8 +66,8 @@
   "overrides": {
     "@types/react": "$@types/react",
     "@types/react-dom": "$@types/react-dom",
-    "react": "18.3.0-canary-c3048aab4-20240326",
-    "react-dom": "18.3.0-canary-c3048aab4-20240326"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "postcss": {
     "plugins": {
