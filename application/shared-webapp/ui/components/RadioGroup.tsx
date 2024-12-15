@@ -70,6 +70,7 @@ export function Radio({ className, children, ...props }: Readonly<RadioProps>) {
       )}
     >
       {(renderProps) => (
+        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           <div className={indicatorStyles(renderProps)} />
           {children}
