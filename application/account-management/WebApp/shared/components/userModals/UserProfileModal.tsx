@@ -10,7 +10,8 @@ import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import type { Schemas } from "@/shared/lib/api/client";
 import { api } from "@/shared/lib/api/client";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend

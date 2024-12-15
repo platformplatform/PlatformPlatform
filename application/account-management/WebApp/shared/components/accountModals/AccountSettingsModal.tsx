@@ -6,7 +6,8 @@ import { TextField } from "@repo/ui/components/TextField";
 import { Heading, Label, Separator } from "react-aria-components";
 import { Trash2, XIcon } from "lucide-react";
 import React from "react";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 type AccountSettingsModal = {
   isOpen: boolean;

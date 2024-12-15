@@ -5,7 +5,8 @@ import { Button } from "@repo/ui/components/Button";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { lazy } from "react";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 const AvatarButton = lazy(() => import("account-management/AvatarButton"));
 

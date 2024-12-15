@@ -5,7 +5,8 @@ import { Button } from "@repo/ui/components/Button";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import AvatarButton from "../AvatarButton";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 interface TopMenuProps {
   children?: ReactNode;

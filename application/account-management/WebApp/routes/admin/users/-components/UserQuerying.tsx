@@ -2,7 +2,8 @@ import { ListFilterIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { SearchField } from "@repo/ui/components/SearchField";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 export function UserQuerying() {
   const [searchTerm, setSearchTerm] = useState<string>("");

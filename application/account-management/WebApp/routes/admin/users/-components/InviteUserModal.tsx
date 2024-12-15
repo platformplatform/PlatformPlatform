@@ -9,7 +9,8 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
 import { api } from "@/shared/lib/api/client";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 type InviteUserModalProps = {
   isOpen: boolean;
