@@ -8,10 +8,9 @@ import { Link } from "@repo/ui/components/Link";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
-import { useFormState } from "react-dom";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
@@ -33,7 +32,7 @@ export const Route = createFileRoute("/login/")({
 export function LoginForm() {
   const [email, setEmail] = useState("");
 
-  const [{ success, errors, data, title, message }, action, isPending] = useFormState(
+  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/authentication/login/start"),
     { success: null }
   );
