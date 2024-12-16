@@ -4,32 +4,38 @@ import { Button } from "@repo/ui/components/Button";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useNavigate, useLocation } from "@tanstack/react-router";
-import type { SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { type SortableUserProperties, type SortOrder, UserRole } from "@/shared/lib/api/client";
+import { Select, SelectItem } from "@repo/ui/components/Select";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
+// SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
-  search?: string;
-  orderBy?: SortableUserProperties;
-  sortOrder?: SortOrder;
-  pageOffset?: number;
+  search: string | undefined;
+  userRole: UserRole | undefined;
+  orderBy: SortableUserProperties | undefined;
+  sortOrder: SortOrder | undefined;
+  pageOffset: number | undefined;
 }
 
+/**
+ * UserQuerying component handles the user list filtering.
+ * Uses URL parameters as the source of truth for all filters,
+ * with a local state only for debounced search input.
+ */
 export function UserQuerying() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const searchParams = (useLocation().search as SearchParams) ?? {};
+  const [search, setSearch] = useState<string | undefined>(searchParams.search);
 
-  const searchParams = location.search as SearchParams;
-  const { search: urlSearch = "" } = searchParams ?? {};
-
-  const [search, setSearch] = useState<string>(urlSearch);
-
-  const updateSearch = useCallback(
-    (value: string) => {
+  // Updates URL parameters while preserving existing ones
+  const updateFilter = useCallback(
+    (params: Partial<SearchParams>) => {
       navigate({
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
-          search: value || undefined,
+          ...params,
           pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset
         })
       });
@@ -37,23 +43,46 @@ export function UserQuerying() {
     [navigate]
   );
 
+  // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      updateSearch(search);
-    }, 700);
+      updateFilter({ search: (search as string) || undefined });
+    }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [search, updateSearch]);
-
-  useEffect(() => {
-    setSearch(urlSearch);
-  }, [urlSearch]);
+  }, [search, updateFilter]);
 
   return (
-    <div className="flex justify-between mt-4 mb-4 gap-2">
-      <SearchField placeholder={t`Search`} value={search} onChange={setSearch} aria-label={t`Search`} autoFocus />
+    <div className="flex items-center mt-4 mb-4 gap-2">
+      <SearchField
+        placeholder={t`Search`}
+        value={search}
+        onChange={setSearch}
+        label={t`Search`}
+        autoFocus
+        className="min-w-[240px]"
+      />
 
-      <Button variant="secondary">
+      <Select
+        selectedKey={searchParams.userRole}
+        onSelectionChange={(userRole) => {
+          updateFilter({ userRole: (userRole as UserRole) || undefined });
+        }}
+        label={t`User Role`}
+        placeholder={t`Any role`}
+        className="w-[150px]"
+      >
+        <SelectItem id="">
+          <Trans>Any role</Trans>
+        </SelectItem>
+        {Object.values(UserRole).map((userRole) => (
+          <SelectItem id={userRole} key={userRole}>
+            {getUserRoleLabel(userRole)}
+          </SelectItem>
+        ))}
+      </Select>
+
+      <Button variant="secondary" className="mt-6">
         <ListFilterIcon size={16} />
         <Trans>Filters</Trans>
       </Button>

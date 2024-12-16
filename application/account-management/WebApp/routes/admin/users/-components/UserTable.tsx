@@ -22,7 +22,7 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { search, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
+  const { search, userRole, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -36,6 +36,7 @@ export function UserTable() {
     params: {
       query: {
         Search: search,
+        UserRole: userRole,
         OrderBy: orderBy,
         SortOrder: sortOrder,
         PageOffset: pageOffset
@@ -67,9 +68,9 @@ export function UserTable() {
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
-          pageOffset: undefined,
           orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
-          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending
+          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending,
+          pageOffset: undefined
         })
       });
     },
@@ -161,7 +162,7 @@ export function UserTable() {
 
       <div className="flex flex-col gap-2 h-full w-full">
         <Table
-          key={`${orderBy}-${sortOrder}-${search}`}
+          key={`${orderBy}-${sortOrder}-${search}-${userRole}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
           sortDescriptor={sortDescriptor}
