@@ -53,6 +53,12 @@ msgstr "Alle brugere"
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "Any role"
+msgstr "Enhver rolle"
+
+msgid "Any status"
+msgstr "Enhver status"
+
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
 msgid "Are you sure you want to delete {0}?"
 msgstr "Er du sikker på, at du vil slette {0}?"
@@ -258,20 +264,11 @@ msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
-msgid "Select role"
-msgstr "Vælg rolle"
-
-msgid "Select status"
-msgstr "Vælg status"
-
 msgid "Send invite"
 msgstr "Send invitation"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
-
-msgid "Status"
-msgstr "Status"
 
 msgid "subdomain"
 msgstr "Underdomæne"
@@ -308,6 +305,12 @@ msgstr "Upload foto"
 
 msgid "User profile"
 msgstr "Brugerprofil"
+
+msgid "User role"
+msgstr "Brugerrolle"
+
+msgid "User status"
+msgstr "Brugerstatus"
 
 msgid "user@email.com"
 msgstr "user@email.com"

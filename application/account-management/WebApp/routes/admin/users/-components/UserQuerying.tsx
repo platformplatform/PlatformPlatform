@@ -125,6 +125,30 @@ export function UserQuerying() {
     setSearch(value);
   };
 
+  const handleRoleChange = (key: Key) => {
+    setSelectedRole(key === "" ? null : key);
+    navigate({
+      to: "/admin/users",
+      search: (prev) => ({
+        ...prev,
+        userRole: key === "" ? undefined : (key as UserRole),
+        pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset
+      })
+    });
+  };
+
+  const handleStatusChange = (key: Key) => {
+    setSelectedStatus(key === "" ? null : key);
+    navigate({
+      to: "/admin/users",
+      search: (prev) => ({
+        ...prev,
+        status: key === "" ? undefined : (key as string),
+        pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset
+      })
+    });
+  };
+
   return (
     <div className="flex items-center mt-4 mb-4 gap-4">
       <div className="flex flex-col gap-2">
@@ -140,10 +164,10 @@ export function UserQuerying() {
 
       <Select
         selectedKey={selectedRole}
-        onSelectionChange={setSelectedRole}
-        items={USER_ROLE_OPTIONS}
-        label={t`Role`}
-        placeholder={t`Select role`}
+        onSelectionChange={handleRoleChange}
+        items={[{ id: "", label: t`Any role` }, ...USER_ROLE_OPTIONS]}
+        label={t`User role`}
+        placeholder={t`Any role`}
         className="w-[150px]"
       >
         {(item) => <SelectItem id={item.id}>{item.label}</SelectItem>}
@@ -151,10 +175,10 @@ export function UserQuerying() {
 
       <Select
         selectedKey={selectedStatus}
-        onSelectionChange={setSelectedStatus}
-        items={STATUS_OPTIONS}
-        label={t`Status`}
-        placeholder={t`Select status`}
+        onSelectionChange={handleStatusChange}
+        items={[{ id: "", label: t`Any status` }, ...STATUS_OPTIONS]}
+        label={t`User status`}
+        placeholder={t`Any status`}
         className="w-[150px]"
       >
         {(item) => <SelectItem id={item.id}>{item.label}</SelectItem>}
