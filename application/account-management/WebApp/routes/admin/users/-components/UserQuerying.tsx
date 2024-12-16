@@ -7,10 +7,8 @@ import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import type { Key } from "@repo/ui/components/Select";
 import { CalendarDate, type DateValue } from "@internationalized/date";
-
-type UserStatus = "Active" | "Pending";
-
-const USER_STATUSES: UserStatus[] = ["Active", "Pending"];
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { type UserStatus, USER_STATUSES, getStatusLabel } from "@/shared/lib/api/userStatus";
 
 interface RoleOption {
   id: UserRole;
@@ -32,16 +30,11 @@ interface SearchParams {
   pageOffset?: number;
   orderBy?: SortableUserProperties;
   sortOrder?: SortOrder;
-  role?: string;
+  userRole?: string;
   status?: string;
   startDate?: string;
   endDate?: string;
 }
-
-const STATUS_OPTIONS: StatusOption[] = USER_STATUSES.map((status) => ({
-  id: status,
-  label: status
-}));
 
 export function UserQuerying() {
   const navigate = useNavigate();
@@ -50,15 +43,15 @@ export function UserQuerying() {
   const searchParams = location.search as SearchParams;
   const {
     search: urlSearch = "",
-    role: urlRole,
+    userRole: urlRole,
     status: urlStatus,
     startDate: urlStartDate,
     endDate: urlEndDate
   } = searchParams ?? {};
 
-  const ROLE_OPTIONS: RoleOption[] = Object.values(UserRole).map((role) => ({
+  const USER_ROLE_OPTIONS: RoleOption[] = Object.values(UserRole).map((role) => ({
     id: role,
-    label: role
+    label: getUserRoleLabel(role)
   }));
 
   const [search, setSearch] = useState<string>(urlSearch);
@@ -85,6 +78,11 @@ export function UserQuerying() {
     }
   });
 
+  const STATUS_OPTIONS: StatusOption[] = USER_STATUSES.map((status) => ({
+    id: status,
+    label: getStatusLabel(status)
+  }));
+
   const updateSearch = useCallback(
     (value: string) => {
       navigate({
@@ -93,7 +91,7 @@ export function UserQuerying() {
           ...prev,
           search: value || undefined,
           pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset,
-          role: selectedRole ?? undefined,
+          userRole: selectedRole ? (selectedRole as UserRole) : null,
           status: selectedStatus ?? undefined,
           startDate: dateRange?.start?.toString() ?? undefined,
           endDate: dateRange?.end?.toString() ?? undefined
@@ -135,7 +133,7 @@ export function UserQuerying() {
       <Select
         selectedKey={selectedRole}
         onSelectionChange={setSelectedRole}
-        items={ROLE_OPTIONS}
+        items={USER_ROLE_OPTIONS}
         label={t`Role`}
         placeholder={t`Select role`}
         className="w-[150px]"

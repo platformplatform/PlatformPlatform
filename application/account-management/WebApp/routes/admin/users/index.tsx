@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
-import { SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
+import { SortableUserProperties, SortOrder, UserRole } from "@/shared/lib/api/client";
 import { z } from "zod";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
@@ -10,13 +10,14 @@ import { Button } from "@repo/ui/components/Button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import InviteUserModal from "./-components/InviteUserModal";
-import { Trans } from "@lingui/macro";
+import { Trans } from "@lingui/react/macro";
 
 const userPageSearchSchema = z.object({
   pageOffset: z.number().default(0).optional(),
   orderBy: z.nativeEnum(SortableUserProperties).default(SortableUserProperties.Name).optional(),
   sortOrder: z.nativeEnum(SortOrder).default(SortOrder.Ascending).optional(),
-  search: z.string().optional()
+  search: z.string().optional(),
+  userRole: z.nativeEnum(UserRole).nullable().optional()
 });
 
 export const Route = createFileRoute("/admin/users/")({

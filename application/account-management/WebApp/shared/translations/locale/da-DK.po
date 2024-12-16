@@ -25,6 +25,9 @@ msgstr "Kontoindstillinger"
 msgid "Actions"
 msgstr "Handlinger"
 
+msgid "Active"
+msgstr "Aktiv"
+
 msgid "Active Users"
 msgstr "Aktive brugere"
 
@@ -39,6 +42,9 @@ msgstr "Tilføj flere i brugermenuen"
 
 msgid "Added"
 msgstr "Tilføjet"
+
+msgid "Admin"
+msgstr "Admin"
 
 msgid "All Users"
 msgstr "Alle brugere"
@@ -183,6 +189,9 @@ msgstr "Administrer din konto her."
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
 
+msgid "Member"
+msgstr "Medlem"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -200,6 +209,9 @@ msgstr "Ingen aktiv tilmeldingssession"
 
 msgid "Organization"
 msgstr "Organisation"
+
+msgid "Owner"
+msgstr "Ejer"
 
 msgid "Pending"
 msgstr "Afventer"

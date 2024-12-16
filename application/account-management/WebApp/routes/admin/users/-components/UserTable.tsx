@@ -15,12 +15,13 @@ import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { orderBy, pageOffset, sortOrder, search } = useSearch({ strict: false });
+  const { orderBy, pageOffset, sortOrder, search, userRole } = useSearch({ strict: false });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -36,7 +37,8 @@ export function UserTable() {
         PageOffset: pageOffset,
         OrderBy: orderBy,
         SortOrder: sortOrder,
-        Search: search
+        Search: search,
+        UserRole: userRole ?? null
       }
     },
     key: refreshKey
@@ -160,7 +162,7 @@ export function UserTable() {
                 <Cell>{toFormattedDate(user.createdAt)}</Cell>
                 <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
                 <Cell>
-                  <Badge variant="outline">{user.role}</Badge>
+                  <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
                 </Cell>
                 <Cell>
                   <div className="group flex gap-2 w-full">

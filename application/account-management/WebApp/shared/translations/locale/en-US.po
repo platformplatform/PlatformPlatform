@@ -25,6 +25,9 @@ msgstr "Account Settings"
 msgid "Actions"
 msgstr "Actions"
 
+msgid "Active"
+msgstr "Active"
+
 msgid "Active Users"
 msgstr "Active Users"
 
@@ -39,6 +42,9 @@ msgstr "Add more in the Users menu"
 
 msgid "Added"
 msgstr "Added"
+
+msgid "Admin"
+msgstr "Admin"
 
 msgid "All Users"
 msgstr "All Users"
@@ -183,6 +189,9 @@ msgstr "Manage your account here."
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
 
+msgid "Member"
+msgstr "Member"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -200,6 +209,9 @@ msgstr "No active signup session"
 
 msgid "Organization"
 msgstr "Organization"
+
+msgid "Owner"
+msgstr "Owner"
 
 msgid "Pending"
 msgstr "Pending"

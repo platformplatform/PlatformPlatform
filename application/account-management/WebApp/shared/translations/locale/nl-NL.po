@@ -25,6 +25,9 @@ msgstr "Accountinstellingen"
 msgid "Actions"
 msgstr "Acties"
 
+msgid "Active"
+msgstr "Actief"
+
 msgid "Active Users"
 msgstr "Actieve gebruikers"
 
@@ -39,6 +42,9 @@ msgstr "Nieuwe toevoegen via het gebruikersmenu"
 
 msgid "Added"
 msgstr "Toegevoegd"
+
+msgid "Admin"
+msgstr "Beheerder"
 
 msgid "All Users"
 msgstr "Alle gebruikers"
@@ -183,6 +189,9 @@ msgstr "Beheer je account hier."
 msgid "Manage your users and permissions here."
 msgstr "Beheer je gebruikers en rechten hier."
 
+msgid "Member"
+msgstr "Lid"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -200,6 +209,9 @@ msgstr "Geen actieve registratiesessie"
 
 msgid "Organization"
 msgstr "Organisatie"
+
+msgid "Owner"
+msgstr "Eigenaar"
 
 msgid "Pending"
 msgstr "In behandeling"
