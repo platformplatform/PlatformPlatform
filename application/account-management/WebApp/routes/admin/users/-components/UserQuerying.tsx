@@ -43,7 +43,7 @@ export function UserQuerying() {
   const searchParams = location.search as SearchParams;
   const {
     search: urlSearch = "",
-    userRole: urlRole,
+    userRole,
     status: urlStatus,
     startDate: urlStartDate,
     endDate: urlEndDate
@@ -55,8 +55,8 @@ export function UserQuerying() {
   }));
 
   const [search, setSearch] = useState<string>(urlSearch);
-  const [selectedRole, setSelectedRole] = useState<Key | null>(urlRole === "null" ? null : urlRole ?? null);
-  const [selectedStatus, setSelectedStatus] = useState<Key | null>(urlStatus === "null" ? null : urlStatus ?? null);
+  const [selectedRole, setSelectedRole] = useState<Key | null>(userRole ?? null);
+  const [selectedStatus, setSelectedStatus] = useState<Key | null>(urlStatus ?? null);
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     if (!urlStartDate || !urlEndDate) return null;
 
@@ -91,7 +91,7 @@ export function UserQuerying() {
           ...prev,
           search: value || undefined,
           pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset,
-          userRole: selectedRole ? (selectedRole as UserRole) : null,
+          userRole: selectedRole ? (selectedRole as UserRole) : undefined,
           status: selectedStatus ?? undefined,
           startDate: dateRange?.start?.toString() ?? undefined,
           endDate: dateRange?.end?.toString() ?? undefined
@@ -109,13 +109,21 @@ export function UserQuerying() {
     return () => clearTimeout(timeoutId);
   }, [search, updateSearch]);
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-  };
+  useEffect(() => {
+    setSelectedRole(userRole ?? null);
+  }, [userRole]);
+
+  useEffect(() => {
+    setSelectedStatus(urlStatus ?? null);
+  }, [urlStatus]);
 
   useEffect(() => {
     setSearch(urlSearch);
   }, [urlSearch]);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+  };
 
   return (
     <div className="flex items-center mt-4 mb-4 gap-4">
