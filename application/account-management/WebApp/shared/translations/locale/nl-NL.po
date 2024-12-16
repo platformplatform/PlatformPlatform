@@ -69,6 +69,9 @@ msgstr "Verder"
 msgid "Create your account"
 msgstr "Maak je account aan"
 
+msgid "Creation date"
+msgstr "Aanmaakdatum"
+
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
@@ -131,9 +134,6 @@ msgstr "Europa"
 
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
-
-msgid "Filters"
-msgstr "Filters"
 
 msgid "First name"
 msgstr "Voornaam"
@@ -246,11 +246,20 @@ msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
 msgid "Search"
 msgstr "Zoeken"
 
+msgid "Select role"
+msgstr "Selecteer rol"
+
+msgid "Select status"
+msgstr "Selecteer status"
+
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
+
+msgid "Status"
+msgstr "Status"
 
 msgid "subdomain"
 msgstr "subdomein"

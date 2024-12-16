@@ -69,6 +69,9 @@ msgstr "Fortsæt"
 msgid "Create your account"
 msgstr "Opret din konto"
 
+msgid "Creation date"
+msgstr "Oprettelsesdato"
+
 msgid "Danger zone"
 msgstr "Farezone"
 
@@ -131,9 +134,6 @@ msgstr "Europa"
 
 msgid "Fetching data..."
 msgstr "Henter data..."
-
-msgid "Filters"
-msgstr "Filtre"
 
 msgid "First name"
 msgstr "Fornavn"
@@ -246,11 +246,20 @@ msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Select role"
+msgstr "Vælg rolle"
+
+msgid "Select status"
+msgstr "Vælg status"
+
 msgid "Send invite"
 msgstr "Send invitation"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+
+msgid "Status"
+msgstr "Status"
 
 msgid "subdomain"
 msgstr "Underdomæne"
