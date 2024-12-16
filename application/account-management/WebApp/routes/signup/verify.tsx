@@ -11,12 +11,11 @@ import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
-import { useFormState } from "react-dom";
 import { getSignupState } from "./-shared/signupState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { signedUpPath } from "@repo/infrastructure/auth/constants";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 
 export const Route = createFileRoute("/signup/verify")({
   component: () => (
@@ -35,7 +34,7 @@ export function CompleteSignupForm() {
   const { email, signupId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const [{ success, title, message, errors }, action] = useFormState(
+  const [{ success, title, message, errors }, action] = useActionState(
     api.actionPost("/api/account-management/signups/{id}/complete"),
     {
       success: null

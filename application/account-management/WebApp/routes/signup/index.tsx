@@ -13,8 +13,7 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
-import { useFormState } from "react-dom";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { api, useApi } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
@@ -36,7 +35,7 @@ export const Route = createFileRoute("/signup/")({
 export function StartSignupForm() {
   const [email, setEmail] = useState("");
 
-  const [{ success, errors, data, title, message }, action, isPending] = useFormState(
+  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/signups/start"),
     { success: null }
   );

@@ -12,11 +12,10 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getLoginState } from "./-shared/loginState";
-import { useFormState } from "react-dom";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 
 export const Route = createFileRoute("/login/verify")({
   component: () => (
@@ -35,7 +34,7 @@ export function CompleteLoginForm() {
   const { email, loginId, expireAt } = getLoginState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const [{ success, title, message, errors }, action] = useFormState(
+  const [{ success, title, message, errors }, action] = useActionState(
     api.actionPost("/api/account-management/authentication/login/{id}/complete"),
     {
       success: null
