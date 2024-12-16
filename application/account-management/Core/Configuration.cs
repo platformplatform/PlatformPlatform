@@ -1,11 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
@@ -28,11 +25,6 @@ public static class Configuration
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)
-            .AddScoped<IPasswordHasher<object>, PasswordHasher<object>>()
-            .AddScoped<OneTimePasswordHelper>()
-            .AddScoped<RefreshTokenGenerator>()
-            .AddScoped<AccessTokenGenerator>()
-            .AddScoped<AuthenticationTokenService>()
             .AddScoped<AvatarUpdater>()
             .AddScoped<GravatarClient>();
     }
