@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";

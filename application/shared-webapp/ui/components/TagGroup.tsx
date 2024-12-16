@@ -130,6 +130,7 @@ export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
       )}
     >
       {({ allowsRemoving }) => (
+        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           {children}
           {allowsRemoving && (

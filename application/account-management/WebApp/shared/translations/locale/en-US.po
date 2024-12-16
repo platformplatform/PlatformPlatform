@@ -43,9 +43,11 @@ msgstr "Added"
 msgid "All Users"
 msgstr "All Users"
 
+#. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
+#. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 

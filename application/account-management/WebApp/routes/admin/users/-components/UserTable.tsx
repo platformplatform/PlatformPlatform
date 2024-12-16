@@ -10,7 +10,8 @@ import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { api, type components, SortableUserProperties, SortOrder, useApi } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -23,7 +24,7 @@ export function UserTable() {
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
-    column: orderBy,
+    column: orderBy ?? "email",
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
 

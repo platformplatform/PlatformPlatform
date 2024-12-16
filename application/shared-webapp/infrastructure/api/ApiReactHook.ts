@@ -66,7 +66,7 @@ export function createApiReactHook<
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState<boolean | null>(null);
     const [data, setData] = useState<Data | undefined>();
-    const fetchDataRef = useRef<((cacheMode?: "reload" | "default") => void) | undefined>();
+    const fetchDataRef = useRef<((cacheMode?: "reload" | "default") => void) | undefined>(undefined);
 
     // Use a memorized object to prevent unnecessary re-renders
     const memorizedOptions = useMemorizedObject(options);

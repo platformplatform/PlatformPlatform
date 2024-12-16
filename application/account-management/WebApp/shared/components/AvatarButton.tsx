@@ -8,7 +8,8 @@ import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountC
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
-import { t, Trans } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 
 export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
