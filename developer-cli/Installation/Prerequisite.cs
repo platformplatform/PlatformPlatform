@@ -36,7 +36,8 @@ file sealed record CommandLineToolPrerequisite(string Command, string DisplayNam
                 Arguments = Command,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true
-            }
+            },
+            exitOnError: false
         );
 
         var possibleFileLocations = checkOutput.Split(Environment.NewLine);
