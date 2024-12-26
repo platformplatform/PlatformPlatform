@@ -5,14 +5,16 @@ import { SearchField } from "@repo/ui/components/SearchField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { type SortableUserProperties, type SortOrder, UserRole } from "@/shared/lib/api/client";
+import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
   search: string | undefined;
   userRole: UserRole | undefined;
+  userStatus: UserStatus | undefined;
   orderBy: SortableUserProperties | undefined;
   sortOrder: SortOrder | undefined;
   pageOffset: number | undefined;
@@ -78,6 +80,25 @@ export function UserQuerying() {
         {Object.values(UserRole).map((userRole) => (
           <SelectItem id={userRole} key={userRole}>
             {getUserRoleLabel(userRole)}
+          </SelectItem>
+        ))}
+      </Select>
+
+      <Select
+        selectedKey={searchParams.userStatus}
+        onSelectionChange={(userStatus) => {
+          updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
+        }}
+        label={t`User Status`}
+        placeholder={t`Any status`}
+        className="w-[150px]"
+      >
+        <SelectItem id="">
+          <Trans>Any status</Trans>
+        </SelectItem>
+        {Object.values(UserStatus).map((userStatus) => (
+          <SelectItem id={userStatus} key={userStatus}>
+            {getUserStatusLabel(userStatus)}
           </SelectItem>
         ))}
       </Select>

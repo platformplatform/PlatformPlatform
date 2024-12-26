@@ -317,27 +317,31 @@
             "x-position": 2
           },
           {
+            "name": "UserStatus",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UserStatus"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
             "name": "OrderBy",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortableUserProperties"
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "SortOrder",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortOrder"
-            },
-            "x-position": 4
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
             },
             "x-position": 5
           },
@@ -350,6 +354,15 @@
               "nullable": true
             },
             "x-position": 6
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 7
           }
         ],
         "responses": {
@@ -894,6 +907,18 @@
           "Member",
           "Admin",
           "Owner"
+        ]
+      },
+      "UserStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Pending"
+        ],
+        "enum": [
+          "Active",
+          "Pending"
         ]
       },
       "SortableUserProperties": {

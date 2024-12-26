@@ -22,7 +22,7 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { search, userRole, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
+  const { search, userRole, userStatus, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -37,6 +37,7 @@ export function UserTable() {
       query: {
         Search: search,
         UserRole: userRole,
+        UserStatus: userStatus,
         OrderBy: orderBy,
         SortOrder: sortOrder,
         PageOffset: pageOffset
@@ -162,7 +163,7 @@ export function UserTable() {
 
       <div className="flex flex-col gap-2 h-full w-full">
         <Table
-          key={`${orderBy}-${sortOrder}-${search}-${userRole}`}
+          key={`${search}-${userRole}-${userStatus}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
           sortDescriptor={sortDescriptor}

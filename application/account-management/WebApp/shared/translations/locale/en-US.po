@@ -25,6 +25,9 @@ msgstr "Account Settings"
 msgid "Actions"
 msgstr "Actions"
 
+msgid "Active"
+msgstr "Active"
+
 msgid "Active Users"
 msgstr "Active Users"
 
@@ -52,6 +55,9 @@ msgstr "An error occurred while processing your request. {0}"
 
 msgid "Any role"
 msgstr "Any role"
+
+msgid "Any status"
+msgstr "Any status"
 
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
@@ -312,6 +318,9 @@ msgstr "User profile"
 
 msgid "User Role"
 msgstr "User Role"
+
+msgid "User Status"
+msgstr "User Status"
 
 msgid "user@email.com"
 msgstr "user@email.com"

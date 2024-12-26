@@ -21,10 +21,11 @@ public interface IUserRepository : ICrudRepository<User, UserId>
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
+        UserStatus? userStatus,
         SortableUserProperties? orderBy,
         SortOrder? sortOrder,
-        int? pageSize,
         int? pageOffset,
+        int? pageSize,
         CancellationToken cancellationToken
     );
 }
@@ -73,10 +74,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
+        UserStatus? userStatus,
         SortableUserProperties? orderBy,
         SortOrder? sortOrder,
-        int? pageSize,
         int? pageOffset,
+        int? pageSize,
         CancellationToken cancellationToken
     )
     {
@@ -95,6 +97,12 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         if (userRole is not null)
         {
             users = users.Where(u => u.Role == userRole);
+        }
+
+        if (userStatus is not null)
+        {
+            var active = userStatus == UserStatus.Active;
+            users = users.Where(u => u.EmailConfirmed == active);
         }
 
         users = orderBy switch
