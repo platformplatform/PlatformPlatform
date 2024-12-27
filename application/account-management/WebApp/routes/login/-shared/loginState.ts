@@ -1,5 +1,5 @@
 import type { Schemas } from "@/shared/lib/api/client";
-import { t } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
 
 interface LoginState {
   loginId: Schemas["LoginId"];

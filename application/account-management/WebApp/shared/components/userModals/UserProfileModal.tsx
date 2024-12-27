@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
@@ -63,7 +62,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
   }, [onOpenChange, avatarPreviewUrl]);
 
   // Handle form submission
-  let [{ success, errors, title, message }, action, isPending] = useFormState(
+  let [{ success, errors, title, message }, action, isPending] = useActionState(
     api.actionPut("/api/account-management/users/{id}"),
     { success: null }
   );

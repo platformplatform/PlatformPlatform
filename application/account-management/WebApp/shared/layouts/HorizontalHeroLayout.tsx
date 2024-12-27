@@ -3,7 +3,7 @@ import { HeroImage } from "@/shared/components/HeroImage";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { Button } from "@repo/ui/components/Button";
-import { t } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
 import { LifeBuoyIcon } from "lucide-react";
 
 interface HorizontalHeroLayoutProps {

@@ -1,5 +1,4 @@
-import { useCallback, useEffect } from "react";
-import { useFormState } from "react-dom";
+import { useActionState, useCallback, useEffect } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
 import { Heading } from "@repo/ui/components/Heading";
@@ -22,7 +21,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
     onOpenChange(false);
   }, [onOpenChange]);
 
-  let [{ success, errors, title, message }, action, isPending] = useFormState(
+  let [{ success, errors, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/users/invite"),
     { success: null }
   );

@@ -10,7 +10,7 @@ import { Button } from "@repo/ui/components/Button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import InviteUserModal from "./-components/InviteUserModal";
-import { Trans } from "@lingui/macro";
+import { Trans } from "@lingui/react/macro";
 
 const userPageSearchSchema = z.object({
   pageOffset: z.number().default(0).optional(),
