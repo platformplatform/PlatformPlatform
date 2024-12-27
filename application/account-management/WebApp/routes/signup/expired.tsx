@@ -6,7 +6,7 @@ import { Link } from "@repo/ui/components/Link";
 import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
 import { getSignupState } from "./-shared/signupState";
 import { signUpPath } from "@repo/infrastructure/auth/constants";
-import { Trans } from "@lingui/macro";
+import { Trans } from "@lingui/react/macro";
 
 export const Route = createFileRoute("/signup/expired")({
   component: () => (

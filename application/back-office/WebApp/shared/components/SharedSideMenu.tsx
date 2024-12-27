@@ -1,6 +1,6 @@
 import { MenuButton, SideMenu, SideMenuSpacer } from "@repo/ui/components/SideMenu";
 import { BoxIcon, HomeIcon } from "lucide-react";
-import { t } from "@lingui/macro";
+import { t } from "@lingui/core/macro";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
