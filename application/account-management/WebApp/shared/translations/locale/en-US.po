@@ -40,6 +40,9 @@ msgstr "Add more in the Users menu"
 msgid "Added"
 msgstr "Added"
 
+msgid "Admin"
+msgstr "Admin"
+
 msgid "All Users"
 msgstr "All Users"
 
@@ -48,8 +51,8 @@ msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
-msgid "Are you sure you want to delete {0}?"
-msgstr "Are you sure you want to delete {0}?"
+msgid "Are you sure you want to delete <0>{0}?</0>"
+msgstr "Are you sure you want to delete <0>{0}?</0>"
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
@@ -62,6 +65,12 @@ msgstr "Cancel"
 
 msgid "Change avatar options"
 msgstr "Change avatar options"
+
+msgid "Change Role"
+msgstr "Change Role"
+
+msgid "Change User Role"
+msgstr "Change User Role"
 
 msgid "Continue"
 msgstr "Continue"
@@ -183,6 +192,9 @@ msgstr "Manage your account here."
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
 
+msgid "Member"
+msgstr "Member"
+
 msgid "Menu"
 msgstr "Menu"
 
@@ -200,6 +212,9 @@ msgstr "No active signup session"
 
 msgid "Organization"
 msgstr "Organization"
+
+msgid "Owner"
+msgstr "Owner"
 
 msgid "Pending"
 msgstr "Pending"
@@ -246,6 +261,10 @@ msgstr "Screenshots of the dashboard project with mobile versions"
 msgid "Search"
 msgstr "Search"
 
+#. placeholder {0}: `${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() || userToChangeRole?.email
+msgid "Select a new role for <0>{0}</0>"
+msgstr "Select a new role for <0>{0}</0>"
+
 msgid "Send invite"
 msgstr "Send invite"
 
@@ -287,6 +306,9 @@ msgstr "Upload photo"
 
 msgid "User profile"
 msgstr "User profile"
+
+msgid "User Role"
+msgstr "User Role"
 
 msgid "user@email.com"
 msgstr "user@email.com"
