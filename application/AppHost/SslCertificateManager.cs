@@ -46,6 +46,16 @@ public static class SslCertificateManager
 
             File.Delete(certificateLocation);
         }
+        else
+        {
+            var certificateDirectory = Path.GetDirectoryName(certificateLocation)!;
+            if (!Directory.Exists(certificateDirectory))
+            {
+                Console.WriteLine($"Certificate directory {certificateDirectory} does not exist. Creating it.");
+
+                Directory.CreateDirectory(certificateDirectory);
+            }
+        }
 
         Process.Start(new ProcessStartInfo
             {
