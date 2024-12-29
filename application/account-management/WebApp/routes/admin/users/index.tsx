@@ -16,6 +16,8 @@ const userPageSearchSchema = z.object({
   search: z.string().optional(),
   userRole: z.nativeEnum(UserRole).nullable().optional(),
   userStatus: z.nativeEnum(UserStatus).nullable().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   orderBy: z.nativeEnum(SortableUserProperties).default(SortableUserProperties.Name).optional(),
   sortOrder: z.nativeEnum(SortOrder).default(SortOrder.Ascending).optional(),
   pageOffset: z.number().default(0).optional()

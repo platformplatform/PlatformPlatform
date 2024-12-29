@@ -22,7 +22,9 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { search, userRole, userStatus, orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
+  const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
+    strict: false
+  });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -38,6 +40,8 @@ export function UserTable() {
         Search: search,
         UserRole: userRole,
         UserStatus: userStatus,
+        StartDate: startDate,
+        EndDate: endDate,
         OrderBy: orderBy,
         SortOrder: sortOrder,
         PageOffset: pageOffset
@@ -163,7 +167,7 @@ export function UserTable() {
 
       <div className="flex flex-col gap-2 h-full w-full">
         <Table
-          key={`${search}-${userRole}-${userStatus}-${orderBy}-${sortOrder}`}
+          key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
           sortDescriptor={sortDescriptor}
@@ -178,7 +182,7 @@ export function UserTable() {
               <Trans>Email</Trans>
             </Column>
             <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
-              <Trans>Added</Trans>
+              <Trans>Created</Trans>
             </Column>
             <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
               <Trans>Last Seen</Trans>

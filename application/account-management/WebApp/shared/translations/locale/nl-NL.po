@@ -40,9 +40,6 @@ msgstr "Avatar toevoegen"
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het gebruikersmenu"
 
-msgid "Added"
-msgstr "Toegevoegd"
-
 msgid "Admin"
 msgstr "Beheerder"
 
@@ -86,6 +83,12 @@ msgstr "Verder"
 
 msgid "Create your account"
 msgstr "Maak je account aan"
+
+msgid "Created"
+msgstr "Aangemaakt"
+
+msgid "Creation date"
+msgstr "Aanmaakdatum"
 
 msgid "Danger zone"
 msgstr "Gevaarzone"

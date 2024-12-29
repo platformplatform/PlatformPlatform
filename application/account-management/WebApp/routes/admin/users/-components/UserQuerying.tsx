@@ -1,6 +1,7 @@
 import { ListFilterIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@repo/ui/components/Button";
+import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -9,26 +10,41 @@ import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } fro
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { CalendarDate, parseDate, type DateValue } from "@internationalized/date";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
   search: string | undefined;
   userRole: UserRole | undefined;
   userStatus: UserStatus | undefined;
+  startDate: string | undefined;
+  endDate: string | undefined;
   orderBy: SortableUserProperties | undefined;
   sortOrder: SortOrder | undefined;
   pageOffset: number | undefined;
 }
 
+type DateRange = { start: DateValue; end: DateValue } | null;
+
 /**
  * UserQuerying component handles the user list filtering.
- * Uses URL parameters as the source of truth for all filters,
- * with a local state only for debounced search input.
+ * Uses URL parameters as the single source of truth for all filters.
+ * The only local state is for the search input, which is debounced
+ * to prevent too many URL updates while typing.
  */
 export function UserQuerying() {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
+
+  // Convert URL date strings to DateRange if they exist
+  const dateRange =
+    searchParams.startDate && searchParams.endDate
+      ? {
+          start: parseDate(searchParams.startDate),
+          end: parseDate(searchParams.endDate)
+        }
+      : null;
 
   // Updates URL parameters while preserving existing ones
   const updateFilter = useCallback(
@@ -102,6 +118,17 @@ export function UserQuerying() {
           </SelectItem>
         ))}
       </Select>
+
+      <DateRangePicker
+        value={dateRange}
+        onChange={(range) => {
+          updateFilter({
+            startDate: range?.start.toString() || undefined,
+            endDate: range?.end.toString() || undefined
+          });
+        }}
+        label={t`Creation date`}
+      />
 
       <Button variant="secondary" className="mt-6">
         <ListFilterIcon size={16} />

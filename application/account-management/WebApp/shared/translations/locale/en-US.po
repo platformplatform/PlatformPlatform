@@ -40,9 +40,6 @@ msgstr "Add avatar"
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
-msgid "Added"
-msgstr "Added"
-
 msgid "Admin"
 msgstr "Admin"
 
@@ -86,6 +83,12 @@ msgstr "Continue"
 
 msgid "Create your account"
 msgstr "Create your account"
+
+msgid "Created"
+msgstr "Created"
+
+msgid "Creation date"
+msgstr "Creation date"
 
 msgid "Danger zone"
 msgstr "Danger zone"

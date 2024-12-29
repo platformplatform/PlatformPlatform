@@ -40,9 +40,6 @@ msgstr "Tilføj avatar"
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i brugermenuen"
 
-msgid "Added"
-msgstr "Tilføjet"
-
 msgid "Admin"
 msgstr "Admin"
 
@@ -86,6 +83,12 @@ msgstr "Fortsæt"
 
 msgid "Create your account"
 msgstr "Opret din konto"
+
+msgid "Created"
+msgstr "Oprettet"
+
+msgid "Creation date"
+msgstr "Oprettelsesdato"
 
 msgid "Danger zone"
 msgstr "Farezone"

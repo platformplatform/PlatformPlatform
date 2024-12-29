@@ -22,6 +22,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>
         string? search,
         UserRole? userRole,
         UserStatus? userStatus,
+        DateTimeOffset? startDate,
+        DateTimeOffset? endDate,
         SortableUserProperties? orderBy,
         SortOrder? sortOrder,
         int? pageOffset,
@@ -75,6 +77,8 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         string? search,
         UserRole? userRole,
         UserStatus? userStatus,
+        DateTimeOffset? startDate,
+        DateTimeOffset? endDate,
         SortableUserProperties? orderBy,
         SortOrder? sortOrder,
         int? pageOffset,
@@ -103,6 +107,16 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
         {
             var active = userStatus == UserStatus.Active;
             users = users.Where(u => u.EmailConfirmed == active);
+        }
+
+        if (startDate is not null)
+        {
+            users = users.Where(u => u.CreatedAt >= startDate);
+        }
+
+        if (endDate is not null)
+        {
+            users = users.Where(u => u.CreatedAt < endDate.Value.AddDays(1));
         }
 
         users = orderBy switch
