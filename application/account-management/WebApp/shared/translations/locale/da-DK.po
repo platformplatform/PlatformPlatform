@@ -153,9 +153,6 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Henter data..."
 
-msgid "Filters"
-msgstr "Filtre"
-
 msgid "First name"
 msgstr "Fornavn"
 
@@ -167,6 +164,9 @@ msgstr "Her er din oversigt over, hvad der sker."
 
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
+
+msgid "Hide filters"
+msgstr "Skjul filtre"
 
 msgid "Home"
 msgstr "Hjem"
@@ -279,6 +279,9 @@ msgstr "Vælg en ny rolle for <0>{0}</0>"
 
 msgid "Send invite"
 msgstr "Send invitation"
+
+msgid "Show filters"
+msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."

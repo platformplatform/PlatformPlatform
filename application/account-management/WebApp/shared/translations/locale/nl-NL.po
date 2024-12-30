@@ -153,9 +153,6 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
-msgid "Filters"
-msgstr "Filters"
-
 msgid "First name"
 msgstr "Voornaam"
 
@@ -167,6 +164,9 @@ msgstr "Hier is je overzicht van wat er gebeurt."
 
 msgid "Hi! Welcome back"
 msgstr "Hallo! Welkom terug"
+
+msgid "Hide filters"
+msgstr "Filters verbergen"
 
 msgid "Home"
 msgstr "Home"
@@ -279,6 +279,9 @@ msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
+
+msgid "Show filters"
+msgstr "Filters tonen"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."

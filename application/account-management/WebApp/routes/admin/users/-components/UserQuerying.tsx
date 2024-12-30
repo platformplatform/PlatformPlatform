@@ -1,4 +1,4 @@
-import { ListFilterIcon } from "lucide-react";
+import { FilterIcon, FilterXIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
@@ -10,7 +10,7 @@ import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } fro
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
-import { CalendarDate, parseDate, type DateValue } from "@internationalized/date";
+import { parseDate, type DateValue } from "@internationalized/date";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
@@ -36,6 +36,9 @@ export function UserQuerying() {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
+  const [showAllFilters, setShowAllFilters] = useState(
+    Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
+  );
 
   // Convert URL date strings to DateRange if they exist
   const dateRange =
@@ -81,58 +84,75 @@ export function UserQuerying() {
         className="min-w-[240px]"
       />
 
-      <Select
-        selectedKey={searchParams.userRole}
-        onSelectionChange={(userRole) => {
-          updateFilter({ userRole: (userRole as UserRole) || undefined });
+      {showAllFilters && (
+        <>
+          <Select
+            selectedKey={searchParams.userRole}
+            onSelectionChange={(userRole) => {
+              updateFilter({ userRole: (userRole as UserRole) || undefined });
+            }}
+            label={t`User Role`}
+            placeholder={t`Any role`}
+            className="w-[150px]"
+          >
+            <SelectItem id="">
+              <Trans>Any role</Trans>
+            </SelectItem>
+            {Object.values(UserRole).map((userRole) => (
+              <SelectItem id={userRole} key={userRole}>
+                {getUserRoleLabel(userRole)}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <Select
+            selectedKey={searchParams.userStatus}
+            onSelectionChange={(userStatus) => {
+              updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
+            }}
+            label={t`User Status`}
+            placeholder={t`Any status`}
+            className="w-[150px]"
+          >
+            <SelectItem id="">
+              <Trans>Any status</Trans>
+            </SelectItem>
+            {Object.values(UserStatus).map((userStatus) => (
+              <SelectItem id={userStatus} key={userStatus}>
+                {getUserStatusLabel(userStatus)}
+              </SelectItem>
+            ))}
+          </Select>
+
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) => {
+              updateFilter({
+                startDate: range?.start.toString() || undefined,
+                endDate: range?.end.toString() || undefined
+              });
+            }}
+            label={t`Creation date`}
+          />
+        </>
+      )}
+
+      <Button
+        variant="secondary"
+        className={showAllFilters ? "h-10 w-10 p-0 mt-6" : "mt-6"}
+        onPress={() => {
+          if (showAllFilters) {
+            // Reset filters when hiding
+            updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
+          }
+          setShowAllFilters(!showAllFilters);
         }}
-        label={t`User Role`}
-        placeholder={t`Any role`}
-        className="w-[150px]"
       >
-        <SelectItem id="">
-          <Trans>Any role</Trans>
-        </SelectItem>
-        {Object.values(UserRole).map((userRole) => (
-          <SelectItem id={userRole} key={userRole}>
-            {getUserRoleLabel(userRole)}
-          </SelectItem>
-        ))}
-      </Select>
-
-      <Select
-        selectedKey={searchParams.userStatus}
-        onSelectionChange={(userStatus) => {
-          updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
-        }}
-        label={t`User Status`}
-        placeholder={t`Any status`}
-        className="w-[150px]"
-      >
-        <SelectItem id="">
-          <Trans>Any status</Trans>
-        </SelectItem>
-        {Object.values(UserStatus).map((userStatus) => (
-          <SelectItem id={userStatus} key={userStatus}>
-            {getUserStatusLabel(userStatus)}
-          </SelectItem>
-        ))}
-      </Select>
-
-      <DateRangePicker
-        value={dateRange}
-        onChange={(range) => {
-          updateFilter({
-            startDate: range?.start.toString() || undefined,
-            endDate: range?.end.toString() || undefined
-          });
-        }}
-        label={t`Creation date`}
-      />
-
-      <Button variant="secondary" className="mt-6">
-        <ListFilterIcon size={16} />
-        <Trans>Filters</Trans>
+        {showAllFilters ? (
+          <FilterXIcon size={16} aria-label={t`Hide filters`} />
+        ) : (
+          <FilterIcon size={16} aria-label={t`Show filters`} />
+        )}
       </Button>
     </div>
   );
