@@ -317,12 +317,45 @@
             "x-position": 2
           },
           {
+            "name": "UserStatus",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UserStatus"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
+            "name": "StartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "EndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
             "name": "OrderBy",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortableUserProperties"
             },
-            "x-position": 3
+            "x-position": 6
           },
           {
             "name": "SortOrder",
@@ -330,16 +363,7 @@
             "schema": {
               "$ref": "#/components/schemas/SortOrder"
             },
-            "x-position": 4
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 5
+            "x-position": 7
           },
           {
             "name": "PageOffset",
@@ -349,7 +373,16 @@
               "format": "int32",
               "nullable": true
             },
-            "x-position": 6
+            "x-position": 8
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 9
           }
         ],
         "responses": {
@@ -894,6 +927,18 @@
           "Member",
           "Admin",
           "Owner"
+        ]
+      },
+      "UserStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Pending"
+        ],
+        "enum": [
+          "Active",
+          "Pending"
         ]
       },
       "SortableUserProperties": {

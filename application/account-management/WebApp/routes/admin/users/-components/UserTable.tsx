@@ -22,7 +22,9 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 export function UserTable() {
   const navigate = useNavigate();
-  const { orderBy, pageOffset, sortOrder } = useSearch({ strict: false });
+  const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
+    strict: false
+  });
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
@@ -35,9 +37,14 @@ export function UserTable() {
   const { data } = useApi("/api/account-management/users", {
     params: {
       query: {
-        PageOffset: pageOffset,
+        Search: search,
+        UserRole: userRole,
+        UserStatus: userStatus,
+        StartDate: startDate,
+        EndDate: endDate,
         OrderBy: orderBy,
-        SortOrder: sortOrder
+        SortOrder: sortOrder,
+        PageOffset: pageOffset
       }
     },
     key: refreshKey
@@ -66,9 +73,9 @@ export function UserTable() {
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
-          pageOffset: undefined,
           orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
-          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending
+          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending,
+          pageOffset: undefined
         })
       });
     },
@@ -160,7 +167,7 @@ export function UserTable() {
 
       <div className="flex flex-col gap-2 h-full w-full">
         <Table
-          key={`${orderBy}-${sortOrder}`}
+          key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
           sortDescriptor={sortDescriptor}
@@ -175,7 +182,7 @@ export function UserTable() {
               <Trans>Email</Trans>
             </Column>
             <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
-              <Trans>Added</Trans>
+              <Trans>Created</Trans>
             </Column>
             <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
               <Trans>Last Seen</Trans>

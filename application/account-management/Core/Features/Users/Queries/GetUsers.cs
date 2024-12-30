@@ -12,10 +12,13 @@ namespace PlatformPlatform.AccountManagement.Features.Users.Queries;
 public sealed record GetUsersQuery(
     string? Search = null,
     UserRole? UserRole = null,
+    UserStatus? UserStatus = null,
+    DateTimeOffset? StartDate = null,
+    DateTimeOffset? EndDate = null,
     SortableUserProperties OrderBy = SortableUserProperties.Name,
     SortOrder SortOrder = SortOrder.Ascending,
-    int PageSize = 25,
-    int? PageOffset = null
+    int? PageOffset = null,
+    int PageSize = 25
 ) : IRequest<Result<GetUsersResponse>>;
 
 [PublicAPI]
@@ -53,10 +56,13 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
         var (users, count, totalPages) = await userRepository.Search(
             query.Search,
             query.UserRole,
+            query.UserStatus,
+            query.StartDate,
+            query.EndDate,
             query.OrderBy,
             query.SortOrder,
-            query.PageSize,
             query.PageOffset,
+            query.PageSize,
             cancellationToken
         );
 

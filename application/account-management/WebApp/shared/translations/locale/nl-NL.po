@@ -25,6 +25,9 @@ msgstr "Accountinstellingen"
 msgid "Actions"
 msgstr "Acties"
 
+msgid "Active"
+msgstr "Actief"
+
 msgid "Active Users"
 msgstr "Actieve gebruikers"
 
@@ -37,9 +40,6 @@ msgstr "Avatar toevoegen"
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het gebruikersmenu"
 
-msgid "Added"
-msgstr "Toegevoegd"
-
 msgid "Admin"
 msgstr "Beheerder"
 
@@ -49,6 +49,12 @@ msgstr "Alle gebruikers"
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
+
+msgid "Any role"
+msgstr "Elke rol"
+
+msgid "Any status"
+msgstr "Elke status"
 
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
@@ -77,6 +83,12 @@ msgstr "Verder"
 
 msgid "Create your account"
 msgstr "Maak je account aan"
+
+msgid "Created"
+msgstr "Aangemaakt"
+
+msgid "Creation date"
+msgstr "Aanmaakdatum"
 
 msgid "Danger zone"
 msgstr "Gevaarzone"
@@ -141,9 +153,6 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
-msgid "Filters"
-msgstr "Filters"
-
 msgid "First name"
 msgstr "Voornaam"
 
@@ -155,6 +164,9 @@ msgstr "Hier is je overzicht van wat er gebeurt."
 
 msgid "Hi! Welcome back"
 msgstr "Hallo! Welkom terug"
+
+msgid "Hide filters"
+msgstr "Filters verbergen"
 
 msgid "Home"
 msgstr "Home"
@@ -268,6 +280,9 @@ msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
+msgid "Show filters"
+msgstr "Filters tonen"
+
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
 
@@ -309,6 +324,9 @@ msgstr "Gebruikersprofiel"
 
 msgid "User Role"
 msgstr "Gebruikersrol"
+
+msgid "User Status"
+msgstr "Gebruikersstatus"
 
 msgid "user@email.com"
 msgstr "gebruiker@email.com"

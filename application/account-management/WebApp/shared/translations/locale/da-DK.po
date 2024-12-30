@@ -25,6 +25,9 @@ msgstr "Kontoindstillinger"
 msgid "Actions"
 msgstr "Handlinger"
 
+msgid "Active"
+msgstr "Aktiv"
+
 msgid "Active Users"
 msgstr "Aktive brugere"
 
@@ -37,9 +40,6 @@ msgstr "Tilføj avatar"
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i brugermenuen"
 
-msgid "Added"
-msgstr "Tilføjet"
-
 msgid "Admin"
 msgstr "Admin"
 
@@ -49,6 +49,12 @@ msgstr "Alle brugere"
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
+
+msgid "Any role"
+msgstr "Enhver rolle"
+
+msgid "Any status"
+msgstr "Enhver status"
 
 #. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
@@ -77,6 +83,12 @@ msgstr "Fortsæt"
 
 msgid "Create your account"
 msgstr "Opret din konto"
+
+msgid "Created"
+msgstr "Oprettet"
+
+msgid "Creation date"
+msgstr "Oprettelsesdato"
 
 msgid "Danger zone"
 msgstr "Farezone"
@@ -141,9 +153,6 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Henter data..."
 
-msgid "Filters"
-msgstr "Filtre"
-
 msgid "First name"
 msgstr "Fornavn"
 
@@ -155,6 +164,9 @@ msgstr "Her er din oversigt over, hvad der sker."
 
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
+
+msgid "Hide filters"
+msgstr "Skjul filtre"
 
 msgid "Home"
 msgstr "Hjem"
@@ -268,6 +280,9 @@ msgstr "Vælg en ny rolle for <0>{0}</0>"
 msgid "Send invite"
 msgstr "Send invitation"
 
+msgid "Show filters"
+msgstr "Vis filtre"
+
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
 
@@ -309,6 +324,9 @@ msgstr "Brugerprofil"
 
 msgid "User Role"
 msgstr "Brugerrolle"
+
+msgid "User Status"
+msgstr "Brugerstatus"
 
 msgid "user@email.com"
 msgstr "user@email.com"

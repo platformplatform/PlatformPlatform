@@ -1,7 +1,7 @@
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/daterangepicker--docs
  */
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, XIcon } from "lucide-react";
 
 import {
   DateRangePicker as AriaDateRangePicker,
@@ -30,11 +30,15 @@ export function DateRangePicker<T extends DateValue>({
   label,
   description,
   errorMessage,
+  value,
+  onChange,
   ...props
 }: Readonly<DateRangePickerProps<T>>) {
   return (
     <AriaDateRangePicker
       {...props}
+      value={value}
+      onChange={onChange}
       className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
     >
       {label && <Label>{label}</Label>}
@@ -47,7 +51,12 @@ export function DateRangePicker<T extends DateValue>({
           –
         </span>
         <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
-        <Button variant="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">
+        {value && (
+          <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
+            <XIcon aria-hidden className="h-4 w-4" />
+          </Button>
+        )}
+        <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
           <CalendarIcon aria-hidden className="h-4 w-4" />
         </Button>
       </FieldGroup>
