@@ -14,11 +14,3 @@ export const loginPath = "/login";
  * Path to the default page shown after successful login
  */
 export const loggedInPath = "/admin/users";
-/**
- * Path of the page used to trigger logout
- */
-export const logoutPath = "/logout";
-/**
- * Path of the page shown after logging out
- */
-export const loggedOutPath = "/";

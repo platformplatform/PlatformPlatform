@@ -25,17 +25,3 @@ export function useIsAuthenticated() {
   const userInfo = useUserInfo();
   return userInfo?.isAuthenticated ?? false;
 }
-
-/**
- * Return the current user ID. If the user is not logged in, return null.
- */
-export function useUserId() {
-  return useUserInfo()?.id ?? null;
-}
-
-/**
- * Return the current user role. If the user is not logged in, return null.
- */
-export function useUserRole() {
-  return useUserInfo()?.role ?? null;
-}
