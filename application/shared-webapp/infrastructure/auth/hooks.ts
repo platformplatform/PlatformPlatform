@@ -22,7 +22,8 @@ export function useUserInfo() {
  * Return true if the current user is logged in.
  */
 export function useIsAuthenticated() {
-  return useUserInfo() != null;
+  const userInfo = useUserInfo();
+  return userInfo?.isAuthenticated ?? false;
 }
 
 /**
