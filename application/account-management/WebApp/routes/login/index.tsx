@@ -14,14 +14,23 @@ import { useActionState, useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { signUpPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/login/")({
-  component: () => (
-    <HorizontalHeroLayout>
-      <LoginForm />
-    </HorizontalHeroLayout>
-  ),
+  component: function LoginRoute() {
+    const isAuthenticated = useIsAuthenticated();
+
+    if (isAuthenticated) {
+      return <Navigate to={loggedInPath} />;
+    }
+
+    return (
+      <HorizontalHeroLayout>
+        <LoginForm />
+      </HorizontalHeroLayout>
+    );
+  },
   errorComponent: (props) => (
     <HorizontalHeroLayout>
       <ErrorMessage {...props} />

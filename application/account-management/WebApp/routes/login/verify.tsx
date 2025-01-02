@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { t } from "@lingui/core/macro";
@@ -16,13 +16,22 @@ import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useActionState, useEffect } from "react";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/login/verify")({
-  component: () => (
-    <HorizontalHeroLayout>
-      <CompleteLoginForm />
-    </HorizontalHeroLayout>
-  ),
+  component: function LoginVerifyRoute() {
+    const isAuthenticated = useIsAuthenticated();
+
+    if (isAuthenticated) {
+      return <Navigate to={loggedInPath} />;
+    }
+
+    return (
+      <HorizontalHeroLayout>
+        <CompleteLoginForm />
+      </HorizontalHeroLayout>
+    );
+  },
   errorComponent: (props) => (
     <HorizontalHeroLayout>
       <ErrorMessage {...props} />
@@ -43,7 +52,6 @@ export function CompleteLoginForm() {
 
   useEffect(() => {
     if (success) {
-      console.log("success", success);
       window.location.href = loggedInPath;
     }
   }, [success]);

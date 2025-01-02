@@ -17,14 +17,23 @@ import { useActionState, useState } from "react";
 import { api, useApi } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { loginPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/signup/")({
-  component: () => (
-    <HorizontalHeroLayout>
-      <StartSignupForm />
-    </HorizontalHeroLayout>
-  ),
+  component: function SignupRoute() {
+    const isAuthenticated = useIsAuthenticated();
+
+    if (isAuthenticated) {
+      return <Navigate to={loggedInPath} />;
+    }
+
+    return (
+      <HorizontalHeroLayout>
+        <StartSignupForm />
+      </HorizontalHeroLayout>
+    );
+  },
   errorComponent: (props) => (
     <HorizontalHeroLayout>
       <ErrorMessage {...props} />

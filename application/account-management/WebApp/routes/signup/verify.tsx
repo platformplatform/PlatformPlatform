@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import { t } from "@lingui/core/macro";
@@ -14,15 +14,24 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState } from "./-shared/signupState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { signedUpPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { useActionState, useEffect } from "react";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/signup/verify")({
-  component: () => (
-    <HorizontalHeroLayout>
-      <CompleteSignupForm />
-    </HorizontalHeroLayout>
-  ),
+  component: function SignupVerifyRoute() {
+    const isAuthenticated = useIsAuthenticated();
+
+    if (isAuthenticated) {
+      return <Navigate to={loggedInPath} />;
+    }
+
+    return (
+      <HorizontalHeroLayout>
+        <CompleteSignupForm />
+      </HorizontalHeroLayout>
+    );
+  },
   errorComponent: (props) => (
     <HorizontalHeroLayout>
       <ErrorMessage {...props} />
