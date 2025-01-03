@@ -17,6 +17,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Check branch naming convention
+        if: always()
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF}"
           if ! [[ "$BRANCH_NAME" =~ ^[a-z0-9-]+$ ]]; then
@@ -27,6 +28,7 @@ jobs:
           echo "✅ Branch name is valid"
 
       - name: Check for merge commits
+        if: always()
         run: |
           # Fetch both main and the PR branch
           git fetch origin main:main
@@ -46,6 +48,7 @@ jobs:
           echo "✅ No merge commits found"
 
       - name: Check branch is up to date with main
+        if: always()
         run: |
           git fetch origin main:main
           MERGE_BASE=$(git merge-base main ${{ github.event.pull_request.head.sha }})
@@ -60,6 +63,7 @@ jobs:
           echo "✅ Branch is up to date"
 
       - name: Check commit message format
+        if: always()
         run: |
           git fetch origin main:main
           COMMITS=$(git rev-list origin/main..${{ github.event.pull_request.head.sha }})
