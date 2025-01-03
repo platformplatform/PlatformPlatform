@@ -146,7 +146,8 @@ public class SinglePageAppConfiguration
 
         if (_isDevelopment)
         {
-            trustedHosts += " wss://localhost:* https://localhost:*";
+            var hostname = new Uri(PublicUrl).Host;
+            trustedHosts += $" wss://{hostname}:* https://{hostname}:*";
         }
 
         var contentSecurityPolicies = new[]
