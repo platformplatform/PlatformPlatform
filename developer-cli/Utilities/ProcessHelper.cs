@@ -55,8 +55,9 @@ public static class ProcessHelper
         bool createNoWindow = false
     )
     {
-        var fileName = command.Split(' ')[0];
-        var arguments = command.Length > fileName.Length ? command.Substring(fileName.Length + 1) : string.Empty;
+        var originalFileName = command.Split(' ')[0];
+        var fileName = FindFullPathFromPath(originalFileName) ?? throw new FileNotFoundException($"Command '{command}' not found");
+        var arguments = command.Contains(' ') ? command[(originalFileName.Length + 1)..] : string.Empty;
         var processStartInfo = new ProcessStartInfo
         {
             FileName = fileName,
@@ -122,6 +123,29 @@ public static class ProcessHelper
     public static bool IsProcessRunning(string process)
     {
         return Process.GetProcessesByName(process).Length > 0;
+    }
+
+    private static string? FindFullPathFromPath(string command)
+    {
+        Debug.Assert(!string.IsNullOrWhiteSpace(command));
+
+        string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
+
+        var pathVariable = Environment.GetEnvironmentVariable("PATH");
+        foreach (var directory in pathVariable?.Split(';') ?? [])
+        {
+            foreach (var format in commandFormats)
+            {
+                var fullPath = Path.Combine(directory, string.Format(format, command));
+
+                if (File.Exists(fullPath))
+                {
+                    return fullPath;
+                }
+            }
+        }
+
+        return null;
     }
 }
 
