@@ -50,7 +50,7 @@ export function Digit({
       id={id}
       tabIndex={tabIndex}
       type="text"
-      inputMode="numeric"
+      inputMode={digitPattern === DigitPattern.Digits ? "numeric" : "text"}
       pattern={inputPattern}
       maxLength={1}
       value={value}
