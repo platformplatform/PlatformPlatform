@@ -1,12 +1,16 @@
-name: Check Git History
+name: Validate Pull Request Conventions
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   check-conventions:
-    name: Validate Git Conventions
+    name: Validate Pull Request and Git Conventions
     runs-on: ubuntu-latest
 
     steps:
@@ -15,6 +19,82 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check pull request title format
+        if: always()
+        env:
+          PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          EXIT_CODE=0
+
+          if [[ ! "${PULL_REQUEST_TITLE:0:1}" =~ [A-Z] ]]; then
+            echo "❌ Pull request title does not start with a capital letter"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$PULL_REQUEST_TITLE" =~ \.$ ]] && ! [[ "$PULL_REQUEST_TITLE" =~ (etc\.)$ ]]; then
+            echo "❌ Pull request title ends with a period"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if echo "$PULL_REQUEST_TITLE" | grep -P '\. [A-Z]' | grep -vP '(incl\.|e\.g\.|etc\.|i\.e\.) [A-Z]' > /dev/null; then
+            echo "❌ Pull request title contains multiple sentences"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request title format is valid"
+          fi
+          exit $EXIT_CODE
+
+      - name: Check pull request description
+        if: always()
+        env:
+          PULL_REQUEST_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          EXIT_CODE=0
+
+          if echo "$PULL_REQUEST_BODY" | grep -q "Please delete this paragraph"; then
+            echo "❌ Pull request description contains template text that should be removed"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request description is valid"
+          fi
+          exit $EXIT_CODE
+
+      - name: Ensure pull request metadata
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          PULL_REQUEST_AUTHOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          EXIT_CODE=0
+
+          # Check labels
+          LABELS=$(gh pr view $PULL_REQUEST_NUMBER --json labels -q '.labels[].name' --repo $GITHUB_REPOSITORY)
+          if [[ -z "$LABELS" ]]; then
+            echo "ℹ️ No labels found, adding Enhancement label"
+            gh pr edit $PULL_REQUEST_NUMBER --add-label "Enhancement" --repo $GITHUB_REPOSITORY
+          fi
+
+          # Check assignee
+          ASSIGNEES=$(gh pr view $PULL_REQUEST_NUMBER --json assignees -q '.assignees[].login' --repo $GITHUB_REPOSITORY)
+          if [[ -z "$ASSIGNEES" ]]; then
+            echo "ℹ️ No assignees found, adding pull request author as assignee"
+            gh pr edit $PULL_REQUEST_NUMBER --add-assignee "$PULL_REQUEST_AUTHOR" --repo $GITHUB_REPOSITORY
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request metadata is valid"
+          fi
+          exit $EXIT_CODE
 
       - name: Check branch naming convention
         if: always()
