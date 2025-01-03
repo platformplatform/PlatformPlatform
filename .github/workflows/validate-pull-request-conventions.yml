@@ -1,0 +1,192 @@
+name: Validate Pull Request Conventions
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-conventions:
+    name: Validate Pull Request and Git Conventions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check pull request title format
+        if: always()
+        env:
+          PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          EXIT_CODE=0
+
+          if [[ ! "${PULL_REQUEST_TITLE:0:1}" =~ [A-Z] ]]; then
+            echo "❌ Pull request title does not start with a capital letter"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$PULL_REQUEST_TITLE" =~ \.$ ]] && ! [[ "$PULL_REQUEST_TITLE" =~ (etc\.)$ ]]; then
+            echo "❌ Pull request title ends with a period"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if echo "$PULL_REQUEST_TITLE" | grep -P '\. [A-Z]' | grep -vP '(incl\.|e\.g\.|etc\.|i\.e\.) [A-Z]' > /dev/null; then
+            echo "❌ Pull request title contains multiple sentences"
+            echo "   Title: $PULL_REQUEST_TITLE"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request title format is valid"
+          fi
+          exit $EXIT_CODE
+
+      - name: Check pull request description
+        if: always()
+        env:
+          PULL_REQUEST_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          EXIT_CODE=0
+
+          if echo "$PULL_REQUEST_BODY" | grep -q "Please delete this paragraph"; then
+            echo "❌ Pull request description contains template text that should be removed"
+            EXIT_CODE=1
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request description is valid"
+          fi
+          exit $EXIT_CODE
+
+      - name: Ensure pull request metadata
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          PULL_REQUEST_AUTHOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          EXIT_CODE=0
+
+          # Check labels
+          LABELS=$(gh pr view $PULL_REQUEST_NUMBER --json labels -q '.labels[].name' --repo $GITHUB_REPOSITORY)
+          if [[ -z "$LABELS" ]]; then
+            echo "ℹ️ No labels found, adding Enhancement label"
+            gh pr edit $PULL_REQUEST_NUMBER --add-label "Enhancement" --repo $GITHUB_REPOSITORY
+          fi
+
+          # Check assignee
+          ASSIGNEES=$(gh pr view $PULL_REQUEST_NUMBER --json assignees -q '.assignees[].login' --repo $GITHUB_REPOSITORY)
+          if [[ -z "$ASSIGNEES" ]]; then
+            echo "ℹ️ No assignees found, adding pull request author as assignee"
+            gh pr edit $PULL_REQUEST_NUMBER --add-assignee "$PULL_REQUEST_AUTHOR" --repo $GITHUB_REPOSITORY
+          fi
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ Pull request metadata is valid"
+          fi
+          exit $EXIT_CODE
+
+      - name: Check branch naming convention
+        if: always()
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          if ! [[ "$BRANCH_NAME" =~ ^[a-z0-9-]+$ ]]; then
+            echo "❌ Branch name '$BRANCH_NAME' does not follow the convention"
+            echo "   Expected format: lowercase letters, numbers, and hyphens only"
+            exit 1
+          fi
+          echo "✅ Branch name is valid"
+
+      - name: Check for merge commits
+        if: always()
+        run: |
+          # Fetch both main and the PR branch
+          git fetch origin main:main
+          git fetch origin ${{ github.event.pull_request.head.ref }}:pr-branch
+
+          # Get the commit where the branch diverged from main
+          MERGE_BASE=$(git merge-base main pr-branch)
+
+          # Look for merge commits between merge-base and PR head
+          MERGE_COMMITS=$(git log --merges --oneline $MERGE_BASE..${{ github.event.pull_request.head.sha }} || true)
+          if [[ -n "$MERGE_COMMITS" ]]; then
+            echo "❌ Merge commits found in your branch; please rebase on main"
+            echo "   Found merge commits:"
+            echo "$MERGE_COMMITS" | sed 's/^/   /'
+            exit 1
+          fi
+          echo "✅ No merge commits found"
+
+      - name: Check branch is up to date with main
+        if: always()
+        run: |
+          git fetch origin main:main
+          MERGE_BASE=$(git merge-base main ${{ github.event.pull_request.head.sha }})
+          MAIN_HEAD=$(git rev-parse main)
+
+          if [[ "$MERGE_BASE" != "$MAIN_HEAD" ]]; then
+            echo "❌ Branch is not up to date with main; please rebase on main"
+            echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $MERGE_BASE)"
+            echo "   Current main is at: $(git log --oneline -n 1 $MAIN_HEAD)"
+            exit 1
+          fi
+          echo "✅ Branch is up to date"
+
+      - name: Check commit message format
+        if: always()
+        run: |
+          git fetch origin main:main
+          COMMITS=$(git rev-list origin/main..${{ github.event.pull_request.head.sha }})
+          EXIT_CODE=0
+
+          # Ensure each commit follows our format
+          for COMMIT in $COMMITS; do
+            COMMIT_MESSAGE=$(git log --format=%B -n 1 "$COMMIT")
+            COMMIT_SHORT="${COMMIT:0:8}"
+
+            # Ensure single-line commit message
+            if [[ $(echo "$COMMIT_MESSAGE" | wc -l) -gt 1 ]]; then
+              echo "❌ Commit $COMMIT_SHORT has multiple lines"
+              echo "   Message: $COMMIT_MESSAGE"
+              EXIT_CODE=1
+            fi
+
+            # Check first character is uppercase
+            if [[ ! "${COMMIT_MESSAGE:0:1}" =~ [A-Z] ]]; then
+              echo "❌ Commit $COMMIT_SHORT does not start with a capital letter"
+              echo "   Message: $COMMIT_MESSAGE"
+              EXIT_CODE=1
+            fi
+
+            # Only allow 'etc.' to end a message
+            if [[ "$COMMIT_MESSAGE" =~ \.$ ]]; then
+              if ! [[ "$COMMIT_MESSAGE" =~ (etc\.)$ ]]; then
+                echo "❌ Commit $COMMIT_SHORT ends with a period"
+                echo "   Message: $COMMIT_MESSAGE"
+                EXIT_CODE=1
+              fi
+            fi
+
+            # Check for period-space-capital (new sentence)
+            if echo "$COMMIT_MESSAGE" | grep -P '\. [A-Z]' | grep -vP '(incl\.|e\.g\.|etc\.|i\.e\.) [A-Z]' > /dev/null; then
+              echo "❌ Commit $COMMIT_SHORT contains multiple sentences"
+              echo "   Message: $COMMIT_MESSAGE"
+              EXIT_CODE=1
+            fi
+          done
+
+          if [[ "$EXIT_CODE" -eq 0 ]]; then
+            echo "✅ All commit messages look good"
+          fi
+
+          exit "$EXIT_CODE"
