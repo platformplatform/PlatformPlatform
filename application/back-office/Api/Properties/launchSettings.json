@@ -4,9 +4,7 @@
     "Api": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "development",
-        "PUBLIC_URL": "https://localhost:9000",
-        "CDN_URL": "https://localhost:9000/back-office"
+        "ASPNETCORE_ENVIRONMENT": "development"
       }
     }
   }

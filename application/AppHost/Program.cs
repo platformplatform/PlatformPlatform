@@ -59,6 +59,7 @@ var accountManagementWorkers = builder
 
 var accountManagementApi = builder
     .AddProject<AccountManagement_Api>("account-management-api")
+    .WithUrlConfiguration("/account-management")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage)
     .WaitFor(accountManagementWorkers);
@@ -74,6 +75,7 @@ var backOfficeWorkers = builder
 
 var backOfficeApi = builder
     .AddProject<BackOffice_Api>("back-office-api")
+    .WithUrlConfiguration("/back-office")
     .WithReference(backOfficeDatabase)
     .WithReference(azureStorage)
     .WaitFor(backOfficeWorkers);
