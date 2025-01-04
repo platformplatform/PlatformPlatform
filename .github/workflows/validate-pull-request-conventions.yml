@@ -61,8 +61,21 @@ jobs:
         if: always()
         env:
           PULL_REQUEST_BODY: ${{ github.event.pull_request.body }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           EXIT_CODE=0
+
+          # Check if description contains the phrase "pull request"
+          DESCRIPTION=$(gh pr view $PULL_REQUEST_NUMBER --json body -q '.body' --repo $GITHUB_REPOSITORY)
+          DESCRIPTION_LOWER="${DESCRIPTION,,}"
+          
+          if echo "$DESCRIPTION_LOWER" | grep -qiE 'pull(-)?request\b'; then
+            echo "❌ Pull request description should not contain the phrase 'pull request' or 'pull-request'"
+            EXIT_CODE=1
+          fi
 
           if echo "$PULL_REQUEST_BODY" | grep -q "Please delete this paragraph"; then
             echo "❌ Pull request description contains template text that should be removed"
