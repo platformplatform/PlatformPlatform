@@ -110,15 +110,14 @@ jobs:
       - name: Check for merge commits
         if: always()
         run: |
-          # Fetch both main and the PR branch
+          # Fetch main branch
           git fetch origin main:main
-          git fetch origin ${{ github.event.pull_request.head.ref }}:pr-branch
 
           # Get the commit where the branch diverged from main
-          MERGE_BASE=$(git merge-base main pr-branch)
+          DIVERGENCE_POINT=$(git merge-base main ${{ github.event.pull_request.head.sha }})
 
-          # Look for merge commits between merge-base and PR head
-          MERGE_COMMITS=$(git log --merges --oneline $MERGE_BASE..${{ github.event.pull_request.head.sha }} || true)
+          # Look for merge commits between divergence point and pull request head
+          MERGE_COMMITS=$(git log --merges --oneline $DIVERGENCE_POINT..${{ github.event.pull_request.head.sha }} || true)
           if [[ -n "$MERGE_COMMITS" ]]; then
             echo "❌ Merge commits found in your branch; please rebase on main"
             echo "   Found merge commits:"
@@ -127,26 +126,27 @@ jobs:
           fi
           echo "✅ No merge commits found"
 
-      - name: Check branch is up to date with main
+      - name: Check branch is up to date with main branch
         if: always()
         run: |
-          git fetch origin main:main
-          MERGE_BASE=$(git merge-base main ${{ github.event.pull_request.head.sha }})
-          MAIN_HEAD=$(git rev-parse main)
+          # Get the commit where the branch diverged from main
+          DIVERGENCE_POINT=$(git merge-base main ${{ github.event.pull_request.head.sha }})
+          MAIN_HEAD_COMMIT=$(git rev-parse main)
 
-          if [[ "$MERGE_BASE" != "$MAIN_HEAD" ]]; then
-            echo "❌ Branch is not up to date with main; please rebase on main"
-            echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $MERGE_BASE)"
-            echo "   Current main is at: $(git log --oneline -n 1 $MAIN_HEAD)"
+          if [[ "$DIVERGENCE_POINT" != "$MAIN_HEAD_COMMIT" ]]; then
+            echo "❌ Branch must be up to date with main branch before merging"
+            echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $DIVERGENCE_POINT)"
+            echo "   Current main branch is at: $(git log --oneline -n 1 $MAIN_HEAD_COMMIT)"
+            echo "   Please rebase your branch on the latest main branch"
             exit 1
           fi
-          echo "✅ Branch is up to date"
+          echo "✅ Branch is up to date with main branch"
 
-      - name: Check commit message format
+      - name: Check commit messages
         if: always()
         run: |
-          git fetch origin main:main
-          COMMITS=$(git rev-list origin/main..${{ github.event.pull_request.head.sha }})
+          # Check commits between main and pull request head
+          COMMITS=$(git rev-list main..${{ github.event.pull_request.head.sha }})
           EXIT_CODE=0
 
           # Ensure each commit follows our format
