@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check pull request title format
+      - name: Check pull request title
         if: always()
         env:
           PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
@@ -45,8 +45,15 @@ jobs:
             EXIT_CODE=1
           fi
 
+          if [[ "${PULL_REQUEST_TITLE,,}" =~ ^[[:alnum:]]{1,4}[[:space:]][0-9]+ ]]; then
+            echo "❌ Pull request title cannot be a default branch name format like:"
+            echo "   'Pp ###', 'Dev ###', 'M42 ###', etc."
+            echo "   Please update the title to describe the changes being made"
+            EXIT_CODE=1
+          fi
+
           if [[ "$EXIT_CODE" -eq 0 ]]; then
-            echo "✅ Pull request title format is valid"
+            echo "✅ The pull request title looks valid"
           fi
           exit $EXIT_CODE
 
@@ -54,8 +61,21 @@ jobs:
         if: always()
         env:
           PULL_REQUEST_BODY: ${{ github.event.pull_request.body }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           EXIT_CODE=0
+
+          # Check if description contains the phrase "pull request"
+          DESCRIPTION=$(gh pr view $PULL_REQUEST_NUMBER --json body -q '.body' --repo $GITHUB_REPOSITORY)
+          DESCRIPTION_LOWER="${DESCRIPTION,,}"
+          
+          if echo "$DESCRIPTION_LOWER" | grep -qiE 'pull(-)?request\b'; then
+            echo "❌ Pull request description should not contain the phrase 'pull request' or 'pull-request'"
+            EXIT_CODE=1
+          fi
 
           if echo "$PULL_REQUEST_BODY" | grep -q "Please delete this paragraph"; then
             echo "❌ Pull request description contains template text that should be removed"
@@ -63,7 +83,7 @@ jobs:
           fi
 
           if [[ "$EXIT_CODE" -eq 0 ]]; then
-            echo "✅ Pull request description is valid"
+            echo "✅ The pull request description looks valid"
           fi
           exit $EXIT_CODE
 
@@ -80,15 +100,15 @@ jobs:
           # Check labels
           LABELS=$(gh pr view $PULL_REQUEST_NUMBER --json labels -q '.labels[].name' --repo $GITHUB_REPOSITORY)
           if [[ -z "$LABELS" ]]; then
-            echo "ℹ️ No labels found, adding Enhancement label"
-            gh pr edit $PULL_REQUEST_NUMBER --add-label "Enhancement" --repo $GITHUB_REPOSITORY
+            echo "❌ Pull request must have at least one label"
+            EXIT_CODE=1
           fi
 
           # Check assignee
           ASSIGNEES=$(gh pr view $PULL_REQUEST_NUMBER --json assignees -q '.assignees[].login' --repo $GITHUB_REPOSITORY)
           if [[ -z "$ASSIGNEES" ]]; then
-            echo "ℹ️ No assignees found, adding pull request author as assignee"
-            gh pr edit $PULL_REQUEST_NUMBER --add-assignee "$PULL_REQUEST_AUTHOR" --repo $GITHUB_REPOSITORY
+            echo "❌ Pull request must have at least one assignee"
+            EXIT_CODE=1
           fi
 
           if [[ "$EXIT_CODE" -eq 0 ]]; then
@@ -110,46 +130,45 @@ jobs:
       - name: Check for merge commits
         if: always()
         run: |
-          # Fetch both main and the PR branch
+          # Fetch main branch
           git fetch origin main:main
-          git fetch origin ${{ github.event.pull_request.head.ref }}:pr-branch
 
           # Get the commit where the branch diverged from main
-          MERGE_BASE=$(git merge-base main pr-branch)
+          DIVERGENCE_POINT=$(git merge-base main ${{ github.event.pull_request.head.sha }})
 
-          # Look for merge commits between merge-base and PR head
-          MERGE_COMMITS=$(git log --merges --oneline $MERGE_BASE..${{ github.event.pull_request.head.sha }} || true)
+          # Look for merge commits between divergence point and pull request head
+          MERGE_COMMITS=$(git log --merges --oneline $DIVERGENCE_POINT..${{ github.event.pull_request.head.sha }} || true)
           if [[ -n "$MERGE_COMMITS" ]]; then
-            echo "❌ Merge commits found in your branch; please rebase on main"
-            echo "   Found merge commits:"
+            echo "❌ Branch must not contain merge commits. The following were found:"
             echo "$MERGE_COMMITS" | sed 's/^/   /'
+            echo "   Please remove these commits by rebasing on the latest main branch and force pushing your changes"
             exit 1
           fi
           echo "✅ No merge commits found"
 
-      - name: Check branch is up to date with main
+      - name: Check branch is up to date with main branch
         if: always()
         run: |
-          git fetch origin main:main
-          MERGE_BASE=$(git merge-base main ${{ github.event.pull_request.head.sha }})
-          MAIN_HEAD=$(git rev-parse main)
+          # Get the commit where the branch diverged from main
+          DIVERGENCE_POINT=$(git merge-base main ${{ github.event.pull_request.head.sha }})
+          MAIN_HEAD_COMMIT=$(git rev-parse main)
 
-          if [[ "$MERGE_BASE" != "$MAIN_HEAD" ]]; then
-            echo "❌ Branch is not up to date with main; please rebase on main"
-            echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $MERGE_BASE)"
-            echo "   Current main is at: $(git log --oneline -n 1 $MAIN_HEAD)"
+          if [[ "$DIVERGENCE_POINT" != "$MAIN_HEAD_COMMIT" ]]; then
+            echo "❌ Branch must be up to date with the main branch before merging"
+            echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $DIVERGENCE_POINT)"
+            echo "   The current main branch is at: $(git log --oneline -n 1 $MAIN_HEAD_COMMIT)"
+            echo "   Please rebase on the latest main branch and force push your changes"
             exit 1
           fi
-          echo "✅ Branch is up to date"
+          echo "✅ Branch is up to date with the main branch"
 
-      - name: Check commit message format
+      - name: Check commit messages
         if: always()
         run: |
-          git fetch origin main:main
-          COMMITS=$(git rev-list origin/main..${{ github.event.pull_request.head.sha }})
+          # Check commits between main and pull request head
+          COMMITS=$(git rev-list main..${{ github.event.pull_request.head.sha }})
           EXIT_CODE=0
 
-          # Ensure each commit follows our format
           for COMMIT in $COMMITS; do
             COMMIT_MESSAGE=$(git log --format=%B -n 1 "$COMMIT")
             COMMIT_SHORT="${COMMIT:0:8}"
