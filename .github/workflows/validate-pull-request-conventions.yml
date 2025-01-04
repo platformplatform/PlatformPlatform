@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check pull request title format
+      - name: Check pull request title
         if: always()
         env:
           PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
@@ -46,7 +46,7 @@ jobs:
           fi
 
           if [[ "$EXIT_CODE" -eq 0 ]]; then
-            echo "✅ Pull request title format is valid"
+            echo "✅ The pull request title looks valid"
           fi
           exit $EXIT_CODE
 
@@ -63,7 +63,7 @@ jobs:
           fi
 
           if [[ "$EXIT_CODE" -eq 0 ]]; then
-            echo "✅ Pull request description is valid"
+            echo "✅ The pull request description looks valid"
           fi
           exit $EXIT_CODE
 
@@ -80,15 +80,15 @@ jobs:
           # Check labels
           LABELS=$(gh pr view $PULL_REQUEST_NUMBER --json labels -q '.labels[].name' --repo $GITHUB_REPOSITORY)
           if [[ -z "$LABELS" ]]; then
-            echo "ℹ️ No labels found, adding Enhancement label"
-            gh pr edit $PULL_REQUEST_NUMBER --add-label "Enhancement" --repo $GITHUB_REPOSITORY
+            echo "❌ Pull request must have at least one label"
+            EXIT_CODE=1
           fi
 
           # Check assignee
           ASSIGNEES=$(gh pr view $PULL_REQUEST_NUMBER --json assignees -q '.assignees[].login' --repo $GITHUB_REPOSITORY)
           if [[ -z "$ASSIGNEES" ]]; then
-            echo "ℹ️ No assignees found, adding pull request author as assignee"
-            gh pr edit $PULL_REQUEST_NUMBER --add-assignee "$PULL_REQUEST_AUTHOR" --repo $GITHUB_REPOSITORY
+            echo "❌ Pull request must have at least one assignee"
+            EXIT_CODE=1
           fi
 
           if [[ "$EXIT_CODE" -eq 0 ]]; then
@@ -119,9 +119,9 @@ jobs:
           # Look for merge commits between divergence point and pull request head
           MERGE_COMMITS=$(git log --merges --oneline $DIVERGENCE_POINT..${{ github.event.pull_request.head.sha }} || true)
           if [[ -n "$MERGE_COMMITS" ]]; then
-            echo "❌ Merge commits found in your branch; please rebase on main"
-            echo "   Found merge commits:"
+            echo "❌ Branch must not contain merge commits. The following were found:"
             echo "$MERGE_COMMITS" | sed 's/^/   /'
+            echo "   Please remove these commits by rebasing on the latest main branch and force pushing your changes"
             exit 1
           fi
           echo "✅ No merge commits found"
@@ -134,13 +134,13 @@ jobs:
           MAIN_HEAD_COMMIT=$(git rev-parse main)
 
           if [[ "$DIVERGENCE_POINT" != "$MAIN_HEAD_COMMIT" ]]; then
-            echo "❌ Branch must be up to date with main branch before merging"
+            echo "❌ Branch must be up to date with the main branch before merging"
             echo "   Your branch diverged from main at commit: $(git log --oneline -n 1 $DIVERGENCE_POINT)"
-            echo "   Current main branch is at: $(git log --oneline -n 1 $MAIN_HEAD_COMMIT)"
-            echo "   Please rebase your branch on the latest main branch"
+            echo "   The current main branch is at: $(git log --oneline -n 1 $MAIN_HEAD_COMMIT)"
+            echo "   Please rebase on the latest main branch and force push your changes"
             exit 1
           fi
-          echo "✅ Branch is up to date with main branch"
+          echo "✅ Branch is up to date with the main branch"
 
       - name: Check commit messages
         if: always()
@@ -149,7 +149,6 @@ jobs:
           COMMITS=$(git rev-list main..${{ github.event.pull_request.head.sha }})
           EXIT_CODE=0
 
-          # Ensure each commit follows our format
           for COMMIT in $COMMITS; do
             COMMIT_MESSAGE=$(git log --format=%B -n 1 "$COMMIT")
             COMMIT_SHORT="${COMMIT:0:8}"
