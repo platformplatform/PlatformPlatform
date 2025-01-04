@@ -45,6 +45,13 @@ jobs:
             EXIT_CODE=1
           fi
 
+          if [[ "${PULL_REQUEST_TITLE,,}" =~ ^[[:alnum:]]{1,4}[[:space:]][0-9]+ ]]; then
+            echo "❌ Pull request title cannot be a default branch name format like:"
+            echo "   'Pp ###', 'Dev ###', 'M42 ###', etc."
+            echo "   Please update the title to describe the changes being made"
+            EXIT_CODE=1
+          fi
+
           if [[ "$EXIT_CODE" -eq 0 ]]; then
             echo "✅ The pull request title looks valid"
           fi
