@@ -4,6 +4,5 @@ A brief description of the changes in this pull request explaining why these cha
 
 ### Checklist
 
-- [ ] I have added a Label to the pull-request
-- [ ] I have added tests, and done manual regression tests
+- [ ] I have added tests, or done manual regression tests
 - [ ] I have updated the documentation, if necessary
