@@ -48,7 +48,8 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             // Define the runtime environment variables as part of the template
             meta: {
               runtimeEnv: "%ENCODED_RUNTIME_ENV%",
-              userInfoEnv: "%ENCODED_USER_INFO_ENV%"
+              userInfoEnv: "%ENCODED_USER_INFO_ENV%",
+              antiforgeryToken: "%ANTIFORGERY_TOKEN%"
             },
             // Add the CDN URL placeholder to the script and link tags in the template file
             tags(tags) {
