@@ -45,7 +45,7 @@ public sealed class UserEndpoints : IEndpoints
 
         group.MapPost("/me/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
-        ).DisableAntiforgery(); // Disable anti-forgery until we implement it
+        );
 
         group.MapDelete("/me/remove-avatar", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new RemoveAvatarCommand())
