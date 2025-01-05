@@ -20,7 +20,7 @@ public class TrackEndpoints : IEndpoints
     // </summary>
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        routes.MapPost("/api/track", Track).AllowAnonymous();
+        routes.MapPost("/api/track", Track).AllowAnonymous().DisableAntiforgery();
     }
 
     [OpenApiIgnore]
