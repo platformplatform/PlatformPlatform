@@ -41,6 +41,9 @@ public sealed class SignupBlocked(TenantId tenantId, int retryCount)
 public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
     : TelemetryEvent(("tenant_id", tenantId), ("signup_time_in_seconds", signupTimeInSeconds));
 
+public sealed class SignupCodeResend(TenantId tenantId, int secondsSinceSignupStarted)
+    : TelemetryEvent(("tenant_id", tenantId), ("seconds_since_signup_started", secondsSinceSignupStarted));
+
 public sealed class SignupExpired(TenantId tenantId, int secondsFromCreation)
     : TelemetryEvent(("tenant_id", tenantId), ("seconds_from_creation", secondsFromCreation));
 

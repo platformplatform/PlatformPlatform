@@ -231,6 +231,37 @@
         }
       }
     },
+    "/api/account-management/signups/{id}/resend-code": {
+      "post": {
+        "tags": [
+          "Signups"
+        ],
+        "operationId": "PostApiAccountManagementSignupsResendCode",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SignupId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendSignupCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/{id}": {
       "get": {
         "tags": [
@@ -744,23 +775,11 @@
         "additionalProperties": false,
         "properties": {
           "signupId": {
-            "type": "string"
+            "$ref": "#/components/schemas/SignupId"
           },
           "validForSeconds": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "StartSignupCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "subdomain": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
           }
         }
       },
@@ -791,12 +810,34 @@
           }
         }
       },
+      "StartSignupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subdomain": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
       "CompleteSignupCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "oneTimePassword": {
             "type": "string"
+          }
+        }
+      },
+      "ResendSignupCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

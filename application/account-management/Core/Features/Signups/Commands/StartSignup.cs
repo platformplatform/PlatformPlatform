@@ -22,7 +22,7 @@ public sealed record StartSignupCommand(string Subdomain, string Email) : IComma
 }
 
 [PublicAPI]
-public sealed record StartSignupResponse(string SignupId, int ValidForSeconds);
+public sealed record StartSignupResponse(SignupId SignupId, int ValidForSeconds);
 
 public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
 {

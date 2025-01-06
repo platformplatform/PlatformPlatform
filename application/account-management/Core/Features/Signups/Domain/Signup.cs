@@ -57,6 +57,17 @@ public sealed class Signup : AggregateRoot<SignupId>
 
         Completed = true;
     }
+
+    public void UpdateVerificationCode(string oneTimePasswordHash)
+    {
+        if (Completed)
+        {
+            throw new UnreachableException("Cannot regenerate verification code for completed signup");
+        }
+
+        ValidUntil = TimeProvider.System.GetUtcNow().AddSeconds(ValidForSeconds);
+        OneTimePasswordHash = oneTimePasswordHash;
+    }
 }
 
 [PublicAPI]
