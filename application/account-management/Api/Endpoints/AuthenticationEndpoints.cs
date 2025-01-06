@@ -21,6 +21,10 @@ public sealed class AuthenticationEndpoints : IEndpoints
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
 
+        group.MapPost("login/{id}/resend", async Task<ApiResult<ResendLoginCodeResponse>> (LoginId id, IMediator mediator)
+            => await mediator.Send(new ResendLoginCodeCommand { Id = id })
+        ).Produces<ResendLoginCodeResponse>().AllowAnonymous();
+
         group.MapPost("logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())
         );

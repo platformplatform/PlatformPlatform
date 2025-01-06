@@ -74,6 +74,37 @@
         }
       }
     },
+    "/api/account-management/authentication/login/{id}/resend": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationLoginResend",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/LoginId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendLoginCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/authentication/logout": {
       "post": {
         "tags": [
@@ -695,6 +726,16 @@
         "properties": {
           "oneTimePassword": {
             "type": "string"
+          }
+        }
+      },
+      "ResendLoginCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

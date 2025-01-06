@@ -29,6 +29,9 @@ public sealed class LoginFailed(UserId userId, int retryCount)
 public sealed class LoginStarted(UserId userId)
     : TelemetryEvent(("user_id", userId));
 
+public sealed class LoginCodeResend(UserId userId, int secondsSinceSignupStarted)
+    : TelemetryEvent(("user_id", userId), ("seconds_since_login_started", secondsSinceSignupStarted));
+
 public sealed class Logout
     : TelemetryEvent;
 
