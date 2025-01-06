@@ -67,7 +67,7 @@ export function StartSignupForm() {
     const { signupId, validForSeconds } = data;
 
     setSignupState({
-      signupId: signupId,
+      signupId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });

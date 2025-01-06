@@ -58,6 +58,17 @@ public sealed class Login : AggregateRoot<LoginId>
 
         Completed = true;
     }
+
+    public void UpdateVerificationCode(string oneTimePasswordHash)
+    {
+        if (Completed)
+        {
+            throw new UnreachableException("Cannot regenerate verification code for completed login");
+        }
+
+        ValidUntil = TimeProvider.System.GetUtcNow().AddSeconds(ValidForSeconds);
+        OneTimePasswordHash = oneTimePasswordHash;
+    }
 }
 
 [PublicAPI]

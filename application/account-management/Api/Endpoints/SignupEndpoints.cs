@@ -25,5 +25,9 @@ public sealed class SignupEndpoints : IEndpoints
         group.MapPost("{id}/complete", async Task<ApiResult> (SignupId id, CompleteSignupCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
+
+        group.MapPost("{id}/resend-code", async Task<ApiResult<ResendSignupCodeResponse>> (SignupId id, IMediator mediator)
+            => await mediator.Send(new ResendSignupCodeCommand { Id = id })
+        ).Produces<ResendSignupCodeResponse>().AllowAnonymous();
     }
 }
