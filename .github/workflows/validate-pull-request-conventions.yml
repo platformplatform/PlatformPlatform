@@ -82,6 +82,17 @@ jobs:
             EXIT_CODE=1
           fi
 
+          # Check if the required checklist items are checked
+          if ! echo "$DESCRIPTION" | grep -q "\- \[x\] I have added tests, or done manual regression tests"; then
+            echo "❌ Please check the box: 'I have added tests, or done manual regression tests'"
+            EXIT_CODE=1
+          fi
+          
+          if ! echo "$DESCRIPTION" | grep -q "\- \[x\] I have updated the documentation, if necessary"; then
+            echo "❌ Please check the box: 'I have updated the documentation, if necessary'"
+            EXIT_CODE=1
+          fi
+
           if [[ "$EXIT_CODE" -eq 0 ]]; then
             echo "✅ The pull request description looks valid"
           fi
@@ -173,8 +184,8 @@ jobs:
             COMMIT_MESSAGE=$(git log --format=%B -n 1 "$COMMIT")
             COMMIT_SHORT="${COMMIT:0:8}"
 
-            # Ensure single-line commit message
-            if [[ $(echo "$COMMIT_MESSAGE" | wc -l) -gt 1 ]]; then
+            # Ensure single-line commit message unless it's a downstream commit of a pull request cherry-picked from PlatformPlatform
+            if [[ $(echo "$COMMIT_MESSAGE" | wc -l) -gt 1 && ! "$COMMIT_MESSAGE" =~ ^"PlatformPlatform PR" ]]; then
               echo "❌ Commit $COMMIT_SHORT has multiple lines"
               echo "   Message: $COMMIT_MESSAGE"
               EXIT_CODE=1
