@@ -207,8 +207,8 @@ jobs:
               fi
             fi
 
-            # Check for period-space-capital (new sentence)
-            if echo "$COMMIT_MESSAGE" | grep -P '\. [A-Z]' | grep -vP '(incl\.|e\.g\.|etc\.|i\.e\.) [A-Z]' > /dev/null; then
+            # Check for period-space-capital (new sentence) unless it's a downstream commit of a pull request cherry-picked from PlatformPlatform
+            if [[ ! "$COMMIT_MESSAGE" =~ ^"PlatformPlatform PR" ]] && echo "$COMMIT_MESSAGE" | grep -P '\. [A-Z]' | grep -vP '(incl\.|e\.g\.|etc\.|i\.e\.) [A-Z]' > /dev/null; then
               echo "❌ Commit $COMMIT_SHORT contains multiple sentences"
               echo "   Message: $COMMIT_MESSAGE"
               EXIT_CODE=1
