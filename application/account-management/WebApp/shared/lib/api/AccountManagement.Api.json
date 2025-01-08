@@ -698,6 +698,26 @@
           }
         }
       }
+    },
+    "/api/account-management/users/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountManagementUsersSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1150,6 +1170,24 @@
         "properties": {
           "locale": {
             "type": "string"
+          }
+        }
+      },
+      "GetUserSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingUsers": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }
