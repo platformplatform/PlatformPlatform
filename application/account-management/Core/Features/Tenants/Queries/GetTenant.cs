@@ -15,9 +15,9 @@ public sealed record TenantResponse(TenantId Id, DateTimeOffset CreatedAt, DateT
 public sealed class GetTenantHandler(ITenantRepository tenantRepository)
     : IRequestHandler<GetTenantQuery, Result<TenantResponse>>
 {
-    public async Task<Result<TenantResponse>> Handle(GetTenantQuery request, CancellationToken cancellationToken)
+    public async Task<Result<TenantResponse>> Handle(GetTenantQuery query, CancellationToken cancellationToken)
     {
-        var tenant = await tenantRepository.GetByIdAsync(request.Id, cancellationToken);
-        return tenant?.Adapt<TenantResponse>() ?? Result<TenantResponse>.NotFound($"Tenant with id '{request.Id}' not found.");
+        var tenant = await tenantRepository.GetByIdAsync(query.Id, cancellationToken);
+        return tenant?.Adapt<TenantResponse>() ?? Result<TenantResponse>.NotFound($"Tenant with id '{query.Id}' not found.");
     }
 }

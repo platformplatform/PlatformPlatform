@@ -183,6 +183,9 @@ msgstr "Gebruikers uitnodigen"
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inloggen."
 
+msgid "Invited Users"
+msgstr "Uitgenodigde gebruikers"
+
 msgid "Last name"
 msgstr "Achternaam"
 
@@ -333,6 +336,9 @@ msgstr "gebruiker@email.com"
 
 msgid "Users"
 msgstr "Gebruikers"
+
+msgid "Users who haven't confirmed their email"
+msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
 msgid "Verify"
 msgstr "Verifiëren"

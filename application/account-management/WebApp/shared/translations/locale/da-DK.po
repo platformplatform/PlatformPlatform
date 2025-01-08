@@ -183,6 +183,9 @@ msgstr "Inviter Brugere"
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger ind."
 
+msgid "Invited Users"
+msgstr "Inviterede brugere"
+
 msgid "Last name"
 msgstr "Efternavn"
 
@@ -333,6 +336,9 @@ msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Brugere"
+
+msgid "Users who haven't confirmed their email"
+msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
 msgid "Verify"
 msgstr "Bekræft"

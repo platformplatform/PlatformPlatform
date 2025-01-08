@@ -53,5 +53,9 @@ public sealed class UserEndpoints : IEndpoints
         group.MapPut("/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
             => await mediator.Send(command)
         );
+
+        group.MapGet("/summary", async Task<ApiResult<GetUserSummaryResponse>> (IMediator mediator)
+            => await mediator.Send(new GetUserSummaryQuery())
+        ).Produces<GetUserSummaryResponse>();
     }
 }

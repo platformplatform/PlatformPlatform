@@ -9,7 +9,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 export default function Home() {
-  const { data } = useApi("/api/account-management/users", { params: { query: { PageSize: 1 } } });
+  const { data } = useApi("/api/account-management/users/summary", {});
 
   return (
     <div className="flex gap-4 w-full h-full">
@@ -35,7 +35,7 @@ export default function Home() {
               <Trans>Add more in the Users menu</Trans>
             </div>
             <div className="py-2 text-black text-2xl font-semibold">
-              {data?.totalCount ? <p>{data?.totalCount}</p> : <p>-</p>}
+              {data?.totalUsers ? <p>{data.totalUsers}</p> : <p>-</p>}
             </div>
           </div>
           <div className="p-6 bg-white rounded-xl shadow-md w-1/3 mx-6">
@@ -46,7 +46,18 @@ export default function Home() {
               <Trans>Active users in the past 30 days</Trans>
             </div>
             <div className="py-2 text-black text-2xl font-semibold">
-              {data?.totalCount ? <p>{data?.totalCount}</p> : <p>-</p>}
+              {data?.activeUsers ? <p>{data.activeUsers}</p> : <p>-</p>}
+            </div>
+          </div>
+          <div className="p-6 bg-white rounded-xl shadow-md w-1/3">
+            <div className="text-sm text-gray-800">
+              <Trans>Invited Users</Trans>
+            </div>
+            <div className="text-sm text-gray-500">
+              <Trans>Users who haven't confirmed their email</Trans>
+            </div>
+            <div className="py-2 text-black text-2xl font-semibold">
+              {data?.pendingUsers ? <p>{data.pendingUsers}</p> : <p>-</p>}
             </div>
           </div>
         </div>

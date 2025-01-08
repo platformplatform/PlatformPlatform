@@ -183,6 +183,9 @@ msgstr "Invite Users"
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Invite users and assign them roles. They will appear once they log in."
 
+msgid "Invited Users"
+msgstr "Invited Users"
+
 msgid "Last name"
 msgstr "Last name"
 
@@ -333,6 +336,9 @@ msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Users"
+
+msgid "Users who haven't confirmed their email"
+msgstr "Users who haven't confirmed their email"
 
 msgid "Verify"
 msgstr "Verify"

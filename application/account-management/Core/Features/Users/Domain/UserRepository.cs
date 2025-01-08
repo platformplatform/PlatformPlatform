@@ -18,6 +18,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>
 
     Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken);
 
+    Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken);
+
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
@@ -71,6 +73,24 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
+    }
+
+    public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
+    {
+        var thirtyDaysAgo = TimeProvider.System.GetUtcNow().AddDays(-30);
+
+        var summary = await DbSet
+            .GroupBy(_ => 1) // Group all records into a single group to calculate multiple COUNT aggregates in one query
+            .Select(g => new
+                {
+                    TotalUsers = g.Count(),
+                    ActiveUsers = g.Count(u => u.EmailConfirmed && u.ModifiedAt >= thirtyDaysAgo),
+                    PendingUsers = g.Count(u => !u.EmailConfirmed)
+                }
+            )
+            .SingleAsync(cancellationToken);
+
+        return (summary.TotalUsers, summary.ActiveUsers, summary.PendingUsers);
     }
 
     public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(

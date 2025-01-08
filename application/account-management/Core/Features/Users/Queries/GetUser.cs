@@ -25,9 +25,9 @@ public sealed record UserResponse(
 public sealed class GetUserHandler(IUserRepository userRepository)
     : IRequestHandler<GetUserQuery, Result<UserResponse>>
 {
-    public async Task<Result<UserResponse>> Handle(GetUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(GetUserQuery query, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(request.Id, cancellationToken);
-        return user?.Adapt<UserResponse>() ?? Result<UserResponse>.NotFound($"User with id '{request.Id}' not found.");
+        var user = await userRepository.GetByIdAsync(query.Id, cancellationToken);
+        return user?.Adapt<UserResponse>() ?? Result<UserResponse>.NotFound($"User with id '{query.Id}' not found.");
     }
 }
