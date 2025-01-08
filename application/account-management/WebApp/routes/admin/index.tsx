@@ -51,7 +51,7 @@ export default function Home() {
           </div>
           <div className="p-6 bg-white rounded-xl shadow-md w-1/3">
             <div className="text-sm text-gray-800">
-              <Trans>Pending Users</Trans>
+              <Trans>Invited Users</Trans>
             </div>
             <div className="text-sm text-gray-500">
               <Trans>Users who haven't confirmed their email</Trans>
