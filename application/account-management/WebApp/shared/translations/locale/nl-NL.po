@@ -231,6 +231,9 @@ msgstr "Eigenaar"
 msgid "Pending"
 msgstr "In behandeling"
 
+msgid "Pending Users"
+msgstr ""
+
 msgid "Photo"
 msgstr "Foto"
 
@@ -333,6 +336,9 @@ msgstr "gebruiker@email.com"
 
 msgid "Users"
 msgstr "Gebruikers"
+
+msgid "Users who haven't confirmed their email"
+msgstr ""
 
 msgid "Verify"
 msgstr "Verifiëren"
