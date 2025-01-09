@@ -238,7 +238,6 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     hasProbesEndpoint: false
     environmentVariables: accountManagementEnvironmentVariables
   }
-  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService]
 }
 
 module accountManagementApi '../modules/container-app.bicep' = {
@@ -263,7 +262,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     hasProbesEndpoint: true
     environmentVariables: accountManagementEnvironmentVariables
   }
-  dependsOn: [accountManagementDatabase, accountManagementIdentity, communicationService, accountManagementWorkers]
+  dependsOn: [accountManagementWorkers]
 }
 
 // Back Office
@@ -365,7 +364,6 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
     hasProbesEndpoint: false
     environmentVariables: backOfficeEnvironmentVariables
   }
-  dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService]
 }
 
 module backOfficeApi '../modules/container-app.bicep' = {
@@ -390,7 +388,7 @@ module backOfficeApi '../modules/container-app.bicep' = {
     hasProbesEndpoint: true
     environmentVariables: backOfficeEnvironmentVariables
   }
-  dependsOn: [backOfficeDatabase, backOfficeIdentity, communicationService, backOfficeWorkers]
+  dependsOn: [backOfficeWorkers]
 }
 
 // App Gateway
@@ -460,7 +458,6 @@ module appGateway '../modules/container-app.bicep' = {
       }
     ]
   }
-  dependsOn: [appGatewayIdentity]
 }
 
 module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
