@@ -28,7 +28,7 @@ permissions:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
 
@@ -89,7 +89,7 @@ jobs:
   code-style-and-linting:
     name: Code Style and Linting
     if: github.ref != 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
