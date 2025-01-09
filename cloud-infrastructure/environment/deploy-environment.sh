@@ -13,8 +13,7 @@ DEPLOYMENT_PARAMETERS="-l $LOCATION_SHARED -n $CURRENT_DATE-$UNIQUE_PREFIX-$ENVI
 cd "$(dirname "${BASH_SOURCE[0]}")"
 . ../deploy.sh
 
-cleaned_output=$(echo "$output" | sed '/^WARNING/d')
-if [[ $cleaned_output == *"ERROR:"* ]]; then
+if [[ $output == *"ERROR:"* ]]; then
   echo -e "${RED}$output"
   exit 1
 fi
