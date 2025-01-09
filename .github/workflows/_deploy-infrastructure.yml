@@ -112,9 +112,8 @@ jobs:
           tenant-id: ${{ inputs.tenant_id }}
           subscription-id: ${{ inputs.subscription_id }}
 
-      - name: Replace Classic sqlcmd (ODBC) with sqlcmd (GO)
+      - name: Install Microsoft sqlcmd tool
         run: |
-          sudo apt-get remove -y mssql-tools &&
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
           sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
           sudo apt-get update &&
