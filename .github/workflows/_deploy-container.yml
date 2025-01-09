@@ -25,7 +25,7 @@ on:
 jobs:
   stage:
     name: Staging
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # environment: "staging"  # Manual approval disabled
     if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
     env:
@@ -101,7 +101,7 @@ jobs:
     name: Production
     needs: stage
     environment: "production" # Force a manual approval
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
