@@ -1,109 +1,147 @@
-When replying, start by listing the sections in this rules file that you used to guide your response. Just print the headings without any other details.
+When replying, list the sections from this rules file that guided your response. For example:
+
+Sections used:
+- General Practices
+- Backend Guidelines > Over all
+- Backend Guidelines > API
+
+# General Practices (always include this section)
+- AVOID unrelated code changes (e.g., don’t remove comments or alter types).
+- Consistency is extremely important. Before implementing new code, always look for similar code in the existing code base, and do you utmost to follow conventions for naming, structure, patterns, formatting, styling, etc.
+- SCS means self-contained system.
+- Use long descriptive variable names (e.g commitMessage not commit).
+- Never use acronyms (e.g. SharedAccessSignatureLink not SasLink).
+- Use one-line imperative, sentence-case commit messages with no trailing dot. Don't prefix with "feat," "fix," etc.
 
 # Project Overview
-PlatformPlatform is an enterprise-grade, multi-tenant foundation for SaaS startups. It employs a self-contained systems (SCS) architecture with micro-frontends using module federation, ensuring scalability and maintainability.
-
-PlatformPlatform is a monorepo containing all application code, infrastructure, tools, libraries, documentation, etc.
-
-```bash
-.
-├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
-├─ application           # Contains the application source code
-│  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
-│  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
-│  ├─ account-management # Self-contained system with account sign-up, user management, etc.
-│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
-│  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
-│  │   ├─ Core           # Core business logic, application use cases, and infrastructure
-│  │   ├─ Workers        # Background workers for long-running tasks and event processing
-│  │   └─ Tests          # Tests for the Api, Core, and Workers
-│  ├─ shared-kernel      # Reusable components and default configuration for all systems
-│  ├─ shared-webapp      # Reusable and styled React Aria Components that affect all systems 
-│  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│  └─ back-office        # A self-contained system for operations and support (empty for now)
-├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
-│  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
-│  ├─ environment        # Shared resources like App Insights, Container Registry, etc.
-│  └─ modules            # Reusable Bicep modules like Container App, SQL Server, etc.
-└─ development-cli       # A .NET CLI tool for automating common developer tasks
-```
-
-Instead of making changes in the root of the monorepo, make code changes in the relevant SCS or in the /application folder.
+PlatformPlatform is a multi-tenant SaaS foundation monorepo with:
+- `application/`: Self-contained systems (SCSs) with WebApp, Api, Core, and Workers
+- `cloud-infrastructure/`: Azure infrastructure (Bicep)
+- `development-cli/`: Developer tools
 
 # Backend Guidelines
-- Utilize .NET 9 features, including Aspire for project orchestration.
-- When implementing new code, closely examine the coding conventions used in this project:
-  - Use C# top-level namespaces.
-  - Minimal API endpoints are always only one line with a call to mediator.Send().
-  - CQRS Requests, Commands, Validators, and Handlers are in one shared file, ensuring one file per feature, without a folder.
-- Adhere to the vertical slice architecture pattern:
-  - Create new features in the /Features subfolder in the SCS .Core project
-  - Group related functionality (command/query, validator, handler) in a single file
-  - Follow naming convention: [Feature][Command/Query].cs
-  - Place shared domain logic in /Features/Shared but make sure that each class does one thing only
-  - Keep feature files focused and cohesive
-  - When creating integrations with external dependencies, create a client in /Client/[ServiceName]/ServiceClient.cs
-- The @application/shared-kernel/SharedKernel contains reusable components:
-  - Use the RepositoryBase for creating repositoires, but only add the methods to the IRepository interfase that is needed (e.g. don't add Update and Delete methods for a readonly repository)
-  - Inherit from AggregateRoot for domain entities
-  - Avoid properties pointing to other aggregates to prevent eager or lazy loading; use explicit code for multiple database requests instead of creating an Order.Customer property in an e-commerce app
-  - Utilize Result<T> for operation results
-  - Only use exceptions when something is truly exceptional (system down or a bug)
-  - Apply FluentValidation for input validation
-- Write unit tests with xUnit and Fluent Assertions:
-  - Follow naming: [Method_WhenX_ShouldY]
-  - Use NSubstitute for mocking
-  - Test command/query handlers independently
-  - Prefer testing API endpoints over unit tests, focusing on behavior rather than implementation.
+
+## Over all
++ Always use new C# 8/9 language features like top-level namespaces, primary constructors and array initializers.
+- Only throw exceptions for exceptional cases.
+- Prefer long lines, and break at 120-140 characters.
+- Use TimeProvider.System.GetUtcNow() to get current time.
+- All IDs on domain entities, commands, queries, API endpoints, etc. are strongly typed IDs. E.g. `TenantId Id` instead of `long Id`.
+
+## API
+- Always return Response DTOs
+- Always use strongly TypedIDs in contract
+- Implement Minimal API endpoints in a single line, calling `mediator.Send()` and convert any path parameters using the ` with { Id = id }` like shown here:
+
+  ```csharp
+  group.MapPut("/{id}", async Task<ApiResult> (TenantId id, UpdateTenantCommand command, IMediator mediator)
+    => await mediator.Send(command with { Id = id })
+  );
+
+  [PublicAPI]
+  public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
+  {
+      [JsonIgnore] // Removes this property from the API contract
+      public TenantId Id { get; init; } = null!;
+
+      public required string Name { get; init; }
+  }
+  ```
+
+## Command and Queries
+- Follow vertical slice architecture: one file per feature under `/Features/[Feature]` in `[SCS].Core`:
+  ```bash
+  ├─ Features    # Typically the plural name of the aggregate
+  │  ├─ Commands # One file for each command that includes the Command, CommandHandler, and Validator
+  │  ├─ Domain   # One file for the Aggregate, Repository, AggregateEvents, AggregateTypes etc.
+  │  ├─ Queries  # One file for each query that includes the Query, QueryHandler
+  │  ├─ Shared   # Used for shared logic to avoid code duplication in commands
+  ```
+- Use `Result<T>/Result` from SharedKernel for return types, not `ApiResult<T>`.
+- Apply `[PublicAPI]` from `JetBrains.Annotations` for all Command/Query/Response DTOs.
+- MediatR pipelines validation behaviors are used to run input validation, handle domain events, commit unit of work, and send tracked events.
+- When creating new commands always also create a new matching Telemetry event in `/Features/[TelemetryEvents]/` with meaningful properties, like here:
+  ```csharp
+    # Handler class
+    public async Task<Result> Handle(CompleteLoginCommand command, CancellationToken cancellationToken)
+    {
+        ...
+        loginRepository.Update(login);
+
+        var loginTimeInSeconds = (int)(TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;
+
+        events.CollectEvent(new LoginCompleted(user.Id, loginTimeInSeconds)); // Track just before returning
+
+        return Result.Success();
+    }
+
+    # TelemetryEvents.cs
+    public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
+    : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
+  ```
+
+## Repositories
+- Should return domain objects or primary types (never PublicAPI DTOs).
+- Repositories inherit from `RepositoryBase`, which has generic CRUD methods. E.g.to create a read-only repository, define a new interface with only read methods, utilizing only those from the `RepositoryBase`.
+```csharp
+  public interface ITenantRepository : IReadonlyRepository<Tenant, TenantId>
+  {
+      Task<bool> ExistsAsync(TenantId id, CancellationToken cancellationToken);
+  }
+
+  internal sealed class TenantRepository(AccountManagementDbContext accountManagementDbContext)
+    : RepositoryBase<Tenant, TenantId>(accountManagementDbContext), ITenantRepository
+  {
+  }
+  ```
+
+## Aggregates, Entities, and Value Objects
+- Inherit from `AggregateRoot`.
+- Avoid aggregate references. Use queries instead of properties like `Login.User` to prevent inefficient joins.
+- Use classes for Entities and records for Value Objects. E.g. `User.Avatar`,  `Order.OrderLines`.
+
+## Integrations
+- Create external service clients in `/Client/[ServiceName]/[ServiceClient].cs`.
+
+## Testing
+- Use XUnit and Fluent Assertions.
+- Name in the form: `[Method_WhenX_ShouldY]`.
+- Prefer testing API endpoints over writing unit tests.
+- Use NSubstitute for mocks, but only mock integrations. Don't mock repositories.
 
 # Frontend Guidelines
-- Develop using React with TypeScript and React Aria Components:
-  - Use onPress instead of onClick for button interactions
-  - Implement proper keyboard navigation and focus management
-  - Follow React Aria Components patterns for accessibility
-  - Use compound components pattern when building complex UI
-- Style components using:
-  - Tailwind variants (tv) for dynamic styling
-  - React Aria's built-in style system
-  - CSS modules for component-specific styles
-- State management:
-  - Use React Query for server state
-  - Implement React Context for shared UI state
-  - Prefer local state when possible
-- API integration:
-  - Use PlatformApiClient for all API calls:
-    ```typescript
-    await api.get("/api/account-management/users/{id}", {
-      params: { path: { id: userId } }
-    });
-    ```
-  - Handle loading and error states consistently
-- Component structure:
-  - Place components in feature-specific folders
-  - Use index.ts files for public exports
-  - Keep components focused and composable
-- Dependencies:
-  - Use specific versions (no ^ or ~)
-  - Prefer React Aria Components over custom implementations
-  - Minimize external dependencies
 
-# Shared-Web Project
-- The Shared-Web project contains components intended for reuse across all SCSs.
-- Modify Shared-Web only when changes should apply universally.
+## Over all
+- Emphasize accessibility and type safety.
+- Leverage Tailwind variants for styling.
+- Global, reusable components live in Shared-Web. Change here only if it’s universally needed.
 
-# General Practices
-- AVOID making changes to code that are not related to the change we are doing. E.g. don't remove comments or types.
-- Assume all code is working as intended, as everything has been carefully crafted.
-- Commit messages should be in imperative form, sentence case, starting with a verb, and have NO trailing dot.
-- Use descriptive variables names with auxiliary verbs (e.g. isLoading, hasError)
+## React Aria Components
+- Build UI using components from `@application/shared-webapp/ui/components`.
+- Use `onPress` instead of `onClick`.
 
-# AI Editor Instructions
-- Always reference these sections when generating code
-- Maintain consistency with existing patterns
-- Prioritize accessibility and type safety
-- Follow vertical slice architecture for backend
-- Use React Aria Components patterns for frontend
-- Generate comprehensive test coverage
-- Include proper error handling
-- Add meaningful comments explaining complex logic
-- Ensure proper validation and security measures
+## API integration
+- A strongly typed API Contract is generated by the .NET API in each SCS (look for @/WebApp/shared/lib/api/api.generated.d.ts)
+- When making API calls, don't use standard fetch, but instead use `@application/shared-webapp/infrastructure/api/PlatformApiClient.ts`, that contains methods for get, post, put, delete, options, head, patch, trace.
+
+Here is an example of how to use the API client for a GET request
+  ```typescript
+  await api.get("/api/account-management/users/{id}", {
+    params: { path: { id: userId } }
+  });
+  ```
+
+- Here is an example of how to use the API client for a POST request that is submitting a forms, use React Aria's Form component with `validationBehavior="aria"` for accessible form validation and error handling:
+  ```typescript
+  <Form action={api.actionPost("/api/account-management/signups/start")} validationErrors={errors} validationBehavior="aria">
+    <TextField name="email" type="email" label="Email" isRequired />
+    ...
+    <Button type="submit">Submit</Button>
+  </Form>
+  ```
+- Keep components in feature folders; focus on small, composable units.
+
+## Dependencies
+- Avoid adding new dependencies to the root package.json.
+- If needed always Pin versions (no ^ or ~).
+- Use React Aria Components before adding anything new.
