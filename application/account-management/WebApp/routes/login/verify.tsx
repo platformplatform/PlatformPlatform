@@ -19,6 +19,13 @@ import { useActionState, useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/login/verify")({
+  validateSearch: (search) => {
+    const returnPath = search.returnPath as string | undefined;
+    // Only allow paths starting with / to prevent open redirect attacks to external domains
+    return {
+      returnPath: returnPath?.startsWith("/") ? returnPath : undefined
+    };
+  },
   component: function LoginVerifyRoute() {
     const isAuthenticated = useIsAuthenticated();
 
@@ -42,6 +49,7 @@ export const Route = createFileRoute("/login/verify")({
 export function CompleteLoginForm() {
   const { email, loginId, expireAt } = getLoginState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
+  const { returnPath } = Route.useSearch();
 
   const [{ success, title, message, errors }, action] = useActionState(
     api.actionPost("/api/account-management/authentication/login/{id}/complete"),
@@ -66,9 +74,9 @@ export function CompleteLoginForm() {
 
   useEffect(() => {
     if (success) {
-      window.location.href = loggedInPath;
+      window.location.href = returnPath || loggedInPath;
     }
-  }, [success]);
+  }, [success, returnPath]);
 
   useEffect(() => {
     if (isExpired) {
