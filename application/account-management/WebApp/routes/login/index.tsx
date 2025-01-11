@@ -18,6 +18,13 @@ import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
 export const Route = createFileRoute("/login/")({
+  validateSearch: (search) => {
+    const returnPath = search.returnPath as string | undefined;
+    // Only allow paths starting with / to prevent open redirect attacks to external domains
+    return {
+      returnPath: returnPath?.startsWith("/") ? returnPath : undefined
+    };
+  },
   component: function LoginRoute() {
     const isAuthenticated = useIsAuthenticated();
 
@@ -40,6 +47,7 @@ export const Route = createFileRoute("/login/")({
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
+  const { returnPath } = Route.useSearch();
 
   const [{ success, errors, data, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/authentication/login/start"),
@@ -55,7 +63,7 @@ export function LoginForm() {
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });
 
-    return <Navigate to="/login/verify" />;
+    return <Navigate to="/login/verify" search={{ returnPath }} />;
   }
 
   return (
