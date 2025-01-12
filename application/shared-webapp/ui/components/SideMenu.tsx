@@ -1,14 +1,15 @@
-import { createContext, useContext, useState } from "react";
-import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
-import { Button } from "./Button";
-import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
-import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
+import { createContext, useContext } from "react";
+import { tv } from "tailwind-variants";
+import { Button } from "./Button";
 import { useRouter } from "@tanstack/react-router";
 import { Dialog, DialogTrigger } from "./Dialog";
 import { Modal } from "./Modal";
+import { Tooltip, TooltipTrigger } from "./Tooltip";
 import type { Href } from "@react-types/shared";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const collapsedContext = createContext(false);
 
@@ -121,10 +122,13 @@ type SideMenuProps = {
 };
 
 export function SideMenu({ children }: Readonly<SideMenuProps>) {
-  const [isCollapsed, setIsCollapsed] = useState(() => !window.matchMedia("(min-width: 1024px)").matches);
+  const [isCollapsed, setIsCollapsed] = useLocalStorage<boolean>(
+    !window.matchMedia("(min-width: 1024px)").matches,
+    "side-menu-collapsed"
+  );
 
   const toggleCollapse = () => {
-    setIsCollapsed((v) => !v);
+    setIsCollapsed((v: boolean) => !v);
   };
 
   return (
