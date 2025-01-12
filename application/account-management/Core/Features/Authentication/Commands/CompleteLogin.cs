@@ -33,10 +33,7 @@ public sealed class CompleteLoginHandler(
     {
         var login = await loginRepository.GetByIdAsync(command.Id, cancellationToken);
 
-        if (login is null)
-        {
-            return Result.NotFound($"Login with id '{command.Id}' not found.");
-        }
+        if (login is null) return Result.NotFound($"Login with id '{command.Id}' not found.");
 
         if (login.Completed)
         {

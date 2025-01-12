@@ -33,10 +33,7 @@ public sealed class CompleteSignupHandler(
     {
         var signup = await signupRepository.GetByIdAsync(command.Id, cancellationToken);
 
-        if (signup is null)
-        {
-            return Result.NotFound($"Signup with id '{command.Id}' not found.");
-        }
+        if (signup is null) return Result.NotFound($"Signup with id '{command.Id}' not found.");
 
         if (signup.Completed)
         {

@@ -24,19 +24,13 @@ public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarComman
     }
 }
 
-public sealed class UpdateAvatarHandler(
-    IUserRepository userRepository,
-    AvatarUpdater avatarUpdater,
-    ITelemetryEventsCollector events
-) : IRequestHandler<UpdateAvatarCommand, Result>
+public sealed class UpdateAvatarHandler(IUserRepository userRepository, AvatarUpdater avatarUpdater, ITelemetryEventsCollector events)
+    : IRequestHandler<UpdateAvatarCommand, Result>
 {
     public async Task<Result> Handle(UpdateAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        if (user is null)
-        {
-            return Result.BadRequest("User not found.");
-        }
+        if (user is null) return Result.BadRequest("User not found.");
 
         if (await avatarUpdater.UpdateAvatar(user, false, command.ContentType, command.FileSteam, cancellationToken))
         {
