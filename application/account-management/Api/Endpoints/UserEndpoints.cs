@@ -44,7 +44,7 @@ public sealed class UserEndpoints : IEndpoints
 
         // The following endpoints are for the current user only
         group.MapPut("/", async Task<ApiResult> (UpdateUserCommand command, IMediator mediator)
-            => await mediator.Send(command)
+            => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
 
         group.MapPost("/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)

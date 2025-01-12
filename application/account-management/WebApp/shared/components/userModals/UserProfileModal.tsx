@@ -1,4 +1,4 @@
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
@@ -11,6 +11,7 @@ import type { Schemas } from "@/shared/lib/api/client";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
@@ -29,8 +30,11 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
+
+  const { updateUserInfo } = useContext(AuthenticationContext);
 
   // Fetch user data when modal opens
   useEffect(() => {
@@ -42,6 +46,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
       setAvatarPreviewUrl(null);
       setAvatarMenuOpen(false);
       setRemoveAvatarFlag(false);
+      setIsSaving(false);
 
       api
         .get("/api/account-management/users/{id}", { params: { path: { id: userId } } })
@@ -62,33 +67,52 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
   }, [onOpenChange, avatarPreviewUrl]);
 
   // Handle form submission
-  let [{ success, errors, title, message }, action, isPending] = useActionState(
+  const [{ success, errors, title, message }, action, isPending] = useActionState(
     api.actionPut("/api/account-management/users"),
     { success: null }
   );
 
   const handleFormSubmit = async (formData: FormData) => {
-    if (selectedAvatarFile) {
-      await api.uploadFile("/api/account-management/users/update-avatar", selectedAvatarFile);
-    } else if (removeAvatarFlag) {
-      await api.delete("/api/account-management/users/remove-avatar");
-      setRemoveAvatarFlag(false);
+    if (isSaving) return;
+    setIsSaving(true);
+
+    try {
+      if (selectedAvatarFile) {
+        await api.uploadFile("/api/account-management/users/update-avatar", selectedAvatarFile);
+      } else if (removeAvatarFlag) {
+        await api.delete("/api/account-management/users/remove-avatar");
+        setRemoveAvatarFlag(false);
+      }
+
+      action(formData);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      setIsSaving(false);
     }
-    action(formData);
   };
 
+  // Handle success state
   useEffect(() => {
-    if (isPending) {
-      success = undefined;
+    if (success && isSaving) {
+      // Add a small delay to ensure all requests have completed
+      setTimeout(async () => {
+        try {
+          const response = await api.get("/api/account-management/users/{id}", { params: { path: { id: userId } } });
+          updateUserInfo({
+            firstName: response.firstName,
+            lastName: response.lastName,
+            title: response.title,
+            avatarUrl: response.avatarUrl ?? undefined
+          });
+          closeDialog();
+        } catch (error) {
+          console.error("Failed to fetch updated user data:", error);
+        } finally {
+          setIsSaving(false);
+        }
+      }, 100);
     }
-
-    if (success) {
-      closeDialog();
-      api
-        .post("/api/account-management/authentication/refresh-authentication-tokens")
-        .then(() => window.location.reload());
-    }
-  }, [success, isPending, closeDialog]);
+  }, [success, closeDialog, userId, updateUserInfo, isSaving]);
 
   // Handle file selection
   const onFileSelect = (files: FileList | null) => {
@@ -232,7 +256,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                 <Button type="reset" onPress={closeDialog} variant="secondary">
                   <Trans>Cancel</Trans>
                 </Button>
-                <Button type="submit" isDisabled={isPending}>
+                <Button type="submit" isDisabled={isPending || isSaving}>
                   <Trans>Save changes</Trans>
                 </Button>
               </div>
