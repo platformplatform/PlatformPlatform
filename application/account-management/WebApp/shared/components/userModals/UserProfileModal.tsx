@@ -63,7 +63,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
 
   // Handle form submission
   let [{ success, errors, title, message }, action, isPending] = useActionState(
-    api.actionPut("/api/account-management/users/{id}"),
+    api.actionPut("/api/account-management/users"),
     { success: null }
   );
 

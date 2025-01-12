@@ -2,7 +2,6 @@ using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
@@ -11,9 +10,6 @@ namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 [PublicAPI]
 public sealed record UpdateUserCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes this property from the API contract
-    public UserId Id { get; init; } = null!;
-
     public required string Email { get; init; }
 
     public required string FirstName { get; init; }
@@ -39,8 +35,8 @@ public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetry
 {
     public async Task<Result> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
-        if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
+        var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
+        if (user is null) return Result.BadRequest("User not found.");
 
         user.UpdateEmail(command.Email);
         user.Update(command.FirstName, command.LastName, command.Title);

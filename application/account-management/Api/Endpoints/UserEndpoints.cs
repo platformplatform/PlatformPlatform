@@ -18,16 +18,16 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<GetUsersResponse>();
 
+        group.MapGet("/summary", async Task<ApiResult<GetUserSummaryResponse>> (IMediator mediator)
+            => await mediator.Send(new GetUserSummaryQuery())
+        ).Produces<GetUserSummaryResponse>();
+
         group.MapGet("/{id}", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<UserResponse>();
 
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
-        );
-
-        group.MapPut("/{id}", async Task<ApiResult> (UserId id, UpdateUserCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
         );
 
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
@@ -42,6 +42,11 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        // The following endpoints are for the current user only
+        group.MapPut("/", async Task<ApiResult> (UpdateUserCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapPost("/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery(); // Disable anti-forgery until we implement it
@@ -53,9 +58,5 @@ public sealed class UserEndpoints : IEndpoints
         group.MapPut("/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
-
-        group.MapGet("/summary", async Task<ApiResult<GetUserSummaryResponse>> (IMediator mediator)
-            => await mediator.Send(new GetUserSummaryQuery())
-        ).Produces<GetUserSummaryResponse>();
     }
 }
