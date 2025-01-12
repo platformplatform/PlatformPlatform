@@ -33,15 +33,8 @@ export function LocaleSwitcher() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ locale: newLocale })
         })
-          .then(() => {
-            // Refresh the authentication tokens to update the JWT locale claim
-            fetch("/api/account-management/authentication/refresh-authentication-tokens", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" }
-            }).then(() => {
-              // Reload the page to
-              window.location.reload();
-            });
+          .then(async (_) => {
+            await setLocale(newLocale);
           })
           .catch((error) => console.error("Failed to update locale:", error));
       } else {
