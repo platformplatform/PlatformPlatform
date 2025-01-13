@@ -14,7 +14,7 @@ public class AuthenticationCookieMiddleware(
 )
     : IMiddleware
 {
-    private const string? RefreshAuthenticationTokensEndpoint = "/api/account-management/authentication/refresh-authentication-tokens";
+    private const string? RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {

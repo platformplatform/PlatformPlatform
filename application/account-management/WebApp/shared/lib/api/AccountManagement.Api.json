@@ -118,12 +118,9 @@
         }
       }
     },
-    "/api/account-management/authentication/refresh-authentication-tokens": {
+    "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "PostApiAccountManagementAuthenticationRefreshAuthenticationTokens",
+        "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
         "responses": {
           "200": {
             "description": ""
