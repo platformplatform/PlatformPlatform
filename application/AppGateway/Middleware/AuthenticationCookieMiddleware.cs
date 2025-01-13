@@ -14,7 +14,7 @@ public class AuthenticationCookieMiddleware(
 )
     : IMiddleware
 {
-    private const string? RefreshAuthenticationTokensEndpoint = "/api/account-management/authentication/refresh-authentication-tokens";
+    private const string? RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -26,8 +26,15 @@ public class AuthenticationCookieMiddleware(
 
         await next(context);
 
-        if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshToken) &&
-            context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessToken))
+        if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+        {
+            logger.LogDebug("Refreshing authentication tokens as requested by endpoint.");
+            var (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
+            ReplaceAuthenticationHeaderWithCookie(context, refreshToken, accessToken);
+            context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+        }
+        else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshToken) &&
+                 context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessToken))
         {
             ReplaceAuthenticationHeaderWithCookie(context, refreshToken.Single()!, accessToken.Single()!);
         }
@@ -54,6 +61,8 @@ public class AuthenticationCookieMiddleware(
                     return;
                 }
 
+                logger.LogDebug("The access-token has expired, attempting to refresh.");
+
                 (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshToken);
 
                 // Update the authentication token cookies with the new tokens
@@ -74,8 +83,6 @@ public class AuthenticationCookieMiddleware(
 
     private async Task<(string newRefreshToken, string newAccessToken)> RefreshAuthenticationTokensAsync(string refreshToken)
     {
-        logger.LogDebug("The access-token has expired, attempting to refresh...");
-
         var request = new HttpRequestMessage(HttpMethod.Post, RefreshAuthenticationTokensEndpoint);
 
         // Use refresh Token as Bearer when refreshing Access Token

@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
@@ -15,7 +14,6 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task UpdateUser_WhenValid_ShouldUpdateUser()
     {
         // Arrange
-        var existingUserId = DatabaseSeeder.User1.Id;
         var command = new UpdateUserCommand
         {
             Email = Faker.Internet.Email(),
@@ -25,7 +23,7 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
         };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -35,7 +33,6 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task UpdateUser_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
-        var existingUserId = DatabaseSeeder.User1.Id;
         var command = new UpdateUserCommand
         {
             Email = Faker.InvalidEmail(),
@@ -45,7 +42,7 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
         };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{existingUserId}", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users", command);
 
         // Assert
         var expectedErrors = new[]
@@ -56,25 +53,5 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
             new ErrorDetail("Title", "Title must be no longer than 50 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
-    }
-
-    [Fact]
-    public async Task UpdateUser_WhenUserDoesNotExists_ShouldReturnNotFound()
-    {
-        // Arrange
-        var unknownUserId = UserId.NewId();
-        var command = new UpdateUserCommand
-        {
-            Email = Faker.Internet.Email(),
-            FirstName = Faker.Name.FirstName(),
-            LastName = Faker.Name.LastName(),
-            Title = Faker.Name.JobTitle()
-        };
-
-        // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync($"/api/account-management/users/{unknownUserId}", command);
-
-        //Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
     }
 }

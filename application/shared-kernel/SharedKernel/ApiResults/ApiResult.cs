@@ -6,12 +6,23 @@ using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.SharedKernel.ApiResults;
 
-public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
+public class ApiResult(ResultBase result, string? routePrefix = null, IDictionary<string, string>? httpHeaders = null)
+    : IResult
 {
     protected string? RoutePrefix { get; } = routePrefix;
 
+    private IDictionary<string, string>? HttpHeaders { get; } = httpHeaders;
+
     public Task ExecuteAsync(HttpContext httpContext)
     {
+        if (HttpHeaders is not null)
+        {
+            foreach (var (key, value) in HttpHeaders)
+            {
+                httpContext.Response.Headers[key] = value;
+            }
+        }
+
         return ConvertResult().ExecuteAsync(httpContext);
     }
 
@@ -47,7 +58,8 @@ public class ApiResult(ResultBase result, string? routePrefix = null) : IResult
     }
 }
 
-public sealed class ApiResult<T>(Result<T> result, string? routePrefix = null) : ApiResult(result, routePrefix)
+public sealed class ApiResult<T>(Result<T> result, string? routePrefix = null, IDictionary<string, string>? httpHeaders = null)
+    : ApiResult(result, routePrefix, httpHeaders)
 {
     protected override IResult ConvertResult()
     {

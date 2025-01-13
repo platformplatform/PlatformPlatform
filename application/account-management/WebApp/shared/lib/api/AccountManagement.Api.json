@@ -118,12 +118,9 @@
         }
       }
     },
-    "/api/account-management/authentication/refresh-authentication-tokens": {
+    "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "PostApiAccountManagementAuthenticationRefreshAuthenticationTokens",
+        "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
         "responses": {
           "200": {
             "description": ""
@@ -482,6 +479,49 @@
             "description": ""
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountManagementUsers",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/account-management/users/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountManagementUsersSummary",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetUserSummaryResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/account-management/users/{id}": {
@@ -511,40 +551,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PutApiAccountManagementUsers",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": ""
           }
         }
       },
@@ -695,26 +701,6 @@
         "responses": {
           "200": {
             "description": ""
-          }
-        }
-      }
-    },
-    "/api/account-management/users/summary": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "GetApiAccountManagementUsersSummary",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetUserSummaryResponse"
-                }
-              }
-            }
           }
         }
       }
@@ -1073,6 +1059,24 @@
           "Descending"
         ]
       },
+      "GetUserSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingUsers": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "UserResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -1128,24 +1132,6 @@
           }
         }
       },
-      "UpdateUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          }
-        }
-      },
       "ChangeUserRoleCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1164,30 +1150,30 @@
           }
         }
       },
+      "UpdateUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
       "ChangeLocaleCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "locale": {
             "type": "string"
-          }
-        }
-      },
-      "GetUserSummaryResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalUsers": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "activeUsers": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pendingUsers": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       }

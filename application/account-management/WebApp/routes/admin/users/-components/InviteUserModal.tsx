@@ -21,21 +21,17 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
     onOpenChange(false);
   }, [onOpenChange]);
 
-  let [{ success, errors, title, message }, action, isPending] = useActionState(
+  const [{ success, errors, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/users/invite"),
     { success: null }
   );
 
   useEffect(() => {
-    if (isPending) {
-      success = undefined;
-    }
-
     if (success) {
       closeDialog();
       window.location.reload();
     }
-  }, [success, isPending, closeDialog]);
+  }, [success, closeDialog]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
