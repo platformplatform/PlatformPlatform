@@ -4,6 +4,7 @@ import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
+import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 
 export const Route = createRootRoute({
   component: Root,
@@ -13,6 +14,8 @@ export const Route = createRootRoute({
 
 function Root() {
   const navigate = useNavigate();
+  useInitializeLocale();
+
   return (
     <ThemeModeProvider>
       <ReactAriaRouterProvider>

@@ -834,6 +834,10 @@
         "properties": {
           "oneTimePassword": {
             "type": "string"
+          },
+          "preferredLocale": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1129,6 +1133,10 @@
           },
           "emailConfirmed": {
             "type": "boolean"
+          },
+          "preferredLocale": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

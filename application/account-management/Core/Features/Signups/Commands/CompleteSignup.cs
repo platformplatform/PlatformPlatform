@@ -15,6 +15,8 @@ public sealed record CompleteSignupCommand(string OneTimePassword) : ICommand, I
 {
     [JsonIgnore] // Removes this property from the API contract
     public SignupId Id { get; init; } = null!;
+
+    public string? PreferredLocale { get; init; }
 }
 
 public sealed class CompleteSignupHandler(
@@ -65,7 +67,10 @@ public sealed class CompleteSignupHandler(
             return Result.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
-        var result = await mediator.Send(new CreateTenantCommand(signup.TenantId, signup.Email, true), cancellationToken);
+        var result = await mediator.Send(
+            new CreateTenantCommand(signup.TenantId, signup.Email, true, command.PreferredLocale),
+            cancellationToken
+        );
 
         var user = await userRepository.GetByIdAsync(result.Value!, cancellationToken);
         authenticationTokenService.CreateAndSetAuthenticationTokens(user!.Adapt<UserInfo>());

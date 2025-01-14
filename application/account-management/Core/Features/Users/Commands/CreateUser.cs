@@ -7,13 +7,20 @@ using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
+using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed)
+public sealed record CreateUserCommand(
+    TenantId TenantId,
+    string Email,
+    UserRole UserRole,
+    bool EmailConfirmed,
+    string? PreferredLocale
+)
     : ICommand, IRequest<Result<UserId>>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
@@ -50,7 +57,10 @@ public sealed class CreateUserHandler(
             throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
         }
 
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed);
+        var locale = SinglePageAppConfiguration.SupportedLocalizations.Contains(command.PreferredLocale)
+            ? command.PreferredLocale
+            : string.Empty;
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale);
 
         await userRepository.AddAsync(user, cancellationToken);
         var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);

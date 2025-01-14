@@ -6,13 +6,14 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 {
     private string _email = string.Empty;
 
-    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed)
+    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
         : base(UserId.NewId())
     {
         Email = email;
         TenantId = tenantId;
         Role = role;
         EmailConfirmed = emailConfirmed;
+        Locale = locale ?? string.Empty;
         Avatar = new Avatar();
     }
 
@@ -34,13 +35,13 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 
     public Avatar Avatar { get; private set; }
 
-    public string Locale { get; private set; } = string.Empty;
+    public string Locale { get; private set; }
 
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
     {
-        return new User(tenantId, email, role, emailConfirmed);
+        return new User(tenantId, email, role, emailConfirmed, locale);
     }
 
     public void Update(string firstName, string lastName, string title)

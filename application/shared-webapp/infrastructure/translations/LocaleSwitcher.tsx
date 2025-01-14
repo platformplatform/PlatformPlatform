@@ -8,6 +8,7 @@ import { Popover } from "@repo/ui/components/Popover";
 import { DialogTrigger } from "@repo/ui/components/Dialog";
 import type { Selection } from "react-aria-components";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { preferredLocaleKey } from "./constants";
 
 export function LocaleSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,10 +36,12 @@ export function LocaleSwitcher() {
         })
           .then(async (_) => {
             await setLocale(newLocale);
+            localStorage.setItem(preferredLocaleKey, newLocale);
           })
           .catch((error) => console.error("Failed to update locale:", error));
       } else {
         await setLocale(newLocale);
+        localStorage.setItem(preferredLocaleKey, newLocale);
       }
 
       setIsOpen(false);

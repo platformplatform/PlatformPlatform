@@ -15,6 +15,7 @@ import { getSignupState, setSignupState } from "./-shared/signupState";
 import { api } from "@/shared/lib/api/client";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
+import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useActionState, useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
@@ -80,6 +81,7 @@ export function CompleteSignupForm() {
     <div className="w-full max-w-sm space-y-3">
       <Form action={action} validationErrors={errors} validationBehavior="aria">
         <input type="hidden" name="id" value={signupId} />
+        <input type="hidden" name="preferredLocale" value={localStorage.getItem(preferredLocaleKey) ?? ""} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/">
