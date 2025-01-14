@@ -18,7 +18,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     {
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.Member, false);
+        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -34,7 +34,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.Member, false);
+        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -53,7 +53,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         // Arrange
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
-        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.Member, false);
+        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -71,7 +71,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     {
         // Arrange
         var unknownTenantId = new TenantId(Faker.Subdomain());
-        var command = new CreateUserCommand(unknownTenantId, Faker.Internet.Email(), UserRole.Member, false);
+        var command = new CreateUserCommand(unknownTenantId, Faker.Internet.Email(), UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);

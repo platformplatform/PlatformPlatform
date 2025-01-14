@@ -9,7 +9,7 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 
 [PublicAPI]
-public sealed record CreateTenantCommand(TenantId Id, string OwnerEmail, bool EmailConfirmed)
+public sealed record CreateTenantCommand(TenantId Id, string OwnerEmail, bool EmailConfirmed, string? Locale)
     : ICommand, IRequest<Result<UserId>>;
 
 public sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMediator mediator, ITelemetryEventsCollector events)
@@ -23,8 +23,8 @@ public sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMed
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
 
         var result = await mediator.Send(
-            new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed)
-            , cancellationToken
+            new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale),
+            cancellationToken
         );
 
         return result.Value!;
