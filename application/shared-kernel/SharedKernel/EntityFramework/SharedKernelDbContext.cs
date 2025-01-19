@@ -24,6 +24,8 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TContext).Assembly);
+
         // Ensures that all enum properties are stored as strings in the database.
         modelBuilder.UseStringForEnums();
 
