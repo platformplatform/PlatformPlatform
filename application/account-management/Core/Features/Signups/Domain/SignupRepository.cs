@@ -14,7 +14,7 @@ public sealed class SignupRepository(AccountManagementDbContext accountManagemen
 {
     public Signup[] GetByEmailOrTenantId(TenantId tenantId, string email)
     {
-        return accountManagementDbContext.Signups
+        return DbSet
             .Where(r => !r.Completed)
             .Where(r => r.TenantId == tenantId || r.Email == email.ToLowerInvariant())
             .ToArray();
