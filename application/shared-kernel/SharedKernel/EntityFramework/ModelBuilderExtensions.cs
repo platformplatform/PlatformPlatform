@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
@@ -11,37 +12,34 @@ public static class ModelBuilderExtensions
     ///     This method is used to tell Entity Framework how to map a strongly typed ID to a SQL column using the
     ///     underlying type of the strongly-typed ID.
     /// </summary>
-    public static void MapStronglyTypedLongId<T, TId>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
+    public static void MapStronglyTypedLongId<T, TId>(this EntityTypeBuilder<T> builder, Expression<Func<T, TId>> expression)
         where T : class where TId : StronglyTypedLongId<TId>
     {
-        modelBuilder
-            .Entity<T>()
+        builder
             .Property(expression)
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
-    public static void MapStronglyTypedUuid<T, TId>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
+    public static void MapStronglyTypedUuid<T, TId>(this EntityTypeBuilder<T> builder, Expression<Func<T, TId>> expression)
         where T : class where TId : StronglyTypedUlid<TId>
     {
-        modelBuilder
-            .Entity<T>()
+        builder
             .Property(expression)
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
-    public static void MapStronglyTypedId<T, TId, TValue>(this ModelBuilder modelBuilder, Expression<Func<T, TId>> expression)
+    public static void MapStronglyTypedId<T, TId, TValue>(this EntityTypeBuilder<T> builder, Expression<Func<T, TId>> expression)
         where T : class
         where TValue : IComparable<TValue>
         where TId : StronglyTypedId<TValue, TId>
     {
-        modelBuilder
-            .Entity<T>()
+        builder
             .Property(expression)
             .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
     }
 
     public static void MapStronglyTypedNullableId<T, TId, TValue>(
-        this ModelBuilder modelBuilder,
+        this EntityTypeBuilder<T> builder,
         Expression<Func<T, TId?>> idExpression
     )
         where T : class
@@ -54,8 +52,7 @@ public static class ModelBuilderExtensions
         var idCoalesceExpression =
             Expression.Lambda<Func<TId, TValue>>(Expression.Coalesce(idValueProperty, nullConstant), idParameter);
 
-        modelBuilder
-            .Entity<T>()
+        builder
             .Property(idExpression)
             .HasConversion(idCoalesceExpression!, v => Activator.CreateInstance(typeof(TId), v) as TId);
     }

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -24,6 +25,15 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(TContext).Assembly);
+
+        // Set pluralized table names for all aggregates
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var tableName = entityType.GetTableName()!.Pluralize();
+            entityType.SetTableName(tableName);
+        }
+
         // Ensures that all enum properties are stored as strings in the database.
         modelBuilder.UseStringForEnums();
 
