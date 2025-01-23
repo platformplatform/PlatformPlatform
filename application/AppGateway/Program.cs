@@ -66,10 +66,9 @@ app.UseForwardedHeaders() // Enable support for proxy headers such as X-Forwarde
     .UseOutputCache()
     .UseMiddleware<AuthenticationCookieMiddleware>();
 
-app.MapScalarApiReference(options =>
+app.MapScalarApiReference("/openapi", options =>
     {
         options
-            .WithEndpointPrefix("/openapi/{documentName}")
             .WithOpenApiRoutePattern("/openapi/v1.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithTitle("PlatformPlatform API")
