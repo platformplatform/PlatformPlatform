@@ -21,7 +21,6 @@ public sealed class PublishDomainEventsPipelineBehaviorTests
             publisher
         );
         var request = new TestCommand();
-        var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         next.Invoke().Returns(TestAggregate.Create("Test"));
 
@@ -32,10 +31,10 @@ public sealed class PublishDomainEventsPipelineBehaviorTests
         );
 
         // Act
-        await behavior.Handle(request, next, cancellationToken);
+        await behavior.Handle(request, next, CancellationToken.None);
 
         // Assert
-        await publisher.Received(1).Publish(domainEvent, cancellationToken);
+        await publisher.Received(1).Publish(domainEvent, CancellationToken.None);
         testAggregate.DomainEvents.Should().BeEmpty();
     }
 }
