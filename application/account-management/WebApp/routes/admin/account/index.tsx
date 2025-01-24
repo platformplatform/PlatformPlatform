@@ -6,12 +6,14 @@ import { Trash2 } from "lucide-react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { Form } from "@repo/ui/components/Form";
+import { useActionState, useState } from "react";
+import { api } from "@/shared/lib/api/client";
+import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { useState } from "react";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
@@ -22,12 +24,12 @@ function AccountSettings() {
   const userInfo = useUserInfo();
   if (userInfo === null) return null;
 
-  const saveChanges = () => {
-    console.log("Saving changes");
-  };
+  const [{ success, errors }, action] = useActionState(api.actionPut("/api/account-management/tenants/{id}"), {
+    success: null
+  });
 
-  const handleDeleteAccount = () => {
-    setIsDeleteModalOpen(true);
+  const handleFormSubmit = (formData: FormData) => {
+    action(formData);
   };
 
   return (
@@ -54,7 +56,13 @@ function AccountSettings() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <Form
+            action={handleFormSubmit}
+            validationErrors={errors}
+            validationBehavior="aria"
+            className="flex flex-col gap-4"
+          >
+            <input type="hidden" name="id" value={userInfo.tenantId} />
             <Label>
               <Trans>Logo</Trans>
             </Label>
@@ -71,13 +79,11 @@ function AccountSettings() {
                 isDisabled={true}
               />
             </div>
-          </div>
 
-          <div className="flex gap-4">
-            <Button onPress={saveChanges}>
+            <Button type="submit">
               <Trans>Save changes</Trans>
             </Button>
-          </div>
+          </Form>
 
           <div className="flex flex-col gap-4 mt-6">
             <h3 className="font-semibold">
@@ -85,18 +91,13 @@ function AccountSettings() {
             </h3>
             <Separator />
             <div className="flex flex-col gap-4">
-              <div>
-                <h4 className="text-sm font-semibold pt-2">
-                  <Trans>Delete Account</Trans>
-                </h4>
-                <p className="text-xs">
-                  <Trans>
-                    Deleting the account and all associated data. This action cannot be undone, so please proceed with
-                    caution.
-                  </Trans>
-                </p>
-              </div>
-              <Button variant="destructive" onPress={handleDeleteAccount} className="w-fit">
+              <p className="text-sm font-normal">
+                <Trans>
+                  Deleting the account and all associated data. This action cannot be undone, so please proceed with
+                  caution.
+                </Trans>
+              </p>
+              <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
                 <Trash2 />
                 <Trans>Delete Account</Trans>
               </Button>
