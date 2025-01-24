@@ -1,10 +1,8 @@
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useEffect, useState } from "react";
-import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
-import AccountModal from "@/shared/components/accountModals/AccountSettingsModal";
+import { LogOutIcon, UserIcon } from "lucide-react";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
-import DeleteAccountModal from "@/shared/components/accountModals/DeleteAccountConfirmation";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
@@ -15,8 +13,6 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 
 export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
   const userInfo = useUserInfo();
 
   useEffect(() => {
@@ -53,10 +49,6 @@ export default function AvatarButton() {
             <UserIcon size={16} />
             <Trans>Edit profile</Trans>
           </MenuItem>
-          <MenuItem id="account" onAction={() => setIsAccountModalOpen(true)}>
-            <SettingsIcon size={16} />
-            <Trans>Account settings</Trans>
-          </MenuItem>
           <MenuSeparator />
           <MenuItem id="logout" onAction={logout}>
             <LogOutIcon size={16} /> <Trans>Log out</Trans>
@@ -64,16 +56,7 @@ export default function AvatarButton() {
         </Menu>
       </MenuTrigger>
 
-      <AccountModal
-        isOpen={isAccountModalOpen}
-        onOpenChange={setIsAccountModalOpen}
-        onDeleteAccount={() => {
-          setIsAccountModalOpen(false);
-          setIsDeleteAccountModalOpen(true);
-        }}
-      />
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={userInfo.id ?? ""} />
-      <DeleteAccountModal isOpen={isDeleteAccountModalOpen} onOpenChange={setIsDeleteAccountModalOpen} />
     </>
   );
 }

@@ -117,9 +117,6 @@ msgstr "Domain"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., CompanyX"
-msgstr "E.g., CompanyX"
-
 msgid "E.g., Marketing Manager"
 msgstr "E.g., Marketing Manager"
 
@@ -282,6 +279,9 @@ msgstr "Select a new role for <0>{0}</0>"
 
 msgid "Send invite"
 msgstr "Send invite"
+
+msgid "Settings"
+msgstr "Settings"
 
 msgid "Show filters"
 msgstr "Show filters"

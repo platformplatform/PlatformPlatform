@@ -117,9 +117,6 @@ msgstr "Domein"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Heb je geen account? <0>Maak er één aan</0>"
 
-msgid "E.g., CompanyX"
-msgstr "Bijv. BedrijfX"
-
 msgid "E.g., Marketing Manager"
 msgstr "Bijv. Marketing Manager"
 
@@ -282,6 +279,9 @@ msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
+
+msgid "Settings"
+msgstr "Instellingen"
 
 msgid "Show filters"
 msgstr "Filters tonen"
