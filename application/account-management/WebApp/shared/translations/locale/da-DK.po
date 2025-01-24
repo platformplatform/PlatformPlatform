@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account name"
+msgstr "Kontonavn"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 

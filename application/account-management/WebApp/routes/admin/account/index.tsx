@@ -8,7 +8,7 @@ import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Form } from "@repo/ui/components/Form";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { api } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
@@ -19,18 +19,26 @@ export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
 });
 
-function AccountSettings() {
+export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const userInfo = useUserInfo();
-  if (userInfo === null) return null;
-
-  const [{ success, errors }, action] = useActionState(api.actionPut("/api/account-management/tenants/{id}"), {
-    success: null
+  const {
+    data: tenant,
+    loading,
+    refresh
+  } = api.useApi("/api/account-management/tenants/{id}", {
+    id: userInfo?.tenantId ?? ""
   });
 
-  const handleFormSubmit = (formData: FormData) => {
-    action(formData);
-  };
+  const [{ errors, success }, action] = useActionState(api.actionPut("/api/account-management/tenants/{id}"), {});
+
+  useEffect(() => {
+    if (success) {
+      refresh();
+    }
+  }, [success, refresh]);
+
+  if (loading) return null;
 
   return (
     <>
@@ -56,26 +64,29 @@ function AccountSettings() {
             </div>
           </div>
 
-          <Form
-            action={handleFormSubmit}
-            validationErrors={errors}
-            validationBehavior="aria"
-            className="flex flex-col gap-4"
-          >
-            <input type="hidden" name="id" value={userInfo.tenantId} />
+          <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4">
+            <input type="hidden" name="id" value={userInfo?.tenantId ?? ""} />
             <Label>
               <Trans>Logo</Trans>
             </Label>
             <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
             <div className="w-full md:max-w-md">
-              <TextField autoFocus isRequired name="name" label={t`Name`} placeholder={`E.g. ${userInfo.tenantId}`} />
+              <TextField
+                autoFocus
+                isRequired
+                name="name"
+                defaultValue={tenant?.name ?? ""}
+                label={t`Account name`}
+                validationBehavior="aria"
+              />
             </div>
+
             <div className="w-full md:max-w-md">
               <TextField
                 name="domain"
                 label={t`Domain`}
-                value={`${userInfo.tenantId}.platformplatform.net`}
+                value={`${userInfo?.tenantId ?? ""}.platformplatform.net`}
                 isDisabled={true}
               />
             </div>
@@ -97,6 +108,7 @@ function AccountSettings() {
                   caution.
                 </Trans>
               </p>
+
               <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
                 <Trash2 />
                 <Trans>Delete Account</Trans>
