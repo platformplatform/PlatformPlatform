@@ -49,12 +49,12 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
       setIsSaving(false);
 
       api
-        .get("/api/account-management/users/{id}", { params: { path: { id: userId } } })
+        .get("/api/account-management/users/me")
         .then((response) => setData(response))
         .catch((error) => setError(error))
         .finally(() => setLoading(false));
     }
-  }, [isOpen, userId]);
+  }, [isOpen]);
 
   // Close dialog and cleanup
   const closeDialog = useCallback(() => {
@@ -68,7 +68,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
 
   // Handle form submission
   const [{ success, errors, title, message }, action, isPending] = useActionState(
-    api.actionPut("/api/account-management/users"),
+    api.actionPut("/api/account-management/users/me"),
     { success: null }
   );
 
@@ -78,9 +78,9 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
 
     try {
       if (selectedAvatarFile) {
-        await api.uploadFile("/api/account-management/users/update-avatar", selectedAvatarFile);
+        await api.uploadFile("/api/account-management/users/me/update-avatar", selectedAvatarFile);
       } else if (removeAvatarFlag) {
-        await api.delete("/api/account-management/users/remove-avatar");
+        await api.delete("/api/account-management/users/me/remove-avatar");
         setRemoveAvatarFlag(false);
       }
 
@@ -97,7 +97,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
       // Add a small delay to ensure all requests have completed
       setTimeout(async () => {
         try {
-          const response = await api.get("/api/account-management/users/{id}", { params: { path: { id: userId } } });
+          const response = await api.get("/api/account-management/users/me");
           updateUserInfo({
             firstName: response.firstName,
             lastName: response.lastName,
@@ -112,7 +112,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
         }
       }, 100);
     }
-  }, [success, closeDialog, userId, updateUserInfo, isSaving]);
+  }, [success, closeDialog, updateUserInfo, isSaving]);
 
   // Handle file selection
   const onFileSelect = (files: FileList | null) => {

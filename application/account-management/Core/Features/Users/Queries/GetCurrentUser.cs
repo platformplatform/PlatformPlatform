@@ -7,7 +7,7 @@ using PlatformPlatform.SharedKernel.Domain;
 namespace PlatformPlatform.AccountManagement.Features.Users.Queries;
 
 [PublicAPI]
-public sealed record GetUserQuery(UserId Id) : IRequest<Result<UserResponse>>;
+public sealed record GetUserQuery : IRequest<Result<UserResponse>>;
 
 [PublicAPI]
 public sealed record UserResponse(
@@ -27,7 +27,7 @@ public sealed class GetUserHandler(IUserRepository userRepository)
 {
     public async Task<Result<UserResponse>> Handle(GetUserQuery query, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByIdAsync(query.Id, cancellationToken);
-        return user?.Adapt<UserResponse>() ?? Result<UserResponse>.NotFound($"User with id '{query.Id}' not found.");
+        var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
+        return user.Adapt<UserResponse>();
     }
 }

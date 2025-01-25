@@ -10,7 +10,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>
 {
     Task<User?> GetByIdUnfilteredAsync(UserId id, CancellationToken cancellationToken);
 
-    Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken);
+    Task<User> GetLoggedInUserAsync(CancellationToken cancellationToken);
 
     Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 
@@ -48,10 +48,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
             .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
-    public async Task<User?> GetLoggedInUserAsync(CancellationToken cancellationToken)
+    public async Task<User> GetLoggedInUserAsync(CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(executionContext.UserInfo.Id);
-        return await GetByIdAsync(executionContext.UserInfo.Id, cancellationToken);
+        return await GetByIdAsync(executionContext.UserInfo.Id, cancellationToken) ??
+               throw new InvalidOperationException("Logged in user not found.");
     }
 
     /// <summary>

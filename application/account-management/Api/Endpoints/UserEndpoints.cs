@@ -22,10 +22,6 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(new GetUserSummaryQuery())
         ).Produces<GetUserSummaryResponse>();
 
-        group.MapGet("/{id}", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<UserResponse>();
-
         group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
         );
@@ -43,19 +39,23 @@ public sealed class UserEndpoints : IEndpoints
         );
 
         // The following endpoints are for the current user only
-        group.MapPut("/", async Task<ApiResult> (UpdateUserCommand command, IMediator mediator)
+        group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<UserResponse>();
+
+        group.MapPut("/me", async Task<ApiResult> (UpdateCurrentUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
 
-        group.MapPost("/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
+        group.MapPost("/me/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery(); // Disable anti-forgery until we implement it
 
-        group.MapDelete("/remove-avatar", async Task<ApiResult> (IMediator mediator)
+        group.MapDelete("/me/remove-avatar", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new RemoveAvatarCommand())
         );
 
-        group.MapPut("/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
+        group.MapPut("/me/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
     }

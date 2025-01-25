@@ -8,13 +8,13 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
 
-public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
-    public async Task UpdateUser_WhenValid_ShouldUpdateUser()
+    public async Task UpdateCurrentUser_WhenValid_ShouldUpdateUser()
     {
         // Arrange
-        var command = new UpdateUserCommand
+        var command = new UpdateCurrentUserCommand
         {
             Email = Faker.Internet.Email(),
             FirstName = Faker.Name.FirstName(),
@@ -23,17 +23,17 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
         };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
     }
 
     [Fact]
-    public async Task UpdateUser_WhenInvalid_ShouldReturnBadRequest()
+    public async Task UpdateCurrentUser_WhenInvalid_ShouldReturnBadRequest()
     {
         // Arrange
-        var command = new UpdateUserCommand
+        var command = new UpdateCurrentUserCommand
         {
             Email = Faker.InvalidEmail(),
             FirstName = Faker.Random.String(31),
@@ -42,7 +42,7 @@ public sealed class UpdateUserTests : EndpointBaseTest<AccountManagementDbContex
         };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users", command);
+        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         var expectedErrors = new[]

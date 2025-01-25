@@ -8,7 +8,7 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record UpdateUserCommand : ICommand, IRequest<Result>
+public sealed record UpdateCurrentUserCommand : ICommand, IRequest<Result>
 {
     public required string Email { get; init; }
 
@@ -19,9 +19,9 @@ public sealed record UpdateUserCommand : ICommand, IRequest<Result>
     public required string Title { get; init; }
 }
 
-public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
+public sealed class UpdateCurrentUserValidator : AbstractValidator<UpdateCurrentUserCommand>
 {
-    public UpdateUserValidator()
+    public UpdateCurrentUserValidator()
     {
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
         RuleFor(x => x.FirstName).NotEmpty().MaximumLength(30).WithMessage("First name must be no longer than 30 characters.");
@@ -30,13 +30,12 @@ public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
     }
 }
 
-public sealed class UpdateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
-    : IRequestHandler<UpdateUserCommand, Result>
+public sealed class UpdateCurrentUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+    : IRequestHandler<UpdateCurrentUserCommand, Result>
 {
-    public async Task<Result> Handle(UpdateUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateCurrentUserCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        if (user is null) return Result.BadRequest("User not found.");
 
         user.UpdateEmail(command.Email);
         user.Update(command.FirstName, command.LastName, command.Title);

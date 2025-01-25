@@ -30,7 +30,6 @@ public sealed class UpdateAvatarHandler(IUserRepository userRepository, AvatarUp
     public async Task<Result> Handle(UpdateAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        if (user is null) return Result.BadRequest("User not found.");
 
         if (await avatarUpdater.UpdateAvatar(user, false, command.ContentType, command.FileSteam, cancellationToken))
         {
