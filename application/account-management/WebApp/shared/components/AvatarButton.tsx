@@ -10,6 +10,8 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { loginPath } from "@repo/infrastructure/auth/constants";
 
 export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -27,7 +29,7 @@ export default function AvatarButton() {
 
   async function logout() {
     await api.post("/api/account-management/authentication/logout");
-    window.location.reload();
+    window.location.href = createLoginUrlWithReturnPath(loginPath);
   }
 
   return (
