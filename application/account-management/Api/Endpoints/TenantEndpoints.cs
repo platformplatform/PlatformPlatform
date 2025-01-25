@@ -22,7 +22,7 @@ public sealed class TenantEndpoints : IEndpoints
             => await mediator.Send(command with { Id = id })
         );
 
-        group.MapDelete("/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
+        routes.MapDelete("/internal-api/account-management/tenants/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new DeleteTenantCommand(id))
         );
     }
