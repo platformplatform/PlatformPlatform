@@ -2,23 +2,19 @@ using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 
 [PublicAPI]
-public sealed record UpdateTenantCommand : ICommand, IRequest<Result>
+public sealed record UpdateCurrentTenantCommand : ICommand, IRequest<Result>
 {
-    [JsonIgnore] // Removes this property from the API contract
-    public TenantId Id { get; init; } = null!;
-
     public required string Name { get; init; }
 }
 
-public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantCommand>
+public sealed class UpdateCurrentTenantValidator : AbstractValidator<UpdateCurrentTenantCommand>
 {
-    public UpdateTenantValidator()
+    public UpdateCurrentTenantValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Name).Length(1, 30)
@@ -28,12 +24,11 @@ public sealed class UpdateTenantValidator : AbstractValidator<UpdateTenantComman
 }
 
 public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
-    : IRequestHandler<UpdateTenantCommand, Result>
+    : IRequestHandler<UpdateCurrentTenantCommand, Result>
 {
-    public async Task<Result> Handle(UpdateTenantCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateCurrentTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
-        if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
+        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
 
         tenant.Update(command.Name);
         tenantRepository.Update(tenant);

@@ -6,9 +6,8 @@ import { Trash2 } from "lucide-react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Form } from "@repo/ui/components/Form";
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
@@ -21,16 +20,9 @@ export const Route = createFileRoute("/admin/account/")({
 
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const userInfo = useUserInfo();
-  const {
-    data: tenant,
-    loading,
-    refresh
-  } = api.useApi("/api/account-management/tenants/{id}", {
-    id: userInfo?.tenantId ?? ""
-  });
+  const { data: tenant, loading, refresh } = api.useApi("/api/account-management/tenants/current", {}, {});
 
-  const [{ errors, success }, action] = useActionState(api.actionPut("/api/account-management/tenants/{id}"), {});
+  const [{ errors, success }, action] = useActionState(api.actionPut("/api/account-management/tenants/current"), {});
 
   useEffect(() => {
     if (success) {
@@ -65,7 +57,6 @@ export function AccountSettings() {
           </div>
 
           <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4">
-            <input type="hidden" name="id" value={userInfo?.tenantId ?? ""} />
             <Label>
               <Trans>Logo</Trans>
             </Label>
@@ -86,7 +77,7 @@ export function AccountSettings() {
               <TextField
                 name="domain"
                 label={t`Domain`}
-                value={`${userInfo?.tenantId ?? ""}.platformplatform.net`}
+                value={`${tenant?.id ?? ""}.platformplatform.net`}
                 isDisabled={true}
               />
             </div>

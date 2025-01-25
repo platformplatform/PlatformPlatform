@@ -128,6 +128,27 @@
         }
       }
     },
+    "/internal-api/account-management/tenants/{id}": {
+      "delete": {
+        "operationId": "DeleteInternalApiAccountManagementTenants",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TenantId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/account-management/signups/is-subdomain-free": {
       "get": {
         "tags": [
@@ -259,23 +280,12 @@
         }
       }
     },
-    "/api/account-management/tenants/{id}": {
+    "/api/account-management/tenants/current": {
       "get": {
         "tags": [
           "Tenants"
         ],
-        "operationId": "GetApiAccountManagementTenants",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TenantId"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "GetApiAccountManagementTenantsCurrent",
         "responses": {
           "200": {
             "description": "",
@@ -293,52 +303,19 @@
         "tags": [
           "Tenants"
         ],
-        "operationId": "PutApiAccountManagementTenants",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TenantId"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "PutApiAccountManagementTenantsCurrent",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateTenantCommand"
+                "$ref": "#/components/schemas/UpdateCurrentTenantCommand"
               }
             }
           },
           "required": true,
-          "x-position": 2
+          "x-position": 1
         },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Tenants"
-        ],
-        "operationId": "DeleteApiAccountManagementTenants",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TenantId"
-            },
-            "x-position": 1
-          }
-        ],
         "responses": {
           "200": {
             "description": ""
@@ -776,6 +753,20 @@
           }
         }
       },
+      "TenantId": {
+        "type": "string"
+      },
+      "StronglyTypedIdOfStringAndTenantId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "StartSignupResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -875,20 +866,6 @@
           }
         }
       },
-      "TenantId": {
-        "type": "string"
-      },
-      "StronglyTypedIdOfStringAndTenantId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "TenantState": {
         "type": "string",
         "description": "",
@@ -903,7 +880,7 @@
           "Suspended"
         ]
       },
-      "UpdateTenantCommand": {
+      "UpdateCurrentTenantCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
