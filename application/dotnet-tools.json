@@ -11,7 +11,7 @@
       "commands": ["dotnet-dotcover"]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2024.3.0",
+      "version": "2024.3.4",
       "commands": ["jb"]
     }
   }

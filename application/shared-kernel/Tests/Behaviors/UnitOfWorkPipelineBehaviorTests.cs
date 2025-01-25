@@ -29,20 +29,19 @@ public sealed class UnitOfWorkPipelineBehaviorTests
     {
         // Arrange
         var command = new TestCommand();
-        var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         var successfulCommandResult = Result<TestAggregate>.Success(TestAggregate.Create("Foo"));
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act
-        _ = await _behavior.Handle(command, next, cancellationToken);
+        _ = await _behavior.Handle(command, next, CancellationToken.None);
 
         // Assert
-        await _unitOfWork.Received().CommitAsync(cancellationToken);
+        await _unitOfWork.Received().CommitAsync(CancellationToken.None);
         Received.InOrder(() =>
             {
                 next.Invoke();
-                _unitOfWork.CommitAsync(cancellationToken);
+                _unitOfWork.CommitAsync(CancellationToken.None);
             }
         );
     }
@@ -52,16 +51,15 @@ public sealed class UnitOfWorkPipelineBehaviorTests
     {
         // Arrange
         var command = new TestCommand();
-        var cancellationToken = new CancellationToken();
         var next = Substitute.For<RequestHandlerDelegate<Result<TestAggregate>>>();
         var successfulCommandResult = Result<TestAggregate>.BadRequest("Fail");
         next.Invoke().Returns(Task.FromResult(successfulCommandResult));
 
         // Act
-        _ = await _behavior.Handle(command, next, cancellationToken);
+        _ = await _behavior.Handle(command, next, CancellationToken.None);
 
         // Assert
-        await _unitOfWork.DidNotReceive().CommitAsync(cancellationToken);
+        await _unitOfWork.DidNotReceive().CommitAsync(CancellationToken.None);
         await next.Received().Invoke();
     }
 }
