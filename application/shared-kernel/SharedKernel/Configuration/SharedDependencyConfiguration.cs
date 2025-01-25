@@ -44,7 +44,7 @@ public static class SharedDependencyConfiguration
             .AddPersistenceHelpers<T>()
             .AddDefaultHealthChecks()
             .AddEmailClient()
-            .AddMediatRPipelineBehaviours()
+            .AddMediatRPipelineBehaviors()
             .RegisterMediatRRequest(assemblies)
             .RegisterRepositories(assemblies);
     }
@@ -128,15 +128,17 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddMediatRPipelineBehaviours(this IServiceCollection services)
+    private static IServiceCollection AddMediatRPipelineBehaviors(this IServiceCollection services)
     {
-        // Order is important! First all Pre-behaviors run, then the command is handled, and finally all Post behaviors run.
+        // Order is important! First all Pre behaviors run, then the command is handled, and finally all Post behaviors run.
         // So Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents.
-        return services
+        services
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>)) // Pre
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishTelemetryEventsPipelineBehavior<,>)) // Post
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>)) // Post
-            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)) // Post
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(PublishDomainEventsPipelineBehavior<,>)); // Post
+
+        return services
             .AddScoped<ITelemetryEventsCollector, TelemetryEventsCollector>()
             .AddScoped<ConcurrentCommandCounter>();
     }
