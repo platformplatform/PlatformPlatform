@@ -49,17 +49,6 @@ public static class Configuration
             var readAllText = File.ReadAllText(ConfigFile);
             var configurationSetting = JsonSerializer.Deserialize<ConfigurationSetting>(readAllText)!;
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            // SourceCodeFolder is being renamed to CliSourceCodeFolder to align with the naming in Configuration
-            // Remove this migration when all CLI users of downstream projects have upgraded (sometime in early 2025)
-            if (configurationSetting.SourceCodeFolder?.EndsWith("/developer-cli") == true)
-            {
-                configurationSetting.CliSourceCodeFolder = configurationSetting.SourceCodeFolder;
-                configurationSetting.SourceCodeFolder = null;
-                SaveConfigurationSetting(configurationSetting);
-            }
-#pragma warning restore CS0612 // Type or member is obsolete
-
             if (configurationSetting.IsValid) return configurationSetting;
         }
         catch (Exception e)
@@ -189,9 +178,6 @@ public static class Configuration
 
 public class ConfigurationSetting
 {
-    [Obsolete]
-    public string? SourceCodeFolder { get; set; }
-
     public string? CliSourceCodeFolder { get; set; }
 
     public string? Hash { get; set; }
@@ -201,10 +187,6 @@ public class ConfigurationSetting
     {
         get
         {
-#pragma warning disable CS0612 // Type or member is obsolete
-            if (SourceCodeFolder is not null) return false;
-#pragma warning restore CS0612 // Type or member is obsolete
-
             if (CliSourceCodeFolder is null) return false;
 
             return !string.IsNullOrEmpty(Hash);
