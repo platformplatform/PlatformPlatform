@@ -1,4 +1,4 @@
-import { LanguagesIcon } from "lucide-react";
+import { LanguagesIcon, CheckIcon } from "lucide-react";
 import { type Locale, translationContext } from "./TranslationContext";
 import { use, useContext, useMemo, useState } from "react";
 import { useLingui } from "@lingui/react";
@@ -26,8 +26,10 @@ export function LocaleSwitcher() {
   );
 
   const handleLocaleChange = async (selection: Selection) => {
+    setIsOpen(false);
+
     const newLocale = [...selection][0] as Locale;
-    if (newLocale != null) {
+    if (newLocale != null && newLocale !== currentLocale) {
       if (userInfo?.isAuthenticated) {
         await fetch("/api/account-management/users/me/change-locale", {
           method: "PUT",
@@ -43,8 +45,6 @@ export function LocaleSwitcher() {
         await setLocale(newLocale);
         localStorage.setItem(preferredLocaleKey, newLocale);
       }
-
-      setIsOpen(false);
     }
   };
 
@@ -58,15 +58,18 @@ export function LocaleSwitcher() {
       <Popover>
         <ListBox
           selectionMode="single"
-          selectionBehavior="replace"
           onSelectionChange={handleLocaleChange}
           selectedKeys={[currentLocale]}
           className="border-none px-4 py-2"
           aria-label="Select a language"
+          autoFocus
         >
           {items.map((item) => (
             <ListBoxItem key={item.id} id={item.id}>
-              {item.label}
+              <div className="flex items-center justify-between w-full">
+                <span>{item.label}</span>
+                {item.id === currentLocale && <CheckIcon className="h-4 w-4" />}
+              </div>
             </ListBoxItem>
           ))}
         </ListBox>
