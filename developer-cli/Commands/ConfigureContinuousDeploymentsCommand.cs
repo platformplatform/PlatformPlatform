@@ -19,7 +19,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private static readonly Dictionary<string, string> AzureLocations = GetAzureLocations();
 
-    private static List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
+    private List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
 
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
@@ -773,6 +773,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    // ReSharper disable once MemberCanBeMadeStatic.Local
     private void TriggerAndMonitorWorkflows()
     {
         AnsiConsole.Status().Start("Begin deployment.", ctx =>
@@ -968,17 +969,17 @@ public class Config
 {
     public string TenantId => StagingSubscription.TenantId;
 
-    public string UniquePrefix { get; set; } = default!;
+    public string UniquePrefix { get; set; } = null!;
 
     public GithubInfo? GithubInfo { get; private set; }
 
-    public Subscription StagingSubscription { get; set; } = default!;
+    public Subscription StagingSubscription { get; set; } = null!;
 
-    public Location StagingLocation { get; set; } = default!;
+    public Location StagingLocation { get; set; } = null!;
 
-    public Subscription ProductionSubscription { get; set; } = default!;
+    public Subscription ProductionSubscription { get; set; } = null!;
 
-    public Location ProductionLocation { get; set; } = default!;
+    public Location ProductionLocation { get; set; } = null!;
 
     public Dictionary<string, string> GithubVariables { get; set; } = new();
 
