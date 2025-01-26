@@ -34,19 +34,6 @@ public static class ProcessHelper
         }
     }
 
-    public static string StartProcess(
-        string command,
-        string? solutionFolder = null,
-        bool redirectOutput = false,
-        bool waitForExit = true,
-        bool exitOnError = true,
-        bool throwOnError = false
-    )
-    {
-        var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
-        return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
-    }
-
     private static ProcessStartInfo CreateProcessStartInfo(
         string command,
         string? solutionFolder,
@@ -74,6 +61,19 @@ public static class ProcessHelper
         }
 
         return processStartInfo;
+    }
+
+    public static string StartProcess(
+        string command,
+        string? solutionFolder = null,
+        bool redirectOutput = false,
+        bool waitForExit = true,
+        bool exitOnError = true,
+        bool throwOnError = false
+    )
+    {
+        var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
+        return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
     }
 
     public static string StartProcess(
@@ -127,7 +127,7 @@ public static class ProcessHelper
 
     private static string? FindFullPathFromPath(string command)
     {
-       string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
+        string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
 
         var pathVariable = Environment.GetEnvironmentVariable("PATH");
         if (pathVariable is null) return null;

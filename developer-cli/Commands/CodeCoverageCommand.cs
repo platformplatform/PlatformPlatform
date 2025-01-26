@@ -38,7 +38,7 @@ public class CodeCoverageCommand : Command
         );
 
         var codeCoverageReport = Path.Combine(Configuration.ApplicationFolder, "coverage", "dotCover.html");
-        AnsiConsole.MarkupLine($"[green]Code Coverage Report[/] {codeCoverageReport}");
+        AnsiConsole.MarkupLine($"[green]Code Coverage Report.[/] {codeCoverageReport}");
         ProcessHelper.StartProcess($"open {codeCoverageReport}", Configuration.ApplicationFolder);
 
         return 0;

@@ -19,11 +19,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private static readonly Dictionary<string, string> AzureLocations = GetAzureLocations();
 
-    private static List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
+    private List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
 
     public ConfigureContinuousDeploymentsCommand() : base(
         "configure-continuous-deployments",
-        "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect."
+        "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect"
     )
     {
         AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and GitHub CLI commands and output"));
@@ -242,9 +242,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
         Config.StagingSubscription = SelectSubscription("Staging");
         Config.ProductionSubscription = SelectSubscription("Production");
 
-        if(Config.StagingSubscription.TenantId != Config.ProductionSubscription.TenantId)
+        if (Config.StagingSubscription.TenantId != Config.ProductionSubscription.TenantId)
         {
-            AnsiConsole.MarkupLine($"[red]ERROR:[/] Please select two subscriptions from the same tenant, and try again.");
+            AnsiConsole.MarkupLine("[red]ERROR:[/] Please select two subscriptions from the same tenant, and try again.");
             Environment.Exit(1);
         }
 
@@ -468,55 +468,55 @@ public class ConfigureContinuousDeploymentsCommand : Command
              [bold]Please review planned changes before continuing.[/]
 
              1. The following will be created or updated in Azure:
-             
+
                 [bold]Active Directory App Registrations/Service Principals:[/]
                 * [blue]{Config.StagingSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.StagingSubscription.Name}[/] subscription.
                 * [blue]{Config.ProductionSubscription.AppRegistration.Name}[/] with access to the [blue]{Config.ProductionSubscription.Name}[/] subscription.
-             
+
                 [yellow]** The Service Principals will get 'Contributor' and 'User Access Administrator' role on the Azure Subscriptions.[/]
-             
+
                 [bold]Active Directory Security Groups:[/]
                 * [blue]{Config.StagingSubscription.SqlAdminsGroup.Name}[/]
                 * [blue]{Config.ProductionSubscription.SqlAdminsGroup.Name}[/]
-             
+
                 [yellow]** The SQL Admins Security Groups are used to grant Managed Identities and CI/CD permissions to SQL Databases.[/]
 
              2. The following GitHub environments will be created if not exists:
                 * [blue]staging[/]
                 * [blue]production[/]
-             
+
                 [yellow]** Environments are used to require approval when infrastructure is deployed. In private GitHub repositories, this requires a paid plan.[/]
 
              3. The following GitHub repository variables will be created:
-             
+
                 [bold]Shared Variables:[/]
                 * TENANT_ID: [blue]{Config.TenantId}[/]
                 * UNIQUE_PREFIX: [blue]{Config.UniquePrefix}[/]
-             
+
                 [bold]Staging Shared Variables:[/]
                 * STAGING_SUBSCRIPTION_ID: [blue]{Config.StagingSubscription.Id}[/]
                 * STAGING_SHARED_LOCATION: [blue]{Config.StagingLocation.SharedLocation}[/]
                 * STAGING_SERVICE_PRINCIPAL_ID: [blue]{stagingServicePrincipal}[/]
                 * STAGING_SQL_ADMIN_OBJECT_ID: [blue]{stagingSqlAdminObject}[/]
                 * STAGING_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
-             
+
                 [bold]Staging Cluster Variables:[/]
                 * STAGING_CLUSTER_ENABLED: [blue]true[/]
                 * STAGING_CLUSTER_LOCATION: [blue]{Config.StagingLocation.ClusterLocation}[/]
                 * STAGING_CLUSTER_LOCATION_ACRONYM: [blue]{Config.StagingLocation.ClusterLocationAcronym}[/]
-             
+
                 [bold]Production Shared Variables:[/]
                 * PRODUCTION_SUBSCRIPTION_ID: [blue]{Config.ProductionSubscription.Id}[/]
                 * PRODUCTION_SHARED_LOCATION: [blue]{Config.ProductionLocation.SharedLocation}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
                 * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/]
                 * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
-             
+
                 [bold]Production Cluster 1 Variables:[/]
                 * PRODUCTION_CLUSTER1_ENABLED: [blue]false[/] ([yellow]Change this to 'true' when ready to deploy to production[/])
                 * PRODUCTION_CLUSTER1_LOCATION: [blue]{Config.ProductionLocation.ClusterLocation}[/]
                 * PRODUCTION_CLUSTER1_LOCATION_ACRONYM: [blue]{Config.ProductionLocation.ClusterLocationAcronym}[/]
-             
+
                 [yellow]** All variables can be changed on the GitHub Settings page. For example, if you want to deploy production or staging to different locations.[/]
 
              4. Disable the reusable GitHub workflows [blue]Deploy Container[/] and [blue]Plan and Deploy Infrastructure[/].
@@ -619,22 +619,24 @@ public class ConfigureContinuousDeploymentsCommand : Command
         {
             var parameters = JsonSerializer.Serialize(new
                 {
-                    name = displayName,
-                    issuer = "https://token.actions.githubusercontent.com",
-                    subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
-                    audiences = new[] { "api://AzureADTokenExchange" }
-                }
+                name = displayName,
+                issuer = "https://token.actions.githubusercontent.com",
+                subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
+                audiences = new[] { "api://AzureADTokenExchange" }
+            }
             );
 
             ProcessHelper.StartProcess(new ProcessStartInfo
                 {
-                    FileName = Configuration.IsWindows ? "cmd.exe" : "az",
-                    Arguments =
-                        $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = !Configuration.VerboseLogging,
-                    RedirectStandardError = !Configuration.VerboseLogging
-                }, parameters
+                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                Arguments =
+                    $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = !Configuration.VerboseLogging,
+                RedirectStandardError = !Configuration.VerboseLogging
+            },
+                parameters,
+                exitOnError: false
             );
         }
     }
@@ -773,6 +775,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
         }
     }
 
+    // ReSharper disable once MemberCanBeMadeStatic.Local
     private void TriggerAndMonitorWorkflows()
     {
         AnsiConsole.Status().Start("Begin deployment.", ctx =>
@@ -872,9 +875,9 @@ public class ConfigureContinuousDeploymentsCommand : Command
              - To add a step for manual approval during infrastructure deployment to the staging and production environments, set up required reviewers on GitHub environments. Visit [blue]{Config.GithubInfo!.Url}/settings/environments[/] and enable [blue]Required reviewers[/] for the [bold]staging[/] and [bold]production[/] environments. Requires a paid GitHub plan for private repositories.
 
              - Configure the Domain Name for the staging and production environments. This involves two steps:
-             
+
                  a. Go to [blue]{Config.GithubInfo!.Url}/settings/variables/actions[/] to set the [blue]DOMAIN_NAME_STAGING[/] and [blue]DOMAIN_NAME_PRODUCTION[/] variables. E.g. [blue]staging.your-saas-company.com[/] and [blue]your-saas-company.com[/].
-             
+
                  b. Run the [blue]Cloud Infrastructure - Deployment[/] workflow again. Note that it might fail with an error message to set up a DNS TXT and CNAME record. Once done, re-run the failed jobs.
 
              - Set up SonarCloud for code quality and security analysis. This service is free for public repositories. Visit [blue]https://sonarcloud.io[/] to connect your GitHub account. Add the [blue]SONAR_TOKEN[/] secret, and the [blue]SONAR_ORGANIZATION[/] and [blue]SONAR_PROJECT_KEY[/] variables to the GitHub repository. The workflows are already configured for SonarCloud analysis.
@@ -905,7 +908,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
 
-        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
+        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput, exitOnError: false);
     }
 
     private static Dictionary<string, string> GetAzureLocations()
@@ -915,51 +918,51 @@ public class ConfigureContinuousDeploymentsCommand : Command
         // Location Acronyms are taken from here https://learn.microsoft.com/en-us/azure/backup/scripts/geo-code-list
         return new Dictionary<string, string>
         {
-            { "Australia Central", "acl" },
-            { "Australia Central 2", "acl2" },
-            { "Australia East", "ae" },
-            { "Australia Southeast", "ase" },
-            { "Brazil South", "brs" },
-            { "Brazil Southeast", "bse" },
-            { "Canada Central", "cnc" },
-            { "Canada East", "cne" },
-            { "Central India", "inc" },
-            { "Central US", "cus" },
-            { "East Asia", "ea" },
-            { "East US", "eus" },
-            { "East US 2", "eus2" },
-            { "France Central", "frc" },
-            { "France South", "frs" },
-            { "Germany North", "gn" },
-            { "Germany West Central", "gwc" },
-            { "Japan East", "jpe" },
-            { "Japan West", "jpw" },
-            { "Jio India Central", "jic" },
-            { "Jio India West", "jiw" },
-            { "Korea Central", "krc" },
-            { "Korea South", "krs" },
-            { "North Central US", "ncus" },
-            { "North Europe", "ne" },
-            { "Norway East", "nwe" },
-            { "Norway West", "nww" },
-            { "South Africa North", "san" },
-            { "South Africa West", "saw" },
-            { "South Central US", "scus" },
-            { "South India", "ins" },
-            { "Southeast Asia", "sea" },
-            { "Sweden Central", "sdc" },
-            { "Switzerland North", "szn" },
-            { "Switzerland West", "szw" },
-            { "UAE Central", "uac" },
-            { "UAE North", "uan" },
-            { "UK South", "uks" },
-            { "UK West", "ukw" },
-            { "West Central US", "wcus" },
-            { "West Europe", "we" },
-            { "West India", "inw" },
-            { "West US", "wus" },
-            { "West US 2", "wus2" },
-            { "West US 3", "wus3" }
+            { "Australia Central", "au" },
+            { "Australia Central 2", "au" },
+            { "Australia East", "au" },
+            { "Australia Southeast", "au" },
+            { "Brazil South", "br" },
+            { "Brazil Southeast", "br" },
+            { "Canada Central", "ca" },
+            { "Canada East", "ca" },
+            { "Central India", "in" },
+            { "Central US", "us" },
+            { "East Asia", "as" },
+            { "East US", "us" },
+            { "East US 2", "us" },
+            { "France Central", "eu" },
+            { "France South", "eu" },
+            { "Germany North", "eu" },
+            { "Germany West Central", "eu" },
+            { "Japan East", "jp" },
+            { "Japan West", "jp" },
+            { "Jio India Central", "in" },
+            { "Jio India West", "in" },
+            { "Korea Central", "kr" },
+            { "Korea South", "kr" },
+            { "North Central US", "us" },
+            { "North Europe", "eu" },
+            { "Norway East", "no" },
+            { "Norway West", "no" },
+            { "South Africa North", "za" },
+            { "South Africa West", "za" },
+            { "South Central US", "us" },
+            { "South India", "in" },
+            { "Southeast Asia", "as" },
+            { "Sweden Central", "eu" },
+            { "Switzerland North", "ch" },
+            { "Switzerland West", "ch" },
+            { "UAE Central", "ae" },
+            { "UAE North", "ae" },
+            { "UK South", "uk" },
+            { "UK West", "uk" },
+            { "West Central US", "us" },
+            { "West Europe", "eu" },
+            { "West India", "in" },
+            { "West US", "us" },
+            { "West US 2", "us" },
+            { "West US 3", "us" }
         };
     }
 }
@@ -968,17 +971,17 @@ public class Config
 {
     public string TenantId => StagingSubscription.TenantId;
 
-    public string UniquePrefix { get; set; } = default!;
+    public string UniquePrefix { get; set; } = null!;
 
     public GithubInfo? GithubInfo { get; private set; }
 
-    public Subscription StagingSubscription { get; set; } = default!;
+    public Subscription StagingSubscription { get; set; } = null!;
 
-    public Location StagingLocation { get; set; } = default!;
+    public Location StagingLocation { get; set; } = null!;
 
-    public Subscription ProductionSubscription { get; set; } = default!;
+    public Subscription ProductionSubscription { get; set; } = null!;
 
-    public Location ProductionLocation { get; set; } = default!;
+    public Location ProductionLocation { get; set; } = null!;
 
     public Dictionary<string, string> GithubVariables { get; set; } = new();
 

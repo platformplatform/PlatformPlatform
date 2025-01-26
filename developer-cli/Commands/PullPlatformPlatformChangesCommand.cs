@@ -72,7 +72,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         if (pullRequestCommits.Length == 0 && newCommits.Length == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]Everything look up to date.[/]");
+            AnsiConsole.MarkupLine("[yellow]Everything looks up to date.[/]");
             Environment.Exit(0);
         }
 
@@ -296,7 +296,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         void BuildSolution()
         {
-            AnsiConsole.MarkupLine("[green]Building backend and frontend backend[/]");
+            AnsiConsole.MarkupLine("[green]Building backend and frontend backend.[/]");
             while (true)
             {
                 try
@@ -325,7 +325,7 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 try
                 {
-                    AnsiConsole.MarkupLine("[green]Running tests[/]");
+                    AnsiConsole.MarkupLine("[green]Running tests.[/]");
                     ProcessHelper.StartProcess("dotnet test", Configuration.ApplicationFolder, throwOnError: true);
                     break;
                 }
@@ -347,7 +347,7 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 try
                 {
-                    AnsiConsole.MarkupLine("[green]Running cleanup[/]");
+                    AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
 
                     var solutionFile = Directory.GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.TopDirectoryOnly).Single();
                     ProcessHelper.StartProcess(
@@ -374,7 +374,7 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 try
                 {
-                    AnsiConsole.MarkupLine("[green]Validating frontend code[/]");
+                    AnsiConsole.MarkupLine("[green]Validating frontend code.[/]");
                     ProcessHelper.StartProcess("npm run format", Configuration.ApplicationFolder, throwOnError: true);
                     ProcessHelper.StartProcess("npm run lint", Configuration.ApplicationFolder, throwOnError: true);
                     ProcessHelper.StartProcess("npm run check", Configuration.ApplicationFolder, throwOnError: true);
@@ -413,7 +413,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         void CreateChangeCommit(string message)
         {
-            AnsiConsole.MarkupLine("[green]Adding changes[/]");
+            AnsiConsole.MarkupLine("[green]Adding changes.[/]");
             ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
             ProcessHelper.StartProcess($"git commit -m \"{message}\"", Configuration.SourceCodeFolder);
         }
@@ -542,7 +542,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
     private static void AmendCommit()
     {
-        AnsiConsole.MarkupLine("[green]Amending changes[/]");
+        AnsiConsole.MarkupLine("[green]Amending changes.[/]");
         ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
         ProcessHelper.StartProcess("git commit --amend --no-edit", Configuration.SourceCodeFolder);
     }
@@ -591,7 +591,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         if (localCommits.Contains(latestOriginCommit)) return;
 
-        AnsiConsole.MarkupLine($"[red]Branch is not up to date with '{DefaultRemote}/{activeBranchName}'[/]");
+        AnsiConsole.MarkupLine($"[red]Branch is not up to date with '{DefaultRemote}/{activeBranchName}'.[/]");
         Environment.Exit(0);
     }
 

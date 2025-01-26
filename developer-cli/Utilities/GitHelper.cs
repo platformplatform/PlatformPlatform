@@ -15,14 +15,6 @@ public static class GitHelper
     }
 }
 
-public record Commit1(string Date, string Hash, string Message)
-{
-    public string GetCommitMessage()
-    {
-        return ProcessHelper.StartProcess($"git log -1 --pretty=%B {Hash}", Configuration.SourceCodeFolder, true);
-    }
-}
-
 public record Commit
 {
     public Commit(string date, string hash, string message)
@@ -33,11 +25,11 @@ public record Commit
         Message = message;
     }
 
-    public string Date { get; init; }
+    public string Date { get; }
 
-    public string Hash { get; init; }
+    public string Hash { get; }
 
-    public string Message { get; init; }
+    public string Message { get; }
 
     private static void ValidateHash(string hash)
     {
