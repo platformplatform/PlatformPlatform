@@ -619,22 +619,24 @@ public class ConfigureContinuousDeploymentsCommand : Command
         {
             var parameters = JsonSerializer.Serialize(new
                 {
-                    name = displayName,
-                    issuer = "https://token.actions.githubusercontent.com",
-                    subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
-                    audiences = new[] { "api://AzureADTokenExchange" }
-                }
+                name = displayName,
+                issuer = "https://token.actions.githubusercontent.com",
+                subject = $"""repo:{Config.GithubInfo!.Path}:{refRefsHeadsMain}""",
+                audiences = new[] { "api://AzureADTokenExchange" }
+            }
             );
 
             ProcessHelper.StartProcess(new ProcessStartInfo
                 {
-                    FileName = Configuration.IsWindows ? "cmd.exe" : "az",
-                    Arguments =
-                        $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = !Configuration.VerboseLogging,
-                    RedirectStandardError = !Configuration.VerboseLogging
-                }, parameters
+                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                Arguments =
+                    $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = !Configuration.VerboseLogging,
+                RedirectStandardError = !Configuration.VerboseLogging
+            },
+                parameters,
+                exitOnError: false
             );
         }
     }
@@ -906,7 +908,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
 
-        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput);
+        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput, exitOnError: false);
     }
 
     private static Dictionary<string, string> GetAzureLocations()
