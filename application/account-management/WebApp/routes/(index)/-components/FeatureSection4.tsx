@@ -27,7 +27,7 @@ export function FeatureSection4() {
           />
           <FeatureBlock
             title="Enterprise grade"
-            content="Multi tenancy to fit any organisation structure in B2B and B2C businesses including audit logs."
+            content="Multi tenancy to fit any organization structure in B2B and B2C businesses including audit logs."
           />
           <FeatureBlock
             title="Production ready"

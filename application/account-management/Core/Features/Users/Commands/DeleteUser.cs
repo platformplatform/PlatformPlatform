@@ -15,10 +15,7 @@ public sealed class DeleteUserHandler(IUserRepository userRepository, IExecution
 {
     public async Task<Result> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.UserInfo.Id == command.Id)
-        {
-            return Result.Forbidden("You cannot delete yourself.");
-        }
+        if (executionContext.UserInfo.Id == command.Id) return Result.Forbidden("You cannot delete yourself.");
 
         if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
         {

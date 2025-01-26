@@ -1,23 +1,18 @@
-using System.Net;
 using FluentAssertions;
 using NJsonSchema;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
 
-public sealed class GetUserTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class GetCurrentUserTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
-    public async Task GetUser_WhenUserExists_ShouldReturnUserWithValidContract()
+    public async Task GetLoggedInUser_WhenUserExists_ShouldReturnUserWithValidContract()
     {
-        // Arrange
-        var existingUserId = DatabaseSeeder.User1.Id;
-
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{existingUserId}");
+        var response = await AuthenticatedHttpClient.GetAsync("/api/account-management/users/me");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -46,31 +41,5 @@ public sealed class GetUserTests : EndpointBaseTest<AccountManagementDbContext>
 
         var responseBody = await response.Content.ReadAsStringAsync();
         schema.Validate(responseBody).Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task GetUser_WhenUserDoesNotExist_ShouldReturnNotFound()
-    {
-        // Arrange
-        var unknownUserId = UserId.NewId();
-
-        // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{unknownUserId}");
-
-        // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
-    }
-
-    [Fact]
-    public async Task GetUser_WhenInvalidUserId_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var invalidUserId = Faker.Random.AlphaNumeric(31);
-
-        // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users/{invalidUserId}");
-
-        // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"""Failed to bind parameter "UserId Id" from "{invalidUserId}".""");
     }
 }

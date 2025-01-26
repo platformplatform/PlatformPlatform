@@ -26,8 +26,6 @@ public sealed class ChangeLocaleHandler(IUserRepository userRepository, ITelemet
     public async Task<Result> Handle(ChangeLocaleCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        if (user is null) return Result.BadRequest("User not found.");
-
         var fromLocale = user.Locale;
         user.ChangeLocale(command.Locale);
         userRepository.Update(user);

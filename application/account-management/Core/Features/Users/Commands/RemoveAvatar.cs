@@ -14,7 +14,6 @@ public sealed class RemoveAvatarCommandHandler(IUserRepository userRepository, I
     public async Task<Result> Handle(RemoveAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        if (user is null) return Result.BadRequest("User not found.");
 
         user.RemoveAvatar();
         userRepository.Update(user);

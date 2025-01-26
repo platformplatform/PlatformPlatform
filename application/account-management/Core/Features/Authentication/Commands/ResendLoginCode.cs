@@ -31,10 +31,7 @@ public sealed class ResendLoginCodeCommandHandler(
     public async Task<Result<ResendLoginCodeResponse>> Handle(ResendLoginCodeCommand command, CancellationToken cancellationToken)
     {
         var login = await loginRepository.GetByIdAsync(command.Id, cancellationToken);
-        if (login is null)
-        {
-            return Result<ResendLoginCodeResponse>.NotFound($"Login with id '{command.Id}' not found.");
-        }
+        if (login is null) return Result<ResendLoginCodeResponse>.NotFound($"Login with id '{command.Id}' not found.");
 
         if (login.Completed)
         {

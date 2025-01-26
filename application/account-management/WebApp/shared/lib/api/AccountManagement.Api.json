@@ -456,29 +456,6 @@
             "description": ""
           }
         }
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PutApiAccountManagementUsers",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
       }
     },
     "/api/account-management/users/summary": {
@@ -502,35 +479,6 @@
       }
     },
     "/api/account-management/users/{id}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "GetApiAccountManagementUsers2",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/UserId"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
-                }
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "tags": [
           "Users"
@@ -615,12 +563,55 @@
         }
       }
     },
-    "/api/account-management/users/update-avatar": {
+    "/api/account-management/users/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountManagementUsersMe",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountManagementUsersMe",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/account-management/users/me/update-avatar": {
       "post": {
         "tags": [
           "Users"
         ],
-        "operationId": "PostApiAccountManagementUsersUpdateAvatar",
+        "operationId": "PostApiAccountManagementUsersMeUpdateAvatar",
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -644,12 +635,12 @@
         }
       }
     },
-    "/api/account-management/users/remove-avatar": {
+    "/api/account-management/users/me/remove-avatar": {
       "delete": {
         "tags": [
           "Users"
         ],
-        "operationId": "DeleteApiAccountManagementUsersRemoveAvatar",
+        "operationId": "DeleteApiAccountManagementUsersMeRemoveAvatar",
         "responses": {
           "200": {
             "description": ""
@@ -657,12 +648,12 @@
         }
       }
     },
-    "/api/account-management/users/change-locale": {
+    "/api/account-management/users/me/change-locale": {
       "put": {
         "tags": [
           "Users"
         ],
-        "operationId": "PutApiAccountManagementUsersChangeLocale",
+        "operationId": "PutApiAccountManagementUsersMeChangeLocale",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -1058,43 +1049,6 @@
           }
         }
       },
-      "UserResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "$ref": "#/components/schemas/UserId"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "modifiedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "CreateUserCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1135,7 +1089,44 @@
           }
         }
       },
-      "UpdateUserCommand": {
+      "UserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCurrentUserCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

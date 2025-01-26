@@ -29,10 +29,7 @@ public sealed class ResendSignupCodeCommandHandler(
     public async Task<Result<ResendSignupCodeResponse>> Handle(ResendSignupCodeCommand command, CancellationToken cancellationToken)
     {
         var signup = await signupRepository.GetByIdAsync(command.Id, cancellationToken);
-        if (signup is null)
-        {
-            return Result<ResendSignupCodeResponse>.NotFound($"Signup with id '{command.Id}' not found.");
-        }
+        if (signup is null) return Result<ResendSignupCodeResponse>.NotFound($"Signup with id '{command.Id}' not found.");
 
         if (signup.Completed)
         {
