@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account name"
+msgstr "Kontonavn"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
@@ -116,9 +119,6 @@ msgstr "Domæne"
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
-
-msgid "E.g., CompanyX"
-msgstr "F.eks. FirmaX"
 
 msgid "E.g., Marketing Manager"
 msgstr "F.eks. Marketingchef"
@@ -282,6 +282,9 @@ msgstr "Vælg en ny rolle for <0>{0}</0>"
 
 msgid "Send invite"
 msgstr "Send invitation"
+
+msgid "Settings"
+msgstr "Indstillinger"
 
 msgid "Show filters"
 msgstr "Vis filtre"

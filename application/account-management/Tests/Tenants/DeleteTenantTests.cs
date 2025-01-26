@@ -20,7 +20,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
         var unknownTenantId = Faker.Subdomain();
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/tenants/{unknownTenantId}");
+        var response = await AuthenticatedHttpClient.DeleteAsync($"/internal-api/account-management/tenants/{unknownTenantId}");
 
         //Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"Tenant with id '{unknownTenantId}' not found.");
@@ -50,7 +50,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
         );
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
+        var response = await AuthenticatedHttpClient.DeleteAsync($"/internal-api/account-management/tenants/{existingTenantId}");
         TelemetryEventsCollectorSpy.Reset();
 
         // Assert
@@ -70,7 +70,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/tenants/{existingTenantId}");
+        var response = await AuthenticatedHttpClient.DeleteAsync($"/internal-api/account-management/tenants/{existingTenantId}");
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
