@@ -127,7 +127,7 @@ public static class ProcessHelper
 
     private static string? FindFullPathFromPath(string command)
     {
-       string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
+        string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
 
         var pathVariable = Environment.GetEnvironmentVariable("PATH");
         if (pathVariable is null) return null;

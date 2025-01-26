@@ -9,7 +9,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base(
         "uninstall",
-        $"Will remove the {Configuration.AliasName} CLI alias."
+        $"Will remove the {Configuration.AliasName} CLI alias"
     )
     {
         Handler = CommandHandler.Create(Execute);

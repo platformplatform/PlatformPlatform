@@ -38,7 +38,7 @@ public class InstallCommand : Command
 
     public InstallCommand() : base(
         "install",
-        $"This will register the alias {Configuration.AliasName} so it will be available everywhere."
+        $"This will register the alias {Configuration.AliasName} so it will be available everywhere"
     )
     {
         Handler = CommandHandler.Create(Execute);
@@ -53,7 +53,8 @@ public class InstallCommand : Command
             var installedAliasPath = Configuration.GetConfigurationSetting().CliSourceCodeFolder!;
             AnsiConsole.MarkupLine(Environment.ProcessPath!.StartsWith(installedAliasPath)
                 ? $"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]"
-                : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}.[/]");
+                : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}.[/]"
+            );
 
             return;
         }
