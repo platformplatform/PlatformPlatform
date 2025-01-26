@@ -29,7 +29,7 @@ export function LocaleSwitcher() {
     const newLocale = [...selection][0] as Locale;
     if (newLocale != null) {
       if (userInfo?.isAuthenticated) {
-        await fetch("/api/account-management/users/change-locale", {
+        await fetch("/api/account-management/users/me/change-locale", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ locale: newLocale })
