@@ -24,7 +24,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
         {children}
       </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
-        <span className="hidden sm:flex">
+        <span className="hidden sm:flex gap-2">
           <ThemeModeSelector />
           <Button variant="icon" aria-label={t`Help`}>
             <LifeBuoyIcon size={20} />
