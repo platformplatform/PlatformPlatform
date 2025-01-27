@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { I18nProvider } from "@lingui/react";
 import { i18n, type Messages } from "@lingui/core";
 import localeMap from "./i18n.config.json";
@@ -118,19 +118,25 @@ type TranslationProviderProps = {
 };
 
 function TranslationProvider({ children, translation }: Readonly<TranslationProviderProps>) {
+  const [currentLocale, setCurrentLocale] = useState(i18n.locale);
+
   const value: TranslationContext = useMemo(
     () => ({
       setLocale: async (locale: string) => {
         await translation.dynamicActivate(locale);
+        setCurrentLocale(locale); // Update state to force re-render
       },
       locales: translation.locales,
       getLocaleInfo: translation.getLocaleInfo
     }),
     [translation]
   );
+
   return (
     <TranslationContextProvider value={value}>
-      <I18nProvider i18n={i18n}>{children}</I18nProvider>
+      <I18nProvider key={currentLocale} i18n={i18n}>
+        {children}
+      </I18nProvider>
     </TranslationContextProvider>
   );
 }
