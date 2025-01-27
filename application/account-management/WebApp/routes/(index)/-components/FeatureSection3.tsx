@@ -1,5 +1,6 @@
 import { createAccountUrl } from "./cdnImages";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
+import { t } from "@lingui/core/macro";
 
 // FeatureSection3: A functional component that displays the third feature section
 export function FeatureSection3() {
@@ -69,7 +70,7 @@ function FeatureList() {
         </p>
         <div className="flex items-center text-muted-foreground text-md md:text-xl font-normal gap-4">
           <span>Just click the </span>
-          <ThemeModeSelector />
+          <ThemeModeSelector aria-label={t`Toggle theme`} />
           <span> button to switch to the Dark Side.</span>
         </div>
       </div>

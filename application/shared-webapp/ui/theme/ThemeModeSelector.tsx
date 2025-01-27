@@ -5,10 +5,10 @@ import { MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 /**
  * A button that toggles the theme mode between light and dark.
  */
-export function ThemeModeSelector() {
+export function ThemeModeSelector({ "aria-label": ariaLabel }: { "aria-label": string }) {
   const { setThemeMode } = useThemeMode();
   return (
-    <Button variant="icon" onPress={() => setThemeMode(toggleThemeMode)}>
+    <Button variant="icon" onPress={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
       <ThemeModeIcon />
     </Button>
   );

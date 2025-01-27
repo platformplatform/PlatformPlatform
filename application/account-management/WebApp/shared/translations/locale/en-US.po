@@ -19,9 +19,6 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Account name"
 
-msgid "Account settings"
-msgstr "Account settings"
-
 msgid "Account Settings"
 msgstr "Account Settings"
 
@@ -280,6 +277,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select language"
+msgstr "Select language"
+
 msgid "Send invite"
 msgstr "Send invite"
 
@@ -313,6 +313,9 @@ msgstr "This is the region where your data is stored"
 msgid "Title"
 msgstr "Title"
 
+msgid "Toggle theme"
+msgstr "Toggle theme"
+
 msgid "Total Users"
 msgstr "Total Users"
 
@@ -327,6 +330,9 @@ msgstr "Upload photo"
 
 msgid "User profile"
 msgstr "User profile"
+
+msgid "User profile menu"
+msgstr "User profile menu"
 
 msgid "User Role"
 msgstr "User Role"

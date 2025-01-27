@@ -17,13 +17,22 @@ msgid "Account Management"
 msgstr "Accountbeheer"
 
 msgid "Help"
-msgstr "Helpen"
+msgstr "Help"
 
 msgid "Home"
 msgstr "Home"
 
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Beheer huurders, bekijk systeemgegevens, zie uitzonderingen en voer diverse taken uit voor operationele en ondersteuningsteams."
+
+msgid "Select language"
+msgstr "Selecteer taal"
+
+msgid "Toggle theme"
+msgstr "Schakel thema om"
+
+msgid "User profile menu"
+msgstr "Gebruikersprofielmenu"
 
 msgid "Welcome to the Back Office"
 msgstr "Welkom bij de Backoffice"

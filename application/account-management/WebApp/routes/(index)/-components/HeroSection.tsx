@@ -10,6 +10,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import logoMark from "@/shared/images/logo-mark.svg";
 import { LoginButton } from "@repo/infrastructure/auth/LoginButton";
 import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
+import { t } from "@lingui/core/macro";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
@@ -30,7 +31,7 @@ export function HeroSection() {
             <GithubIcon className="wmax-5 h-5" />
             <span className="md:hidden lg:inline">Github</span>
           </Link>
-          <ThemeModeSelector />
+          <ThemeModeSelector aria-label={t`Toggle theme`} />
           <LoginButton variant="ghost">Log in</LoginButton>
           <SignUpButton variant="primary">Get started today</SignUpButton>
         </div>

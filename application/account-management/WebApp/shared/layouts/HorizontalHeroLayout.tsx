@@ -7,18 +7,18 @@ import { t } from "@lingui/core/macro";
 import { LifeBuoyIcon } from "lucide-react";
 
 interface HorizontalHeroLayoutProps {
-  children?: ReactNode;
+  children: ReactNode;
 }
 
 export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayoutProps>) {
   return (
     <main className="flex min-h-screen flex-col relative">
       <div className="absolute top-4 right-4 gap-4 p-2 rounded-md shadow-md bg-white dark:bg-gray-800 hidden sm:flex">
-        <ThemeModeSelector />
+        <ThemeModeSelector aria-label={t`Toggle theme`} />
         <Button variant="icon" aria-label={t`Help`}>
           <LifeBuoyIcon size={20} />
         </Button>
-        <LocaleSwitcher />
+        <LocaleSwitcher aria-label={t`Select language`} />
       </div>
       <div className="flex grow flex-col gap-4 md:flex-row">
         <div className="flex flex-col items-center justify-center gap-6 md:w-1/2 p-6">{children}</div>

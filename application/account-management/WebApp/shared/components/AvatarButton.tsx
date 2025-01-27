@@ -6,12 +6,11 @@ import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 
-export default function AvatarButton() {
+export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label": string }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const userInfo = useUserInfo();
 
@@ -30,8 +29,8 @@ export default function AvatarButton() {
 
   return (
     <>
-      <MenuTrigger aria-label={t`Account settings`}>
-        <Button aria-label={t`Menu`} variant="icon" className="rounded-full">
+      <MenuTrigger>
+        <Button aria-label={ariaLabel} variant="icon" className="rounded-full">
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
         </Button>
         <Menu placement="bottom end">

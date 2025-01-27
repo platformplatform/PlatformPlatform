@@ -19,9 +19,6 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Accountnaam"
 
-msgid "Account settings"
-msgstr "Accountinstellingen"
-
 msgid "Account Settings"
 msgstr "Accountinstellingen"
 
@@ -280,6 +277,9 @@ msgstr "Zoeken"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
+msgid "Select language"
+msgstr "Selecteer taal"
+
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
@@ -313,6 +313,9 @@ msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 msgid "Title"
 msgstr "Titel"
 
+msgid "Toggle theme"
+msgstr "Thema wisselen"
+
 msgid "Total Users"
 msgstr "Totale gebruikers"
 
@@ -327,6 +330,9 @@ msgstr "Foto uploaden"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
+
+msgid "User profile menu"
+msgstr "Gebruikersprofielmenu"
 
 msgid "User Role"
 msgstr "Gebruikersrol"
