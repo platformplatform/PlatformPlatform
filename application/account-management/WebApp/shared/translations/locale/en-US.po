@@ -346,8 +346,17 @@ msgstr "Users who haven't confirmed their email"
 msgid "Verify"
 msgstr "Verify"
 
+msgid "View active users"
+msgstr "View active users"
+
+msgid "View invited users"
+msgstr "View invited users"
+
 msgid "View Profile"
 msgstr "View Profile"
+
+msgid "View users"
+msgstr "View users"
 
 msgid "Welcome home"
 msgstr "Welcome home"

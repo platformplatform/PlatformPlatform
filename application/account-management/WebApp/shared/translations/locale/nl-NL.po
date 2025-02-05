@@ -346,8 +346,17 @@ msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 msgid "Verify"
 msgstr "Verifiëren"
 
+msgid "View active users"
+msgstr "Actieve gebruikers bekijken"
+
+msgid "View invited users"
+msgstr "Uitgenodigde gebruikers bekijken"
+
 msgid "View Profile"
 msgstr "Profiel bekijken"
+
+msgid "View users"
+msgstr "Gebruikers bekijken"
 
 msgid "Welcome home"
 msgstr "Welkom home"

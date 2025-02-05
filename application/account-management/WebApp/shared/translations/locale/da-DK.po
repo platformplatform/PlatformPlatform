@@ -346,8 +346,17 @@ msgstr "Brugere, der ikke har bekræftet deres e-mail"
 msgid "Verify"
 msgstr "Bekræft"
 
+msgid "View active users"
+msgstr "Se aktive brugere"
+
+msgid "View invited users"
+msgstr "Se inviterede brugere"
+
 msgid "View Profile"
 msgstr "Se profil"
+
+msgid "View users"
+msgstr "Se brugere"
 
 msgid "Welcome home"
 msgstr "Velkommen hjem"
