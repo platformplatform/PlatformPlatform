@@ -30,16 +30,16 @@ export default function Home() {
         <div className="flex flex-row">
           <Link
             to="/admin/users"
-            className="text-muted-foreground p-6 bg-white rounded-xl shadow-md w-1/3 hover:bg-muted/80 transition-colors"
+            className="p-6 bg-muted/50 rounded-xl w-1/3 hover:bg-accent transition-all"
             aria-label={t`View users`}
           >
-            <div className="text-sm text-gray-800">
+            <div className="text-sm text-foreground">
               <Trans>Total Users</Trans>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               <Trans>Add more in the Users menu</Trans>
             </div>
-            <div className="py-2 text-black text-2xl font-semibold">
+            <div className="py-2 text-foreground text-2xl font-semibold">
               {data?.totalUsers ? <p>{data.totalUsers}</p> : <p>-</p>}
             </div>
           </Link>
@@ -50,32 +50,32 @@ export default function Home() {
               startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10),
               endDate: new Date().toISOString().slice(0, 10)
             }}
-            className="p-6 bg-white rounded-xl shadow-md w-1/3 mx-6 hover:bg-muted/80 transition-colors"
+            className="p-6 bg-muted/50 rounded-xl w-1/3 mx-6 hover:bg-accent transition-all"
             aria-label={t`View active users`}
           >
-            <div className="text-sm text-gray-800">
+            <div className="text-sm text-foreground">
               <Trans>Active Users</Trans>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               <Trans>Active users in the past 30 days</Trans>
             </div>
-            <div className="py-2 text-black text-2xl font-semibold">
+            <div className="py-2 text-foreground text-2xl font-semibold">
               {data?.activeUsers ? <p>{data.activeUsers}</p> : <p>-</p>}
             </div>
           </Link>
           <Link
             to="/admin/users"
             search={{ userStatus: UserStatus.Pending }}
-            className="p-6 bg-white rounded-xl shadow-md w-1/3 hover:bg-muted/80 transition-colors"
+            className="p-6 bg-muted/50 rounded-xl w-1/3 hover:bg-accent transition-all"
             aria-label={t`View invited users`}
           >
-            <div className="text-sm text-gray-800">
+            <div className="text-sm text-foreground">
               <Trans>Invited Users</Trans>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               <Trans>Users who haven't confirmed their email</Trans>
             </div>
-            <div className="py-2 text-black text-2xl font-semibold">
+            <div className="py-2 text-foreground text-2xl font-semibold">
               {data?.pendingUsers ? <p>{data.pendingUsers}</p> : <p>-</p>}
             </div>
           </Link>
