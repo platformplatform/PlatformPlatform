@@ -132,7 +132,7 @@ export function UserQuerying() {
                 endDate: range?.end.toString() || undefined
               });
             }}
-            label={t`Creation date`}
+            label={t`Modified date`}
           />
         </>
       )}

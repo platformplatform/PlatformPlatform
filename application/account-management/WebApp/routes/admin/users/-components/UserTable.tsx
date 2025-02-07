@@ -185,7 +185,7 @@ export function UserTable() {
               <Trans>Created</Trans>
             </Column>
             <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
-              <Trans>Last Seen</Trans>
+              <Trans>Modified</Trans>
             </Column>
             <Column minWidth={100} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
               <Trans>Role</Trans>

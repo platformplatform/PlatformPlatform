@@ -132,12 +132,12 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
         if (startDate is not null)
         {
-            users = users.Where(u => u.CreatedAt >= startDate);
+            users = users.Where(u => u.ModifiedAt >= startDate);
         }
 
         if (endDate is not null)
         {
-            users = users.Where(u => u.CreatedAt < endDate.Value.AddDays(1));
+            users = users.Where(u => u.ModifiedAt < endDate.Value.AddDays(1));
         }
 
         users = orderBy switch

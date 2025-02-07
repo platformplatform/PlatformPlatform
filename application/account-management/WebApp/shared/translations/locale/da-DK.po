@@ -90,9 +90,6 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
-msgid "Creation date"
-msgstr "Oprettelsesdato"
-
 msgid "Danger zone"
 msgstr "Farezone"
 
@@ -189,9 +186,6 @@ msgstr "Inviterede brugere"
 msgid "Last name"
 msgstr "Efternavn"
 
-msgid "Last Seen"
-msgstr "Sidst set"
-
 msgid "Log in"
 msgstr "Log ind"
 
@@ -212,6 +206,12 @@ msgstr "Medlem"
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Modified"
+msgstr "Ændret"
+
+msgid "Modified date"
+msgstr "Ændret dato"
 
 msgid "Name"
 msgstr "Navn"

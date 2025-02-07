@@ -90,9 +90,6 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
-msgid "Creation date"
-msgstr "Creation date"
-
 msgid "Danger zone"
 msgstr "Danger zone"
 
@@ -189,9 +186,6 @@ msgstr "Invited Users"
 msgid "Last name"
 msgstr "Last name"
 
-msgid "Last Seen"
-msgstr "Last Seen"
-
 msgid "Log in"
 msgstr "Log in"
 
@@ -212,6 +206,12 @@ msgstr "Member"
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Modified"
+msgstr "Modified"
+
+msgid "Modified date"
+msgstr "Modified date"
 
 msgid "Name"
 msgstr "Name"
