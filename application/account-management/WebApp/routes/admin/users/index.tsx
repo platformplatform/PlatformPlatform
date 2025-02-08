@@ -11,6 +11,7 @@ import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import InviteUserModal from "./-components/InviteUserModal";
 import { Trans } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
 
 const userPageSearchSchema = z.object({
   search: z.string().optional(),
@@ -33,7 +34,7 @@ export default function UsersPage() {
 
   return (
     <div className="flex gap-4 w-full h-full">
-      <SharedSideMenu />
+      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <div className="flex flex-col gap-4 py-3 px-4 w-full">
         <TopMenu>
           <Breadcrumb href="/admin/users">

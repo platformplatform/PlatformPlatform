@@ -6,11 +6,12 @@ import { Trans } from "@lingui/react/macro";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
+  ariaLabel: string;
 };
 
-export function SharedSideMenu({ children }: Readonly<SharedSideMenuProps>) {
+export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuProps>) {
   return (
-    <SideMenu>
+    <SideMenu ariaLabel={ariaLabel}>
       <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
       <SideMenuSeparator>
         <Trans>Organization</Trans>

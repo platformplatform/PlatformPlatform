@@ -16,7 +16,7 @@ interface TopMenuProps {
 
 export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
-    <div className="flex items-center justify-between w-full">
+    <nav className="flex items-center justify-between w-full">
       <Breadcrumbs>
         <Breadcrumb>
           <Trans>Home</Trans>
@@ -24,15 +24,15 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
         {children}
       </Breadcrumbs>
       <div className="flex flex-row gap-6 items-center">
-        <span className="hidden sm:flex gap-2">
-          <ThemeModeSelector />
+        <span className="flex gap-2">
+          <ThemeModeSelector aria-label={t`Toggle theme`} />
           <Button variant="icon" aria-label={t`Help`}>
             <LifeBuoyIcon size={20} />
           </Button>
-          <LocaleSwitcher />
+          <LocaleSwitcher aria-label={t`Select language`} />
         </span>
-        <AvatarButton />
+        <AvatarButton aria-label={t`User profile menu`} />
       </div>
-    </div>
+    </nav>
   );
 }

@@ -8,7 +8,7 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { preferredLocaleKey } from "./constants";
 import type { Key } from "@react-types/shared";
 
-export function LocaleSwitcher() {
+export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": string }) {
   const { setLocale, getLocaleInfo, locales } = use(translationContext);
   const { i18n } = useLingui();
   const { userInfo } = useContext(AuthenticationContext);
@@ -48,10 +48,10 @@ export function LocaleSwitcher() {
 
   return (
     <MenuTrigger>
-      <Button variant="icon" aria-label="Select language">
+      <Button variant="icon" aria-label={ariaLabel}>
         <LanguagesIcon className="h-5 w-5" />
       </Button>
-      <Menu onAction={handleLocaleChange} aria-label="Select language">
+      <Menu onAction={handleLocaleChange} aria-label={ariaLabel}>
         {items.map((item) => (
           <MenuItem key={item.id} id={item.id} textValue={item.label}>
             <div className="flex items-center gap-2">

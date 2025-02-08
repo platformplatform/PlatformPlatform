@@ -19,9 +19,6 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Account name"
 
-msgid "Account settings"
-msgstr "Account settings"
-
 msgid "Account Settings"
 msgstr "Account Settings"
 
@@ -37,11 +34,11 @@ msgstr "Active Users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
-msgid "Add avatar"
-msgstr "Add avatar"
-
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
+
+msgid "Add profile picture"
+msgstr "Add profile picture"
 
 msgid "Admin"
 msgstr "Admin"
@@ -72,8 +69,8 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
-msgid "Change avatar options"
-msgstr "Change avatar options"
+msgid "Change profile picture"
+msgstr "Change profile picture"
 
 msgid "Change Role"
 msgstr "Change Role"
@@ -117,14 +114,14 @@ msgstr "Domain"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "E.g., Marketing Manager"
+msgid "E.g., Alex"
+msgstr "E.g., Alex"
 
-msgid "E.g., Olivia"
-msgstr "E.g., Olivia"
+msgid "E.g., Software Engineer"
+msgstr "E.g., Software Engineer"
 
-msgid "E.g., Rhye"
-msgstr "E.g., Rhye"
+msgid "E.g., Taylor"
+msgstr "E.g., Taylor"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -192,6 +189,9 @@ msgstr "Log in"
 msgid "Log out"
 msgstr "Log out"
 
+msgid "Login verification code"
+msgstr "Login verification code"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -234,9 +234,6 @@ msgstr "Owner"
 msgid "Pending"
 msgstr "Pending"
 
-msgid "Photo"
-msgstr "Photo"
-
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
@@ -255,11 +252,14 @@ msgstr "Previous"
 msgid "Privacy Policies"
 msgstr "Privacy Policies"
 
+msgid "Profile picture"
+msgstr "Profile picture"
+
 msgid "Region"
 msgstr "Region"
 
-msgid "Remove photo"
-msgstr "Remove photo"
+msgid "Remove profile picture"
+msgstr "Remove profile picture"
 
 msgid "Role"
 msgstr "Role"
@@ -280,6 +280,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select language"
+msgstr "Select language"
+
 msgid "Send invite"
 msgstr "Send invite"
 
@@ -291,6 +294,9 @@ msgstr "Show filters"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+
+msgid "Signup verification code"
+msgstr "Signup verification code"
 
 msgid "subdomain"
 msgstr "subdomain"
@@ -313,20 +319,29 @@ msgstr "This is the region where your data is stored"
 msgid "Title"
 msgstr "Title"
 
+msgid "Toggle collapsed menu"
+msgstr "Toggle collapsed menu"
+
+msgid "Toggle theme"
+msgstr "Toggle theme"
+
 msgid "Total Users"
 msgstr "Total Users"
 
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Update your photo and personal details here."
-msgstr "Update your photo and personal details here."
+msgid "Update your profile picture and personal details here."
+msgstr "Update your profile picture and personal details here."
 
-msgid "Upload photo"
-msgstr "Upload photo"
+msgid "Upload profile picture"
+msgstr "Upload profile picture"
 
 msgid "User profile"
 msgstr "User profile"
+
+msgid "User profile menu"
+msgstr "User profile menu"
 
 msgid "User Role"
 msgstr "User Role"

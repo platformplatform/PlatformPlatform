@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Trans } from "@lingui/react/macro";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import { t } from "@lingui/core/macro";
 
 export const Route = createFileRoute("/back-office/")({
   component: Home
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/back-office/")({
 export default function Home() {
   return (
     <div className="flex gap-4 w-full h-full">
-      <SharedSideMenu />
+      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <div className="flex flex-col gap-4 py-3 px-4 w-full">
         <TopMenu />
         <div className="flex h-20 w-full items-center justify-between space-x-2 sm:mt-4 mb-4">

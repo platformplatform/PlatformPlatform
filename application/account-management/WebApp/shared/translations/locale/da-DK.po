@@ -19,9 +19,6 @@ msgstr "Konto"
 msgid "Account name"
 msgstr "Kontonavn"
 
-msgid "Account settings"
-msgstr "Kontoindstillinger"
-
 msgid "Account Settings"
 msgstr "Kontoindstillinger"
 
@@ -37,11 +34,11 @@ msgstr "Aktive brugere"
 msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
-msgid "Add avatar"
-msgstr "Tilføj avatar"
-
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i brugermenuen"
+
+msgid "Add profile picture"
+msgstr "Tilføj profilbillede"
 
 msgid "Admin"
 msgstr "Admin"
@@ -72,8 +69,8 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
-msgid "Change avatar options"
-msgstr "Skift avatarindstillinger"
+msgid "Change profile picture"
+msgstr "Skift profilbillede"
 
 msgid "Change Role"
 msgstr "Skift rolle"
@@ -117,14 +114,14 @@ msgstr "Domæne"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "F.eks. Marketingchef"
+msgid "E.g., Alex"
+msgstr "F.eks. Alex"
 
-msgid "E.g., Olivia"
-msgstr "F.eks. Olivia"
+msgid "E.g., Software Engineer"
+msgstr "F.eks., Softwareingeniør"
 
-msgid "E.g., Rhye"
-msgstr "F.eks. Rhye"
+msgid "E.g., Taylor"
+msgstr "F.eks. Taylor"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -192,6 +189,9 @@ msgstr "Log ind"
 msgid "Log out"
 msgstr "Log ud"
 
+msgid "Login verification code"
+msgstr "Login-bekræftelseskode"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -234,9 +234,6 @@ msgstr "Ejer"
 msgid "Pending"
 msgstr "Afventer"
 
-msgid "Photo"
-msgstr "Foto"
-
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -255,11 +252,14 @@ msgstr "Forrige"
 msgid "Privacy Policies"
 msgstr "Fortrolighedspolitikker"
 
+msgid "Profile picture"
+msgstr "Profilbillede"
+
 msgid "Region"
 msgstr "Region"
 
-msgid "Remove photo"
-msgstr "Fjern foto"
+msgid "Remove profile picture"
+msgstr "Fjern profilbillede"
 
 msgid "Role"
 msgstr "Rolle"
@@ -280,6 +280,9 @@ msgstr "Søg"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
+msgid "Select language"
+msgstr "Vælg sprog"
+
 msgid "Send invite"
 msgstr "Send invitation"
 
@@ -291,6 +294,9 @@ msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+
+msgid "Signup verification code"
+msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "subdomain"
 msgstr "Underdomæne"
@@ -313,20 +319,29 @@ msgstr "Dette er den region, hvor dine data er lagret"
 msgid "Title"
 msgstr "Titel"
 
+msgid "Toggle collapsed menu"
+msgstr "Skift kollapset menu"
+
+msgid "Toggle theme"
+msgstr "Skift tema"
+
 msgid "Total Users"
 msgstr "Totalt antal brugere"
 
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Update your photo and personal details here."
-msgstr "Opdater dit foto og dine personlige oplysninger her."
+msgid "Update your profile picture and personal details here."
+msgstr "Opdater dit profilbillede og personlige oplysninger her."
 
-msgid "Upload photo"
-msgstr "Upload foto"
+msgid "Upload profile picture"
+msgstr "Upload profilbillede"
 
 msgid "User profile"
 msgstr "Brugerprofil"
+
+msgid "User profile menu"
+msgstr "Brugerprofilmenu"
 
 msgid "User Role"
 msgstr "Brugerrolle"

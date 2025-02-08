@@ -19,9 +19,6 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Accountnaam"
 
-msgid "Account settings"
-msgstr "Accountinstellingen"
-
 msgid "Account Settings"
 msgstr "Accountinstellingen"
 
@@ -37,11 +34,11 @@ msgstr "Actieve gebruikers"
 msgid "Active users in the past 30 days"
 msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
-msgid "Add avatar"
-msgstr "Avatar toevoegen"
-
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het gebruikersmenu"
+
+msgid "Add profile picture"
+msgstr "Profielfoto toevoegen"
 
 msgid "Admin"
 msgstr "Beheerder"
@@ -72,8 +69,8 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
-msgid "Change avatar options"
-msgstr "Opties voor avatar wijzigen"
+msgid "Change profile picture"
+msgstr "Profielfoto wijzigen"
 
 msgid "Change Role"
 msgstr "Rol wijzigen"
@@ -117,14 +114,14 @@ msgstr "Domein"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Heb je geen account? <0>Maak er één aan</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "Bijv. Marketing Manager"
+msgid "E.g., Alex"
+msgstr "Bijv., Alex"
 
-msgid "E.g., Olivia"
-msgstr "Bijv. Olivia"
+msgid "E.g., Software Engineer"
+msgstr "Bijv., Software Engineer"
 
-msgid "E.g., Rhye"
-msgstr "Bijv. Rhye"
+msgid "E.g., Taylor"
+msgstr "Bijv., Taylor"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -192,6 +189,9 @@ msgstr "Inloggen"
 msgid "Log out"
 msgstr "Uitloggen"
 
+msgid "Login verification code"
+msgstr "Verificatiecode voor inloggen"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -234,9 +234,6 @@ msgstr "Eigenaar"
 msgid "Pending"
 msgstr "In behandeling"
 
-msgid "Photo"
-msgstr "Foto"
-
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
@@ -255,11 +252,14 @@ msgstr "Vorige"
 msgid "Privacy Policies"
 msgstr "Privacybeleid"
 
+msgid "Profile picture"
+msgstr "Profielfoto"
+
 msgid "Region"
 msgstr "Regio"
 
-msgid "Remove photo"
-msgstr "Foto verwijderen"
+msgid "Remove profile picture"
+msgstr "Profielfoto verwijderen"
 
 msgid "Role"
 msgstr "Rol"
@@ -280,6 +280,9 @@ msgstr "Zoeken"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
+msgid "Select language"
+msgstr "Selecteer taal"
+
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
@@ -291,6 +294,9 @@ msgstr "Filters tonen"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
+
+msgid "Signup verification code"
+msgstr "Verificatiecode voor aanmelding"
 
 msgid "subdomain"
 msgstr "subdomein"
@@ -313,20 +319,29 @@ msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 msgid "Title"
 msgstr "Titel"
 
+msgid "Toggle collapsed menu"
+msgstr "Ingeklapt menu wisselen"
+
+msgid "Toggle theme"
+msgstr "Thema wisselen"
+
 msgid "Total Users"
 msgstr "Totale gebruikers"
 
 msgid "Try again"
 msgstr "Probeer opnieuw"
 
-msgid "Update your photo and personal details here."
-msgstr "Werk je foto en persoonlijke gegevens hier bij."
+msgid "Update your profile picture and personal details here."
+msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 
-msgid "Upload photo"
-msgstr "Foto uploaden"
+msgid "Upload profile picture"
+msgstr "Profielfoto uploaden"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
+
+msgid "User profile menu"
+msgstr "Gebruikersprofielmenu"
 
 msgid "User Role"
 msgstr "Gebruikersrol"
