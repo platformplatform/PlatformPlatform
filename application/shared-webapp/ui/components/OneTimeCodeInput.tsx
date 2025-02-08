@@ -8,6 +8,7 @@ export interface OneTimeCodeInputProps {
   digitPattern?: DigitPattern;
   name?: string;
   autoFocus?: boolean;
+  ariaLabel: string;
 }
 
 export function OneTimeCodeInput({
@@ -15,7 +16,8 @@ export function OneTimeCodeInput({
   disabled,
   length = 6,
   name = "code",
-  autoFocus
+  autoFocus,
+  ariaLabel
 }: OneTimeCodeInputProps) {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
   const id = useId();
@@ -59,7 +61,7 @@ export function OneTimeCodeInput({
     setFocus(nextFocusIndex);
   };
   return (
-    <div className="flex flex-row gap-4" aria-label="One time code">
+    <div className="flex flex-row gap-4" aria-label={ariaLabel}>
       {digits.map((digit, i) => (
         <Digit
           // biome-ignore lint/suspicious/noArrayIndexKey: The index is used as a unique key for the digit

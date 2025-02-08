@@ -189,6 +189,9 @@ msgstr "Log ind"
 msgid "Log out"
 msgstr "Log ud"
 
+msgid "Login verification code"
+msgstr "Login-bekræftelseskode"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -291,6 +294,9 @@ msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+
+msgid "Signup verification code"
+msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "subdomain"
 msgstr "Underdomæne"

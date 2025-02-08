@@ -97,7 +97,13 @@ export function CompleteSignupForm() {
             </Trans>
           </div>
           <div className="flex w-full flex-col gap-4">
-            <OneTimeCodeInput name="oneTimePassword" digitPattern={DigitPattern.DigitsAndChars} length={6} autoFocus />
+            <OneTimeCodeInput
+              name="oneTimePassword"
+              digitPattern={DigitPattern.DigitsAndChars}
+              length={6}
+              autoFocus
+              ariaLabel={t`Signup verification code`}
+            />
           </div>
           <FormErrorMessage title={title} message={message} />
           <Button type="submit" className="mt-4 w-full text-center">
