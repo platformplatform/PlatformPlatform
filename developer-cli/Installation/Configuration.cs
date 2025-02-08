@@ -125,7 +125,7 @@ public static class Configuration
 
         internal static bool IsAliasRegisteredMacOs()
         {
-            if (!File.Exists(GetShellInfo().ProfilePath))
+            if (string .IsNullOrEmpty(GetShellInfo().ProfilePath))
             {
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return false;
@@ -142,7 +142,7 @@ public static class Configuration
                 return;
             }
 
-            File.AppendAllLines(GetShellInfo().ProfilePath, new[] { AliasLineRepresentation });
+            File.AppendAllLines(GetShellInfo().ProfilePath, [AliasLineRepresentation]);
         }
 
         public static void DeleteAlias()
