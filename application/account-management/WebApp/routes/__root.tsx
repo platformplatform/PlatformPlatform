@@ -5,6 +5,7 @@ import { AuthenticationProvider } from "@repo/infrastructure/auth/Authentication
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const Route = createRootRoute({
   component: Root,
@@ -12,17 +13,21 @@ export const Route = createRootRoute({
   notFoundComponent: NotFound
 });
 
+const queryClient = new QueryClient();
+
 function Root() {
   const navigate = useNavigate();
   useInitializeLocale();
 
   return (
-    <ThemeModeProvider>
-      <ReactAriaRouterProvider>
-        <AuthenticationProvider navigate={(options) => navigate(options)}>
-          <Outlet />
-        </AuthenticationProvider>
-      </ReactAriaRouterProvider>
-    </ThemeModeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeModeProvider>
+        <ReactAriaRouterProvider>
+          <AuthenticationProvider navigate={(options) => navigate(options)}>
+            <Outlet />
+          </AuthenticationProvider>
+        </ReactAriaRouterProvider>
+      </ThemeModeProvider>
+    </QueryClientProvider>
   );
 }
