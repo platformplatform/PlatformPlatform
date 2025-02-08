@@ -110,7 +110,7 @@ public static class ApiAssertionExtensions
         var problemDetails = await DeserializeProblemDetails(response);
 
         problemDetails.Should().NotBeNull();
-        problemDetails!.Status.Should().Be((int)statusCode);
+        problemDetails.Status.Should().Be((int)statusCode);
         if (StatusCodesWithLink.Contains(statusCode))
         {
             problemDetails.Type.Should().StartWith("https://tools.ietf.org/html/rfc9110#section-15.");

@@ -39,7 +39,7 @@ public sealed class RepositoryTests : IDisposable
         // Assert
         var retrievedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregate.Id, CancellationToken.None);
         retrievedAggregate.Should().NotBeNull();
-        retrievedAggregate!.Id.Should().Be(testAggregate.Id);
+        retrievedAggregate.Id.Should().Be(testAggregate.Id);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public sealed class RepositoryTests : IDisposable
 
         // Assert
         retrievedAggregate.Should().NotBeNull();
-        retrievedAggregate!.Id.Should().Be(testAggregate.Id);
+        retrievedAggregate.Id.Should().Be(testAggregate.Id);
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public sealed class RepositoryTests : IDisposable
         // Assert
         var updatedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregate.Id, CancellationToken.None);
         updatedAggregate.Should().NotBeNull();
-        updatedAggregate!.Name.Should().NotBe(initialName);
+        updatedAggregate.Name.Should().NotBe(initialName);
         updatedAggregate.Name.Should().Be("UpdatedName");
     }
 
@@ -108,7 +108,7 @@ public sealed class RepositoryTests : IDisposable
         // Assert
         var updatedAggregate = await _testAggregateRepository.GetByIdAsync(testAggregateUpdate.Id, CancellationToken.None);
         updatedAggregate.Should().NotBeNull();
-        updatedAggregate!.Name.Should().NotBe(initialName);
+        updatedAggregate.Name.Should().NotBe(initialName);
         updatedAggregate.Name.Should().Be("UpdatedName");
     }
 

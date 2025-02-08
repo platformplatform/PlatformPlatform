@@ -30,7 +30,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         response.EnsureSuccessStatusCode();
         var responseBody = await response.DeserializeResponse<StartSignupResponse>();
         responseBody.Should().NotBeNull();
-        responseBody!.EmailConfirmationId.ToString().Should().NotBeNullOrEmpty();
+        responseBody.EmailConfirmationId.ToString().Should().NotBeNullOrEmpty();
         responseBody.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
