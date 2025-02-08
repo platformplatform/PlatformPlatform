@@ -319,6 +319,9 @@ msgstr "Dette er den region, hvor dine data er lagret"
 msgid "Title"
 msgstr "Titel"
 
+msgid "Toggle collapsed menu"
+msgstr "Skift kollapset menu"
+
 msgid "Toggle theme"
 msgstr "Skift tema"
 

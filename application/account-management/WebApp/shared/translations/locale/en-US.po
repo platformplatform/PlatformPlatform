@@ -319,6 +319,9 @@ msgstr "This is the region where your data is stored"
 msgid "Title"
 msgstr "Title"
 
+msgid "Toggle collapsed menu"
+msgstr "Toggle collapsed menu"
+
 msgid "Toggle theme"
 msgstr "Toggle theme"
 

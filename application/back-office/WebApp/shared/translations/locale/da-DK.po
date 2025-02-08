@@ -28,6 +28,9 @@ msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige 
 msgid "Select language"
 msgstr "Vælg sprog"
 
+msgid "Toggle collapsed menu"
+msgstr "Skift kollapset menu"
+
 msgid "Toggle theme"
 msgstr "Skift tema"
 

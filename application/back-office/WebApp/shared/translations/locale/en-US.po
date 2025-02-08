@@ -28,6 +28,9 @@ msgstr "Manage tenants, view system data, see exceptions, and perform various ta
 msgid "Select language"
 msgstr "Select language"
 
+msgid "Toggle collapsed menu"
+msgstr "Toggle collapsed menu"
+
 msgid "Toggle theme"
 msgstr "Toggle theme"
 

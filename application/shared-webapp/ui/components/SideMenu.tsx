@@ -1,3 +1,4 @@
+import type React from "react";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
 import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
@@ -119,9 +120,10 @@ const logoMarkStyles = tv({
 
 type SideMenuProps = {
   children: React.ReactNode;
+  ariaLabel: string;
 };
 
-export function SideMenu({ children }: Readonly<SideMenuProps>) {
+export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
   const [isCollapsed, setIsCollapsed] = useLocalStorage<boolean>(
     !window.matchMedia("(min-width: 1024px)").matches,
     "side-menu-collapsed"
@@ -141,6 +143,7 @@ export function SideMenu({ children }: Readonly<SideMenuProps>) {
               size="sm"
               onPress={toggleCollapse}
               className="absolute top-3.5 right-0 hover:bg-transparent hover:text-muted-foreground border-r-2 border-border rounded-r-none"
+              aria-label={ariaLabel}
             >
               <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
             </Button>

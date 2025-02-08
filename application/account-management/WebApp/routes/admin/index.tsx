@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div className="flex gap-4 w-full h-full">
-      <SharedSideMenu />
+      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <div className="flex flex-col gap-4 py-3 px-4 w-full">
         <TopMenu />
         <div className="flex h-20 w-full items-center justify-between space-x-2 sm:mt-4 mb-4">
