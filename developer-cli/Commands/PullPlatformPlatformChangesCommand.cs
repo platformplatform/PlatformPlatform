@@ -273,7 +273,7 @@ public class PullPlatformPlatformChangesCommand : Command
         var pullRequestNumber = GetPullRequestNumber(commit, pattern);
         var updatedMessage = $"PlatformPlatform PR {pullRequestNumber} - {fullCommitMessage
             .Replace($" (#{pullRequestNumber})", "")
-            .Replace("\"", "\"\"").TrimEnd()}";
+            .Replace("\"", "\\\"").TrimEnd()}";
         ProcessHelper.StartProcess($"""git commit -m "{updatedMessage}" """, Configuration.SourceCodeFolder);
 
         if (fullCommitMessage.Contains("Downstream") && !AnsiConsole.Confirm($"{fullCommitMessage.EscapeMarkup()}{Environment.NewLine}[red]Before we continue, please follow the instructions described for Downstream Projects, and press enter to continue?[/]"))
@@ -475,7 +475,12 @@ public class PullPlatformPlatformChangesCommand : Command
         AnsiConsole.MarkupLine(pullRequestDescription);
         AnsiConsole.Confirm("Copy the above text as a description and use it for the pull request description. Continue?");
 
-        ProcessHelper.StartProcess($"git push {DefaultRemote} {PullRequestBranchName}", Configuration.SourceCodeFolder, true);
+        var pushResult = ProcessHelper.StartProcess($"git push {DefaultRemote} {PullRequestBranchName}", Configuration.SourceCodeFolder, true, exitOnError: false);
+        if (pushResult.Contains("error: "))
+        {
+            AnsiConsole.MarkupLine("[red]An error occured when pushing commits. Is your local branch out of sync with origin?[/]");
+            Environment.Exit(0);
+        }
 
         var githubUri = GithubHelper.GetGithubUri(DefaultRemote);
         var githubInfo = GithubHelper.GetGithubInfo(githubUri);

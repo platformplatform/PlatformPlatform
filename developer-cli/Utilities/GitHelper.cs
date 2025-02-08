@@ -8,7 +8,7 @@ public static class GitHelper
     public static Commit[] ToCommits(this string consoleOutput)
     {
         return consoleOutput
-            .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+            .Split("\n", StringSplitOptions.RemoveEmptyEntries)
             .Select(s => s.Split(' ', 3))
             .Select(s => new Commit(s[0], s[1], s[2]))
             .ToArray();
