@@ -90,9 +90,6 @@ msgstr "Maak je account aan"
 msgid "Created"
 msgstr "Aangemaakt"
 
-msgid "Creation date"
-msgstr "Aanmaakdatum"
-
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
@@ -189,9 +186,6 @@ msgstr "Uitgenodigde gebruikers"
 msgid "Last name"
 msgstr "Achternaam"
 
-msgid "Last Seen"
-msgstr "Laatst gezien"
-
 msgid "Log in"
 msgstr "Inloggen"
 
@@ -212,6 +206,12 @@ msgstr "Lid"
 
 msgid "Menu"
 msgstr "Menu"
+
+msgid "Modified"
+msgstr "Gewijzigd"
+
+msgid "Modified date"
+msgstr "Gewijzigde datum"
 
 msgid "Name"
 msgstr "Naam"
@@ -346,8 +346,17 @@ msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 msgid "Verify"
 msgstr "Verifiëren"
 
+msgid "View active users"
+msgstr "Actieve gebruikers bekijken"
+
+msgid "View invited users"
+msgstr "Uitgenodigde gebruikers bekijken"
+
 msgid "View Profile"
 msgstr "Profiel bekijken"
+
+msgid "View users"
+msgstr "Gebruikers bekijken"
 
 msgid "Welcome home"
 msgstr "Welkom home"
