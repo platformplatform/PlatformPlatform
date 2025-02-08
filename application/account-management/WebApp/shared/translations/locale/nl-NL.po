@@ -34,11 +34,11 @@ msgstr "Actieve gebruikers"
 msgid "Active users in the past 30 days"
 msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
-msgid "Add avatar"
-msgstr "Avatar toevoegen"
-
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het gebruikersmenu"
+
+msgid "Add profile picture"
+msgstr "Profielfoto toevoegen"
 
 msgid "Admin"
 msgstr "Beheerder"
@@ -69,8 +69,8 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
-msgid "Change avatar"
-msgstr "Avatar wijzigen"
+msgid "Change profile picture"
+msgstr "Profielfoto wijzigen"
 
 msgid "Change Role"
 msgstr "Rol wijzigen"
@@ -234,9 +234,6 @@ msgstr "Eigenaar"
 msgid "Pending"
 msgstr "In behandeling"
 
-msgid "Photo"
-msgstr "Foto"
-
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
@@ -255,11 +252,14 @@ msgstr "Vorige"
 msgid "Privacy Policies"
 msgstr "Privacybeleid"
 
+msgid "Profile picture"
+msgstr "Profielfoto"
+
 msgid "Region"
 msgstr "Regio"
 
-msgid "Remove photo"
-msgstr "Foto verwijderen"
+msgid "Remove profile picture"
+msgstr "Profielfoto verwijderen"
 
 msgid "Role"
 msgstr "Rol"
@@ -328,11 +328,11 @@ msgstr "Totale gebruikers"
 msgid "Try again"
 msgstr "Probeer opnieuw"
 
-msgid "Update your photo and personal details here."
-msgstr "Werk je foto en persoonlijke gegevens hier bij."
+msgid "Update your profile picture and personal details here."
+msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 
-msgid "Upload photo"
-msgstr "Foto uploaden"
+msgid "Upload profile picture"
+msgstr "Profielfoto uploaden"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"

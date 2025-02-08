@@ -153,7 +153,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
               <Trans>User profile</Trans>
             </Heading>
             <p className="text-muted-foreground text-sm">
-              <Trans>Update your photo and personal details here.</Trans>
+              <Trans>Update your profile picture and personal details here.</Trans>
             </p>
 
             <Form
@@ -173,14 +173,14 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
               />
 
               <Label>
-                <Trans>Photo</Trans>
+                <Trans>Profile picture</Trans>
               </Label>
 
               <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
                 <Button
                   variant="icon"
                   className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80"
-                  aria-label={t`Change avatar`}
+                  aria-label={t`Change profile picture`}
                 >
                   {data.avatarUrl || avatarPreviewUrl ? (
                     <img
@@ -189,7 +189,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                       alt={t`Preview avatar`}
                     />
                   ) : (
-                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add avatar`} />
+                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
                   )}
                 </Button>
                 <Menu>
@@ -199,7 +199,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                     }}
                   >
                     <CameraIcon className="w-4 h-4" />
-                    <Trans>Upload photo</Trans>
+                    <Trans>Upload profile picture</Trans>
                   </MenuItem>
                   {(data.avatarUrl || avatarPreviewUrl) && (
                     <>
@@ -215,7 +215,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                       >
                         <Trash2Icon className="w-4 h-4 text-destructive" />
                         <span className="text-destructive">
-                          <Trans>Remove photo</Trans>
+                          <Trans>Remove profile picture</Trans>
                         </span>
                       </MenuItem>
                     </>

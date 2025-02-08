@@ -34,11 +34,11 @@ msgstr "Active Users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
-msgid "Add avatar"
-msgstr "Add avatar"
-
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
+
+msgid "Add profile picture"
+msgstr "Add profile picture"
 
 msgid "Admin"
 msgstr "Admin"
@@ -69,8 +69,8 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
-msgid "Change avatar"
-msgstr "Change avatar"
+msgid "Change profile picture"
+msgstr "Change profile picture"
 
 msgid "Change Role"
 msgstr "Change Role"
@@ -234,9 +234,6 @@ msgstr "Owner"
 msgid "Pending"
 msgstr "Pending"
 
-msgid "Photo"
-msgstr "Photo"
-
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
@@ -255,11 +252,14 @@ msgstr "Previous"
 msgid "Privacy Policies"
 msgstr "Privacy Policies"
 
+msgid "Profile picture"
+msgstr "Profile picture"
+
 msgid "Region"
 msgstr "Region"
 
-msgid "Remove photo"
-msgstr "Remove photo"
+msgid "Remove profile picture"
+msgstr "Remove profile picture"
 
 msgid "Role"
 msgstr "Role"
@@ -328,11 +328,11 @@ msgstr "Total Users"
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Update your photo and personal details here."
-msgstr "Update your photo and personal details here."
+msgid "Update your profile picture and personal details here."
+msgstr "Update your profile picture and personal details here."
 
-msgid "Upload photo"
-msgstr "Upload photo"
+msgid "Upload profile picture"
+msgstr "Upload profile picture"
 
 msgid "User profile"
 msgstr "User profile"
