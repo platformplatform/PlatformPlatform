@@ -69,8 +69,8 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
-msgid "Change avatar options"
-msgstr "Opties voor avatar wijzigen"
+msgid "Change avatar"
+msgstr "Avatar wijzigen"
 
 msgid "Change Role"
 msgstr "Rol wijzigen"
@@ -114,14 +114,14 @@ msgstr "Domein"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Heb je geen account? <0>Maak er één aan</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "Bijv. Marketing Manager"
+msgid "E.g., Alex"
+msgstr "Bijv., Alex"
 
-msgid "E.g., Olivia"
-msgstr "Bijv. Olivia"
+msgid "E.g., Software Engineer"
+msgstr "Bijv., Software Engineer"
 
-msgid "E.g., Rhye"
-msgstr "Bijv. Rhye"
+msgid "E.g., Taylor"
+msgstr "Bijv., Taylor"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"

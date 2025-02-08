@@ -138,7 +138,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!loading}>
-      <Dialog>
+      <Dialog aria-label={t`User profile`}>
         {!data && (
           <Heading slot="title">
             {loading && <Trans>Fetching data...</Trans>}
@@ -180,7 +180,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                 <Button
                   variant="icon"
                   className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80"
-                  aria-label={t`Change avatar options`}
+                  aria-label={t`Change avatar`}
                 >
                   {data.avatarUrl || avatarPreviewUrl ? (
                     <img
@@ -230,7 +230,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                   name="firstName"
                   label={t`First name`}
                   defaultValue={data.firstName}
-                  placeholder={t`E.g., Olivia`}
+                  placeholder={t`E.g., Alex`}
                   className="sm:w-64"
                 />
                 <TextField
@@ -238,7 +238,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                   name="lastName"
                   label={t`Last name`}
                   defaultValue={data.lastName}
-                  placeholder={t`E.g., Rhye`}
+                  placeholder={t`E.g., Taylor`}
                   className="sm:w-64"
                 />
               </div>
@@ -247,7 +247,7 @@ export default function UserProfileModal({ isOpen, onOpenChange, userId }: Reado
                 name="title"
                 label={t`Title`}
                 defaultValue={data?.title}
-                placeholder={t`E.g., Marketing Manager`}
+                placeholder={t`E.g., Software Engineer`}
               />
 
               <FormErrorMessage title={title} message={message} />

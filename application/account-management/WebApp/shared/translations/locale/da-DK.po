@@ -69,8 +69,8 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
-msgid "Change avatar options"
-msgstr "Skift avatarindstillinger"
+msgid "Change avatar"
+msgstr "Skift avatar"
 
 msgid "Change Role"
 msgstr "Skift rolle"
@@ -114,14 +114,14 @@ msgstr "Domæne"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "F.eks. Marketingchef"
+msgid "E.g., Alex"
+msgstr "F.eks. Alex"
 
-msgid "E.g., Olivia"
-msgstr "F.eks. Olivia"
+msgid "E.g., Software Engineer"
+msgstr "F.eks., Softwareingeniør"
 
-msgid "E.g., Rhye"
-msgstr "F.eks. Rhye"
+msgid "E.g., Taylor"
+msgstr "F.eks. Taylor"
 
 msgid "Edit profile"
 msgstr "Rediger profil"

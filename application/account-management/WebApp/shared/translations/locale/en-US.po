@@ -69,8 +69,8 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
-msgid "Change avatar options"
-msgstr "Change avatar options"
+msgid "Change avatar"
+msgstr "Change avatar"
 
 msgid "Change Role"
 msgstr "Change Role"
@@ -114,14 +114,14 @@ msgstr "Domain"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., Marketing Manager"
-msgstr "E.g., Marketing Manager"
+msgid "E.g., Alex"
+msgstr "E.g., Alex"
 
-msgid "E.g., Olivia"
-msgstr "E.g., Olivia"
+msgid "E.g., Software Engineer"
+msgstr "E.g., Software Engineer"
 
-msgid "E.g., Rhye"
-msgstr "E.g., Rhye"
+msgid "E.g., Taylor"
+msgstr "E.g., Taylor"
 
 msgid "Edit profile"
 msgstr "Edit profile"
