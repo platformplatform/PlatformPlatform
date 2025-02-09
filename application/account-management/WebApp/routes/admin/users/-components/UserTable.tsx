@@ -9,7 +9,14 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { api, type components, SortableUserProperties, SortOrder, UserRole, useApi } from "@/shared/lib/api/client";
+import {
+  apiClient,
+  type components,
+  SortableUserProperties,
+  SortOrder,
+  UserRole,
+  newApi as api
+} from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -34,7 +41,7 @@ export function UserTable() {
 
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data } = useApi("/api/account-management/users", {
+  const { data } = api.useQuery("get", "/api/account-management/users", {
     params: {
       query: {
         Search: search,
@@ -85,7 +92,7 @@ export function UserTable() {
   const handleDelete = useCallback(async () => {
     if (!userToDelete) return;
 
-    await api.delete("/api/account-management/users/{id}", { params: { path: { id: userToDelete.id } } });
+    await apiClient.DELETE("/api/account-management/users/{id}", { params: { path: { id: userToDelete.id } } });
 
     setRefreshKey((prev) => prev + 1);
     setUserToDelete(null);
@@ -95,7 +102,7 @@ export function UserTable() {
     async (newUserRole: UserRole) => {
       if (!userToChangeRole) return;
 
-      await api.put("/api/account-management/users/{id}/change-user-role", {
+      await apiClient.PUT("/api/account-management/users/{id}/change-user-role", {
         params: { path: { id: userToChangeRole.id } },
         body: { userRole: newUserRole }
       });
