@@ -141,6 +141,9 @@ msgstr "Fout: Verificatiecode is verlopen"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Failed to save changes"
+msgstr "Het opslaan van wijzigingen is mislukt"
+
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
@@ -321,6 +324,9 @@ msgstr "Totale gebruikers"
 
 msgid "Try again"
 msgstr "Probeer opnieuw"
+
+msgid "Unknown error"
+msgstr "Onbekende fout"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."

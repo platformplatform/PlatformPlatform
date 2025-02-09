@@ -141,6 +141,9 @@ msgstr "Fejl: Bekræftelseskoden er udløbet"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Failed to save changes"
+msgstr "Kunne ikke gemme ændringer"
+
 msgid "Fetching data..."
 msgstr "Henter data..."
 
@@ -321,6 +324,9 @@ msgstr "Totalt antal brugere"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Unknown error"
+msgstr "Ukendt fejl"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
