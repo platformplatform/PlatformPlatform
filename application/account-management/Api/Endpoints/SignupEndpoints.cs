@@ -12,7 +12,7 @@ public sealed class SignupEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization().ProducesValidationProblem();
 
         group.MapPost("/start", async Task<ApiResult<StartSignupResponse>> (StartSignupCommand command, IMediator mediator)
             => await mediator.Send(command)

@@ -12,7 +12,7 @@ public sealed class TenantEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants").RequireAuthorization();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants").RequireAuthorization().ProducesValidationProblem();
 
         group.MapGet("/current", async Task<ApiResult<TenantResponse>> (IMediator mediator)
             => await mediator.Send(new GetTenantQuery())
