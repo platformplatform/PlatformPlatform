@@ -73,7 +73,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         // Assert
         result.IsSuccess.Should().BeFalse(scenario);
         result.Errors?.Length.Should().Be(1, scenario);
-        result.Errors![0].Code.Should().Be("Subdomain");
+        result.Errors![0].PropertyName.Should().Be("Subdomain");
         result.Errors![0].Message.Should().Be("Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.");
     }
 
