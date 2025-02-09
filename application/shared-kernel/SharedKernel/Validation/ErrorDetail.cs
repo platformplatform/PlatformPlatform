@@ -1,3 +1,3 @@
 namespace PlatformPlatform.SharedKernel.Validation;
 
-public sealed record ErrorDetail(string? Code, string Message);
+public sealed record ErrorDetail(string PropertyName, string Message);
