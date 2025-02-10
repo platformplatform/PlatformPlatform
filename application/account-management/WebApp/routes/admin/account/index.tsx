@@ -6,8 +6,9 @@ import { Trash2 } from "lucide-react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
 import { Form } from "@repo/ui/components/Form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
@@ -21,26 +22,21 @@ export const Route = createFileRoute("/admin/account/")({
 
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const {
-    data: tenant,
-    isLoading: loading,
-    refetch: refresh
-  } = api.useQuery("get", "/api/account-management/tenants/current");
+  const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
 
-  const { mutate, isSuccess, error } = api.useMutation("put", "/api/account-management/tenants/current");
+  const saveMutation = api.useMutation("put", "/api/account-management/tenants/current");
 
-  const handleSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    mutate({ body: Object.fromEntries(formData) as any });
-  };
-
-  useEffect(() => {
-    if (isSuccess) {
-      refresh();
+  const form = useForm({
+    defaultValues: {
+      name: tenant?.name || "",
+      subdomain: tenant?.id
+    },
+    onSubmit: async ({ value }) => {
+      await saveMutation.mutateAsync({ body: value });
     }
-  }, [isSuccess, refresh]);
+  });
 
-  if (loading) return null;
+  if (isLoading) return null;
 
   return (
     <>
@@ -67,8 +63,12 @@ export function AccountSettings() {
           </div>
 
           <Form
-            action={handleSubmit}
-            validationErrors={error?.errors}
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
+            }}
+            validationErrors={saveMutation.error?.errors}
             validationBehavior="aria"
             className="flex flex-col gap-4"
           >
@@ -78,13 +78,21 @@ export function AccountSettings() {
             <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
             <div className="w-full md:max-w-md">
-              <TextField
-                autoFocus
-                isRequired
+              <form.Field
                 name="name"
-                defaultValue={tenant?.name ?? ""}
-                label={t`Account name`}
-                validationBehavior="aria"
+                // biome-ignore lint/correctness/noChildrenProp: <explanation>
+                children={(field) => (
+                  <TextField
+                    isRequired
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={field.handleChange}
+                    label={t`Account name`}
+                    validationBehavior="aria"
+                    isDisabled={field.form.state.isSubmitting}
+                  />
+                )}
               />
             </div>
 
@@ -96,10 +104,16 @@ export function AccountSettings() {
                 isDisabled={true}
               />
             </div>
-            <GeneralFormErrorMessage error={error} />
-            <Button type="submit" className="mt-4">
-              <Trans>Save changes</Trans>
-            </Button>
+            <GeneralFormErrorMessage error={saveMutation.error} />
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              // biome-ignore lint/correctness/noChildrenProp: <explanation>
+              children={([canSubmit, isSubmitting]) => (
+                <Button type="submit" className="mt-4" isDisabled={!canSubmit}>
+                  {isSubmitting ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+                </Button>
+              )}
+            />
           </Form>
 
           <div className="flex flex-col gap-4 mt-6">
