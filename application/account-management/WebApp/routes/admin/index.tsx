@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useApi, UserStatus } from "@/shared/lib/api/client";
+import { api, UserStatus } from "@/shared/lib/api/client";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 export default function Home() {
-  const { data } = useApi("/api/account-management/users/summary", {});
+  const { data } = api.useQuery("get", "/api/account-management/users/summary");
 
   return (
     <div className="flex gap-4 w-full h-full">

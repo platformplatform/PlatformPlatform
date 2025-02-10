@@ -13,11 +13,11 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState, setSignupState } from "./-shared/signupState";
 import { api } from "@/shared/lib/api/client";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
-import { useActionState, useEffect } from "react";
+import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {
@@ -44,32 +44,34 @@ export function CompleteSignupForm() {
   const { email, signupId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const [{ success, title, message, errors }, action] = useActionState(
-    api.actionPost("/api/account-management/signups/{id}/complete"),
-    {
-      success: null
-    }
-  );
+  const completeMutation = api.useMutation("post", "/api/account-management/signups/{id}/complete");
 
-  const [{ success: resendSuccess, data: resendData }, resendAction] = useActionState(
-    api.actionPost("/api/account-management/signups/{id}/resend-code"),
-    { success: null }
-  );
+  const resendCodeMutation = api.useMutation("post", "/api/account-management/signups/{id}/resend-code");
+
+  const handleCompleteSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    completeMutation.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: signupId } } });
+  };
+
+  const handleResendSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    resendCodeMutation.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: signupId } } });
+  };
 
   useEffect(() => {
-    if (resendSuccess && resendData) {
+    if (resendCodeMutation.isSuccess && resendCodeMutation.data) {
       setSignupState({
         ...getSignupState(),
-        expireAt: new Date(Date.now() + resendData.validForSeconds * 1000)
+        expireAt: new Date(Date.now() + resendCodeMutation.data.validForSeconds * 1000)
       });
     }
-  }, [resendSuccess, resendData]);
+  }, [resendCodeMutation.isSuccess, resendCodeMutation.data]);
 
   useEffect(() => {
-    if (success) {
+    if (completeMutation.isSuccess) {
       window.location.href = signedUpPath;
     }
-  }, [success]);
+  }, [completeMutation.isSuccess]);
 
   useEffect(() => {
     if (isExpired) {
@@ -79,7 +81,7 @@ export function CompleteSignupForm() {
 
   return (
     <div className="w-full max-w-sm space-y-3">
-      <Form action={action} validationErrors={errors} validationBehavior="aria">
+      <Form action={handleCompleteSubmit} validationErrors={completeMutation.error?.errors} validationBehavior="aria">
         <input type="hidden" name="id" value={signupId} />
         <input type="hidden" name="preferredLocale" value={localStorage.getItem(preferredLocaleKey) ?? ""} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
@@ -105,7 +107,7 @@ export function CompleteSignupForm() {
               ariaLabel={t`Signup verification code`}
             />
           </div>
-          <FormErrorMessage title={title} message={message} />
+          <GeneralFormErrorMessage error={completeMutation.error} />
           <Button type="submit" className="mt-4 w-full text-center">
             <Trans>Verify</Trans>
           </Button>
@@ -114,7 +116,7 @@ export function CompleteSignupForm() {
 
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
-          <Form action={resendAction} className="inline">
+          <Form action={handleResendSubmit} className="inline">
             <input type="hidden" name="id" value={signupId} />
             <Button type="submit" variant="link" className="text-xs p-0 h-auto">
               <Trans>Didn't receive the code? Resend</Trans>

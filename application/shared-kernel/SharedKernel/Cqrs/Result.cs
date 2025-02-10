@@ -32,7 +32,7 @@ public abstract class ResultBase
 
     public string GetErrorSummary()
     {
-        return ErrorMessage?.Message ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.Code}: {ed.Message}"));
+        return ErrorMessage?.Message ?? string.Join(Environment.NewLine, Errors!.Select(ed => $"{ed.PropertyName}: {ed.Message}"));
     }
 }
 

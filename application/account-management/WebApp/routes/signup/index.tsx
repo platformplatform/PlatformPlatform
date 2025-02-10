@@ -13,12 +13,13 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
-import { useActionState, useState } from "react";
-import { api, useApi } from "@/shared/lib/api/client";
+import { useState } from "react";
+import { api } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { useDebounce } from "@repo/ui/hooks/useDebounce";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -44,23 +45,26 @@ export const Route = createFileRoute("/signup/")({
 export function StartSignupForm() {
   const [email, setEmail] = useState("");
 
-  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
-    api.actionPost("/api/account-management/signups/start"),
-    { success: null }
-  );
+  const {
+    mutate,
+    data,
+    isSuccess: success,
+    error,
+    isPending
+  } = api.useMutation("post", "/api/account-management/signups/start");
+
+  const handleSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    mutate({ body: Object.fromEntries(formData) as any });
+  };
 
   const [subdomain, setSubdomain] = useState("");
-  const { data: isSubdomainFree } = useApi(
+  const debouncedSubdomain = useDebounce(subdomain, 500);
+  const { data: isSubdomainFree } = api.useQuery(
+    "get",
     "/api/account-management/signups/is-subdomain-free",
-    {
-      params: {
-        query: { Subdomain: subdomain }
-      }
-    },
-    {
-      autoFetch: subdomain.length > 3,
-      debounceMs: 500
-    }
+    { params: { query: { Subdomain: debouncedSubdomain } } },
+    { enabled: debouncedSubdomain.length >= 3 }
   );
 
   if (success === true) {
@@ -77,8 +81,8 @@ export function StartSignupForm() {
 
   return (
     <Form
-      action={action}
-      validationErrors={errors}
+      action={handleSubmit}
+      validationErrors={error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
@@ -126,7 +130,7 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <FormErrorMessage title={title} message={message} />
+      <GeneralFormErrorMessage error={error} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>

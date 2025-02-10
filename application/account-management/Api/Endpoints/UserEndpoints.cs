@@ -12,7 +12,7 @@ public sealed class UserEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
         group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
             => await mediator.Send(query)

@@ -13,10 +13,10 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getLoginState, setLoginState } from "./-shared/loginState";
 import { api } from "@/shared/lib/api/client";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useActionState, useEffect } from "react";
+import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 
 export const Route = createFileRoute("/login/verify")({
   validateSearch: (search) => {
@@ -51,32 +51,34 @@ export function CompleteLoginForm() {
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const { returnPath } = Route.useSearch();
 
-  const [{ success, title, message, errors }, action] = useActionState(
-    api.actionPost("/api/account-management/authentication/login/{id}/complete"),
-    {
-      success: null
-    }
-  );
+  const complete = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
-  const [{ success: resendSuccess, data: resendData }, resendAction] = useActionState(
-    api.actionPost("/api/account-management/authentication/login/{id}/resend"),
-    { success: null }
-  );
+  const resend = api.useMutation("post", "/api/account-management/authentication/login/{id}/resend");
+
+  const handleCompleteSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    complete.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: loginId } } });
+  };
+
+  const handleResendSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    resend.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: loginId } } });
+  };
 
   useEffect(() => {
-    if (resendSuccess && resendData) {
+    if (resend.isSuccess && resend.data) {
       setLoginState({
         ...getLoginState(),
-        expireAt: new Date(Date.now() + resendData.validForSeconds * 1000)
+        expireAt: new Date(Date.now() + resend.data.validForSeconds * 1000)
       });
     }
-  }, [resendSuccess, resendData]);
+  }, [resend.isSuccess, resend.data]);
 
   useEffect(() => {
-    if (success) {
+    if (complete.isSuccess) {
       window.location.href = returnPath || loggedInPath;
     }
-  }, [success, returnPath]);
+  }, [complete.isSuccess, returnPath]);
 
   useEffect(() => {
     if (isExpired) {
@@ -86,7 +88,7 @@ export function CompleteLoginForm() {
 
   return (
     <div className="w-full max-w-sm space-y-3">
-      <Form action={action} validationErrors={errors} validationBehavior="aria">
+      <Form action={handleCompleteSubmit} validationErrors={complete.error?.errors} validationBehavior="aria">
         <input type="hidden" name="id" value={loginId} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
@@ -111,7 +113,7 @@ export function CompleteLoginForm() {
               ariaLabel={t`Login verification code`}
             />
           </div>
-          <FormErrorMessage title={title} message={message} />
+          <GeneralFormErrorMessage error={complete.error} />
           <Button type="submit" className="mt-4 w-full text-center">
             <Trans>Verify</Trans>
           </Button>
@@ -120,7 +122,7 @@ export function CompleteLoginForm() {
 
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
-          <Form action={resendAction} className="inline">
+          <Form action={handleResendSubmit} className="inline">
             <input type="hidden" name="id" value={loginId} />
             <Button type="submit" variant="link" className="text-xs p-0 h-auto">
               <Trans>Didn't receive the code? Resend</Trans>

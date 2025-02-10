@@ -12,7 +12,7 @@ public sealed class SignupEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization().ProducesValidationProblem();
 
         group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, IMediator mediator)
             => await mediator.Send(query)

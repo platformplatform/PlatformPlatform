@@ -10,10 +10,10 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
@@ -49,12 +49,17 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const { returnPath } = Route.useSearch();
 
-  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
-    api.actionPost("/api/account-management/authentication/login/start"),
-    { success: null }
+  const { mutate, data, isSuccess, error, isPending } = api.useMutation(
+    "post",
+    "/api/account-management/authentication/login/start"
   );
 
-  if (success === true) {
+  const handleSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    mutate({ body: Object.fromEntries(formData) as any });
+  };
+
+  if (isSuccess) {
     const { loginId, validForSeconds } = data;
 
     setLoginState({
@@ -68,8 +73,8 @@ export function LoginForm() {
 
   return (
     <Form
-      action={action}
-      validationErrors={errors}
+      action={handleSubmit}
+      validationErrors={error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
@@ -94,7 +99,7 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <FormErrorMessage title={title} message={message} />
+      <GeneralFormErrorMessage error={error} />
       <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>

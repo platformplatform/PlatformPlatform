@@ -42,9 +42,22 @@ public class ApiResult(ResultBase result, string? routePrefix = null, IDictionar
             statusCode: (int)result.StatusCode,
             detail: result.ErrorMessage?.Message,
             extensions: result.Errors?.Length > 0
-                ? new Dictionary<string, object?> { { nameof(result.Errors), result.Errors } }
+                ? new Dictionary<string, object?>
+                {
+                    {
+                        "errors",
+                        result.Errors.ToDictionary(e => ToCamelCase(e.PropertyName), e => new[] { e.Message })
+                    }
+                }
                 : null
         );
+    }
+
+    private static string ToCamelCase(string propertyName)
+    {
+        if (propertyName.Length == 0) return propertyName;
+
+        return propertyName[0].ToString().ToLowerInvariant() + propertyName.Substring(1);
     }
 
     public static string GetHttpStatusDisplayName(HttpStatusCode statusCode)
