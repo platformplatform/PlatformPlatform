@@ -22,7 +22,7 @@ public sealed class GetCurrentUserTests : EndpointBaseTest<AccountManagementDbCo
             {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'long'},
+                    'id': {'type': 'string', 'pattern': '^usr_[A-Z0-9]{26}$'},
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'email': {'type': 'string', 'maxLength': 100},

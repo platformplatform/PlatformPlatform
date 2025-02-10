@@ -149,38 +149,6 @@
         }
       }
     },
-    "/api/account-management/signups/is-subdomain-free": {
-      "get": {
-        "tags": [
-          "Signups"
-        ],
-        "operationId": "GetApiAccountManagementSignupsIsSubdomainFree",
-        "parameters": [
-          {
-            "name": "Subdomain",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account-management/signups/start": {
       "post": {
         "tags": [
@@ -747,14 +715,26 @@
       "TenantId": {
         "type": "string"
       },
-      "StronglyTypedIdOfStringAndTenantId": {
+      "StronglyTypedLongIdOfTenantId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfLongAndTenantId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfLongAndTenantId": {
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false,
         "properties": {
           "value": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -802,9 +782,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "subdomain": {
-            "type": "string"
-          },
           "email": {
             "type": "string"
           }

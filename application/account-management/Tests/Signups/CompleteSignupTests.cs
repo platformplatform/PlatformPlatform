@@ -8,6 +8,7 @@ using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Signups.Commands;
 using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.EventHandlers;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -29,9 +30,8 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenValid_ShouldCreateTenantAndOwnerUser()
     {
         // Arrange
-        var subdomain = Faker.Subdomain();
         var email = Faker.Internet.Email();
-        var signupId = await StartSignup(subdomain, email);
+        var signupId = await StartSignup(email);
 
         var command = new CompleteSignupCommand(CorrectOneTimePassword);
 
@@ -41,7 +41,6 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.RowExists("Tenants", subdomain).Should().BeTrue();
         Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email = email.ToLower() }).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
@@ -74,7 +73,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
     {
         // Arrange
-        var signupId = await StartSignup(Faker.Subdomain(), Faker.Internet.Email());
+        var signupId = await StartSignup(Faker.Internet.Email());
 
         var command = new CompleteSignupCommand(WrongOneTimePassword);
 
@@ -95,8 +94,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupAlreadyCompleted_ShouldReturnBadRequest()
     {
         // Arrange
-        var subdomain = Faker.Subdomain();
-        var signupId = await StartSignup(subdomain, Faker.Internet.Email());
+        var signupId = await StartSignup(Faker.Internet.Email());
 
         var command = new CompleteSignupCommand(CorrectOneTimePassword);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
@@ -106,14 +104,14 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
             .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The signup with id {signupId} for tenant {subdomain} has already been completed.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The signup with id {signupId} has already been completed.");
     }
 
     [Fact]
     public async Task CompleteSignup_WhenRetryCountExceeded_ShouldReturnForbidden()
     {
         // Arrange
-        var signupId = await StartSignup(Faker.Subdomain(), Faker.Internet.Email());
+        var signupId = await StartSignup(Faker.Internet.Email());
 
         var command = new CompleteSignupCommand(WrongOneTimePassword);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
@@ -140,15 +138,14 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupExpired_ShouldReturnBadRequest()
     {
         // Arrange
-        var subdomain = Faker.Subdomain();
         var email = Faker.Internet.Email();
 
         var signupId = SignupId.NewId().ToString();
         Connection.Insert("Signups", [
+                ("TenantId", TenantId.NewId().Value),
                 ("Id", signupId),
                 ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
                 ("ModifiedAt", null),
-                ("TenantId", subdomain),
                 ("Email", email),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
                 ("ValidUntil", DateTime.UtcNow.AddMinutes(-5)),
@@ -171,9 +168,9 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
-    private async Task<string> StartSignup(string subdomain, string email)
+    private async Task<string> StartSignup(string email)
     {
-        var command = new StartSignupCommand(subdomain, email);
+        var command = new StartSignupCommand(email);
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
         var responseBody = await response.DeserializeResponse<StartSignupResponse>();
         return responseBody!.SignupId;

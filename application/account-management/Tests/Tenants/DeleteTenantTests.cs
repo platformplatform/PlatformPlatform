@@ -17,7 +17,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
     public async Task DeleteTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
     {
         // Arrange
-        var unknownTenantId = Faker.Subdomain();
+        var unknownTenantId = TenantId.NewId();
 
         // Act
         var response = await AuthenticatedHttpClient.DeleteAsync($"/internal-api/account-management/tenants/{unknownTenantId}");

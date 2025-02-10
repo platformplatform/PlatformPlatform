@@ -11,7 +11,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
-        builder.MapStronglyTypedId<User, TenantId, string>(u => u.TenantId);
+        builder.MapStronglyTypedLongId<User, TenantId>(u => u.TenantId);
         builder
             .OwnsOne(e => e.Avatar, b => b.ToJson())
             .HasOne<Tenant>()
