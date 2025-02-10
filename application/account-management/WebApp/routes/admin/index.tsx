@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useApi, UserStatus } from "@/shared/lib/api/client";
+import { newApi as api, UserStatus } from "@/shared/lib/api/client";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 export default function Home() {
-  const { data } = useApi("/api/account-management/users/summary", {});
+  const { data: usersSummary } = api.useQuery("get", "/api/account-management/users/summary");
 
   return (
     <div className="flex gap-4 w-full h-full">
@@ -40,7 +40,7 @@ export default function Home() {
               <Trans>Add more in the Users menu</Trans>
             </div>
             <div className="py-2 text-foreground text-2xl font-semibold">
-              {data?.totalUsers ? <p>{data.totalUsers}</p> : <p>-</p>}
+              {usersSummary?.totalUsers ? <p>{usersSummary.totalUsers}</p> : <p>-</p>}
             </div>
           </Link>
           <Link
@@ -60,7 +60,7 @@ export default function Home() {
               <Trans>Active users in the past 30 days</Trans>
             </div>
             <div className="py-2 text-foreground text-2xl font-semibold">
-              {data?.activeUsers ? <p>{data.activeUsers}</p> : <p>-</p>}
+              {usersSummary?.activeUsers ? <p>{usersSummary.activeUsers}</p> : <p>-</p>}
             </div>
           </Link>
           <Link
@@ -76,7 +76,7 @@ export default function Home() {
               <Trans>Users who haven't confirmed their email</Trans>
             </div>
             <div className="py-2 text-foreground text-2xl font-semibold">
-              {data?.pendingUsers ? <p>{data.pendingUsers}</p> : <p>-</p>}
+              {usersSummary?.pendingUsers ? <p>{usersSummary.pendingUsers}</p> : <p>-</p>}
             </div>
           </Link>
         </div>

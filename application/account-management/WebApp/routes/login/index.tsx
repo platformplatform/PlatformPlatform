@@ -13,7 +13,7 @@ import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
 import { newApi as api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 
@@ -44,14 +44,6 @@ export const Route = createFileRoute("/login/")({
     </HorizontalHeroLayout>
   )
 });
-
-function GeneralFormErrorMessage({
-  error
-}: Readonly<{ error: { title: string | null; detail: string | null } | null }>) {
-  if (!error) return null;
-  if (!error.title && !error.detail) return null;
-  return <FormErrorMessage title={error.title ?? "undefined"} message={error.detail ?? undefined} />;
-}
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
