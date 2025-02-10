@@ -9,6 +9,6 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
-        builder.MapStronglyTypedId<Tenant, TenantId, string>(t => t.Id);
+        builder.MapStronglyTypedLongId<Tenant, TenantId>(t => t.Id);
     }
 }

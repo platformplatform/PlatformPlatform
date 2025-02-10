@@ -21,7 +21,7 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
                     new Claim(JwtRegisteredClaimNames.GivenName, userInfo.FirstName ?? string.Empty),
                     new Claim(JwtRegisteredClaimNames.FamilyName, userInfo.LastName ?? string.Empty),
                     new Claim(ClaimTypes.Role, userInfo.Role!),
-                    new Claim("tenant_id", userInfo.TenantId!),
+                    new Claim("tenant_id", userInfo.TenantId!.ToString()),
                     new Claim("title", userInfo.Title ?? string.Empty),
                     new Claim("avatar_url", userInfo.AvatarUrl ?? string.Empty),
                     new Claim("locale", userInfo.Locale!)

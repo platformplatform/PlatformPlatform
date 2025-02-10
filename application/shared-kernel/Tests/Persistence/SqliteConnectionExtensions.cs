@@ -24,6 +24,11 @@ public static class SqliteConnectionExtensions
         return connection.ExecuteScalar($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", new { id }) == 1;
     }
 
+    public static bool RowExists(this SqliteConnection connection, string tableName, long id)
+    {
+        return connection.ExecuteScalar($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", new { id }) == 1;
+    }
+
     public static void Insert(this SqliteConnection connection, string tableName, (string, object?)[] columns)
     {
         var columnsNames = string.Join(", ", columns.Select(c => c.Item1));

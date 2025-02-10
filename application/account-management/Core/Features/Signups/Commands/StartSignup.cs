@@ -13,13 +13,7 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
 
 [PublicAPI]
-public sealed record StartSignupCommand(string Subdomain, string Email) : ICommand, IRequest<Result<StartSignupResponse>>
-{
-    public TenantId GetTenantId()
-    {
-        return new TenantId(Subdomain);
-    }
-}
+public sealed record StartSignupCommand(string Email) : ICommand, IRequest<Result<StartSignupResponse>>;
 
 [PublicAPI]
 public sealed record StartSignupResponse(SignupId SignupId, int ValidForSeconds);
@@ -28,13 +22,6 @@ public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
 {
     public StartSignupValidator(ITenantRepository tenantRepository)
     {
-        RuleFor(x => x.Subdomain)
-            .NotEmpty()
-            .WithMessage("Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
-            .Matches("^(?=.{3,30}$)[a-z0-9]+(?:-[a-z0-9]+)*$")
-            .WithMessage("Subdomain must be between 3 to 30 lowercase letters, numbers, or hyphens.")
-            .MustAsync(tenantRepository.IsSubdomainFreeAsync)
-            .WithMessage("The subdomain is not available.");
         RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
     }
 }
@@ -48,11 +35,11 @@ public sealed class StartSignupCommandHandler(
 {
     public async Task<Result<StartSignupResponse>> Handle(StartSignupCommand command, CancellationToken cancellationToken)
     {
-        var existingSignups = signupRepository.GetByEmailOrTenantId(command.GetTenantId(), command.Email);
+        var existingSignups = signupRepository.GetByEmail(command.Email).ToArray();
 
         if (existingSignups.Any(s => !s.HasExpired()))
         {
-            return Result<StartSignupResponse>.Conflict("Signup for this subdomain/mail has already been started. Please check your spam folder.");
+            return Result<StartSignupResponse>.Conflict("Signup for this email has already been started. Please check your spam folder.");
         }
 
         if (existingSignups.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
@@ -62,10 +49,10 @@ public sealed class StartSignupCommandHandler(
 
         var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
-        var signup = Signup.Create(command.GetTenantId(), command.Email, oneTimePasswordHash);
+        var signup = Signup.Create(TenantId.NewId(), command.Email, oneTimePasswordHash);
 
         await signupRepository.AddAsync(signup, cancellationToken);
-        events.CollectEvent(new SignupStarted(command.GetTenantId()));
+        events.CollectEvent(new SignupStarted(signup.TenantId));
 
         await emailClient.SendAsync(signup.Email, "Confirm your email address",
             $"""

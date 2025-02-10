@@ -1,6 +1,5 @@
 using PlatformPlatform.AccountManagement.Features.Signups.Commands;
 using PlatformPlatform.AccountManagement.Features.Signups.Domain;
-using PlatformPlatform.AccountManagement.Features.Signups.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
@@ -13,10 +12,6 @@ public sealed class SignupEndpoints : IEndpoints
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Signups").RequireAuthorization();
-
-        group.MapGet("/is-subdomain-free", async Task<ApiResult<bool>> ([AsParameters] IsSubdomainFreeQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<bool>().AllowAnonymous();
 
         group.MapPost("/start", async Task<ApiResult<StartSignupResponse>> (StartSignupCommand command, IMediator mediator)
             => await mediator.Send(command)

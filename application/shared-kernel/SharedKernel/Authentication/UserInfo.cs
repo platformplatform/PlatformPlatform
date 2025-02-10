@@ -58,7 +58,7 @@ public class UserInfo
         {
             IsAuthenticated = true,
             Id = userId == null ? null : new UserId(userId),
-            TenantId = tenantId == null ? null : new TenantId(tenantId),
+            TenantId = tenantId == null ? null : new TenantId(long.Parse(tenantId)),
             Role = user.FindFirstValue(ClaimTypes.Role),
             Email = user.FindFirstValue(ClaimTypes.Email),
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),

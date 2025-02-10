@@ -21,7 +21,7 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
 
         if (executionContext.TenantId is not null)
         {
-            telemetry.Context.User.AccountId = executionContext.TenantId.Value;
+            telemetry.Context.User.AccountId = executionContext.TenantId.ToString();
         }
 
         if (executionContext.UserInfo.Id is not null)

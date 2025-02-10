@@ -22,10 +22,10 @@ public sealed class GetCurrentTenantTests : EndpointBaseTest<AccountManagementDb
             {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'string', 'pattern': '^(?=.{3,30}$)(?!-)[a-z0-9-]*(?<!-)$'},
+                    'id': {'type': 'string', 'pattern': '^[A-Z0-9]{19}$'},
                     'createdAt': {'type': 'string', 'format': 'date-time'},
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
-                    'name': {'type': 'string', 'minLength': 1, 'maxLength': 30},
+                    'name': {'type': 'string', 'minLength': 0, 'maxLength': 30},
                     'state': {'type': 'string', 'minLength': 1, 'maxLength':20}
                 },
                 'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state'],
