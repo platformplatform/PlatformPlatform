@@ -12,12 +12,12 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
-import { useActionState, useState } from "react";
-import { api } from "@/shared/lib/api/client";
+import { useState } from "react";
+import { newApi as api } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -43,13 +43,15 @@ export const Route = createFileRoute("/signup/")({
 export function StartSignupForm() {
   const [email, setEmail] = useState("");
 
-  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
-    api.actionPost("/api/account-management/signups/start"),
-    { success: null }
-  );
+  const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
 
-  if (success === true) {
-    const { emailConfirmationId, validForSeconds } = data;
+  const handleSubmit = (formData: FormData) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
+    startSignupMutation.mutate({ body: Object.fromEntries(formData) as any });
+  };
+
+  if (startSignupMutation.isSuccess) {
+    const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
 
     setSignupState({
       emailConfirmationId,
@@ -62,8 +64,8 @@ export function StartSignupForm() {
 
   return (
     <Form
-      action={action}
-      validationErrors={errors}
+      action={handleSubmit}
+      validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
@@ -100,8 +102,8 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <FormErrorMessage title={title} message={message} />
-      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
+      <GeneralFormErrorMessage error={startSignupMutation.error} />
+      <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>
       <p className="text-muted-foreground text-xs">
