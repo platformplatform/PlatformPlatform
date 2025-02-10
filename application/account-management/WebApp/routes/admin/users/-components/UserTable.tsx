@@ -9,14 +9,7 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import {
-  apiClient,
-  type components,
-  SortableUserProperties,
-  SortOrder,
-  UserRole,
-  newApi as api
-} from "@/shared/lib/api/client";
+import { apiClient, type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";

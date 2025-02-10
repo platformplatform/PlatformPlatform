@@ -12,7 +12,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState, setSignupState } from "./-shared/signupState";
-import { newApi } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";
@@ -44,9 +44,9 @@ export function CompleteSignupForm() {
   const { email, signupId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const completeMutation = newApi.useMutation("post", "/api/account-management/signups/{id}/complete");
+  const completeMutation = api.useMutation("post", "/api/account-management/signups/{id}/complete");
 
-  const resendCodeMutation = newApi.useMutation("post", "/api/account-management/signups/{id}/resend-code");
+  const resendCodeMutation = api.useMutation("post", "/api/account-management/signups/{id}/resend-code");
 
   const handleCompleteSubmit = (formData: FormData) => {
     // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts

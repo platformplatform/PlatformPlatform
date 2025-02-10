@@ -8,7 +8,7 @@ import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { Form } from "@repo/ui/components/Form";
 import { useEffect, useState } from "react";
-import { newApi as api } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
