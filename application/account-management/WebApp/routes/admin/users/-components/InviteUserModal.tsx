@@ -6,7 +6,7 @@ import { Form } from "@repo/ui/components/Form";
 import { XIcon } from "lucide-react";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Modal } from "@repo/ui/components/Modal";
-import { newApi as api } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";

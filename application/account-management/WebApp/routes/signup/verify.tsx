@@ -12,7 +12,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState, setSignupState } from "./-shared/signupState";
-import { newApi as api, type Schemas } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";

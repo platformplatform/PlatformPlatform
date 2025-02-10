@@ -12,7 +12,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getLoginState, setLoginState } from "./-shared/loginState";
-import { newApi as api, type Schemas } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";

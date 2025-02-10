@@ -13,7 +13,7 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useState } from "react";
-import { newApi as api } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";

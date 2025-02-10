@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { newApi as api, UserStatus } from "@/shared/lib/api/client";
+import { api, UserStatus } from "@/shared/lib/api/client";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 

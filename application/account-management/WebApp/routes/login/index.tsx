@@ -11,7 +11,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
-import { newApi as api } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
