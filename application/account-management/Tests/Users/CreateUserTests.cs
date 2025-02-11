@@ -17,8 +17,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task CreateUser_WhenValid_ShouldCreateUser()
     {
         // Arrange
-        var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        var command = new CreateUserCommand(existingTenantId, Faker.Internet.Email(), UserRole.Member, false, null);
+        var command = new CreateUserCommand(Faker.Internet.Email(), UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -32,9 +31,8 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task CreateUser_WhenInvalidEmail_ShouldReturnBadRequest()
     {
         // Arrange
-        var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var invalidEmail = Faker.InvalidEmail();
-        var command = new CreateUserCommand(existingTenantId, invalidEmail, UserRole.Member, false, null);
+        var command = new CreateUserCommand(invalidEmail, UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -51,9 +49,8 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task CreateUser_WhenUserExists_ShouldReturnBadRequest()
     {
         // Arrange
-        var existingTenantId = DatabaseSeeder.Tenant1.Id;
         var existingUserEmail = DatabaseSeeder.User1.Email;
-        var command = new CreateUserCommand(existingTenantId, existingUserEmail, UserRole.Member, false, null);
+        var command = new CreateUserCommand(existingUserEmail, UserRole.Member, false, null);
 
         // Act
         var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
@@ -62,24 +59,6 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         var expectedErrors = new[]
         {
             new ErrorDetail("Email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
-        };
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
-    }
-
-    [Fact]
-    public async Task CreateUser_WhenTenantDoesNotExists_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var unknownTenantId = TenantId.NewId();
-        var command = new CreateUserCommand(unknownTenantId, Faker.Internet.Email(), UserRole.Member, false, null);
-
-        // Act
-        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users", command);
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("TenantId", $"The tenant '{unknownTenantId}' does not exist.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }

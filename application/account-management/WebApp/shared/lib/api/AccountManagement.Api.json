@@ -1030,9 +1030,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "tenantId": {
-            "$ref": "#/components/schemas/TenantId"
-          },
           "email": {
             "type": "string"
           },

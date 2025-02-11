@@ -23,7 +23,7 @@ public sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMed
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
 
         var result = await mediator.Send(
-            new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale),
+            new CreateUserCommand(command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale) { TenantId = command.Id },
             cancellationToken
         );
 
