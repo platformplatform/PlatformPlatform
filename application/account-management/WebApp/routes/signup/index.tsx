@@ -49,20 +49,6 @@ export function StartSignupForm() {
     { success: null }
   );
 
-  const [subdomain, setSubdomain] = useState("");
-  const { data: isSubdomainFree } = useApi(
-    "/api/account-management/signups/is-subdomain-free",
-    {
-      params: {
-        query: { Subdomain: subdomain }
-      }
-    },
-    {
-      autoFetch: subdomain.length > 3,
-      debounceMs: 500
-    }
-  );
-
   if (success === true) {
     const { signupId, validForSeconds } = data;
 
@@ -101,17 +87,6 @@ export function StartSignupForm() {
         onChange={setEmail}
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
-        className="flex w-full flex-col"
-      />
-      <DomainInputField
-        name="subdomain"
-        domain=".platformplatform.net"
-        label={t`Subdomain`}
-        placeholder={t`subdomain`}
-        isRequired
-        value={subdomain}
-        onChange={setSubdomain}
-        isSubdomainFree={isSubdomainFree}
         className="flex w-full flex-col"
       />
       <Select

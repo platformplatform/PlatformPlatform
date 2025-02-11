@@ -108,9 +108,6 @@ msgstr "Didn't receive the code? Resend"
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
 
-msgid "Domain"
-msgstr "Domain"
-
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
@@ -297,12 +294,6 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 
 msgid "Signup verification code"
 msgstr "Signup verification code"
-
-msgid "subdomain"
-msgstr "subdomain"
-
-msgid "Subdomain"
-msgstr "Subdomain"
 
 msgid "Terms of use"
 msgstr "Terms of use"
