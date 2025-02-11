@@ -8,13 +8,12 @@ import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { Select, SelectItem } from "@repo/ui/components/Select";
-import { DomainInputField } from "@repo/ui/components/DomainInputField";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { Form } from "@repo/ui/components/Form";
 import { useActionState, useState } from "react";
-import { api, useApi } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
@@ -47,20 +46,6 @@ export function StartSignupForm() {
   const [{ success, errors, data, title, message }, action, isPending] = useActionState(
     api.actionPost("/api/account-management/signups/start"),
     { success: null }
-  );
-
-  const [subdomain, setSubdomain] = useState("");
-  const { data: isSubdomainFree } = useApi(
-    "/api/account-management/signups/is-subdomain-free",
-    {
-      params: {
-        query: { Subdomain: subdomain }
-      }
-    },
-    {
-      autoFetch: subdomain.length > 3,
-      debounceMs: 500
-    }
   );
 
   if (success === true) {
@@ -101,17 +86,6 @@ export function StartSignupForm() {
         onChange={setEmail}
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
-        className="flex w-full flex-col"
-      />
-      <DomainInputField
-        name="subdomain"
-        domain=".platformplatform.net"
-        label={t`Subdomain`}
-        placeholder={t`subdomain`}
-        isRequired
-        value={subdomain}
-        onChange={setSubdomain}
-        isSubdomainFree={isSubdomainFree}
         className="flex w-full flex-col"
       />
       <Select

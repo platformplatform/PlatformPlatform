@@ -73,15 +73,6 @@ export function AccountSettings() {
               />
             </div>
 
-            <div className="w-full md:max-w-md">
-              <TextField
-                name="domain"
-                label={t`Domain`}
-                value={`${tenant?.id ?? ""}.platformplatform.net`}
-                isDisabled={true}
-              />
-            </div>
-
             <Button type="submit">
               <Trans>Save changes</Trans>
             </Button>
