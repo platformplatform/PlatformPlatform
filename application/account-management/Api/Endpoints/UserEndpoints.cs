@@ -22,10 +22,6 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(new GetUserSummaryQuery())
         ).Produces<GetUserSummaryResponse>();
 
-        group.MapPost("/", async Task<ApiResult> (CreateUserCommand command, IMediator mediator)
-            => (await mediator.Send(command)).AddResourceUri(RoutesPrefix)
-        );
-
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new DeleteUserCommand(id))
         );

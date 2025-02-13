@@ -401,29 +401,6 @@
             }
           }
         }
-      },
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PostApiAccountManagementUsers",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
       }
     },
     "/api/account-management/users/summary": {
@@ -1023,25 +1000,6 @@
           "pendingUsers": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "CreateUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "userRole": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "emailConfirmed": {
-            "type": "boolean"
-          },
-          "preferredLocale": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
