@@ -6,7 +6,6 @@ import { Trash2 } from "lucide-react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
 import { Form } from "@repo/ui/components/Form";
 import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
@@ -15,6 +14,8 @@ import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+
+import { useForm } from "react-hook-form";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
@@ -26,14 +27,20 @@ export function AccountSettings() {
 
   const saveMutation = api.useMutation("put", "/api/account-management/tenants/current");
 
-  const form = useForm({
-    defaultValues: {
-      name: tenant?.name || "",
-      subdomain: tenant?.id
-    },
-    onSubmit: async ({ value }) => {
-      await saveMutation.mutateAsync({ body: value });
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid, isSubmitting }
+  } = useForm<{ name: string }>({});
+
+  // Workaround: The signature on onChange in react-hook-form is not the same as the one in react-aria-components
+  const r = (registerField: ReturnType<typeof register>) => ({
+    ...registerField,
+    onChange: (value: string) => registerField.onChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>)
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    await saveMutation.mutateAsync({ body: data });
   });
 
   if (isLoading) return null;
@@ -63,11 +70,7 @@ export function AccountSettings() {
           </div>
 
           <Form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
+            onSubmit={onSubmit}
             validationErrors={saveMutation.error?.errors}
             validationBehavior="aria"
             className="flex flex-col gap-4"
@@ -78,21 +81,13 @@ export function AccountSettings() {
             <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
             <div className="w-full md:max-w-md">
-              <form.Field
-                name="name"
-                // biome-ignore lint/correctness/noChildrenProp: <explanation>
-                children={(field) => (
-                  <TextField
-                    isRequired
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={field.handleChange}
-                    label={t`Account name`}
-                    validationBehavior="aria"
-                    isDisabled={field.form.state.isSubmitting}
-                  />
-                )}
+              <TextField
+                isRequired
+                {...r(register("name"))}
+                defaultValue={tenant?.name}
+                label={t`Account name`}
+                validationBehavior="aria"
+                isDisabled={saveMutation.isPending}
               />
             </div>
 
@@ -105,15 +100,9 @@ export function AccountSettings() {
               />
             </div>
             <GeneralFormErrorMessage error={saveMutation.error} />
-            <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting]}
-              // biome-ignore lint/correctness/noChildrenProp: <explanation>
-              children={([canSubmit, isSubmitting]) => (
-                <Button type="submit" className="mt-4" isDisabled={!canSubmit}>
-                  {isSubmitting ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-                </Button>
-              )}
-            />
+            <Button type="submit" className="mt-4" isDisabled={!isValid}>
+              {isSubmitting ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+            </Button>
           </Form>
 
           <div className="flex flex-col gap-4 mt-6">
