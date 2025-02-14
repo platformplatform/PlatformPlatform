@@ -10,6 +10,7 @@ import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 type InviteUserModalProps = {
   isOpen: boolean;
@@ -22,11 +23,6 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
   }, [onOpenChange]);
 
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
-
-  const handleSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    inviteUserMutation.mutate({ body: Object.fromEntries(formData) as any });
-  };
 
   useEffect(() => {
     if (inviteUserMutation.isSuccess) {
@@ -47,7 +43,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
         </p>
 
         <Form
-          action={handleSubmit}
+          onSubmit={createSubmitHandler(inviteUserMutation.mutate)}
           validationErrors={inviteUserMutation.error?.errors}
           validationBehavior="aria"
           className="flex flex-col gap-4 mt-4"

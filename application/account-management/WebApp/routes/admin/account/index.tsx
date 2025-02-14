@@ -7,13 +7,14 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { Form } from "@repo/ui/components/Form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
@@ -21,19 +22,8 @@ export const Route = createFileRoute("/admin/account/")({
 
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { data: tenant, isLoading, refetch } = api.useQuery("get", "/api/account-management/tenants/current");
+  const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
-
-  const handleSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    updateCurrentTenantMutation.mutate({ body: Object.fromEntries(formData) as any });
-  };
-
-  useEffect(() => {
-    if (updateCurrentTenantMutation.isSuccess) {
-      refetch();
-    }
-  }, [updateCurrentTenantMutation.isSuccess, refetch]);
 
   if (isLoading) return null;
 
@@ -62,7 +52,7 @@ export function AccountSettings() {
           </div>
 
           <Form
-            action={handleSubmit}
+            onSubmit={createSubmitHandler(updateCurrentTenantMutation.mutate)}
             validationErrors={updateCurrentTenantMutation.error?.errors}
             validationBehavior="aria"
             className="flex flex-col gap-4"
@@ -78,12 +68,13 @@ export function AccountSettings() {
                 isRequired
                 name="name"
                 defaultValue={tenant?.name ?? ""}
+                isDisabled={updateCurrentTenantMutation.isPending}
                 label={t`Account name`}
                 validationBehavior="aria"
               />
             </div>
             <GeneralFormErrorMessage error={updateCurrentTenantMutation.error} />
-            <Button type="submit" className="mt-4">
+            <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
               <Trans>Save changes</Trans>
             </Button>
           </Form>

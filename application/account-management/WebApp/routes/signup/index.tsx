@@ -18,6 +18,7 @@ import { setSignupState } from "./-shared/signupState";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -45,11 +46,6 @@ export function StartSignupForm() {
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
 
-  const handleSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    startSignupMutation.mutate({ body: Object.fromEntries(formData) as any });
-  };
-
   if (startSignupMutation.isSuccess) {
     const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
 
@@ -64,7 +60,7 @@ export function StartSignupForm() {
 
   return (
     <Form
-      action={handleSubmit}
+      onSubmit={createSubmitHandler(startSignupMutation.mutate)}
       validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
