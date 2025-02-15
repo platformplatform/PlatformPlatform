@@ -6,7 +6,7 @@ import createClient from "openapi-react-query";
 
 export * from "./api.generated.d";
 
-export const apiClient = createFetchClient<paths>({
+const apiClient = createFetchClient<paths>({
   baseUrl: import.meta.env.PUBLIC_URL
 });
 apiClient.use(createAuthenticationMiddleware());
