@@ -144,9 +144,6 @@ msgstr "Error: Verification code has expired"
 msgid "Europe"
 msgstr "Europe"
 
-msgid "Failed to save changes"
-msgstr "Failed to save changes"
-
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
@@ -333,9 +330,6 @@ msgstr "Total Users"
 
 msgid "Try again"
 msgstr "Try again"
-
-msgid "Unknown error"
-msgstr "Unknown error"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
