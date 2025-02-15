@@ -79,7 +79,7 @@ export declare global {
     /**
      * Avatar url
      **/
-    avatarUrl?: string;
+    avatarUrl?: string | null;
   }
 
   /**

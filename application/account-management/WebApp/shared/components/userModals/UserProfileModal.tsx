@@ -4,14 +4,15 @@ import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/
 import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
-import { api, apiClient } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { useMutation } from "@tanstack/react-query";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
@@ -48,12 +49,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
 
   const { updateUserInfo } = useContext(AuthenticationContext);
 
-  const {
-    data: user,
-    isLoading,
-    error,
-    refetch: refetchUser
-  } = api.useQuery("get", "/api/account-management/users/me");
+  const { data: user, isLoading, error, refetch } = api.useQuery("get", "/api/account-management/users/me");
 
   useEffect(() => {
     onIsLoadingChange(isLoading);
@@ -69,37 +65,30 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
     }
   }, [onOpenChange, avatarPreviewUrl]);
 
-  const saveMutation = useMutation({
-    mutationFn: async (formData: FormData) => {
+  const updateAvatarMutation = api.useMutation("post", "/api/account-management/users/me/update-avatar");
+  const removeAvatarMutation = api.useMutation("delete", "/api/account-management/users/me/remove-avatar");
+  const updateCurrentUserMutation = api.useMutation("put", "/api/account-management/users/me");
+
+  const saveMutation = useMutation<
+    void,
+    Schemas["HttpValidationProblemDetails"],
+    { body: Schemas["UpdateCurrentUserCommand"] }
+  >({
+    mutationFn: async (data) => {
       if (selectedAvatarFile) {
         const formData = new FormData();
         formData.append("file", selectedAvatarFile);
-
         // biome-ignore lint/suspicious/noExplicitAny: The client does not support typed file uploads, see https://github.com/openapi-ts/openapi-typescript/issues/1214
-        await apiClient.POST("/api/account-management/users/me/update-avatar", { body: formData as any });
+        await updateAvatarMutation.mutateAsync({ body: formData as any });
       } else if (removeAvatarFlag) {
-        await apiClient.DELETE("/api/account-management/users/me/remove-avatar");
+        await removeAvatarMutation.mutateAsync({});
         setRemoveAvatarFlag(false);
       }
 
-      await apiClient.PUT("/api/account-management/users/me", {
-        body: {
-          email: formData.get("email") as string,
-          firstName: formData.get("firstName") as string,
-          lastName: formData.get("lastName") as string,
-          title: formData.get("title") as string
-        }
-      });
-
-      await refetchUser();
-
-      if (user) {
-        updateUserInfo({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          title: user.title,
-          avatarUrl: user.avatarUrl ?? undefined
-        });
+      await updateCurrentUserMutation.mutateAsync(data);
+      const { data: updatedUser } = await refetch();
+      if (updatedUser) {
+        updateUserInfo(updatedUser);
       }
 
       closeDialog();
@@ -149,7 +138,12 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
         <Trans>Update your profile picture and personal details here.</Trans>
       </p>
 
-      <Form action={saveMutation.mutate} validationBehavior="aria" className="flex flex-col gap-4 mt-4">
+      <Form
+        onSubmit={createSubmitHandler(saveMutation.mutate)}
+        validationBehavior="aria"
+        validationErrors={saveMutation.error?.errors}
+        className="flex flex-col gap-4 mt-4"
+      >
         <input type="hidden" name="id" value={userId} />
         <FileTrigger
           ref={avatarFileInputRef}
@@ -233,12 +227,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
         <TextField name="email" label={t`Email`} value={user?.email} />
         <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software Engineer`} />
 
-        {saveMutation.error && (
-          <FormErrorMessage
-            title={t`Failed to save changes`}
-            message={saveMutation.error.message ?? t`Unknown error`}
-          />
-        )}
+        <GeneralFormErrorMessage error={saveMutation.error} />
 
         <div className="flex justify-end gap-4 mt-6">
           <Button type="reset" onPress={closeDialog} variant="secondary">

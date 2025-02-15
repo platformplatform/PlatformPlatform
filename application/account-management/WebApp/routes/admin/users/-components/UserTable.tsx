@@ -9,7 +9,7 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { apiClient, type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
+import { type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -82,20 +82,24 @@ export function UserTable() {
     [navigate]
   );
 
+  const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
+
   const handleDelete = useCallback(async () => {
     if (!userToDelete) return;
 
-    await apiClient.DELETE("/api/account-management/users/{id}", { params: { path: { id: userToDelete.id } } });
+    await deleteUserMutation.mutateAsync({ params: { path: { id: userToDelete.id } } });
 
     setRefreshKey((prev) => prev + 1);
     setUserToDelete(null);
-  }, [userToDelete]);
+  }, [userToDelete, deleteUserMutation]);
+
+  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
 
   const handleUserRoleChange = useCallback(
     async (newUserRole: UserRole) => {
       if (!userToChangeRole) return;
 
-      await apiClient.PUT("/api/account-management/users/{id}/change-user-role", {
+      await changeUserRoleMutation.mutateAsync({
         params: { path: { id: userToChangeRole.id } },
         body: { userRole: newUserRole }
       });
@@ -103,7 +107,7 @@ export function UserTable() {
       setRefreshKey((prev) => prev + 1);
       setUserToChangeRole(null);
     },
-    [userToChangeRole]
+    [userToChangeRole, changeUserRoleMutation]
   );
 
   if (isLoading) return null;

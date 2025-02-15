@@ -5,7 +5,7 @@ import { LogOutIcon, UserIcon } from "lucide-react";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { apiClient } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { loginPath } from "@repo/infrastructure/auth/constants";
@@ -22,8 +22,10 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
 
   if (!userInfo) return null;
 
+  const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
+
   async function logout() {
-    await apiClient.POST("/api/account-management/authentication/logout");
+    await logoutMutation.mutateAsync({});
     window.location.href = createLoginUrlWithReturnPath(loginPath);
   }
 
