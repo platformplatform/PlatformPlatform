@@ -13,7 +13,7 @@ import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 export const Route = createFileRoute("/admin/account/")({
@@ -73,7 +73,8 @@ export function AccountSettings() {
                 validationBehavior="aria"
               />
             </div>
-            <GeneralFormErrorMessage error={updateCurrentTenantMutation.error} />
+
+            <FormErrorMessage error={updateCurrentTenantMutation.error} />
             <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
               <Trans>Save changes</Trans>
             </Button>

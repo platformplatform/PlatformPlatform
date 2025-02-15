@@ -9,7 +9,7 @@ import { Modal } from "@repo/ui/components/Modal";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 type InviteUserModalProps = {
@@ -56,7 +56,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
             placeholder={t`user@email.com`}
             className="flex-grow"
           />
-          <GeneralFormErrorMessage error={inviteUserMutation.error} />
+          <FormErrorMessage error={inviteUserMutation.error} />
           <div className="flex justify-end gap-4 mt-6">
             <Button type="reset" onPress={closeDialog} variant="secondary">
               <Trans>Cancel</Trans>

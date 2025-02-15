@@ -17,7 +17,7 @@ import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants"
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {
@@ -118,7 +118,7 @@ export function CompleteSignupForm() {
               ariaLabel={t`Signup verification code`}
             />
           </div>
-          <GeneralFormErrorMessage error={completeSignupMutation.error} />
+          <FormErrorMessage error={completeSignupMutation.error} />
           <Button
             type="submit"
             className="mt-4 w-full text-center"

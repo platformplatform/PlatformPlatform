@@ -17,7 +17,7 @@ import { api } from "@/shared/lib/api/client";
 import { setSignupState } from "./-shared/signupState";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 export const Route = createFileRoute("/signup/")({
@@ -98,7 +98,7 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <GeneralFormErrorMessage error={startSignupMutation.error} />
+      <FormErrorMessage error={startSignupMutation.error} />
       <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>

@@ -12,7 +12,7 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { useMutation } from "@tanstack/react-query";
 import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
@@ -227,7 +227,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
         <TextField name="email" label={t`Email`} value={user?.email} />
         <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software Engineer`} />
 
-        <GeneralFormErrorMessage error={saveMutation.error} />
+        <FormErrorMessage error={saveMutation.error} />
 
         <div className="flex justify-end gap-4 mt-6">
           <Button type="reset" onPress={closeDialog} variant="secondary">

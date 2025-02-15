@@ -1,16 +1,15 @@
 import { Content, Heading, InlineAlert } from "./InlineAlert";
 
-type FormErrorMessageProps = {
-  title?: string;
-  message?: string;
-};
+type FormErrorMessageProps = { error: { title: string | null; detail: string | null } | null };
 
-export function FormErrorMessage({ title, message }: FormErrorMessageProps) {
-  if (title == null || message == null) return null;
+export function FormErrorMessage({ error }: Readonly<FormErrorMessageProps>) {
+  if (!error) return null;
+  if (!error.title || !error.detail) return null;
+
   return (
     <InlineAlert variant="danger">
-      <Heading>{title}</Heading>
-      <Content>{message}</Content>
+      <Heading>{error.title}</Heading>
+      <Content>{error.detail}</Content>
     </InlineAlert>
   );
 }

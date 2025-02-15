@@ -16,7 +16,7 @@ import { api, type Schemas } from "@/shared/lib/api/client";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 export const Route = createFileRoute("/login/verify")({
   validateSearch: (search) => {
@@ -122,7 +122,7 @@ export function CompleteLoginForm() {
               ariaLabel={t`Login verification code`}
             />
           </div>
-          <GeneralFormErrorMessage error={completeLoginMutation.error} />
+          <FormErrorMessage error={completeLoginMutation.error} />
           <Button
             type="submit"
             className="mt-4 w-full text-center"

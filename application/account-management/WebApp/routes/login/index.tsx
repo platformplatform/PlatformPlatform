@@ -13,7 +13,7 @@ import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
-import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
@@ -93,7 +93,7 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <GeneralFormErrorMessage error={startLoginMutation.error} />
+      <FormErrorMessage error={startLoginMutation.error} />
       <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>
