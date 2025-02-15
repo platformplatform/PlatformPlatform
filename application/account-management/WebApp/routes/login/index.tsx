@@ -16,6 +16,7 @@ import { setLoginState } from "./-shared/loginState";
 import { GeneralFormErrorMessage } from "@repo/ui/components/GeneralFormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -54,11 +55,6 @@ export function LoginForm() {
     "/api/account-management/authentication/login/start"
   );
 
-  const handleSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    mutate({ body: Object.fromEntries(formData) as any });
-  };
-
   if (isSuccess) {
     const { loginId, validForSeconds } = data;
 
@@ -73,7 +69,7 @@ export function LoginForm() {
 
   return (
     <Form
-      action={handleSubmit}
+      onSubmit={createSubmitHandler(mutate)}
       validationErrors={error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
