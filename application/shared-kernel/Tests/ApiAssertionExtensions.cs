@@ -125,18 +125,28 @@ public static class ApiAssertionExtensions
 
         if (expectedErrors is not null)
         {
-            var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(
+            var actualErrorsJson = (JsonElement)problemDetails.Extensions["errors"]!;
+            var actualErrors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(
                 actualErrorsJson.GetRawText(), SharedDependencyConfiguration.DefaultJsonSerializerOptions
             );
 
-            actualErrors.Should().BeEquivalentTo(expectedErrors);
+            var expectedErrorsDictionary = expectedErrors
+                .ToDictionary(e => ToCamelCase(e.PropertyName), e => new[] { e.Message });
+
+            actualErrors.Should().BeEquivalentTo(expectedErrorsDictionary);
         }
 
         if (hasTraceId)
         {
             problemDetails.Extensions["traceId"]!.ToString().Should().NotBeEmpty();
         }
+    }
+
+    private static string ToCamelCase(string propertyName)
+    {
+        if (propertyName.Length == 0) return propertyName;
+
+        return propertyName[0].ToString().ToLowerInvariant() + propertyName.Substring(1);
     }
 
     public static async Task<T?> DeserializeResponse<T>(this HttpResponseMessage response)

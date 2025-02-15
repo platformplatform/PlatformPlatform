@@ -47,10 +47,10 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters."),
-            new ErrorDetail("FirstName", "First name must be no longer than 30 characters."),
-            new ErrorDetail("LastName", "Last name must be no longer than 30 characters."),
-            new ErrorDetail("Title", "Title must be no longer than 50 characters.")
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters."),
+            new ErrorDetail("firstName", "First name must be no longer than 30 characters."),
+            new ErrorDetail("lastName", "Last name must be no longer than 30 characters."),
+            new ErrorDetail("title", "Title must be no longer than 50 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }

@@ -42,7 +42,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
@@ -61,7 +61,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
+            new ErrorDetail("email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
@@ -79,7 +79,7 @@ public sealed class CreateUserTests : EndpointBaseTest<AccountManagementDbContex
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("TenantId", $"The tenant '{unknownTenantId}' does not exist.")
+            new ErrorDetail("tenantId", $"The tenant '{unknownTenantId}' does not exist.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
