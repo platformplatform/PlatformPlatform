@@ -98,15 +98,10 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
 
       await updateUserMutation.mutateAsync(data);
 
-      await refetchUser();
+      const { data: updatedUser } = await refetchUser();
 
-      if (user) {
-        updateUserInfo({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          title: user.title,
-          avatarUrl: user.avatarUrl ?? undefined
-        });
+      if (updatedUser) {
+        updateUserInfo(updatedUser);
       }
 
       closeDialog();
