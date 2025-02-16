@@ -49,12 +49,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
 
   const { updateUserInfo } = useContext(AuthenticationContext);
 
-  const {
-    data: user,
-    isLoading,
-    error,
-    refetch: refetchUser
-  } = api.useQuery("get", "/api/account-management/users/me");
+  const { data: user, isLoading, error, refetch } = api.useQuery("get", "/api/account-management/users/me");
 
   useEffect(() => {
     onIsLoadingChange(isLoading);
@@ -91,9 +86,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
       }
 
       await updateCurrentUserMutation.mutateAsync(data);
-
-      const { data: updatedUser } = await refetchUser();
-
+      const { data: updatedUser } = await refetch();
       if (updatedUser) {
         updateUserInfo(updatedUser);
       }

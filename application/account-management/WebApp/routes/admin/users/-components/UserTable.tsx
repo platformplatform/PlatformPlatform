@@ -34,7 +34,7 @@ export function UserTable() {
 
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data } = api.useQuery("get", "/api/account-management/users", {
+  const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
       query: {
         Search: search,
@@ -110,7 +110,9 @@ export function UserTable() {
     [userToChangeRole, changeUserRoleMutation]
   );
 
-  const currentPage = (data?.currentPageOffset ?? 0) + 1;
+  if (isLoading) return null;
+
+  const currentPage = (users?.currentPageOffset ?? 0) + 1;
 
   return (
     <>
@@ -199,7 +201,7 @@ export function UserTable() {
             </Column>
           </TableHeader>
           <TableBody>
-            {data?.users.map((user) => (
+            {users?.users.map((user) => (
               <Row key={user.id}>
                 <Cell>
                   <div className="flex h-14 items-center gap-2">
@@ -278,19 +280,19 @@ export function UserTable() {
             ))}
           </TableBody>
         </Table>
-        {data && (
+        {users && (
           <>
             <Pagination
               paginationSize={5}
               currentPage={currentPage}
-              totalPages={data?.totalPages ?? 1}
+              totalPages={users?.totalPages ?? 1}
               onPageChange={handlePageChange}
               className="w-full pr-12 sm:hidden"
             />
             <Pagination
               paginationSize={9}
               currentPage={currentPage}
-              totalPages={data?.totalPages ?? 1}
+              totalPages={users?.totalPages ?? 1}
               onPageChange={handlePageChange}
               previousLabel={t`Previous`}
               nextLabel={t`Next`}
