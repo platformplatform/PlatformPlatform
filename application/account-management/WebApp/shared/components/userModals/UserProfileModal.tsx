@@ -20,26 +20,25 @@ const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"
 type ProfileModalProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  userId: string;
 };
 
 type ProfileDialogProps = ProfileModalProps & {
   onIsLoadingChange: (isLoading: boolean) => void;
 };
 
-export default function UserProfileModal({ isOpen, onOpenChange, userId }: Readonly<ProfileModalProps>) {
+export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<ProfileModalProps>) {
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading}>
-      <UserProfileDialog isOpen={isOpen} onOpenChange={onOpenChange} onIsLoadingChange={setIsLoading} userId={userId} />
+      <UserProfileDialog isOpen={isOpen} onOpenChange={onOpenChange} onIsLoadingChange={setIsLoading} />
     </Modal>
   );
 }
 
-function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly<ProfileDialogProps>) {
+function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<ProfileDialogProps>) {
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
@@ -144,7 +143,6 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
         validationErrors={saveMutation.error?.errors}
         className="flex flex-col gap-4 mt-4"
       >
-        <input type="hidden" name="id" value={userId} />
         <FileTrigger
           ref={avatarFileInputRef}
           onSelect={(files) => {
