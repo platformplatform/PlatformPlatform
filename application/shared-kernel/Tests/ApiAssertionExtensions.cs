@@ -131,7 +131,7 @@ public static class ApiAssertionExtensions
             );
 
             var expectedErrorsDictionary = expectedErrors
-                .ToDictionary(e => ToCamelCase(e.PropertyName), e => new[] { e.Message });
+                .ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message });
 
             actualErrors.Should().BeEquivalentTo(expectedErrorsDictionary);
         }
@@ -140,13 +140,6 @@ public static class ApiAssertionExtensions
         {
             problemDetails.Extensions["traceId"]!.ToString().Should().NotBeEmpty();
         }
-    }
-
-    private static string ToCamelCase(string propertyName)
-    {
-        if (propertyName.Length == 0) return propertyName;
-
-        return propertyName[0].ToString().ToLowerInvariant() + propertyName.Substring(1);
     }
 
     public static async Task<T?> DeserializeResponse<T>(this HttpResponseMessage response)

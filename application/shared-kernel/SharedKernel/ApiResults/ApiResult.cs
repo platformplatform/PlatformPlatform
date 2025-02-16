@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -46,18 +47,11 @@ public class ApiResult(ResultBase result, string? routePrefix = null, IDictionar
                 {
                     {
                         "errors",
-                        result.Errors.ToDictionary(e => ToCamelCase(e.PropertyName), e => new[] { e.Message })
+                        result.Errors.ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message })
                     }
                 }
                 : null
         );
-    }
-
-    private static string ToCamelCase(string propertyName)
-    {
-        if (propertyName.Length == 0) return propertyName;
-
-        return propertyName[0].ToString().ToLowerInvariant() + propertyName.Substring(1);
     }
 
     public static string GetHttpStatusDisplayName(HttpStatusCode statusCode)
