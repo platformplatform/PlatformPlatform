@@ -12,10 +12,11 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState, setSignupState } from "./-shared/signupState";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
@@ -46,13 +47,6 @@ export function CompleteSignupForm() {
 
   const completeSignupMutation = api.useMutation("post", "/api/account-management/signups/{id}/complete");
 
-  const handleCompleteSubmit = (formData: FormData) => {
-    completeSignupMutation.mutate({
-      body: Object.fromEntries(formData) as Schemas["CompleteSignupCommand"],
-      params: { path: { id: signupId } }
-    });
-  };
-
   useEffect(() => {
     if (completeSignupMutation.isSuccess) {
       window.location.href = signedUpPath;
@@ -60,10 +54,6 @@ export function CompleteSignupForm() {
   }, [completeSignupMutation.isSuccess]);
 
   const resendSignupCodeMutation = api.useMutation("post", "/api/account-management/signups/{id}/resend-code");
-
-  const handleResendSubmit = () => {
-    resendSignupCodeMutation.mutate({ params: { path: { id: signupId } } });
-  };
 
   useEffect(() => {
     if (resendSignupCodeMutation.isSuccess && resendSignupCodeMutation.data) {
@@ -83,7 +73,7 @@ export function CompleteSignupForm() {
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
-        action={handleCompleteSubmit}
+        onSubmit={createSubmitHandler(completeSignupMutation.mutate, { path: { id: signupId } })}
         validationErrors={completeSignupMutation.error?.errors}
         validationBehavior="aria"
       >
@@ -125,7 +115,10 @@ export function CompleteSignupForm() {
 
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
-          <Form action={handleResendSubmit} className="inline">
+          <Form
+            onSubmit={createSubmitHandler(resendSignupCodeMutation.mutate, { path: { id: signupId } })}
+            className="inline"
+          >
             <input type="hidden" name="id" value={signupId} />
             <Button
               type="submit"
