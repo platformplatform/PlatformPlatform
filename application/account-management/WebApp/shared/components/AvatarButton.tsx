@@ -57,7 +57,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
         </Menu>
       </MenuTrigger>
 
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={userInfo.id ?? ""} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
     </>
   );
 }
