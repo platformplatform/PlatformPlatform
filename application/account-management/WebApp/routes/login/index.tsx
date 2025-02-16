@@ -50,13 +50,10 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const { returnPath } = Route.useSearch();
 
-  const { mutate, data, isSuccess, error, isPending } = api.useMutation(
-    "post",
-    "/api/account-management/authentication/login/start"
-  );
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
 
-  if (isSuccess) {
-    const { loginId, validForSeconds } = data;
+  if (startLoginMutation.isSuccess) {
+    const { loginId, validForSeconds } = startLoginMutation.data;
 
     setLoginState({
       loginId,
@@ -69,8 +66,8 @@ export function LoginForm() {
 
   return (
     <Form
-      onSubmit={createSubmitHandler(mutate)}
-      validationErrors={error?.errors}
+      onSubmit={createSubmitHandler(startLoginMutation.mutate)}
+      validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
@@ -95,8 +92,8 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <FormErrorMessage error={error} />
-      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
+      <FormErrorMessage error={startLoginMutation.error} />
+      <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>
       <div className="text-muted-foreground text-sm">

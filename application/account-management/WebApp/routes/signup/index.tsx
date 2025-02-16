@@ -46,13 +46,7 @@ export const Route = createFileRoute("/signup/")({
 export function StartSignupForm() {
   const [email, setEmail] = useState("");
 
-  const {
-    mutate,
-    data,
-    isSuccess: success,
-    error,
-    isPending
-  } = api.useMutation("post", "/api/account-management/signups/start");
+  const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
 
   const [subdomain, setSubdomain] = useState("");
   const debouncedSubdomain = useDebounce(subdomain, 500);
@@ -63,8 +57,8 @@ export function StartSignupForm() {
     { enabled: debouncedSubdomain.length >= 3 }
   );
 
-  if (success === true) {
-    const { signupId, validForSeconds } = data;
+  if (startSignupMutation.isSuccess) {
+    const { signupId, validForSeconds } = startSignupMutation.data;
 
     setSignupState({
       signupId,
@@ -77,8 +71,8 @@ export function StartSignupForm() {
 
   return (
     <Form
-      onSubmit={createSubmitHandler(mutate)}
-      validationErrors={error?.errors}
+      onSubmit={createSubmitHandler(startSignupMutation.mutate)}
+      validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
@@ -126,8 +120,8 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <FormErrorMessage error={error} />
-      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
+      <FormErrorMessage error={startSignupMutation.error} />
+      <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>
       <p className="text-muted-foreground text-xs">

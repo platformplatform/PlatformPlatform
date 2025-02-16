@@ -12,7 +12,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getLoginState, setLoginState } from "./-shared/loginState";
-import { api } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
@@ -51,34 +51,35 @@ export function CompleteLoginForm() {
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const { returnPath } = Route.useSearch();
 
-  const complete = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
-
-  const resend = api.useMutation("post", "/api/account-management/authentication/login/{id}/resend");
+  const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
   const handleCompleteSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    complete.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: loginId } } });
-  };
-
-  const handleResendSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    resend.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: loginId } } });
+    completeLoginMutation.mutate({
+      body: Object.fromEntries(formData) as Schemas["CompleteLoginCommand"],
+      params: { path: { id: loginId } }
+    });
   };
 
   useEffect(() => {
-    if (resend.isSuccess && resend.data) {
+    if (completeLoginMutation.isSuccess) {
+      window.location.href = returnPath ?? loggedInPath;
+    }
+  }, [completeLoginMutation.isSuccess, returnPath]);
+
+  const resendLoginCodeMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/resend");
+
+  const handleResendSubmit = () => {
+    resendLoginCodeMutation.mutate({ params: { path: { id: loginId } } });
+  };
+
+  useEffect(() => {
+    if (resendLoginCodeMutation.isSuccess && resendLoginCodeMutation.data) {
       setLoginState({
         ...getLoginState(),
-        expireAt: new Date(Date.now() + resend.data.validForSeconds * 1000)
+        expireAt: new Date(Date.now() + resendLoginCodeMutation.data.validForSeconds * 1000)
       });
     }
-  }, [resend.isSuccess, resend.data]);
-
-  useEffect(() => {
-    if (complete.isSuccess) {
-      window.location.href = returnPath || loggedInPath;
-    }
-  }, [complete.isSuccess, returnPath]);
+  }, [resendLoginCodeMutation.isSuccess, resendLoginCodeMutation.data]);
 
   useEffect(() => {
     if (isExpired) {
@@ -88,7 +89,11 @@ export function CompleteLoginForm() {
 
   return (
     <div className="w-full max-w-sm space-y-3">
-      <Form action={handleCompleteSubmit} validationErrors={complete.error?.errors} validationBehavior="aria">
+      <Form
+        action={handleCompleteSubmit}
+        validationErrors={completeLoginMutation.error?.errors}
+        validationBehavior="aria"
+      >
         <input type="hidden" name="id" value={loginId} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
@@ -113,8 +118,12 @@ export function CompleteLoginForm() {
               ariaLabel={t`Login verification code`}
             />
           </div>
-          <FormErrorMessage error={complete.error} />
-          <Button type="submit" className="mt-4 w-full text-center">
+          <FormErrorMessage error={completeLoginMutation.error} />
+          <Button
+            type="submit"
+            className="mt-4 w-full text-center"
+            isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending}
+          >
             <Trans>Verify</Trans>
           </Button>
         </div>
@@ -124,7 +133,12 @@ export function CompleteLoginForm() {
         <div className="text-center text-neutral-500 text-xs">
           <Form action={handleResendSubmit} className="inline">
             <input type="hidden" name="id" value={loginId} />
-            <Button type="submit" variant="link" className="text-xs p-0 h-auto">
+            <Button
+              type="submit"
+              variant="link"
+              className="text-xs p-0 h-auto"
+              isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending}
+            >
               <Trans>Didn't receive the code? Resend</Trans>
             </Button>
           </Form>

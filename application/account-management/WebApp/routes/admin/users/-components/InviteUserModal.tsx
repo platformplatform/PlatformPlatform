@@ -22,14 +22,14 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
     onOpenChange(false);
   }, [onOpenChange]);
 
-  const inviteMutation = api.useMutation("post", "/api/account-management/users/invite");
+  const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
 
   useEffect(() => {
-    if (inviteMutation.isSuccess) {
+    if (inviteUserMutation.isSuccess) {
       closeDialog();
       window.location.reload();
     }
-  }, [inviteMutation.isSuccess, closeDialog]);
+  }, [inviteUserMutation.isSuccess, closeDialog]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
@@ -43,8 +43,8 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
         </p>
 
         <Form
-          onSubmit={createSubmitHandler(inviteMutation.mutate)}
-          validationErrors={inviteMutation.error?.errors}
+          onSubmit={createSubmitHandler(inviteUserMutation.mutate)}
+          validationErrors={inviteUserMutation.error?.errors}
           validationBehavior="aria"
           className="flex flex-col gap-4 mt-4"
         >
@@ -56,12 +56,12 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
             placeholder={t`user@email.com`}
             className="flex-grow"
           />
-          <FormErrorMessage error={inviteMutation.error} />
+          <FormErrorMessage error={inviteUserMutation.error} />
           <div className="flex justify-end gap-4 mt-6">
             <Button type="reset" onPress={closeDialog} variant="secondary">
               <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit" isDisabled={inviteMutation.isPending}>
+            <Button type="submit" isDisabled={inviteUserMutation.isPending}>
               <Trans>Send invite</Trans>
             </Button>
           </div>

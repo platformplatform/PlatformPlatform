@@ -12,7 +12,7 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getSignupState, setSignupState } from "./-shared/signupState";
-import { api } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";
@@ -44,34 +44,35 @@ export function CompleteSignupForm() {
   const { email, signupId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
-  const completeMutation = api.useMutation("post", "/api/account-management/signups/{id}/complete");
-
-  const resendCodeMutation = api.useMutation("post", "/api/account-management/signups/{id}/resend-code");
+  const completeSignupMutation = api.useMutation("post", "/api/account-management/signups/{id}/complete");
 
   const handleCompleteSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    completeMutation.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: signupId } } });
-  };
-
-  const handleResendSubmit = (formData: FormData) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Same as we do in PlatformServerAction.ts
-    resendCodeMutation.mutate({ body: Object.fromEntries(formData) as any, params: { path: { id: signupId } } });
+    completeSignupMutation.mutate({
+      body: Object.fromEntries(formData) as Schemas["CompleteSignupCommand"],
+      params: { path: { id: signupId } }
+    });
   };
 
   useEffect(() => {
-    if (resendCodeMutation.isSuccess && resendCodeMutation.data) {
-      setSignupState({
-        ...getSignupState(),
-        expireAt: new Date(Date.now() + resendCodeMutation.data.validForSeconds * 1000)
-      });
-    }
-  }, [resendCodeMutation.isSuccess, resendCodeMutation.data]);
-
-  useEffect(() => {
-    if (completeMutation.isSuccess) {
+    if (completeSignupMutation.isSuccess) {
       window.location.href = signedUpPath;
     }
-  }, [completeMutation.isSuccess]);
+  }, [completeSignupMutation.isSuccess]);
+
+  const resendSignupCodeMutation = api.useMutation("post", "/api/account-management/signups/{id}/resend-code");
+
+  const handleResendSubmit = () => {
+    resendSignupCodeMutation.mutate({ params: { path: { id: signupId } } });
+  };
+
+  useEffect(() => {
+    if (resendSignupCodeMutation.isSuccess && resendSignupCodeMutation.data) {
+      setSignupState({
+        ...getSignupState(),
+        expireAt: new Date(Date.now() + resendSignupCodeMutation.data.validForSeconds * 1000)
+      });
+    }
+  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data]);
 
   useEffect(() => {
     if (isExpired) {
@@ -81,7 +82,11 @@ export function CompleteSignupForm() {
 
   return (
     <div className="w-full max-w-sm space-y-3">
-      <Form action={handleCompleteSubmit} validationErrors={completeMutation.error?.errors} validationBehavior="aria">
+      <Form
+        action={handleCompleteSubmit}
+        validationErrors={completeSignupMutation.error?.errors}
+        validationBehavior="aria"
+      >
         <input type="hidden" name="id" value={signupId} />
         <input type="hidden" name="preferredLocale" value={localStorage.getItem(preferredLocaleKey) ?? ""} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
@@ -107,8 +112,12 @@ export function CompleteSignupForm() {
               ariaLabel={t`Signup verification code`}
             />
           </div>
-          <FormErrorMessage error={completeMutation.error} />
-          <Button type="submit" className="mt-4 w-full text-center">
+          <FormErrorMessage error={completeSignupMutation.error} />
+          <Button
+            type="submit"
+            className="mt-4 w-full text-center"
+            isDisabled={completeSignupMutation.isPending || resendSignupCodeMutation.isPending}
+          >
             <Trans>Verify</Trans>
           </Button>
         </div>
@@ -118,7 +127,12 @@ export function CompleteSignupForm() {
         <div className="text-center text-neutral-500 text-xs">
           <Form action={handleResendSubmit} className="inline">
             <input type="hidden" name="id" value={signupId} />
-            <Button type="submit" variant="link" className="text-xs p-0 h-auto">
+            <Button
+              type="submit"
+              variant="link"
+              className="text-xs p-0 h-auto"
+              isDisabled={completeSignupMutation.isPending || resendSignupCodeMutation.isPending}
+            >
               <Trans>Didn't receive the code? Resend</Trans>
             </Button>
           </Form>

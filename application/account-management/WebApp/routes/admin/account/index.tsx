@@ -22,11 +22,10 @@ export const Route = createFileRoute("/admin/account/")({
 
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const { data: tenant, isLoading: loading } = api.useQuery("get", "/api/account-management/tenants/current");
+  const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
+  const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
 
-  const { mutate, error, isPending } = api.useMutation("put", "/api/account-management/tenants/current");
-
-  if (loading) return null;
+  if (isLoading) return null;
 
   return (
     <>
@@ -53,8 +52,8 @@ export function AccountSettings() {
           </div>
 
           <Form
-            onSubmit={createSubmitHandler(mutate)}
-            validationErrors={error?.errors}
+            onSubmit={createSubmitHandler(updateCurrentTenantMutation.mutate)}
+            validationErrors={updateCurrentTenantMutation.error?.errors}
             validationBehavior="aria"
             className="flex flex-col gap-4"
           >
@@ -69,7 +68,7 @@ export function AccountSettings() {
                 isRequired
                 name="name"
                 defaultValue={tenant?.name ?? ""}
-                isDisabled={isPending}
+                isDisabled={updateCurrentTenantMutation.isPending}
                 label={t`Account name`}
                 validationBehavior="aria"
               />
@@ -83,8 +82,8 @@ export function AccountSettings() {
                 isDisabled={true}
               />
             </div>
-            <FormErrorMessage error={error} />
-            <Button type="submit" className="mt-4" isDisabled={isPending}>
+            <FormErrorMessage error={updateCurrentTenantMutation.error} />
+            <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
               <Trans>Save changes</Trans>
             </Button>
           </Form>

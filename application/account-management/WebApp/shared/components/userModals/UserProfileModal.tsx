@@ -70,9 +70,9 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
     }
   }, [onOpenChange, avatarPreviewUrl]);
 
-  const updateUserMutation = api.useMutation("put", "/api/account-management/users/me");
   const updateAvatarMutation = api.useMutation("post", "/api/account-management/users/me/update-avatar");
   const removeAvatarMutation = api.useMutation("delete", "/api/account-management/users/me/remove-avatar");
+  const updateCurrentUserMutation = api.useMutation("put", "/api/account-management/users/me");
 
   const saveMutation = useMutation<
     void,
@@ -83,7 +83,6 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
       if (selectedAvatarFile) {
         const formData = new FormData();
         formData.append("file", selectedAvatarFile);
-
         // biome-ignore lint/suspicious/noExplicitAny: The client does not support typed file uploads, see https://github.com/openapi-ts/openapi-typescript/issues/1214
         await updateAvatarMutation.mutateAsync({ body: formData as any });
       } else if (removeAvatarFlag) {
@@ -91,7 +90,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
         setRemoveAvatarFlag(false);
       }
 
-      await updateUserMutation.mutateAsync(data);
+      await updateCurrentUserMutation.mutateAsync(data);
 
       const { data: updatedUser } = await refetchUser();
 
