@@ -12,9 +12,10 @@ import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import poweredByUrl from "@/shared/images/powered-by.svg";
 import { getLoginState, setLoginState } from "./-shared/loginState";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
+import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
@@ -53,13 +54,6 @@ export function CompleteLoginForm() {
 
   const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
-  const handleCompleteSubmit = (formData: FormData) => {
-    completeLoginMutation.mutate({
-      body: Object.fromEntries(formData) as Schemas["CompleteLoginCommand"],
-      params: { path: { id: loginId } }
-    });
-  };
-
   useEffect(() => {
     if (completeLoginMutation.isSuccess) {
       window.location.href = returnPath ?? loggedInPath;
@@ -70,10 +64,6 @@ export function CompleteLoginForm() {
     "post",
     "/api/account-management/authentication/login/{emailConfirmationId}/resend-code"
   );
-
-  const handleResendSubmit = () => {
-    resendLoginCodeMutation.mutate({ params: { path: { emailConfirmationId: emailConfirmationId } } });
-  };
 
   useEffect(() => {
     if (resendLoginCodeMutation.isSuccess && resendLoginCodeMutation.data) {
@@ -93,7 +83,7 @@ export function CompleteLoginForm() {
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
-        action={handleCompleteSubmit}
+        onSubmit={createSubmitHandler(completeLoginMutation.mutate, { path: { id: loginId } })}
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"
       >
@@ -135,7 +125,12 @@ export function CompleteLoginForm() {
 
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
-          <Form action={handleResendSubmit} className="inline">
+          <Form
+            onSubmit={createSubmitHandler(resendLoginCodeMutation.mutate, {
+              path: { emailConfirmationId: emailConfirmationId }
+            })}
+            className="inline"
+          >
             <input type="hidden" name="id" value={loginId} />
             <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
             <Button

@@ -1,9 +1,27 @@
 import type { FormEvent } from "react";
 
-export function createSubmitHandler<TBody>(mutate: (body: TBody) => void) {
+type MutationParams = {
+  body?: unknown;
+  params?: {
+    path?: Record<string, string>;
+    query?: Record<string, string>;
+  };
+};
+
+export function createSubmitHandler<TBody extends MutationParams>(
+  mutate: (data: TBody) => void,
+  params?: TBody["params"]
+) {
   return (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    mutate({ body: Object.fromEntries(formData) } as TBody);
+    const body = Object.fromEntries(formData);
+
+    const mutationData = {
+      ...(Object.keys(body).length > 0 && { body }),
+      params
+    } as TBody;
+
+    mutate(mutationData);
   };
 }
