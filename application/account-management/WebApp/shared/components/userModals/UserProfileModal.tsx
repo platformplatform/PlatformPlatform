@@ -28,18 +28,13 @@ type ProfileDialogProps = ProfileModalProps & {
 };
 
 export default function UserProfileModal({ isOpen, onOpenChange, userId }: Readonly<ProfileModalProps>) {
-  const [isLoading, onIsLoadingChange] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading}>
-      <UserProfileDialog
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        onIsLoadingChange={onIsLoadingChange}
-        userId={userId}
-      />
+      <UserProfileDialog isOpen={isOpen} onOpenChange={onOpenChange} onIsLoadingChange={setIsLoading} userId={userId} />
     </Modal>
   );
 }
@@ -133,12 +128,10 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange, userId }: Readonly
   if (!user) {
     return (
       <Dialog aria-label={t`User profile`}>
-        {!user && (
-          <Heading slot="title">
-            {isLoading && <Trans>Fetching data...</Trans>}
-            {error && JSON.stringify(error)}
-          </Heading>
-        )}
+        <Heading slot="title">
+          {isLoading && <Trans>Fetching data...</Trans>}
+          {error && JSON.stringify(error)}
+        </Heading>
       </Dialog>
     );
   }
