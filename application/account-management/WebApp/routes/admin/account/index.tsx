@@ -76,7 +76,7 @@ export function AccountSettings() {
 
             <FormErrorMessage error={updateCurrentTenantMutation.error} />
             <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
-              <Trans>Save changes</Trans>
+              {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
             </Button>
           </Form>
 

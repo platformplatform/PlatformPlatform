@@ -232,7 +232,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             <Trans>Cancel</Trans>
           </Button>
           <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>
-            <Trans>Save changes</Trans>
+            {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
           </Button>
         </div>
       </Form>

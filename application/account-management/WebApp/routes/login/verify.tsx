@@ -118,7 +118,7 @@ export function CompleteLoginForm() {
             className="mt-4 w-full text-center"
             isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending}
           >
-            <Trans>Verify</Trans>
+            {completeLoginMutation.isPending ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
           </Button>
         </div>
       </Form>

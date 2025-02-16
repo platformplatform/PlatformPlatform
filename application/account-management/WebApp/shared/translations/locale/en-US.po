@@ -264,6 +264,9 @@ msgstr "Role"
 msgid "Save changes"
 msgstr "Save changes"
 
+msgid "Saving..."
+msgstr "Saving..."
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
@@ -351,6 +354,9 @@ msgstr "Users who haven't confirmed their email"
 
 msgid "Verify"
 msgstr "Verify"
+
+msgid "Verifying..."
+msgstr "Verifying..."
 
 msgid "View active users"
 msgstr "View active users"
