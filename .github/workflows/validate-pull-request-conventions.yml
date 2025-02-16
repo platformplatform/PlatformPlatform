@@ -184,8 +184,8 @@ jobs:
             COMMIT_MESSAGE=$(git log --format=%B -n 1 "$COMMIT")
             COMMIT_SHORT="${COMMIT:0:8}"
 
-            # Ensure single-line commit message unless it's a downstream commit of a pull request cherry-picked from PlatformPlatform
-            if [[ $(echo "$COMMIT_MESSAGE" | wc -l) -gt 1 && ! "$COMMIT_MESSAGE" =~ ^"PlatformPlatform PR" ]]; then
+            # Ensure single-line commit message unless it's a downstream commit of a pull request cherry-picked from PlatformPlatform or a co-authored-by commit
+            if [[ $(echo "$COMMIT_MESSAGE" | wc -l) -gt 1 && ! "$COMMIT_MESSAGE" =~ ^"PlatformPlatform PR" && ! "$COMMIT_MESSAGE" =~ "Co-authored-by: " ]]; then
               echo "❌ Commit $COMMIT_SHORT has multiple lines"
               echo "   Message: $COMMIT_MESSAGE"
               EXIT_CODE=1
