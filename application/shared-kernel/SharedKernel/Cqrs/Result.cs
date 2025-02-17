@@ -86,6 +86,11 @@ public sealed class Result : ResultBase
     {
         return new Result(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges, []);
     }
+
+    public static Result From(ResultBase result)
+    {
+        return new Result(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!);
+    }
 }
 
 /// <summary>
@@ -153,5 +158,10 @@ public sealed class Result<T> : ResultBase
     public static implicit operator Result<T>(T value)
     {
         return Success(value);
+    }
+
+    public static Result<T> From(ResultBase result)
+    {
+        return new Result<T>(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!);
     }
 }
