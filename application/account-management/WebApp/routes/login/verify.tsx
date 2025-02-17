@@ -15,7 +15,7 @@ import { getLoginState, setLoginState } from "./-shared/loginState";
 import { api } from "@/shared/lib/api/client";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useEffect } from "react";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
@@ -83,7 +83,7 @@ export function CompleteLoginForm() {
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
-        onSubmit={createSubmitHandler(completeLoginMutation.mutate, { path: { id: loginId } })}
+        onSubmit={mutationSubmitter(completeLoginMutation, { path: { id: loginId } })}
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"
       >
@@ -126,7 +126,7 @@ export function CompleteLoginForm() {
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
           <Form
-            onSubmit={createSubmitHandler(resendLoginCodeMutation.mutate, {
+            onSubmit={mutationSubmitter(resendLoginCodeMutation, {
               path: { emailConfirmationId: emailConfirmationId }
             })}
             className="inline"

@@ -16,7 +16,7 @@ import { api } from "@/shared/lib/api/client";
 import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { useEffect } from "react";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
@@ -79,9 +79,7 @@ export function CompleteSignupForm() {
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
-        onSubmit={createSubmitHandler(completeSignupMutation.mutate, {
-          path: { emailConfirmationId: emailConfirmationId }
-        })}
+        onSubmit={mutationSubmitter(completeSignupMutation, { path: { emailConfirmationId: emailConfirmationId } })}
         validationErrors={completeSignupMutation.error?.errors}
         validationBehavior="aria"
       >
@@ -124,7 +122,7 @@ export function CompleteSignupForm() {
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
           <Form
-            onSubmit={createSubmitHandler(resendSignupCodeMutation.mutate, {
+            onSubmit={mutationSubmitter(resendSignupCodeMutation, {
               path: { emailConfirmationId: emailConfirmationId }
             })}
             className="inline"

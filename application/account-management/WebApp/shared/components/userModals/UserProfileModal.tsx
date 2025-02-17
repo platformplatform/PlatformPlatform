@@ -11,7 +11,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { useMutation } from "@tanstack/react-query";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -138,7 +138,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
       </p>
 
       <Form
-        onSubmit={createSubmitHandler(saveMutation.mutate)}
+        onSubmit={mutationSubmitter(saveMutation)}
         validationBehavior="aria"
         validationErrors={saveMutation.error?.errors}
         className="flex flex-col gap-4 mt-4"

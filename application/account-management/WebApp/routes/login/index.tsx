@@ -16,7 +16,7 @@ import { setLoginState } from "./-shared/loginState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -67,7 +67,7 @@ export function LoginForm() {
 
   return (
     <Form
-      onSubmit={createSubmitHandler(startLoginMutation.mutate)}
+      onSubmit={mutationSubmitter(startLoginMutation)}
       validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"

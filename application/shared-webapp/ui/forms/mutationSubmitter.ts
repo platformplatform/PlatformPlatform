@@ -8,8 +8,8 @@ type MutationParams = {
   };
 };
 
-export function createSubmitHandler<TBody extends MutationParams>(
-  mutate: (data: TBody) => void,
+export function mutationSubmitter<TBody extends MutationParams>(
+  mutation: { mutate: (data: TBody) => void },
   params?: TBody["params"]
 ) {
   return (event: FormEvent<HTMLFormElement>) => {
@@ -22,6 +22,6 @@ export function createSubmitHandler<TBody extends MutationParams>(
       params
     } as TBody;
 
-    mutate(mutationData);
+    mutation.mutate(mutationData);
   };
 }

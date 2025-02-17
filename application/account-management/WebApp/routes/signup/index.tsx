@@ -18,7 +18,7 @@ import { setSignupState } from "./-shared/signupState";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -60,7 +60,7 @@ export function StartSignupForm() {
 
   return (
     <Form
-      onSubmit={createSubmitHandler(startSignupMutation.mutate)}
+      onSubmit={mutationSubmitter(startSignupMutation)}
       validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"

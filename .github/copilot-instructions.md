@@ -133,7 +133,7 @@ Use the Frontend sample below to understand the rules.
   const completeLoginMutation = api.useMutation("post", "/api/login/{id}/complete"); // Should match .NET Command
 
   <Form
-    onSubmit={createSubmitHandler(completeLoginMutation.mutate, { path: { id: loginId } })}
+    onSubmit={mutationSubmitter(completeLoginMutation, { path: { id: loginId } })}
     validationErrors={completeLoginMutation.error?.errors}
   >
     <TextField name="oneTimePassword" type="password" />

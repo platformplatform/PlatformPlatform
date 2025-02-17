@@ -10,7 +10,7 @@ import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 type InviteUserModalProps = {
   isOpen: boolean;
@@ -43,7 +43,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
         </p>
 
         <Form
-          onSubmit={createSubmitHandler(inviteUserMutation.mutate)}
+          onSubmit={mutationSubmitter(inviteUserMutation)}
           validationErrors={inviteUserMutation.error?.errors}
           validationBehavior="aria"
           className="flex flex-col gap-4 mt-4"

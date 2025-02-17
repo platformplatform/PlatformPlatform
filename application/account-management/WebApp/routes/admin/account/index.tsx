@@ -14,7 +14,7 @@ import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
-import { createSubmitHandler } from "@repo/ui/forms/createSubmitHandler";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
@@ -52,7 +52,7 @@ export function AccountSettings() {
           </div>
 
           <Form
-            onSubmit={createSubmitHandler(updateCurrentTenantMutation.mutate)}
+            onSubmit={mutationSubmitter(updateCurrentTenantMutation)}
             validationErrors={updateCurrentTenantMutation.error?.errors}
             validationBehavior="aria"
             className="flex flex-col gap-4"
