@@ -298,11 +298,11 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
+msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
+msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræftelses-ID: {emailConfirmationId}"
+
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
-
-msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for tilmeldings-ID: {signupId}"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"

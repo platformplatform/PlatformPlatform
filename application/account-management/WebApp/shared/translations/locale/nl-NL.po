@@ -298,11 +298,11 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
+msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
+msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailbevestiging ID: {emailConfirmationId}"
+
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
-
-msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
-msgstr "De verificatiecode die u probeert te gebruiken is verlopen voor Registratie-ID: {signupId}"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"

@@ -298,11 +298,11 @@ msgstr "Signup verification code"
 msgid "Terms of use"
 msgstr "Terms of use"
 
+msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
+msgstr "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
+
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
-
-msgid "The verification code you are trying to use has expired for Signup ID: {signupId}"
-msgstr "The verification code you are trying to use has expired for Signup ID: {signupId}"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"

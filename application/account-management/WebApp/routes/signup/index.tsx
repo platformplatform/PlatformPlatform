@@ -49,10 +49,10 @@ export function StartSignupForm() {
   );
 
   if (success === true) {
-    const { signupId, validForSeconds } = data;
+    const { emailConfirmationId, validForSeconds } = data;
 
     setSignupState({
-      signupId,
+      emailConfirmationId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });
