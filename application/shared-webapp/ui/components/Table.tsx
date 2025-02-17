@@ -5,12 +5,12 @@
 import { ArrowUp } from "lucide-react";
 import {
   Cell as AriaCell,
+  type CellProps as AriaCellProps,
   Column as AriaColumn,
   Row as AriaRow,
   Table as AriaTable,
   TableHeader as AriaTableHeader,
   Button,
-  type CellProps as AriaCellProps,
   Collection,
   type ColumnProps,
   ColumnResizer,
@@ -23,9 +23,9 @@ import {
   useTableOptions
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
+import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
-import { Checkbox } from "./Checkbox";
 
 export { TableBody, useContextProps } from "react-aria-components";
 

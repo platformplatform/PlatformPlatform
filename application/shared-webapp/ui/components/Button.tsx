@@ -1,3 +1,4 @@
+import type React from "react";
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/button--docs
  * ref: https://ui.shadcn.com/docs/components/button
@@ -5,7 +6,6 @@
 import { Button as AriaButton, type ButtonProps as AriaButtonProps, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
-import type React from "react";
 
 export interface ButtonProps extends AriaButtonProps, React.RefAttributes<HTMLButtonElement> {
   /**

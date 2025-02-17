@@ -1,14 +1,14 @@
-import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { useEffect, useState } from "react";
-import { LogOutIcon, UserIcon } from "lucide-react";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
-import { Avatar } from "@repo/ui/components/Avatar";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
-import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { loginPath } from "@repo/infrastructure/auth/constants";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { LogOutIcon, UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label": string }) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);

@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Trans } from "@lingui/react/macro";
-import { TopMenu } from "@/shared/components/topMenu";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import { TopMenu } from "@/shared/components/topMenu";
 import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/back-office/")({
   component: Home

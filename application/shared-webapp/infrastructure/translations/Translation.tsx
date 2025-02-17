@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { type Messages, i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import { i18n, type Messages } from "@lingui/core";
+import { useMemo, useState } from "react";
+import { type TranslationContext, translationContext } from "./TranslationContext";
 import localeMap from "./i18n.config.json";
-import { translationContext, type TranslationContext } from "./TranslationContext";
 
 export type Locale = keyof typeof localeMap;
 

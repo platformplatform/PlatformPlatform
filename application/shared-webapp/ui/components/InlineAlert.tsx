@@ -3,9 +3,9 @@
  * ref: https://mui.com/material-ui/react-alert/#severity
  */
 import { CircleCheckBigIcon, InfoIcon, type LucideIcon, TriangleAlertIcon } from "lucide-react";
+import type React from "react";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
-import type React from "react";
 
 const styles = tv({
   extend: focusRing,

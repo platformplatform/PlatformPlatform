@@ -1,7 +1,7 @@
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { Modal } from "@repo/ui/components/Modal";
 
 type DeleteAccountConfirmationProps = {
   isOpen: boolean;

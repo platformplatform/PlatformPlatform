@@ -1,3 +1,4 @@
+import type { RefAttributes } from "react";
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
  */
@@ -5,7 +6,6 @@ import type { GroupProps } from "react-aria-components";
 import { Group as AriaGroup, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
-import type { RefAttributes } from "react";
 
 const styles = tv({
   extend: focusRing,

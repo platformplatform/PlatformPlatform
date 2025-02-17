@@ -1,12 +1,12 @@
-import { LanguagesIcon, CheckIcon } from "lucide-react";
-import { type Locale, translationContext } from "./TranslationContext";
-import { use, useContext, useMemo } from "react";
 import { useLingui } from "@lingui/react";
+import type { Key } from "@react-types/shared";
+import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { CheckIcon, LanguagesIcon } from "lucide-react";
+import { use, useContext, useMemo } from "react";
+import { type Locale, translationContext } from "./TranslationContext";
 import { preferredLocaleKey } from "./constants";
-import type { Key } from "@react-types/shared";
 
 export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": string }) {
   const { setLocale, getLocaleInfo, locales } = use(translationContext);

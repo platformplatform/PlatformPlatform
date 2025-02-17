@@ -1,6 +1,6 @@
-import { toggleThemeMode, useThemeMode } from "./mode/ThemeMode";
 import { Button } from "@repo/ui/components/Button";
 import { MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
+import { toggleThemeMode, useThemeMode } from "./mode/ThemeMode";
 
 /**
  * A button that toggles the theme mode between light and dark.

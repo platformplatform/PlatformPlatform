@@ -1,10 +1,10 @@
 import "@repo/ui/tailwind.css";
 import { router } from "@/shared/lib/router/router";
+import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
+import { Translation } from "@repo/infrastructure/translations/Translation";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Translation } from "@repo/infrastructure/translations/Translation";
-import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 
 const { TranslationProvider } = await Translation.create(
   (locale) => import(`@/shared/translations/locale/${locale}.ts`)

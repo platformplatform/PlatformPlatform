@@ -1,9 +1,9 @@
+import heroDesktopBlurImage from "@/shared//images/hero-desktop-blur.webp";
+import heroDesktopImage from "@/shared//images/hero-desktop-xl.webp";
+import heroMobileBlurImage from "@/shared/images/hero-mobile-blur.webp";
+import heroMobileImage from "@/shared/images/hero-mobile-xl.webp";
 import { t } from "@lingui/core/macro";
 import { Image } from "@repo/ui/components/Image";
-import heroMobileImage from "@/shared/images/hero-mobile-xl.webp";
-import heroMobileBlurImage from "@/shared/images/hero-mobile-blur.webp";
-import heroDesktopImage from "@/shared//images/hero-desktop-xl.webp";
-import heroDesktopBlurImage from "@/shared//images/hero-desktop-blur.webp";
 
 export function HeroImage() {
   return (

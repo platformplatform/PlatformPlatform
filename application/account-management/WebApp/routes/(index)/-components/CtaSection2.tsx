@@ -1,5 +1,5 @@
-import { calenderMockupUrl } from "./cdnImages";
 import { Button } from "@repo/ui/components/Button";
+import { calenderMockupUrl } from "./cdnImages";
 
 // CtaSection2: A functional component that displays the second call to action section
 export function CtaSection2() {

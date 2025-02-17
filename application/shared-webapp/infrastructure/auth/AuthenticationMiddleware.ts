@@ -1,10 +1,11 @@
 import type { Middleware } from "openapi-fetch";
-import { createLoginUrlWithReturnPath } from "./util";
 import { loginPath } from "./constants";
+import { createLoginUrlWithReturnPath } from "./util";
 
 type AuthenticationMiddlewareOptions = {
   customLoginPath?: string;
 };
+
 export function createAuthenticationMiddleware(options?: AuthenticationMiddlewareOptions): Middleware {
   return {
     onResponse(context) {

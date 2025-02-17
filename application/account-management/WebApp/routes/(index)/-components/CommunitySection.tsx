@@ -1,7 +1,7 @@
-import { githubImageUrl, slackImageUrl, youtubeImageUrl } from "./cdnImages";
 import { Link } from "@repo/ui/components/Link";
 import { ArrowRight } from "lucide-react";
 import type { LinkProps } from "react-aria-components";
+import { githubImageUrl, slackImageUrl, youtubeImageUrl } from "./cdnImages";
 
 // Props for FeatureBlock component
 interface FeatureBlockProps {

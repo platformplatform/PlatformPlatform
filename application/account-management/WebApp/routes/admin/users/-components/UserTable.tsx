@@ -1,22 +1,22 @@
-import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
-import type { SortDescriptor } from "react-aria-components";
-import { MenuTrigger, TableBody } from "react-aria-components";
-import { useCallback, useState } from "react";
-import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
-import { Badge } from "@repo/ui/components/Badge";
-import { Pagination } from "@repo/ui/components/Pagination";
-import { Select, SelectItem } from "@repo/ui/components/Select";
-import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { Button } from "@repo/ui/components/Button";
-import { Avatar } from "@repo/ui/components/Avatar";
-import { type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { SortOrder, SortableUserProperties, UserRole, api, type components } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { Modal } from "@repo/ui/components/Modal";
+import { Pagination } from "@repo/ui/components/Pagination";
+import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { useCallback, useState } from "react";
+import type { SortDescriptor } from "react-aria-components";
+import { MenuTrigger, TableBody } from "react-aria-components";
 
 type UserDetails = components["schemas"]["UserDetails"];
 

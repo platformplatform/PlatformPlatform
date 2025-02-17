@@ -1,24 +1,24 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import poweredByUrl from "@/shared/images/powered-by.svg";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
+import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
-import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
-import { getSignupState, setSignupState } from "./-shared/signupState";
-import { api } from "@/shared/lib/api/client";
-import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
-import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
-import { useEffect } from "react";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {

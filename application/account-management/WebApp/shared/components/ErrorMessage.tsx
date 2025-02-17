@@ -1,9 +1,9 @@
-import { useEffect } from "react";
-import type { ErrorComponentProps } from "@tanstack/react-router";
-import ErrorIllustration from "@spectrum-icons/illustrations/Error";
-import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
-import { Button } from "@repo/ui/components/Button";
 import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
+import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
+import ErrorIllustration from "@spectrum-icons/illustrations/Error";
+import type { ErrorComponentProps } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export function ErrorMessage({ error, reset }: Readonly<ErrorComponentProps>) {
   useEffect(() => {

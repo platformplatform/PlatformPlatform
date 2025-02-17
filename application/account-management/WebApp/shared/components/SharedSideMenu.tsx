@@ -1,8 +1,8 @@
-import type React from "react";
-import { MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
-import { CircleUserIcon, HomeIcon, UsersIcon } from "lucide-react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
+import { CircleUserIcon, HomeIcon, UsersIcon } from "lucide-react";
+import type React from "react";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;

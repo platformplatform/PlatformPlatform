@@ -1,16 +1,16 @@
-import { FilterIcon, FilterXIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { type SortOrder, type SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { type DateValue, parseDate } from "@internationalized/date";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { SearchField } from "@repo/ui/components/SearchField";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { Select, SelectItem } from "@repo/ui/components/Select";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
-import { parseDate, type DateValue } from "@internationalized/date";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { FilterIcon, FilterXIcon } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {

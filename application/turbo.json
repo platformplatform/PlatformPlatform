@@ -7,7 +7,8 @@
       "dependsOn": ["^build"]
     },
     "check": {
-      "dependsOn": ["^check"]
+      "dependsOn": ["^check"],
+      "cache": false
     },
     "dev": {
       "cache": false,
@@ -20,10 +21,12 @@
       "outputs": ["dist/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint"],
+      "cache": false
     },
     "format": {
-      "dependsOn": ["^format"]
+      "dependsOn": ["^format"],
+      "cache": false
     },
     "clean": {
       "cache": false

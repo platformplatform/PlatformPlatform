@@ -1,5 +1,5 @@
-import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 
 /**
  * Rsbuild plugin that adds the TanStack router to the build pipeline.

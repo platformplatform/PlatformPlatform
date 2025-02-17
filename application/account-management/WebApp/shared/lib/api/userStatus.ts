@@ -1,5 +1,5 @@
-import { t } from "@lingui/core/macro";
 import { UserStatus } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
 
 export function getUserStatusLabel(userStatus: UserStatus): string {
   switch (userStatus) {

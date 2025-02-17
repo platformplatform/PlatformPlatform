@@ -16,7 +16,7 @@
     "build": "rimraf ./dist && npm run copyImages && tsc -p .",
     "copyImages": "node ./copyImages.js",
     "check": "biome check",
-    "lint": "biome lint --write",
+    "lint": "biome check --write --unsafe",
     "format": "biome format --write"
   },
   "devDependencies": {

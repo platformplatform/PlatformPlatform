@@ -1,16 +1,16 @@
-import { useCallback, useEffect } from "react";
-import { Button } from "@repo/ui/components/Button";
-import { TextField } from "@repo/ui/components/TextField";
-import { Heading } from "@repo/ui/components/Heading";
-import { Form } from "@repo/ui/components/Form";
-import { XIcon } from "lucide-react";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { Modal } from "@repo/ui/components/Modal";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { Form } from "@repo/ui/components/Form";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { Heading } from "@repo/ui/components/Heading";
+import { Modal } from "@repo/ui/components/Modal";
+import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { XIcon } from "lucide-react";
+import { useCallback, useEffect } from "react";
 
 type InviteUserModalProps = {
   isOpen: boolean;

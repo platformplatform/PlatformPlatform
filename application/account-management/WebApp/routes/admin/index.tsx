@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import { TopMenu } from "@/shared/components/topMenu";
+import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { api, UserStatus } from "@/shared/lib/api/client";
-import { TopMenu } from "@/shared/components/topMenu";
-import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/")({
   component: Home

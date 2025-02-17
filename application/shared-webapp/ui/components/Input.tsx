@@ -1,3 +1,4 @@
+import type React from "react";
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
  * ref: https://ui.shadcn.com/docs/components/input
@@ -6,7 +7,6 @@ import type { InputProps as AriaInputProps } from "react-aria-components";
 import { Input as AriaInput, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
-import type React from "react";
 
 export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefAttributes<HTMLInputElement> {
   isDisabled?: boolean;

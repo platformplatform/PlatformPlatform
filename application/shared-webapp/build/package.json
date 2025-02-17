@@ -16,7 +16,7 @@
     "dev:setup": "tsc -b . environment",
     "build": "rimraf ./dist && tsc -b . environment",
     "check": "biome check",
-    "lint": "biome lint --write",
+    "lint": "biome check --write --unsafe",
     "format": "biome format --write"
   },
   "devDependencies": {

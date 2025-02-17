@@ -3,6 +3,7 @@
  * ref: https://ui.shadcn.com/docs/components/context-menu
  */
 import { Check, ChevronRight } from "lucide-react";
+import type React from "react";
 import {
   Menu as AriaMenu,
   MenuItem as AriaMenuItem,
@@ -17,7 +18,6 @@ import {
 import { tv } from "tailwind-variants";
 import { DropdownSection, type DropdownSectionProps, dropdownItemStyles } from "./Dropdown";
 import { Popover, type PopoverProps } from "./Popover";
-import type React from "react";
 
 export { MenuTrigger, SubmenuTrigger } from "react-aria-components";
 

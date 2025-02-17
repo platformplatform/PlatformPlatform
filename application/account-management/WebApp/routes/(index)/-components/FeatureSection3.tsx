@@ -1,6 +1,6 @@
-import { createAccountUrl } from "./cdnImages";
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { t } from "@lingui/core/macro";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
+import { createAccountUrl } from "./cdnImages";
 
 // FeatureSection3: A functional component that displays the third feature section
 export function FeatureSection3() {

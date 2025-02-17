@@ -1,8 +1,8 @@
-import { FocusScope, useFocusManager, useKeyboard } from "react-aria";
-import { Button } from "./Button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import { tv } from "tailwind-variants";
 import type { ReactNode } from "react";
+import { FocusScope, useFocusManager, useKeyboard } from "react-aria";
+import { tv } from "tailwind-variants";
+import { Button } from "./Button";
 
 const pageBackgroundStyle = tv({
   base: "flex gap-1 rounded-md h-10 items-center"

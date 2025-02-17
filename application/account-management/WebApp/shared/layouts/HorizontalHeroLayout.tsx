@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
 import { HeroImage } from "@/shared/components/HeroImage";
-import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
-import { Button } from "@repo/ui/components/Button";
 import { t } from "@lingui/core/macro";
+import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
+import { Button } from "@repo/ui/components/Button";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { LifeBuoyIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface HorizontalHeroLayoutProps {
   children: ReactNode;

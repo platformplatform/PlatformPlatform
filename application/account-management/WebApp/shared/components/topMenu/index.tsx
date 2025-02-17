@@ -1,12 +1,12 @@
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import AvatarButton from "../AvatarButton";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 
 interface TopMenuProps {
   children?: ReactNode;

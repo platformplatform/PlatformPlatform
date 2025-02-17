@@ -1,17 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { UserQuerying } from "./-components/UserQuerying";
-import { UserTable } from "./-components/UserTable";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
-import { SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
-import { z } from "zod";
 import { TopMenu } from "@/shared/components/topMenu";
+import { SortOrder, SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
+import { createFileRoute } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { z } from "zod";
 import InviteUserModal from "./-components/InviteUserModal";
-import { Trans } from "@lingui/react/macro";
-import { t } from "@lingui/core/macro";
+import { UserQuerying } from "./-components/UserQuerying";
+import { UserTable } from "./-components/UserTable";
 
 const userPageSearchSchema = z.object({
   search: z.string().optional(),

@@ -1,16 +1,16 @@
-import { DialogTrigger } from "react-aria-components";
-import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
-import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
-import { Button } from "@repo/ui/components/Button";
-import { Popover } from "@repo/ui/components/Popover";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { Link } from "@repo/ui/components/Link";
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
-import { Badge } from "@repo/ui/components/Badge";
 import logoMark from "@/shared/images/logo-mark.svg";
+import { t } from "@lingui/core/macro";
 import { LoginButton } from "@repo/infrastructure/auth/LoginButton";
 import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
-import { t } from "@lingui/core/macro";
+import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { Link } from "@repo/ui/components/Link";
+import { Popover } from "@repo/ui/components/Popover";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
+import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
+import { DialogTrigger } from "react-aria-components";
+import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
 
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {

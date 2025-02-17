@@ -1,20 +1,20 @@
-import logoWrap from "@/shared/images/logo-wrap.svg";
-import { Button } from "@repo/ui/components/Button";
-import { TextField } from "@repo/ui/components/TextField";
-import { Label, Separator } from "react-aria-components";
-import { Trash2 } from "lucide-react";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { createFileRoute } from "@tanstack/react-router";
-import { Form } from "@repo/ui/components/Form";
-import { useState } from "react";
-import { api } from "@/shared/lib/api/client";
-import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
+import logoWrap from "@/shared/images/logo-wrap.svg";
+import { api } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
+import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { createFileRoute } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Label, Separator } from "react-aria-components";
+import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings

@@ -1,6 +1,6 @@
-import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo } from "./cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
+import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo } from "./cdnImages";
 
 // FooterSection: A functional component that displays the footer section
 export function FooterSection() {
