@@ -181,7 +181,7 @@
         }
       }
     },
-    "/api/account-management/signups/{id}/complete": {
+    "/api/account-management/signups/{emailConfirmationId}/complete": {
       "post": {
         "tags": [
           "Signups"
@@ -189,11 +189,11 @@
         "operationId": "PostApiAccountManagementSignupsComplete",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SignupId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -217,7 +217,7 @@
         }
       }
     },
-    "/api/account-management/signups/{id}/resend-code": {
+    "/api/account-management/signups/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Signups"
@@ -225,11 +225,11 @@
         "operationId": "PostApiAccountManagementSignupsResendCode",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SignupId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -240,7 +240,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResendSignupCodeResponse"
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
                 }
               }
             }
@@ -719,8 +719,8 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "signupId": {
-            "$ref": "#/components/schemas/SignupId"
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
           },
           "validForSeconds": {
             "type": "integer",
@@ -728,14 +728,14 @@
           }
         }
       },
-      "SignupId": {
+      "EmailConfirmationId": {
         "type": "string",
-        "format": "signup_{string}"
+        "format": "econf_{string}"
       },
-      "StronglyTypedUlidOfSignupId": {
+      "StronglyTypedUlidOfEmailConfirmationId": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSignupId"
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
           },
           {
             "type": "object",
@@ -744,7 +744,7 @@
           }
         ]
       },
-      "StronglyTypedIdOfStringAndSignupId": {
+      "StronglyTypedIdOfStringAndEmailConfirmationId": {
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false,
@@ -768,16 +768,18 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
           "oneTimePassword": {
             "type": "string"
           },
           "preferredLocale": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         }
       },
-      "ResendSignupCodeResponse": {
+      "ResendEmailConfirmationCodeResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

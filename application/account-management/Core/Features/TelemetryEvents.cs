@@ -51,23 +51,11 @@ public sealed class LoginCodeResend(UserId userId, int secondsSinceSignupStarted
 public sealed class Logout
     : TelemetryEvent;
 
-public sealed class SignupBlocked(TenantId tenantId, int retryCount)
-    : TelemetryEvent(("tenant_id", tenantId), ("retry_count", retryCount));
-
 public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
     : TelemetryEvent(("tenant_id", tenantId), ("signup_time_in_seconds", signupTimeInSeconds));
 
-public sealed class SignupCodeResend(TenantId tenantId, int secondsSinceSignupStarted)
-    : TelemetryEvent(("tenant_id", tenantId), ("seconds_since_signup_started", secondsSinceSignupStarted));
-
-public sealed class SignupExpired(TenantId tenantId, int secondsFromCreation)
-    : TelemetryEvent(("tenant_id", tenantId), ("seconds_from_creation", secondsFromCreation));
-
-public sealed class SignupFailed(TenantId tenantId, int retryCount)
-    : TelemetryEvent(("tenant_id", tenantId), ("retry_count", retryCount));
-
-public sealed class SignupStarted(TenantId tenantId)
-    : TelemetryEvent(("tenant_id", tenantId));
+public sealed class SignupStarted
+    : TelemetryEvent;
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

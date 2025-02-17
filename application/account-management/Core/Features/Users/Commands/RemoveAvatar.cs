@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 [PublicAPI]
 public sealed record RemoveAvatarCommand : ICommand, IRequest<Result>;
 
-public sealed class RemoveAvatarCommandHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+public sealed class RemoveAvatarHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<RemoveAvatarCommand, Result>
 {
     public async Task<Result> Handle(RemoveAvatarCommand command, CancellationToken cancellationToken)

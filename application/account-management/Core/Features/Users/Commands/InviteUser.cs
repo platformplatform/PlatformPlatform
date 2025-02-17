@@ -41,7 +41,9 @@ public sealed class InviteUserHandler(
             return Result.Forbidden("Only owners are allowed to invite other users.");
         }
 
-        var result = await mediator.Send(new CreateUserCommand(command.Email, UserRole.Member, false, null), cancellationToken);
+        var result = await mediator.Send(
+            new CreateUserCommand(executionContext.TenantId, command.Email, UserRole.Member, false, null), cancellationToken
+        );
 
         events.CollectEvent(new UserInvited(result.Value!));
 

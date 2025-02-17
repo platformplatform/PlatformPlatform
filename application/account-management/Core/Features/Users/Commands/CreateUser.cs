@@ -1,5 +1,4 @@
 using FluentValidation;
-using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
@@ -13,15 +12,10 @@ using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
-[PublicAPI]
-public sealed record CreateUserCommand(string Email, UserRole UserRole, bool EmailConfirmed, string? PreferredLocale)
-    : ICommand, IRequest<Result<UserId>>
-{
-    [JsonIgnore]
-    internal TenantId? TenantId { get; init; }
-}
+internal sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed, string? PreferredLocale)
+    : ICommand, IRequest<Result<UserId>>;
 
-public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
+internal sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
     {
@@ -35,7 +29,7 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
     }
 }
 
-public sealed class CreateUserHandler(
+internal sealed class CreateUserHandler(
     IUserRepository userRepository,
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
@@ -45,17 +39,15 @@ public sealed class CreateUserHandler(
 {
     public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.TenantId is not null && command.TenantId is not null)
+        if (executionContext.TenantId is not null && executionContext.TenantId != command.TenantId)
         {
             throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
         }
 
-        var tenantId = command.TenantId ?? executionContext.TenantId!;
-
         var locale = SinglePageAppConfiguration.SupportedLocalizations.Contains(command.PreferredLocale)
             ? command.PreferredLocale
             : string.Empty;
-        var user = User.Create(tenantId, command.Email, command.UserRole, command.EmailConfirmed, locale);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale);
 
         await userRepository.AddAsync(user, cancellationToken);
         var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);
