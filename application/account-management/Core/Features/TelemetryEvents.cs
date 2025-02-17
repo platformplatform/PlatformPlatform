@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
@@ -13,6 +14,21 @@ namespace PlatformPlatform.AccountManagement.Features;
 /// data quality from the start.
 public sealed class AuthenticationTokensRefreshed
     : TelemetryEvent;
+
+public sealed class EmailConfirmationBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+
+public sealed class EmailConfirmationExpired(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int timeInSeconds)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("time_in_seconds", timeInSeconds));
+
+public sealed class EmailConfirmationFailed(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+
+public sealed class EmailConfirmationResend(int secondsSinceSignupStarted)
+    : TelemetryEvent(("seconds_since_signup_started", secondsSinceSignupStarted));
+
+public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int resendCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("resend_count", resendCount));
 
 public sealed class LoginBlocked(UserId userId, int retryCount)
     : TelemetryEvent(("user_id", userId), ("retry_count", retryCount));
