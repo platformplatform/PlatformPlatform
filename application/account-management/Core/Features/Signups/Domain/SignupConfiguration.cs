@@ -9,7 +9,7 @@ public sealed class SignupConfiguration : IEntityTypeConfiguration<Signup>
 {
     public void Configure(EntityTypeBuilder<Signup> builder)
     {
-        builder.MapStronglyTypedUuid<Signup, SignupId>(a => a.Id);
-        builder.MapStronglyTypedLongId<Signup, TenantId>(u => u.TenantId);
+        builder.MapStronglyTypedUuid<Signup, SignupId>(s => s.Id);
+        builder.MapStronglyTypedLongId<Signup, TenantId>(s => s.TenantId);
     }
 }

@@ -9,8 +9,8 @@ public sealed class LoginConfiguration : IEntityTypeConfiguration<Login>
 {
     public void Configure(EntityTypeBuilder<Login> builder)
     {
-        builder.MapStronglyTypedId<Login, LoginId, string>(t => t.Id);
-        builder.MapStronglyTypedLongId<Login, TenantId>(u => u.TenantId);
-        builder.MapStronglyTypedUuid<Login, UserId>(u => u.UserId);
+        builder.MapStronglyTypedId<Login, LoginId, string>(l => l.Id);
+        builder.MapStronglyTypedLongId<Login, TenantId>(l => l.TenantId);
+        builder.MapStronglyTypedUuid<Login, UserId>(l => l.UserId);
     }
 }
