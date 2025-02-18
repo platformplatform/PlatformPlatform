@@ -9,7 +9,7 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Button } from "@repo/ui/components/Button";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { api, type components, SortableUserProperties, SortOrder, UserRole, useApi } from "@/shared/lib/api/client";
+import { type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -34,7 +34,7 @@ export function UserTable() {
 
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data } = useApi("/api/account-management/users", {
+  const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
       query: {
         Search: search,
@@ -82,20 +82,24 @@ export function UserTable() {
     [navigate]
   );
 
+  const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
+
   const handleDelete = useCallback(async () => {
     if (!userToDelete) return;
 
-    await api.delete("/api/account-management/users/{id}", { params: { path: { id: userToDelete.id } } });
+    await deleteUserMutation.mutateAsync({ params: { path: { id: userToDelete.id } } });
 
     setRefreshKey((prev) => prev + 1);
     setUserToDelete(null);
-  }, [userToDelete]);
+  }, [userToDelete, deleteUserMutation]);
+
+  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
 
   const handleUserRoleChange = useCallback(
     async (newUserRole: UserRole) => {
       if (!userToChangeRole) return;
 
-      await api.put("/api/account-management/users/{id}/change-user-role", {
+      await changeUserRoleMutation.mutateAsync({
         params: { path: { id: userToChangeRole.id } },
         body: { userRole: newUserRole }
       });
@@ -103,10 +107,12 @@ export function UserTable() {
       setRefreshKey((prev) => prev + 1);
       setUserToChangeRole(null);
     },
-    [userToChangeRole]
+    [userToChangeRole, changeUserRoleMutation]
   );
 
-  const currentPage = (data?.currentPageOffset ?? 0) + 1;
+  if (isLoading) return null;
+
+  const currentPage = (users?.currentPageOffset ?? 0) + 1;
 
   return (
     <>
@@ -195,7 +201,7 @@ export function UserTable() {
             </Column>
           </TableHeader>
           <TableBody>
-            {data?.users.map((user) => (
+            {users?.users.map((user) => (
               <Row key={user.id}>
                 <Cell>
                   <div className="flex h-14 items-center gap-2">
@@ -274,19 +280,19 @@ export function UserTable() {
             ))}
           </TableBody>
         </Table>
-        {data && (
+        {users && (
           <>
             <Pagination
               paginationSize={5}
               currentPage={currentPage}
-              totalPages={data?.totalPages ?? 1}
+              totalPages={users?.totalPages ?? 1}
               onPageChange={handlePageChange}
               className="w-full pr-12 sm:hidden"
             />
             <Pagination
               paginationSize={9}
               currentPage={currentPage}
-              totalPages={data?.totalPages ?? 1}
+              totalPages={users?.totalPages ?? 1}
               onPageChange={handlePageChange}
               previousLabel={t`Previous`}
               nextLabel={t`Next`}

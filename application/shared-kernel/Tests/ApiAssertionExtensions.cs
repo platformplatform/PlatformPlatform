@@ -125,12 +125,15 @@ public static class ApiAssertionExtensions
 
         if (expectedErrors is not null)
         {
-            var actualErrorsJson = (JsonElement)problemDetails.Extensions["Errors"]!;
-            var actualErrors = JsonSerializer.Deserialize<ErrorDetail[]>(
+            var actualErrorsJson = (JsonElement)problemDetails.Extensions["errors"]!;
+            var actualErrors = JsonSerializer.Deserialize<Dictionary<string, string[]>>(
                 actualErrorsJson.GetRawText(), SharedDependencyConfiguration.DefaultJsonSerializerOptions
             );
 
-            actualErrors.Should().BeEquivalentTo(expectedErrors);
+            var expectedErrorsDictionary = expectedErrors
+                .ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message });
+
+            actualErrors.Should().BeEquivalentTo(expectedErrorsDictionary);
         }
 
         if (hasTraceId)

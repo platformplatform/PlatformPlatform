@@ -264,6 +264,9 @@ msgstr "Rol"
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
 
+msgid "Saving..."
+msgstr "Opslaan..."
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versies"
 
@@ -351,6 +354,9 @@ msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
 msgid "Verify"
 msgstr "Verifiëren"
+
+msgid "Verifying..."
+msgstr "Verifiëren..."
 
 msgid "View active users"
 msgstr "Actieve gebruikers bekijken"

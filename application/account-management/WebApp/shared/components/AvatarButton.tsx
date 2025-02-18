@@ -22,8 +22,10 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
 
   if (!userInfo) return null;
 
+  const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
+
   async function logout() {
-    await api.post("/api/account-management/authentication/logout");
+    await logoutMutation.mutateAsync({});
     window.location.href = createLoginUrlWithReturnPath(loginPath);
   }
 
@@ -55,7 +57,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
         </Menu>
       </MenuTrigger>
 
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} userId={userInfo.id ?? ""} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
     </>
   );
 }

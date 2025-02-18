@@ -10,12 +10,13 @@ import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 import { setLoginState } from "./-shared/loginState";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -49,13 +50,10 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const { returnPath } = Route.useSearch();
 
-  const [{ success, errors, data, title, message }, action, isPending] = useActionState(
-    api.actionPost("/api/account-management/authentication/login/start"),
-    { success: null }
-  );
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
 
-  if (success === true) {
-    const { loginId, emailConfirmationId, validForSeconds } = data;
+  if (startLoginMutation.isSuccess) {
+    const { loginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
 
     setLoginState({
       loginId,
@@ -69,8 +67,8 @@ export function LoginForm() {
 
   return (
     <Form
-      action={action}
-      validationErrors={errors}
+      onSubmit={mutationSubmitter(startLoginMutation)}
+      validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
@@ -95,8 +93,8 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <FormErrorMessage title={title} message={message} />
-      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
+      <FormErrorMessage error={startLoginMutation.error} />
+      <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>
       <div className="text-muted-foreground text-sm">

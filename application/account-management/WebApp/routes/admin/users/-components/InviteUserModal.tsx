@@ -1,15 +1,16 @@
-import { useActionState, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
 import { Heading } from "@repo/ui/components/Heading";
 import { Form } from "@repo/ui/components/Form";
 import { XIcon } from "lucide-react";
 import { Dialog } from "@repo/ui/components/Dialog";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Modal } from "@repo/ui/components/Modal";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 
 type InviteUserModalProps = {
   isOpen: boolean;
@@ -21,17 +22,14 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
     onOpenChange(false);
   }, [onOpenChange]);
 
-  const [{ success, errors, title, message }, action, isPending] = useActionState(
-    api.actionPost("/api/account-management/users/invite"),
-    { success: null }
-  );
+  const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
 
   useEffect(() => {
-    if (success) {
+    if (inviteUserMutation.isSuccess) {
       closeDialog();
       window.location.reload();
     }
-  }, [success, closeDialog]);
+  }, [inviteUserMutation.isSuccess, closeDialog]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
@@ -44,7 +42,12 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
           <Trans>Invite users and assign them roles. They will appear once they log in.</Trans>
         </p>
 
-        <Form action={action} validationErrors={errors} validationBehavior="aria" className="flex flex-col gap-4 mt-4">
+        <Form
+          onSubmit={mutationSubmitter(inviteUserMutation)}
+          validationErrors={inviteUserMutation.error?.errors}
+          validationBehavior="aria"
+          className="flex flex-col gap-4 mt-4"
+        >
           <TextField
             autoFocus
             isRequired
@@ -53,13 +56,12 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
             placeholder={t`user@email.com`}
             className="flex-grow"
           />
-          <FormErrorMessage title={title} message={message} />
-
+          <FormErrorMessage error={inviteUserMutation.error} />
           <div className="flex justify-end gap-4 mt-6">
             <Button type="reset" onPress={closeDialog} variant="secondary">
               <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit" isDisabled={isPending}>
+            <Button type="submit" isDisabled={inviteUserMutation.isPending}>
               <Trans>Send invite</Trans>
             </Button>
           </div>

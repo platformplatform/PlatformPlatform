@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +43,13 @@ public class ApiResult(ResultBase result, string? routePrefix = null, IDictionar
             statusCode: (int)result.StatusCode,
             detail: result.ErrorMessage?.Message,
             extensions: result.Errors?.Length > 0
-                ? new Dictionary<string, object?> { { nameof(result.Errors), result.Errors } }
+                ? new Dictionary<string, object?>
+                {
+                    {
+                        "errors",
+                        result.Errors.ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message })
+                    }
+                }
                 : null
         );
     }
