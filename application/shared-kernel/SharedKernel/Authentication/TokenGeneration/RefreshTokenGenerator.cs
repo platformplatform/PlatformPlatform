@@ -30,7 +30,7 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
             Subject = new ClaimsIdentity([
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Sub, userInfo.Id!),
-                    new Claim("tenant_id", userInfo.TenantId!),
+                    new Claim("tenant_id", userInfo.TenantId!.ToString()),
                     new Claim("rtid", refreshTokenId),
                     new Claim("rtv", refreshTokenVersion.ToString())
                 ]

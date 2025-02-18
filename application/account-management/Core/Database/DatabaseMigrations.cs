@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
-[Migration("20241007_Initial")]
+[Migration("20250210_Initial")]
 public sealed class DatabaseMigrations : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -13,10 +13,10 @@ public sealed class DatabaseMigrations : Migration
             "Signups",
             table => new
             {
+                TenantId = table.Column<long>("bigint", nullable: false),
                 Id = table.Column<string>("varchar(33)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                TenantId = table.Column<string>("varchar(30)", nullable: false),
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
                 OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
                 ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
@@ -30,7 +30,7 @@ public sealed class DatabaseMigrations : Migration
             "Tenants",
             table => new
             {
-                Id = table.Column<string>("varchar(30)", nullable: false),
+                Id = table.Column<string>("bigint", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 Name = table.Column<string>("nvarchar(30)", nullable: false),
@@ -43,7 +43,7 @@ public sealed class DatabaseMigrations : Migration
             "Users",
             table => new
             {
-                TenantId = table.Column<string>("varchar(30)", nullable: false),
+                TenantId = table.Column<long>("bigint", nullable: false),
                 Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
@@ -69,7 +69,7 @@ public sealed class DatabaseMigrations : Migration
             "Logins",
             table => new
             {
-                TenantId = table.Column<string>("varchar(30)", nullable: false),
+                TenantId = table.Column<long>("bigint", nullable: false),
                 UserId = table.Column<string>("varchar(32)", nullable: false),
                 Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),

@@ -20,7 +20,7 @@ public sealed class DatabaseSeeder
             IsAuthenticated = true,
             Locale = "en-US",
             Role = "Owner",
-            TenantId = new TenantId("tenant-1")
+            TenantId = TenantId.NewId()
         };
 
         backOfficeDbContext.SaveChanges();

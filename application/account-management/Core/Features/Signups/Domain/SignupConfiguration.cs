@@ -10,6 +10,6 @@ public sealed class SignupConfiguration : IEntityTypeConfiguration<Signup>
     public void Configure(EntityTypeBuilder<Signup> builder)
     {
         builder.MapStronglyTypedUuid<Signup, SignupId>(a => a.Id);
-        builder.MapStronglyTypedNullableId<Signup, TenantId, string>(u => u.TenantId);
+        builder.MapStronglyTypedLongId<Signup, TenantId>(u => u.TenantId);
     }
 }

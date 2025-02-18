@@ -38,7 +38,7 @@ public sealed class CompleteSignupHandler(
         if (signup.Completed)
         {
             logger.LogWarning("Signup with id '{SignupId}' has already been completed.", signup.Id);
-            return Result.BadRequest($"The signup with id {signup.Id} for tenant {signup.TenantId} has already been completed.");
+            return Result.BadRequest($"The signup with id {signup.Id} has already been completed.");
         }
 
         if (signup.RetryCount >= Signup.MaxAttempts)

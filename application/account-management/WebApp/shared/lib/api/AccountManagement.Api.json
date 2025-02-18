@@ -149,38 +149,6 @@
         }
       }
     },
-    "/api/account-management/signups/is-subdomain-free": {
-      "get": {
-        "tags": [
-          "Signups"
-        ],
-        "operationId": "GetApiAccountManagementSignupsIsSubdomainFree",
-        "parameters": [
-          {
-            "name": "Subdomain",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account-management/signups/start": {
       "post": {
         "tags": [
@@ -431,29 +399,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "PostApiAccountManagementUsers",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
           }
         }
       }
@@ -747,14 +692,26 @@
       "TenantId": {
         "type": "string"
       },
-      "StronglyTypedIdOfStringAndTenantId": {
+      "StronglyTypedLongIdOfTenantId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfLongAndTenantId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfLongAndTenantId": {
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false,
         "properties": {
           "value": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -802,9 +759,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "subdomain": {
-            "type": "string"
-          },
           "email": {
             "type": "string"
           }
@@ -1046,28 +1000,6 @@
           "pendingUsers": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "CreateUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "tenantId": {
-            "$ref": "#/components/schemas/TenantId"
-          },
-          "email": {
-            "type": "string"
-          },
-          "userRole": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "emailConfirmed": {
-            "type": "boolean"
-          },
-          "preferredLocale": {
-            "type": "string",
-            "nullable": true
           }
         }
       },

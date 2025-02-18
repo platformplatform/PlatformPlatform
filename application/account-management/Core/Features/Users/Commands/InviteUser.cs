@@ -41,10 +41,7 @@ public sealed class InviteUserHandler(
             return Result.Forbidden("Only owners are allowed to invite other users.");
         }
 
-        var result = await mediator.Send(
-            new CreateUserCommand(executionContext.TenantId!, command.Email, UserRole.Member, false, null),
-            cancellationToken
-        );
+        var result = await mediator.Send(new CreateUserCommand(command.Email, UserRole.Member, false, null), cancellationToken);
 
         events.CollectEvent(new UserInvited(result.Value!));
 
@@ -54,7 +51,7 @@ public sealed class InviteUserHandler(
         await emailClient.SendAsync(command.Email.ToLower(), $"You have been invited to join {executionContext.TenantId} on PlatformPlatform",
             $"""
              <h1 style="text-align:center;font-family:sans-serif;font-size:20px">
-               <b>{inviter}</b> invited you to join <b>{executionContext.TenantId}</b> on PlatformPlatform.
+               <b>{inviter}</b> invited you to join PlatformPlatform.
              </h1>
              <p style="text-align:center;font-family:sans-serif;font-size:16px">
                To gain access, <a href="{loginPath}" target="blank">go to this page in your open browser</a> and login using <b>{command.Email.ToLower()}</b>.
