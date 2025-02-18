@@ -77,9 +77,7 @@ public sealed class DatabaseMigrations : Migration
                 Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
-                ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
-                RetryCount = table.Column<int>("int", nullable: false),
+                EmailConfirmationId = table.Column<string>("varchar(32)", nullable: false),
                 Completed = table.Column<bool>("bit", nullable: false)
             },
             constraints: table =>

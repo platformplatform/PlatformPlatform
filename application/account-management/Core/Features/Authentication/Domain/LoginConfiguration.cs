@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.EntityFramework;
 
@@ -12,5 +13,6 @@ public sealed class LoginConfiguration : IEntityTypeConfiguration<Login>
         builder.MapStronglyTypedId<Login, LoginId, string>(l => l.Id);
         builder.MapStronglyTypedLongId<Login, TenantId>(l => l.TenantId);
         builder.MapStronglyTypedUuid<Login, UserId>(l => l.UserId);
+        builder.MapStronglyTypedUuid<Login, EmailConfirmationId>(l => l.EmailConfirmationId);
     }
 }

@@ -42,7 +42,7 @@ public sealed class InviteUserHandler(
         }
 
         var result = await mediator.Send(
-            new CreateUserCommand(executionContext.TenantId, command.Email, UserRole.Member, false, null), cancellationToken
+            new CreateUserCommand(executionContext.TenantId!, command.Email, UserRole.Member, false, null), cancellationToken
         );
 
         events.CollectEvent(new UserInvited(result.Value!));

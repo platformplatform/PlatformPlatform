@@ -55,10 +55,11 @@ export function LoginForm() {
   );
 
   if (success === true) {
-    const { loginId, validForSeconds } = data;
+    const { loginId, emailConfirmationId, validForSeconds } = data;
 
     setLoginState({
       loginId,
+      emailConfirmationId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });

@@ -74,19 +74,19 @@
         }
       }
     },
-    "/api/account-management/authentication/login/{id}/resend": {
+    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginResend",
+        "operationId": "PostApiAccountManagementAuthenticationLoginResendCode",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/LoginId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -97,7 +97,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResendLoginCodeResponse"
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
                 }
               }
             }
@@ -628,6 +628,9 @@
           "loginId": {
             "$ref": "#/components/schemas/LoginId"
           },
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
           "validForSeconds": {
             "type": "integer",
             "format": "int32"
@@ -661,6 +664,33 @@
           }
         }
       },
+      "EmailConfirmationId": {
+        "type": "string",
+        "format": "econf_{string}"
+      },
+      "StronglyTypedUlidOfEmailConfirmationId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailConfirmationId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "StartLoginCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -679,7 +709,7 @@
           }
         }
       },
-      "ResendLoginCodeResponse": {
+      "ResendEmailConfirmationCodeResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -728,33 +758,6 @@
           }
         }
       },
-      "EmailConfirmationId": {
-        "type": "string",
-        "format": "econf_{string}"
-      },
-      "StronglyTypedUlidOfEmailConfirmationId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndEmailConfirmationId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "StartSignupCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -776,16 +779,6 @@
           },
           "preferredLocale": {
             "type": "string"
-          }
-        }
-      },
-      "ResendEmailConfirmationCodeResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },

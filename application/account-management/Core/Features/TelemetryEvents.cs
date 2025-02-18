@@ -30,23 +30,11 @@ public sealed class EmailConfirmationResend(int secondsSinceSignupStarted)
 public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int resendCount)
     : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("resend_count", resendCount));
 
-public sealed class LoginBlocked(UserId userId, int retryCount)
-    : TelemetryEvent(("user_id", userId), ("retry_count", retryCount));
-
 public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
     : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
 
-public sealed class LoginExpired(UserId userId, int secondsFromCreation)
-    : TelemetryEvent(("user_id", userId), ("seconds_from_creation", secondsFromCreation));
-
-public sealed class LoginFailed(UserId userId, int retryCount)
-    : TelemetryEvent(("user_id", userId), ("retry_count", retryCount));
-
 public sealed class LoginStarted(UserId userId)
     : TelemetryEvent(("user_id", userId));
-
-public sealed class LoginCodeResend(UserId userId, int secondsSinceSignupStarted)
-    : TelemetryEvent(("user_id", userId), ("seconds_since_login_started", secondsSinceSignupStarted));
 
 public sealed class Logout
     : TelemetryEvent;

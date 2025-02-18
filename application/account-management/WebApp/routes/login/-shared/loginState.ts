@@ -3,6 +3,7 @@ import { t } from "@lingui/core/macro";
 
 interface LoginState {
   loginId: Schemas["LoginId"];
+  emailConfirmationId: Schemas["EmailConfirmationId"];
   email: string;
   expireAt: Date;
 }
