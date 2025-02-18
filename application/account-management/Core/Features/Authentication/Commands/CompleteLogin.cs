@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
@@ -21,8 +22,8 @@ public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IR
 public sealed class CompleteLoginHandler(
     IUserRepository userRepository,
     ILoginRepository loginRepository,
-    OneTimePasswordHelper oneTimePasswordHelper,
     AuthenticationTokenService authenticationTokenService,
+    IMediator mediator,
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
@@ -41,28 +42,12 @@ public sealed class CompleteLoginHandler(
             return Result.BadRequest($"The login process {login.Id} for user {login.UserId} has already been completed.");
         }
 
-        if (login.RetryCount >= Login.MaxAttempts)
-        {
-            login.RegisterInvalidPasswordAttempt();
-            loginRepository.Update(login);
-            events.CollectEvent(new LoginBlocked(login.UserId, login.RetryCount));
-            return Result.Forbidden("Too many attempts, please request a new code.", true);
-        }
+        var completeEmailConfirmationResult = await mediator.Send(
+            new CompleteEmailConfirmationCommand(login.EmailConfirmationId, command.OneTimePassword),
+            cancellationToken
+        );
 
-        if (oneTimePasswordHelper.Validate(login.OneTimePasswordHash, command.OneTimePassword))
-        {
-            login.RegisterInvalidPasswordAttempt();
-            loginRepository.Update(login);
-            events.CollectEvent(new LoginFailed(login.UserId, login.RetryCount));
-            return Result.BadRequest("The code is wrong or no longer valid.", true);
-        }
-
-        var loginTimeInSeconds = (int)(TimeProvider.System.GetUtcNow() - login.CreatedAt).TotalSeconds;
-        if (login.HasExpired())
-        {
-            events.CollectEvent(new LoginExpired(login.UserId, loginTimeInSeconds));
-            return Result.BadRequest("The code is no longer valid, please request a new code.", true);
-        }
+        if (!completeEmailConfirmationResult.IsSuccess) return Result.From(completeEmailConfirmationResult);
 
         var user = (await userRepository.GetByIdUnfilteredAsync(login.UserId, cancellationToken))!;
 
@@ -88,7 +73,7 @@ public sealed class CompleteLoginHandler(
 
         authenticationTokenService.CreateAndSetAuthenticationTokens(user.Adapt<UserInfo>());
 
-        events.CollectEvent(new LoginCompleted(user.Id, loginTimeInSeconds));
+        events.CollectEvent(new LoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));
 
         return Result.Success();
     }

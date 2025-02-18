@@ -47,7 +47,7 @@ export const Route = createFileRoute("/login/verify")({
 });
 
 export function CompleteLoginForm() {
-  const { email, loginId, expireAt } = getLoginState();
+  const { loginId, emailConfirmationId, email, expireAt } = getLoginState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const { returnPath } = Route.useSearch();
 
@@ -59,7 +59,7 @@ export function CompleteLoginForm() {
   );
 
   const [{ success: resendSuccess, data: resendData }, resendAction] = useActionState(
-    api.actionPost("/api/account-management/authentication/login/{id}/resend"),
+    api.actionPost("/api/account-management/authentication/login/{emailConfirmationId}/resend-code"),
     { success: null }
   );
 
@@ -88,6 +88,7 @@ export function CompleteLoginForm() {
     <div className="w-full max-w-sm space-y-3">
       <Form action={action} validationErrors={errors} validationBehavior="aria">
         <input type="hidden" name="id" value={loginId} />
+        <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/">
@@ -121,7 +122,7 @@ export function CompleteLoginForm() {
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
           <Form action={resendAction} className="inline">
-            <input type="hidden" name="id" value={loginId} />
+            <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
             <Button type="submit" variant="link" className="text-xs p-0 h-auto">
               <Trans>Didn't receive the code? Resend</Trans>
             </Button>

@@ -1,3 +1,4 @@
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
@@ -14,44 +15,35 @@ namespace PlatformPlatform.AccountManagement.Features;
 public sealed class AuthenticationTokensRefreshed
     : TelemetryEvent;
 
-public sealed class LoginBlocked(UserId userId, int retryCount)
-    : TelemetryEvent(("user_id", userId), ("retry_count", retryCount));
+public sealed class EmailConfirmationBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+
+public sealed class EmailConfirmationExpired(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int timeInSeconds)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("time_in_seconds", timeInSeconds));
+
+public sealed class EmailConfirmationFailed(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+
+public sealed class EmailConfirmationResend(int secondsSinceSignupStarted)
+    : TelemetryEvent(("seconds_since_signup_started", secondsSinceSignupStarted));
+
+public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int resendCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("resend_count", resendCount));
 
 public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
     : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
 
-public sealed class LoginExpired(UserId userId, int secondsFromCreation)
-    : TelemetryEvent(("user_id", userId), ("seconds_from_creation", secondsFromCreation));
-
-public sealed class LoginFailed(UserId userId, int retryCount)
-    : TelemetryEvent(("user_id", userId), ("retry_count", retryCount));
-
 public sealed class LoginStarted(UserId userId)
     : TelemetryEvent(("user_id", userId));
-
-public sealed class LoginCodeResend(UserId userId, int secondsSinceSignupStarted)
-    : TelemetryEvent(("user_id", userId), ("seconds_since_login_started", secondsSinceSignupStarted));
 
 public sealed class Logout
     : TelemetryEvent;
 
-public sealed class SignupBlocked(TenantId tenantId, int retryCount)
-    : TelemetryEvent(("tenant_id", tenantId), ("retry_count", retryCount));
-
 public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
     : TelemetryEvent(("tenant_id", tenantId), ("signup_time_in_seconds", signupTimeInSeconds));
 
-public sealed class SignupCodeResend(TenantId tenantId, int secondsSinceSignupStarted)
-    : TelemetryEvent(("tenant_id", tenantId), ("seconds_since_signup_started", secondsSinceSignupStarted));
-
-public sealed class SignupExpired(TenantId tenantId, int secondsFromCreation)
-    : TelemetryEvent(("tenant_id", tenantId), ("seconds_from_creation", secondsFromCreation));
-
-public sealed class SignupFailed(TenantId tenantId, int retryCount)
-    : TelemetryEvent(("tenant_id", tenantId), ("retry_count", retryCount));
-
-public sealed class SignupStarted(TenantId tenantId)
-    : TelemetryEvent(("tenant_id", tenantId));
+public sealed class SignupStarted
+    : TelemetryEvent;
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

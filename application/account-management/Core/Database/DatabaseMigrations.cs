@@ -4,27 +4,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
-[Migration("20250210_Initial")]
+[Migration("20250217_Initial")]
 public sealed class DatabaseMigrations : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
-            "Signups",
+            "EmailConfirmations",
             table => new
             {
-                TenantId = table.Column<long>("bigint", nullable: false),
-                Id = table.Column<string>("varchar(33)", nullable: false),
+                Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
+                Type = table.Column<string>("varchar(20)", nullable: false),
                 Email = table.Column<string>("nvarchar(100)", nullable: false),
                 OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
                 ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 RetryCount = table.Column<int>("int", nullable: false),
+                ResendCount = table.Column<int>("int", nullable: false),
                 Completed = table.Column<bool>("bit", nullable: false)
             },
-            constraints: table => { table.PrimaryKey("PK_Signups", x => x.Id); }
+            constraints: table => { table.PrimaryKey("PK_EmailConfirmations", x => x.Id); }
         );
+
+        migrationBuilder.CreateIndex("IX_EmailConfirmations_Email", "EmailConfirmations", "Email");
 
         migrationBuilder.CreateTable(
             "Tenants",
@@ -74,9 +77,7 @@ public sealed class DatabaseMigrations : Migration
                 Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                OneTimePasswordHash = table.Column<string>("char(84)", nullable: false),
-                ValidUntil = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
-                RetryCount = table.Column<int>("int", nullable: false),
+                EmailConfirmationId = table.Column<string>("varchar(32)", nullable: false),
                 Completed = table.Column<bool>("bit", nullable: false)
             },
             constraints: table =>

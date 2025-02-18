@@ -4,10 +4,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Signups.Commands;
-using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
@@ -31,7 +30,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         response.EnsureSuccessStatusCode();
         var responseBody = await response.DeserializeResponse<StartSignupResponse>();
         responseBody.Should().NotBeNull();
-        responseBody!.SignupId.ToString().Should().NotBeNullOrEmpty();
+        responseBody!.EmailConfirmationId.ToString().Should().NotBeNullOrEmpty();
         responseBody.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -79,7 +78,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Conflict, "Signup for this email has already been started. Please check your spam folder.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Conflict, "Email confirmation for this email has already been started. Please check your spam folder.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1); // Only the first signup should create an event
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
@@ -102,15 +101,16 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
-            Connection.Insert("Signups", [
-                    ("TenantId", TenantId.NewId().ToString()),
-                    ("Id", SignupId.NewId().ToString()),
+            Connection.Insert("EmailConfirmations", [
+                    ("Id", EmailConfirmationId.NewId().ToString()),
                     ("CreatedAt", DateTime.UtcNow.AddHours(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
+                    ("Type", EmailConfirmationType.Signup.ToString()),
                     ("OneTimePasswordHash", oneTimePasswordHash),
                     ("ValidUntil", DateTime.UtcNow.AddHours(-i).AddMinutes(5)),
                     ("RetryCount", 0),
+                    ("ResendCount", 0),
                     ("Completed", false)
                 ]
             );
@@ -122,7 +122,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to signup with this email address. Please try again later.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
         await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);

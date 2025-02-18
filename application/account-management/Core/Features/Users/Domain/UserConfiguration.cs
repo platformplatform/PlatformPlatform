@@ -13,7 +13,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
         builder.MapStronglyTypedLongId<User, TenantId>(u => u.TenantId);
         builder
-            .OwnsOne(e => e.Avatar, b => b.ToJson())
+            .OwnsOne(u => u.Avatar, b => b.ToJson())
             .HasOne<Tenant>()
             .WithMany()
             .HasForeignKey(u => u.TenantId)

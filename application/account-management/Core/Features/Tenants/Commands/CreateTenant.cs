@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -8,25 +7,26 @@ using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 
-[PublicAPI]
-public sealed record CreateTenantCommand(TenantId Id, string OwnerEmail, bool EmailConfirmed, string? Locale)
-    : ICommand, IRequest<Result<UserId>>;
+internal sealed record CreateTenantCommand(string OwnerEmail, bool EmailConfirmed, string? Locale)
+    : ICommand, IRequest<Result<CreateTenantResponse>>;
 
-public sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMediator mediator, ITelemetryEventsCollector events)
-    : IRequestHandler<CreateTenantCommand, Result<UserId>>
+internal sealed record CreateTenantResponse(TenantId TenantId, UserId UserId);
+
+internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMediator mediator, ITelemetryEventsCollector events)
+    : IRequestHandler<CreateTenantCommand, Result<CreateTenantResponse>>
 {
-    public async Task<Result<UserId>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
+    public async Task<Result<CreateTenantResponse>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = Tenant.Create(command.Id, command.OwnerEmail);
+        var tenant = Tenant.Create(command.OwnerEmail);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
 
-        var result = await mediator.Send(
-            new CreateUserCommand(command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale) { TenantId = command.Id },
+        var createUserResult = await mediator.Send(
+            new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale),
             cancellationToken
         );
 
-        return result.Value!;
+        return new CreateTenantResponse(tenant.Id, createUserResult.Value!);
     }
 }

@@ -4,19 +4,18 @@ namespace PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 
 public sealed class Tenant : AggregateRoot<TenantId>
 {
-    private Tenant(TenantId id, string name) : base(id)
+    private Tenant() : base(TenantId.NewId())
     {
-        Name = name;
         State = TenantState.Trial;
     }
 
-    public string Name { get; private set; }
+    public string Name { get; private set; } = string.Empty;
 
     public TenantState State { get; private set; }
 
-    public static Tenant Create(TenantId tenantId, string email)
+    public static Tenant Create(string email)
     {
-        var tenant = new Tenant(tenantId, string.Empty);
+        var tenant = new Tenant();
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }

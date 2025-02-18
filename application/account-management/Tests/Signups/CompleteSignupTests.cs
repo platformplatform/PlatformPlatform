@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Signups.Commands;
-using PlatformPlatform.AccountManagement.Features.Signups.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.EventHandlers;
-using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -31,13 +30,13 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     {
         // Arrange
         var email = Faker.Internet.Email();
-        var signupId = await StartSignup(email);
+        var emailConfirmationId = await StartSignup(email);
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword);
+        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -57,15 +56,15 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupNotFound_ShouldReturnNotFound()
     {
         // Arrange
-        var invalidSignupId = SignupId.NewId();
-        var command = new CompleteSignupCommand(CorrectOneTimePassword);
+        var invalidEmailConfirmationId = EmailConfirmationId.NewId();
+        var command = new CompleteSignupCommand(invalidEmailConfirmationId, CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{invalidSignupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{invalidEmailConfirmationId}/complete", command);
 
         // Assert
-        var expectedDetail = $"Signup with id '{invalidSignupId}' not found.";
+        var expectedDetail = $"Email confirmation with id '{invalidEmailConfirmationId}' not found.";
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, expectedDetail);
     }
 
@@ -73,20 +72,20 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
     {
         // Arrange
-        var signupId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(WrongOneTimePassword);
+        var command = new CompleteSignupCommand(emailConfirmationId, WrongOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SignupFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -94,43 +93,43 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupAlreadyCompleted_ShouldReturnBadRequest()
     {
         // Arrange
-        var signupId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The signup with id {signupId} has already been completed.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"Email confirmation with id {emailConfirmationId} has already been completed.");
     }
 
     [Fact]
     public async Task CompleteSignup_WhenRetryCountExceeded_ShouldReturnForbidden()
     {
         // Arrange
-        var signupId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(WrongOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+        var command = new CompleteSignupCommand(emailConfirmationId, WrongOneTimePassword, "en-US");
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "To many attempts, please request a new code.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SignupFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[4].GetType().Name.Should().Be("SignupBlocked");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("EmailConfirmationFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("EmailConfirmationFailed");
+        TelemetryEventsCollectorSpy.CollectedEvents[4].GetType().Name.Should().Be("EmailConfirmationBlocked");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -140,39 +139,40 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var email = Faker.Internet.Email();
 
-        var signupId = SignupId.NewId().ToString();
-        Connection.Insert("Signups", [
-                ("TenantId", TenantId.NewId().Value),
-                ("Id", signupId),
+        var emailConfirmationId = EmailConfirmationId.NewId();
+        Connection.Insert("EmailConfirmations", [
+                ("Id", emailConfirmationId.ToString()),
                 ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", email),
+                ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
                 ("ValidUntil", DateTime.UtcNow.AddMinutes(-5)),
                 ("RetryCount", 0),
+                ("ResendCount", 0),
                 ("Completed", false)
             ]
         );
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword);
+        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{signupId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupExpired");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailConfirmationExpired");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
-    private async Task<string> StartSignup(string email)
+    private async Task<EmailConfirmationId> StartSignup(string email)
     {
         var command = new StartSignupCommand(email);
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
         var responseBody = await response.DeserializeResponse<StartSignupResponse>();
-        return responseBody!.SignupId;
+        return responseBody!.EmailConfirmationId;
     }
 }

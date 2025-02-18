@@ -1,5 +1,7 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
@@ -21,9 +23,9 @@ public sealed class AuthenticationEndpoints : IEndpoints
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
 
-        group.MapPost("login/{id}/resend", async Task<ApiResult<ResendLoginCodeResponse>> (LoginId id, IMediator mediator)
-            => await mediator.Send(new ResendLoginCodeCommand { Id = id })
-        ).Produces<ResendLoginCodeResponse>().AllowAnonymous();
+        group.MapPost("login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+            => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
+        ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
 
         group.MapPost("logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())

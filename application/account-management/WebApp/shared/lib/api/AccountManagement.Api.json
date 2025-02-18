@@ -74,19 +74,19 @@
         }
       }
     },
-    "/api/account-management/authentication/login/{id}/resend": {
+    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginResend",
+        "operationId": "PostApiAccountManagementAuthenticationLoginResendCode",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/LoginId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -97,7 +97,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResendLoginCodeResponse"
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
                 }
               }
             }
@@ -181,7 +181,7 @@
         }
       }
     },
-    "/api/account-management/signups/{id}/complete": {
+    "/api/account-management/signups/{emailConfirmationId}/complete": {
       "post": {
         "tags": [
           "Signups"
@@ -189,11 +189,11 @@
         "operationId": "PostApiAccountManagementSignupsComplete",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SignupId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -217,7 +217,7 @@
         }
       }
     },
-    "/api/account-management/signups/{id}/resend-code": {
+    "/api/account-management/signups/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Signups"
@@ -225,11 +225,11 @@
         "operationId": "PostApiAccountManagementSignupsResendCode",
         "parameters": [
           {
-            "name": "id",
+            "name": "emailConfirmationId",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SignupId"
+              "$ref": "#/components/schemas/EmailConfirmationId"
             },
             "x-position": 1
           }
@@ -240,7 +240,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ResendSignupCodeResponse"
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
                 }
               }
             }
@@ -628,6 +628,9 @@
           "loginId": {
             "$ref": "#/components/schemas/LoginId"
           },
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
           "validForSeconds": {
             "type": "integer",
             "format": "int32"
@@ -661,6 +664,33 @@
           }
         }
       },
+      "EmailConfirmationId": {
+        "type": "string",
+        "format": "econf_{string}"
+      },
+      "StronglyTypedUlidOfEmailConfirmationId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailConfirmationId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "StartLoginCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -679,7 +709,7 @@
           }
         }
       },
-      "ResendLoginCodeResponse": {
+      "ResendEmailConfirmationCodeResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -719,39 +749,12 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "signupId": {
-            "$ref": "#/components/schemas/SignupId"
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
           },
           "validForSeconds": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "SignupId": {
-        "type": "string",
-        "format": "signup_{string}"
-      },
-      "StronglyTypedUlidOfSignupId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSignupId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndSignupId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -768,22 +771,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
           "oneTimePassword": {
             "type": "string"
           },
           "preferredLocale": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ResendSignupCodeResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           }
         }
       },

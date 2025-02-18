@@ -2,7 +2,7 @@ import type { Schemas } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 
 interface SignupState {
-  signupId: Schemas["SignupId"];
+  emailConfirmationId: Schemas["EmailConfirmationId"];
   email: string;
   expireAt: Date;
 }

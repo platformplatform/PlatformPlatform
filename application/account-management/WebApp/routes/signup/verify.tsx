@@ -41,18 +41,18 @@ export const Route = createFileRoute("/signup/verify")({
 });
 
 export function CompleteSignupForm() {
-  const { email, signupId, expireAt } = getSignupState();
+  const { email, emailConfirmationId, expireAt } = getSignupState();
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
   const [{ success, title, message, errors }, action] = useActionState(
-    api.actionPost("/api/account-management/signups/{id}/complete"),
+    api.actionPost("/api/account-management/signups/{emailConfirmationId}/complete"),
     {
       success: null
     }
   );
 
   const [{ success: resendSuccess, data: resendData }, resendAction] = useActionState(
-    api.actionPost("/api/account-management/signups/{id}/resend-code"),
+    api.actionPost("/api/account-management/signups/{emailConfirmationId}/resend-code"),
     { success: null }
   );
 
@@ -80,7 +80,7 @@ export function CompleteSignupForm() {
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form action={action} validationErrors={errors} validationBehavior="aria">
-        <input type="hidden" name="id" value={signupId} />
+        <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
         <input type="hidden" name="preferredLocale" value={localStorage.getItem(preferredLocaleKey) ?? ""} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
@@ -115,7 +115,7 @@ export function CompleteSignupForm() {
       <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
         <div className="text-center text-neutral-500 text-xs">
           <Form action={resendAction} className="inline">
-            <input type="hidden" name="id" value={signupId} />
+            <input type="hidden" name="id" value={emailConfirmationId} />
             <Button type="submit" variant="link" className="text-xs p-0 h-auto">
               <Trans>Didn't receive the code? Resend</Trans>
             </Button>

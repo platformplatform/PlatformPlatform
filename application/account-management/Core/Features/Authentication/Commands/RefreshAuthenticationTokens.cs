@@ -15,12 +15,12 @@ namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 [PublicAPI]
 public sealed record RefreshAuthenticationTokensCommand : ICommand, IRequest<Result>;
 
-public sealed class RefreshAuthenticationTokensCommandHandler(
+public sealed class RefreshAuthenticationTokensHandler(
     IUserRepository userRepository,
     IHttpContextAccessor httpContextAccessor,
     AuthenticationTokenService authenticationTokenService,
     ITelemetryEventsCollector events,
-    ILogger<RefreshAuthenticationTokensCommandHandler> logger
+    ILogger<RefreshAuthenticationTokensHandler> logger
 ) : IRequestHandler<RefreshAuthenticationTokensCommand, Result>
 {
     public async Task<Result> Handle(RefreshAuthenticationTokensCommand command, CancellationToken cancellationToken)

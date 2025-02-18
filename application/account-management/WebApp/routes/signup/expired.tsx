@@ -22,7 +22,7 @@ export const Route = createFileRoute("/signup/expired")({
 });
 
 export function VerificationCodeExpiredMessage() {
-  const { signupId } = getSignupState();
+  const { emailConfirmationId } = getSignupState();
 
   return (
     <IllustratedMessage>
@@ -31,7 +31,9 @@ export function VerificationCodeExpiredMessage() {
         <Trans>Error: Verification code has expired</Trans>
       </Heading>
       <Content>
-        <Trans>The verification code you are trying to use has expired for Signup ID: {signupId}</Trans>
+        <Trans>
+          The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}
+        </Trans>
       </Content>
       <Link href={signUpPath}>
         <Trans>Try again</Trans>
