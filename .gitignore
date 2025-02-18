@@ -397,3 +397,4 @@ dist/
 .turbo/
 
 **/translations/locale/*.ts
+CHANGELOG.md
