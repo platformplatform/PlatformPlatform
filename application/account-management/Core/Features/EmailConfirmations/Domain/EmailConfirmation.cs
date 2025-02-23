@@ -75,6 +75,7 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 
         ValidUntil = TimeProvider.System.GetUtcNow().AddSeconds(ValidForSeconds);
         OneTimePasswordHash = oneTimePasswordHash;
+        RetryCount = 0;
         ResendCount++;
     }
 }

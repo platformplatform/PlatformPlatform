@@ -129,10 +129,12 @@ export function CompleteLoginForm() {
             onSubmit={mutationSubmitter(resendLoginCodeMutation, {
               path: { emailConfirmationId: emailConfirmationId }
             })}
+            validationErrors={resendLoginCodeMutation.error?.errors}
             className="inline"
           >
             <input type="hidden" name="id" value={loginId} />
             <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
+            <FormErrorMessage error={resendLoginCodeMutation.error} />
             <Button
               type="submit"
               variant="link"
