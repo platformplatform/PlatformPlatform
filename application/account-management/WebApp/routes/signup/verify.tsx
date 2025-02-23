@@ -124,10 +124,11 @@ export function CompleteSignupForm() {
           <Form
             onSubmit={mutationSubmitter(resendSignupCodeMutation, {
               path: { emailConfirmationId: emailConfirmationId }
-            })}
+            })} validationErrors={resendSignupCodeMutation.error?.errors}
             className="inline"
           >
             <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
+            <FormErrorMessage error={resendSignupCodeMutation.error} />
             <Button
               type="submit"
               variant="link"
