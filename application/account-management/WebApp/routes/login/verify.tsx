@@ -128,7 +128,8 @@ export function CompleteLoginForm() {
           <Form
             onSubmit={mutationSubmitter(resendLoginCodeMutation, {
               path: { emailConfirmationId: emailConfirmationId }
-            })} validationErrors={resendLoginCodeMutation.error?.errors}
+            })}
+            validationErrors={resendLoginCodeMutation.error?.errors}
             className="inline"
           >
             <input type="hidden" name="id" value={loginId} />
