@@ -12,8 +12,11 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
 
 [PublicAPI]
-public sealed record CompleteSignupCommand(EmailConfirmationId EmailConfirmationId, string OneTimePassword, string PreferredLocale)
-    : ICommand, IRequest<Result>;
+public sealed record CompleteSignupCommand(string OneTimePassword, string PreferredLocale) : ICommand, IRequest<Result>
+{
+    [JsonIgnore] // Removes this property from the API contract
+    public EmailConfirmationId EmailConfirmationId { get; init; } = null!;
+}
 
 public sealed class CompleteSignupHandler(
     IUserRepository userRepository,

@@ -981,9 +981,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "emailConfirmationId": {
-            "$ref": "#/components/schemas/EmailConfirmationId"
-          },
           "oneTimePassword": {
             "type": "string"
           },
