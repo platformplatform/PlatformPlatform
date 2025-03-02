@@ -68,7 +68,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.0" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.0.20" />
-    <PackageVersion Include="Scrutor" Version="5.0.2" />
+    <PackageVersion Include="Scrutor" Version="6.0.1" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
