@@ -1,13 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Image } from "@repo/ui/components/Image";
-import heroMobileBlurImage from "@/public/images/hero-mobile-blur.webp";
-import heroDesktopBlurImage from "@/public/images/hero-desktop-blur.webp";
+import heroMobileImage from "@/shared/images/hero-mobile-xl.webp";
+import heroMobileBlurImage from "@/shared/images/hero-mobile-blur.webp";
+import heroDesktopImage from "@/shared//images/hero-desktop-xl.webp";
+import heroDesktopBlurImage from "@/shared//images/hero-desktop-blur.webp";
 
 export function HeroImage() {
   return (
     <>
       <Image
-        src="/images/hero-mobile-xl.webp"
+        src={heroMobileImage}
         blurDataURL={heroMobileBlurImage}
         width={560}
         height={620}
@@ -16,7 +18,7 @@ export function HeroImage() {
         priority
       />
       <Image
-        src="/images/hero-desktop-xl.webp"
+        src={heroDesktopImage}
         blurDataURL={heroDesktopBlurImage}
         width={1000}
         height={760}
