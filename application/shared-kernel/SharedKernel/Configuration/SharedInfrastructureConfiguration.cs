@@ -59,8 +59,7 @@ public static class SharedInfrastructureConfiguration
             ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
             : builder.Configuration.GetConnectionString(connectionName);
 
-        builder.Services.AddSqlServer<T>(connectionString, optionsBuilder => { optionsBuilder.UseAzureSqlDefaults(); });
-        builder.EnrichSqlServerDbContext<T>();
+        builder.Services.AddAzureSql<T>(connectionString);
 
         return builder;
     }

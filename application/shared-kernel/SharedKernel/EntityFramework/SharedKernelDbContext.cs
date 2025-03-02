@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 
@@ -19,6 +20,7 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
     {
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
+        optionsBuilder.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
 
         base.OnConfiguring(optionsBuilder);
     }
