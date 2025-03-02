@@ -98,7 +98,7 @@ public static class ApiDependencyConfiguration
         return services
             .Scan(scan => scan
                 .FromAssemblies(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray())
-                .AddClasses(classes => classes.AssignableTo<IEndpoints>())
+                .AddClasses(classes => classes.AssignableTo<IEndpoints>(), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
             );

@@ -158,10 +158,9 @@ public static class SharedDependencyConfiguration
             .Scan(scan => scan
                 .FromAssemblies(assemblies)
                 .AddClasses(classes => classes.Where(type =>
-                        type.IsClass && (type.IsNotPublic || type.IsPublic)
-                                     && type.BaseType is { IsGenericType: true } &&
-                                     type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
-                    )
+                        type.BaseType is { IsGenericType: true } &&
+                        type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
+                    ), false
                 )
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
