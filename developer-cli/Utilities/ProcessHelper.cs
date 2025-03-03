@@ -22,7 +22,7 @@ public static class ProcessHelper
     {
         if (Configuration.IsWindows)
         {
-            StartProcess($"start {url}");
+            StartProcess(new ProcessStartInfo { FileName = url, UseShellExecute = true });
         }
         else if (Configuration.IsMacOs)
         {
