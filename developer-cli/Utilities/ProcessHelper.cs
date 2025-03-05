@@ -39,7 +39,8 @@ public static class ProcessHelper
         string? solutionFolder,
         bool redirectOutput = false,
         bool useShellExecute = false,
-        bool createNoWindow = false
+        bool createNoWindow = false,
+        Dictionary<string, string>? environmentVariables = null
     )
     {
         var originalFileName = command.Split(' ')[0];
@@ -55,6 +56,14 @@ public static class ProcessHelper
             CreateNoWindow = createNoWindow
         };
 
+        if (environmentVariables != null)
+        {
+            foreach (var keyValuePair in environmentVariables)
+            {
+                processStartInfo.EnvironmentVariables.Add(keyValuePair.Key, keyValuePair.Value);
+            }
+        }
+
         if (solutionFolder is not null)
         {
             processStartInfo.WorkingDirectory = solutionFolder;
@@ -69,10 +78,10 @@ public static class ProcessHelper
         bool redirectOutput = false,
         bool waitForExit = true,
         bool exitOnError = true,
-        bool throwOnError = false
-    )
+        bool throwOnError = false,
+        Dictionary<string, string>? environmentVariables = null)
     {
-        var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
+        var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput, environmentVariables: environmentVariables);
         return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
     }
 

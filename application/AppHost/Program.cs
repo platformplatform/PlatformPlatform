@@ -41,7 +41,7 @@ builder
 CreateBlobContainer("avatars");
 
 var frontendBuild = builder
-    .AddNpmApp("frontend-build", "../")
+    .AddNpmApp("frontend-build", "../", scriptName: "app-host-start")
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
 var accountManagementDatabase = sqlServer

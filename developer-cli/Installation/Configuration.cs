@@ -1,4 +1,6 @@
+using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,6 +34,8 @@ public static class Configuration
     public static bool IsDebugMode => Environment.ProcessPath!.Contains("debug");
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
+
+    public static readonly string FrontendDevServerFlagFile = Path.Combine(PublishFolder, $"{AliasName}-frontend-dev-server-running");
 
     public static bool VerboseLogging { get; set; }
 
