@@ -39,7 +39,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
           <MenuHeader>
             <div className="flex flex-row items-center gap-2">
               <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound size="sm" />
-              <div className="flex flex-col my-1">
+              <div className="my-1 flex flex-col">
                 <h2>{userInfo.fullName}</h2>
                 <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
               </div>

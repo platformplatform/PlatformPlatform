@@ -66,7 +66,7 @@ export function DomainInputField({
             className="h-full w-full"
           />
         </div>
-        <div className="w-fit gap-1 text-xs flex items-center p-1 text-muted-foreground">
+        <div className="flex w-fit items-center gap-1 p-1 text-muted-foreground text-xs">
           {domain}
           <AvailabilityIcon isAvailable={isSubdomainFree} />
         </div>

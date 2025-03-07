@@ -22,16 +22,16 @@ export interface ButtonProps extends AriaButtonProps, React.RefAttributes<HTMLBu
 
 const button = tv({
   extend: focusRing,
-  base: "inline-flex gap-2 w-fit items-center justify-center w-fit whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  base: "inline-flex w-fit w-fit items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   variants: {
     variant: {
-      primary: "bg-primary text-primary-foreground hover:bg-primary/90 pressed:bg-primary/80",
-      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 pressed:bg-secondary/70",
-      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 pressed:bg-destructive/80",
+      primary: "bg-primary pressed:bg-primary/80 text-primary-foreground hover:bg-primary/90",
+      secondary: "bg-secondary pressed:bg-secondary/70 text-secondary-foreground hover:bg-secondary/80",
+      destructive: "bg-destructive pressed:bg-destructive/80 text-destructive-foreground hover:bg-destructive/90",
       outline:
-        "border border-input text-accent-foreground hover:bg-accent hover:text-accent-foreground/90 pressed:bg-accent/80",
-      ghost: "hover:bg-accent text-accent-foreground hover:text-accent-foreground/90 pressed:bg-accent/80",
-      link: "text-primary underline-offset-4 hover:underline pressed:text-primary/80"
+        "border border-input pressed:bg-accent/80 text-accent-foreground hover:bg-accent hover:text-accent-foreground/90",
+      ghost: "pressed:bg-accent/80 text-accent-foreground hover:bg-accent hover:text-accent-foreground/90",
+      link: "pressed:text-primary/80 text-primary underline-offset-4 hover:underline"
     },
     size: {
       xs: "h-6 w-6 shrink-0",

@@ -23,11 +23,11 @@ import { focusRing } from "./focusRing";
 
 export const cellStyles = tv({
   extend: focusRing,
-  base: "w-9 h-9 text-sm cursor-default rounded-md flex items-center justify-center forced-color-adjust-none",
+  base: "flex h-9 w-9 cursor-default items-center justify-center rounded-md text-sm forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "text-foreground hover:bg-accent pressed:bg-muted",
-      true: "text-primary-foreground bg-primary forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+      false: "pressed:bg-muted text-foreground hover:bg-accent",
+      true: "bg-primary text-primary-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isUnavailable: {
       true: "text-muted-foreground forced-colors:text-[GrayText]"
@@ -36,7 +36,7 @@ export const cellStyles = tv({
       true: "bg-destructive text-destructive-foreground forced-colors:invalid:bg-[Mark]"
     },
     isDisabled: {
-      true: "text-muted-foreground opacity-50 forced-colors:text-[GrayText] strike"
+      true: "strike text-muted-foreground opacity-50 forced-colors:text-[GrayText]"
     },
     isHovered: {
       true: "opacity-90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
@@ -45,7 +45,7 @@ export const cellStyles = tv({
       true: "opacity-80 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isOutsideMonth: {
-      true: "text-muted-foreground bg-transparent"
+      true: "bg-transparent text-muted-foreground"
     }
   }
 });

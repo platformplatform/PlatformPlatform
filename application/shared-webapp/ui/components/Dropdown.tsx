@@ -14,7 +14,7 @@ import {
 import { tv } from "tailwind-variants";
 
 export const dropdownItemStyles = tv({
-  base: "group flex items-center gap-4 cursor-default select-none py-2 pl-3 pr-1 rounded-md outline outline-0 text-sm forced-color-adjust-none",
+  base: "group flex cursor-default select-none items-center gap-4 rounded-md py-2 pr-1 pl-3 text-sm outline outline-0 forced-color-adjust-none",
   variants: {
     isDisabled: {
       false: "text-foreground",

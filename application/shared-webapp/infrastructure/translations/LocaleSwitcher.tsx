@@ -56,7 +56,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
           <MenuItem key={item.id} id={item.id} textValue={item.label}>
             <div className="flex items-center gap-2">
               <span>{item.label}</span>
-              {item.id === currentLocale && <CheckIcon className="h-4 w-4 ml-auto" />}
+              {item.id === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
             </div>
           </MenuItem>
         ))}

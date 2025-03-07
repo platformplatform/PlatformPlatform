@@ -15,16 +15,16 @@ export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefA
 
 const inputStyles = tv({
   extend: focusRing,
-  base: "h-10 shrink-0 border rounded-md py-1.5 px-2 text-foreground bg-background text-sm placeholder:text-muted-foreground",
+  base: "h-10 shrink-0 rounded-md border bg-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
   variants: {
     isInvalid: {
       true: "border-destructive"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed"
+      true: "cursor-not-allowed opacity-50"
     },
     isFile: {
-      true: "file:border-0 file:bg-transparent file:font-medium file:text-sm cursor-pointer file:cursor-pointer"
+      true: "cursor-pointer file:cursor-pointer file:border-0 file:bg-transparent file:font-medium file:text-sm"
     },
     isEmbedded: {
       true: "border-0 border-muted bg-transparent"

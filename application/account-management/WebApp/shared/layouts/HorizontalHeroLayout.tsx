@@ -12,8 +12,8 @@ interface HorizontalHeroLayoutProps {
 
 export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayoutProps>) {
   return (
-    <main className="flex min-h-screen flex-col relative">
-      <div className="absolute top-4 right-4 gap-4 p-2 rounded-md shadow-md bg-white dark:bg-gray-800 hidden sm:flex">
+    <main className="relative flex min-h-screen flex-col">
+      <div className="absolute top-4 right-4 hidden gap-4 rounded-md bg-white p-2 shadow-md sm:flex dark:bg-gray-800">
         <ThemeModeSelector aria-label={t`Toggle theme`} />
         <Button variant="icon" aria-label={t`Help`}>
           <LifeBuoyIcon size={20} />
@@ -21,8 +21,8 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
         <LocaleSwitcher aria-label={t`Select language`} />
       </div>
       <div className="flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col items-center justify-center gap-6 md:w-1/2 p-6">{children}</div>
-        <div className="flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900 md:w-1/2 md:px-28 md:py-12">
+        <div className="flex flex-col items-center justify-center gap-6 p-6 md:w-1/2">{children}</div>
+        <div className="flex items-center justify-center bg-gray-50 p-6 md:w-1/2 md:px-28 md:py-12 dark:bg-gray-900">
           <HeroImage />
         </div>
       </div>

@@ -32,7 +32,7 @@ export { TableBody, useContextProps } from "react-aria-components";
 export function Table(props: Readonly<TableProps>) {
   return (
     <div className="relative h-full w-full" aria-hidden>
-      <div className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden" aria-hidden>
+      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden>
         <ResizableTableContainer
           className="relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md"
           aria-hidden
@@ -46,12 +46,12 @@ export function Table(props: Readonly<TableProps>) {
 
 const columnStyles = tv({
   extend: focusRing,
-  base: "flex w-full gap-1 items-center text-xs font-bold"
+  base: "flex w-full items-center gap-1 font-bold text-xs"
 });
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "column-resizer absolute right-0 w-px h-6 px-2 py-1 shrink-0 translate-x-2 box-content bg-clip-content cursor-col-resize rounded -outline-offset-2",
+  base: "column-resizer -outline-offset-2 absolute right-0 box-content h-6 w-px shrink-0 translate-x-2 cursor-col-resize rounded bg-clip-content px-2 py-1",
   variants: {
     isResizing: {
       false: "bg-border forced-colors:bg-[ButtonBorder] ",
@@ -73,7 +73,7 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
       )}
     >
       {composeRenderProps(children, (children, { allowsSorting, sortDirection }) => (
-        <div className="flex px-2 items-center w-full">
+        <div className="flex w-full items-center px-2">
           <Group role="presentation" tabIndex={-1} className={columnStyles}>
             <span className="truncate">{children}</span>
             {allowsSorting && (
@@ -107,7 +107,7 @@ export function TableHeader<T extends object>({
       {...tableHeaderProps}
       className={composeTailwindRenderProps(
         className,
-        "sticky [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 top-0 z-10 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:last-child_.column-resizer]:hidden"
+        "sticky top-0 z-10 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 [&>tr>th:last-child_.column-resizer]:hidden"
       )}
     >
       {/* Add extra columns for drag and drop and selection. */}
@@ -124,7 +124,7 @@ export function TableHeader<T extends object>({
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "[&>td:first-child]:pl-4 [&>td:last-child]:pr-4 transition-colors group/row relative cursor-default select-none -outline-offset-2 text-sm font-normal",
+  base: "group/row -outline-offset-2 relative cursor-default select-none font-normal text-sm transition-colors [&>td:first-child]:pl-4 [&>td:last-child]:pr-4",
   variants: {
     isDisabled: {
       false: "text-muted-foreground hover:bg-muted/80",
@@ -158,7 +158,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "p-2 border-b border-b-border group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring truncate -outline-offset-2"
+  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring"
 });
 
 type CellProps = {

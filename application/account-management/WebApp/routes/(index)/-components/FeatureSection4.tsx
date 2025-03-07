@@ -1,17 +1,17 @@
 // FeatureSection4: A functional component that displays a section with features
 export function FeatureSection4() {
   return (
-    <div className="flex flex-col md:flex-row gap-16 bg-muted py-24 md:px-24 px-8">
-      <div className="flex flex-col md:w-1/4 grow gap-4 text-foreground text-4xl font-semibold text-start">
-        <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
+    <div className="flex flex-col gap-16 bg-muted px-8 py-24 md:flex-row md:px-24">
+      <div className="flex grow flex-col gap-4 text-start font-semibold text-4xl text-foreground md:w-1/4">
+        <h1 className="text-start font-semibold text-amber-600 text-base">FEATURES</h1>
         Built by Founders, Engineers and Designers
-        <div className="text-muted-foreground text-xl font-normal">
+        <div className="font-normal text-muted-foreground text-xl">
           Skip the many months it takes to build an enterprise grade and production ready setup. We’ve done the hard
           work for you so you can focus on your core product.
         </div>
       </div>
-      <div className="flex md:flex-row flex-col gap-16 w-3/4">
-        <div className="grid gap-x-16 gap-y-8 grid-cols-1 md:grid-cols-2 grid-rows-3 text-black md:max-w-full">
+      <div className="flex w-3/4 flex-col gap-16 md:flex-row">
+        <div className="grid grid-cols-1 grid-rows-3 gap-x-16 gap-y-8 text-black md:max-w-full md:grid-cols-2">
           {/* FeatureBlock components are used to display individual features */}
           <FeatureBlock
             title="Crafted for Startups"
@@ -46,9 +46,9 @@ export function FeatureSection4() {
 // FeatureBlock: A functional component that displays a single feature
 function FeatureBlock({ title, content }: Readonly<FeatureBlockProps>) {
   return (
-    <div className="flex flex-col gap-4 h-1/3">
-      <div className="text-foreground text-xl font-semibold text-start">{title}</div>
-      <div className="text-muted-foreground text-base font-normal text-start">{content}</div>
+    <div className="flex h-1/3 flex-col gap-4">
+      <div className="text-start font-semibold text-foreground text-xl">{title}</div>
+      <div className="text-start font-normal text-base text-muted-foreground">{content}</div>
     </div>
   );
 }

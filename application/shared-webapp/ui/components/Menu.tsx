@@ -41,7 +41,7 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
           {selectionMode !== "none" && (
             <span className="flex w-4 items-center">{isSelected && <Check aria-hidden className="h-4 w-4" />}</span>
           )}
-          <span className="flex flex-1 px-2 py-1 items-center gap-2 truncate font-normal group-selected:font-semibold">
+          <span className="flex flex-1 items-center gap-2 truncate px-2 py-1 font-normal group-selected:font-semibold">
             {children}
           </span>
           {hasSubmenu && <ChevronRight aria-hidden className="absolute right-2 h-4 w-4" />}
@@ -73,7 +73,7 @@ export interface MenuHeaderProps extends React.ComponentProps<typeof Header> {
 }
 
 const headerStyles = tv({
-  base: "px-2 py-1.5 text-sm font-semibold",
+  base: "px-2 py-1.5 font-semibold text-sm",
   variants: {
     inset: {
       true: "pl-8"

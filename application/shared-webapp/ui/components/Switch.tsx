@@ -14,20 +14,20 @@ export interface SwitchProps extends Omit<AriaSwitchProps, "children"> {
 
 const trackStyles = tv({
   extend: focusRing,
-  base: "flex h-6 w-11 px-px items-center shrink-0 cursor-default rounded-full transition duration-200 ease-in-out shadow-inner border border-transparent",
+  base: "flex h-6 w-11 shrink-0 cursor-default items-center rounded-full border border-transparent px-px shadow-inner transition duration-200 ease-in-out",
   variants: {
     isSelected: {
       false: "bg-input group-pressed:bg-input/80",
-      true: "bg-primary forced-colors:!bg-[Highlight] group-pressed:bg-primary/80"
+      true: "forced-colors:!bg-[Highlight] bg-primary group-pressed:bg-primary/80"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed"
+      true: "cursor-not-allowed opacity-50"
     }
   }
 });
 
 const handleStyles = tv({
-  base: "h-5 w-5 transform rounded-full bg-background outline outline-1 -outline-offset-1 outline-transparent shadow transition duration-200 ease-in-out",
+  base: "-outline-offset-1 h-5 w-5 transform rounded-full bg-background shadow outline outline-1 outline-transparent transition duration-200 ease-in-out",
   variants: {
     isSelected: {
       false: "translate-x-0",

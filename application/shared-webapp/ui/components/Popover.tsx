@@ -19,13 +19,13 @@ export interface PopoverProps extends Omit<AriaPopoverProps, "children"> {
 }
 
 const styles = tv({
-  base: "bg-popover backdrop-blur-2xl forced-colors:bg-[Canvas] shadow-lg rounded-lg border text-popover-foreground transition-opacity",
+  base: "rounded-lg border bg-popover text-popover-foreground shadow-lg backdrop-blur-2xl transition-opacity forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
-      true: "animate-in fade-in-0 ease-out duration-200"
+      true: "fade-in-0 animate-in duration-200 ease-out"
     },
     isExiting: {
-      true: "animate-out fade-out-0 ease-in duration-150"
+      true: "fade-out-0 animate-out duration-150 ease-in"
     }
   }
 });

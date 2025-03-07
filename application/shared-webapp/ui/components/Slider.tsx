@@ -18,8 +18,8 @@ const trackStyles = tv({
   base: "rounded-full bg-white",
   variants: {
     orientation: {
-      horizontal: "w-full h-2",
-      vertical: "h-full w-2 ml-[50%] -translate-x-[50%]"
+      horizontal: "h-2 w-full",
+      vertical: "-translate-x-[50%] ml-[50%] h-full w-2"
     },
     isMultiple: {
       true: "bg-primary forced-colors:bg-[ButtonBorder]",
@@ -35,8 +35,8 @@ const fillStyles = tv({
   base: "absolute rounded-full bg-primary",
   variants: {
     orientation: {
-      horizontal: "top-[50%] h-2 translate-y-[-50%] left-0",
-      vertical: "left-[50%] w-2 translate-x-[-50%] bottom-0"
+      horizontal: "top-[50%] left-0 h-2 translate-y-[-50%]",
+      vertical: "bottom-0 left-[50%] w-2 translate-x-[-50%]"
     },
     isDisabled: {
       true: "bg-muted forced-colors:bg-[GrayText]"
@@ -49,7 +49,7 @@ const fillStyles = tv({
 
 const thumbStyles = tv({
   extend: focusRing,
-  base: "w-6 h-6 group-orientation-horizontal:mt-6 group-orientation-vertical:ml-3 rounded-full bg-background border-2 border-primary",
+  base: "h-6 w-6 rounded-full border-2 border-primary bg-background group-orientation-horizontal:mt-6 group-orientation-vertical:ml-3",
   variants: {
     isDragging: {
       true: "bg-accent forced-colors:bg-[ButtonBorder]"

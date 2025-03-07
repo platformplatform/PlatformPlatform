@@ -74,7 +74,7 @@ export function UserQuerying() {
   }, [search, updateFilter]);
 
   return (
-    <div className="flex items-center mt-4 mb-4 gap-2">
+    <div className="mt-4 mb-4 flex items-center gap-2">
       <SearchField
         placeholder={t`Search`}
         value={search}
@@ -139,7 +139,7 @@ export function UserQuerying() {
 
       <Button
         variant="secondary"
-        className={showAllFilters ? "h-10 w-10 p-0 mt-6" : "mt-6"}
+        className={showAllFilters ? "mt-6 h-10 w-10 p-0" : "mt-6"}
         onPress={() => {
           if (showAllFilters) {
             // Reset filters when hiding

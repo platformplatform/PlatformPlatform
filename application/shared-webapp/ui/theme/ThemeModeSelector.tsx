@@ -17,13 +17,13 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: { "aria-label": s
 function ThemeModeIcon() {
   const { themeMode, resolvedThemeMode } = useThemeMode();
   if (themeMode === "light") {
-    return <SunIcon className="w-4 h-4" />;
+    return <SunIcon className="h-4 w-4" />;
   }
   if (themeMode === "dark") {
-    return <MoonIcon className="w-4 h-4" />;
+    return <MoonIcon className="h-4 w-4" />;
   }
   if (resolvedThemeMode === "light") {
-    return <SunMoonIcon className="w-4 h-4" />;
+    return <SunMoonIcon className="h-4 w-4" />;
   }
-  return <MoonStarIcon className="w-4 h-4" />;
+  return <MoonStarIcon className="h-4 w-4" />;
 }

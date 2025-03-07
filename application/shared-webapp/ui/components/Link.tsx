@@ -14,7 +14,7 @@ interface LinkProps extends AriaLinkProps {
 
 const styles = tv({
   extend: focusRing,
-  base: "inline-flex gap-2 items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors cursor-default",
+  base: "inline-flex cursor-default items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors",
   variants: {
     variant: {
       primary: "text-primary hover:text-primary/90",
@@ -24,7 +24,7 @@ const styles = tv({
     },
     underline: {
       true: "underline disabled:no-underline",
-      hover: "hover:underline no-underline",
+      hover: "no-underline hover:underline",
       false: "no-underline"
     },
     size: {
@@ -33,7 +33,7 @@ const styles = tv({
       lg: "text-lg"
     },
     isDisabled: {
-      true: "opacity-50 pointer-events-none"
+      true: "pointer-events-none opacity-50"
     }
   },
   defaultVariants: {

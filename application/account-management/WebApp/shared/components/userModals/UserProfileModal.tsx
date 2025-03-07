@@ -129,7 +129,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
 
   return (
     <Dialog aria-label={t`User profile`}>
-      <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
+      <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted" />
       <Heading slot="title" className="text-2xl">
         <Trans>User profile</Trans>
       </Heading>
@@ -141,7 +141,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         onSubmit={mutationSubmitter(saveMutation)}
         validationBehavior="aria"
         validationErrors={saveMutation.error?.errors}
-        className="flex flex-col gap-4 mt-4"
+        className="mt-4 flex flex-col gap-4"
       >
         <FileTrigger
           ref={avatarFileInputRef}
@@ -159,13 +159,13 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
           <Button
             variant="icon"
-            className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80"
+            className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
             aria-label={t`Change profile picture`}
           >
             {user.avatarUrl || avatarPreviewUrl ? (
               <img
                 src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
-                className="rounded-full h-full w-full object-cover"
+                className="h-full w-full rounded-full object-cover"
                 alt={t`Preview avatar`}
               />
             ) : (
@@ -178,7 +178,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
                 avatarFileInputRef.current?.click();
               }}
             >
-              <CameraIcon className="w-4 h-4" />
+              <CameraIcon className="h-4 w-4" />
               <Trans>Upload profile picture</Trans>
             </MenuItem>
             {(user.avatarUrl || avatarPreviewUrl) && (
@@ -193,7 +193,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
                     user.avatarUrl = null;
                   }}
                 >
-                  <Trash2Icon className="w-4 h-4 text-destructive" />
+                  <Trash2Icon className="h-4 w-4 text-destructive" />
                   <span className="text-destructive">
                     <Trans>Remove profile picture</Trans>
                   </span>
@@ -203,7 +203,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
           </Menu>
         </MenuTrigger>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <TextField
             autoFocus
             isRequired
@@ -227,7 +227,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
 
         <FormErrorMessage error={saveMutation.error} />
 
-        <div className="flex justify-end gap-4 mt-6">
+        <div className="mt-6 flex justify-end gap-4">
           <Button type="reset" onPress={closeDialog} variant="secondary">
             <Trans>Cancel</Trans>
           </Button>

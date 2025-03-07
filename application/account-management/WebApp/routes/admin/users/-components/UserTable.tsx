@@ -133,7 +133,7 @@ export function UserTable() {
             </Trans>
           </p>
 
-          <div className="flex flex-col gap-4 mt-4">
+          <div className="mt-4 flex flex-col gap-4">
             <Select
               autoFocus
               aria-label={t`User Role`}
@@ -171,7 +171,7 @@ export function UserTable() {
         </AlertDialog>
       </Modal>
 
-      <div className="flex flex-col gap-2 h-full w-full">
+      <div className="flex h-full w-full flex-col gap-2">
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
@@ -233,22 +233,22 @@ export function UserTable() {
                   <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
                 </Cell>
                 <Cell>
-                  <div className="group flex gap-2 w-full">
+                  <div className="group flex w-full gap-2">
                     <Button
                       variant="icon"
-                      className="group-hover:opacity-100 opacity-0 duration-300 transition-opacity ease-in-out"
+                      className="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
                       onPress={() => setUserToDelete(user)}
                       isDisabled={user.id === userInfo?.id}
                     >
-                      <Trash2Icon className="w-5 h-5 text-muted-foreground" />
+                      <Trash2Icon className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <MenuTrigger>
                       <Button variant="icon" aria-label={t`Menu`}>
-                        <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
+                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                       </Button>
                       <Menu>
                         <MenuItem id="viewProfile">
-                          <UserIcon className="w-4 h-4" />
+                          <UserIcon className="h-4 w-4" />
                           <Trans>View Profile</Trans>
                         </MenuItem>
                         <MenuItem
@@ -256,7 +256,7 @@ export function UserTable() {
                           isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
                           onAction={() => setUserToChangeRole(user)}
                         >
-                          <PencilIcon className="w-4 h-4 group-disabled:text-muted-foreground" />
+                          <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
                           <span className="group-disabled:text-muted-foreground">
                             <Trans>Change Role</Trans>
                           </span>
@@ -267,7 +267,7 @@ export function UserTable() {
                           isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
                           onAction={() => setUserToDelete(user)}
                         >
-                          <Trash2Icon className="w-4 h-4 text-destructive" />
+                          <Trash2Icon className="h-4 w-4 text-destructive" />
                           <span className="text-destructive">
                             <Trans>Delete</Trans>
                           </span>
@@ -296,7 +296,7 @@ export function UserTable() {
               onPageChange={handlePageChange}
               previousLabel={t`Previous`}
               nextLabel={t`Next`}
-              className="hidden sm:flex w-full"
+              className="hidden w-full sm:flex"
             />
           </>
         )}

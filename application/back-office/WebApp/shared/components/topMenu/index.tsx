@@ -16,14 +16,14 @@ interface TopMenuProps {
 
 export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
-    <nav className="flex items-center justify-between w-full">
+    <nav className="flex w-full items-center justify-between">
       <Breadcrumbs>
         <Breadcrumb>
           <Trans>Home</Trans>
         </Breadcrumb>
         {children}
       </Breadcrumbs>
-      <div className="flex flex-row gap-6 items-center">
+      <div className="flex flex-row items-center gap-6">
         <span className="flex gap-2">
           <ThemeModeSelector aria-label={t`Toggle theme`} />
           <Button variant="icon" aria-label={t`Help`}>

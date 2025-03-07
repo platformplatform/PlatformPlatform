@@ -62,14 +62,14 @@ function ToastRegion<T extends ToastContents>({ state, ...props }: Readonly<Toas
 }
 
 const toastStyle = tv({
-  base: "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  base: "group data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=closed]:animate-out data-[state=open]:animate-in data-[swipe=end]:animate-out data-[swipe=move]:transition-none",
   variants: {
     variant: {
-      neutral: "text-foreground bg-popover",
-      info: "text-info-foreground bg-info",
-      success: "text-success-foreground bg-success",
-      warning: "text-warning-foreground bg-warning",
-      danger: "text-danger-foreground bg-danger"
+      neutral: "bg-popover text-foreground",
+      info: "bg-info text-info-foreground",
+      success: "bg-success text-success-foreground",
+      warning: "bg-warning text-warning-foreground",
+      danger: "bg-danger text-danger-foreground"
     }
   },
   defaultVariants: {
@@ -147,7 +147,7 @@ const toastActionStyles = tv({
   ],
   variants: {
     variant: {
-      neutral: "hover:bg-accent hover:text-accent-foreground pressed:bg-accent/90",
+      neutral: "pressed:bg-accent/90 hover:bg-accent hover:text-accent-foreground",
       info: "text-info-foreground hover:border-transparent",
       success: "text-success-foreground hover:border-transparent",
       warning: "text-warning-foreground hover:border-transparent",

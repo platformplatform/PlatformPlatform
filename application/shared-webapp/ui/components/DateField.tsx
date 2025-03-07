@@ -40,13 +40,13 @@ export function DateField<T extends DateValue>({
 }
 
 const segmentStyles = tv({
-  base: "inline p-0.5 type-literal:px-0 rounded-md outline outline-0 forced-color-adjust-none caret-transparent text-foreground text-sm forced-colors:text-[ButtonText]",
+  base: "inline rounded-md p-0.5 type-literal:px-0 text-foreground text-sm caret-transparent outline outline-0 forced-color-adjust-none forced-colors:text-[ButtonText]",
   variants: {
     isPlaceholder: {
       true: "text-muted-foreground italic"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed forced-colors:text-[GrayText]"
+      true: "cursor-not-allowed opacity-50 forced-colors:text-[GrayText]"
     },
     isFocused: {
       true: "bg-accent text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"

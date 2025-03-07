@@ -16,14 +16,14 @@ interface FeatureBlockProps {
 // Component to display a feature with an image, title, content, and a link
 function FeatureBlock({ title, content, image, href, linkText, arrow }: Readonly<FeatureBlockProps>) {
   return (
-    <div className="flex flex-col gap-4  items-center justify-center">
-      <div className="flex shadow rounded-lg w-12 h-12 justify-center p-1 items-center">
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg p-1 shadow">
         <img src={image} alt={title} />
       </div>
-      <div className="text-foreground text-xl font-semibold text-center">{title}</div>
-      <div className="text-muted-foreground text-base font-normal text-center">{content}</div>
+      <div className="text-center font-semibold text-foreground text-xl">{title}</div>
+      <div className="text-center font-normal text-base text-muted-foreground">{content}</div>
       <Link href={href}>
-        {linkText} {arrow && <ArrowRight className="w-4 h-4" />}
+        {linkText} {arrow && <ArrowRight className="h-4 w-4" />}
       </Link>
     </div>
   );
@@ -32,16 +32,16 @@ function FeatureBlock({ title, content, image, href, linkText, arrow }: Readonly
 // Component for the Community Section
 export function CommunitySection() {
   return (
-    <div className="flex flex-col gap-8 items-center bg-background py-48">
-      <div className="flex flex-col gap-8 text-center items-center md:px-32 lg:px-64 px-8 max-w-7xl">
-        <h1 className="text-amber-600 text-base font-semibold">COMMUNITY</h1>
-        <h2 className="text-foreground text-4xl md:text-6xl font-semibold">Join builders on PlatformPlatform</h2>
-        <p className="text-muted-foreground text-xl font-normal">
+    <div className="flex flex-col items-center gap-8 bg-background py-48">
+      <div className="flex max-w-7xl flex-col items-center gap-8 px-8 text-center md:px-32 lg:px-64">
+        <h1 className="font-semibold text-amber-600 text-base">COMMUNITY</h1>
+        <h2 className="font-semibold text-4xl text-foreground md:text-6xl">Join builders on PlatformPlatform</h2>
+        <p className="font-normal text-muted-foreground text-xl">
           Our community is full of developers, designers and founders - just like you, to get your going, sharing ideas
           and experiences. Join us now.
         </p>
       </div>
-      <div className="grid grid-row-3 md:grid-cols-3 px-32 gap-16">
+      <div className="grid-row-3 grid gap-16 px-32 md:grid-cols-3">
         <FeatureBlock
           title="YouTube"
           content="Subscribe to our YouTube channel to get quickly started, and stay informed of new features."

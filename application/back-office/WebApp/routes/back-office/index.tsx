@@ -10,16 +10,16 @@ export const Route = createFileRoute("/back-office/")({
 
 export default function Home() {
   return (
-    <div className="flex gap-4 w-full h-full">
+    <div className="flex h-full w-full gap-4">
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
-      <div className="flex flex-col gap-4 py-3 px-4 w-full">
+      <div className="flex w-full flex-col gap-4 px-4 py-3">
         <TopMenu />
-        <div className="flex h-20 w-full items-center justify-between space-x-2 sm:mt-4 mb-4">
-          <div className="text-foreground text-3xl font-semibold flex gap-2 flex-col mt-3">
+        <div className="mb-4 flex h-20 w-full items-center justify-between space-x-2 sm:mt-4">
+          <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
             <h1>
               <Trans>Welcome to the Back Office</Trans>
             </h1>
-            <p className="text-muted-foreground text-sm font-normal">
+            <p className="font-normal text-muted-foreground text-sm">
               <Trans>
                 Manage tenants, view system data, see exceptions, and perform various tasks for operational and support
                 teams.

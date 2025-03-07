@@ -28,16 +28,16 @@ export type { Key } from "react-aria-components";
 const buttonStyles = tv({
   extend: focusRing,
   base: [
-    "flex items-center h-10 text-start gap-4 w-full min-w-[150px] cursor-default pl-3 pr-2 py-2 transition",
-    "border border-border rounded-md text-foreground"
+    "flex h-10 w-full min-w-[150px] cursor-default items-center gap-4 py-2 pr-2 pl-3 text-start transition",
+    "rounded-md border border-border text-foreground"
   ],
   variants: {
     isInvalid: {
       true: "border-destructive group-invalid:border-destructive forced-colors:group-invalid:border-[Mark]"
     },
     isDisabled: {
-      false: "hover:bg-accent/90 pressed:bg-accent pressed:text-accent-foreground",
-      true: "opacity-50 forced-colors:text-[GrayText] forced-colors:border-[GrayText]"
+      false: "pressed:bg-accent pressed:text-accent-foreground hover:bg-accent/90",
+      true: "opacity-50 forced-colors:border-[GrayText] forced-colors:text-[GrayText]"
     }
   }
 });

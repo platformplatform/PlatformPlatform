@@ -15,14 +15,14 @@ export const fieldBorderStyles = tv({
       true: "border-destructive forced-colors:border-[Mark]"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed forced-colors:border-[GrayText]"
+      true: "cursor-not-allowed opacity-50 forced-colors:border-[GrayText]"
     }
   }
 });
 
 export const fieldGroupStyles = tv({
   extend: focusRing,
-  base: "group flex items-center h-10 bg-background forced-colors:bg-[Field] border rounded-md overflow-hidden",
+  base: "group flex h-10 items-center overflow-hidden rounded-md border bg-background forced-colors:bg-[Field]",
   variants: fieldBorderStyles.variants
 });
 

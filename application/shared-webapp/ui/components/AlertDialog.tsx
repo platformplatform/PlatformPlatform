@@ -21,7 +21,7 @@ interface AlertDialogProps extends Omit<DialogProps, "children"> {
 }
 
 const alertDialogContents = tv({
-  base: "w-6 h-6 absolute right-6 top-6 stroke-2",
+  base: "absolute top-6 right-6 h-6 w-6 stroke-2",
   variants: {
     variant: {
       neutral: "hidden",
@@ -54,7 +54,7 @@ export function AlertDialog({
           </div>
           <div id={contentId}>{children}</div>
           {actionLabel && (
-            <fieldset className="pt-10 flex justify-end gap-2">
+            <fieldset className="flex justify-end gap-2 pt-10">
               <Button variant="secondary" onPress={close}>
                 {cancelLabel ?? "Cancel"}
               </Button>

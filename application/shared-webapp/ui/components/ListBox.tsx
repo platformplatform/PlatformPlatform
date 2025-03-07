@@ -27,11 +27,11 @@ export function ListBox<T extends object>({ children, ...props }: ListBoxProps<T
 
 export const itemStyles = tv({
   extend: focusRing,
-  base: "group relative flex items-center gap-8 cursor-default select-none py-1.5 px-2.5 rounded-md will-change-transform text-sm forced-color-adjust-none",
+  base: "group relative flex cursor-default select-none items-center gap-8 rounded-md px-2.5 py-1.5 text-sm will-change-transform forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "bg-background hover:bg-muted pressed:bg-muted/90",
-      true: "bg-muted/50 hover:bg-muted/90 pressed:bg-muted/80  forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
+      false: "bg-background pressed:bg-muted/90 hover:bg-muted",
+      true: "bg-muted/50 pressed:bg-muted/80 hover:bg-muted/90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
     },
     isDisabled: {
       true: "text-muted-foreground/50 forced-colors:text-[GrayText]"

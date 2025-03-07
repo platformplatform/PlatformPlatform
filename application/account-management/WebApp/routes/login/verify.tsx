@@ -123,7 +123,7 @@ export function CompleteLoginForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-6 text-neutral-500 px-6">
+      <div className="flex flex-col items-center gap-6 px-6 text-neutral-500">
         <div className="text-center text-neutral-500 text-xs">
           <Form
             onSubmit={mutationSubmitter(resendLoginCodeMutation, {
@@ -136,13 +136,13 @@ export function CompleteLoginForm() {
             <Button
               type="submit"
               variant="link"
-              className="text-xs p-0 h-auto"
+              className="h-auto p-0 text-xs"
               isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending}
             >
               <Trans>Didn't receive the code? Resend</Trans>
             </Button>
           </Form>
-          <span className="font-normal tabular-nums leading-none ml-1">({expiresInString})</span>
+          <span className="ml-1 font-normal tabular-nums leading-none">({expiresInString})</span>
         </div>
         <p className="text-xs">
           <Trans>Can't find your code? Check your spam folder.</Trans>

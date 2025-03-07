@@ -9,7 +9,7 @@ import { focusRing } from "./focusRing";
 
 const styles = tv({
   extend: focusRing,
-  base: "flex rounded-md border-2 border-border [&>*:not(:last-child)]:border-r-2 [&>*:not(:last-child)]:rounded-r-none"
+  base: "flex rounded-md border-2 border-border [&>*:not(:last-child)]:rounded-r-none [&>*:not(:last-child)]:border-r-2"
 });
 export function Group({ className, children, ...props }: Readonly<GroupProps & RefAttributes<HTMLDivElement>>) {
   return (

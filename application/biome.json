@@ -18,6 +18,25 @@
       "trailingCommas": "none"
     }
   },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "style": {
+        "noUnusedTemplateLiteral": "error",
+        "useTemplate": "error"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "options": {
+            "attributes": ["class", "className", "classList"],
+            "functions": ["clsx", "cva", "cn", "tv"]
+          }
+        }
+      }
+    }
+  },
   "files": {
     "ignore": ["*.Api.json"]
   }
