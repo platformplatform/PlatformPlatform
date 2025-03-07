@@ -208,7 +208,7 @@ var accountManagementEnvironmentVariables = [
   }
   {
     name: 'CDN_URL'
-    value: cdnUrl
+    value: '${cdnUrl}/account-management'
   }
   {
     name: 'SENDER_EMAIL_ADDRESS'
