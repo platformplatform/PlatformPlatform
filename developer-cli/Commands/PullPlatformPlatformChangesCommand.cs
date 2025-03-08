@@ -375,7 +375,6 @@ public class PullPlatformPlatformChangesCommand : Command
                 try
                 {
                     AnsiConsole.MarkupLine("[green]Validating frontend code.[/]");
-                    ProcessHelper.StartProcess("npm run format", Configuration.ApplicationFolder, throwOnError: true);
                     ProcessHelper.StartProcess("npm run lint", Configuration.ApplicationFolder, throwOnError: true);
                     ProcessHelper.StartProcess("npm run check", Configuration.ApplicationFolder, throwOnError: true);
                     break;
