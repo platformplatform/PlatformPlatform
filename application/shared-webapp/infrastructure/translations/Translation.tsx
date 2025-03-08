@@ -76,6 +76,7 @@ export class Translation {
    *
    * @param children The children to render
    */
+  // biome-ignore lint/style/useNamingConvention: React components use PascalCase by convention
   public TranslationProvider = ({ children }: { children: React.ReactNode }) => {
     return <TranslationProvider translation={this}>{children}</TranslationProvider>;
   };

@@ -17,13 +17,13 @@ export interface ImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   priority?: boolean;
   quality?: number;
   loader?: ImageLoader;
-  blurDataURL?: string;
+  blurDataUrl?: string;
 }
 
 export function Image(props: Readonly<ImageProps>) {
   const imageRef = useRef<HTMLImageElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { src, alt, height, width, priority, quality, loader, style, blurDataURL, className, ...imageProps } = props;
+  const { src, alt, height, width, priority, quality, loader, style, blurDataUrl, className, ...imageProps } = props;
   const imageLoader = loader ?? defaultLoader;
   const imageUrl = imageLoader({ src, width, quality: quality ?? 75 });
 
@@ -64,12 +64,12 @@ export function Image(props: Readonly<ImageProps>) {
     />
   );
 
-  if (blurDataURL == null) return image;
+  if (blurDataUrl == null) return image;
 
   const blurBackground: CSSProperties = !isLoaded
     ? {
         filter: "blur(15px)",
-        backgroundImage: `url(${blurDataURL})`,
+        backgroundImage: `url(${blurDataUrl})`,
         backgroundSize: "100% 100%"
       }
     : {

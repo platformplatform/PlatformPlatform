@@ -4,6 +4,7 @@ import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationIns
 import { Translation } from "@repo/infrastructure/translations/Translation";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
+// biome-ignore lint/style/useNamingConvention: ReactDOM is a standard library name with consecutive uppercase letters
 import ReactDOM from "react-dom/client";
 
 const { TranslationProvider } = await Translation.create(

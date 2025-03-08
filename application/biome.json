@@ -56,7 +56,20 @@
         "useBlockStatements": "off",
         "useConsistentBuiltinInstantiation": "error",
         "useFilenamingConvention": "off",
-        "useNamingConvention": "off",
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": true,
+            "conventions": [
+              {
+                "selector": {
+                  "kind": "objectLiteralProperty"
+                },
+                "formats": ["PascalCase", "camelCase"]
+              }
+            ]
+          }
+        },
         "noNegationElse": "off"
       },
       "nursery": {
@@ -68,7 +81,8 @@
           }
         }
       }
-    }
+    },
+    "ignore": ["./shared-webapp/build/environment.d.ts", "./shared-webapp/ui/tailwind-preset.ts"]
   },
   "files": {
     "ignore": ["*.Api.json"]

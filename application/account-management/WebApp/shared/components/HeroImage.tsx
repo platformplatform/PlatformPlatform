@@ -10,7 +10,7 @@ export function HeroImage() {
     <>
       <Image
         src={heroMobileImage}
-        blurDataURL={heroMobileBlurImage}
+        blurDataUrl={heroMobileBlurImage}
         width={560}
         height={620}
         className="block md:hidden"
@@ -19,7 +19,7 @@ export function HeroImage() {
       />
       <Image
         src={heroDesktopImage}
-        blurDataURL={heroDesktopBlurImage}
+        blurDataUrl={heroDesktopBlurImage}
         width={1000}
         height={760}
         className="hidden md:block"
