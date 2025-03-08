@@ -8,8 +8,8 @@ public static class SolutionHelper
     public static FileInfo GetSolution(string? solutionName)
     {
         var solutionsFiles = Directory
-            .GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.AllDirectories)
-            .ToDictionary(s => new FileInfo(s).Name.Replace(".sln", ""), s => s);
+            .GetFiles(Configuration.ApplicationFolder, "*.slnx", SearchOption.AllDirectories)
+            .ToDictionary(s => new FileInfo(s).Name.Replace(".slnx", ""), s => s);
 
         if (solutionName is not null && !solutionsFiles.ContainsKey(solutionName))
         {

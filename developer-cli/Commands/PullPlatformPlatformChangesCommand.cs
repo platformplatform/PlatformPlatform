@@ -349,7 +349,7 @@ public class PullPlatformPlatformChangesCommand : Command
                 {
                     AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
 
-                    var solutionFile = Directory.GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.TopDirectoryOnly).Single();
+                    var solutionFile = Directory.GetFiles(Configuration.ApplicationFolder, "*.slnx", SearchOption.TopDirectoryOnly).Single();
                     ProcessHelper.StartProcess(
                         $"""dotnet jb cleanupcode {solutionFile} --profile=".NET only" """,
                         Configuration.ApplicationFolder,
