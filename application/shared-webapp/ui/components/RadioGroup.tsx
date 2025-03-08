@@ -34,17 +34,17 @@ export function RadioGroup(props: Readonly<RadioGroupProps>) {
 
 const indicatorStyles = tv({
   extend: focusRing,
-  base: "flex w-5 h-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
+  base: "flex h-5 w-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
   variants: {
     isSelected: {
-      false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-[7px] border-[--color] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
+      false: "border-[--color] bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-[--color] border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
       true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed"
+      true: "cursor-not-allowed opacity-50"
     }
   }
 });

@@ -1,16 +1,16 @@
-import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { useEffect, useState } from "react";
-import { LogOutIcon, UserIcon } from "lucide-react";
 import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
-import { Avatar } from "@repo/ui/components/Avatar";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
-import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { loginPath } from "@repo/infrastructure/auth/constants";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { LogOutIcon, UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
-export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label": string }) {
+export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const userInfo = useUserInfo();
 
@@ -20,9 +20,11 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
     }
   }, [userInfo]);
 
-  if (!userInfo) return null;
-
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
+
+  if (!userInfo) {
+    return null;
+  }
 
   async function logout() {
     await logoutMutation.mutateAsync({});
@@ -33,13 +35,13 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
     <>
       <MenuTrigger>
         <Button aria-label={ariaLabel} variant="icon" className="rounded-full">
-          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
         </Button>
         <Menu placement="bottom end">
           <MenuHeader>
             <div className="flex flex-row items-center gap-2">
-              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound size="sm" />
-              <div className="flex flex-col my-1">
+              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
+              <div className="my-1 flex flex-col">
                 <h2>{userInfo.fullName}</h2>
                 <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
               </div>

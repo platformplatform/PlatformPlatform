@@ -15,8 +15,7 @@
     "build": "turbo build",
     "test": "turbo test",
     "check": "turbo check",
-    "lint": "turbo lint",
-    "format": "turbo format"
+    "lint": "turbo lint"
   },
   "dependencies": {
     "@fontsource/inter": "5.1.0",
@@ -64,12 +63,6 @@
     "tailwindcss-react-aria-components": "1.2.0",
     "turbo": "2.3.3",
     "typescript": "5.7.2"
-  },
-  "overrides": {
-    "@types/react": "$@types/react",
-    "@types/react-dom": "$@types/react-dom",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
   },
   "postcss": {
     "plugins": {

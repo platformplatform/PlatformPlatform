@@ -21,7 +21,7 @@ const tabsStyles = tv({
   variants: {
     orientation: {
       horizontal: "flex-col",
-      vertical: "flex-row w-[800px]"
+      vertical: "w-[800px] flex-row"
     }
   }
 });
@@ -42,7 +42,7 @@ const tabListStyles = tv({
   variants: {
     orientation: {
       horizontal: "flex-row border-b [&>*]:border-b-2",
-      vertical: "flex-col items-start border-r [&>*]:border-r-2 [&>*]:w-full"
+      vertical: "flex-col items-start border-r [&>*]:w-full [&>*]:border-r-2"
     }
   }
 });
@@ -60,11 +60,11 @@ export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
 
 const tabProps = tv({
   extend: focusRing,
-  base: "flex gap-2 items-center text-center cursor-default px-4 pt-1.5 pb-0.5 text-sm font-semibold transition forced-color-adjust-none",
+  base: "flex cursor-default items-center gap-2 px-4 pt-1.5 pb-0.5 text-center font-semibold text-sm transition forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "text-muted-foreground border-transparent",
-      true: "text-foreground border-primary forced-colors:text-[HighlightText]"
+      false: "border-transparent text-muted-foreground",
+      true: "border-primary text-foreground forced-colors:text-[HighlightText]"
     },
     isHovered: {
       true: "text-muted-foreground/90"
@@ -73,7 +73,7 @@ const tabProps = tv({
       true: "rounded-md border-transparent"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed"
+      true: "cursor-not-allowed opacity-50"
     }
   }
 });
@@ -91,7 +91,7 @@ export function Tab(props: Readonly<TabProps>) {
 
 const tabPanelStyles = tv({
   extend: focusRing,
-  base: "flex-1 p-4 text-sm text-foreground border border-border rounded-lg"
+  base: "flex-1 rounded-lg border border-border p-4 text-foreground text-sm"
 });
 
 export function TabPanel(props: Readonly<TabPanelProps>) {

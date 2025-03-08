@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { type Messages, i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import { i18n, type Messages } from "@lingui/core";
+import type React from "react";
+import { useMemo, useState } from "react";
+import { type TranslationContext, translationContext } from "./TranslationContext";
 import localeMap from "./i18n.config.json";
-import { translationContext, type TranslationContext } from "./TranslationContext";
 
 export type Locale = keyof typeof localeMap;
 
@@ -24,15 +25,19 @@ export type LocalLoaderFunction = (locale: Locale) => Promise<LocaleFile>;
 const TranslationContextProvider = translationContext.Provider;
 
 export class Translation {
-  private _messageCache = new Map<Locale, LocaleFile>();
-  private _defaultLocale = document.documentElement.lang as Locale;
+  private readonly _messageCache = new Map<Locale, LocaleFile>();
+  private readonly _defaultLocale = document.documentElement.lang as Locale;
 
   /**
    * Prefer using `TranslationConfig.create` instead of this constructor
    */
-  constructor(private localeLoader: LocalLoaderFunction) {}
+  private readonly localeLoader: LocalLoaderFunction;
 
-  private _locales: Locale[] = Object.keys(localeMap) as Locale[];
+  constructor(localeLoader: LocalLoaderFunction) {
+    this.localeLoader = localeLoader;
+  }
+
+  private readonly _locales: Locale[] = Object.keys(localeMap) as Locale[];
 
   /**
    * Get the list of available locales
@@ -72,6 +77,7 @@ export class Translation {
    *
    * @param children The children to render
    */
+  // biome-ignore lint/style/useNamingConvention: React components use PascalCase by convention
   public TranslationProvider = ({ children }: { children: React.ReactNode }) => {
     return <TranslationProvider translation={this}>{children}</TranslationProvider>;
   };

@@ -1,18 +1,18 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { FileTrigger, Form, Heading, Label } from "react-aria-components";
-import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
-import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { Modal } from "@repo/ui/components/Modal";
-import { TextField } from "@repo/ui/components/TextField";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { type Schemas, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
-import { useMutation } from "@tanstack/react-query";
-import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { Button } from "@repo/ui/components/Button";
+import { Dialog } from "@repo/ui/components/Dialog";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { Modal } from "@repo/ui/components/Modal";
+import { TextField } from "@repo/ui/components/TextField";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useMutation } from "@tanstack/react-query";
+import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { FileTrigger, Form, Heading, Label } from "react-aria-components";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
@@ -29,7 +29,9 @@ type ProfileDialogProps = ProfileModalProps & {
 export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<ProfileModalProps>) {
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading}>
@@ -129,7 +131,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
 
   return (
     <Dialog aria-label={t`User profile`}>
-      <XIcon onClick={closeDialog} className="h-10 w-10 absolute top-2 right-2 p-2 hover:bg-muted" />
+      <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted" />
       <Heading slot="title" className="text-2xl">
         <Trans>User profile</Trans>
       </Heading>
@@ -141,7 +143,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         onSubmit={mutationSubmitter(saveMutation)}
         validationBehavior="aria"
         validationErrors={saveMutation.error?.errors}
-        className="flex flex-col gap-4 mt-4"
+        className="mt-4 flex flex-col gap-4"
       >
         <FileTrigger
           ref={avatarFileInputRef}
@@ -159,13 +161,13 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
           <Button
             variant="icon"
-            className="rounded-full w-16 h-16 mb-3 bg-secondary hover:bg-secondary/80"
+            className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
             aria-label={t`Change profile picture`}
           >
             {user.avatarUrl || avatarPreviewUrl ? (
               <img
                 src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
-                className="rounded-full h-full w-full object-cover"
+                className="h-full w-full rounded-full object-cover"
                 alt={t`Preview avatar`}
               />
             ) : (
@@ -178,7 +180,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
                 avatarFileInputRef.current?.click();
               }}
             >
-              <CameraIcon className="w-4 h-4" />
+              <CameraIcon className="h-4 w-4" />
               <Trans>Upload profile picture</Trans>
             </MenuItem>
             {(user.avatarUrl || avatarPreviewUrl) && (
@@ -193,7 +195,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
                     user.avatarUrl = null;
                   }}
                 >
-                  <Trash2Icon className="w-4 h-4 text-destructive" />
+                  <Trash2Icon className="h-4 w-4 text-destructive" />
                   <span className="text-destructive">
                     <Trans>Remove profile picture</Trans>
                   </span>
@@ -203,10 +205,10 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
           </Menu>
         </MenuTrigger>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <TextField
-            autoFocus
-            isRequired
+            autoFocus={true}
+            isRequired={true}
             name="firstName"
             label={t`First name`}
             defaultValue={user?.firstName}
@@ -214,7 +216,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             className="sm:w-64"
           />
           <TextField
-            isRequired
+            isRequired={true}
             name="lastName"
             label={t`Last name`}
             defaultValue={user?.lastName}
@@ -227,7 +229,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
 
         <FormErrorMessage error={saveMutation.error} />
 
-        <div className="flex justify-end gap-4 mt-6">
+        <div className="mt-6 flex justify-end gap-4">
           <Button type="reset" onPress={closeDialog} variant="secondary">
             <Trans>Cancel</Trans>
           </Button>

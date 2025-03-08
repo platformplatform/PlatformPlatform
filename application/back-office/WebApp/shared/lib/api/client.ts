@@ -1,5 +1,5 @@
-import type { components, paths } from "./api.generated";
 import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/AuthenticationMiddleware";
+import type { components, paths } from "./api.generated";
 
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";

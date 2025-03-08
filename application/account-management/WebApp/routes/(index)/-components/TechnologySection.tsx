@@ -3,15 +3,15 @@ import { frame1, frame2, frame3, frame4, frame5, frame6 } from "./cdnImages";
 // TechnologySection: A functional component that displays the technology section
 export function TechnologySection() {
   return (
-    <div className="flex flex-col gap-16 text-center bg-background py-24 px-8 md:px-32">
-      <div className="flex flex-col gap-4 text-foreground text-3xl font-semibold text-start w-2/3">
-        <h1 className="text-amber-600 text-base font-semibold text-start">FEATURES</h1>
-        <p className="text-foreground text-4xl font-semibold text-start">
+    <div className="flex flex-col gap-16 bg-background px-8 py-24 text-center md:px-32">
+      <div className="flex w-2/3 flex-col gap-4 text-start font-semibold text-3xl text-foreground">
+        <h1 className="text-start font-semibold text-amber-600 text-base">FEATURES</h1>
+        <p className="text-start font-semibold text-4xl text-foreground">
           Standing on the shoulders of giants. Building blocks of PlatformPlatform
         </p>
       </div>
-      <div className="flex md:flex-row flex-col gap-16">
-        <div className="grid gap-x-16 gap-y-8 grid-cols-1 md:grid-cols-3 grid-rows-2 text-black">
+      <div className="flex flex-col gap-16 md:flex-row">
+        <div className="grid grid-cols-1 grid-rows-2 gap-x-16 gap-y-8 text-black md:grid-cols-3">
           {/* FeatureBlock component is used to display individual feature blocks */}
           <FeatureBlock
             title="Backend"
@@ -58,14 +58,14 @@ interface FeatureBlockProps {
 // FeatureBlock: A functional component that displays individual feature blocks
 function FeatureBlock({ title, content, image }: Readonly<FeatureBlockProps>) {
   return (
-    <div className="flex flex-col gap-4 h-1/3">
+    <div className="flex h-1/3 flex-col gap-4">
       <div>
-        <div className="flex bg-white shadow dark:shadow-gray-600 rounded-lg w-12 h-12 justify-center p-0 items-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white p-0 shadow dark:shadow-gray-600">
           <img src={image} alt={title} loading="lazy" />
         </div>
       </div>
-      <div className="text-foreground text-xl font-semibold text-start">{title}</div>
-      <div className="text-muted-foreground text-base font-normal text-start">{content}</div>
+      <div className="text-start font-semibold text-foreground text-xl">{title}</div>
+      <div className="text-start font-normal text-base text-muted-foreground">{content}</div>
     </div>
   );
 }

@@ -19,21 +19,17 @@ export function OneTimeCodeInput({
   autoFocus,
   ariaLabel
 }: OneTimeCodeInputProps) {
-  const [digits, setDigits] = useState<string[]>(Array(length).fill(""));
+  const [digits, setDigits] = useState<string[]>(new Array(length).fill(""));
   const id = useId();
-  const digitRefs = useMemo(
-    () =>
-      Array(length)
-        .fill(id)
-        .map((id, i) => `${id}_${i}`),
-    [id, length]
-  );
+  const digitRefs = useMemo(() => new Array(length).fill(id).map((id, i) => `${id}_${i}`), [id, length]);
   const inputValue = digits.join("");
 
   const setFocus = useCallback(
     (i: number) => {
       const formEl = (document.getElementById(digitRefs[0]) as HTMLInputElement | null)?.form as HTMLFormElement | null;
-      if (formEl === null) return;
+      if (formEl === null) {
+        return;
+      }
 
       if (i >= digitRefs.length) {
         const el = formEl.querySelectorAll("button[type=submit]")[0] as HTMLInputElement | null;

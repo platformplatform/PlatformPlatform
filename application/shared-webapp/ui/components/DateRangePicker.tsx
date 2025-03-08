@@ -53,11 +53,11 @@ export function DateRangePicker<T extends DateValue>({
         <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
         {value && (
           <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
-            <XIcon aria-hidden className="h-4 w-4" />
+            <XIcon aria-hidden={true} className="h-4 w-4" />
           </Button>
         )}
         <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
-          <CalendarIcon aria-hidden className="h-4 w-4" />
+          <CalendarIcon aria-hidden={true} className="h-4 w-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}

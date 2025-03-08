@@ -38,7 +38,7 @@ export function CheckboxGroup(props: Readonly<CheckboxGroupProps>) {
 }
 
 const checkboxStyles = tv({
-  base: "flex h-5 w-5 gap-2 items-center group text-sm transition",
+  base: "group flex h-5 w-5 items-center gap-2 text-sm transition",
   variants: {
     isDisabled: {
       false: "text-foreground",
@@ -49,17 +49,17 @@ const checkboxStyles = tv({
 
 const boxStyles = tv({
   extend: focusRing,
-  base: "w-full h-full flex-shrink-0 rounded flex items-center justify-center border transition",
+  base: "flex h-full w-full flex-shrink-0 items-center justify-center rounded border transition",
   variants: {
     isSelected: {
-      false: "bg-background border-[--color] [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "text-primary-foreground bg-[--color] border-[--color] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
+      false: "border-[--color] bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-[--color] bg-[--color] text-primary-foreground [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
       true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isDisabled: {
-      true: "opacity-50 cursor-not-allowed"
+      true: "cursor-not-allowed opacity-50"
     }
   }
 });
@@ -93,8 +93,12 @@ type SelectionIconProps = {
 };
 
 function SelectionIcon({ isSelected, isIndeterminate }: Readonly<SelectionIconProps>) {
-  if (isIndeterminate) return <Minus aria-hidden className={iconStyles} />;
-  if (isSelected) return <Check aria-hidden className={iconStyles} />;
+  if (isIndeterminate) {
+    return <Minus aria-hidden={true} className={iconStyles} />;
+  }
+  if (isSelected) {
+    return <Check aria-hidden={true} className={iconStyles} />;
+  }
 
   return null;
 }

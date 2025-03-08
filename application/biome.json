@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,7 +7,7 @@
     "defaultBranch": "main"
   },
   "organizeImports": {
-    "enabled": false
+    "enabled": true
   },
   "formatter": {
     "indentStyle": "space",
@@ -16,7 +16,73 @@
   "javascript": {
     "formatter": {
       "trailingCommas": "none"
-    }
+    },
+    "globals": ["React", "ReactNode", "CustomBuildEnv", "RuntimeEnv", "UserInfoEnv"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "all": true,
+        "useImportExtensions": "off",
+        "noUndeclaredDependencies": "off",
+        "noUndeclaredVariables": "error",
+        "noNodejsModules": "off",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "all": true,
+        "noReactSpecificProps": "off",
+        "noEmptyBlockStatements": "off",
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error"]
+          }
+        }
+      },
+      "complexity": {
+        "all": true,
+        "noForEach": "off",
+        "useSimplifiedLogicExpression": "off"
+      },
+      "style": {
+        "all": true,
+        "noUnusedTemplateLiteral": "error",
+        "useTemplate": "error",
+        "noImplicitBoolean": "error",
+        "noDefaultExport": "off",
+        "useBlockStatements": "error",
+        "useConsistentBuiltinInstantiation": "error",
+        "useFilenamingConvention": "off",
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": true,
+            "conventions": [
+              {
+                "selector": {
+                  "kind": "objectLiteralProperty"
+                },
+                "formats": ["PascalCase", "camelCase"]
+              }
+            ]
+          }
+        },
+        "noNegationElse": "off"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "options": {
+            "attributes": ["class", "className", "classList"],
+            "functions": ["clsx", "cva", "cn", "tv"]
+          }
+        }
+      }
+    },
+    "ignore": ["./shared-webapp/build/environment.d.ts", "./shared-webapp/ui/tailwind-preset.ts"]
   },
   "files": {
     "ignore": ["*.Api.json"]

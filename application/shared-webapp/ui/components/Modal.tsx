@@ -6,19 +6,19 @@ import { Modal as AriaModal, ModalOverlay, type ModalOverlayProps } from "react-
 import { tv } from "tailwind-variants";
 
 const overlayStyles = tv({
-  base: "fixed top-0 left-0 w-full h-[--visual-viewport-height] isolate z-20 bg-black/[15%] text-center flex",
+  base: "fixed top-0 left-0 isolate z-20 flex h-[--visual-viewport-height] w-full bg-black/[15%] text-center",
   variants: {
     isEntering: {
-      true: "animate-in fade-in duration-200 ease-out"
+      true: "fade-in animate-in duration-200 ease-out"
     },
     isExiting: {
-      true: "animate-out fade-out duration-200 ease-in"
+      true: "fade-out animate-out duration-200 ease-in"
     },
     position: {
       center: "items-center justify-center",
       top: "items-start justify-center",
-      left: "justify-start items-stretch",
-      right: "justify-end items-stretch",
+      left: "items-stretch justify-start",
+      right: "items-stretch justify-end",
       bottom: "items-end justify-center"
     },
     fullSize: {
@@ -38,13 +38,13 @@ const overlayStyles = tv({
 });
 
 const modalStyles = tv({
-  base: "w-full sm:w-fit rounded-lg bg-popover dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas] text-left align-middle text-foreground shadow-2xl bg-clip-padding border border-border",
+  base: "w-full rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
-      true: "animate-in zoom-in-105 ease-out duration-200"
+      true: "zoom-in-105 animate-in duration-200 ease-out"
     },
     isExiting: {
-      true: "animate-out zoom-out-95 ease-in duration-200"
+      true: "zoom-out-95 animate-out duration-200 ease-in"
     }
   }
 });

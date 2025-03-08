@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react";
 import { tv } from "tailwind-variants";
 
 const styles = tv({
-  base: "flex gap-2 py-1 px-2 h-6 w-fit rounded-full text-xs font-medium items-center justify-center truncate [&>svg]:h-5",
+  base: "flex h-6 w-fit items-center justify-center gap-2 truncate rounded-full px-2 py-1 font-medium text-xs [&>svg]:h-5",
   variants: {
     variant: {
       neutral: "bg-muted text-muted-foreground",

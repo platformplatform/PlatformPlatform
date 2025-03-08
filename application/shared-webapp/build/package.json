@@ -8,16 +8,15 @@
     "./*": "./dist/*.js",
     "./plugin/*": "./dist/plugin/*.js",
     "./react-env.d.ts": "./react-env.d.ts",
-    "./mf-types/*.d.ts": "./mf-types/*.d.ts",
+    "./module-federation-types/*.d.ts": "./module-federation-types/*.d.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "tsc -b . environment -w",
     "dev:setup": "tsc -b . environment",
     "build": "rimraf ./dist && tsc -b . environment",
-    "check": "biome check",
-    "lint": "biome lint --write",
-    "format": "biome format --write"
+    "check": "biome check --error-on-warnings",
+    "lint": "biome check --write --unsafe"
   },
   "devDependencies": {
     "@repo/config": "*"

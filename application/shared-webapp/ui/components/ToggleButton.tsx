@@ -25,15 +25,15 @@ export type ToggleButtonProps = AriaToggleButtonProps & {
 
 const styles = tv({
   extend: focusRing,
-  base: "inline-flex gap-1 items-center justify-center whitespace-nowrap rounded-md px-5 py-2 text-sm transition forced-colors:border-[ButtonBorder] forced-color-adjust-none cursor-pointer",
+  base: "inline-flex cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-md px-5 py-2 text-sm transition forced-color-adjust-none forced-colors:border-[ButtonBorder]",
   variants: {
     variant: {
-      primary: "[--text-color:theme(colors.primary.foreground)] [--color:theme(colors.primary.DEFAULT)]",
-      secondary: "[--text-color:theme(colors.secondary.foreground)] [--color:theme(colors.secondary.DEFAULT)]",
-      destructive: "[--text-color:theme(colors.destructive.foreground)] [--color:theme(colors.destructive.DEFAULT)]",
+      primary: "[--color:theme(colors.primary.DEFAULT)] [--text-color:theme(colors.primary.foreground)]",
+      secondary: "[--color:theme(colors.secondary.DEFAULT)] [--text-color:theme(colors.secondary.foreground)]",
+      destructive: "[--color:theme(colors.destructive.DEFAULT)] [--text-color:theme(colors.destructive.foreground)]",
       outline:
-        "border border-input [--text-color:theme(colors.accent.foreground)] [--color:theme(colors.accent.DEFAULT)]",
-      ghost: "[--text-color:theme(colors.accent.foreground)] [--color:theme(colors.accent.DEFAULT)]"
+        "border border-input [--color:theme(colors.accent.DEFAULT)] [--text-color:theme(colors.accent.foreground)]",
+      ghost: "[--color:theme(colors.accent.DEFAULT)] [--text-color:theme(colors.accent.foreground)]"
     },
     size: {
       sm: "h-9 px-3",
@@ -45,8 +45,8 @@ const styles = tv({
     },
     isSelected: {
       false:
-        "bg-background text-foreground hover:bg-[--color] hover:text-[--text-color] pressed:opacity-90 hover:opacity-50",
-      true: "text-[--text-color] bg-[--color] border-[--color] pressed:opacity-80 hover:opacity-90"
+        "bg-background text-foreground pressed:opacity-90 hover:bg-[--color] hover:text-[--text-color] hover:opacity-50",
+      true: "border-[--color] bg-[--color] text-[--text-color] pressed:opacity-80 hover:opacity-90"
     }
   },
   defaultVariants: {

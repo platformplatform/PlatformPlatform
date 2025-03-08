@@ -1,15 +1,15 @@
-import { FocusScope, useFocusManager, useKeyboard } from "react-aria";
-import { Button } from "./Button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import { tv } from "tailwind-variants";
 import type { ReactNode } from "react";
+import { FocusScope, useFocusManager, useKeyboard } from "react-aria";
+import { tv } from "tailwind-variants";
+import { Button } from "./Button";
 
 const pageBackgroundStyle = tv({
-  base: "flex gap-1 rounded-md h-10 items-center"
+  base: "flex h-10 items-center gap-1 rounded-md"
 });
 
 const paginationStyles = tv({
-  base: "flex gap-4 w-full justify-between"
+  base: "flex w-full justify-between gap-4"
 });
 
 type PaginationProps = {
@@ -46,7 +46,7 @@ export function Pagination({
   return (
     <nav aria-label="Pagination" className={paginationStyles({ className })}>
       <Button variant="secondary" className="" onPress={handlePrevious} isDisabled={currentPage === 1}>
-        <ArrowLeftIcon className="w-4 h-4" />
+        <ArrowLeftIcon className="h-4 w-4" />
         {previousLabel && <span className="hidden sm:block">{previousLabel}</span>}
       </Button>
 
@@ -61,7 +61,7 @@ export function Pagination({
 
       <Button variant="secondary" className="" onPress={handleNext} isDisabled={currentPage === totalPages}>
         {nextLabel && <span className="hidden sm:block">{nextLabel}</span>}
-        <ArrowRightIcon className="w-4 h-4" />
+        <ArrowRightIcon className="h-4 w-4" />
       </Button>
     </nav>
   );
@@ -174,7 +174,7 @@ function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Reado
 function Separator() {
   return (
     <li>
-      <Button isDisabled variant="ghost">
+      <Button isDisabled={true} variant="ghost">
         ...
       </Button>
     </li>

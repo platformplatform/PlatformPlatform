@@ -15,9 +15,8 @@
     "dev:setup": "rimraf ./dist && npm run copyImages && tsc -p .",
     "build": "rimraf ./dist && npm run copyImages && tsc -p .",
     "copyImages": "node ./copyImages.js",
-    "check": "biome check",
-    "lint": "biome lint --write",
-    "format": "biome format --write"
+    "check": "biome check --error-on-warnings",
+    "lint": "biome check --write --unsafe"
   },
   "devDependencies": {
     "@repo/config": "*",

@@ -1,12 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import Timeout from "@spectrum-icons/illustrations/Timeout";
-import { Link } from "@repo/ui/components/Link";
-import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
-import { getLoginState } from "./-shared/loginState";
-import { loginPath } from "@repo/infrastructure/auth/constants";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { Trans } from "@lingui/react/macro";
+import { loginPath } from "@repo/infrastructure/auth/constants";
+import { Content, Heading, IllustratedMessage } from "@repo/ui/components/IllustratedMessage";
+import { Link } from "@repo/ui/components/Link";
+import Timeout from "@spectrum-icons/illustrations/Timeout";
+import { createFileRoute } from "@tanstack/react-router";
+import { getLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/expired")({
   component: () => (

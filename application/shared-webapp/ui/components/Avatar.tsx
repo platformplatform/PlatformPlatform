@@ -33,7 +33,7 @@ export type AvatarProps = {
 } & HTMLAttributes<HTMLImageElement>;
 
 const backgroundStyles = tv({
-  base: "inline-flex shrink-0 items-center border border-border justify-center overflow-hidden font-semibold uppercase",
+  base: "inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
   variants: {
     isRound: {
       true: "rounded-full",

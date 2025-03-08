@@ -1,16 +1,16 @@
-import { FilterIcon, FilterXIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { type SortOrder, type SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { parseDate } from "@internationalized/date";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { SearchField } from "@repo/ui/components/SearchField";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { Select, SelectItem } from "@repo/ui/components/Select";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
-import { parseDate, type DateValue } from "@internationalized/date";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { FilterIcon, FilterXIcon } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
@@ -23,8 +23,6 @@ interface SearchParams {
   sortOrder: SortOrder | undefined;
   pageOffset: number | undefined;
 }
-
-type DateRange = { start: DateValue; end: DateValue } | null;
 
 /**
  * UserQuerying component handles the user list filtering.
@@ -74,13 +72,13 @@ export function UserQuerying() {
   }, [search, updateFilter]);
 
   return (
-    <div className="flex items-center mt-4 mb-4 gap-2">
+    <div className="mt-4 mb-4 flex items-center gap-2">
       <SearchField
         placeholder={t`Search`}
         value={search}
         onChange={setSearch}
         label={t`Search`}
-        autoFocus
+        autoFocus={true}
         className="min-w-[240px]"
       />
 
@@ -128,8 +126,8 @@ export function UserQuerying() {
             value={dateRange}
             onChange={(range) => {
               updateFilter({
-                startDate: range?.start.toString() || undefined,
-                endDate: range?.end.toString() || undefined
+                startDate: range?.start.toString() ?? undefined,
+                endDate: range?.end.toString() ?? undefined
               });
             }}
             label={t`Modified date`}
@@ -139,7 +137,7 @@ export function UserQuerying() {
 
       <Button
         variant="secondary"
-        className={showAllFilters ? "h-10 w-10 p-0 mt-6" : "mt-6"}
+        className={showAllFilters ? "mt-6 h-10 w-10 p-0" : "mt-6"}
         onPress={() => {
           if (showAllFilters) {
             // Reset filters when hiding

@@ -3,6 +3,7 @@
  * ref: https://ui.shadcn.com/docs/components/context-menu
  */
 import { Check, ChevronRight } from "lucide-react";
+import type React from "react";
 import {
   Menu as AriaMenu,
   MenuItem as AriaMenuItem,
@@ -17,7 +18,6 @@ import {
 import { tv } from "tailwind-variants";
 import { DropdownSection, type DropdownSectionProps, dropdownItemStyles } from "./Dropdown";
 import { Popover, type PopoverProps } from "./Popover";
-import type React from "react";
 
 export { MenuTrigger, SubmenuTrigger } from "react-aria-components";
 
@@ -39,12 +39,14 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
       {composeRenderProps(props.children, (children, { selectionMode, isSelected, hasSubmenu }) => (
         <>
           {selectionMode !== "none" && (
-            <span className="flex w-4 items-center">{isSelected && <Check aria-hidden className="h-4 w-4" />}</span>
+            <span className="flex w-4 items-center">
+              {isSelected && <Check aria-hidden={true} className="h-4 w-4" />}
+            </span>
           )}
-          <span className="flex flex-1 px-2 py-1 items-center gap-2 truncate font-normal group-selected:font-semibold">
+          <span className="flex flex-1 items-center gap-2 truncate px-2 py-1 font-normal group-selected:font-semibold">
             {children}
           </span>
-          {hasSubmenu && <ChevronRight aria-hidden className="absolute right-2 h-4 w-4" />}
+          {hasSubmenu && <ChevronRight aria-hidden={true} className="absolute right-2 h-4 w-4" />}
         </>
       ))}
     </AriaMenuItem>
@@ -73,7 +75,7 @@ export interface MenuHeaderProps extends React.ComponentProps<typeof Header> {
 }
 
 const headerStyles = tv({
-  base: "px-2 py-1.5 text-sm font-semibold",
+  base: "px-2 py-1.5 font-semibold text-sm",
   variants: {
     inset: {
       true: "pl-8"

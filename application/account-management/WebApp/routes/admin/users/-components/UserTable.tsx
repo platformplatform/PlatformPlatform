@@ -1,22 +1,22 @@
-import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
-import type { SortDescriptor } from "react-aria-components";
-import { MenuTrigger, TableBody } from "react-aria-components";
-import { useCallback, useState } from "react";
-import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
-import { Badge } from "@repo/ui/components/Badge";
-import { Pagination } from "@repo/ui/components/Pagination";
-import { Select, SelectItem } from "@repo/ui/components/Select";
-import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { Button } from "@repo/ui/components/Button";
-import { Avatar } from "@repo/ui/components/Avatar";
-import { type components, SortableUserProperties, SortOrder, UserRole, api } from "@/shared/lib/api/client";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { SortOrder, SortableUserProperties, UserRole, api, type components } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { Modal } from "@repo/ui/components/Modal";
+import { Pagination } from "@repo/ui/components/Pagination";
+import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { useCallback, useState } from "react";
+import type { SortDescriptor } from "react-aria-components";
+import { MenuTrigger, TableBody } from "react-aria-components";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
@@ -85,7 +85,9 @@ export function UserTable() {
   const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
 
   const handleDelete = useCallback(async () => {
-    if (!userToDelete) return;
+    if (!userToDelete) {
+      return;
+    }
 
     await deleteUserMutation.mutateAsync({ params: { path: { id: userToDelete.id } } });
 
@@ -97,7 +99,9 @@ export function UserTable() {
 
   const handleUserRoleChange = useCallback(
     async (newUserRole: UserRole) => {
-      if (!userToChangeRole) return;
+      if (!userToChangeRole) {
+        return;
+      }
 
       await changeUserRoleMutation.mutateAsync({
         params: { path: { id: userToChangeRole.id } },
@@ -110,7 +114,9 @@ export function UserTable() {
     [userToChangeRole, changeUserRoleMutation]
   );
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return null;
+  }
 
   const currentPage = (users?.currentPageOffset ?? 0) + 1;
 
@@ -133,9 +139,9 @@ export function UserTable() {
             </Trans>
           </p>
 
-          <div className="flex flex-col gap-4 mt-4">
+          <div className="mt-4 flex flex-col gap-4">
             <Select
-              autoFocus
+              autoFocus={true}
               aria-label={t`User Role`}
               selectedKey={userToChangeRole?.role}
               onSelectionChange={(key) => handleUserRoleChange(key as UserRole)}
@@ -171,7 +177,7 @@ export function UserTable() {
         </AlertDialog>
       </Modal>
 
-      <div className="flex flex-col gap-2 h-full w-full">
+      <div className="flex h-full w-full flex-col gap-2">
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
@@ -181,19 +187,19 @@ export function UserTable() {
           aria-label={t`Users`}
         >
           <TableHeader>
-            <Column minWidth={180} allowsSorting id={SortableUserProperties.Name} isRowHeader>
+            <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
               <Trans>Name</Trans>
             </Column>
-            <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
+            <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
               <Trans>Email</Trans>
             </Column>
-            <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
+            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
               <Trans>Created</Trans>
             </Column>
-            <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
+            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
               <Trans>Modified</Trans>
             </Column>
-            <Column minWidth={100} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
+            <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
               <Trans>Role</Trans>
             </Column>
             <Column width={114}>
@@ -209,7 +215,7 @@ export function UserTable() {
                       initials={getInitials(user.firstName, user.lastName, user.email)}
                       avatarUrl={user.avatarUrl}
                       size="sm"
-                      isRound
+                      isRound={true}
                     />
                     <div className="flex flex-col truncate">
                       <div className="truncate text-foreground">
@@ -233,22 +239,22 @@ export function UserTable() {
                   <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
                 </Cell>
                 <Cell>
-                  <div className="group flex gap-2 w-full">
+                  <div className="group flex w-full gap-2">
                     <Button
                       variant="icon"
-                      className="group-hover:opacity-100 opacity-0 duration-300 transition-opacity ease-in-out"
+                      className="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
                       onPress={() => setUserToDelete(user)}
                       isDisabled={user.id === userInfo?.id}
                     >
-                      <Trash2Icon className="w-5 h-5 text-muted-foreground" />
+                      <Trash2Icon className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <MenuTrigger>
                       <Button variant="icon" aria-label={t`Menu`}>
-                        <EllipsisVerticalIcon className="w-5 h-5 text-muted-foreground" />
+                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                       </Button>
                       <Menu>
                         <MenuItem id="viewProfile">
-                          <UserIcon className="w-4 h-4" />
+                          <UserIcon className="h-4 w-4" />
                           <Trans>View Profile</Trans>
                         </MenuItem>
                         <MenuItem
@@ -256,7 +262,7 @@ export function UserTable() {
                           isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
                           onAction={() => setUserToChangeRole(user)}
                         >
-                          <PencilIcon className="w-4 h-4 group-disabled:text-muted-foreground" />
+                          <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
                           <span className="group-disabled:text-muted-foreground">
                             <Trans>Change Role</Trans>
                           </span>
@@ -267,7 +273,7 @@ export function UserTable() {
                           isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
                           onAction={() => setUserToDelete(user)}
                         >
-                          <Trash2Icon className="w-4 h-4 text-destructive" />
+                          <Trash2Icon className="h-4 w-4 text-destructive" />
                           <span className="text-destructive">
                             <Trans>Delete</Trans>
                           </span>
@@ -296,7 +302,7 @@ export function UserTable() {
               onPageChange={handlePageChange}
               previousLabel={t`Previous`}
               nextLabel={t`Next`}
-              className="hidden sm:flex w-full"
+              className="hidden w-full sm:flex"
             />
           </>
         )}
@@ -306,13 +312,19 @@ export function UserTable() {
 }
 
 function toFormattedDate(input: string | undefined | null) {
-  if (!input) return "";
+  if (!input) {
+    return "";
+  }
   const date = new Date(input);
   return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 function getInitials(firstName: string | undefined, lastName: string | undefined, email: string | undefined) {
-  if (firstName && lastName) return `${firstName[0]}${lastName[0]}`;
-  if (email == null) return "";
+  if (firstName && lastName) {
+    return `${firstName[0]}${lastName[0]}`;
+  }
+  if (email == null) {
+    return "";
+  }
   return email.split("@")[0].slice(0, 2).toUpperCase();
 }

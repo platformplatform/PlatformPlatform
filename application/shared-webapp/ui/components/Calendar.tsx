@@ -23,11 +23,11 @@ import { focusRing } from "./focusRing";
 
 export const cellStyles = tv({
   extend: focusRing,
-  base: "w-9 h-9 text-sm cursor-default rounded-md flex items-center justify-center forced-color-adjust-none",
+  base: "flex h-9 w-9 cursor-default items-center justify-center rounded-md text-sm forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "text-foreground hover:bg-accent pressed:bg-muted",
-      true: "text-primary-foreground bg-primary forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+      false: "pressed:bg-muted text-foreground hover:bg-accent",
+      true: "bg-primary text-primary-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isUnavailable: {
       true: "text-muted-foreground forced-colors:text-[GrayText]"
@@ -36,7 +36,7 @@ export const cellStyles = tv({
       true: "bg-destructive text-destructive-foreground forced-colors:invalid:bg-[Mark]"
     },
     isDisabled: {
-      true: "text-muted-foreground opacity-50 forced-colors:text-[GrayText] strike"
+      true: "strike text-muted-foreground opacity-50 forced-colors:text-[GrayText]"
     },
     isHovered: {
       true: "opacity-90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
@@ -45,7 +45,7 @@ export const cellStyles = tv({
       true: "opacity-80 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isOutsideMonth: {
-      true: "text-muted-foreground bg-transparent"
+      true: "bg-transparent text-muted-foreground"
     }
   }
 });
@@ -60,7 +60,7 @@ export function Calendar<T extends DateValue>({
   visibleMonths = 1,
   ...props
 }: Readonly<CalendarProps<T>>) {
-  const durationInterval = useMemo(() => Array.from(Array(visibleMonths).keys()), [visibleMonths]);
+  const durationInterval = useMemo(() => Array.from(new Array(visibleMonths).keys()), [visibleMonths]);
   return (
     <AriaCalendar {...props} visibleDuration={{ months: visibleMonths }}>
       <CalendarHeader />
@@ -87,11 +87,11 @@ export function CalendarHeader() {
   return (
     <header className="flex w-full items-center gap-1 px-1 pb-4">
       <Button variant="icon" slot="previous">
-        {direction === "rtl" ? <ChevronRight aria-hidden /> : <ChevronLeft aria-hidden />}
+        {direction === "rtl" ? <ChevronRight aria-hidden={true} /> : <ChevronLeft aria-hidden={true} />}
       </Button>
       <Heading className="mx-2 flex-1 text-center font-semibold text-foreground text-md" />
       <Button variant="icon" slot="next">
-        {direction === "rtl" ? <ChevronLeft aria-hidden /> : <ChevronRight aria-hidden />}
+        {direction === "rtl" ? <ChevronLeft aria-hidden={true} /> : <ChevronRight aria-hidden={true} />}
       </Button>
     </header>
   );

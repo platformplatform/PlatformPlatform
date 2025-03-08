@@ -8,9 +8,9 @@ type MutationParams = {
   };
 };
 
-export function mutationSubmitter<TBody extends MutationParams>(
-  mutation: { mutate: (data: TBody) => void },
-  params?: TBody["params"]
+export function mutationSubmitter<T extends MutationParams>(
+  mutation: { mutate: (data: T) => void },
+  params?: T["params"]
 ) {
   return (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -20,7 +20,7 @@ export function mutationSubmitter<TBody extends MutationParams>(
     const mutationData = {
       ...(Object.keys(body).length > 0 && { body }),
       params
-    } as TBody;
+    } as T;
 
     mutation.mutate(mutationData);
   };

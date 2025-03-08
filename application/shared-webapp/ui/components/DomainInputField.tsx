@@ -1,21 +1,21 @@
+import { CheckIcon, DotIcon, TriangleAlertIcon } from "lucide-react";
+import { useContext } from "react";
+import { useFocusRing } from "react-aria";
 import {
   TextField as AriaTextField,
   type TextFieldProps as AriaTextFieldProps,
   type ValidationResult
 } from "react-aria-components";
+import { FormValidationContext } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
+import { Group } from "./Group";
+import { Input } from "./Input";
 import { Label } from "./Label";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
-import { useContext } from "react";
-import { Group } from "./Group";
-import { Input } from "./Input";
-import { FormValidationContext } from "react-aria-components";
-import { useFocusRing } from "react-aria";
-import { CheckIcon, DotIcon, TriangleAlertIcon } from "lucide-react";
 
 const inputStyles = tv({
   extend: focusRing,
@@ -59,14 +59,14 @@ export function DomainInputField({
         <div className="flex grow overflow-hidden">
           <Input
             {...focusProps}
-            isEmbedded
+            isEmbedded={true}
             placeholder={placeholder}
             autoComplete={autocomplete}
             autoCorrect="off"
             className="h-full w-full"
           />
         </div>
-        <div className="w-fit gap-1 text-xs flex items-center p-1 text-muted-foreground">
+        <div className="flex w-fit items-center gap-1 p-1 text-muted-foreground text-xs">
           {domain}
           <AvailabilityIcon isAvailable={isSubdomainFree} />
         </div>
@@ -82,8 +82,12 @@ type AvailabilityIconProps = {
 };
 
 function AvailabilityIcon({ isAvailable }: Readonly<AvailabilityIconProps>) {
-  if (isAvailable === false) return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
-  if (isAvailable === true) return <CheckIcon className="h-4 w-4 stroke-success" />;
+  if (isAvailable === false) {
+    return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
+  }
+  if (isAvailable === true) {
+    return <CheckIcon className="h-4 w-4 stroke-success" />;
+  }
 
   return <DotIcon className="h-4 w-4 stroke-muted-foreground" />;
 }

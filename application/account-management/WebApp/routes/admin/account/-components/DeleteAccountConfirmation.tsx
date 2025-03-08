@@ -1,7 +1,7 @@
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { Modal } from "@repo/ui/components/Modal";
 
 type DeleteAccountConfirmationProps = {
   isOpen: boolean;
@@ -10,7 +10,7 @@ type DeleteAccountConfirmationProps = {
 
 export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<DeleteAccountConfirmationProps>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
       <AlertDialog
         variant="destructive"
         actionLabel={t`Delete Account`}

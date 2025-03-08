@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react";
 import { tv } from "tailwind-variants";
 
 const lightStyles = tv({
-  base: "rounded-full mr-3",
+  base: "mr-3 rounded-full",
   variants: {
     variant: {
       neutral: "bg-muted",

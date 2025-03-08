@@ -41,7 +41,7 @@ const VariantContext = createContext<VariantKey>("gray");
 
 const tagStyles = tv({
   extend: focusRing,
-  base: "transition cursor-default text-xs rounded-full border px-3 py-0.5 flex items-center max-w-fit gap-1",
+  base: "flex max-w-fit cursor-default items-center gap-1 rounded-full border px-3 py-0.5 text-xs transition",
   variants: {
     variant: {
       primary: "",
@@ -57,7 +57,7 @@ const tagStyles = tv({
       true: "pr-1"
     },
     isSelected: {
-      true: "bg-primary text-primary-foreground border-transparent forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-color-adjust-none"
+      true: "border-transparent bg-primary text-primary-foreground forced-color-adjust-none forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isDisabled: {
       true: "bg-muted/80 text-muted-foreground forced-colors:text-[GrayText]"
@@ -115,7 +115,7 @@ export function TagGroup<T extends object>({
 
 const removeButtonStyles = tv({
   extend: focusRing,
-  base: "cursor-default rounded-full transition-[background-color] p-0.5 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 pressed:bg-black/20 dark:pressed:bg-white/20"
+  base: "flex cursor-default items-center justify-center rounded-full pressed:bg-black/20 p-0.5 transition-[background-color] hover:bg-black/10 dark:pressed:bg-white/20 dark:hover:bg-white/10"
 });
 
 export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
@@ -135,7 +135,7 @@ export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
           {children}
           {allowsRemoving && (
             <Button slot="remove" className={removeButtonStyles}>
-              <XIcon aria-hidden className="h-3 w-3" />
+              <XIcon aria-hidden={true} className="h-3 w-3" />
             </Button>
           )}
         </>

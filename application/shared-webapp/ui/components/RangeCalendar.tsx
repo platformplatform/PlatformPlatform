@@ -23,23 +23,23 @@ export interface RangeCalendarProps<T extends DateValue> extends Omit<AriaRangeC
 
 const cell = tv({
   extend: focusRing,
-  base: "w-9 h-9 text-sm cursor-default rounded-md flex items-center justify-center forced-color-adjust-none",
+  base: "flex h-9 w-9 cursor-default items-center justify-center rounded-md text-sm forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "text-foreground hover:bg-accent pressed:bg-muted",
+      false: "pressed:bg-muted text-foreground hover:bg-accent",
       true: [
-        "bg-accent text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] rounded-none",
+        "rounded-none bg-accent text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]",
         "group-hover:bg-green-500 forced-colors:group-hover:bg-[Highlight]",
         "group-invalid:group-hover:bg-destructive forced-colors:group-invalid:group-hover:bg-[Mark]",
-        "group-pressed:bg-red-500 forced-colors:group-pressed:bg-[Highlight] forced-colors:text-[HighlightText]",
+        "group-pressed:bg-red-500 forced-colors:text-[HighlightText] forced-colors:group-pressed:bg-[Highlight]",
         "group-invalid:group-pressed:bg-destructive forced-colors:group-invalid:group-pressed:bg-[Mark]"
       ]
     },
     isSelectionStart: {
-      true: "text-primary-foreground bg-primary rounded-l-md group-invalid:bg-destructive forced-colors:bg-[Highlight] forced-colors:group-invalid:bg-[Mark] forced-colors:text-[HighlightText]"
+      true: "rounded-l-md bg-primary text-primary-foreground group-invalid:bg-destructive forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:group-invalid:bg-[Mark]"
     },
     isSelectionEnd: {
-      true: "text-primary-foreground bg-primary rounded-r-md group-invalid:bg-destructive forced-colors:bg-[Highlight] forced-colors:group-invalid:bg-[Mark] forced-colors:text-[HighlightText]"
+      true: "rounded-r-md bg-primary text-primary-foreground group-invalid:bg-destructive forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:group-invalid:bg-[Mark]"
     },
     isUnavailable: {
       true: "text-muted-foreground forced-colors:text-[GrayText]"
@@ -48,7 +48,7 @@ const cell = tv({
       true: "bg-destructive text-destructive-foreground forced-colors:invalid:bg-[Mark]"
     },
     isDisabled: {
-      true: "text-muted-foreground opacity-50 forced-colors:text-[GrayText] strike"
+      true: "strike text-muted-foreground opacity-50 forced-colors:text-[GrayText]"
     },
     isHovered: {
       true: "opacity-90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
@@ -57,7 +57,7 @@ const cell = tv({
       true: "opacity-80 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
     },
     isOutsideMonth: {
-      true: "text-muted-foreground bg-transparent"
+      true: "bg-transparent text-muted-foreground"
     },
     isOutsideMonthHidden: {
       true: "hidden"
@@ -70,7 +70,7 @@ export function RangeCalendar<T extends DateValue>({
   visibleMonths = 1,
   ...props
 }: Readonly<RangeCalendarProps<T>>) {
-  const durationInterval = useMemo(() => Array.from(Array(visibleMonths).keys()), [visibleMonths]);
+  const durationInterval = useMemo(() => Array.from(new Array(visibleMonths).keys()), [visibleMonths]);
 
   return (
     <AriaRangeCalendar {...props} visibleDuration={{ months: visibleMonths }}>

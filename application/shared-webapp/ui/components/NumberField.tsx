@@ -31,14 +31,14 @@ export function NumberField({ label, description, errorMessage, ...props }: Read
       <FieldGroup>
         {(renderProps) => (
           <>
-            <Input isEmbedded />
+            <Input isEmbedded={true} />
             <div className={fieldBorderStyles({ ...renderProps, class: "flex flex-col border-s-2" })}>
               <StepperButton slot="increment">
-                <ChevronUp aria-hidden className="h-4 w-4" />
+                <ChevronUp aria-hidden={true} className="h-4 w-4" />
               </StepperButton>
               <div className={fieldBorderStyles({ ...renderProps, class: "border-b-2" })} />
               <StepperButton slot="decrement">
-                <ChevronDown aria-hidden className="h-4 w-4" />
+                <ChevronDown aria-hidden={true} className="h-4 w-4" />
               </StepperButton>
             </div>
           </>
@@ -51,10 +51,10 @@ export function NumberField({ label, description, errorMessage, ...props }: Read
 }
 
 const stepperButtonStyles = tv({
-  base: "cursor-default text-accent-foreground/90 px-0.5",
+  base: "cursor-default px-0.5 text-accent-foreground/90",
   variants: {
     isDisabled: {
-      true: "text-muted cursor-not-allowed group-disabled:text-muted forced-colors:group-disabled:text-[GrayText]"
+      true: "cursor-not-allowed text-muted group-disabled:text-muted forced-colors:group-disabled:text-[GrayText]"
     },
     isHovered: {
       true: "bg-accent text-accent-foreground"

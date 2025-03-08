@@ -1,7 +1,7 @@
-import type React from "react";
+import { t } from "@lingui/core/macro";
 import { MenuButton, SideMenu, SideMenuSpacer } from "@repo/ui/components/SideMenu";
 import { BoxIcon, HomeIcon } from "lucide-react";
-import { t } from "@lingui/core/macro";
+import type React from "react";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
@@ -16,7 +16,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
 
       <SideMenuSpacer />
 
-      <MenuButton icon={BoxIcon} label={t`Account Management`} href="/admin" forceReload />
+      <MenuButton icon={BoxIcon} label={t`Account Management`} href="/admin" forceReload={true} />
     </SideMenu>
   );
 }

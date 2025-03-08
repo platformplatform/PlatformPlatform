@@ -1,34 +1,34 @@
-import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo } from "./cdnImages";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
+import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo } from "./cdnImages";
 
 // FooterSection: A functional component that displays the footer section
 export function FooterSection() {
   return (
     <>
-      <div className="w-full bg-muted flex items-center gap-8 py-16 px-16 md:px-24">
-        <div className="flex-grow flex flex-col gap-4">
-          <div className="text-foreground text-xl font-semibold">Join our newsletter</div>
-          <div className="text-muted-foreground text-base font-normal">Technology that has your back.</div>
+      <div className="flex w-full items-center gap-8 bg-muted px-16 py-16 md:px-24">
+        <div className="flex flex-grow flex-col gap-4">
+          <div className="font-semibold text-foreground text-xl">Join our newsletter</div>
+          <div className="font-normal text-base text-muted-foreground">Technology that has your back.</div>
         </div>
-        <div className="flex items-center gap-4 md:flex-row flex-col right">
+        <div className="right flex flex-col items-center gap-4 md:flex-row">
           <TextField type="email" placeholder="Enter your email" />
           {/* Button component is used to display a call to action */}
           <Button variant="primary">Subscribe</Button>
         </div>
       </div>
-      <div className="w-full px-24 bg-background flex flex-col py-16">
-        <div className="flex flex-row items-center flex-grow justify-between max-w-sm">
-          <div className="flex gap-8 flex-col">
+      <div className="flex w-full flex-col bg-background px-24 py-16">
+        <div className="flex max-w-sm flex-grow flex-row items-center justify-between">
+          <div className="flex flex-col gap-8">
             <img src={logoWrap} alt="Logo Wrap" loading="lazy" />
-            <div className="text-muted-foreground text-base font-normal">
+            <div className="font-normal text-base text-muted-foreground">
               Build amazing products on enterprise grade and open source technology.
             </div>
           </div>
         </div>
-        <hr className="border-t border-gray-300 my-8" />
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="text-muted-foreground text-base font-normal mb-4 md:mb-0">
+        <hr className="my-8 border-gray-300 border-t" />
+        <div className="flex flex-col items-center justify-between md:flex-row">
+          <div className="mb-4 font-normal text-base text-muted-foreground md:mb-0">
             © 2024 PlatformPlatform. All rights reserved.
           </div>
           <div className="flex flex-row gap-8">

@@ -1,24 +1,24 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import { DotIcon } from "lucide-react";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import poweredByUrl from "@/shared/images/powered-by.svg";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
+import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { Select, SelectItem } from "@repo/ui/components/Select";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
 import { TextField } from "@repo/ui/components/TextField";
-import { Form } from "@repo/ui/components/Form";
-import { useState } from "react";
-import { api } from "@/shared/lib/api/client";
-import { setSignupState } from "./-shared/signupState";
-import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { DotIcon } from "lucide-react";
+import { useState } from "react";
+import { setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -78,8 +78,8 @@ export function StartSignupForm() {
         name="email"
         type="email"
         label={t`Email`}
-        autoFocus
-        isRequired
+        autoFocus={true}
+        isRequired={true}
         value={email}
         onChange={setEmail}
         autoComplete="email webauthn"
@@ -91,7 +91,7 @@ export function StartSignupForm() {
         selectedKey="europe"
         label={t`Region`}
         description={t`This is the region where your data is stored`}
-        isRequired
+        isRequired={true}
         className="flex w-full flex-col"
       >
         <SelectItem id="europe">

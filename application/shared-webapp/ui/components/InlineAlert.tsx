@@ -3,13 +3,13 @@
  * ref: https://mui.com/material-ui/react-alert/#severity
  */
 import { CircleCheckBigIcon, InfoIcon, type LucideIcon, TriangleAlertIcon } from "lucide-react";
+import type React from "react";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
-import type React from "react";
 
 const styles = tv({
   extend: focusRing,
-  base: "relative flex flex-col w-full border-2 rounded-md p-5 bg-background text-foreground",
+  base: "relative flex w-full flex-col rounded-md border-2 bg-background p-5 text-foreground",
   variants: {
     variant: {
       neutral: "border-muted",
@@ -25,7 +25,7 @@ const styles = tv({
 });
 
 const iconStyles = tv({
-  base: "absolute right-5 top-5 text-md font-semibold",
+  base: "absolute top-5 right-5 font-semibold text-md",
   variants: {
     variant: {
       neutral: "stroke-muted",
@@ -41,11 +41,11 @@ const iconStyles = tv({
 });
 
 const headingStyles = tv({
-  base: "text-md font-semibold pr-8"
+  base: "pr-8 font-semibold text-md"
 });
 
 const contentStyles = tv({
-  base: "text-sm font-medium mt-4"
+  base: "mt-4 font-medium text-sm"
 });
 
 type Variant = keyof typeof styles.variants.variant;
