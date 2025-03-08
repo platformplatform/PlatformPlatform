@@ -26,7 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="DeveloperCli.sln.DotSettings" />
+        <None Remove="DeveloperCli.slnx" />
+        <None Remove="DeveloperCli.slnx.DotSettings" />
         <None Remove="Directory.Build.props" />
     </ItemGroup>
 
