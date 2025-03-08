@@ -27,18 +27,34 @@ public class CodeCleanupCommand : Command
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
-        var temporarySolutionFile = CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile);
+        RunCleanup(solutionFile);
+
+        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
+
+        return 0;
+    }
+
+    public bool RunCleanup(FileInfo solutionFile)
+    {
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
+        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
+        var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
+        var jetbrainsSupportedSolutionFile = createTemporarySolutionFile
+            ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
+            : solutionFile.FullName;
+
         ProcessHelper.StartProcess(
-            $"""dotnet jb cleanupcode {temporarySolutionFile} --profile=".NET only" --no-build""",
+            $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
             solutionFile.Directory!.FullName
         );
 
-        File.Delete(temporarySolutionFile);
+        if (createTemporarySolutionFile)
+        {
+            File.Delete(jetbrainsSupportedSolutionFile);
+        }
 
-        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
-        return 0;
+        return true;
     }
 
     /// <summary>
