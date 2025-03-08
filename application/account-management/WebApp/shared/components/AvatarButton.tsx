@@ -20,9 +20,9 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
     }
   }, [userInfo]);
 
-  if (!userInfo) return null;
-
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
+
+  if (!userInfo) return null;
 
   async function logout() {
     await logoutMutation.mutateAsync({});

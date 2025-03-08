@@ -60,7 +60,7 @@ export function Calendar<T extends DateValue>({
   visibleMonths = 1,
   ...props
 }: Readonly<CalendarProps<T>>) {
-  const durationInterval = useMemo(() => Array.from(Array(visibleMonths).keys()), [visibleMonths]);
+  const durationInterval = useMemo(() => Array.from(new Array(visibleMonths).keys()), [visibleMonths]);
   return (
     <AriaCalendar {...props} visibleDuration={{ months: visibleMonths }}>
       <CalendarHeader />

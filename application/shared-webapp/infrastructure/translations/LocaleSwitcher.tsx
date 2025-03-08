@@ -26,7 +26,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
     const locale = key.toString() as Locale;
     if (locale !== currentLocale) {
       if (userInfo?.isAuthenticated) {
-        void fetch("/api/account-management/users/me/change-locale", {
+        fetch("/api/account-management/users/me/change-locale", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ locale })
@@ -37,7 +37,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
           })
           .catch((error) => console.error("Failed to update locale:", error));
       } else {
-        void setLocale(locale).then(() => {
+        setLocale(locale).then(() => {
           localStorage.setItem(preferredLocaleKey, locale);
         });
       }

@@ -30,7 +30,11 @@ export class Translation {
   /**
    * Prefer using `TranslationConfig.create` instead of this constructor
    */
-  constructor(private localeLoader: LocalLoaderFunction) {}
+  private localeLoader: LocalLoaderFunction;
+
+  constructor(localeLoader: LocalLoaderFunction) {
+    this.localeLoader = localeLoader;
+  }
 
   private _locales: Locale[] = Object.keys(localeMap) as Locale[];
 

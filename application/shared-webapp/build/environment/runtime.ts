@@ -34,6 +34,6 @@ try {
     userInfoEnv,
     env: environment
   });
-} catch (e) {
+} catch {
   throw new Error("Could not read runtime environment");
 }

@@ -1,7 +1,7 @@
 import { type SortOrder, type SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
-import { type DateValue, parseDate } from "@internationalized/date";
+import { parseDate } from "@internationalized/date";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -23,8 +23,6 @@ interface SearchParams {
   sortOrder: SortOrder | undefined;
   pageOffset: number | undefined;
 }
-
-type DateRange = { start: DateValue; end: DateValue } | null;
 
 /**
  * UserQuerying component handles the user list filtering.
@@ -128,8 +126,8 @@ export function UserQuerying() {
             value={dateRange}
             onChange={(range) => {
               updateFilter({
-                startDate: range?.start.toString() || undefined,
-                endDate: range?.end.toString() || undefined
+                startDate: range?.start.toString() ?? undefined,
+                endDate: range?.end.toString() ?? undefined
               });
             }}
             label={t`Modified date`}

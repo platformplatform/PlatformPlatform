@@ -16,15 +16,48 @@
   "javascript": {
     "formatter": {
       "trailingCommas": "none"
-    }
+    },
+    "globals": ["React", "ReactNode", "CustomBuildEnv", "RuntimeEnv", "UserInfoEnv"]
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "all": true,
+        "useImportExtensions": "off",
+        "noUndeclaredDependencies": "off",
+        "noUndeclaredVariables": "error",
+        "noNodejsModules": "off",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "all": true,
+        "noReactSpecificProps": "off",
+        "noEmptyBlockStatements": "off",
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error"]
+          }
+        }
+      },
+      "complexity": {
+        "all": true,
+        "noForEach": "off",
+        "useSimplifiedLogicExpression": "off"
+      },
       "style": {
+        "all": true,
         "noUnusedTemplateLiteral": "error",
-        "useTemplate": "error"
+        "useTemplate": "error",
+        "noImplicitBoolean": "off",
+        "noDefaultExport": "off",
+        "useBlockStatements": "off",
+        "useConsistentBuiltinInstantiation": "error",
+        "useFilenamingConvention": "off",
+        "useNamingConvention": "off",
+        "noNegationElse": "off"
       },
       "nursery": {
         "useSortedClasses": {
