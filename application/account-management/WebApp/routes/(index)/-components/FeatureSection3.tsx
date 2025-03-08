@@ -21,8 +21,6 @@ export function FeatureSection3() {
   );
 }
 
-export default FeatureSection3;
-
 // FeatureTitle: A functional component that displays the title of the feature section
 function FeatureTitle() {
   return (

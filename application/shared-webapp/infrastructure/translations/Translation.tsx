@@ -25,19 +25,19 @@ export type LocalLoaderFunction = (locale: Locale) => Promise<LocaleFile>;
 const TranslationContextProvider = translationContext.Provider;
 
 export class Translation {
-  private _messageCache = new Map<Locale, LocaleFile>();
-  private _defaultLocale = document.documentElement.lang as Locale;
+  private readonly _messageCache = new Map<Locale, LocaleFile>();
+  private readonly _defaultLocale = document.documentElement.lang as Locale;
 
   /**
    * Prefer using `TranslationConfig.create` instead of this constructor
    */
-  private localeLoader: LocalLoaderFunction;
+  private readonly localeLoader: LocalLoaderFunction;
 
   constructor(localeLoader: LocalLoaderFunction) {
     this.localeLoader = localeLoader;
   }
 
-  private _locales: Locale[] = Object.keys(localeMap) as Locale[];
+  private readonly _locales: Locale[] = Object.keys(localeMap) as Locale[];
 
   /**
    * Get the list of available locales

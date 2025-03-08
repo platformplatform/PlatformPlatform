@@ -10,7 +10,7 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label": string }) {
+export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const userInfo = useUserInfo();
 

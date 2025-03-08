@@ -21,7 +21,7 @@ export const AuthenticationContext = createContext<AuthenticationContextType>({
 
 export interface AuthenticationProviderProps {
   children: React.ReactNode;
-  navigate?: (navigateOptions: NavigateOptions) => void;
+  navigate: (navigateOptions: NavigateOptions) => void;
 }
 
 export function AuthenticationProvider({ children }: Readonly<AuthenticationProviderProps>) {
