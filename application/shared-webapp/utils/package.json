@@ -13,8 +13,7 @@
     "dev:setup": "tsc -p .",
     "build": "rimraf ./dist && tsc -p .",
     "check": "biome check --error-on-warnings",
-    "lint": "biome check --write --unsafe",
-    "format": "biome format --write"
+    "lint": "biome check --write --unsafe"
   },
   "devDependencies": {
     "@repo/config": "*"

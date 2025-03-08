@@ -15,8 +15,7 @@
     "build": "turbo build",
     "test": "turbo test",
     "check": "turbo check",
-    "lint": "turbo lint",
-    "format": "turbo format"
+    "lint": "turbo lint"
   },
   "dependencies": {
     "@fontsource/inter": "5.1.0",
