@@ -9,6 +9,7 @@ import { Link } from "@repo/ui/components/Link";
 import { Popover } from "@repo/ui/components/Popover";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
+import type React from "react";
 import { DialogTrigger } from "react-aria-components";
 import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
 
