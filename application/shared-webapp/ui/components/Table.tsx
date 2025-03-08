@@ -31,11 +31,11 @@ export { TableBody, useContextProps } from "react-aria-components";
 
 export function Table(props: Readonly<TableProps>) {
   return (
-    <div className="relative h-full w-full" aria-hidden>
-      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden>
+    <div className="relative h-full w-full" aria-hidden={true}>
+      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden={true}>
         <ResizableTableContainer
           className="relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md"
-          aria-hidden
+          aria-hidden={true}
         >
           <AriaTable {...props} className="border-separate border-spacing-0" />
         </ResizableTableContainer>
@@ -83,7 +83,10 @@ export function Column({ children, className, ...props }: Readonly<ColumnProps>)
                 }`}
               >
                 {sortDirection && (
-                  <ArrowUp aria-hidden className="h-4 w-4 text-muted-foreground forced-colors:text-[ButtonText]" />
+                  <ArrowUp
+                    aria-hidden={true}
+                    className="h-4 w-4 text-muted-foreground forced-colors:text-[ButtonText]"
+                  />
                 )}
               </span>
             )}

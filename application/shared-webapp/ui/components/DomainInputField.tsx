@@ -59,7 +59,7 @@ export function DomainInputField({
         <div className="flex grow overflow-hidden">
           <Input
             {...focusProps}
-            isEmbedded
+            isEmbedded={true}
             placeholder={placeholder}
             autoComplete={autocomplete}
             autoCorrect="off"
@@ -82,8 +82,12 @@ type AvailabilityIconProps = {
 };
 
 function AvailabilityIcon({ isAvailable }: Readonly<AvailabilityIconProps>) {
-  if (isAvailable === false) return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
-  if (isAvailable === true) return <CheckIcon className="h-4 w-4 stroke-success" />;
+  if (isAvailable === false) {
+    return <TriangleAlertIcon className="h-4 w-4 stroke-danger" />;
+  }
+  if (isAvailable === true) {
+    return <CheckIcon className="h-4 w-4 stroke-success" />;
+  }
 
   return <DotIcon className="h-4 w-4 stroke-muted-foreground" />;
 }

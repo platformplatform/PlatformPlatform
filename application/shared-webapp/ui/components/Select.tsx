@@ -69,7 +69,7 @@ export function Select<T extends object>({
       <Button className={(renderProps) => buttonStyles({ ...renderProps, isInvalid })}>
         <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
         <ChevronDown
-          aria-hidden
+          aria-hidden={true}
           className="h-4 w-4 text-muted-foreground group-disabled:text-muted forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
       </Button>

@@ -16,7 +16,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
       <SideMenuSeparator>
         <Trans>Organization</Trans>
       </SideMenuSeparator>
-      <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" forceReload />
+      <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" forceReload={true} />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
       {children}
     </SideMenu>

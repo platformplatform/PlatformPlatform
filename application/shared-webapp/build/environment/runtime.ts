@@ -14,9 +14,13 @@
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
 const userInfoEnvElement = document.head.getElementsByTagName("meta").namedItem("userInfoEnv");
 
-if (runtimeEnvElement == null) throw new Error("Runtime environment is not configured");
+if (runtimeEnvElement == null) {
+  throw new Error("Runtime environment is not configured");
+}
 
-if (userInfoEnvElement == null) throw new Error("UserInfo environment is not configured");
+if (userInfoEnvElement == null) {
+  throw new Error("UserInfo environment is not configured");
+}
 
 try {
   const runtimeEnv: RuntimeEnv = JSON.parse(runtimeEnvElement.content);

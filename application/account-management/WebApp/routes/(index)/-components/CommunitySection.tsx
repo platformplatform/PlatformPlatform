@@ -48,7 +48,7 @@ export function CommunitySection() {
           image={youtubeImageUrl}
           href="https://www.youtube.com"
           linkText="View training videos"
-          arrow
+          arrow={true}
         />
         <FeatureBlock
           title="Slack"
@@ -56,7 +56,7 @@ export function CommunitySection() {
           image={slackImageUrl}
           href="https://slack.com"
           linkText="Join our Slack channel"
-          arrow
+          arrow={true}
         />
         <FeatureBlock
           title="GitHub"
@@ -64,7 +64,7 @@ export function CommunitySection() {
           image={githubImageUrl}
           href="https://github.com"
           linkText="Check GitHub"
-          arrow
+          arrow={true}
         />
       </div>
     </div>

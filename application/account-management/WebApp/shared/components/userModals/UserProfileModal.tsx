@@ -29,7 +29,9 @@ type ProfileDialogProps = ProfileModalProps & {
 export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<ProfileModalProps>) {
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading}>
@@ -205,8 +207,8 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
 
         <div className="flex flex-col gap-4 sm:flex-row">
           <TextField
-            autoFocus
-            isRequired
+            autoFocus={true}
+            isRequired={true}
             name="firstName"
             label={t`First name`}
             defaultValue={user?.firstName}
@@ -214,7 +216,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             className="sm:w-64"
           />
           <TextField
-            isRequired
+            isRequired={true}
             name="lastName"
             label={t`Last name`}
             defaultValue={user?.lastName}

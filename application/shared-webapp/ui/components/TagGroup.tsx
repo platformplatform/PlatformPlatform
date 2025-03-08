@@ -135,7 +135,7 @@ export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
           {children}
           {allowsRemoving && (
             <Button slot="remove" className={removeButtonStyles}>
-              <XIcon aria-hidden className="h-3 w-3" />
+              <XIcon aria-hidden={true} className="h-3 w-3" />
             </Button>
           )}
         </>

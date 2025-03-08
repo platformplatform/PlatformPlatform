@@ -22,7 +22,9 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
 
-  if (!userInfo) return null;
+  if (!userInfo) {
+    return null;
+  }
 
   async function logout() {
     await logoutMutation.mutateAsync({});
@@ -33,12 +35,12 @@ export default function AvatarButton({ "aria-label": ariaLabel }: { "aria-label"
     <>
       <MenuTrigger>
         <Button aria-label={ariaLabel} variant="icon" className="rounded-full">
-          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound size="sm" />
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
         </Button>
         <Menu placement="bottom end">
           <MenuHeader>
             <div className="flex flex-row items-center gap-2">
-              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound size="sm" />
+              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
               <div className="my-1 flex flex-col">
                 <h2>{userInfo.fullName}</h2>
                 <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>

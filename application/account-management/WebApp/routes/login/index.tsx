@@ -85,8 +85,8 @@ export function LoginForm() {
         name="email"
         type="email"
         label={t`Email`}
-        autoFocus
-        isRequired
+        autoFocus={true}
+        isRequired={true}
         value={email}
         onChange={setEmail}
         autoComplete="email webauthn"

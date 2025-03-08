@@ -43,9 +43,9 @@ export function ComboBox<T extends object>({
     <AriaComboBox {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       <Label>{label}</Label>
       <FieldGroup>
-        <Input isEmbedded className="flex-grow" />
+        <Input isEmbedded={true} className="flex-grow" />
         <Button variant="icon" className="w-6 rounded outline-offset-0 ">
-          <ChevronsUpDownIcon aria-hidden className="h-4 w-4" />
+          <ChevronsUpDownIcon aria-hidden={true} className="h-4 w-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}

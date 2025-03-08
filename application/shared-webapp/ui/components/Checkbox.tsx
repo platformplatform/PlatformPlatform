@@ -93,8 +93,12 @@ type SelectionIconProps = {
 };
 
 function SelectionIcon({ isSelected, isIndeterminate }: Readonly<SelectionIconProps>) {
-  if (isIndeterminate) return <Minus aria-hidden className={iconStyles} />;
-  if (isSelected) return <Check aria-hidden className={iconStyles} />;
+  if (isIndeterminate) {
+    return <Minus aria-hidden={true} className={iconStyles} />;
+  }
+  if (isSelected) {
+    return <Check aria-hidden={true} className={iconStyles} />;
+  }
 
   return null;
 }

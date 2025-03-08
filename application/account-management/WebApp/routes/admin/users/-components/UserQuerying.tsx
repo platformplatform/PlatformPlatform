@@ -78,7 +78,7 @@ export function UserQuerying() {
         value={search}
         onChange={setSearch}
         label={t`Search`}
-        autoFocus
+        autoFocus={true}
         className="min-w-[240px]"
       />
 

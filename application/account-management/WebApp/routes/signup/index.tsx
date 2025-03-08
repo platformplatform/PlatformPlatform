@@ -78,8 +78,8 @@ export function StartSignupForm() {
         name="email"
         type="email"
         label={t`Email`}
-        autoFocus
-        isRequired
+        autoFocus={true}
+        isRequired={true}
         value={email}
         onChange={setEmail}
         autoComplete="email webauthn"
@@ -91,7 +91,7 @@ export function StartSignupForm() {
         selectedKey="europe"
         label={t`Region`}
         description={t`This is the region where your data is stored`}
-        isRequired
+        isRequired={true}
         className="flex w-full flex-col"
       >
         <SelectItem id="europe">

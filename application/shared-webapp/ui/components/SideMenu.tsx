@@ -59,7 +59,9 @@ export function MenuButton({
   const isCollapsed = useContext(collapsedContext);
   const { navigate } = useRouter();
   const onPress = () => {
-    if (to == null) return;
+    if (to == null) {
+      return;
+    }
     if (forceReload) {
       window.location.href = to;
     } else {
@@ -163,7 +165,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
             <Button aria-label="Help" variant="icon">
               <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
             </Button>
-            <Modal position="left" fullSize>
+            <Modal position="left" fullSize={true}>
               <Dialog className="w-60">
                 <div className="pb-8">
                   <img src={logoWrapUrl} alt="Logo Wrap" />

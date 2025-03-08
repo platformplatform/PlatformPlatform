@@ -101,7 +101,9 @@ function getAllRemotes(currentSystem: string, remotes: Record<string, { port: nu
 function generateModuleFederationTypesFolder(system: string, exposes: Record<string, string> = {}) {
   const systemTypesDefinitionPath = getTypeDefinitionPath(system);
   if (Object.keys(exposes).length === 0) {
-    if (fs.existsSync(systemTypesDefinitionPath)) fs.unlinkSync(systemTypesDefinitionPath);
+    if (fs.existsSync(systemTypesDefinitionPath)) {
+      fs.unlinkSync(systemTypesDefinitionPath);
+    }
     return;
   }
   const indexContent = Object.entries(exposes)

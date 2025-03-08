@@ -31,12 +31,12 @@ export function SearchField({ label, description, errorMessage, placeholder, ...
       {label && <Label>{label}</Label>}
       <FieldGroup>
         <SearchIcon
-          aria-hidden
+          aria-hidden={true}
           className="ml-2 h-4 w-4 text-muted-foreground group-disabled:opacity-50 forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
-        <Input placeholder={placeholder} isEmbedded className="[&::-webkit-search-cancel-button]:hidden" />
+        <Input placeholder={placeholder} isEmbedded={true} className="[&::-webkit-search-cancel-button]:hidden" />
         <Button variant="icon" className="mr-1 w-6 group-empty:invisible">
-          <XIcon aria-hidden className="h-4 w-4" />
+          <XIcon aria-hidden={true} className="h-4 w-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}

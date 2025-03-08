@@ -87,11 +87,11 @@ export function CalendarHeader() {
   return (
     <header className="flex w-full items-center gap-1 px-1 pb-4">
       <Button variant="icon" slot="previous">
-        {direction === "rtl" ? <ChevronRight aria-hidden /> : <ChevronLeft aria-hidden />}
+        {direction === "rtl" ? <ChevronRight aria-hidden={true} /> : <ChevronLeft aria-hidden={true} />}
       </Button>
       <Heading className="mx-2 flex-1 text-center font-semibold text-foreground text-md" />
       <Button variant="icon" slot="next">
-        {direction === "rtl" ? <ChevronLeft aria-hidden /> : <ChevronRight aria-hidden />}
+        {direction === "rtl" ? <ChevronLeft aria-hidden={true} /> : <ChevronRight aria-hidden={true} />}
       </Button>
     </header>
   );

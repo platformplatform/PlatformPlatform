@@ -50,7 +50,7 @@ export function AlertDialog({
         <>
           <Heading slot="title">{title}</Heading>
           <div className={alertDialogContents({ variant })}>
-            {variant === "destructive" ? <AlertCircleIcon aria-hidden /> : <InfoIcon aria-hidden />}
+            {variant === "destructive" ? <AlertCircleIcon aria-hidden={true} /> : <InfoIcon aria-hidden={true} />}
           </div>
           <div id={contentId}>{children}</div>
           {actionLabel && (
@@ -60,7 +60,7 @@ export function AlertDialog({
               </Button>
               <Button
                 variant={variant === "destructive" ? "destructive" : "primary"}
-                autoFocus
+                autoFocus={true}
                 onPress={chain(onAction, close)}
               >
                 {actionLabel}

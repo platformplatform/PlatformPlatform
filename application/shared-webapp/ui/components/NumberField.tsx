@@ -31,14 +31,14 @@ export function NumberField({ label, description, errorMessage, ...props }: Read
       <FieldGroup>
         {(renderProps) => (
           <>
-            <Input isEmbedded />
+            <Input isEmbedded={true} />
             <div className={fieldBorderStyles({ ...renderProps, class: "flex flex-col border-s-2" })}>
               <StepperButton slot="increment">
-                <ChevronUp aria-hidden className="h-4 w-4" />
+                <ChevronUp aria-hidden={true} className="h-4 w-4" />
               </StepperButton>
               <div className={fieldBorderStyles({ ...renderProps, class: "border-b-2" })} />
               <StepperButton slot="decrement">
-                <ChevronDown aria-hidden className="h-4 w-4" />
+                <ChevronDown aria-hidden={true} className="h-4 w-4" />
               </StepperButton>
             </div>
           </>

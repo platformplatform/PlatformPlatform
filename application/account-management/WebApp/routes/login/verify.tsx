@@ -108,7 +108,7 @@ export function CompleteLoginForm() {
               name="oneTimePassword"
               digitPattern={DigitPattern.DigitsAndChars}
               length={6}
-              autoFocus
+              autoFocus={true}
               ariaLabel={t`Login verification code`}
             />
           </div>

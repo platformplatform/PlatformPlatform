@@ -31,7 +31,9 @@ export function Image(props: Readonly<ImageProps>) {
 
   useEffect(() => {
     const image = imageRef.current;
-    if (!image || isLoaded) return;
+    if (!image || isLoaded) {
+      return;
+    }
 
     if (image.complete && image.naturalWidth > 0) {
       handleLoad();
@@ -64,7 +66,9 @@ export function Image(props: Readonly<ImageProps>) {
     />
   );
 
-  if (blurDataUrl == null) return image;
+  if (blurDataUrl == null) {
+    return image;
+  }
 
   const blurBackground: CSSProperties = !isLoaded
     ? {
@@ -108,6 +112,8 @@ export function Image(props: Readonly<ImageProps>) {
 }
 
 function defaultLoader({ src }: ImageLoaderOptions) {
-  if (src.startsWith("/")) return import.meta.env.CDN_URL + src;
+  if (src.startsWith("/")) {
+    return import.meta.env.CDN_URL + src;
+  }
   return src;
 }

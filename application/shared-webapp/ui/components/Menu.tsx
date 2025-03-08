@@ -39,12 +39,14 @@ export function MenuItem(props: Readonly<MenuItemProps>) {
       {composeRenderProps(props.children, (children, { selectionMode, isSelected, hasSubmenu }) => (
         <>
           {selectionMode !== "none" && (
-            <span className="flex w-4 items-center">{isSelected && <Check aria-hidden className="h-4 w-4" />}</span>
+            <span className="flex w-4 items-center">
+              {isSelected && <Check aria-hidden={true} className="h-4 w-4" />}
+            </span>
           )}
           <span className="flex flex-1 items-center gap-2 truncate px-2 py-1 font-normal group-selected:font-semibold">
             {children}
           </span>
-          {hasSubmenu && <ChevronRight aria-hidden className="absolute right-2 h-4 w-4" />}
+          {hasSubmenu && <ChevronRight aria-hidden={true} className="absolute right-2 h-4 w-4" />}
         </>
       ))}
     </AriaMenuItem>

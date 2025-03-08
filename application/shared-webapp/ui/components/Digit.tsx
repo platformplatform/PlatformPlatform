@@ -56,13 +56,18 @@ export function Digit({
       value={value}
       onChange={() => {}}
       onKeyUp={(e) => {
-        if (e.key === "Backspace") onChange("");
-        else if (isCharValid.test(e.key)) onChange(e.key);
+        if (e.key === "Backspace") {
+          onChange("");
+        } else if (isCharValid.test(e.key)) {
+          onChange(e.key);
+        }
       }}
       onPaste={(e) => {
         e.preventDefault();
         const text = e.clipboardData.getData("text");
-        if (isStringValid.test(text)) onChange(text);
+        if (isStringValid.test(text)) {
+          onChange(text);
+        }
       }}
       autoComplete={autoComplete}
       className={digitStyles({ className, isFocusVisible })}

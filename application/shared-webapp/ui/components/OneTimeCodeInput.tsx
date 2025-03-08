@@ -27,7 +27,9 @@ export function OneTimeCodeInput({
   const setFocus = useCallback(
     (i: number) => {
       const formEl = (document.getElementById(digitRefs[0]) as HTMLInputElement | null)?.form as HTMLFormElement | null;
-      if (formEl === null) return;
+      if (formEl === null) {
+        return;
+      }
 
       if (i >= digitRefs.length) {
         const el = formEl.querySelectorAll("button[type=submit]")[0] as HTMLInputElement | null;

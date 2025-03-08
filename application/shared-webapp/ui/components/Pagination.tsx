@@ -174,7 +174,7 @@ function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Reado
 function Separator() {
   return (
     <li>
-      <Button isDisabled variant="ghost">
+      <Button isDisabled={true} variant="ghost">
         ...
       </Button>
     </li>

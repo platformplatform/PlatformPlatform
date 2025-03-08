@@ -10,7 +10,7 @@ type DeleteAccountConfirmationProps = {
 
 export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<DeleteAccountConfirmationProps>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
       <AlertDialog
         variant="destructive"
         actionLabel={t`Delete Account`}

@@ -25,7 +25,9 @@ export function AccountSettings() {
   const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <>
@@ -64,8 +66,8 @@ export function AccountSettings() {
 
             <div className="w-full md:max-w-md">
               <TextField
-                autoFocus
-                isRequired
+                autoFocus={true}
+                isRequired={true}
                 name="name"
                 defaultValue={tenant?.name ?? ""}
                 isDisabled={updateCurrentTenantMutation.isPending}

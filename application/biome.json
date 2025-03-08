@@ -51,9 +51,9 @@
         "all": true,
         "noUnusedTemplateLiteral": "error",
         "useTemplate": "error",
-        "noImplicitBoolean": "off",
+        "noImplicitBoolean": "error",
         "noDefaultExport": "off",
-        "useBlockStatements": "off",
+        "useBlockStatements": "error",
         "useConsistentBuiltinInstantiation": "error",
         "useFilenamingConvention": "off",
         "useNamingConvention": {

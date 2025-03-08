@@ -104,7 +104,7 @@ export function CompleteSignupForm() {
               name="oneTimePassword"
               digitPattern={DigitPattern.DigitsAndChars}
               length={6}
-              autoFocus
+              autoFocus={true}
               ariaLabel={t`Signup verification code`}
             />
           </div>

@@ -49,8 +49,8 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
           className="mt-4 flex flex-col gap-4"
         >
           <TextField
-            autoFocus
-            isRequired
+            autoFocus={true}
+            isRequired={true}
             name="email"
             label={t`Email`}
             placeholder={t`user@email.com`}

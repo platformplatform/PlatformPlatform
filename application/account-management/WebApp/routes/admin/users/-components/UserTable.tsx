@@ -85,7 +85,9 @@ export function UserTable() {
   const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
 
   const handleDelete = useCallback(async () => {
-    if (!userToDelete) return;
+    if (!userToDelete) {
+      return;
+    }
 
     await deleteUserMutation.mutateAsync({ params: { path: { id: userToDelete.id } } });
 
@@ -97,7 +99,9 @@ export function UserTable() {
 
   const handleUserRoleChange = useCallback(
     async (newUserRole: UserRole) => {
-      if (!userToChangeRole) return;
+      if (!userToChangeRole) {
+        return;
+      }
 
       await changeUserRoleMutation.mutateAsync({
         params: { path: { id: userToChangeRole.id } },
@@ -110,7 +114,9 @@ export function UserTable() {
     [userToChangeRole, changeUserRoleMutation]
   );
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return null;
+  }
 
   const currentPage = (users?.currentPageOffset ?? 0) + 1;
 
@@ -135,7 +141,7 @@ export function UserTable() {
 
           <div className="mt-4 flex flex-col gap-4">
             <Select
-              autoFocus
+              autoFocus={true}
               aria-label={t`User Role`}
               selectedKey={userToChangeRole?.role}
               onSelectionChange={(key) => handleUserRoleChange(key as UserRole)}
@@ -181,19 +187,19 @@ export function UserTable() {
           aria-label={t`Users`}
         >
           <TableHeader>
-            <Column minWidth={180} allowsSorting id={SortableUserProperties.Name} isRowHeader>
+            <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
               <Trans>Name</Trans>
             </Column>
-            <Column minWidth={120} allowsSorting id={SortableUserProperties.Email}>
+            <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
               <Trans>Email</Trans>
             </Column>
-            <Column minWidth={65} defaultWidth={110} allowsSorting id={SortableUserProperties.CreatedAt}>
+            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
               <Trans>Created</Trans>
             </Column>
-            <Column minWidth={65} defaultWidth={120} allowsSorting id={SortableUserProperties.ModifiedAt}>
+            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
               <Trans>Modified</Trans>
             </Column>
-            <Column minWidth={100} defaultWidth={75} allowsSorting id={SortableUserProperties.Role}>
+            <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
               <Trans>Role</Trans>
             </Column>
             <Column width={114}>
@@ -209,7 +215,7 @@ export function UserTable() {
                       initials={getInitials(user.firstName, user.lastName, user.email)}
                       avatarUrl={user.avatarUrl}
                       size="sm"
-                      isRound
+                      isRound={true}
                     />
                     <div className="flex flex-col truncate">
                       <div className="truncate text-foreground">
@@ -306,13 +312,19 @@ export function UserTable() {
 }
 
 function toFormattedDate(input: string | undefined | null) {
-  if (!input) return "";
+  if (!input) {
+    return "";
+  }
   const date = new Date(input);
   return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 function getInitials(firstName: string | undefined, lastName: string | undefined, email: string | undefined) {
-  if (firstName && lastName) return `${firstName[0]}${lastName[0]}`;
-  if (email == null) return "";
+  if (firstName && lastName) {
+    return `${firstName[0]}${lastName[0]}`;
+  }
+  if (email == null) {
+    return "";
+  }
   return email.split("@")[0].slice(0, 2).toUpperCase();
 }

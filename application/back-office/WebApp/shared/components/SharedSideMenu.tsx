@@ -16,7 +16,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
 
       <SideMenuSpacer />
 
-      <MenuButton icon={BoxIcon} label={t`Account Management`} href="/admin" forceReload />
+      <MenuButton icon={BoxIcon} label={t`Account Management`} href="/admin" forceReload={true} />
     </SideMenu>
   );
 }
