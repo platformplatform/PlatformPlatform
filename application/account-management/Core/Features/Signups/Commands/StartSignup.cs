@@ -10,7 +10,10 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
 
 [PublicAPI]
-public sealed record StartSignupCommand(string Email) : ICommand, IRequest<Result<StartSignupResponse>>;
+public sealed record StartSignupCommand(string Email) : ICommand, IRequest<Result<StartSignupResponse>>
+{
+    public string Email { get; } = Email.Trim().ToLower();
+}
 
 [PublicAPI]
 public sealed record StartSignupResponse(EmailConfirmationId EmailConfirmationId, int ValidForSeconds);

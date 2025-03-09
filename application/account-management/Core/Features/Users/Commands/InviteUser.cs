@@ -11,7 +11,10 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result>;
+public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result>
+{
+    public string Email { get; init; } = Email.Trim().ToLower();
+}
 
 public sealed class InviteUserValidator : AbstractValidator<InviteUserCommand>
 {
