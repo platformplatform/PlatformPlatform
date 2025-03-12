@@ -47,7 +47,11 @@ public class ApiResult(ResultBase result, string? routePrefix = null, IDictionar
                 {
                     {
                         "errors",
-                        result.Errors.ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message })
+                        result.Errors.GroupBy(e => e.PropertyName)
+                            .ToDictionary(
+                                g => JsonNamingPolicy.CamelCase.ConvertName(g.Key),
+                                g => g.Select(e => e.Message).ToArray()
+                            )
                     }
                 }
                 : null
