@@ -82,7 +82,7 @@
         }
       }
     },
-    "ignore": ["./shared-webapp/build/environment.d.ts", "./shared-webapp/ui/tailwind-preset.ts"]
+    "ignore": ["*/environment.d.ts", "*/tailwind-preset.ts"]
   },
   "files": {
     "ignore": ["*.Api.json"]
