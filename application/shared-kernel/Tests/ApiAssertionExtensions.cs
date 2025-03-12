@@ -130,8 +130,11 @@ public static class ApiAssertionExtensions
                 actualErrorsJson.GetRawText(), SharedDependencyConfiguration.DefaultJsonSerializerOptions
             );
 
-            var expectedErrorsDictionary = expectedErrors
-                .ToDictionary(e => JsonNamingPolicy.CamelCase.ConvertName(e.PropertyName), e => new[] { e.Message });
+            var expectedErrorsDictionary = expectedErrors.GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => JsonNamingPolicy.CamelCase.ConvertName(g.Key),
+                    g => g.Select(e => e.Message).ToArray()
+                );
 
             actualErrors.Should().BeEquivalentTo(expectedErrorsDictionary);
         }
