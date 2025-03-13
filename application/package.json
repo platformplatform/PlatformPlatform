@@ -10,7 +10,8 @@
     "shared-webapp/*"
   ],
   "scripts": {
-    "start": "npm install && turbo dev",
+    "app-host-start": "npm install && dotnet run frontend-dev-server --project ../developer-cli",
+    "start": "dotnet run frontend-dev-server --create-flag-file --project ../developer-cli",
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
