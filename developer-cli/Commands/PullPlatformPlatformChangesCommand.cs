@@ -345,25 +345,20 @@ public class PullPlatformPlatformChangesCommand : Command
 
             while (true)
             {
-                try
+                AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
+
+                // Use the CodeCleanupCommand's RunCleanup method
+                var solutionFile = new FileInfo(Directory.GetFiles(Configuration.ApplicationFolder, "*.slnx", SearchOption.TopDirectoryOnly).Single());
+                var codeCleanupCommand = new CodeCleanupCommand();
+
+                if (codeCleanupCommand.RunCleanup(solutionFile))
                 {
-                    AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
-
-                    var solutionFile = Directory.GetFiles(Configuration.ApplicationFolder, "*.sln", SearchOption.TopDirectoryOnly).Single();
-                    ProcessHelper.StartProcess(
-                        $"""dotnet jb cleanupcode {solutionFile} --profile=".NET only" """,
-                        Configuration.ApplicationFolder,
-                        throwOnError: true
-                    );
-
                     break;
                 }
-                catch (ProcessExecutionException)
+
+                if (!AnsiConsole.Confirm("JetBrains code cleanup failed. Please fix the errors and try again. If you continue, any fixes will be added to the cherry-picked change."))
                 {
-                    if (!AnsiConsole.Confirm("JetBrains code cleanup failed. Please fix the errors and try again. If you continue, any fixes will be added to the cherry-picked change."))
-                    {
-                        Environment.Exit(0);
-                    }
+                    Environment.Exit(0);
                 }
             }
         }

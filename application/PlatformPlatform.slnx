@@ -1,0 +1,23 @@
+﻿<Solution>
+    <Folder Name="/account-management/">
+        <Project Path="account-management\Api\AccountManagement.Api.csproj" />
+        <Project Path="account-management\Core\AccountManagement.csproj" />
+        <Project Path="account-management\Tests\AccountManagement.Tests.csproj" />
+        <Project Path="account-management\WebApp\AccountManagement.WebApp.esproj" />
+        <Project Path="account-management\Workers\AccountManagement.Workers.csproj" />
+    </Folder>
+    <Folder Name="/back-office/">
+        <Project Path="back-office\Api\BackOffice.Api.csproj" />
+        <Project Path="back-office\Core\BackOffice.csproj" />
+        <Project Path="back-office\Tests\BackOffice.Tests.csproj" />
+        <Project Path="back-office\WebApp\BackOffice.WebApp.esproj" />
+        <Project Path="back-office\Workers\BackOffice.Workers.csproj" />
+    </Folder>
+    <Folder Name="/shared-kernel/">
+        <Project Path="shared-kernel\SharedKernel\SharedKernel.csproj" />
+        <Project Path="shared-kernel\Tests\SharedKernel.Tests.csproj" />
+        <Project Path="shared-webapp\SharedKernel.WebApp.esproj" />
+    </Folder>
+    <Project Path="AppGateway\AppGateway.csproj" />
+    <Project Path="AppHost\AppHost.csproj" />
+</Solution>

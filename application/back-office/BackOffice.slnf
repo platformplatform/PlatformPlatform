@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "..\\PlatformPlatform.sln",
+    "path": "..\\PlatformPlatform.slnx",
     "projects": [
       "AppHost\\AppHost.csproj",
       "AppGateway\\AppGateway.csproj",
