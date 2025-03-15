@@ -71,7 +71,7 @@ jobs:
       - name: Build backend solution
         working-directory: application
         run: |
-          dotnet build PlatformPlatform.sln --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
+          dotnet build PlatformPlatform.slnx --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
 
       - name: Publish build
         if: github.ref == 'refs/heads/main'
@@ -120,28 +120,26 @@ jobs:
 
       - name: Build backend solution
         working-directory: application
-        run: dotnet build PlatformPlatform.sln --no-restore
+        run: dotnet build PlatformPlatform.slnx --no-restore
 
       - name: Run code inspections
-        working-directory: application
+        working-directory: developer-cli
         run: |
-          dotnet jb inspectcode PlatformPlatform.sln --no-build --output=result.json --severity=SUGGESTION
+          dotnet run code-inspections | tee inspection-output.log
 
-          # Check if there are any issues. <Issues /> indicates no issues found.
-          if ! grep -q '\"results\": \[\],' result.json; then
-            cat result.json
+          if ! grep -q "No issues found!" inspection-output.log; then
             echo "Code inspection issues found."
             exit 1
           fi
 
       - name: Check for code formatting issues
-        working-directory: application
+        working-directory: developer-cli
         run: |
-          dotnet jb cleanupcode PlatformPlatform.sln --no-build --profile=".NET only"
+          dotnet run code-cleanup
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode PlatformPlatform.sln --profile=\".NET only\"' locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run code-cleanup' from /developer-cli folder locally and commit the formatted code."
             exit 1
           }
 

@@ -175,25 +175,23 @@ jobs:
         run: dotnet build account-management/AccountManagement.slnf --no-restore
 
       - name: Run code inspections
-        working-directory: application
+        working-directory: developer-cli
         run: |
-          dotnet jb inspectcode account-management/AccountManagement.slnf --no-build --output=result.json --severity=SUGGESTION
+          dotnet run code-inspections -s AccountManagement.slnf | tee inspection-output.log
 
-          # Check if there are any issues. <Issues /> indicates no issues found.
-          if ! grep -q '\"results\": \[\],' result.json; then
-            cat result.json
+          if ! grep -q "No issues found!" inspection-output.log; then
             echo "Code inspection issues found."
             exit 1
           fi
 
       - name: Check for code formatting issues
-        working-directory: application
+        working-directory: developer-cli
         run: |
-          dotnet jb cleanupcode account-management/AccountManagement.slnf --no-build --profile=".NET only"
+          dotnet run code-cleanup -s AccountManagement.slnf
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet jb cleanupcode account-management/AccountManagement.slnf --profile=\".NET only\"' locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run code-cleanup -s AccountManagement.slnf' from /developer-cli folder locally and commit the formatted code."
             exit 1
           }
 

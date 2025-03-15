@@ -39,7 +39,7 @@ Show your support for our project – Give us a star on GitHub! It truly means a
 
 # Getting Started 1-2-3
 
-TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
+TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/local-developer-experience.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
@@ -173,7 +173,7 @@ cd application/AppHost
 dotnet run # First run will be slow as Docker images are downloaded
 ```
 
-Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.sln) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
+Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
 
 ## 3. Set up CI/CD with passwordless deployments from GitHub to Azure
 
