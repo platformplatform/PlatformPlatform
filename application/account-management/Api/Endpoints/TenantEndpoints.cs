@@ -15,7 +15,7 @@ public sealed class TenantEndpoints : IEndpoints
         var group = routes.MapGroup(RoutesPrefix).WithTags("Tenants").RequireAuthorization().ProducesValidationProblem();
 
         group.MapGet("/current", async Task<ApiResult<TenantResponse>> (IMediator mediator)
-            => await mediator.Send(new GetTenantQuery())
+            => await mediator.Send(new GetCurrentTenantQuery())
         ).Produces<TenantResponse>();
 
         group.MapPut("/current", async Task<ApiResult> (UpdateCurrentTenantCommand command, IMediator mediator)
