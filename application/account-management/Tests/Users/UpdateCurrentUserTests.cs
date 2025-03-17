@@ -22,7 +22,7 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -41,7 +41,7 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         var expectedErrors = new[]

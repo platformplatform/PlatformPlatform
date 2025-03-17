@@ -19,7 +19,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         var unknownUserId = UserId.NewId();
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account-management/users/{unknownUserId}");
 
         //Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User with id '{unknownUserId}' not found.");
@@ -47,7 +47,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         );
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{userId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account-management/users/{userId}");
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -58,10 +58,10 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task DeleteUser_WhenDeletingOwnUSer_ShouldGetForbidden()
     {
         // Arrange
-        var existingUserId = DatabaseSeeder.User1.Id;
+        var existingUserId = DatabaseSeeder.Tenant1Owner.Id;
 
         // Act
-        var response = await AuthenticatedHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account-management/users/{existingUserId}");
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "You cannot delete yourself.");

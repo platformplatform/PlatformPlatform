@@ -12,7 +12,7 @@ public sealed class GetCurrentUserTests : EndpointBaseTest<AccountManagementDbCo
     public async Task GetLoggedInUser_WhenUserExists_ShouldReturnUserWithValidContract()
     {
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync("/api/account-management/users/me");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account-management/users/me");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();

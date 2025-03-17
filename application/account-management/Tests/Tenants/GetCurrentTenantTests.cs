@@ -12,7 +12,7 @@ public sealed class GetCurrentTenantTests : EndpointBaseTest<AccountManagementDb
     public async Task GetCurrentTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()
     {
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync("/api/account-management/tenants/current");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account-management/tenants/current");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();

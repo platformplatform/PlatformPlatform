@@ -18,7 +18,7 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountManagemen
         var command = new UpdateCurrentTenantCommand { Name = Faker.TenantName() };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -36,7 +36,7 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountManagemen
         var command = new UpdateCurrentTenantCommand { Name = invalidName };
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
 
         // Assert
         var expectedErrors = new[]

@@ -58,7 +58,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         const string searchString = "willgate";
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -75,7 +75,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         const string searchString = "Will";
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -93,7 +93,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -108,7 +108,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     {
         // Arrange
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -122,7 +122,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
     {
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
