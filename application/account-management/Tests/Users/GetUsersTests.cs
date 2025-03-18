@@ -58,11 +58,11 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         const string searchString = "willgate";
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+        var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse.TotalCount.Should().Be(1);
         userResponse.Users.First().Email.Should().Be(Email);
@@ -75,11 +75,11 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         const string searchString = "Will";
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+        var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse.TotalCount.Should().Be(1);
         userResponse.Users.First().FirstName.Should().Be(FirstName);
@@ -93,11 +93,11 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
 
 
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+        var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse.TotalCount.Should().Be(1);
         userResponse.Users.First().LastName.Should().Be(LastName);
@@ -108,11 +108,11 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     {
         // Arrange
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?userRole={UserRole.Member}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+        var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse.TotalCount.Should().Be(2);
         userResponse.Users.First().Role.Should().Be(UserRole);
@@ -122,11 +122,11 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     public async Task GetUsers_WhenSearchingWithSpecificOrdering_ShouldReturnOrderedUsers()
     {
         // Act
-        var response = await AuthenticatedHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?orderBy={SortableUserProperties.Role}");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+        var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
         userResponse.TotalCount.Should().Be(3);
         userResponse.Users.First().Role.Should().Be(UserRole.Member);

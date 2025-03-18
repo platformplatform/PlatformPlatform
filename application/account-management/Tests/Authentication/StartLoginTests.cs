@@ -16,7 +16,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     public async Task StartLogin_WhenValidEmailAndUserExists_ShouldReturnSuccess()
     {
         // Arrange
-        var email = DatabaseSeeder.User1.Email;
+        var email = DatabaseSeeder.Tenant1Owner.Email;
         var command = new StartLoginCommand(email);
 
         // Act
@@ -30,7 +30,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         await EmailClient.Received(1).SendAsync(

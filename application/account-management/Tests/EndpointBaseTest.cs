@@ -98,9 +98,13 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var accessToken = AccessTokenGenerator.Generate(DatabaseSeeder.User1.Adapt<UserInfo>());
-        AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
-        AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>());
+        AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
+
+        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
+        AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
     }
 
     protected SqliteConnection Connection { get; }
@@ -119,7 +123,9 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected HttpClient AnonymousHttpClient { get; }
 
-    protected HttpClient AuthenticatedHttpClient { get; }
+    protected HttpClient AuthenticatedOwnerHttpClient { get; }
+
+    protected HttpClient AuthenticatedMemberHttpClient { get; }
 
     public void Dispose()
     {

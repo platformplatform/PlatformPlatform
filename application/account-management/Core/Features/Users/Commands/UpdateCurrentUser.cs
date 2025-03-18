@@ -8,15 +8,16 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record UpdateCurrentUserCommand : ICommand, IRequest<Result>
+public sealed record UpdateCurrentUserCommand(string Email, string FirstName, string LastName, string Title)
+    : ICommand, IRequest<Result>
 {
-    public required string Email { get; init; }
+    public string Email { get; } = Email.ToLower().Trim();
 
-    public required string FirstName { get; init; }
+    public string FirstName { get; } = FirstName.Trim();
 
-    public required string LastName { get; init; }
+    public string LastName { get; } = LastName.Trim();
 
-    public required string Title { get; init; }
+    public string Title { get; } = Title.Trim();
 }
 
 public sealed class UpdateCurrentUserValidator : AbstractValidator<UpdateCurrentUserCommand>

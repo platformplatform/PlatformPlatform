@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using Bogus;
 using JetBrains.Annotations;
+using Mapster;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Integrations.Email;
@@ -96,9 +98,13 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var accessToken = AccessTokenGenerator.Generate(DatabaseSeeder.OwnerUser);
-        AuthenticatedHttpClient = _webApplicationFactory.CreateClient();
-        AuthenticatedHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner);
+        AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
+
+        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
+        AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
     }
 
     protected SqliteConnection Connection { get; }
@@ -117,7 +123,9 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected HttpClient AnonymousHttpClient { get; }
 
-    protected HttpClient AuthenticatedHttpClient { get; }
+    protected HttpClient AuthenticatedOwnerHttpClient { get; }
+
+    protected HttpClient AuthenticatedMemberHttpClient { get; }
 
     public void Dispose()
     {

@@ -19,10 +19,10 @@ public sealed record GetUsersQuery(
     SortOrder SortOrder = SortOrder.Ascending,
     int? PageOffset = null,
     int PageSize = 25
-) : IRequest<Result<GetUsersResponse>>;
+) : IRequest<Result<UsersResponse>>;
 
 [PublicAPI]
-public sealed record GetUsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UserDetails[] Users);
+public sealed record UsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UserDetails[] Users);
 
 [PublicAPI]
 public sealed record UserDetails(
@@ -49,9 +49,9 @@ public sealed class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 }
 
 public sealed class GetUsersHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUsersQuery, Result<GetUsersResponse>>
+    : IRequestHandler<GetUsersQuery, Result<UsersResponse>>
 {
-    public async Task<Result<GetUsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
+    public async Task<Result<UsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
         var (users, count, totalPages) = await userRepository.Search(
             query.Search,
@@ -68,10 +68,10 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
 
         if (query.PageOffset.HasValue && query.PageOffset.Value >= totalPages)
         {
-            return Result<GetUsersResponse>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
+            return Result<UsersResponse>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
         }
 
         var userResponses = users.Adapt<UserDetails[]>();
-        return new GetUsersResponse(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponses);
+        return new UsersResponse(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponses);
     }
 }

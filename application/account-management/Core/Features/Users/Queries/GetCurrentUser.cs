@@ -7,10 +7,10 @@ using PlatformPlatform.SharedKernel.Domain;
 namespace PlatformPlatform.AccountManagement.Features.Users.Queries;
 
 [PublicAPI]
-public sealed record GetUserQuery : IRequest<Result<UserResponse>>;
+public sealed record GetUserQuery : IRequest<Result<CurrentUserResponse>>;
 
 [PublicAPI]
-public sealed record UserResponse(
+public sealed record CurrentUserResponse(
     UserId Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
@@ -23,11 +23,11 @@ public sealed record UserResponse(
 );
 
 public sealed class GetUserHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUserQuery, Result<UserResponse>>
+    : IRequestHandler<GetUserQuery, Result<CurrentUserResponse>>
 {
-    public async Task<Result<UserResponse>> Handle(GetUserQuery query, CancellationToken cancellationToken)
+    public async Task<Result<CurrentUserResponse>> Handle(GetUserQuery query, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        return user.Adapt<UserResponse>();
+        return user.Adapt<CurrentUserResponse>();
     }
 }

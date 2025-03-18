@@ -14,16 +14,15 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
     public async Task UpdateCurrentUser_WhenValid_ShouldUpdateUser()
     {
         // Arrange
-        var command = new UpdateCurrentUserCommand
-        {
-            Email = Faker.Internet.Email(),
-            FirstName = Faker.Name.FirstName(),
-            LastName = Faker.Name.LastName(),
-            Title = Faker.Name.JobTitle()
-        };
+        var command = new UpdateCurrentUserCommand(
+            Faker.Internet.Email(),
+            Faker.Name.FirstName(),
+            Faker.Name.LastName(),
+            Faker.Name.JobTitle()
+        );
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -34,15 +33,15 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
     {
         // Arrange
         var command = new UpdateCurrentUserCommand
-        {
-            Email = Faker.InvalidEmail(),
-            FirstName = Faker.Random.String(31),
-            LastName = Faker.Random.String(31),
-            Title = Faker.Random.String(51)
-        };
+        (
+            Faker.InvalidEmail(),
+            Faker.Random.String(31),
+            Faker.Random.String(31),
+            Faker.Random.String(51)
+        );
 
         // Act
-        var response = await AuthenticatedHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
 
         // Assert
         var expectedErrors = new[]

@@ -12,7 +12,10 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 
 [PublicAPI]
-public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>;
+public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>
+{
+    public string Email { get; init; } = Email.Trim().ToLower();
+}
 
 [PublicAPI]
 public sealed record StartLoginResponse(LoginId LoginId, EmailConfirmationId EmailConfirmationId, int ValidForSeconds);

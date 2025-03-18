@@ -22,7 +22,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
     {
         // Arrange
-        var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email);
+        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteLoginCommand(CorrectOneTimePassword);
 
         // Act
@@ -39,7 +39,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
@@ -68,7 +68,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     public async Task CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
     {
         // Arrange
-        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.User1.Email);
+        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteLoginCommand(WrongOneTimePassword);
 
         // Act
@@ -94,7 +94,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     public async Task CompleteLogin_WhenLoginAlreadyCompleted_ShouldReturnBadRequest()
     {
         // Arrange
-        var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email);
+        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteLoginCommand(CorrectOneTimePassword);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
 
@@ -104,7 +104,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         // Assert
         await response.ShouldHaveErrorStatusCode(
-            HttpStatusCode.BadRequest, $"The login process {loginId} for user {DatabaseSeeder.User1.Id} has already been completed."
+            HttpStatusCode.BadRequest, $"The login process {loginId} for user {DatabaseSeeder.Tenant1Owner.Id} has already been completed."
         );
     }
 
@@ -112,7 +112,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     public async Task CompleteLogin_WhenRetryCountExceeded_ShouldReturnForbidden()
     {
         // Arrange
-        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.User1.Email);
+        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteLoginCommand(WrongOneTimePassword);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
@@ -153,8 +153,8 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         // Insert expired login
         Connection.Insert("Logins", [
-                ("TenantId", DatabaseSeeder.User1.TenantId.ToString()),
-                ("UserId", DatabaseSeeder.User1.Id.ToString()),
+                ("TenantId", DatabaseSeeder.Tenant1Owner.TenantId.ToString()),
+                ("UserId", DatabaseSeeder.Tenant1Owner.Id.ToString()),
                 ("Id", loginId.ToString()),
                 ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
                 ("ModifiedAt", null),
@@ -166,7 +166,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("Id", emailConfirmationId.ToString()),
                 ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
                 ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.User1.Email),
+                ("Email", DatabaseSeeder.Tenant1Owner.Email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
                 ("ValidUntil", DateTime.UtcNow.AddMinutes(-10)),
@@ -195,7 +195,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         // Arrange
         var email = Faker.Internet.Email();
         var inviteUserCommand = new InviteUserCommand(email);
-        await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);
+        await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);
         TelemetryEventsCollectorSpy.Reset();
 
         var (loginId, _) = await StartLogin(email);

@@ -14,13 +14,13 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
-        group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
+        group.MapGet("/", async Task<ApiResult<UsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<GetUsersResponse>();
+        ).Produces<UsersResponse>();
 
-        group.MapGet("/summary", async Task<ApiResult<GetUserSummaryResponse>> (IMediator mediator)
+        group.MapGet("/summary", async Task<ApiResult<UserSummaryResponse>> (IMediator mediator)
             => await mediator.Send(new GetUserSummaryQuery())
-        ).Produces<GetUserSummaryResponse>();
+        ).Produces<UserSummaryResponse>();
 
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new DeleteUserCommand(id))
@@ -35,9 +35,9 @@ public sealed class UserEndpoints : IEndpoints
         );
 
         // The following endpoints are for the current user only
-        group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
+        group.MapGet("/me", async Task<ApiResult<CurrentUserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<UserResponse>();
+        ).Produces<CurrentUserResponse>();
 
         group.MapPut("/me", async Task<ApiResult> (UpdateCurrentUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()

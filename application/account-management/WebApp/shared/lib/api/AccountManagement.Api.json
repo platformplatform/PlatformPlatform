@@ -483,7 +483,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUsersResponse"
+                  "$ref": "#/components/schemas/UsersResponse"
                 }
               }
             }
@@ -513,7 +513,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetUserSummaryResponse"
+                  "$ref": "#/components/schemas/UserSummaryResponse"
                 }
               }
             }
@@ -649,7 +649,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/CurrentUserResponse"
                 }
               }
             }
@@ -981,9 +981,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "emailConfirmationId": {
-            "$ref": "#/components/schemas/EmailConfirmationId"
-          },
           "oneTimePassword": {
             "type": "string"
           },
@@ -1039,7 +1036,7 @@
           }
         }
       },
-      "GetUsersResponse": {
+      "UsersResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1190,7 +1187,7 @@
           "Descending"
         ]
       },
-      "GetUserSummaryResponse": {
+      "UserSummaryResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1226,7 +1223,7 @@
           }
         }
       },
-      "UserResponse": {
+      "CurrentUserResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

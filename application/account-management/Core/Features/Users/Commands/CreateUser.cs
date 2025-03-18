@@ -13,7 +13,10 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
 internal sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed, string? PreferredLocale)
-    : ICommand, IRequest<Result<UserId>>;
+    : ICommand, IRequest<Result<UserId>>
+{
+    public string Email { get; } = Email.Trim().ToLower();
+}
 
 internal sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {

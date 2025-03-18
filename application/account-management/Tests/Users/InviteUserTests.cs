@@ -22,7 +22,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         var command = new InviteUserCommand(email);
 
         // Act
-        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -52,7 +52,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         var command = new InviteUserCommand(invalidEmail);
 
         // Act
-        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
 
         // Assert
         var expectedErrors = new[]
@@ -68,11 +68,11 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task InviteUser_WhenUserExists_ShouldReturnBadRequest()
     {
         // Arrange
-        var existingUserEmail = DatabaseSeeder.User1.Email;
+        var existingUserEmail = DatabaseSeeder.Tenant1Owner.Email;
         var command = new InviteUserCommand(existingUserEmail);
 
         // Act
-        var response = await AuthenticatedHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
 
         // Assert
         var expectedErrors = new[]

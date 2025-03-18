@@ -7,19 +7,16 @@ namespace PlatformPlatform.AccountManagement.Integrations.Gravatar;
 
 public sealed record Gravatar(Stream Stream, string ContentType);
 
-public sealed class GravatarClient(IHttpClientFactory httpClientFactory, ILogger<GravatarClient> logger)
+public sealed class GravatarClient(HttpClient httpClient, ILogger<GravatarClient> logger)
 {
     public async Task<Gravatar?> GetGravatar(UserId userId, string email, CancellationToken cancellationToken)
     {
         try
         {
             var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
-            var gravatarUrl = $"https://gravatar.com/avatar/{hash.ToLowerInvariant()}?d=404";
+            var gravatarUrl = $"avatar/{hash.ToLowerInvariant()}?d=404";
 
-            var gravatarHttpClient = httpClientFactory.CreateClient("Gravatar");
-            gravatarHttpClient.Timeout = TimeSpan.FromSeconds(5);
-
-            var response = await gravatarHttpClient.GetAsync(gravatarUrl, cancellationToken);
+            var response = await httpClient.GetAsync(gravatarUrl, cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 logger.LogInformation("No Gravatar found for user {UserId}", userId);

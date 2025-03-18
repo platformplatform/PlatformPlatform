@@ -32,7 +32,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         var email = Faker.Internet.Email();
         var emailConfirmationId = await StartSignup(email);
 
-        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -57,7 +57,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     {
         // Arrange
         var invalidEmailConfirmationId = EmailConfirmationId.NewId();
-        var command = new CompleteSignupCommand(invalidEmailConfirmationId, CorrectOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -74,7 +74,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(emailConfirmationId, WrongOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -95,7 +95,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Act
@@ -112,7 +112,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.Email());
 
-        var command = new CompleteSignupCommand(emailConfirmationId, WrongOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
@@ -154,7 +154,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
             ]
         );
 
-        var command = new CompleteSignupCommand(emailConfirmationId, CorrectOneTimePassword, "en-US");
+        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
 
         // Act
         var response = await AnonymousHttpClient

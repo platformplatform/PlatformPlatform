@@ -21,11 +21,15 @@ public static class Configuration
 
     public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
     {
-        services.AddHttpClient("Gravatar").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler());
+        services.AddHttpClient<GravatarClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://gravatar.com/");
+                client.Timeout = TimeSpan.FromSeconds(5);
+            }
+        );
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)
-            .AddScoped<AvatarUpdater>()
-            .AddScoped<GravatarClient>();
+            .AddScoped<AvatarUpdater>();
     }
 }

@@ -4,8 +4,10 @@ using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 
-public interface IEmailConfirmationRepository : ICrudRepository<EmailConfirmation, EmailConfirmationId>
+public interface IEmailConfirmationRepository : IAppendRepository<EmailConfirmation, EmailConfirmationId>
 {
+    void Update(EmailConfirmation aggregate);
+
     EmailConfirmation[] GetByEmail(string email);
 }
 
