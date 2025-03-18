@@ -28,7 +28,7 @@ public class AuthenticationCookieMiddleware(
 
         if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
         {
-            logger.LogDebug("Refreshing authentication tokens as requested by endpoint.");
+            logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
             var (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
             ReplaceAuthenticationHeaderWithCookie(context, refreshToken, accessToken);
             context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
@@ -57,11 +57,11 @@ public class AuthenticationCookieMiddleware(
                 {
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
-                    logger.LogDebug("The refresh-token has expired. The authentication token cookies are removed.");
+                    logger.LogDebug("The refresh-token has expired; authentication token cookies are removed");
                     return;
                 }
 
-                logger.LogDebug("The access-token has expired, attempting to refresh.");
+                logger.LogDebug("The access-token has expired, attempting to refresh");
 
                 (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshToken);
 
@@ -93,7 +93,7 @@ public class AuthenticationCookieMiddleware(
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new SecurityTokenException($"Failed to refresh security tokens. Response status code: {response.StatusCode}");
+            throw new SecurityTokenException($"Failed to refresh security tokens. Response status code: {response.StatusCode}.");
         }
 
         var newRefreshToken = response.Headers.GetValues(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey).SingleOrDefault();

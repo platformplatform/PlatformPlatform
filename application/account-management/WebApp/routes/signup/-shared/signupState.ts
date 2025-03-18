@@ -15,7 +15,7 @@ export function setSignupState(newSignup: SignupState): void {
 
 export function getSignupState() {
   if (currentSignupState == null) {
-    throw new Error(t`No active signup session`);
+    throw new Error(t`No active signup session.`);
   }
   return currentSignupState;
 }

@@ -20,6 +20,10 @@ When working with C# code, follow these rules very carefully.
 - Avoid using exceptions for control flow:
   - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
   - Use `UnreachableException` to signal unreachable code, that cannot be reached by tests.
+  - Exception messages should include a period.
+- Log only meaningful events at appropriate severity levels.
+  -Logging messages should not include a period.
+  - Use structured logging.
 - Never introduce new NuGet dependencies.
 
 ## Implementation

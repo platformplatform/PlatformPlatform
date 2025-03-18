@@ -71,7 +71,7 @@ public sealed class RefreshAuthenticationTokensHandler(
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (user is null)
         {
-            logger.LogWarning("No user found with user id {UserId} found.", userId);
+            logger.LogWarning("No user found with user id {UserId} found", userId);
             return Result.Unauthorized($"No user found with user id {userId} found.");
         }
 

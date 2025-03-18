@@ -38,7 +38,7 @@ public sealed class CompleteLoginHandler(
 
         if (login.Completed)
         {
-            logger.LogWarning("Login with id '{LoginId}' has already been completed.", login.Id);
+            logger.LogWarning("Login with id '{LoginId}' has already been completed", login.Id);
             return Result.BadRequest($"The login process {login.Id} for user {login.UserId} has already been completed.");
         }
 

@@ -32,7 +32,7 @@ export function Pagination({
   className
 }: Readonly<PaginationProps>) {
   if (paginationSize % 2 === 0 || paginationSize < 5) {
-    throw new Error("Pagination size must be an odd number greater than or equal to 5");
+    throw new Error("Pagination size must be an odd number greater than or equal to 5.");
   }
 
   const handlePrevious = () => {

@@ -70,7 +70,7 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 
         if (ResendCount >= MaxResends)
         {
-            throw new UnreachableException("Cannot regenerate verification code for email confirmation that has been resent too many times");
+            throw new UnreachableException("Cannot regenerate verification code for email confirmation that has been resent too many times.");
         }
 
         ValidUntil = TimeProvider.System.GetUtcNow().AddSeconds(ValidForSeconds);

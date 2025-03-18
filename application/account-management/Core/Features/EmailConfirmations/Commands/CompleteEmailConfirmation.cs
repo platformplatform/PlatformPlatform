@@ -31,7 +31,7 @@ public sealed class CompleteEmailConfirmationHandler(
 
         if (emailConfirmation.Completed)
         {
-            logger.LogWarning("Email confirmation with id '{EmailConfirmationId}' has already been completed.", emailConfirmation.Id);
+            logger.LogWarning("Email confirmation with id '{EmailConfirmationId}' has already been completed", emailConfirmation.Id);
             return Result<CompleteEmailConfirmationResponse>.BadRequest($"Email confirmation with id {emailConfirmation.Id} has already been completed.");
         }
 
