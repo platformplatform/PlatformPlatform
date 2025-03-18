@@ -14,6 +14,13 @@ public sealed class AntiforgeryMiddleware(IAntiforgery antiforgery, ILogger<Anti
             return;
         }
 
+        if (bool.TryParse(Environment.GetEnvironmentVariable("BypassAntiforgeryValidation"), out _))
+        {
+            logger.LogDebug("Bypassing antiforgery validation due to environment variable setting");
+            await next(context);
+            return;
+        }
+
         if (!await antiforgery.IsRequestValidAsync(context))
         {
             var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
