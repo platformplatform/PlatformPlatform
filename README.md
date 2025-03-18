@@ -202,6 +202,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
+├─ .ai-rules             # AI Rules for AI assistants, and documentation for developers
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
@@ -267,7 +268,8 @@ The frontend is built with these technologies:
 - [React 19](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
 - [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
-- [Tanstack Router](https://tanstack.com)
+- [Tanstack Router](https://tanstack.com/router)
+- [Tanstack Query](https://tanstack.com/query)
 - [Node](https://nodejs.org/en)
 
 ### Azure Cloud Infrastructure With Enterprise-Grade Security and Zero Secrets
