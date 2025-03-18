@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NJsonSchema.Generation;
+using PlatformPlatform.SharedKernel.Antiforgery;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Endpoints;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
@@ -54,11 +56,18 @@ public static class ApiDependencyConfiguration
             .AddExceptionHandler<GlobalExceptionHandler>()
             .AddTransient<TelemetryContextMiddleware>()
             .AddTransient<ModelBindingExceptionHandlerMiddleware>()
+            .AddTransient<AntiforgeryMiddleware>()
             .AddProblemDetails()
             .AddEndpointsApiExplorer()
             .AddApiEndpoints(assemblies)
             .AddOpenApiConfiguration(assemblies)
             .AddAuthConfiguration()
+            .AddAntiforgery(options =>
+                {
+                    options.Cookie.Name = AuthenticationTokenHttpKeys.AntiforgeryTokenCookieName;
+                    options.HeaderName = AuthenticationTokenHttpKeys.AntiforgeryTokenHttpHeaderKey;
+                }
+            )
             .AddHttpForwardHeaders();
     }
 
@@ -86,6 +95,8 @@ public static class ApiDependencyConfiguration
             .UseForwardedHeaders()
             .UseAuthentication() // Must be above TelemetryContextMiddleware to ensure authentication happens first
             .UseAuthorization()
+            .UseAntiforgery()
+            .UseMiddleware<AntiforgeryMiddleware>()
             .UseMiddleware<TelemetryContextMiddleware>() // It must be above ModelBindingExceptionHandlerMiddleware to ensure that model binding problems are annotated correctly
             .UseMiddleware<ModelBindingExceptionHandlerMiddleware>() // Enable support for proxy headers such as X-Forwarded-For and X-Forwarded-Proto. Should run before other middleware
             .UseOpenApi(options => options.Path = "/openapi/v1.json"); // Adds the OpenAPI generator that uses the ASP. NET Core API Explorer

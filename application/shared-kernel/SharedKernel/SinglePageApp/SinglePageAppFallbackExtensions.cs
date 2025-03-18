@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,12 @@ public static class SinglePageAppFallbackExtensions
             }
         );
 
-        app.MapFallback((HttpContext context, IExecutionContext executionContext, SinglePageAppConfiguration singlePageAppConfiguration) =>
+        app.MapFallback((
+                HttpContext context,
+                IExecutionContext executionContext,
+                IAntiforgery antiforgery,
+                SinglePageAppConfiguration singlePageAppConfiguration
+            ) =>
             {
                 if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
                     context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
@@ -50,7 +56,10 @@ public static class SinglePageAppFallbackExtensions
 
                 SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8");
 
-                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo);
+                var antiforgeryHttpHeaderToken = GenerateAntiforgeryTokens(antiforgery, context);
+
+                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo, antiforgeryHttpHeaderToken);
+
                 return context.Response.WriteAsync(html);
             }
         );
@@ -62,7 +71,11 @@ public static class SinglePageAppFallbackExtensions
             .UseRequestLocalization(SinglePageAppConfiguration.SupportedLocalizations);
     }
 
-    private static void SetResponseHttpHeaders(SinglePageAppConfiguration singlePageAppConfiguration, IHeaderDictionary responseHeaders, StringValues contentType)
+    private static void SetResponseHttpHeaders(
+        SinglePageAppConfiguration singlePageAppConfiguration,
+        IHeaderDictionary responseHeaders,
+        StringValues contentType
+    )
     {
         // No cache headers
         responseHeaders.Append("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -82,7 +95,32 @@ public static class SinglePageAppFallbackExtensions
         responseHeaders.Append("Content-Type", contentType);
     }
 
-    private static string GetHtmlWithEnvironment(SinglePageAppConfiguration singlePageAppConfiguration, UserInfo userInfo)
+    private static string GenerateAntiforgeryTokens(IAntiforgery antiforgery, HttpContext context)
+    {
+        // ASP.NET Core antiforgery system uses a cryptographic double-submit pattern with two tokens:
+        // - A secret cookie token that only the server can read (session-based)
+        // - A public request token that the SPA sends as a header for state-changing requests like POST/PUT/DELETE
+
+        var antiforgeryTokenSet = antiforgery.GetAndStoreTokens(context);
+
+        if (antiforgeryTokenSet.CookieToken is not null)
+        {
+            // A new antiforgery cookie is only generated once, as it must remain constant across browser tabs to avoid validation failures
+            context.Response.Cookies.Append(
+                AuthenticationTokenHttpKeys.AntiforgeryTokenCookieName,
+                antiforgeryTokenSet.CookieToken!,
+                new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict, Path = "/" }
+            );
+        }
+
+        return antiforgeryTokenSet.RequestToken!;
+    }
+
+    private static string GetHtmlWithEnvironment(
+        SinglePageAppConfiguration singlePageAppConfiguration,
+        UserInfo userInfo,
+        string antiforgeryHttpHeaderToken
+    )
     {
         var userInfoEncoded = JsonSerializer.Serialize(userInfo, SinglePageAppConfiguration.JsonHtmlEncodingOptions);
 
@@ -92,6 +130,7 @@ public static class SinglePageAppFallbackExtensions
         html = html.Replace("%ENCODED_RUNTIME_ENV%", singlePageAppConfiguration.StaticRuntimeEnvironmentEscaped);
         html = html.Replace("%ENCODED_USER_INFO_ENV%", userInfoEscaped);
         html = html.Replace("%LOCALE%", userInfo.Locale);
+        html = html.Replace("%ANTIFORGERY_TOKEN%", antiforgeryHttpHeaderToken);
 
         foreach (var variable in singlePageAppConfiguration.StaticRuntimeEnvironment)
         {

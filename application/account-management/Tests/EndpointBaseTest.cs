@@ -105,6 +105,10 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
+
+        // Set the environment variable to bypass antiforgery validation on the server. ASP.NET uses a cryptographic
+        // double-submit pattern that encrypts the user's ClaimUid in the token, which is complex to replicate in tests
+        Environment.SetEnvironmentVariable("BypassAntiforgeryValidation", "true");
     }
 
     protected SqliteConnection Connection { get; }
