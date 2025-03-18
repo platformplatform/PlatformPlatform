@@ -4,7 +4,10 @@ using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 
-public interface ILoginRepository : ICrudRepository<Login, LoginId>;
+public interface ILoginRepository : IAppendRepository<Login, LoginId>
+{
+    void Update(Login aggregate);
+}
 
 public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
