@@ -114,21 +114,8 @@ jobs:
       STAGING_SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
 
     steps:
-      - name: Login to Azure (Staging)
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.STAGING_SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ env.TENANT_ID }}
-          subscription-id: ${{ env.STAGING_SUBSCRIPTION_ID }}
           
-      - name: Get Access Token for Staging Azure Subscription
-        id: staging_tokens
-        run: |
-          STAGING_TOKEN=$(az account get-access-token --resource https://management.azure.com --query accessToken -o tsv)
-          echo "::add-mask::$STAGING_TOKEN"
-          echo "access_token=$STAGING_TOKEN" >> $GITHUB_OUTPUT
-          
-      - name: Login to Azure (Production)
+      - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
@@ -144,7 +131,6 @@ jobs:
             --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }} \
             --source ${{ env.UNIQUE_PREFIX }}${{ env.STAGING_ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
             --image ${{ inputs.image_name }}:${{ inputs.version }} \
-            --password ${{ steps.staging_tokens.outputs.access_token }} \
             --force
 
       - name: Deploy Container

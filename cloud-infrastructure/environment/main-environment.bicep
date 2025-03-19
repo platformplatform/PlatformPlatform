@@ -4,6 +4,7 @@ param location string = deployment().location
 param resourceGroupName string
 param environment string
 param containerRegistryName string
+param productionServicePrincipalObjectId string = ''
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
@@ -20,6 +21,16 @@ module containerRegistry '../modules/container-registry.bicep' = {
     name: containerRegistryName
     location: location
     tags: tags
+  }
+}
+
+// Grant production service principal ACR Pull access to registry if specified
+module productionServicePrincipalAcrPull '../modules/role-assignments-container-registry-acr-pull.bicep' = if (!empty(productionServicePrincipalObjectId)) {
+  name: '${resourceGroupName}-production-sp-acr-pull'
+  scope: resourceGroup(environmentResourceGroup.name)
+  params: {
+    containerRegistryName: containerRegistryName
+    principalId: productionServicePrincipalObjectId
   }
 }
 

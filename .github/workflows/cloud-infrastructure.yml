@@ -41,6 +41,7 @@ jobs:
       tenant_id: ${{ vars.TENANT_ID }}
       subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
       deployment_enabled: ${{ vars.STAGING_CLUSTER_ENABLED }}
+      production_service_principal_object_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID }}
 
   prod1:
     name: Production

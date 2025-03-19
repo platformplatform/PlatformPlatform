@@ -42,6 +42,10 @@ on:
       deployment_enabled:
         required: true
         type: string
+      production_service_principal_object_id:
+        required: false
+        type: string
+        default: "-"
 
 jobs:
   plan:
@@ -67,7 +71,7 @@ jobs:
 
       - name: Plan Shared Environment Resources
         if: ${{ inputs.include_shared_environment_resources == true }}
-        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} --plan
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} ${{ inputs.production_service_principal_object_id }} --plan
 
       - name: Plan Cluster Resources
         id: deploy_cluster
@@ -99,7 +103,7 @@ jobs:
 
       - name: Deploy Shared Environment Resources
         if: ${{ inputs.include_shared_environment_resources == true }}
-        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} --apply
+        run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} ${{ inputs.production_service_principal_object_id }} --apply
 
       - name: Deploy Cluster Resources
         id: deploy_cluster
