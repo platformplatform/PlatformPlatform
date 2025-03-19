@@ -32,6 +32,7 @@ module productionServicePrincipalAcrPull '../modules/role-assignments-container-
     containerRegistryName: containerRegistryName
     principalId: productionServicePrincipalObjectId
   }
+  dependsOn: [containerRegistry]
 }
 
 module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {
