@@ -509,6 +509,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 * PRODUCTION_SUBSCRIPTION_ID: [blue]{Config.ProductionSubscription.Id}[/]
                 * PRODUCTION_SHARED_LOCATION: [blue]{Config.ProductionLocation.SharedLocation}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
+                * PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID: [blue]{Config.ProductionSubscription.AppRegistration.ServicePrincipalObjectId}[/]
                 * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/]
                 * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
 
@@ -724,6 +725,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         SetGithubVariable(VariableNames.PRODUCTION_SUBSCRIPTION_ID, Config.ProductionSubscription.Id);
         SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalId!);
+        SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalObjectId!);
         SetGithubVariable(VariableNames.PRODUCTION_SHARED_LOCATION, Config.ProductionLocation.SharedLocation);
         SetGithubVariable(VariableNames.PRODUCTION_SQL_ADMIN_OBJECT_ID, Config.ProductionSubscription.SqlAdminsGroup.ObjectId!);
         SetGithubVariable(VariableNames.PRODUCTION_DOMAIN_NAME, "-");
@@ -1058,6 +1060,7 @@ public enum VariableNames
 
     PRODUCTION_SUBSCRIPTION_ID,
     PRODUCTION_SERVICE_PRINCIPAL_ID,
+    PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID,
     PRODUCTION_SHARED_LOCATION,
     PRODUCTION_SQL_ADMIN_OBJECT_ID,
     PRODUCTION_DOMAIN_NAME,
