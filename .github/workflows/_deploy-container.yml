@@ -67,7 +67,6 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --build-arg VERSION=${{ inputs.version }} \
             -t ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
-            -t ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:latest \
             -f ${{ inputs.docker_file }} \
             --push .
           docker buildx rm
@@ -106,18 +105,47 @@ jobs:
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       ENVIRONMENT: "prod"
+      STAGING_ENVIRONMENT: "stage"
       CLUSTER_LOCATION_ACRONYM: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
       SERVICE_PRINCIPAL_ID: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      STAGING_SERVICE_PRINCIPAL_ID: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
       TENANT_ID: ${{ vars.TENANT_ID }}
       SUBSCRIPTION_ID: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      STAGING_SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
 
     steps:
-      - name: Login to Azure
+      - name: Login to Azure (Staging)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.STAGING_SERVICE_PRINCIPAL_ID }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ env.STAGING_SUBSCRIPTION_ID }}
+          
+      - name: Get Access Token for Staging Azure Subscription
+        id: staging_tokens
+        run: |
+          STAGING_TOKEN=$(az account get-access-token --resource https://management.azure.com --query accessToken -o tsv)
+          echo "::add-mask::$STAGING_TOKEN"
+          echo "access_token=$STAGING_TOKEN" >> $GITHUB_OUTPUT
+          
+      - name: Login to Azure (Production)
         uses: azure/login@v2
         with:
           client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ env.TENANT_ID }}
           subscription-id: ${{ env.SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}
+
+      - name: Import Container Image from Staging to Production
+        run: |
+          az acr import \
+            --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }} \
+            --source ${{ env.UNIQUE_PREFIX }}${{ env.STAGING_ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }} \
+            --image ${{ inputs.image_name }}:${{ inputs.version }} \
+            --password ${{ steps.staging_tokens.outputs.access_token }} \
+            --force
 
       - name: Deploy Container
         run: |
