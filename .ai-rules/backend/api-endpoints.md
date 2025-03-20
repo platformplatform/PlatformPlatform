@@ -27,6 +27,7 @@ API endpoints should be created in the `/application/[scs-name]/Api/Endpoints` d
    - Use `[AsParameters]` for query parameters.
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
 6. After changing the API make sure to run `dotnet build` in the [application](/application) directory to generate the Open API JSON contract. Then run `npm run build` from the [application](/application) directory to trigger `openapi-typescript` to generate the API contract used by the frontend.
+7. `IEndpoints` are automatically registered in the SharedKernel.
 
 
 ## Example 1 - User Endpoints
