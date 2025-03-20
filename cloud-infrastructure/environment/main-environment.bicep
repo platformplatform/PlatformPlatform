@@ -24,14 +24,15 @@ module containerRegistry '../modules/container-registry.bicep' = {
   }
 }
 
-// Grant production service principal ACR Pull access to registry if specified
-module productionServicePrincipalAcrPull '../modules/role-assignments-container-registry-acr-pull.bicep' = if (!empty(productionServicePrincipalObjectId)) {
-  name: '${resourceGroupName}-production-sp-acr-pull'
+// Grant production service principal Container Registry Data Importer access to registry if specified
+module productionServicePrincipalDataImporter '../modules/role-assignments-container-registry-data-importer.bicep' = if (!empty(productionServicePrincipalObjectId)) {
+  name: '${resourceGroupName}-production-sp-data-importer'
   scope: resourceGroup(environmentResourceGroup.name)
   params: {
     containerRegistryName: containerRegistryName
     principalId: productionServicePrincipalObjectId
   }
+  dependsOn: [containerRegistry]
 }
 
 module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {
