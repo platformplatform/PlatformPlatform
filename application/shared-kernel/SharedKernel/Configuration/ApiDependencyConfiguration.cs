@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +63,7 @@ public static class ApiDependencyConfiguration
             .AddApiEndpoints(assemblies)
             .AddOpenApiConfiguration(assemblies)
             .AddAuthConfiguration()
+            .AddCrossServiceDataProtection()
             .AddAntiforgery(options =>
                 {
                     options.Cookie.Name = AuthenticationTokenHttpKeys.AntiforgeryTokenCookieName;
@@ -165,6 +167,20 @@ public static class ApiDependencyConfiguration
             );
 
         return services.AddAuthorization();
+    }
+
+    private static IServiceCollection AddCrossServiceDataProtection(this IServiceCollection services)
+    {
+        // Configure shared data protection to ensure encrypted data can be shared across all self-contained systems
+        var dataProtection = services.AddDataProtection();
+
+        if (!SharedInfrastructureConfiguration.IsRunningInAzure)
+        {
+            // Set a common application name for all self-contained systems for local development (handled automatically by Azure Container Apps Environment)
+            dataProtection.SetApplicationName("PlatformPlatform");
+        }
+
+        return services;
     }
 
     public static IServiceCollection AddHttpForwardHeaders(this IServiceCollection services)
