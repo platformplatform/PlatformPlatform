@@ -43,11 +43,11 @@ resource communicationServices 'Microsoft.Communication/communicationServices@20
   }
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
 
-resource communicationServiceConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2021-10-01' = {
+resource communicationServiceConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault
   name: 'communication-services-connection-string'
   properties: {

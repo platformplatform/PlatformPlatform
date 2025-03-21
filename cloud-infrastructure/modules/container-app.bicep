@@ -71,7 +71,7 @@ var image = useQuickStartImage
 // Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
 var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
 
-resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2024-02-02-preview' = {
   name: name
   location: location
   tags: tags
@@ -160,6 +160,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
+      runtime: {
+        dotnet: {
+          autoConfigureDataProtection: true
+        }
+      }
       ingress: ingress
         ? {
             external: external

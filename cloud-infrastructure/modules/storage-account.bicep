@@ -11,7 +11,7 @@ param containers array = [
   }
 ]
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: name
   location: location
   tags: tags
@@ -46,7 +46,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobContainers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-04-01' = [
+resource blobContainers 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = [
   for container in containers: {
     name: '${name}/default/${container.name}'
     properties: {

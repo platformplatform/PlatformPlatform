@@ -8,7 +8,7 @@ param productionServicePrincipalObjectId string = ''
 
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
-resource environmentResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource environmentResourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: resourceGroupName
   location: location
   tags: tags
