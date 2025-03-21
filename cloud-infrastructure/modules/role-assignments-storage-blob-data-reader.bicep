@@ -7,7 +7,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   name: userAssignedIdentityName ?? principalId
 }
 
-resource existingStorageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+resource existingStorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
   scope: resourceGroup()
   name: storageAccountName
 }

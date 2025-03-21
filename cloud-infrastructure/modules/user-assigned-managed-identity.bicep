@@ -21,7 +21,7 @@ module containerRegistryPermission './role-assignments-container-registry-acr-pu
   }
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
 

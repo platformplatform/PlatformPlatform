@@ -18,13 +18,13 @@ param mailSenderDisplayName string = 'PlatformPlatform'
 var storageAccountUniquePrefix = replace(resourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
   name: resourceGroupName
   location: location
   tags: tags
 }
 
-resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   scope: resourceGroup('${environmentResourceGroupName}')
   name: environmentResourceGroupName
 }
