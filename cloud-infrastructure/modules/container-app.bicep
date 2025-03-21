@@ -160,6 +160,11 @@ resource containerApp 'Microsoft.App/containerApps@2024-02-02-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
+      runtime: {
+        dotnet: {
+          autoConfigureDataProtection: true
+        }
+      }
       ingress: ingress
         ? {
             external: external
