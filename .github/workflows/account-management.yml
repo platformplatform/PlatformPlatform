@@ -230,8 +230,8 @@ jobs:
       docker_file: ./Api/Dockerfile
       # Database migration parameters
       database_name: account-management
-      project_path: ./application/account-management/Core/AccountManagement.csproj
-      startup_project: ./application/account-management/Api/AccountManagement.Api.csproj
+      relative_project_path: account-management/Core/AccountManagement.csproj
+      relative_startup_project: account-management/Api/AccountManagement.Api.csproj
       db_context: AccountManagementDbContext
 
   workers-deploy:
@@ -249,6 +249,6 @@ jobs:
       docker_file: ./Workers/Dockerfile
       # Database migration parameters
       database_name: account-management
-      project_path: ./application/account-management/Core/AccountManagement.csproj
-      startup_project: ./application/account-management/Api/AccountManagement.Api.csproj
+      relative_project_path: account-management/Core/AccountManagement.csproj
+      relative_startup_project: account-management/Api/AccountManagement.Api.csproj
       db_context: AccountManagementDbContext

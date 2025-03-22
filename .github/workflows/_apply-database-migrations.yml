@@ -21,6 +21,10 @@ on:
       database_name:
         required: true
         type: string        
+      migration_summary:
+        description: "Summary of migrations to apply"
+        required: false
+        type: string
       requires_approval:
         required: false
         type: boolean
@@ -39,7 +43,9 @@ jobs:
   apply-migrations:
     name: Apply Migrations to ${{ inputs.github_environment }}
     runs-on: ubuntu-24.04
-    environment: ${{ inputs.requires_approval && inputs.github_environment }}
+    environment:
+      name: ${{ inputs.requires_approval && inputs.github_environment }}
+      url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
@@ -48,11 +54,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Display Migration Summary
+        if: inputs.migration_summary != ''
+        run: |
+          echo "## Database Migrations to Apply" >> $GITHUB_STEP_SUMMARY
+          echo "The following migrations will be applied to the **${{ inputs.database_name }}** database:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "```sql" >> $GITHUB_STEP_SUMMARY
+          echo "${{ inputs.migration_summary }}" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+
       - name: Download Migration Script Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}-migration-script
-          path: application
+          name: migration-script
+          path: migration-script
 
       - name: Set Environment Variables
         run: |
@@ -81,7 +97,7 @@ jobs:
       - name: Check for Migration.sql Existence
         id: check-migration
         run: |
-          if [ ! -s application/migration.sql ]; then
+          if [ ! -s migration-script/migration.sql ]; then
             echo "No migration.sql file found or file is empty. Skipping migration execution."
             echo "skip=true" >> $GITHUB_OUTPUT
           else
@@ -91,13 +107,13 @@ jobs:
 
       - name: Run SQL Migration Script
         if: ${{ steps.check-migration.outputs.skip == 'false' }}
-        working-directory: application
+        working-directory: migration-script
         run: |
           echo "Running migration script for ${{ inputs.database_name }} on SQL Server: $SQL_SERVER_FQDN"
           sqlcmd -S $SQL_SERVER_FQDN -d ${{ inputs.database_name }} --authentication-method=ActiveDirectoryDefault --exit-on-error -i migration.sql
           echo "Migration script applied successfully."
 
       - name: Close SQL Server Firewall
-        working-directory: cloud-infrastructure/cluster
         if: always()
+        working-directory: cloud-infrastructure/cluster
         run: bash ./firewall.sh close

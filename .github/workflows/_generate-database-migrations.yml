@@ -18,10 +18,12 @@ on:
       database_name:
         required: true
         type: string
-      project_path:
+      relative_project_path:
+        description: 'Path to project containing DbContext (relative to application directory)'
         required: true
         type: string
-      startup_project:
+      relative_startup_project:
+        description: 'Path to startup project (relative to application directory)'
         required: true
         type: string
       db_context:
@@ -61,14 +63,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-
+          
       - name: Restore .NET Tools
         working-directory: application
         run: dotnet tool restore
-
-      - name: Restore .NET Dependencies
+        
+      - name: Build Projects
         working-directory: application
-        run: dotnet restore
+        run: dotnet build ${{ inputs.relative_startup_project }} --configuration Release
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -88,7 +90,7 @@ jobs:
         working-directory: cloud-infrastructure/cluster
         run: bash ./firewall.sh open
 
-      - name: Generate SQL Migration Script from Current Database State
+      - name: Generate Migration Script
         id: generate_migrations
         working-directory: application
         run: |
@@ -117,8 +119,8 @@ jobs:
 
           dotnet tool run dotnet-ef migrations script \
             $LAST_MIGRATION \
-            --project ${{ inputs.project_path }} \
-            --startup-project ${{ inputs.startup_project }} \
+            --project ${{ inputs.relative_project_path }} \
+            --startup-project ${{ inputs.relative_startup_project }} \
             --context ${{ inputs.db_context }} \
             --idempotent \
             --output migration.sql
@@ -139,24 +141,40 @@ jobs:
             
             # Generate a summary of migrations for the approval step
             MIGRATION_SUMMARY=$(grep -E "^-- Migration: " migration.sql | sed 's/^-- Migration: //' | sort)
+            
             if [ -z "$MIGRATION_SUMMARY" ]; then
-              MIGRATION_SUMMARY="Database changes detected (no named migrations found)"
+              echo "migration_summary=Database migrations to apply (no migration names found in script)" >> $GITHUB_OUTPUT
+            else
+              # Use multiline output syntax for the migration summary
+              echo "migration_summary<<EOF" >> $GITHUB_OUTPUT
+              echo "$MIGRATION_SUMMARY" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
             fi
             
-            echo "migration_summary=$MIGRATION_SUMMARY" >> $GITHUB_OUTPUT
-            
-            echo "Migration script contents:"
-            cat migration.sql
+            # Upload the migration script as an artifact
+            mkdir -p migration-script
+            cp migration.sql migration-script/
           fi
 
-      - name: Upload Migration Script Artifact
+      - name: Generate Migration Summary for UI
+        if: steps.generate_migrations.outputs.has_migrations_to_apply == 'true'
+        run: |
+          echo "## Database Migrations to Apply" >> $GITHUB_STEP_SUMMARY
+          echo "The following migrations will be applied to the **${{ inputs.database_name }}** database:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "```sql" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.generate_migrations.outputs.migration_summary }}" >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
+
+      - name: Close SQL Server Firewall
+        if: always()
+        working-directory: cloud-infrastructure/cluster
+        run: bash ./firewall.sh close
+
+      - name: Upload Migration Script Artifacts
         if: steps.generate_migrations.outputs.has_migrations_to_apply == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}-migration-script
-          path: application/migration.sql
-
-      - name: Close SQL Server Firewall
-        working-directory: cloud-infrastructure/cluster
-        if: always()
-        run: bash ./firewall.sh close
+          name: migration-script
+          path: migration-script/
+          retention-days: 30
