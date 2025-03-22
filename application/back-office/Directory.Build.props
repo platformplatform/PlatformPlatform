@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <UseArtifactsOutput>false</UseArtifactsOutput>
     </PropertyGroup>
 
     <ItemGroup>

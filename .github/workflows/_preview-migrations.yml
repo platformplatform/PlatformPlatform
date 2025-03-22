@@ -41,12 +41,16 @@ jobs:
         working-directory: application
         run: dotnet tool restore
         
+      - name: Build Projects
+        working-directory: application
+        run: dotnet build ${{ inputs.relative_startup_project }} --configuration Release
+        
       - name: Generate Migration Script
         id: preview
         working-directory: application
         run: |
           # Generate migration script without applying
-          dotnet ef migrations script \
+          dotnet tool run dotnet-ef migrations script \
             --project ${{ inputs.relative_project_path }} \
             --startup-project ${{ inputs.relative_startup_project }} \
             --context ${{ inputs.db_context }} \
