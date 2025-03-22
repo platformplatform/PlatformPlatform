@@ -1,0 +1,107 @@
+name: Preview Database Migrations
+
+on:
+  workflow_call:
+    inputs:
+      database_name:
+        required: true
+        type: string
+      project_path:
+        required: true
+        type: string
+      startup_project:
+        required: true
+        type: string
+      db_context:
+        required: true
+        type: string
+
+jobs:
+  preview:
+    name: Preview Database Migrations
+    runs-on: ubuntu-24.04
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+          
+      - name: Restore .NET tools
+        working-directory: application
+        run: dotnet tool restore
+        
+      - name: Generate migration script
+        id: preview
+        working-directory: application
+        run: |
+          # Generate migration script without applying
+          dotnet ef migrations script \
+            --project ${{ inputs.project_path }} \
+            --startup-project ${{ inputs.startup_project }} \
+            --context ${{ inputs.db_context }} \
+            --idempotent \
+            --output migration.sql
+            
+          # Check if there are any actual SQL commands (excluding comments and whitespace)
+          CLEAN_CONTENT=$(sed '1s/^\xEF\xBB\xBF//' migration.sql \
+            | grep -v -E '^\s*($|--)' \
+            | tr -d '\r\n' \
+            | tr -d '[:space:]')
+            
+          if [ -z "$CLEAN_CONTENT" ]; then
+            echo "No migrations to apply."
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+          else
+            echo "Migration script contains SQL commands."
+            echo "has_migrations=true" >> $GITHUB_OUTPUT
+            
+            # Prepare migration script for PR comment
+            MIGRATION_SCRIPT=$(cat migration.sql)
+            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//'%'/'%25'}"
+            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//$'\n'/'%0A'}"
+            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//$'\r'/'%0D'}"
+            echo "migration_script=$MIGRATION_SCRIPT" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Comment PR with migration preview
+        if: steps.preview.outputs.has_migrations == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const migrationPreview = `## Database Migration Preview
+            
+            This PR includes database migrations that will be applied to the **${{ inputs.database_name }}** database:
+            
+            \`\`\`sql
+            ${{ steps.preview.outputs.migration_script }}
+            \`\`\`
+            
+            These migrations will be automatically applied to staging when merged.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: migrationPreview
+            });
+            
+      - name: Comment PR with no migrations
+        if: steps.preview.outputs.has_migrations == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Database Migration Preview\n\nThis PR does not include any database migrations for the **${{ inputs.database_name }}** database.'
+            });

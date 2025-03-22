@@ -1,0 +1,103 @@
+name: Apply Database Migrations
+
+on:
+  workflow_call:
+    inputs:
+      github_environment:
+        required: true
+        type: string
+      azure_environment:
+        required: true
+        type: string
+      cluster_location_acronym:
+        required: true
+        type: string
+      service_principal_id:
+        required: true
+        type: string
+      subscription_id:
+        required: true
+        type: string
+      database_name:
+        required: true
+        type: string        
+      requires_approval:
+        required: false
+        type: boolean
+        default: false
+
+# This concurrency configuration ensures that only one migration job runs at a time for a specific database and environment.
+# When multiple workflows (e.g., API and Workers) try to apply migrations to the same database simultaneously,
+# the first one will acquire the lock and run, while others will wait in queue.
+# We use cancel-in-progress: false to ensure waiting migrations are not cancelled, just queued.
+# This prevents potential data corruption from parallel migrations while maintaining the deployment flow.
+concurrency:
+  group: db-migration-${{ inputs.database_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apply-migrations:
+    name: Apply Migrations to ${{ inputs.github_environment }}
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.requires_approval && inputs.github_environment }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Migration Script Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}-migration-script
+          path: application
+
+      - name: Set Environment Variables
+        run: |
+          echo "RESOURCE_GROUP_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
+          echo "SQL_SERVER_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
+          echo "SQL_SERVER_FQDN=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net" >> $GITHUB_ENV
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ inputs.service_principal_id }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ inputs.subscription_id }}
+
+      - name: Install Microsoft Sqlcmd Tool
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
+          sudo apt-get update
+          sudo apt-get install -y sqlcmd
+
+      - name: Open SQL Server Firewall
+        working-directory: cloud-infrastructure/cluster
+        run: bash ./firewall.sh open
+
+      - name: Check for Migration.sql Existence
+        id: check-migration
+        run: |
+          if [ ! -s application/migration.sql ]; then
+            echo "No migration.sql file found or file is empty. Skipping migration execution."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "Found migration.sql with content."
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run SQL Migration Script
+        if: ${{ steps.check-migration.outputs.skip == 'false' }}
+        working-directory: application
+        run: |
+          echo "Running migration script for ${{ inputs.database_name }} on SQL Server: $SQL_SERVER_FQDN"
+          sqlcmd -S $SQL_SERVER_FQDN -d ${{ inputs.database_name }} --authentication-method=ActiveDirectoryDefault --exit-on-error -i migration.sql
+          echo "Migration script applied successfully."
+
+      - name: Close SQL Server Firewall
+        working-directory: cloud-infrastructure/cluster
+        if: always()
+        run: bash ./firewall.sh close

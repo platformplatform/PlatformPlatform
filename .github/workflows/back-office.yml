@@ -11,6 +11,7 @@ on:
       - "application/back-office/**"
       - ".github/workflows/back-office.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_deploy-container-with-database-migrations.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "application/back-office/**"
       - ".github/workflows/back-office.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_deploy-container-with-database-migrations.yml"
       - "!**.md"
   workflow_dispatch:
 
@@ -203,11 +205,23 @@ jobs:
         working-directory: application/back-office/WebApp
         run: npm run check
 
+  preview-migrations:
+    name: Preview Database Migrations
+    if: github.event_name == 'pull_request'
+    needs: build-and-test
+    uses: ./.github/workflows/_preview-migrations.yml
+    secrets: inherit
+    with:
+      project_path: ./application/back-office/Core/BackOffice.Core.csproj
+      startup_project: ./application/back-office/Api/BackOffice.Api.csproj
+      db_context: BackOfficeDbContext
+      database_name: back-office
+
   api-deploy:
     name: Deploy API
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
-    uses: ./.github/workflows/_deploy-container.yml
+    uses: ./.github/workflows/_deploy-container-with-database-migrations.yml
     secrets: inherit
     with:
       image_name: back-office-api
@@ -216,12 +230,17 @@ jobs:
       artifacts_path: application/back-office/Api/publish
       docker_context: ./application/back-office
       docker_file: ./Api/Dockerfile
+      # Database migration parameters
+      database_name: back-office
+      project_path: ./application/back-office/Core/BackOffice.Core.csproj
+      startup_project: ./application/back-office/Api/BackOffice.Api.csproj
+      db_context: BackOfficeDbContext
 
   workers-deploy:
     name: Deploy Workers
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
-    uses: ./.github/workflows/_deploy-container.yml
+    uses: ./.github/workflows/_deploy-container-with-database-migrations.yml
     secrets: inherit
     with:
       image_name: back-office-workers
@@ -230,3 +249,8 @@ jobs:
       artifacts_path: application/back-office/Workers/publish
       docker_context: ./application/back-office
       docker_file: ./Workers/Dockerfile
+      # Database migration parameters
+      database_name: back-office
+      project_path: ./application/back-office/Core/BackOffice.Core.csproj
+      startup_project: ./application/back-office/Api/BackOffice.Api.csproj
+      db_context: BackOfficeDbContext

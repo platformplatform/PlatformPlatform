@@ -1,0 +1,171 @@
+name: Generate Database Migrations
+
+on:
+  workflow_call:
+    inputs:
+      database_name:
+        required: true
+        type: string
+      project_path:
+        required: true
+        type: string
+      startup_project:
+        required: true
+        type: string
+      db_context:
+        required: true
+        type: string
+      azure_environment:
+        required: true
+        type: string
+      cluster_location_acronym:
+        required: true
+        type: string
+      service_principal_id:
+        required: true
+        type: string
+      subscription_id:
+        required: true
+        type: string
+
+    outputs:
+      has_migrations_to_apply:
+        description: "Whether there are migrations to apply"
+        value: ${{ jobs.generate-migration-script.outputs.has_migrations_to_apply }}
+      migration_summary:
+        description: "Summary of migrations to apply"
+        value: ${{ jobs.generate-migration-script.outputs.migration_summary }}
+
+jobs:
+  generate-migration-script:
+    name: Generate Migration Script
+    runs-on: ubuntu-24.04
+    outputs:
+      has_migrations_to_apply: ${{ steps.generate_migrations.outputs.has_migrations_to_apply }}
+      migration_summary: ${{ steps.generate_migrations.outputs.migration_summary }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "RESOURCE_GROUP_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
+          echo "SQL_SERVER_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
+          echo "SQL_SERVER_FQDN=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net" >> $GITHUB_ENV
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore .NET tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ inputs.service_principal_id }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ inputs.subscription_id }}
+
+      - name: Install Microsoft sqlcmd tool
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
+          sudo apt-get update
+          sudo apt-get install -y sqlcmd
+
+      - name: Open SQL Server firewall
+        working-directory: cloud-infrastructure/cluster
+        run: bash ./firewall.sh open
+
+      - name: Generate SQL migration script from current database state
+        id: generate_migrations
+        working-directory: application
+        run: |
+          echo "Fetching latest applied migration from database..."
+
+          set +e
+          SQLCMD_OUTPUT=$(sqlcmd -S "$SQL_SERVER_FQDN" -d "${{ inputs.database_name }}" --authentication-method=ActiveDirectoryDefault -h -1 -W -Q "SELECT TOP 1 [MigrationId] FROM [__EFMigrationsHistory] ORDER BY [MigrationId] DESC" 2>&1)
+          EXIT_CODE=$?
+          set -e
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "sqlcmd failed! Exit code: $EXIT_CODE"
+            echo "sqlcmd output:"
+            echo "$SQLCMD_OUTPUT"
+            # If database doesn't exist, we should fail
+            exit $EXIT_CODE
+          fi
+
+          LAST_MIGRATION=$(echo "$SQLCMD_OUTPUT" | head -n 1 | tr -d '\r')
+
+          echo "Last applied migration: $LAST_MIGRATION"
+
+          if [ -z "$LAST_MIGRATION" ]; then
+            echo "No migrations found, generating full migration script..."
+            dotnet ef migrations script \
+              --project ${{ inputs.project_path }} \
+              --startup-project ${{ inputs.startup_project }} \
+              --context ${{ inputs.db_context }} \
+              --idempotent \
+              --output migration.sql
+          else
+            echo "Generating migration script from $LAST_MIGRATION to latest..."
+            dotnet ef migrations script \
+              $LAST_MIGRATION \
+              --project ${{ inputs.project_path }} \
+              --startup-project ${{ inputs.startup_project }} \
+              --context ${{ inputs.db_context }} \
+              --idempotent \
+              --output migration.sql
+          fi
+
+          # Check if there are any actual SQL commands (excluding comments and whitespace)
+          CLEAN_CONTENT=$(sed '1s/^\xEF\xBB\xBF//' migration.sql \
+            | grep -v -E '^\s*($|--)' \
+            | tr -d '\r\n' \
+            | tr -d '[:space:]')
+
+          if [ -z "$CLEAN_CONTENT" ]; then
+            echo "No migrations to apply."
+            echo "has_migrations_to_apply=false" >> $GITHUB_OUTPUT
+            echo "migration_summary=No migrations to apply" >> $GITHUB_OUTPUT
+          else
+            echo "Migration script contains SQL commands."
+            echo "has_migrations_to_apply=true" >> $GITHUB_OUTPUT
+            
+            # Generate a summary of migrations for the approval step
+            MIGRATION_SUMMARY=$(grep -E "^-- Migration: " migration.sql | sed 's/^-- Migration: //' | sort)
+            if [ -z "$MIGRATION_SUMMARY" ]; then
+              MIGRATION_SUMMARY="Database changes detected (no named migrations found)"
+            fi
+            
+            # Escape newlines for GitHub Actions output
+            MIGRATION_SUMMARY="${MIGRATION_SUMMARY//$'\n'/%0A}"
+            echo "migration_summary=$MIGRATION_SUMMARY" >> $GITHUB_OUTPUT
+            
+            echo "Migration script contents:"
+            cat migration.sql
+          fi
+
+      - name: Upload migration script artifact
+        if: steps.generate_migrations.outputs.has_migrations_to_apply == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}-migration-script
+          path: application/migration.sql
+
+      - name: Close SQL Server firewall
+        working-directory: cloud-infrastructure/cluster
+        if: always()
+        run: bash ./firewall.sh close

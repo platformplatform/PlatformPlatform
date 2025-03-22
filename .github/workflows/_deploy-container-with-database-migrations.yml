@@ -1,0 +1,153 @@
+name: Deploy Container with Database Migrations
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      artifacts_name:
+        required: true
+        type: string
+      artifacts_path:
+        required: true
+        type: string
+      docker_context:
+        required: true
+        type: string
+      docker_file:
+        required: true
+        type: string
+      database_name:
+        required: true
+        type: string
+      project_path:
+        required: true
+        type: string
+      startup_project:
+        required: true
+        type: string
+      db_context:
+        required: true
+        type: string
+
+jobs:
+  check-migrations-stage:
+    name: Check Migrations Staging
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      has_migrations: ${{ steps.generate.outputs.has_migrations_to_apply }}
+      migration_summary: ${{ steps.generate.outputs.migration_summary }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      
+    steps:
+      - name: Generate migrations
+        id: generate
+        uses: ./.github/workflows/_generate-database-migrations.yml
+        with:
+          database_name: ${{ inputs.database_name }}
+          project_path: ${{ inputs.project_path }}
+          startup_project: ${{ inputs.startup_project }}
+          db_context: ${{ inputs.db_context }}
+          azure_environment: "stage"
+          cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+          service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+          subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+
+  apply-migrations-stage:
+    name: Apply Migrations Staging
+    needs: check-migrations-stage
+    if: ${{ needs.check-migrations-stage.outputs.has_migrations == 'true' }}
+    runs-on: ubuntu-24.04
+    uses: ./.github/workflows/_apply-database-migrations.yml
+    with:
+      github_environment: "staging"
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      database_name: ${{ inputs.database_name }}
+      requires_approval: false
+
+  deploy-stage:
+    name: Deploy
+    needs: [check-migrations-stage, apply-migrations-stage]
+    if: |
+      always() &&
+      (needs.check-migrations-stage.result == 'success') &&
+      (needs.check-migrations-stage.outputs.has_migrations == 'false' || needs.apply-migrations-stage.result == 'success') &&
+      vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: ${{ inputs.image_name }}
+      version: ${{ inputs.version }}
+      artifacts_name: ${{ inputs.artifacts_name }}
+      artifacts_path: ${{ inputs.artifacts_path }}
+      docker_context: ${{ inputs.docker_context }}
+      docker_file: ${{ inputs.docker_file }}
+
+  check-migrations-prod1:
+    name: Check Migrations Production
+    needs: deploy-stage
+    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    outputs:
+      has_migrations: ${{ steps.generate.outputs.has_migrations_to_apply }}
+      migration_summary: ${{ steps.generate.outputs.migration_summary }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      
+    steps:
+      - name: Generate migrations
+        id: generate
+        uses: ./.github/workflows/_generate-database-migrations.yml
+        with:
+          database_name: ${{ inputs.database_name }}
+          project_path: ${{ inputs.project_path }}
+          startup_project: ${{ inputs.startup_project }}
+          db_context: ${{ inputs.db_context }}
+          azure_environment: "prod"
+          cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+          service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+          subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+
+  apply-migrations-prod1:
+    name: Apply Migrations Production
+    needs: check-migrations-prod1
+    if: ${{ needs.check-migrations-prod1.outputs.has_migrations == 'true' }}
+    runs-on: ubuntu-24.04
+    uses: ./.github/workflows/_apply-database-migrations.yml
+    with:
+      github_environment: "production-migrations"
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      database_name: ${{ inputs.database_name }}
+      requires_approval: true
+
+  deploy-prod1:
+    name: Deploy
+    needs: [check-migrations-prod1, apply-migrations-prod1]
+    if: |
+      always() &&
+      (needs.check-migrations-prod1.result == 'success') &&
+      (needs.check-migrations-prod1.outputs.has_migrations == 'false' || needs.apply-migrations-prod1.result == 'success') &&
+      vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: ${{ inputs.image_name }}
+      version: ${{ inputs.version }}
+      artifacts_name: ${{ inputs.artifacts_name }}
+      artifacts_path: ${{ inputs.artifacts_path }}
+      docker_context: ${{ inputs.docker_context }}
+      docker_file: ${{ inputs.docker_file }}

@@ -11,6 +11,7 @@ on:
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_deploy-container-with-database-migrations.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_deploy-container-with-database-migrations.yml"
       - "!**.md"
   workflow_dispatch:
 
@@ -203,11 +205,23 @@ jobs:
         working-directory: application/account-management/WebApp
         run: npm run check
 
+  preview-migrations:
+    name: Preview Database Migrations
+    if: github.event_name == 'pull_request'
+    needs: build-and-test
+    uses: ./.github/workflows/_preview-migrations.yml
+    secrets: inherit
+    with:
+      project_path: ./application/account-management/Core/AccountManagement.Core.csproj
+      startup_project: ./application/account-management/Api/AccountManagement.Api.csproj
+      db_context: AccountManagementDbContext
+      database_name: account-management
+
   api-deploy:
     name: Deploy API
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
-    uses: ./.github/workflows/_deploy-container.yml
+    uses: ./.github/workflows/_deploy-container-with-database-migrations.yml
     secrets: inherit
     with:
       image_name: account-management-api
@@ -216,12 +230,17 @@ jobs:
       artifacts_path: application/account-management/Api/publish
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
+      # Database migration parameters
+      database_name: account-management
+      project_path: ./application/account-management/Core/AccountManagement.Core.csproj
+      startup_project: ./application/account-management/Api/AccountManagement.Api.csproj
+      db_context: AccountManagementDbContext
 
   workers-deploy:
     name: Deploy Workers
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
-    uses: ./.github/workflows/_deploy-container.yml
+    uses: ./.github/workflows/_deploy-container-with-database-migrations.yml
     secrets: inherit
     with:
       image_name: account-management-workers
@@ -230,3 +249,8 @@ jobs:
       artifacts_path: application/account-management/Workers/publish
       docker_context: ./application/account-management
       docker_file: ./Workers/Dockerfile
+      # Database migration parameters
+      database_name: account-management
+      project_path: ./application/account-management/Core/AccountManagement.Core.csproj
+      startup_project: ./application/account-management/Api/AccountManagement.Api.csproj
+      db_context: AccountManagementDbContext
