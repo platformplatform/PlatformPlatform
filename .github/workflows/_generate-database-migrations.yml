@@ -109,26 +109,19 @@ jobs:
 
           LAST_MIGRATION=$(echo "$SQLCMD_OUTPUT" | head -n 1 | tr -d '\r')
 
-          echo "Last applied migration: $LAST_MIGRATION"
-
           if [ -z "$LAST_MIGRATION" ]; then
-            echo "No migrations found, generating full migration script..."
-            dotnet ef migrations script \
-              --project ${{ inputs.project_path }} \
-              --startup-project ${{ inputs.startup_project }} \
-              --context ${{ inputs.db_context }} \
-              --idempotent \
-              --output migration.sql
+            echo "No previous migrations found in database. Generating complete migration script from scratch..."
           else
-            echo "Generating migration script from $LAST_MIGRATION to latest..."
-            dotnet ef migrations script \
-              $LAST_MIGRATION \
-              --project ${{ inputs.project_path }} \
-              --startup-project ${{ inputs.startup_project }} \
-              --context ${{ inputs.db_context }} \
-              --idempotent \
-              --output migration.sql
+            echo "Last applied migration: $LAST_MIGRATION. Generating incremental migration script..."
           fi
+
+          dotnet tool run dotnet-ef migrations script \
+            $LAST_MIGRATION \
+            --project ${{ inputs.project_path }} \
+            --startup-project ${{ inputs.startup_project }} \
+            --context ${{ inputs.db_context }} \
+            --idempotent \
+            --output migration.sql
 
           # Check if there are any actual SQL commands (excluding comments and whitespace)
           CLEAN_CONTENT=$(sed '1s/^\xEF\xBB\xBF//' migration.sql \
@@ -150,8 +143,6 @@ jobs:
               MIGRATION_SUMMARY="Database changes detected (no named migrations found)"
             fi
             
-            # Escape newlines for GitHub Actions output
-            MIGRATION_SUMMARY="${MIGRATION_SUMMARY//$'\n'/%0A}"
             echo "migration_summary=$MIGRATION_SUMMARY" >> $GITHUB_OUTPUT
             
             echo "Migration script contents:"

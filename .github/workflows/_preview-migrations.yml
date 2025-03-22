@@ -3,16 +3,20 @@ name: Preview Database Migrations
 on:
   workflow_call:
     inputs:
-      database_name:
+      relative_project_path:
+        description: 'Path to project containing DbContext (relative to application directory)'
         required: true
         type: string
-      project_path:
-        required: true
-        type: string
-      startup_project:
+      relative_startup_project:
+        description: 'Path to startup project (relative to application directory)'
         required: true
         type: string
       db_context:
+        description: 'Name of DbContext class'
+        required: true
+        type: string
+      database_name:
+        description: 'Name of database'
         required: true
         type: string
 
@@ -43,18 +47,21 @@ jobs:
         run: |
           # Generate migration script without applying
           dotnet ef migrations script \
-            --project ${{ inputs.project_path }} \
-            --startup-project ${{ inputs.startup_project }} \
+            --project ${{ inputs.relative_project_path }} \
+            --startup-project ${{ inputs.relative_startup_project }} \
             --context ${{ inputs.db_context }} \
             --idempotent \
-            --output migration.sql
-            
+            --output ../migration.sql
+          
+      - name: Process Migration Script
+        id: process
+        run: |
           # Check if there are any actual SQL commands (excluding comments and whitespace)
           CLEAN_CONTENT=$(sed '1s/^\xEF\xBB\xBF//' migration.sql \
             | grep -v -E '^\s*($|--)' \
             | tr -d '\r\n' \
             | tr -d '[:space:]')
-            
+          
           if [ -z "$CLEAN_CONTENT" ]; then
             echo "No migrations to apply."
             echo "has_migrations=false" >> $GITHUB_OUTPUT
@@ -69,9 +76,9 @@ jobs:
             MIGRATION_SCRIPT="${MIGRATION_SCRIPT//$'\r'/'%0D'}"
             echo "migration_script=$MIGRATION_SCRIPT" >> $GITHUB_OUTPUT
           fi
-          
+        
       - name: Comment Pull Request with Migration Preview
-        if: steps.preview.outputs.has_migrations == 'true'
+        if: steps.process.outputs.has_migrations == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -81,7 +88,7 @@ jobs:
             This PR includes database migrations that will be applied to the **${{ inputs.database_name }}** database:
             
             \`\`\`sql
-            ${{ steps.preview.outputs.migration_script }}
+            ${{ steps.process.outputs.migration_script }}
             \`\`\`
             
             These migrations will be automatically applied to staging when merged.`;
@@ -94,7 +101,7 @@ jobs:
             });
             
       - name: Comment Pull Request with No Migrations
-        if: steps.preview.outputs.has_migrations == 'false'
+        if: steps.process.outputs.has_migrations == 'false'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
