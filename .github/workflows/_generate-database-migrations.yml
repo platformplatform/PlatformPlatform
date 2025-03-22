@@ -3,18 +3,6 @@ name: Generate Database Migrations
 on:
   workflow_call:
     inputs:
-      database_name:
-        required: true
-        type: string
-      project_path:
-        required: true
-        type: string
-      startup_project:
-        required: true
-        type: string
-      db_context:
-        required: true
-        type: string
       azure_environment:
         required: true
         type: string
@@ -25,6 +13,18 @@ on:
         required: true
         type: string
       subscription_id:
+        required: true
+        type: string
+      database_name:
+        required: true
+        type: string
+      project_path:
+        required: true
+        type: string
+      startup_project:
+        required: true
+        type: string
+      db_context:
         required: true
         type: string
 
