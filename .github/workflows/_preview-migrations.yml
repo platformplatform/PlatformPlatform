@@ -79,10 +79,10 @@ jobs:
             
             # Prepare migration script for PR comment
             MIGRATION_SCRIPT=$(cat migration.sql)
-            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//'%'/'%25'}"
-            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//$'\n'/'%0A'}"
-            MIGRATION_SCRIPT="${MIGRATION_SCRIPT//$'\r'/'%0D'}"
-            echo "migration_script=$MIGRATION_SCRIPT" >> $GITHUB_OUTPUT
+            # Don't escape newlines, as GitHub Actions handles this properly in multiline strings
+            echo 'migration_script<<EOF' >> $GITHUB_OUTPUT
+            echo "$MIGRATION_SCRIPT" >> $GITHUB_OUTPUT
+            echo 'EOF' >> $GITHUB_OUTPUT
           fi
         
       - name: Comment Pull Request with Migration Preview
