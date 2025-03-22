@@ -47,7 +47,7 @@ jobs:
       TENANT_ID: ${{ vars.TENANT_ID }}
       
     steps:
-      - name: Generate migrations
+      - name: Generate Migrations
         id: generate
         uses: ./.github/workflows/_generate-database-migrations.yml
         with:
@@ -106,7 +106,7 @@ jobs:
       TENANT_ID: ${{ vars.TENANT_ID }}
       
     steps:
-      - name: Generate migrations
+      - name: Generate Migrations
         id: generate
         uses: ./.github/workflows/_generate-database-migrations.yml
         with:

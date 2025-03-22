@@ -48,10 +48,10 @@ jobs:
       TENANT_ID: ${{ vars.TENANT_ID }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set environment variables
+      - name: Set Environment Variables
         run: |
           echo "RESOURCE_GROUP_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
           echo "SQL_SERVER_NAME=${{ env.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}" >> $GITHUB_ENV
@@ -62,11 +62,11 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
         run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
@@ -77,18 +77,18 @@ jobs:
           tenant-id: ${{ env.TENANT_ID }}
           subscription-id: ${{ inputs.subscription_id }}
 
-      - name: Install Microsoft sqlcmd tool
+      - name: Install Microsoft sqlcmd Utility
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
           sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)"
           sudo apt-get update
           sudo apt-get install -y sqlcmd
 
-      - name: Open SQL Server firewall
+      - name: Open SQL Server Firewall
         working-directory: cloud-infrastructure/cluster
         run: bash ./firewall.sh open
 
-      - name: Generate SQL migration script from current database state
+      - name: Generate SQL Migration Script from Current Database State
         id: generate_migrations
         working-directory: application
         run: |
@@ -158,14 +158,14 @@ jobs:
             cat migration.sql
           fi
 
-      - name: Upload migration script artifact
+      - name: Upload Migration Script Artifact
         if: steps.generate_migrations.outputs.has_migrations_to_apply == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}-migration-script
           path: application/migration.sql
 
-      - name: Close SQL Server firewall
+      - name: Close SQL Server Firewall
         working-directory: cloud-infrastructure/cluster
         if: always()
         run: bash ./firewall.sh close

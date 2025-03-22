@@ -25,7 +25,7 @@ jobs:
       TENANT_ID: ${{ vars.TENANT_ID }}
       
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         
       - name: Setup .NET Core SDK
@@ -33,11 +33,11 @@ jobs:
         with:
           dotnet-version: 9.0.x
           
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
         run: dotnet tool restore
         
-      - name: Generate migration script
+      - name: Generate Migration Script
         id: preview
         working-directory: application
         run: |
@@ -70,7 +70,7 @@ jobs:
             echo "migration_script=$MIGRATION_SCRIPT" >> $GITHUB_OUTPUT
           fi
           
-      - name: Comment PR with migration preview
+      - name: Comment Pull Request with Migration Preview
         if: steps.preview.outputs.has_migrations == 'true'
         uses: actions/github-script@v7
         with:
@@ -93,7 +93,7 @@ jobs:
               body: migrationPreview
             });
             
-      - name: Comment PR with no migrations
+      - name: Comment Pull Request with No Migrations
         if: steps.preview.outputs.has_migrations == 'false'
         uses: actions/github-script@v7
         with:

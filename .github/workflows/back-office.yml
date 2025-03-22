@@ -37,10 +37,10 @@ jobs:
       version: ${{ steps.generate_version.outputs.version }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Generate version
+      - name: Generate Version
         id: generate_version
         run: |
           # Strip leading 0s of Hours and Minutes after midnight
@@ -49,12 +49,12 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -63,16 +63,15 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Generate and set user secret for token signing key
+      - name: Generate and Set User Secret for Token Signing Key
         working-directory: application/shared-kernel/SharedKernel
         run: |
           # Extract UserSecretsId from the .csproj file
@@ -87,7 +86,7 @@ jobs:
           distribution: "microsoft"
           java-version: "17"
 
-      - name: Run tests with dotCover and SonarScanner reporting
+      - name: Run Tests with dotCover and SonarScanner Reporting
         working-directory: application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -104,36 +103,36 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
-      - name: Build frontend artifacts
+      - name: Build Frontend Artifacts
         if: github.ref == 'refs/heads/main'
         working-directory: application
         run: npm run build
 
-      - name: Publish frontend artifacts
+      - name: Publish Frontend Artifacts
         if: github.ref == 'refs/heads/main'
         working-directory: application/back-office/WebApp
         run: npm run publish
 
-      - name: Publish API build
+      - name: Publish API Build
         if: github.ref == 'refs/heads/main'
         working-directory: application/back-office
         run: |
           dotnet publish ./Api/BackOffice.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save API artifacts
+      - name: Save API Artifacts
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: back-office-api
           path: application/back-office/Api/publish/**/*
 
-      - name: Publish Worker build
+      - name: Publish Workers Build
         if: github.ref == 'refs/heads/main'
         working-directory: application/back-office
         run: |
           dotnet publish ./Workers/BackOffice.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save Workers artifacts
+      - name: Save Workers Artifacts
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
@@ -142,19 +141,19 @@ jobs:
 
   code-style-and-linting:
     name: Code Style and Linting
-    if: github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -163,20 +162,19 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
         working-directory: application
         run: dotnet build back-office/BackOffice.slnf --no-restore
 
-      - name: Run code inspections
+      - name: Run Code Inspections
         working-directory: developer-cli
         run: |
           dotnet run code-inspections -s BackOffice.slnf | tee inspection-output.log
@@ -186,7 +184,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check for code formatting issues
+      - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
           dotnet run code-cleanup -s BackOffice.slnf
@@ -197,11 +195,11 @@ jobs:
             exit 1
           }
 
-      - name: Build frontend artifacts
+      - name: Build Frontend Artifacts
         working-directory: application
         run: npm run build
 
-      - name: Run check
+      - name: Run Check
         working-directory: application/back-office/WebApp
         run: npm run check
 
@@ -218,7 +216,7 @@ jobs:
       database_name: back-office
 
   api-deploy:
-    name: Deploy API
+    name: API
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
     uses: ./.github/workflows/_deploy-container-with-database-migrations.yml
@@ -237,7 +235,7 @@ jobs:
       db_context: BackOfficeDbContext
 
   workers-deploy:
-    name: Deploy Workers
+    name: Workers
     if: github.ref == 'refs/heads/main'
     needs: [build-and-test]
     uses: ./.github/workflows/_deploy-container-with-database-migrations.yml

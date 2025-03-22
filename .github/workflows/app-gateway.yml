@@ -33,10 +33,10 @@ jobs:
       version: ${{ steps.generate_version.outputs.version }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Generate version
+      - name: Generate Version
         id: generate_version
         run: |
           # Strip leading 0s of Hours and Minutes after midnight
@@ -45,12 +45,12 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -59,27 +59,26 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
         working-directory: application
         run: |
           dotnet build PlatformPlatform.slnx --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish build
+      - name: Publish Build
         if: github.ref == 'refs/heads/main'
         working-directory: application
         run: |
           dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save artifacts
+      - name: Save Artifacts
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
@@ -88,19 +87,19 @@ jobs:
 
   code-style-and-linting:
     name: Code Style and Linting
-    if: github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -109,20 +108,19 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
         working-directory: application
         run: dotnet build PlatformPlatform.slnx --no-restore
 
-      - name: Run code inspections
+      - name: Run Code Inspections
         working-directory: developer-cli
         run: |
           dotnet run code-inspections | tee inspection-output.log
@@ -132,7 +130,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check for code formatting issues
+      - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
           dotnet run code-cleanup

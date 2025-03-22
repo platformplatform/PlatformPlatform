@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Check pull request title
+      - name: Check Pull Request Title
         if: always()
         env:
           PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
@@ -57,7 +57,7 @@ jobs:
           fi
           exit $EXIT_CODE
 
-      - name: Check pull request description
+      - name: Check Pull Request Description
         if: always()
         env:
           PULL_REQUEST_BODY: ${{ github.event.pull_request.body }}
@@ -98,7 +98,7 @@ jobs:
           fi
           exit $EXIT_CODE
 
-      - name: Ensure pull request metadata
+      - name: Ensure Pull Request Metadata
         if: always()
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -127,7 +127,7 @@ jobs:
           fi
           exit $EXIT_CODE
 
-      - name: Check branch naming convention
+      - name: Check Branch Naming Convention
         if: always()
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF}"
@@ -138,7 +138,7 @@ jobs:
           fi
           echo "✅ Branch name is valid"
 
-      - name: Check for merge commits
+      - name: Check for Merge Commits
         if: always()
         run: |
           # Fetch main branch
@@ -157,7 +157,7 @@ jobs:
           fi
           echo "✅ No merge commits found"
 
-      - name: Check branch is up to date with main branch
+      - name: Check Branch is Up to Date with Main Branch
         if: always()
         run: |
           # Get the commit where the branch diverged from main
@@ -173,7 +173,7 @@ jobs:
           fi
           echo "✅ Branch is up to date with the main branch"
 
-      - name: Check commit messages
+      - name: Check Commit Messages
         if: always()
         run: |
           # Check commits between main and pull request head
