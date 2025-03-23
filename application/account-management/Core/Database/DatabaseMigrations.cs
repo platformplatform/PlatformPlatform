@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PlatformPlatform.AccountManagement.Database;
 
 [DbContext(typeof(AccountManagementDbContext))]
-[Migration("20250217_Initial")]
+[Migration("20250217000000_Initial")]
 public sealed class DatabaseMigrations : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
