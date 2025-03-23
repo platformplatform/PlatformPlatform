@@ -1,0 +1,214 @@
+name: Migrate Database
+
+on:
+  workflow_call:
+    inputs:
+      azure_environment:
+        required: true
+        type: string
+      cluster_location_acronym:
+        required: true
+        type: string
+      service_principal_id:
+        required: true
+        type: string
+      subscription_id:
+        required: true
+        type: string
+      database_name:
+        required: true
+        type: string
+      relative_project_path:
+        description: "Relative path to the project containing the migrations"
+        required: true
+        type: string
+      relative_startup_project:
+        description: "Relative path to the startup project"
+        required: true
+        type: string
+      db_context:
+        required: true
+        type: string
+      apply_migrations:
+        required: true
+        type: boolean
+
+    outputs:
+      has_migrations_to_apply:
+        value: ${{ jobs.plan-migrations.outputs.has_migrations_to_apply }}
+
+concurrency:
+  group: ${{ inputs.database_name }}-${{ inputs.azure_environment }}-migrations
+  cancel-in-progress: false
+
+jobs:
+  plan-migrations:
+    name: Plan
+    runs-on: ubuntu-24.04
+    outputs:
+      has_migrations_to_apply: ${{ steps.generate-migration-script.outputs.has_migrations_to_apply }}
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Build Backend Solution
+        working-directory: application
+        run: dotnet build ${{ inputs.relative_startup_project }}
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ inputs.service_principal_id }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ inputs.subscription_id }}
+
+      - name: Open Firewall
+        working-directory: cloud-infrastructure/cluster
+        env:
+          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+        run: bash ./firewall.sh open
+
+      - name: Generate Script for Pending Migrations
+        id: generate-migration-script
+        working-directory: application
+        run: |
+          CONNECTION_STRING="Server=tcp:${{ env.SQL_SERVER_FQDN }},1433;Database=${{ inputs.database_name }};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;"
+          
+          echo "Checking for pending migrations..."        
+          MIGRATION_INFO=$(dotnet ef migrations list \
+            --project ${{ inputs.relative_project_path }} \
+            --startup-project ${{ inputs.relative_startup_project }} \
+            --context ${{ inputs.db_context }} \
+            --connection "$CONNECTION_STRING" \
+            --no-build \
+            --json 2>/dev/null || echo '[]')
+          
+          MIGRATION_JSON=$(echo "$MIGRATION_INFO" | sed -n '/^[{[]/,$p')
+          PENDING_MIGRATIONS_JSON=$(echo "$MIGRATION_JSON" | jq '[.[] | select(.applied == false)]')
+          PENDING_MIGRATIONS_COUNT=$(echo "$PENDING_MIGRATIONS_JSON" | jq '. | length')
+          LAST_APPLIED_MIGRATION=$(echo "$MIGRATION_JSON" | jq -r '[.[] | select(.applied == true) | .id] | sort | last // "0"')
+          
+          if [ "$PENDING_MIGRATIONS_COUNT" -gt "0" ]; then
+            LAST_PENDING_MIGRATION=$(echo "$PENDING_MIGRATIONS_JSON" | jq -r '.[-1].id')
+            echo "$PENDING_MIGRATIONS_COUNT pending migration(s) detected:"
+            echo "$PENDING_MIGRATIONS_JSON"
+            echo "Generating migration script from $LAST_APPLIED_MIGRATION to $LAST_PENDING_MIGRATION..."
+
+            dotnet ef migrations script \
+              "$LAST_APPLIED_MIGRATION" "$LAST_PENDING_MIGRATION" \
+              --project ${{ inputs.relative_project_path }} \
+              --startup-project ${{ inputs.relative_startup_project }} \
+              --context ${{ inputs.db_context }} \
+              --idempotent \
+              --no-build \
+              --output migration.sql
+            
+            echo "has_migrations_to_apply=true" >> $GITHUB_OUTPUT
+          else
+            echo "No pending migrations detected."
+            echo "Here is a list of all migrations:"
+            echo "$MIGRATION_JSON"
+            echo "has_migrations_to_apply=false" >> $GITHUB_OUTPUT
+          fi
+        
+      - name: Close Firewall
+        if: always()
+        working-directory: cloud-infrastructure/cluster
+        env:
+          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+        run: bash ./firewall.sh close
+
+      - name: Upload Migration Script
+        if: steps.generate-migration-script.outputs.has_migrations_to_apply == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-script-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+          path: application/migration.sql
+
+  apply-migrations:
+    name: Deploy
+    needs: plan-migrations
+    if: needs.plan-migrations.outputs.has_migrations_to_apply == 'true' && inputs.apply_migrations
+    runs-on: ubuntu-24.04
+    environment:
+      name: ${{ inputs.azure_environment == 'prod' && 'production' || 'staging' }}
+      url: ${{ format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+
+    env:
+      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
+      TENANT_ID: ${{ vars.TENANT_ID }}
+      RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ inputs.service_principal_id }}
+          tenant-id: ${{ env.TENANT_ID }}
+          subscription-id: ${{ inputs.subscription_id }}
+
+      - name: Download Migration Script
+        uses: actions/download-artifact@v4
+        with:
+          name: migration-script-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+          path: .
+
+      - name: Install Microsoft sqlcmd Utility
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
+          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
+          sudo apt-get update &&
+          sudo apt-get install -y sqlcmd
+
+      - name: Open Firewall
+        working-directory: cloud-infrastructure/cluster
+        env:
+          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+        run: bash ./firewall.sh open
+
+      - name: Apply Migrations
+        run: |
+          echo "Applying migrations to ${{ inputs.database_name }} database on ${{ env.SQL_SERVER_FQDN }}..."
+          sqlcmd -S "tcp:${{ env.SQL_SERVER_FQDN }},1433" -d "${{ inputs.database_name }}" --authentication-method=ActiveDirectoryDefault --exit-on-error -i migration.sql
+          echo "Migrations applied successfully!"
+
+      - name: Display Migration Summary
+        uses: actions/github-script@v7
+        with:
+          script: core.summary.addRaw(`✅ Migrations successfully applied to \`${{ inputs.database_name }}\` database on \`${{ inputs.azure_environment }}\`.`).write();
+
+      - name: Close Firewall
+        if: always()
+        working-directory: cloud-infrastructure/cluster
+        env:
+          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
+          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+        run: bash ./firewall.sh close
