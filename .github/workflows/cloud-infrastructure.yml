@@ -24,42 +24,36 @@ permissions:
 jobs:
   stage:
     name: Staging
-    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+    if: ${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}
     uses: ./.github/workflows/_deploy-infrastructure.yml
     secrets: inherit
     with:
-      github_environment: "staging"
-      include_shared_environment_resources: true
-      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
       azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      tenant_id: ${{ vars.TENANT_ID }}
+      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
       shared_location: ${{ vars.STAGING_SHARED_LOCATION }}
       cluster_location: ${{ vars.STAGING_CLUSTER_LOCATION }}
-      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
-      sql_admin_object_id: ${{ vars.STAGING_SQL_ADMIN_OBJECT_ID }}
       domain_name: ${{ vars.STAGING_DOMAIN_NAME }}
-      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
-      tenant_id: ${{ vars.TENANT_ID }}
-      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
-      deployment_enabled: ${{ vars.STAGING_CLUSTER_ENABLED }}
+      sql_admin_object_id: ${{ vars.STAGING_SQL_ADMIN_OBJECT_ID }}
       production_service_principal_object_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID }}
 
   prod1:
     name: Production
     needs: stage
-    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}
     uses: ./.github/workflows/_deploy-infrastructure.yml
     secrets: inherit
     with:
-      github_environment: "production"
-      include_shared_environment_resources: true
-      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
       azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      unique_prefix: ${{ vars.UNIQUE_PREFIX }}
       shared_location: ${{ vars.PRODUCTION_SHARED_LOCATION }}
       cluster_location: ${{ vars.PRODUCTION_CLUSTER1_LOCATION }}
-      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
-      sql_admin_object_id: ${{ vars.PRODUCTION_SQL_ADMIN_OBJECT_ID }}
       domain_name: ${{ vars.PRODUCTION_DOMAIN_NAME }}
-      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      sql_admin_object_id: ${{ vars.PRODUCTION_SQL_ADMIN_OBJECT_ID }}
       tenant_id: ${{ vars.TENANT_ID }}
-      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
-      deployment_enabled: ${{ vars.PRODUCTION_CLUSTER1_ENABLED }}
