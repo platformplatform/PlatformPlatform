@@ -20,9 +20,11 @@ builder.Services.AddTransient<DatabaseMigrationService<AccountManagementDbContex
 
 var host = builder.Build();
 
-// Apply migrations to the database (should be moved to GitHub Actions or similar in production)
-using var scope = host.Services.CreateScope();
-var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<AccountManagementDbContext>>();
-migrationService.ApplyMigrations();
+if (!SharedInfrastructureConfiguration.IsRunningInAzure)
+{
+    using var scope = host.Services.CreateScope();
+    var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<AccountManagementDbContext>>();
+    migrationService.ApplyMigrations();
+}
 
 await host.RunAsync();
