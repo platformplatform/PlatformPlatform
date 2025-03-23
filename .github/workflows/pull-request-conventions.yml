@@ -1,4 +1,4 @@
-name: Validate Pull Request Conventions
+name: Pull Request Conventions
 
 on:
   pull_request:

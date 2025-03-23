@@ -1,4 +1,4 @@
-name: App Gateway - Build and Deploy
+name: App Gateway
 
 on:
   push:

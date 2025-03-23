@@ -1,4 +1,4 @@
-name: Cloud Infrastructure - Deployment
+name: Cloud Infrastructure
 
 on:
   push:

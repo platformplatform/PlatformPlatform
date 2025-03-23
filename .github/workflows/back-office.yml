@@ -1,4 +1,4 @@
-name: Back Office - Build and Deploy
+name: Back Office
 
 on:
   push:

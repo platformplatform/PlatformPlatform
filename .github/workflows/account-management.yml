@@ -1,4 +1,4 @@
-name: Account Management - Build and Deploy
+name: Account Management
 
 on:
   push:
