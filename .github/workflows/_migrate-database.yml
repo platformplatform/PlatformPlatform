@@ -47,6 +47,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       has_migrations_to_apply: ${{ steps.generate-migration-script.outputs.has_migrations_to_apply }}
+      migration_json: ${{ steps.generate-migration-script.outputs.migration_json }}
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
@@ -122,6 +123,14 @@ jobs:
               --output migration.sql
             
             echo "has_migrations_to_apply=true" >> $GITHUB_OUTPUT
+            
+            echo "migration_script<<EOF" >> $GITHUB_OUTPUT
+            cat migration.sql >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+            echo "migration_json<<EOF" >> $GITHUB_OUTPUT
+            echo "$PENDING_MIGRATIONS_JSON" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           else
             echo "No pending migrations detected."
             echo "Here is a list of all migrations:"
@@ -145,6 +154,48 @@ jobs:
           name: migration-script-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
           path: application/migration.sql
 
+      - name: Generate Migration Information
+        id: migration-info
+        if: steps.generate-migration-script.outputs.has_migrations_to_apply == 'true'
+        uses: actions/github-script@v7
+        env:
+          MIGRATION_JSON: ${{ steps.generate-migration-script.outputs.migration_json }}
+          MIGRATION_SCRIPT: ${{ steps.generate-migration-script.outputs.migration_script }}
+        with:
+          script: |
+            const migrationJson = JSON.parse(process.env.MIGRATION_JSON);
+            
+            const migrationsList = migrationJson.map(m => `- ${m.name} (${m.id})`).join('\n');
+            
+            const migrationInfo = `## Approve Database Migration \`${{ inputs.database_name }}\` database on \`${{ inputs.azure_environment }}\`
+
+            The following pending migration(s) will be applied to the database when approved:
+            ${migrationsList}
+            
+            ### Migration Script
+            \`\`\`sql
+            ${process.env.MIGRATION_SCRIPT}
+            \`\`\`
+            `;
+            
+            console.log(migrationInfo);
+            
+            core.setOutput('markdown', migrationInfo);
+
+      - name: Add Migration Information to Pull Request
+        if: github.event_name == 'pull_request' && steps.generate-migration-script.outputs.has_migrations_to_apply == 'true'
+        uses: actions/github-script@v7
+        env:
+          MIGRATION_INFO: ${{ steps.migration-info.outputs.markdown }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: process.env.MIGRATION_INFO
+            });
   apply-migrations:
     name: Deploy
     needs: plan-migrations
