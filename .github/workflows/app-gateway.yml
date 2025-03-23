@@ -31,12 +31,14 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
+      deploy_staging: ${{ steps.determine_deployment.outputs.deploy_staging }}
+      deploy_production: ${{ steps.determine_deployment.outputs.deploy_production }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Generate version
+      - name: Generate Version
         id: generate_version
         run: |
           # Strip leading 0s of Hours and Minutes after midnight
@@ -45,12 +47,21 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js environment
+      - name: Determine Deployment Conditions
+        id: determine_deployment
+        run: |
+          deploy_staging="${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}"
+          echo "deploy_staging=$deploy_staging" >> $GITHUB_OUTPUT
+          
+          deploy_production="${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}"
+          echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -59,28 +70,28 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
         run: |
           dotnet build PlatformPlatform.slnx --no-restore /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Publish build
-        if: github.ref == 'refs/heads/main'
+      - name: Publish Build
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
         run: |
           dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save artifacts
-        if: github.ref == 'refs/heads/main'
+      - name: Save Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: app-gateway
@@ -88,19 +99,19 @@ jobs:
 
   code-style-and-linting:
     name: Code Style and Linting
-    if: github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -109,20 +120,19 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
         working-directory: application
         run: dotnet build PlatformPlatform.slnx --no-restore
 
-      - name: Run code inspections
+      - name: Run Code Inspections
         working-directory: developer-cli
         run: |
           dotnet run code-inspections | tee inspection-output.log
@@ -132,7 +142,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check for code formatting issues
+      - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
           dotnet run code-cleanup
@@ -143,10 +153,10 @@ jobs:
             exit 1
           }
 
-  deploy:
-    name: Deploy
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
+  api-stage:
+    name: Staging
+    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    needs: build-and-test
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
@@ -156,3 +166,25 @@ jobs:
       artifacts_path: application/AppGateway/publish
       docker_context: ./application
       docker_file: ./AppGateway/Dockerfile
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+
+  api-prod1:
+    name: Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, api-stage]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      image_name: app-gateway
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: app-gateway
+      artifacts_path: application/AppGateway/publish
+      docker_context: ./application
+      docker_file: ./AppGateway/Dockerfile
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}

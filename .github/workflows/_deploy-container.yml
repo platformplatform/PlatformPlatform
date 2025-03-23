@@ -3,6 +3,18 @@ name: Deploy Container
 on:
   workflow_call:
     inputs:
+      azure_environment:
+        required: true
+        type: string
+      cluster_location_acronym:
+        required: true
+        type: string
+      service_principal_id:
+        required: true
+        type: string
+      subscription_id:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
@@ -23,24 +35,23 @@ on:
         type: string
 
 jobs:
-  stage:
-    name: Staging
+  deploy:
+    name: Deploy
     runs-on: ubuntu-24.04
-    # environment: "staging"  # Manual approval disabled
-    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    environment: ${{ inputs.azure_environment == 'prod' && 'production' || 'staging' }}
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-      ENVIRONMENT: "stage"
-      CLUSTER_LOCATION_ACRONYM: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
-      SERVICE_PRINCIPAL_ID: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      ENVIRONMENT: ${{ inputs.azure_environment }}
+      CLUSTER_LOCATION_ACRONYM: ${{ inputs.cluster_location_acronym }}
+      SERVICE_PRINCIPAL_ID: ${{ inputs.service_principal_id }}
       TENANT_ID: ${{ vars.TENANT_ID }}
-      SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      SUBSCRIPTION_ID: ${{ inputs.subscription_id }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifacts_name }}
@@ -56,10 +67,26 @@ jobs:
       - name: Login to ACR
         run: az acr login --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}
 
+      # For production, import image from staging instead of building
+      - name: Import Container Image from Staging to Production
+        if: inputs.azure_environment == 'prod'
+        run: |
+          STAGING_REGISTRY_ID="/subscriptions/${{ vars.STAGING_SUBSCRIPTION_ID }}/resourceGroups/${{ env.UNIQUE_PREFIX }}-stage/providers/Microsoft.ContainerRegistry/registries/${{ env.UNIQUE_PREFIX }}stage"
+          
+          az acr import \
+            --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }} \
+            --source ${{ inputs.image_name }}:${{ inputs.version }} \
+            --image ${{ inputs.image_name }}:${{ inputs.version }} \
+            --registry "$STAGING_REGISTRY_ID" \
+            --force
+
+      # For staging, build and push the image
       - name: Setup Docker Buildx
+        if: inputs.azure_environment == 'stage'
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push container image
+      - name: Build and Push Container Image
+        if: inputs.azure_environment == 'stage'
         working-directory: ${{ inputs.docker_context }}
         run: |
           docker buildx create --use
@@ -70,70 +97,6 @@ jobs:
             -f ${{ inputs.docker_file }} \
             --push .
           docker buildx rm
-
-      - name: Deploy Container
-        run: |
-          SUFFIX=$(echo "${{ inputs.version }}" | sed 's/\./-/g')
-          az containerapp update --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --image "${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}.azurecr.io/${{ inputs.image_name }}:${{ inputs.version }}" --revision-suffix $SUFFIX
-
-          echo "Waiting for the new revision to be active..."
-          for i in {1..10}; do
-            sleep 15
-
-            RUNNING_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.runningState" --output tsv)
-            HEALTH_STATUS=$(az containerapp revision list --name ${{ inputs.image_name }} --resource-group "${{ env.UNIQUE_PREFIX }}-${{ env.ENVIRONMENT }}-${{ env.CLUSTER_LOCATION_ACRONYM }}" --query "[?contains(name, '$SUFFIX')].properties.healthState" --output tsv)
-            if [[ "$HEALTH_STATUS" == "Healthy" ]]; then
-              echo "New revision is healthy. Running state: $RUNNING_STATUS"
-              exit 0
-            fi
-            if [[ "$HEALTH_STATUS" == "Unhealthy" ]]; then
-              echo "New revision is Unhealthy. Running state: $RUNNING_STATUS"
-              exit 1
-            fi
-            
-            echo "($i) Waiting for revision to become active. Running state: $RUNNING_STATUS"
-          done
-          echo "New revision did not become active in time. Running state: $RUNNING_STATUS"
-          exit 1
-
-  prod1:
-    name: Production
-    needs: stage
-    environment: "production" # Force a manual approval
-    runs-on: ubuntu-24.04
-    if: ${{ vars.PRODUCTION_CLUSTER1_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
-    env:
-      UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
-      ENVIRONMENT: "prod"
-      STAGING_ENVIRONMENT: "stage"
-      CLUSTER_LOCATION_ACRONYM: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
-      SERVICE_PRINCIPAL_ID: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
-      TENANT_ID: ${{ vars.TENANT_ID }}
-      SUBSCRIPTION_ID: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
-      STAGING_SUBSCRIPTION_ID: ${{ vars.STAGING_SUBSCRIPTION_ID }}
-
-    steps:
-          
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
-          tenant-id: ${{ env.TENANT_ID }}
-          subscription-id: ${{ env.SUBSCRIPTION_ID }}
-
-      - name: Login to ACR
-        run: az acr login --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }}
-
-      - name: Import Container Image from Staging to Production
-        run: |
-          STAGING_REGISTRY_ID="/subscriptions/${{ env.STAGING_SUBSCRIPTION_ID }}/resourceGroups/${{ env.UNIQUE_PREFIX }}-${{ env.STAGING_ENVIRONMENT }}/providers/Microsoft.ContainerRegistry/registries/${{ env.UNIQUE_PREFIX }}${{ env.STAGING_ENVIRONMENT }}"
-          
-          az acr import \
-            --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }} \
-            --source ${{ inputs.image_name }}:${{ inputs.version }} \
-            --image ${{ inputs.image_name }}:${{ inputs.version }} \
-            --registry "$STAGING_REGISTRY_ID" \
-            --force
 
       - name: Deploy Container
         run: |

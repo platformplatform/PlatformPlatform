@@ -11,6 +11,8 @@ on:
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_migrate-database.yml"
+      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -20,12 +22,15 @@ on:
       - "application/account-management/**"
       - ".github/workflows/account-management.yml"
       - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_migrate-database.yml"
+      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
+  pull-requests: write
 
 jobs:
   build-and-test:
@@ -33,12 +38,14 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.generate_version.outputs.version }}
+      deploy_staging: ${{ steps.determine_deployment.outputs.deploy_staging }}
+      deploy_production: ${{ steps.determine_deployment.outputs.deploy_production }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Generate version
+      - name: Generate Version
         id: generate_version
         run: |
           # Strip leading 0s of Hours and Minutes after midnight
@@ -47,12 +54,21 @@ jobs:
           echo "Generated version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Setup Node.js environment
+      - name: Determine Deployment Conditions
+        id: determine_deployment
+        run: |
+          deploy_staging="${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}"
+          echo "deploy_staging=$deploy_staging" >> $GITHUB_OUTPUT
+          
+          deploy_production="${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}"
+          echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -61,16 +77,15 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
-        run: dotnet restore
+        run: dotnet restore 
 
-      - name: Generate and set user secret for token signing key
+      - name: Generate and Set User Secret for Token Signing Key
         working-directory: application/shared-kernel/SharedKernel
         run: |
           # Extract UserSecretsId from the .csproj file
@@ -85,7 +100,7 @@ jobs:
           distribution: "microsoft"
           java-version: "17"
 
-      - name: Run tests with dotCover and SonarScanner reporting
+      - name: Run Tests with dotCover and SonarScanner Reporting
         working-directory: application
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -102,37 +117,37 @@ jobs:
             dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
           fi
 
-      - name: Build frontend artifacts
-        if: github.ref == 'refs/heads/main'
+      - name: Build Frontend Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
         run: npm run build
 
-      - name: Publish frontend artifacts
-        if: github.ref == 'refs/heads/main'
+      - name: Publish Frontend Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/account-management/WebApp
         run: npm run publish
 
-      - name: Publish API build
-        if: github.ref == 'refs/heads/main'
+      - name: Publish API Build
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/account-management
         run: |
           dotnet publish ./Api/AccountManagement.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save API artifacts
-        if: github.ref == 'refs/heads/main'
+      - name: Save API Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: account-management-api
           path: application/account-management/Api/publish/**/*
 
-      - name: Publish Worker build
-        if: github.ref == 'refs/heads/main'
+      - name: Publish Workers Build
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/account-management
         run: |
           dotnet publish ./Workers/AccountManagement.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
 
-      - name: Save Workers artifacts
-        if: github.ref == 'refs/heads/main'
+      - name: Save Workers Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: account-management-workers
@@ -140,19 +155,19 @@ jobs:
 
   code-style-and-linting:
     name: Code Style and Linting
-    if: github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Node modules
+      - name: Install Node Modules
         working-directory: application
         run: npm ci
 
@@ -161,20 +176,19 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Restore .NET tools
+      - name: Restore .NET Tools
         working-directory: application
-        run: |
-          dotnet tool restore
+        run: dotnet tool restore
 
-      - name: Restore .NET dependencies
+      - name: Restore .NET Dependencies
         working-directory: application
         run: dotnet restore
 
-      - name: Build backend solution
+      - name: Build Backend Solution
         working-directory: application
         run: dotnet build account-management/AccountManagement.slnf --no-restore
 
-      - name: Run code inspections
+      - name: Run Code Inspections
         working-directory: developer-cli
         run: |
           dotnet run code-inspections -s AccountManagement.slnf | tee inspection-output.log
@@ -184,7 +198,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check for code formatting issues
+      - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
           dotnet run code-cleanup -s AccountManagement.slnf
@@ -195,21 +209,41 @@ jobs:
             exit 1
           }
 
-      - name: Build frontend artifacts
+      - name: Build Frontend Artifacts
         working-directory: application
         run: npm run build
 
-      - name: Run check
+      - name: Run Check
         working-directory: application/account-management/WebApp
         run: npm run check
 
-  api-deploy:
-    name: Deploy API
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
+  database-migrations-stage:
+    name: Database Staging
+    needs: build-and-test
+    uses: ./.github/workflows/_migrate-database.yml
+    secrets: inherit
+    with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      database_name: account-management
+      relative_project_path: account-management/Core/AccountManagement.csproj
+      relative_startup_project: account-management/Api/AccountManagement.Api.csproj
+      db_context: AccountManagementDbContext
+      apply_migrations: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+
+  api-stage:
+    name: API Staging
+    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    needs: [build-and-test, database-migrations-stage]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
       image_name: account-management-api
       version: ${{ needs.build-and-test.outputs.version }}
       artifacts_name: account-management-api
@@ -217,13 +251,70 @@ jobs:
       docker_context: ./application/account-management
       docker_file: ./Api/Dockerfile
 
-  workers-deploy:
-    name: Deploy Workers
-    if: github.ref == 'refs/heads/main'
-    needs: [build-and-test]
+  workers-stage:
+    name: Workers Staging
+    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    needs: [build-and-test, database-migrations-stage]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
     with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      image_name: account-management-workers
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-management-workers
+      artifacts_path: application/account-management/Workers/publish
+      docker_context: ./application/account-management
+      docker_file: ./Workers/Dockerfile
+
+  database-migrations-prod1:
+    name: Database Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, api-stage, workers-stage]
+    uses: ./.github/workflows/_migrate-database.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      database_name: account-management
+      relative_project_path: account-management/Core/AccountManagement.csproj
+      relative_startup_project: account-management/Api/AccountManagement.Api.csproj
+      db_context: AccountManagementDbContext
+      apply_migrations: true
+
+  api-prod1:
+    name: API Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, database-migrations-prod1]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      image_name: account-management-api
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-management-api
+      artifacts_path: application/account-management/Api/publish
+      docker_context: ./application/account-management
+      docker_file: ./Api/Dockerfile
+
+  workers-prod1:
+    name: Workers Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, database-migrations-prod1]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
       image_name: account-management-workers
       version: ${{ needs.build-and-test.outputs.version }}
       artifacts_name: account-management-workers
