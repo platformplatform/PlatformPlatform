@@ -196,6 +196,15 @@ jobs:
               repo: context.repo.repo,
               body: process.env.MIGRATION_INFO
             });
+
+      - name: Add Migration Information to Summary
+        if: steps.generate-migration-script.outputs.has_migrations_to_apply == 'true' && inputs.azure_environment == 'prod'
+        uses: actions/github-script@v7
+        env:
+          MIGRATION_INFO: ${{ steps.migration-info.outputs.markdown }}
+        with:
+          script: core.summary.addRaw(process.env.MIGRATION_INFO).write();
+
   apply-migrations:
     name: Deploy
     needs: plan-migrations
