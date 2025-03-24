@@ -11,11 +11,9 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class TranslateCommand : Command
 {
-    private const string ModelName = "gpt-4o";
-
     public TranslateCommand() : base(
         "translate",
-        $"Update language files with missing translations powered by {ModelName}"
+        $"Update language files with missing translations powered by {OpenAiTranslationService.ModelName}"
     )
     {
         var languageOption = new Option<string?>(
@@ -82,17 +80,17 @@ public class TranslateCommand : Command
         var translator = new Translator(translationService, poCatalog.Language);
         var translated = await translator.Translate(entries);
 
-        if (!translated.Any())
+        if (translated.Any())
         {
-            return;
+            foreach (var translatedEntry in translated)
+            {
+                poCatalog.UpdateEntry(translatedEntry);
+            }
+
+            await WriteTranslationFile(translationFile, poCatalog);
         }
 
-        foreach (var translatedEntry in translated)
-        {
-            poCatalog.UpdateEntry(translatedEntry);
-        }
-
-        await WriteTranslationFile(translationFile, poCatalog);
+        AnsiConsole.MarkupLine($"Total tokens used: [yellow]{translationService.UsageStatistics.TotalTokens}[/]. Translation cost: [yellow]${translationService.UsageStatistics.TotalCost:F4}[/]");
     }
 
     private static async Task<POCatalog> ReadTranslationFile(string translationFile)
@@ -262,6 +260,8 @@ public class TranslateCommand : Command
     private sealed class OpenAiTranslationService
     {
         private readonly ChatClient _client;
+        public readonly Gpt4OUsageStatistics UsageStatistics = new();
+        public const string ModelName = "gpt-4o";
 
         private OpenAiTranslationService(string apiKey)
         {
@@ -319,6 +319,11 @@ public class TranslateCommand : Command
             var streamingUpdate = _client.CompleteChatStreamingAsync(messages);
             await foreach (var update in streamingUpdate)
             {
+                if (update.Usage != null)
+                {
+                    UsageStatistics.Update(update.Usage);
+                }
+
                 content.Append(update?.ContentUpdate.FirstOrDefault()?.Text ?? "");
                 var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
                 context.Status($"Translating {Math.Min(100, percent)}%");
@@ -328,6 +333,38 @@ public class TranslateCommand : Command
 
             var translated = content.ToString();
             return nonTranslatedEntry.ApplyTranslation(translated);
+        }
+
+        public record Gpt4OUsageStatistics
+        {
+            private const decimal NonCachedInputPricePerThousandTokens = 0.0025m;
+            private const decimal CachedInputPricePerThousandTokens = 0.00125m;
+            private const decimal OutputPricePerThousandTokens = 0.01m;
+
+            private int _nonCachedInputTokenCount;
+            private int _outputTokenCount;
+            private int _cachedInputTokenCount;
+
+            public decimal TotalCost
+            {
+                get
+                {
+                    var nonCachedInputCost = (_nonCachedInputTokenCount / 1000m) * NonCachedInputPricePerThousandTokens;
+                    var cachedInputPrice = (_cachedInputTokenCount / 1000m) * CachedInputPricePerThousandTokens;
+                    var outputCost = (_outputTokenCount / 1000m) * OutputPricePerThousandTokens;
+
+                    return nonCachedInputCost + cachedInputPrice + outputCost;
+                }
+            }
+
+            public int TotalTokens => _nonCachedInputTokenCount + _outputTokenCount + _cachedInputTokenCount;
+
+            public void Update(ChatTokenUsage usage)
+            {
+                _cachedInputTokenCount += usage.InputTokenDetails.CachedTokenCount;
+                _nonCachedInputTokenCount += (usage.InputTokenCount - usage.InputTokenDetails.CachedTokenCount);
+                _outputTokenCount += usage.OutputTokenCount;
+            }
         }
     }
 }
