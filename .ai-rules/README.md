@@ -10,6 +10,8 @@ When responding start by reading the relevant instructions from these areas.
 - [Frontend Rules](/.ai-rules/frontend/README.md)
 - [Infrastructure Rules](/.ai-rules/infrastructure/README.md)
 - [Developer CLI Rules](/.ai-rules/developer-cli/README.md)
+- Other Rules
+  - [Pull Request Rules](/.ai-rules/other/pull-request.md)
 
 It is **EXTREMELY important that you follow the instructions in the rule files very carefully**.
 
