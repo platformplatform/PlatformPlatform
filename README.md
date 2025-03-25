@@ -213,10 +213,15 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
+│  ├─ back-office        # A self-contained system for operations and support (empty for now)
+│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
+│  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
+│  │   ├─ Core           # Core business logic, application use cases, and infrastructure
+│  │   ├─ Workers        # Background workers for long-running tasks and event processing
+│  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ shared-kernel      # Reusable components and default configuration for all systems
 │  ├─ shared-webapp      # Reusable and styled React Aria Components that affect all systems 
-│  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│  └─ back-office        # A self-contained system for operations and support (empty for now)
+│  └─ [your-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
 │  ├─ environment        # Shared resources like App Insights, Container Registry, etc.

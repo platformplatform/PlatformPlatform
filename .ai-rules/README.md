@@ -23,19 +23,25 @@ When we learn new things that deviate from the existing rules, suggest making ch
 
 This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure. Use this overview to gain an understanding of the codebase structure.
 
-- [.github](/.github): GitHub workflows and other GitHub artifacts.
-- [application](/application): Contains application code.
-  - [account-management](/application/account-management): A SCS for tenant and user management.
-    - [WebApp](/application/account-management/WebApp): A React, TypeScript, SPA.
-    - [Api](/application/account-management/Api): .NET 9 minimal API.
-    - [Core](/application/account-management/Core): .NET 9 Vertical Sliced Architecture.
-    - [Workers](/application/account-management/Workers): A .NET Console job.
-    - [Tests](/application/account-management/Tests): xUnit tests for backend.
-  - [back-office](/application/back-office): An empty SCS, that will be used to create tools for Support and System Admins.
-    - Follows exactly the same structure as Account Management with WebApp, Api, Core, Workers, Tests.
-  - [AppHost](/application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers (only use locally).
-  - [AppGateway](/application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
-  - [shared-kernel](/application/shared-kernel): Reusable .NET Backend shared by all SCSs.
-  - [shared-webapp](/application/shared-webapp): Reusable frontend shared by all SCSs.
-- [cloud-infrastructure](/cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
-- [developer-cli](/developer-cli): A .NET CLI tool for automating common developer tasks.
+- [.github](/.github): GitHub workflows and other GitHub artifacts
+- [application](/application): Contains application code
+  - [account-management](/application/account-management): A SCS for tenant and user management
+    - [WebApp](/application/account-management/WebApp): A React, TypeScript, SPA
+    - [Api](/application/account-management/Api): .NET 9 minimal API
+    - [Core](/application/account-management/Core): .NET 9 Vertical Sliced Architecture
+    - [Workers](/application/account-management/Workers): A .NET Console job
+    - [Tests](/application/account-management/Tests): xUnit tests for backend
+  - [back-office](/application/back-office): An empty SCS, that will be used to create tools for Support and System Admins
+    - [WebApp](/application/back-office/WebApp): A React, TypeScript, SPA
+    - [Api](/application/back-office/Api): .NET 9 minimal API
+    - [Core](/application/back-office/Core): .NET 9 Vertical Sliced Architecture
+    - [Workers](/application/back-office/Workers): A .NET Console job
+    - [Tests](/application/back-office/Tests): xUnit tests for backend
+  - [AppHost](/application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers **
+  - [AppGateway](/application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs
+  - [shared-kernel](/application/shared-kernel): Reusable .NET Backend shared by all SCSs
+  - [shared-webapp](/application/shared-webapp): Reusable frontend shared by all SCSs
+- [cloud-infrastructure](/cloud-infrastructure): Bash and Azure Bicep scripts (IaC)
+- [developer-cli](/developer-cli): A .NET CLI tool for automating common developer tasks
+
+** The AppHost project is the entry point. Do NOT RUN THIS as it's likely already running in watch mode.
