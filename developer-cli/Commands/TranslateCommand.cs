@@ -16,24 +16,22 @@ public class TranslateCommand : Command
         $"Update language files with missing translations powered by {OpenAiTranslationService.ModelName}"
     )
     {
-        var languageOption = new Option<string?>(
-            ["<language>", "--language", "-l"],
-            "The name of the language to translate (e.g `da-DK`)"
+        var translateAllLanguagesOption = new Option<bool?>(
+            ["--translate-all", "--all"],
+            "Translate all detected languages"
         );
 
-        AddOption(languageOption);
-
-        Handler = CommandHandler.Create<string?>(Execute);
+        AddOption(translateAllLanguagesOption);
+        Handler = CommandHandler.Create<bool?>(Execute);
     }
 
-    private static async Task<int> Execute(string? language)
+    private static async Task<int> Execute(bool? translateAll)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
-
         try
         {
-            var translationFile = GetTranslationFile(language);
-            await RunTranslation(translationFile);
+            var translationFiles = GetTranslationFiles(translateAll);
+            await RunTranslation(translationFiles);
             return 0;
         }
         catch (Exception e)
@@ -43,7 +41,7 @@ public class TranslateCommand : Command
         }
     }
 
-    private static string GetTranslationFile(string? language)
+    private static string[] GetTranslationFiles(bool? translateAll)
     {
         var translationFiles = Directory.GetFiles(Configuration.ApplicationFolder, "*.po", SearchOption.AllDirectories)
             .Where(f => !f.Contains("node_modules") &&
@@ -52,13 +50,9 @@ public class TranslateCommand : Command
             )
             .ToDictionary(s => s.Replace(Configuration.ApplicationFolder, ""), f => f);
 
-        if (language is not null)
+        if (translateAll == true)
         {
-            var translationFile = translationFiles.Values
-                .FirstOrDefault(f => f.Equals($"{language}.po", StringComparison.OrdinalIgnoreCase));
-
-            return translationFile
-                   ?? throw new InvalidOperationException($"Translation file for language '{language}' not found.");
+            return translationFiles.Values.ToArray();
         }
 
         var prompt = new SelectionPrompt<string>()
@@ -66,31 +60,48 @@ public class TranslateCommand : Command
             .AddChoices(translationFiles.Keys);
 
         var selection = AnsiConsole.Prompt(prompt);
-        return translationFiles[selection];
+        var selectedFile = translationFiles[selection];
+        return [selectedFile];
     }
 
-    private static async Task RunTranslation(string translationFile)
+    private static async Task RunTranslation(string[] translationFiles)
+    {
+        var isAnyFileTranslated = false;
+        var translationService = OpenAiTranslationService.Create();
+        foreach (var translationFile in translationFiles)
+        {
+            var isTranslated = await RunTranslation(translationService, translationFile);
+            isAnyFileTranslated = isAnyFileTranslated || isTranslated;
+        }
+
+        if (isAnyFileTranslated)
+        {
+            AnsiConsole.MarkupLine($"Total tokens used: [yellow]{translationService.UsageStatistics.TotalTokens}[/]. Translation cost: [yellow]${translationService.UsageStatistics.TotalCost:F4}[/]");
+        }
+    }
+
+    private static async Task<bool> RunTranslation(OpenAiTranslationService translationService, string translationFile)
     {
         var poCatalog = await ReadTranslationFile(translationFile);
         var entries = poCatalog.EnsureOnlySingularEntries();
 
         AnsiConsole.MarkupLine($"Language detected: {poCatalog.Language}");
-
-        var translationService = OpenAiTranslationService.Create();
         var translator = new Translator(translationService, poCatalog.Language);
         var translated = await translator.Translate(entries);
 
-        if (translated.Any())
+        if (!translated.Any())
         {
-            foreach (var translatedEntry in translated)
-            {
-                poCatalog.UpdateEntry(translatedEntry);
-            }
-
-            await WriteTranslationFile(translationFile, poCatalog);
+            return false;
         }
 
-        AnsiConsole.MarkupLine($"Total tokens used: [yellow]{translationService.UsageStatistics.TotalTokens}[/]. Translation cost: [yellow]${translationService.UsageStatistics.TotalCost:F4}[/]");
+        foreach (var translatedEntry in translated)
+        {
+            poCatalog.UpdateEntry(translatedEntry);
+        }
+
+        await WriteTranslationFile(translationFile, poCatalog);
+
+        return true;
     }
 
     private static async Task<POCatalog> ReadTranslationFile(string translationFile)
