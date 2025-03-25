@@ -20,9 +20,12 @@ builder.Services.AddTransient<DatabaseMigrationService<BackOfficeDbContext>>();
 
 var host = builder.Build();
 
-// Apply migrations to the database (should be moved to GitHub Actions or similar in production)
-using var scope = host.Services.CreateScope();
-var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<BackOfficeDbContext>>();
-migrationService.ApplyMigrations();
+// Apply migrations to the database only when running locally
+if (!SharedInfrastructureConfiguration.IsRunningInAzure)
+{
+    using var scope = host.Services.CreateScope();
+    var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<BackOfficeDbContext>>();
+    migrationService.ApplyMigrations();
+}
 
 await host.RunAsync();

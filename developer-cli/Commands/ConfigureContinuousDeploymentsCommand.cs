@@ -747,7 +747,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
     {
         // Disable reusable workflows
         DisableActiveWorkflow("Deploy Container");
-        DisableActiveWorkflow("Plan and Deploy Infrastructure");
+        DisableActiveWorkflow("Deploy Infrastructure");
+        DisableActiveWorkflow("Migrate Database");
         return;
 
         void DisableActiveWorkflow(string workflowName)

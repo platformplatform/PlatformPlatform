@@ -10,6 +10,8 @@ SQL_SERVER_NAME=$RESOURCE_GROUP_NAME
 SQL_SERVER=$SQL_SERVER_NAME.database.windows.net
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
+# Export SQL_DATABASE_NAME for firewall.sh to use
+export SQL_DATABASE_NAME=$SQL_DATABASE_NAME
 trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
 . ./firewall.sh open
 

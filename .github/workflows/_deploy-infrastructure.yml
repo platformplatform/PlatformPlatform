@@ -1,18 +1,24 @@
-name: Plan and Deploy Infrastructure
+name: Deploy Infrastructure
 
 on:
   workflow_call:
     inputs:
-      github_environment:
-        required: true
-        type: string
-      include_shared_environment_resources:
-        required: true
-        type: boolean
-      unique_prefix:
-        required: true
-        type: string
       azure_environment:
+        required: true
+        type: string
+      cluster_location_acronym:
+        required: true
+        type: string
+      service_principal_id:
+        required: true
+        type: string
+      subscription_id:
+        required: true
+        type: string
+      tenant_id:
+        required: true
+        type: string
+      unique_prefix:
         required: true
         type: string
       shared_location:
@@ -21,25 +27,10 @@ on:
       cluster_location:
         required: true
         type: string
-      cluster_location_acronym:
-        required: true
-        type: string
-      sql_admin_object_id:
-        required: true
-        type: string
       domain_name:
         required: true
         type: string
-      service_principal_id:
-        required: true
-        type: string
-      tenant_id:
-        required: true
-        type: string
-      subscription_id:
-        required: true
-        type: string
-      deployment_enabled:
+      sql_admin_object_id:
         required: true
         type: string
       production_service_principal_object_id:
@@ -49,7 +40,7 @@ on:
 
 jobs:
   plan:
-    name: "Planning"
+    name: Plan
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
@@ -70,7 +61,6 @@ jobs:
           subscription-id: ${{ inputs.subscription_id }}
 
       - name: Plan Shared Environment Resources
-        if: ${{ inputs.include_shared_environment_resources == true }}
         run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} ${{ inputs.production_service_principal_object_id }} --plan
 
       - name: Plan Cluster Resources
@@ -78,11 +68,12 @@ jobs:
         run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.cluster_location }} ${{ inputs.cluster_location_acronym }} ${{ inputs.sql_admin_object_id }} ${{ inputs.domain_name }} --plan
   
   deploy:
-    name: "Deploying"
-    if: ${{ inputs.deployment_enabled == 'true' && github.ref == 'refs/heads/main' }}
+    name: Deploy
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: plan
-    environment: "${{ inputs.github_environment }}"
+    environment: ${{ inputs.azure_environment == 'prod' && 'production' || 'staging' }}
     runs-on: ubuntu-24.04
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -102,7 +93,6 @@ jobs:
           subscription-id: ${{ inputs.subscription_id }}
 
       - name: Deploy Shared Environment Resources
-        if: ${{ inputs.include_shared_environment_resources == true }}
         run: bash ./cloud-infrastructure/environment/deploy-environment.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.shared_location }} ${{ inputs.production_service_principal_object_id }} --apply
 
       - name: Deploy Cluster Resources
@@ -116,7 +106,7 @@ jobs:
           tenant-id: ${{ inputs.tenant_id }}
           subscription-id: ${{ inputs.subscription_id }}
 
-      - name: Install Microsoft sqlcmd tool
+      - name: Install Microsoft sqlcmd Utility
         run: |
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
           sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
