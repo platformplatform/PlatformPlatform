@@ -71,6 +71,9 @@ public static class ChangeDetection
                 File.Move(currentExecutablePath, renamedExecutablePath, true);
             }
 
+            // Add a small delay to ensure file system operations are complete before publishing
+            Thread.Sleep(100);
+
             // Call "dotnet publish" to create a new executable
             ProcessHelper.StartProcess(
                 $"dotnet publish DeveloperCli.csproj -o \"{Configuration.PublishFolder}\"",
