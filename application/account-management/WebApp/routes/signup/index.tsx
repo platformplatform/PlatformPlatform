@@ -116,7 +116,7 @@ export function StartSignupForm() {
           </Link>
           <DotIcon className="h-4 w-4" />
           <Link href="/">
-            <Trans>Privacy Policies</Trans>
+            <Trans>Privacy policies</Trans>
           </Link>
         </div>
       </div>

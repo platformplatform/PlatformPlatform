@@ -34,7 +34,7 @@ export default function Home() {
             aria-label={t`View users`}
           >
             <div className="text-foreground text-sm">
-              <Trans>Total Users</Trans>
+              <Trans>Total users</Trans>
             </div>
             <div className="text-muted-foreground text-sm">
               <Trans>Add more in the Users menu</Trans>
@@ -54,7 +54,7 @@ export default function Home() {
             aria-label={t`View active users`}
           >
             <div className="text-foreground text-sm">
-              <Trans>Active Users</Trans>
+              <Trans>Active users</Trans>
             </div>
             <div className="text-muted-foreground text-sm">
               <Trans>Active users in the past 30 days</Trans>
@@ -70,7 +70,7 @@ export default function Home() {
             aria-label={t`View invited users`}
           >
             <div className="text-foreground text-sm">
-              <Trans>Invited Users</Trans>
+              <Trans>Invited users</Trans>
             </div>
             <div className="text-muted-foreground text-sm">
               <Trans>Users who haven't confirmed their email</Trans>

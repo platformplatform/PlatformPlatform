@@ -8,6 +8,8 @@ When implementing translations in the frontend, follow these rules very carefull
 2. Use t\`...\` for string translations.
 3. Always use plain English text in translation markers.
 4. Never hardcode text without proper translation wrappers.
+5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.)
+6. Never change the `*.po` files directly they are auto generated based on the uses of `<Trans>...</Trans>` and t\`...\`
 
 ## Example 1 - Component Translation
 

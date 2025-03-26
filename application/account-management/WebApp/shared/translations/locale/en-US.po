@@ -19,8 +19,8 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Account name"
 
-msgid "Account Settings"
-msgstr "Account Settings"
+msgid "Account settings"
+msgstr "Account settings"
 
 msgid "Actions"
 msgstr "Actions"
@@ -28,8 +28,8 @@ msgstr "Actions"
 msgid "Active"
 msgstr "Active"
 
-msgid "Active Users"
-msgstr "Active Users"
+msgid "Active users"
+msgstr "Active users"
 
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
@@ -43,8 +43,8 @@ msgstr "Add profile picture"
 msgid "Admin"
 msgstr "Admin"
 
-msgid "All Users"
-msgstr "All Users"
+msgid "All users"
+msgstr "All users"
 
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
@@ -72,11 +72,11 @@ msgstr "Cancel"
 msgid "Change profile picture"
 msgstr "Change profile picture"
 
-msgid "Change Role"
-msgstr "Change Role"
+msgid "Change role"
+msgstr "Change role"
 
-msgid "Change User Role"
-msgstr "Change User Role"
+msgid "Change user role"
+msgstr "Change user role"
 
 msgid "Continue"
 msgstr "Continue"
@@ -93,11 +93,11 @@ msgstr "Danger zone"
 msgid "Delete"
 msgstr "Delete"
 
-msgid "Delete Account"
-msgstr "Delete Account"
+msgid "Delete account"
+msgstr "Delete account"
 
-msgid "Delete User"
-msgstr "Delete User"
+msgid "Delete user"
+msgstr "Delete user"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
@@ -114,8 +114,8 @@ msgstr "Don't have an account? <0>Create one</0>"
 msgid "E.g., Alex"
 msgstr "E.g., Alex"
 
-msgid "E.g., Software Engineer"
-msgstr "E.g., Software Engineer"
+msgid "E.g., Software engineer"
+msgstr "E.g., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "E.g., Taylor"
@@ -165,17 +165,17 @@ msgstr "Home"
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
 
-msgid "Invite User"
-msgstr "Invite User"
+msgid "Invite user"
+msgstr "Invite user"
 
-msgid "Invite Users"
-msgstr "Invite Users"
+msgid "Invite users"
+msgstr "Invite users"
 
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Invite users and assign them roles. They will appear once they log in."
 
-msgid "Invited Users"
-msgstr "Invited Users"
+msgid "Invited users"
+msgstr "Invited users"
 
 msgid "Last name"
 msgstr "Last name"
@@ -246,8 +246,8 @@ msgstr "Preview avatar"
 msgid "Previous"
 msgstr "Previous"
 
-msgid "Privacy Policies"
-msgstr "Privacy Policies"
+msgid "Privacy policies"
+msgstr "Privacy policies"
 
 msgid "Profile picture"
 msgstr "Profile picture"
@@ -319,8 +319,8 @@ msgstr "Toggle collapsed menu"
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
-msgid "Total Users"
-msgstr "Total Users"
+msgid "Total users"
+msgstr "Total users"
 
 msgid "Try again"
 msgstr "Try again"
@@ -337,11 +337,11 @@ msgstr "User profile"
 msgid "User profile menu"
 msgstr "User profile menu"
 
-msgid "User Role"
-msgstr "User Role"
+msgid "User role"
+msgstr "User role"
 
-msgid "User Status"
-msgstr "User Status"
+msgid "User status"
+msgstr "User status"
 
 msgid "user@email.com"
 msgstr "user@email.com"
@@ -364,8 +364,8 @@ msgstr "View active users"
 msgid "View invited users"
 msgstr "View invited users"
 
-msgid "View Profile"
-msgstr "View Profile"
+msgid "View profile"
+msgstr "View profile"
 
 msgid "View users"
 msgstr "View users"

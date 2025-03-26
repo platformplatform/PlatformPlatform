@@ -89,7 +89,7 @@ export function UserQuerying() {
             onSelectionChange={(userRole) => {
               updateFilter({ userRole: (userRole as UserRole) || undefined });
             }}
-            label={t`User Role`}
+            label={t`User role`}
             placeholder={t`Any role`}
             className="w-[150px]"
           >
@@ -108,7 +108,7 @@ export function UserQuerying() {
             onSelectionChange={(userStatus) => {
               updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
             }}
-            label={t`User Status`}
+            label={t`User status`}
             placeholder={t`Any status`}
             className="w-[150px]"
           >

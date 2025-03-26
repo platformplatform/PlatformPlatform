@@ -13,8 +13,8 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
       <AlertDialog
         variant="destructive"
-        actionLabel={t`Delete Account`}
-        title={t`Delete Account`}
+        actionLabel={t`Delete account`}
+        title={t`Delete account`}
         onAction={() => onOpenChange(false)}
       >
         <Trans>
