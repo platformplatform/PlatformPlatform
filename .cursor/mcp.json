@@ -1,0 +1,13 @@
+{
+	"mcpServers": {
+		"browser-tools": {
+			"command": "npx",
+			"args": ["-y", "@agentdeskai/browser-tools-mcp@1.2.0"],
+			"enabled": true
+		},
+		"sequential-thinking": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+		}
+	}
+}
