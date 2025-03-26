@@ -19,7 +19,7 @@ msgstr "Konto"
 msgid "Account name"
 msgstr "Kontonavn"
 
-msgid "Account Settings"
+msgid "Account settings"
 msgstr "Kontoindstillinger"
 
 msgid "Actions"
@@ -28,14 +28,14 @@ msgstr "Handlinger"
 msgid "Active"
 msgstr "Aktiv"
 
-msgid "Active Users"
+msgid "Active users"
 msgstr "Aktive brugere"
 
 msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
 msgid "Add more in the Users menu"
-msgstr "Tilføj flere i brugermenuen"
+msgstr "Tilføj flere i Brugere menuen"
 
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
@@ -43,7 +43,7 @@ msgstr "Tilføj profilbillede"
 msgid "Admin"
 msgstr "Admin"
 
-msgid "All Users"
+msgid "All users"
 msgstr "Alle brugere"
 
 #. placeholder {0}: error.message
@@ -72,10 +72,10 @@ msgstr "Annuller"
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
 
-msgid "Change Role"
+msgid "Change role"
 msgstr "Skift rolle"
 
-msgid "Change User Role"
+msgid "Change user role"
 msgstr "Skift brugerrolle"
 
 msgid "Continue"
@@ -93,10 +93,10 @@ msgstr "Farezone"
 msgid "Delete"
 msgstr "Slet"
 
-msgid "Delete Account"
+msgid "Delete account"
 msgstr "Slet konto"
 
-msgid "Delete User"
+msgid "Delete user"
 msgstr "Slet bruger"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
@@ -114,7 +114,7 @@ msgstr "Har du ikke en konto? <0>Opret en</0>"
 msgid "E.g., Alex"
 msgstr "F.eks. Alex"
 
-msgid "E.g., Software Engineer"
+msgid "E.g., Software engineer"
 msgstr "F.eks., Softwareingeniør"
 
 msgid "E.g., Taylor"
@@ -165,16 +165,16 @@ msgstr "Hjem"
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
 
-msgid "Invite User"
+msgid "Invite user"
 msgstr "Inviter bruger"
 
-msgid "Invite Users"
-msgstr "Inviter Brugere"
+msgid "Invite users"
+msgstr "Inviter brugere"
 
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger ind."
 
-msgid "Invited Users"
+msgid "Invited users"
 msgstr "Inviterede brugere"
 
 msgid "Last name"
@@ -246,7 +246,7 @@ msgstr "Forhåndsvisning af avatar"
 msgid "Previous"
 msgstr "Forrige"
 
-msgid "Privacy Policies"
+msgid "Privacy policies"
 msgstr "Fortrolighedspolitikker"
 
 msgid "Profile picture"
@@ -319,7 +319,7 @@ msgstr "Skift kollapset menu"
 msgid "Toggle theme"
 msgstr "Skift tema"
 
-msgid "Total Users"
+msgid "Total users"
 msgstr "Totalt antal brugere"
 
 msgid "Try again"
@@ -337,10 +337,10 @@ msgstr "Brugerprofil"
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
 
-msgid "User Role"
+msgid "User role"
 msgstr "Brugerrolle"
 
-msgid "User Status"
+msgid "User status"
 msgstr "Brugerstatus"
 
 msgid "user@email.com"
@@ -364,7 +364,7 @@ msgstr "Se aktive brugere"
 msgid "View invited users"
 msgstr "Se inviterede brugere"
 
-msgid "View Profile"
+msgid "View profile"
 msgstr "Se profil"
 
 msgid "View users"

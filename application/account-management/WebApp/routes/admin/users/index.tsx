@@ -41,7 +41,7 @@ export default function UsersPage() {
             <Trans>Users</Trans>
           </Breadcrumb>
           <Breadcrumb>
-            <Trans>All Users</Trans>
+            <Trans>All users</Trans>
           </Breadcrumb>
         </TopMenu>
         <div className="20 mb-4 flex w-full items-center justify-between space-x-2 sm:mt-4">
@@ -55,7 +55,7 @@ export default function UsersPage() {
           </div>
           <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="h-4 w-4" />
-            <Trans>Invite Users</Trans>
+            <Trans>Invite users</Trans>
           </Button>
         </div>
         <UserQuerying />

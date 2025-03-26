@@ -19,7 +19,7 @@ msgstr "Account"
 msgid "Account name"
 msgstr "Accountnaam"
 
-msgid "Account Settings"
+msgid "Account settings"
 msgstr "Accountinstellingen"
 
 msgid "Actions"
@@ -28,14 +28,14 @@ msgstr "Acties"
 msgid "Active"
 msgstr "Actief"
 
-msgid "Active Users"
+msgid "Active users"
 msgstr "Actieve gebruikers"
 
 msgid "Active users in the past 30 days"
 msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
 msgid "Add more in the Users menu"
-msgstr "Nieuwe toevoegen via het gebruikersmenu"
+msgstr "Nieuwe toevoegen via het Gebruikers menu"
 
 msgid "Add profile picture"
 msgstr "Profielfoto toevoegen"
@@ -43,7 +43,7 @@ msgstr "Profielfoto toevoegen"
 msgid "Admin"
 msgstr "Beheerder"
 
-msgid "All Users"
+msgid "All users"
 msgstr "Alle gebruikers"
 
 #. placeholder {0}: error.message
@@ -72,10 +72,10 @@ msgstr "Annuleren"
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
 
-msgid "Change Role"
+msgid "Change role"
 msgstr "Rol wijzigen"
 
-msgid "Change User Role"
+msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
 msgid "Continue"
@@ -93,10 +93,10 @@ msgstr "Gevaarzone"
 msgid "Delete"
 msgstr "Verwijderen"
 
-msgid "Delete Account"
+msgid "Delete account"
 msgstr "Account verwijderen"
 
-msgid "Delete User"
+msgid "Delete user"
 msgstr "Gebruiker verwijderen"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
@@ -114,8 +114,8 @@ msgstr "Heb je geen account? <0>Maak er één aan</0>"
 msgid "E.g., Alex"
 msgstr "Bijv., Alex"
 
-msgid "E.g., Software Engineer"
-msgstr "Bijv., Software Engineer"
+msgid "E.g., Software engineer"
+msgstr "Bijv., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
@@ -165,16 +165,16 @@ msgstr "Home"
 msgid "Image must be smaller than 1 MB."
 msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 
-msgid "Invite User"
+msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
 
-msgid "Invite Users"
+msgid "Invite users"
 msgstr "Gebruikers uitnodigen"
 
 msgid "Invite users and assign them roles. They will appear once they log in."
 msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inloggen."
 
-msgid "Invited Users"
+msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
 msgid "Last name"
@@ -246,7 +246,7 @@ msgstr "Voorbeeld avatar"
 msgid "Previous"
 msgstr "Vorige"
 
-msgid "Privacy Policies"
+msgid "Privacy policies"
 msgstr "Privacybeleid"
 
 msgid "Profile picture"
@@ -319,7 +319,7 @@ msgstr "Ingeklapt menu wisselen"
 msgid "Toggle theme"
 msgstr "Thema wisselen"
 
-msgid "Total Users"
+msgid "Total users"
 msgstr "Totale gebruikers"
 
 msgid "Try again"
@@ -337,10 +337,10 @@ msgstr "Gebruikersprofiel"
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"
 
-msgid "User Role"
+msgid "User role"
 msgstr "Gebruikersrol"
 
-msgid "User Status"
+msgid "User status"
 msgstr "Gebruikersstatus"
 
 msgid "user@email.com"
@@ -364,7 +364,7 @@ msgstr "Actieve gebruikers bekijken"
 msgid "View invited users"
 msgstr "Uitgenodigde gebruikers bekijken"
 
-msgid "View Profile"
+msgid "View profile"
 msgstr "Profiel bekijken"
 
 msgid "View users"

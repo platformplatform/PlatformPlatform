@@ -225,7 +225,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
           />
         </div>
         <TextField name="email" label={t`Email`} value={user?.email} />
-        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software Engineer`} />
+        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software engineer`} />
 
         <FormErrorMessage error={saveMutation.error} />
 

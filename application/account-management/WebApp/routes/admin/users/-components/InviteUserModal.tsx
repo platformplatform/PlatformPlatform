@@ -36,7 +36,7 @@ export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<Invit
       <Dialog>
         <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted" />
         <Heading slot="title" className="text-2xl">
-          <Trans>Invite User</Trans>
+          <Trans>Invite user</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
           <Trans>Invite users and assign them roles. They will appear once they log in.</Trans>

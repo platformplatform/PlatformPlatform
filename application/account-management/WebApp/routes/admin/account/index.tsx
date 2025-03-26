@@ -45,7 +45,7 @@ export function AccountSettings() {
           <div className="20 mb-4 flex w-full items-center justify-between space-x-2 sm:mt-4">
             <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
               <h1>
-                <Trans>Account Settings</Trans>
+                <Trans>Account settings</Trans>
               </h1>
               <p className="font-normal text-muted-foreground text-sm">
                 <Trans>Manage your account here.</Trans>
@@ -97,7 +97,7 @@ export function AccountSettings() {
 
               <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
                 <Trash2 />
-                <Trans>Delete Account</Trans>
+                <Trans>Delete account</Trans>
               </Button>
             </div>
           </div>

@@ -128,7 +128,7 @@ export function UserTable() {
         blur={false}
         isDismissable={true}
       >
-        <AlertDialog title={t`Change User Role`}>
+        <AlertDialog title={t`Change user role`}>
           <p className="text-muted-foreground text-sm">
             <Trans>
               Select a new role for{" "}
@@ -142,7 +142,7 @@ export function UserTable() {
           <div className="mt-4 flex flex-col gap-4">
             <Select
               autoFocus={true}
-              aria-label={t`User Role`}
+              aria-label={t`User role`}
               selectedKey={userToChangeRole?.role}
               onSelectionChange={(key) => handleUserRoleChange(key as UserRole)}
               className="flex w-full flex-col"
@@ -164,7 +164,7 @@ export function UserTable() {
         isDismissable={true}
       >
         <AlertDialog
-          title={t`Delete User`}
+          title={t`Delete user`}
           variant="destructive"
           actionLabel={t`Delete`}
           cancelLabel={t`Cancel`}
@@ -255,7 +255,7 @@ export function UserTable() {
                       <Menu>
                         <MenuItem id="viewProfile">
                           <UserIcon className="h-4 w-4" />
-                          <Trans>View Profile</Trans>
+                          <Trans>View profile</Trans>
                         </MenuItem>
                         <MenuItem
                           id="changeRole"
@@ -264,7 +264,7 @@ export function UserTable() {
                         >
                           <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
                           <span className="group-disabled:text-muted-foreground">
-                            <Trans>Change Role</Trans>
+                            <Trans>Change role</Trans>
                           </span>
                         </MenuItem>
                         <MenuSeparator />
