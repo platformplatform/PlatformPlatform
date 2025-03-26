@@ -16,21 +16,17 @@ public class TranslateCommand : Command
         $"Update language files with missing translations powered by {OpenAiTranslationService.ModelName}"
     )
     {
-        var translateAllLanguagesOption = new Option<bool?>(
-            ["--translate-all", "--all"],
-            "Translate all detected languages"
-        );
-
-        AddOption(translateAllLanguagesOption);
-        Handler = CommandHandler.Create<bool?>(Execute);
+        AddOption(new Option<string?>(["--self-contained-system", "-s"], "Translate only files in a specific self-contained system"));
+        AddOption(new Option<string?>(["--language", "-l"], "Translate only files for a specific language (e.g. da-DK, nl-NL)"));
+        Handler = CommandHandler.Create<string?, string?>(Execute);
     }
 
-    private static async Task<int> Execute(bool? translateAll)
+    private static async Task<int> Execute(string? selfContainedSystem, string? language)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
         try
         {
-            var translationFiles = GetTranslationFiles(translateAll);
+            var translationFiles = GetTranslationFiles(selfContainedSystem, language);
             await RunTranslation(translationFiles);
             return 0;
         }
@@ -41,7 +37,7 @@ public class TranslateCommand : Command
         }
     }
 
-    private static string[] GetTranslationFiles(bool? translateAll)
+    private static string[] GetTranslationFiles(string? selfContainedSystem, string? language)
     {
         var translationFiles = Directory.GetFiles(Configuration.ApplicationFolder, "*.po", SearchOption.AllDirectories)
             .Where(f => !f.Contains("node_modules") &&
@@ -50,18 +46,44 @@ public class TranslateCommand : Command
             )
             .ToDictionary(s => s.Replace(Configuration.ApplicationFolder, ""), f => f);
 
-        if (translateAll == true)
+        if (selfContainedSystem is not null)
         {
-            return translationFiles.Values.ToArray();
+            var availableSystems = Directory.GetDirectories(Configuration.ApplicationFolder)
+                .Select(Path.GetFileName)
+                .ToArray();
+
+            if (!availableSystems.Contains(selfContainedSystem))
+            {
+                AnsiConsole.MarkupLine($"[red]ERROR:[/] Invalid self-contained system. Available systems are: {string.Join(", ", availableSystems)}");
+                Environment.Exit(1);
+            }
+
+            translationFiles = translationFiles
+                .Where(f => f.Key.StartsWith($"{Path.DirectorySeparatorChar}{selfContainedSystem}{Path.DirectorySeparatorChar}"))
+                .ToDictionary(s => s.Key, f => f.Value);
+
+            if (!translationFiles.Any())
+            {
+                AnsiConsole.MarkupLine($"[red]ERROR:[/] No translation files found in {selfContainedSystem}");
+                Environment.Exit(1);
+            }
         }
 
-        var prompt = new SelectionPrompt<string>()
-            .Title("Please select the file to translate")
-            .AddChoices(translationFiles.Keys);
+        if (language is not null)
+        {
+            translationFiles = translationFiles
+                .Where(f => f.Key.EndsWith($"{language}.po"))
+                .ToDictionary(s => s.Key, f => f.Value);
 
-        var selection = AnsiConsole.Prompt(prompt);
-        var selectedFile = translationFiles[selection];
-        return [selectedFile];
+            if (!translationFiles.Any())
+            {
+                var systemInfo = selfContainedSystem != null ? $" in {selfContainedSystem}" : "";
+                AnsiConsole.MarkupLine($"[red]ERROR:[/] No translation files found for language {language}{systemInfo}");
+                Environment.Exit(1);
+            }
+        }
+
+        return translationFiles.Values.ToArray();
     }
 
     private static async Task RunTranslation(string[] translationFiles)
@@ -111,12 +133,14 @@ public class TranslateCommand : Command
         var poParseResult = poParser.Parse(new StringReader(translationContent));
         if (!poParseResult.Success)
         {
-            throw new InvalidOperationException($"Failed to parse PO file. {poParseResult.Diagnostics}");
+            AnsiConsole.MarkupLine($"[red]ERROR:[/] Failed to parse PO file. {poParseResult.Diagnostics}");
+            Environment.Exit(1);
         }
 
         if (poParseResult.Catalog.Language is null)
         {
-            throw new InvalidOperationException($"Failed to parse PO file {translationFile}. Language not found.");
+            AnsiConsole.MarkupLine($"[red]ERROR:[/] Failed to parse PO file {translationFile}. Language not found.");
+            Environment.Exit(1);
         }
 
         return poParseResult.Catalog;
@@ -270,9 +294,9 @@ public class TranslateCommand : Command
 
     private sealed class OpenAiTranslationService
     {
+        public const string ModelName = "gpt-4o";
         private readonly ChatClient _client;
         public readonly Gpt4OUsageStatistics UsageStatistics = new();
-        public const string ModelName = "gpt-4o";
 
         private OpenAiTranslationService(string apiKey)
         {
@@ -330,12 +354,12 @@ public class TranslateCommand : Command
             var streamingUpdate = _client.CompleteChatStreamingAsync(messages);
             await foreach (var update in streamingUpdate)
             {
-                if (update.Usage != null)
+                if (update.Usage is not null)
                 {
                     UsageStatistics.Update(update.Usage);
                 }
 
-                content.Append(update?.ContentUpdate.FirstOrDefault()?.Text ?? "");
+                content.Append(update.ContentUpdate.FirstOrDefault()?.Text ?? "");
                 var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
                 context.Status($"Translating {Math.Min(100, percent)}%");
             }
@@ -351,18 +375,18 @@ public class TranslateCommand : Command
             private const decimal NonCachedInputPricePerThousandTokens = 0.0025m;
             private const decimal CachedInputPricePerThousandTokens = 0.00125m;
             private const decimal OutputPricePerThousandTokens = 0.01m;
+            private int _cachedInputTokenCount;
 
             private int _nonCachedInputTokenCount;
             private int _outputTokenCount;
-            private int _cachedInputTokenCount;
 
             public decimal TotalCost
             {
                 get
                 {
-                    var nonCachedInputCost = (_nonCachedInputTokenCount / 1000m) * NonCachedInputPricePerThousandTokens;
-                    var cachedInputPrice = (_cachedInputTokenCount / 1000m) * CachedInputPricePerThousandTokens;
-                    var outputCost = (_outputTokenCount / 1000m) * OutputPricePerThousandTokens;
+                    var nonCachedInputCost = _nonCachedInputTokenCount / 1000m * NonCachedInputPricePerThousandTokens;
+                    var cachedInputPrice = _cachedInputTokenCount / 1000m * CachedInputPricePerThousandTokens;
+                    var outputCost = _outputTokenCount / 1000m * OutputPricePerThousandTokens;
 
                     return nonCachedInputCost + cachedInputPrice + outputCost;
                 }
@@ -373,7 +397,7 @@ public class TranslateCommand : Command
             public void Update(ChatTokenUsage usage)
             {
                 _cachedInputTokenCount += usage.InputTokenDetails.CachedTokenCount;
-                _nonCachedInputTokenCount += (usage.InputTokenCount - usage.InputTokenDetails.CachedTokenCount);
+                _nonCachedInputTokenCount += usage.InputTokenCount - usage.InputTokenDetails.CachedTokenCount;
                 _outputTokenCount += usage.OutputTokenCount;
             }
         }
