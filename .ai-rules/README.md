@@ -11,6 +11,7 @@ When responding start by reading the relevant instructions from these areas.
 - [Infrastructure Rules](/.ai-rules/infrastructure/README.md)
 - [Developer CLI Rules](/.ai-rules/developer-cli/README.md)
 - Other Rules
+  - [Git Commit Rules](/.ai-rules/other/git-commits.md)
   - [Pull Request Rules](/.ai-rules/other/pull-request.md)
 
 It is **EXTREMELY important that you follow the instructions in the rule files very carefully**.

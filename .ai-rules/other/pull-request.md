@@ -30,14 +30,14 @@ Create a pull request title following these conventions:
 ### General conventions when writing pull request descriptions
 - Use imperative form in sentences
 - Use backticks (`) around code concepts like filenames, classnames, env vars, cli commands, etc.
-- Do not use the term "Pull Request", "PR", or any abbreviation of it
+- Do not use the term "Pull Request", "PR", or any abbreviation of it (this will become release notes and will not be shown in the context of the pull request)
 - Do not use personal pronouns such as "we", "our", "he", "she"
 - Avoid generic phrases like "to improve code quality" or "to make the codebase cleaner"
 - Prefer describing functional changes and their motivation (but don't try to oversell the changes)
 
 The pull request description only has these two sections:
 
-### Summary & motivation
+### Summary & Motivation
 
 This section should:
 
