@@ -20,6 +20,7 @@ When working with TypeScript and React code, follow these rules very carefully.
 - Use React Aria Components from `@repo/ui/components/ComponentName`.
 - Use `onPress` instead of `onClick` for event handlers.
 - Use `<Trans>...</Trans>` or t-string literals (t\`...\`) for translations (content should be plain English).
+- Throw errors sparingly. Error messages should include a period.
 - Use TanStack Query for API interactions.
 
 ## Implementation

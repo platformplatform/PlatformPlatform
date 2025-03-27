@@ -20,7 +20,16 @@ When working with C# code, follow these rules very carefully.
 - Avoid using exceptions for control flow:
   - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
   - Use `UnreachableException` to signal unreachable code, that cannot be reached by tests.
+  - Exception messages should include a period.
+- Log only meaningful events at appropriate severity levels.
+  -Logging messages should not include a period.
+  - Use structured logging.
 - Never introduce new NuGet dependencies.
+- Don't do defensive coding (e.g. do not add exception handling to handle situations we don't know will happen).
+- Avoid try-catch, unless we cannot fix the reason. We have Global Exception handling to handle unknown exceptions.
+- Use SharedInfrastructureConfiguration.IsRunningInAzure to determine if we are running in Azure.
+- Don't add comments unless the code is truly not expressing the intent.
+- Never add XML Comments.
 
 ## Implementation
 

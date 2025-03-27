@@ -216,11 +216,11 @@ msgstr "Name"
 msgid "Next"
 msgstr "Next"
 
-msgid "No active login"
-msgstr "No active login"
+msgid "No active login."
+msgstr "No active login."
 
-msgid "No active signup session"
-msgstr "No active signup session"
+msgid "No active signup session."
+msgstr "No active signup session."
 
 msgid "Organization"
 msgstr "Organization"

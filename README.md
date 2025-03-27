@@ -2,8 +2,11 @@
 
 <h4 align="center">
 
-[![AppGateway](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml?query=branch%3Amain)
-[![AccountManagement](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml?query=branch%3Amain)
+[![App Gateway](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml?query=branch%3Amain)
+[![Account Management](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml?query=branch%3Amain)
+[![Back Office](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml?query=branch%3Amain)
+[![Cloud Infrastructure](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml?query=branch%3Amain)
+
 [![GitHub issues with enhancement label](https://img.shields.io/github/issues-raw/platformplatform/PlatformPlatform/enhancement?label=enhancements&logo=github&color=%23A2EEEF)](https://github.com/orgs/PlatformPlatform/projects/1/views/3?filterQuery=-status%3A%22%E2%9C%85+Done%22+label%3Aenhancement)
 [![GitHub issues with roadmap label](https://img.shields.io/github/issues-raw/platformplatform/PlatformPlatform/roadmap?label=roadmap&logo=github&color=%23006B75)](https://github.com/orgs/PlatformPlatform/projects/2/views/2?filterQuery=is%3Aopen+label%3Aroadmap)
 [![GitHub issues with bug label](https://img.shields.io/github/issues-raw/platformplatform/PlatformPlatform/bug?label=bugs&logo=github&color=red)](https://github.com/platformplatform/PlatformPlatform/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
@@ -13,11 +16,6 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=security_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Security)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=reliability_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Reliability)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=Maintainability)
-
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=code_smells)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=CODE_SMELL)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=vulnerabilities)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=VULNERABILITY)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=bugs)](https://sonarcloud.io/project/issues?id=PlatformPlatform_platformplatform&resolved=false&types=BUG)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=PlatformPlatform_platformplatform&metric=sqale_index)](https://sonarcloud.io/component_measures?id=PlatformPlatform_platformplatform&metric=sqale_index)
 
 </h4>
 
@@ -213,10 +211,15 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
+│  ├─ back-office        # A self-contained system for operations and support (empty for now)
+│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
+│  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
+│  │   ├─ Core           # Core business logic, application use cases, and infrastructure
+│  │   ├─ Workers        # Background workers for long-running tasks and event processing
+│  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ shared-kernel      # Reusable components and default configuration for all systems
 │  ├─ shared-webapp      # Reusable and styled React Aria Components that affect all systems 
-│  ├─ [saas-scs]         # [Your SCS] Create your SaaS product as a self-contained system
-│  └─ back-office        # A self-contained system for operations and support (empty for now)
+│  └─ [your-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
 │  ├─ environment        # Shared resources like App Insights, Container Registry, etc.

@@ -49,7 +49,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SignupCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
-        _tenantCreatedEventHandlerLogger.Received().LogInformation("Raise event to send Welcome mail to tenant.");
+        _tenantCreatedEventHandlerLogger.Received().LogInformation("Raise event to send Welcome mail to tenant");
     }
 
     [Fact]

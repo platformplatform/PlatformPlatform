@@ -16,7 +16,7 @@ export function setLoginState(newLogin: LoginState): void {
 
 export function getLoginState() {
   if (currentLoginState == null) {
-    throw new Error(t`No active login`);
+    throw new Error(t`No active login.`);
   }
   return currentLoginState;
 }

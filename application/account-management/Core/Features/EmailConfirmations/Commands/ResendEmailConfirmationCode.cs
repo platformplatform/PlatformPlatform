@@ -33,7 +33,7 @@ public sealed class ResendEmailConfirmationCodeHandler(
 
         if (emailConfirmation.Completed)
         {
-            logger.LogWarning("EmailConfirmation with id '{EmailConfirmationId}' has already been completed.", emailConfirmation.Id);
+            logger.LogWarning("EmailConfirmation with id '{EmailConfirmationId}' has already been completed", emailConfirmation.Id);
             return Result<ResendEmailConfirmationCodeResponse>.BadRequest($"The email confirmation with id {emailConfirmation.Id} has already been completed.");
         }
 

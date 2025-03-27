@@ -7,7 +7,7 @@ import { AuthenticationContext } from "./AuthenticationProvider";
 export function useAuthentication() {
   const context = useContext(AuthenticationContext);
   if (!context) {
-    throw new Error("useAuthentication must be used within an AuthenticationProvider");
+    throw new Error("useAuthentication must be used within an AuthenticationProvider.");
   }
 
   return context;
