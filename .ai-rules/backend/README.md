@@ -30,6 +30,8 @@ When working with C# code, follow these rules very carefully.
 - Use SharedInfrastructureConfiguration.IsRunningInAzure to determine if we are running in Azure.
 - Don't add comments unless the code is truly not expressing the intent.
 - Never add XML Comments.
+- Use DateTimeOffset and not DateTime
+- Use TimeProvider.System.GetUtcNow() and not DateTime.UtcNow()
 
 ## Implementation
 

@@ -29,6 +29,12 @@ For example:
 5. Follow the Arrange-Act-Assert pattern with clear comments for each section.
 6. Test both happy path and error cases.
 7. Verify side effects like database changes and telemetry events.
+8. For creating and verifying test data, use the `Connection` property from `EndpointBaseTest<TContext>`. This provides a `Microsoft.Data.Sqlite` connection with methods like:
+   - `Insert` to populate test data into the database
+   - `ExecuteScalar` to verify data was correctly inserted
+   - `RowExists` to check if specific records exist
+
+Example:
 
 IMPORTANT: Pay special attention to ensure consistent ordering, naming, spacing, line breaks of methods, parameters, variables, etc. For example, when creating SQL dummy data, ensure columns are in the exact same order as in the database. Or if you make several tests make sure things that are similar is written in the same way.
 
