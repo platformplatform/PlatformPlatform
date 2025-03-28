@@ -1,9 +1,10 @@
 import type { components } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { DeleteUserDialog } from "./DeleteUserDialog";
+import InviteUserDialog from "./InviteUserDialog";
 import { UserQuerying } from "./UserQuerying";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -15,6 +16,7 @@ interface UserToolbarProps {
 }
 
 export function UserToolbar({ selectedUsers, onUsersDeleted, onRefreshNeeded }: Readonly<UserToolbarProps>) {
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleUsersDeleted = useCallback(() => {
@@ -26,6 +28,14 @@ export function UserToolbar({ selectedUsers, onUsersDeleted, onRefreshNeeded }: 
     <div className="mt-4 mb-4 flex items-center justify-between gap-2">
       <UserQuerying />
       <div className="mt-6 flex items-center gap-2">
+        {selectedUsers.length === 0 && (
+          <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
+            <PlusIcon className="h-5 w-5" />
+            <span className="hidden sm:inline">
+              <Trans>Invite users</Trans>
+            </span>
+          </Button>
+        )}
         {selectedUsers.length > 0 && (
           <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
             <Trash2Icon className="h-5 w-5" />
@@ -35,6 +45,7 @@ export function UserToolbar({ selectedUsers, onUsersDeleted, onRefreshNeeded }: 
           </Button>
         )}
       </div>
+      <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
       <DeleteUserDialog
         users={selectedUsers}
         isOpen={isDeleteModalOpen}

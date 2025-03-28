@@ -12,12 +12,12 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
 import { useCallback, useEffect } from "react";
 
-type InviteUserModalProps = {
+interface InviteUserDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-};
+}
 
-export default function InviteUserModal({ isOpen, onOpenChange }: Readonly<InviteUserModalProps>) {
+export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
   const closeDialog = useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);

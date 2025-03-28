@@ -4,12 +4,9 @@ import { SortOrder, SortableUserProperties, UserRole, UserStatus, type component
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { Button } from "@repo/ui/components/Button";
 import { createFileRoute } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { z } from "zod";
-import InviteUserModal from "./-components/InviteUserModal";
 import { UserTable } from "./-components/UserTable";
 import { UserToolbar } from "./-components/UserToolbar";
 
@@ -32,7 +29,6 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -61,10 +57,6 @@ export default function UsersPage() {
               <Trans>Manage your users and permissions here.</Trans>
             </p>
           </div>
-          <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
-            <PlusIcon className="h-4 w-4" />
-            <Trans>Invite users</Trans>
-          </Button>
         </div>
 
         <UserToolbar
@@ -79,7 +71,6 @@ export default function UsersPage() {
           onRefreshNeeded={handleRefresh}
         />
       </div>
-      <InviteUserModal isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
     </div>
   );
 }
