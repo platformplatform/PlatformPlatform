@@ -56,4 +56,9 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
         ArgumentNullException.ThrowIfNull(aggregate);
         DbSet.Remove(aggregate);
     }
+
+    public void BulkRemove(T[] aggregates)
+    {
+        DbSet.RemoveRange(aggregates);
+    }
 }
