@@ -56,7 +56,11 @@ msgstr "Any role"
 msgid "Any status"
 msgstr "Any status"
 
-#. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
+#. placeholder {0}: users.length
+msgid "Are you sure you want to delete <0>{0} users</0>?"
+msgstr "Are you sure you want to delete <0>{0} users</0>?"
+
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Are you sure you want to delete <0>{0}?</0>"
 
@@ -93,11 +97,18 @@ msgstr "Danger zone"
 msgid "Delete"
 msgstr "Delete"
 
+#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
+msgid "Delete {0}"
+msgstr "Delete {0}"
+
 msgid "Delete account"
 msgstr "Delete account"
 
 msgid "Delete user"
 msgstr "Delete user"
+
+msgid "Delete users"
+msgstr "Delete users"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."

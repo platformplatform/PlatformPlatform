@@ -56,7 +56,11 @@ msgstr "Elke rol"
 msgid "Any status"
 msgstr "Elke status"
 
-#. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
+#. placeholder {0}: users.length
+msgid "Are you sure you want to delete <0>{0} users</0>?"
+msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
+
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
 
@@ -93,11 +97,18 @@ msgstr "Gevaarzone"
 msgid "Delete"
 msgstr "Verwijderen"
 
+#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
+msgid "Delete {0}"
+msgstr "Verwijder {0}"
+
 msgid "Delete account"
 msgstr "Account verwijderen"
 
 msgid "Delete user"
 msgstr "Gebruiker verwijderen"
+
+msgid "Delete users"
+msgstr "Gebruikers verwijderen"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."

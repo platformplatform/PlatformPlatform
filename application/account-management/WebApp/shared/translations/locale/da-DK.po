@@ -56,7 +56,11 @@ msgstr "Enhver rolle"
 msgid "Any status"
 msgstr "Enhver status"
 
-#. placeholder {0}: `${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email
+#. placeholder {0}: users.length
+msgid "Are you sure you want to delete <0>{0} users</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
+
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
 
@@ -93,11 +97,18 @@ msgstr "Farezone"
 msgid "Delete"
 msgstr "Slet"
 
+#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
+msgid "Delete {0}"
+msgstr "Slet {0}"
+
 msgid "Delete account"
 msgstr "Slet konto"
 
 msgid "Delete user"
 msgstr "Slet bruger"
+
+msgid "Delete users"
+msgstr "Slet brugere"
 
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
