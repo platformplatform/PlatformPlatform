@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.Persistence;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Domain;
 
-public interface IUserRepository : ICrudRepository<User, UserId>
+public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRepository<User>
 {
     Task<User?> GetByIdUnfilteredAsync(UserId id, CancellationToken cancellationToken);
 
@@ -19,6 +19,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>
     Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken);
 
     Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken);
+
+    Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
@@ -74,6 +76,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
+    }
+
+    public async Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(u => ids.Contains(u.Id)).ToArrayAsync(cancellationToken);
     }
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
