@@ -26,6 +26,10 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(new DeleteUserCommand(id))
         );
 
+        group.MapPost("/bulk-delete", async Task<ApiResult> (BulkDeleteUsersCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         );

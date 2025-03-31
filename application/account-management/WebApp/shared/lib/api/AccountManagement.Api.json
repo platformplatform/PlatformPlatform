@@ -552,6 +552,38 @@
         }
       }
     },
+    "/api/account-management/users/bulk-delete": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountManagementUsersBulkDelete",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteUsersCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/users/{id}/change-user-role": {
       "put": {
         "tags": [
@@ -1202,6 +1234,18 @@
           "pendingUsers": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "BulkDeleteUsersCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserId"
+            }
           }
         }
       },

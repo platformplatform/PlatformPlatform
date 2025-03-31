@@ -1,17 +1,16 @@
 import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
-import { SortOrder, SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { SortOrder, SortableUserProperties, UserRole, UserStatus, type components } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { Button } from "@repo/ui/components/Button";
 import { createFileRoute } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { z } from "zod";
-import InviteUserModal from "./-components/InviteUserModal";
-import { UserQuerying } from "./-components/UserQuerying";
 import { UserTable } from "./-components/UserTable";
+import { UserToolbar } from "./-components/UserToolbar";
+
+type UserDetails = components["schemas"]["UserDetails"];
 
 const userPageSearchSchema = z.object({
   search: z.string().optional(),
@@ -30,7 +29,12 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
   return (
     <div className="flex h-full w-full gap-4">
@@ -53,15 +57,20 @@ export default function UsersPage() {
               <Trans>Manage your users and permissions here.</Trans>
             </p>
           </div>
-          <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
-            <PlusIcon className="h-4 w-4" />
-            <Trans>Invite users</Trans>
-          </Button>
         </div>
-        <UserQuerying />
-        <UserTable />
+
+        <UserToolbar
+          selectedUsers={selectedUsers}
+          onUsersDeleted={() => setSelectedUsers([])}
+          onRefreshNeeded={handleRefresh}
+        />
+        <UserTable
+          key={refreshKey}
+          selectedUsers={selectedUsers}
+          onSelectedUsersChange={setSelectedUsers}
+          onRefreshNeeded={handleRefresh}
+        />
       </div>
-      <InviteUserModal isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
     </div>
   );
 }

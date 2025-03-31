@@ -72,7 +72,7 @@ export function UserQuerying() {
   }, [search, updateFilter]);
 
   return (
-    <div className="mt-4 mb-4 flex items-center gap-2">
+    <div className="flex items-center gap-2">
       <SearchField
         placeholder={t`Search`}
         value={search}

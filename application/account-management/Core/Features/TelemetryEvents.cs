@@ -66,8 +66,11 @@ public sealed class GravatarUpdated(long size)
 public sealed class UserCreated(UserId userId, bool gravatarProfileFound)
     : TelemetryEvent(("user_id", userId), ("gravatar_profile_found", gravatarProfileFound));
 
-public sealed class UserDeleted(UserId userId)
-    : TelemetryEvent(("user_id", userId));
+public sealed class UserDeleted(UserId userId, bool bulkDeletion = false)
+    : TelemetryEvent(("user_id", userId), ("bulk_deletion", bulkDeletion));
+
+public sealed class UsersBulkDeleted(int count)
+    : TelemetryEvent(("count", count));
 
 public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMinutes)
     : TelemetryEvent(("user_id", userId), ("invite_accepted_time_in_minutes", inviteAcceptedTimeInMinutes));

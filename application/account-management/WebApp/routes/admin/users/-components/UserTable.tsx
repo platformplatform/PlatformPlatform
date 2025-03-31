@@ -1,26 +1,31 @@
-import { SortOrder, SortableUserProperties, UserRole, api, type components } from "@/shared/lib/api/client";
+import { SortOrder, SortableUserProperties, api, type components } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { Modal } from "@repo/ui/components/Modal";
 import { Pagination } from "@repo/ui/components/Pagination";
-import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useState } from "react";
-import type { SortDescriptor } from "react-aria-components";
+import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
+import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
+import { DeleteUserDialog } from "./DeleteUserDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
-export function UserTable() {
+interface UserTableProps {
+  selectedUsers: UserDetails[];
+  onSelectedUsersChange: (users: UserDetails[]) => void;
+  onRefreshNeeded: () => void;
+}
+
+export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeeded }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
     strict: false
@@ -31,8 +36,6 @@ export function UserTable() {
     column: orderBy ?? "email",
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
-
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
@@ -46,8 +49,7 @@ export function UserTable() {
         SortOrder: sortOrder,
         PageOffset: pageOffset
       }
-    },
-    key: refreshKey
+    }
   });
 
   const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
@@ -82,36 +84,26 @@ export function UserTable() {
     [navigate]
   );
 
-  const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
-
-  const handleDelete = useCallback(async () => {
+  const handleDelete = useCallback(() => {
     if (!userToDelete) {
       return;
     }
-
-    await deleteUserMutation.mutateAsync({ params: { path: { id: userToDelete.id } } });
-
-    setRefreshKey((prev) => prev + 1);
+    onSelectedUsersChange(selectedUsers.filter((user) => user.id !== userToDelete.id));
+    onRefreshNeeded();
     setUserToDelete(null);
-  }, [userToDelete, deleteUserMutation]);
+  }, [userToDelete, onRefreshNeeded, onSelectedUsersChange, selectedUsers]);
 
-  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
-
-  const handleUserRoleChange = useCallback(
-    async (newUserRole: UserRole) => {
-      if (!userToChangeRole) {
-        return;
+  const handleSelectionChange = useCallback(
+    (keys: Selection) => {
+      if (keys === "all") {
+        onSelectedUsersChange(users?.users ?? []);
+      } else {
+        const selectedKeys = typeof keys === "string" ? new Set([keys]) : keys;
+        const selectedUsersList = users?.users.filter((user) => selectedKeys.has(user.id)) ?? [];
+        onSelectedUsersChange(selectedUsersList);
       }
-
-      await changeUserRoleMutation.mutateAsync({
-        params: { path: { id: userToChangeRole.id } },
-        body: { userRole: newUserRole }
-      });
-
-      setRefreshKey((prev) => prev + 1);
-      setUserToChangeRole(null);
     },
-    [userToChangeRole, changeUserRoleMutation]
+    [users?.users, onSelectedUsersChange]
   );
 
   if (isLoading) {
@@ -122,66 +114,27 @@ export function UserTable() {
 
   return (
     <>
-      <Modal
+      <ChangeUserRoleDialog
+        user={userToChangeRole}
         isOpen={userToChangeRole !== null}
-        onOpenChange={() => setUserToChangeRole(null)}
-        blur={false}
-        isDismissable={true}
-      >
-        <AlertDialog title={t`Change user role`}>
-          <p className="text-muted-foreground text-sm">
-            <Trans>
-              Select a new role for{" "}
-              <b>
-                {`${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() ||
-                  userToChangeRole?.email}
-              </b>
-            </Trans>
-          </p>
+        onOpenChange={(isOpen) => !isOpen && setUserToChangeRole(null)}
+        onSuccess={onRefreshNeeded}
+      />
 
-          <div className="mt-4 flex flex-col gap-4">
-            <Select
-              autoFocus={true}
-              aria-label={t`User role`}
-              selectedKey={userToChangeRole?.role}
-              onSelectionChange={(key) => handleUserRoleChange(key as UserRole)}
-              className="flex w-full flex-col"
-            >
-              {Object.values(UserRole).map((userRole) => (
-                <SelectItem id={userRole} key={userRole}>
-                  {getUserRoleLabel(userRole)}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-        </AlertDialog>
-      </Modal>
-
-      <Modal
+      <DeleteUserDialog
+        users={userToDelete ? [userToDelete] : []}
         isOpen={userToDelete !== null}
-        onOpenChange={() => setUserToDelete(null)}
-        blur={false}
-        isDismissable={true}
-      >
-        <AlertDialog
-          title={t`Delete user`}
-          variant="destructive"
-          actionLabel={t`Delete`}
-          cancelLabel={t`Cancel`}
-          onAction={handleDelete}
-        >
-          <Trans>
-            Are you sure you want to delete{" "}
-            <b>{`${userToDelete?.firstName ?? ""} ${userToDelete?.lastName ?? ""}`.trim() || userToDelete?.email}?</b>
-          </Trans>
-        </AlertDialog>
-      </Modal>
+        onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
+        onSuccess={handleDelete}
+      />
 
       <div className="flex h-full w-full flex-col gap-2">
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
           selectionBehavior="toggle"
+          selectedKeys={selectedUsers.map((user) => user.id)}
+          onSelectionChange={handleSelectionChange}
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
           aria-label={t`Users`}
@@ -208,7 +161,7 @@ export function UserTable() {
           </TableHeader>
           <TableBody>
             {users?.users.map((user) => (
-              <Row key={user.id}>
+              <Row key={user.id} id={user.id}>
                 <Cell>
                   <div className="flex h-14 items-center gap-2">
                     <Avatar
@@ -243,12 +196,21 @@ export function UserTable() {
                     <Button
                       variant="icon"
                       className="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
-                      onPress={() => setUserToDelete(user)}
+                      onPress={() => {
+                        onSelectedUsersChange([user]);
+                        setUserToDelete(user);
+                      }}
                       isDisabled={user.id === userInfo?.id}
                     >
                       <Trash2Icon className="h-5 w-5 text-muted-foreground" />
                     </Button>
-                    <MenuTrigger>
+                    <MenuTrigger
+                      onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                          onSelectedUsersChange([user]);
+                        }
+                      }}
+                    >
                       <Button variant="icon" aria-label={t`Menu`}>
                         <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                       </Button>
