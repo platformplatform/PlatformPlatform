@@ -1,22 +1,20 @@
-import { SortOrder, SortableUserProperties, UserRole, api, type components } from "@/shared/lib/api/client";
+import { SortOrder, SortableUserProperties, api, type components } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { Modal } from "@repo/ui/components/Modal";
 import { Pagination } from "@repo/ui/components/Pagination";
-import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
+import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -95,25 +93,6 @@ export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeede
     setUserToDelete(null);
   }, [userToDelete, onRefreshNeeded, onSelectedUsersChange, selectedUsers]);
 
-  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
-
-  const handleUserRoleChange = useCallback(
-    async (newUserRole: UserRole) => {
-      if (!userToChangeRole) {
-        return;
-      }
-
-      await changeUserRoleMutation.mutateAsync({
-        params: { path: { id: userToChangeRole.id } },
-        body: { userRole: newUserRole }
-      });
-
-      onRefreshNeeded();
-      setUserToChangeRole(null);
-    },
-    [userToChangeRole, changeUserRoleMutation, onRefreshNeeded]
-  );
-
   const handleSelectionChange = useCallback(
     (keys: Selection) => {
       if (keys === "all") {
@@ -135,40 +114,12 @@ export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeede
 
   return (
     <>
-      <Modal
+      <ChangeUserRoleDialog
+        user={userToChangeRole}
         isOpen={userToChangeRole !== null}
-        onOpenChange={() => setUserToChangeRole(null)}
-        blur={false}
-        isDismissable={true}
-      >
-        <AlertDialog title={t`Change user role`}>
-          <p className="text-muted-foreground text-sm">
-            <Trans>
-              Select a new role for{" "}
-              <b>
-                {`${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() ||
-                  userToChangeRole?.email}
-              </b>
-            </Trans>
-          </p>
-
-          <div className="mt-4 flex flex-col gap-4">
-            <Select
-              autoFocus={true}
-              aria-label={t`User role`}
-              selectedKey={userToChangeRole?.role}
-              onSelectionChange={(key) => handleUserRoleChange(key as UserRole)}
-              className="flex w-full flex-col"
-            >
-              {Object.values(UserRole).map((userRole) => (
-                <SelectItem id={userRole} key={userRole}>
-                  {getUserRoleLabel(userRole)}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-        </AlertDialog>
-      </Modal>
+        onOpenChange={(isOpen) => !isOpen && setUserToChangeRole(null)}
+        onSuccess={onRefreshNeeded}
+      />
 
       <DeleteUserDialog
         users={userToDelete ? [userToDelete] : []}

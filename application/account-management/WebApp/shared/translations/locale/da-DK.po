@@ -287,7 +287,7 @@ msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
-#. placeholder {0}: `${userToChangeRole?.firstName ?? ""} ${userToChangeRole?.lastName ?? ""}`.trim() || userToChangeRole?.email
+#. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
