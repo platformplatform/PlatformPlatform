@@ -1,10 +1,11 @@
+import { queryClient } from "@/shared/lib/api/client";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
 
 export const Route = createRootRoute({
@@ -12,8 +13,6 @@ export const Route = createRootRoute({
   errorComponent: ErrorPage,
   notFoundComponent: NotFound
 });
-
-const queryClient = new QueryClient();
 
 function Root() {
   const navigate = useNavigate();
