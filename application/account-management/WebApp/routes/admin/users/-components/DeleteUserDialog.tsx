@@ -11,10 +11,9 @@ interface DeleteUserDialogProps {
   users: UserDetails[];
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSuccess: () => void;
 }
 
-export function DeleteUserDialog({ users, isOpen, onOpenChange, onSuccess }: Readonly<DeleteUserDialogProps>) {
+export function DeleteUserDialog({ users, isOpen, onOpenChange }: Readonly<DeleteUserDialogProps>) {
   const isSingleUser = users.length === 1;
   const user = users[0];
 
@@ -30,8 +29,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onSuccess }: Rea
     }
 
     onOpenChange(false);
-    onSuccess();
-  }, [users, isSingleUser, user, deleteUserMutation, bulkDeleteUsersMutation, onOpenChange, onSuccess]);
+  }, [users, isSingleUser, user, deleteUserMutation, bulkDeleteUsersMutation, onOpenChange]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={true}>

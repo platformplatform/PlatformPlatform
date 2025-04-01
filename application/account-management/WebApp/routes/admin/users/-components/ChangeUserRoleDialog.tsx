@@ -13,10 +13,9 @@ interface ChangeUserRoleDialogProps {
   user: UserDetails | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSuccess: () => void;
 }
 
-export function ChangeUserRoleDialog({ user, isOpen, onOpenChange, onSuccess }: Readonly<ChangeUserRoleDialogProps>) {
+export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
   const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
 
   const handleUserRoleChange = useCallback(
@@ -28,9 +27,8 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange, onSuccess }: 
       await changeUserRoleMutation.mutateAsync({ params: { path: { id: user.id } }, body: { userRole: newUserRole } });
 
       onOpenChange(false);
-      onSuccess();
     },
-    [user, changeUserRoleMutation, onOpenChange, onSuccess]
+    [user, changeUserRoleMutation, onOpenChange]
   );
 
   return (

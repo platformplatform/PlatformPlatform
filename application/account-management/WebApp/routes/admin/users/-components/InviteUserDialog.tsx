@@ -10,7 +10,7 @@ import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 
 interface InviteUserDialogProps {
   isOpen: boolean;
@@ -18,23 +18,18 @@ interface InviteUserDialogProps {
 }
 
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
-  const closeDialog = useCallback(() => {
-    onOpenChange(false);
-  }, [onOpenChange]);
-
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
 
   useEffect(() => {
     if (inviteUserMutation.isSuccess) {
-      closeDialog();
-      window.location.reload();
+      onOpenChange(false);
     }
-  }, [inviteUserMutation.isSuccess, closeDialog]);
+  }, [inviteUserMutation.isSuccess, onOpenChange]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
       <Dialog>
-        <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted" />
+        <XIcon onClick={() => onOpenChange(false)} className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted" />
         <Heading slot="title" className="text-2xl">
           <Trans>Invite user</Trans>
         </Heading>
@@ -58,7 +53,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           />
           <FormErrorMessage error={inviteUserMutation.error} />
           <div className="mt-6 flex justify-end gap-4">
-            <Button type="reset" onPress={closeDialog} variant="secondary">
+            <Button type="reset" onPress={() => onOpenChange(false)} variant="secondary">
               <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={inviteUserMutation.isPending}>
