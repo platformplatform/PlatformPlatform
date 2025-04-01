@@ -20,15 +20,14 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
     }
   }, [userInfo]);
 
-  const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout");
+  const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
+    onSuccess: () => {
+      window.location.href = createLoginUrlWithReturnPath(loginPath);
+    }
+  });
 
   if (!userInfo) {
     return null;
-  }
-
-  async function logout() {
-    await logoutMutation.mutateAsync({});
-    window.location.href = createLoginUrlWithReturnPath(loginPath);
   }
 
   return (
@@ -53,7 +52,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
             <Trans>Edit profile</Trans>
           </MenuItem>
           <MenuSeparator />
-          <MenuItem id="logout" onAction={logout}>
+          <MenuItem id="logout" onAction={() => logoutMutation.mutate({})}>
             <LogOutIcon size={16} /> <Trans>Log out</Trans>
           </MenuItem>
         </Menu>
