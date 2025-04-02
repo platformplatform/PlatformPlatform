@@ -34,6 +34,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
         int? pageSize,
         CancellationToken cancellationToken
     );
+
+    Task<User[]> GetTenantUsers(CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
@@ -177,5 +179,10 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
         var totalPages = (totalItems - 1) / pageSize.Value + 1;
         return (result, totalItems, totalPages);
+    }
+
+    public async Task<User[]> GetTenantUsers(CancellationToken cancellationToken)
+    {
+        return await DbSet.ToArrayAsync(cancellationToken);
     }
 }
