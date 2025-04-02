@@ -23,7 +23,7 @@ public sealed class DeleteTenantValidator : AbstractValidator<DeleteTenantComman
     }
 }
 
-public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITelemetryEventsCollector events)
+public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, IUserRepository userRepository, ITelemetryEventsCollector events)
     : IRequestHandler<DeleteTenantCommand, Result>
 {
     public async Task<Result> Handle(DeleteTenantCommand command, CancellationToken cancellationToken)
@@ -31,9 +31,12 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, ITel
         var tenant = await tenantRepository.GetByIdAsync(command.Id, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
 
+        var tenantUsers = await userRepository.GetTenantUsers(cancellationToken);
+        userRepository.BulkRemove(tenantUsers);
+
         tenantRepository.Remove(tenant);
 
-        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
+        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State, tenantUsers.Length));
 
         return Result.Success();
     }

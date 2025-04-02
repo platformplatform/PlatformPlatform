@@ -2,6 +2,8 @@ using System.Net;
 using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
@@ -65,5 +67,49 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "You cannot delete yourself.");
+    }
+
+    [Fact]
+    public async Task DeleteUser_WhenUserHasLoginHistory_ShouldDeleteUserAndLogins()
+    {
+        // Arrange
+        var userId = UserId.NewId();
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", userId.ToString()),
+                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("ModifiedAt", null),
+                ("Email", Faker.Internet.Email()),
+                ("FirstName", Faker.Person.FirstName),
+                ("LastName", Faker.Person.LastName),
+                ("Title", "Philanthropist & Innovator"),
+                ("Role", UserRole.Member.ToString()),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
+            ]
+        );
+
+        // Create a login record for the user
+        var emailConfirmationId = EmailConfirmationId.NewId();
+        var loginId = LoginId.NewId();
+        Connection.Insert("Logins", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", loginId.ToString()),
+                ("UserId", userId.ToString()),
+                ("CreatedAt", DateTime.UtcNow.AddMinutes(-5)),
+                ("ModifiedAt", null),
+                ("EmailConfirmationId", emailConfirmationId.ToString()),
+                ("Completed", true)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account-management/users/{userId}");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
+        Connection.RowExists("Logins", loginId.ToString()).Should().BeFalse();
     }
 }
