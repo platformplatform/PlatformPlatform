@@ -11,7 +11,7 @@ import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
@@ -22,10 +22,9 @@ type UserDetails = components["schemas"]["UserDetails"];
 interface UserTableProps {
   selectedUsers: UserDetails[];
   onSelectedUsersChange: (users: UserDetails[]) => void;
-  onRefreshNeeded: () => void;
 }
 
-export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeeded }: Readonly<UserTableProps>) {
+export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
     strict: false
@@ -84,14 +83,9 @@ export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeede
     [navigate]
   );
 
-  const handleDelete = useCallback(() => {
-    if (!userToDelete) {
-      return;
-    }
-    onSelectedUsersChange(selectedUsers.filter((user) => user.id !== userToDelete.id));
-    onRefreshNeeded();
-    setUserToDelete(null);
-  }, [userToDelete, onRefreshNeeded, onSelectedUsersChange, selectedUsers]);
+  useEffect(() => {
+    onSelectedUsersChange([]);
+  }, [onSelectedUsersChange]);
 
   const handleSelectionChange = useCallback(
     (keys: Selection) => {
@@ -118,14 +112,12 @@ export function UserTable({ selectedUsers, onSelectedUsersChange, onRefreshNeede
         user={userToChangeRole}
         isOpen={userToChangeRole !== null}
         onOpenChange={(isOpen) => !isOpen && setUserToChangeRole(null)}
-        onSuccess={onRefreshNeeded}
       />
 
       <DeleteUserDialog
         users={userToDelete ? [userToDelete] : []}
         isOpen={userToDelete !== null}
         onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
-        onSuccess={handleDelete}
       />
 
       <div className="flex h-full w-full flex-col gap-2">

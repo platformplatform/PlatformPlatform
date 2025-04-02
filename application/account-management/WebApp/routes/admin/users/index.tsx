@@ -5,7 +5,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { UserTable } from "./-components/UserTable";
 import { UserToolbar } from "./-components/UserToolbar";
@@ -30,11 +30,6 @@ export const Route = createFileRoute("/admin/users/")({
 
 export default function UsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const handleRefresh = useCallback(() => {
-    setRefreshKey((prev) => prev + 1);
-  }, []);
 
   return (
     <div className="flex h-full w-full gap-4">
@@ -59,17 +54,8 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <UserToolbar
-          selectedUsers={selectedUsers}
-          onUsersDeleted={() => setSelectedUsers([])}
-          onRefreshNeeded={handleRefresh}
-        />
-        <UserTable
-          key={refreshKey}
-          selectedUsers={selectedUsers}
-          onSelectedUsersChange={setSelectedUsers}
-          onRefreshNeeded={handleRefresh}
-        />
+        <UserToolbar selectedUsers={selectedUsers} />
+        <UserTable selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
       </div>
     </div>
   );
