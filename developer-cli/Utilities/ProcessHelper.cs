@@ -43,8 +43,42 @@ public static class ProcessHelper
     )
     {
         var originalFileName = command.Split(' ')[0];
-        var fileName = FindFullPathFromPath(originalFileName) ?? throw new FileNotFoundException($"Command '{command}' not found");
-        var arguments = command.Contains(' ') ? command[(originalFileName.Length + 1)..] : string.Empty;
+        var fileName = FindFullPathFromPath(originalFileName);
+
+        // If we couldn't find the command in PATH and it's not a full path to an existing file,
+        // fall back to using the shell to run the command
+        if (fileName == null)
+        {
+            if (File.Exists(originalFileName))
+            {
+                fileName = originalFileName;
+            }
+            else if (originalFileName.StartsWith("/") || originalFileName.StartsWith("\"") ||
+                     originalFileName.Contains("/") || originalFileName.Contains("\\"))
+            {
+                // It's an absolute path or quoted path, use it directly
+                fileName = originalFileName.Trim('"');
+            }
+            else
+            {
+                // Use shell to execute the command
+                if (Configuration.IsWindows)
+                {
+                    fileName = "cmd.exe";
+                    command = $"/c {command}";
+                }
+                else
+                {
+                    fileName = "/bin/bash";
+                    command = $"-c \"{command}\"";
+                }
+            }
+        }
+
+        var arguments = fileName == originalFileName && command.Contains(' ')
+            ? command[(originalFileName.Length + 1)..]
+            : (fileName != originalFileName ? command : string.Empty);
+
         var processStartInfo = new ProcessStartInfo
         {
             FileName = fileName,
