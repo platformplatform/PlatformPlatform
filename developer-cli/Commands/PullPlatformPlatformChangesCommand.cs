@@ -22,12 +22,12 @@ public class PullPlatformPlatformChangesCommand : Command
         AddOption(new Option<bool>(["--verbose-logging"], "Show git command and output"));
         AddOption(new Option<bool>(["--auto-confirm", "-a"], "Auto confirm picking all upstream pull-requests"));
         AddOption(new Option<bool>(["--resume", "-r"], "Validate current branch and resume pulling updates starting with rerunning checks"));
-        AddOption(new Option<bool>(["--run-code-cleanup", "-s"], "Run JetBrains code cleanup of backend (slow)"));
+        AddOption(new Option<bool>(["--run-format", "-s"], "Run JetBrains format of backend code (slow)"));
 
         Handler = CommandHandler.Create<bool, bool, bool, bool>(Execute);
     }
 
-    private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeCleanup)
+    private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeFormat)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.GithubCli);
 
@@ -44,7 +44,7 @@ public class PullPlatformPlatformChangesCommand : Command
                 Environment.Exit(0);
             }
 
-            BuildTestAndCleanupCode(runCodeCleanup);
+            BuildTestAndFormatCode(runCodeFormat);
             ValidateGitStatus();
         }
 
@@ -62,7 +62,7 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 if (!StartCherryPick(commit)) break;
 
-                BuildTestAndCleanupCode(runCodeCleanup);
+                BuildTestAndFormatCode(runCodeFormat);
                 ValidateGitStatus();
             }
         }
@@ -282,13 +282,13 @@ public class PullPlatformPlatformChangesCommand : Command
         return true;
     }
 
-    private static void BuildTestAndCleanupCode(bool runCodeCleanup)
+    private static void BuildTestAndFormatCode(bool runCodeFormat)
     {
         BuildSolution();
 
         RunTests();
 
-        CleanupBackendCode();
+        FormatBackendCode();
 
         CheckFrontendCode();
 
@@ -337,18 +337,18 @@ public class PullPlatformPlatformChangesCommand : Command
             }
         }
 
-        void CleanupBackendCode()
+        void FormatBackendCode()
         {
-            if (!runCodeCleanup) return;
+            if (!runCodeFormat) return;
 
             while (true)
             {
-                AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
+                AnsiConsole.MarkupLine("[green]Running format.[/]");
 
-                var codeCleanupCommand = new CodeCleanupCommand();
+                var formatCommand = new FormatCommand();
                 var backendArgs = new[] { "--backend" };
 
-                codeCleanupCommand.Invoke(backendArgs);
+                formatCommand.Invoke(backendArgs);
             }
         }
 
@@ -382,14 +382,14 @@ public class PullPlatformPlatformChangesCommand : Command
 
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("[yellow]Code cleanup resulted in changes. How do you want to proceed?[/]")
+                    .Title("[yellow]Code format resulted in changes. How do you want to proceed?[/]")
                     .AddChoices("Add changes to cherry picked commit", "Add add new commit", "Abort")
             );
 
             switch (choice)
             {
                 case "Add changes to cherry picked commit": AmendCommit(); break;
-                case "Add add new commit": CreateChangeCommit("Code cleanup"); break;
+                case "Add add new commit": CreateChangeCommit("Run code format"); break;
                 case "Abort": Environment.Exit(0); break;
             }
         }

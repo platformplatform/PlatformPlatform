@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
 using PlatformPlatform.DeveloperCli.Installation;
@@ -8,39 +9,93 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class CodeCleanupCommand : Command
+public class FormatCommand : Command
 {
-    public CodeCleanupCommand() : base("code-cleanup", "Run JetBrains Code Cleanup")
+    public FormatCommand() : base("format", "Formats code to match code styling rules")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
+        AddOption(new Option<bool?>(["--backend", "-b"], "Only format backend code"));
+        AddOption(new Option<bool?>(["--frontend", "-f"], "Only format frontend code"));
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to format (only used for backend code)"));
 
-        Handler = CommandHandler.Create(Execute);
+        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
     }
 
-    private static void Execute(string? solutionName)
+    private void Execute(bool backend, bool frontend, string? solutionName)
     {
-        Prerequisite.Ensure(Prerequisite.Dotnet);
+        var formatBackend = backend || !frontend;
+        var formatFrontend = frontend || !backend;
 
+        try
+        {
+            var totalStopwatch = Stopwatch.StartNew();
+            var backendTime = TimeSpan.Zero;
+            var frontendTime = TimeSpan.Zero;
+
+            if (formatBackend)
+            {
+                Prerequisite.Ensure(Prerequisite.Dotnet);
+                RunBackendFormat(solutionName);
+                backendTime = totalStopwatch.Elapsed;
+            }
+
+            if (formatFrontend)
+            {
+                Prerequisite.Ensure(Prerequisite.Node);
+                RunFrontendFormat();
+                frontendTime = totalStopwatch.Elapsed - backendTime;
+            }
+
+            AnsiConsole.MarkupLine($"[green]Code formatting completed in {totalStopwatch.Elapsed.Format()}[/]");
+            if (formatBackend && formatFrontend)
+            {
+                AnsiConsole.MarkupLine(
+                    $"""
+                     Backend:     [green]{backendTime.Format()}[/]
+                     Frontend:    [green]{frontendTime.Format()}[/]
+                     """
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]Error during code format: {ex.Message}[/]");
+            Environment.Exit(1);
+        }
+    }
+
+    private static void RunBackendFormat(string? solutionName)
+    {
+        AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
         var solutionFile = SolutionHelper.GetSolution(solutionName);
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
         // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
         var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
-        var jetbrainsSupportedSolutionFile = createTemporarySolutionFile
-            ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
-            : solutionFile.FullName;
-
-        ProcessHelper.StartProcess(
-            $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
-            solutionFile.Directory!.FullName
-        );
-
-        if (createTemporarySolutionFile)
+        var jetbrainsSupportedSolutionFile = string.Empty;
+        try
         {
-            File.Delete(jetbrainsSupportedSolutionFile);
-        }
+            jetbrainsSupportedSolutionFile = createTemporarySolutionFile
+                ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
+                : solutionFile.FullName;
 
-        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
+            ProcessHelper.StartProcess(
+                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
+                solutionFile.Directory!.FullName
+            );
+        }
+        finally
+        {
+            if (createTemporarySolutionFile)
+            {
+                File.Delete(jetbrainsSupportedSolutionFile);
+            }
+        }
+    }
+
+    private static void RunFrontendFormat()
+    {
+        AnsiConsole.MarkupLine("[blue]Running frontend code format...[/]");
+        ProcessHelper.StartProcess("npm run lint", Configuration.ApplicationFolder);
     }
 
     /// <summary>
