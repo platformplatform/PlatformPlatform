@@ -20,13 +20,19 @@ public class FormatCommand : Command
         Handler = CommandHandler.Create<bool, bool, string?>(Execute);
     }
 
-    private void Execute(bool backend, bool frontend, string? solutionName)
+    private static void Execute(bool backend, bool frontend, string? solutionName)
     {
         var formatBackend = backend || !frontend;
         var formatFrontend = frontend || !backend;
 
         try
         {
+            var initialUncommittedFiles = GitHelper.GetChangedFiles();
+            if (initialUncommittedFiles.Count > 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]Warning: You have unstaged changes in your working directory.[/]");
+            }
+
             var totalStopwatch = Stopwatch.StartNew();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
@@ -45,7 +51,19 @@ public class FormatCommand : Command
                 frontendTime = totalStopwatch.Elapsed - backendTime;
             }
 
-            AnsiConsole.MarkupLine($"[green]Code formatting completed in {totalStopwatch.Elapsed.Format()}[/]");
+            var uncommittedFilesAfterFormat = GitHelper.GetChangedFiles();
+            var modifiedFiles = uncommittedFilesAfterFormat
+                .Where(kvp => !initialUncommittedFiles.TryGetValue(kvp.Key, out var hash) || hash != kvp.Value)
+                .Select(kvp => kvp.Key)
+                .ToArray();
+
+            if (modifiedFiles.Length > 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]Warning: Code format modified the following files:[/]");
+                AnsiConsole.MarkupLine($"[blue]{string.Join(Environment.NewLine, modifiedFiles)}[/]");
+            }
+
+            AnsiConsole.MarkupLine($"[green]Code format completed in {totalStopwatch.Elapsed.Format()}[/]");
             if (formatBackend && formatFrontend)
             {
                 AnsiConsole.MarkupLine(
