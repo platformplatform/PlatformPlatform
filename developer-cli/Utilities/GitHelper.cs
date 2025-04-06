@@ -7,6 +7,8 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 public static class GitHelper
 {
     private const string IntegrationBranch = "main";
+    private const string DefaultRemote = "origin";
+    private const string UpstreamRemote = "upstream";
 
     public static Commit[] ToCommits(this string consoleOutput)
     {
@@ -136,6 +138,116 @@ public static class GitHelper
         string GetFileHash(string file)
         {
             return ProcessHelper.StartProcess($"git hash-object {file}", Configuration.SourceCodeFolder, true).Trim();
+        }
+    }
+
+    public static void AmendCommit()
+    {
+        ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
+        ProcessHelper.StartProcess("git commit --amend --no-edit", Configuration.SourceCodeFolder);
+    }
+
+    public static bool HasUnstagedChanges()
+    {
+        var unstagedChanges = ProcessHelper.StartProcess("git diff --name-only", Configuration.SourceCodeFolder, true).Trim();
+        return !string.IsNullOrEmpty(unstagedChanges);
+    }
+
+    public static void EnsureUpstreamRemoteExists(string upstreamUrl)
+    {
+        var remotes = ProcessHelper.StartProcess("git remote -v", Configuration.SourceCodeFolder, true).Split(Environment.NewLine);
+
+        if (remotes.Any(r => r.Contains(UpstreamRemote) && r.Contains(upstreamUrl)))
+        {
+            return;
+        }
+
+        if (!AnsiConsole.Confirm($"To pull changes you need to add '{upstreamUrl}' as an upstream git remote. Add this now?"))
+        {
+            Environment.Exit(0);
+        }
+
+        ProcessHelper.StartProcess($"git remote add {UpstreamRemote} {upstreamUrl}", Configuration.SourceCodeFolder);
+    }
+
+    public static void EnsureBranchIsUpToDate()
+    {
+        var currentBranch = GetCurrentBranch();
+        FetchFromOrigin();
+        ProcessHelper.StartProcess($"git fetch {UpstreamRemote}", Configuration.SourceCodeFolder);
+
+        var remoteBranches = ProcessHelper.StartProcess("git branch -r", Configuration.SourceCodeFolder, true)
+            .Split(Environment.NewLine)
+            .Select(b => b.Trim());
+
+        if (!remoteBranches.Contains($"{DefaultRemote}/{currentBranch}")) return;
+
+        var latestOriginCommit = ProcessHelper.StartProcess(
+                $"""git --no-pager log {DefaultRemote}/{currentBranch} --oneline --format="%cd %h %s" --date=short -n 1 """,
+                Configuration.SourceCodeFolder,
+                true
+            )
+            .ToCommits()
+            .First();
+
+        var localCommits = ProcessHelper.StartProcess(
+                $"""git --no-pager log {currentBranch} --oneline --format="%cd %h %s" --date=short""",
+                Configuration.SourceCodeFolder,
+                true
+            )
+            .ToCommits();
+
+        if (localCommits.Contains(latestOriginCommit)) return;
+
+        AnsiConsole.MarkupLine($"[red]Branch is not up to date with '{DefaultRemote}/{currentBranch}'.[/]");
+        Environment.Exit(0);
+    }
+
+    public static void PushBranch(string branchName)
+    {
+        var pushResult = ProcessHelper.StartProcess($"git push {DefaultRemote} {branchName}", Configuration.SourceCodeFolder, true, exitOnError: false);
+        if (pushResult.Contains("error: "))
+        {
+            AnsiConsole.MarkupLine("[red]An error occurred when pushing commits. Is your local branch out of sync with origin?[/]");
+            Environment.Exit(0);
+        }
+    }
+
+    public static int GetPullRequestNumber(Commit commit, string pattern)
+    {
+        var match = Regex.Match(commit.Message, pattern);
+
+        if (match.Success)
+        {
+            return int.Parse(match.Groups[1].Value);
+        }
+
+        throw new InvalidOperationException("Pull request number not found.");
+    }
+
+    public static void CreateCommit(string message)
+    {
+        ProcessHelper.StartProcess("git add .", Configuration.SourceCodeFolder);
+        ProcessHelper.StartProcess($"git commit -m \"{message}\"", Configuration.SourceCodeFolder);
+    }
+
+    public static void CherryPickCommit(string commitHash, bool noCommit = true)
+    {
+        var result = ProcessHelper.StartProcess(
+            $"git cherry-pick -m 1 {(noCommit ? "--no-commit" : "")} --strategy=recursive -X theirs {commitHash}",
+            Configuration.SourceCodeFolder,
+            true,
+            exitOnError: false
+        );
+
+        if (result.Contains("error: "))
+        {
+            AnsiConsole.MarkupLine($"""
+                The following error occurred when cherry-picking commit:
+
+                [red]{result}[/]
+                Please fix the problem using your git tool, and complete the cherry-pick before continuing.
+                """);
         }
     }
 }
