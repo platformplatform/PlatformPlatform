@@ -125,7 +125,7 @@ public static class Configuration
 
         internal static bool IsAliasRegisteredMacOs()
         {
-            if (string .IsNullOrEmpty(GetShellInfo().ProfilePath))
+            if (string.IsNullOrEmpty(GetShellInfo().ProfilePath))
             {
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return false;

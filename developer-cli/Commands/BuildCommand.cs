@@ -9,24 +9,17 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds a self-contained system")
     {
-        var solutionNameOption = new Option<string?>(
-            ["<solution-name>", "--solution-name", "-s"],
-            "The name of the self-contained system to build"
-        );
-
-        AddOption(solutionNameOption);
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
 
         Handler = CommandHandler.Create<string?>(Execute);
     }
 
-    private int Execute(string? solutionName)
+    private static void Execute(string? solutionName)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 
         ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-
-        return 0;
     }
 }

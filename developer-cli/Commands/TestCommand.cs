@@ -9,24 +9,17 @@ public class TestCommand : Command
 {
     public TestCommand() : base("test", "Runs tests from a solution")
     {
-        var solutionNameOption = new Option<string?>(
-            ["<solution-name>", "--solution-name", "-s"],
-            "The name of the solution file containing the tests to run"
-        );
-
-        AddOption(solutionNameOption);
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the solution file containing the tests to run"));
 
         Handler = CommandHandler.Create<string?>(Execute);
     }
 
-    private int Execute(string? solutionName)
+    private void Execute(string? solutionName)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
 
         ProcessHelper.StartProcess($"dotnet test {solutionFile.Name}", solutionFile.Directory?.FullName);
-
-        return 0;
     }
 }

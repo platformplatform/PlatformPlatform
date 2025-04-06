@@ -12,30 +12,16 @@ public class CodeCleanupCommand : Command
 {
     public CodeCleanupCommand() : base("code-cleanup", "Run JetBrains Code Cleanup")
     {
-        var solutionNameOption = new Option<string?>(
-            ["<solution-name>", "--solution-name", "-s"],
-            "The name of the self-contained system to build"
-        );
-
-        AddOption(solutionNameOption);
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
 
         Handler = CommandHandler.Create(Execute);
     }
 
-    private int Execute(string? solutionName)
+    private static void Execute(string? solutionName)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
         var solutionFile = SolutionHelper.GetSolution(solutionName);
-        RunCleanup(solutionFile);
-
-        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
-
-        return 0;
-    }
-
-    public bool RunCleanup(FileInfo solutionFile)
-    {
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
         // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
@@ -54,7 +40,7 @@ public class CodeCleanupCommand : Command
             File.Delete(jetbrainsSupportedSolutionFile);
         }
 
-        return true;
+        AnsiConsole.MarkupLine("[green]Code cleanup completed. Check Git to see any changes![/]");
     }
 
     /// <summary>
@@ -68,7 +54,7 @@ public class CodeCleanupCommand : Command
     /// </remarks>
     /// <param name="solutionFile">The .slnx solution file</param>
     /// <returns>Path to the temporary .slnf file</returns>
-    private string CreateTemporaryJetBrainsCompatibleSolutionFile(FileInfo solutionFile)
+    private static string CreateTemporaryJetBrainsCompatibleSolutionFile(FileInfo solutionFile)
     {
         // Create content following the official .NET Solution File structure
         var solutionFilterFileContent = new
@@ -92,7 +78,7 @@ public class CodeCleanupCommand : Command
         return temporarySolutionFile;
     }
 
-    private List<string> ExtractProjectPathsFromSlnx(FileInfo solutionFile)
+    private static List<string> ExtractProjectPathsFromSlnx(FileInfo solutionFile)
     {
         var projectPaths = new List<string>();
 

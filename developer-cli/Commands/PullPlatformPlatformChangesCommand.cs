@@ -27,7 +27,7 @@ public class PullPlatformPlatformChangesCommand : Command
         Handler = CommandHandler.Create<bool, bool, bool, bool>(Execute);
     }
 
-    private static int Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeCleanup)
+    private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeCleanup)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.GithubCli);
 
@@ -75,8 +75,6 @@ public class PullPlatformPlatformChangesCommand : Command
             AnsiConsole.MarkupLine("[yellow]Everything looks up to date.[/]");
             Environment.Exit(0);
         }
-
-        return 0;
     }
 
     private static void EnsureValidGitState()
@@ -347,19 +345,10 @@ public class PullPlatformPlatformChangesCommand : Command
             {
                 AnsiConsole.MarkupLine("[green]Running cleanup.[/]");
 
-                // Use the CodeCleanupCommand's RunCleanup method
-                var solutionFile = new FileInfo(Directory.GetFiles(Configuration.ApplicationFolder, "*.slnx", SearchOption.TopDirectoryOnly).Single());
                 var codeCleanupCommand = new CodeCleanupCommand();
+                var backendArgs = new[] { "--backend" };
 
-                if (codeCleanupCommand.RunCleanup(solutionFile))
-                {
-                    break;
-                }
-
-                if (!AnsiConsole.Confirm("JetBrains code cleanup failed. Please fix the errors and try again. If you continue, any fixes will be added to the cherry-picked change."))
-                {
-                    Environment.Exit(0);
-                }
+                codeCleanupCommand.Invoke(backendArgs);
             }
         }
 

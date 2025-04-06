@@ -44,7 +44,7 @@ public class InstallCommand : Command
         Handler = CommandHandler.Create(Execute);
     }
 
-    private void Execute()
+    private static void Execute()
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
@@ -56,7 +56,7 @@ public class InstallCommand : Command
                 : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}.[/]"
             );
 
-            return;
+            Environment.Exit(0);
         }
 
         AnsiConsole.Write(new Markup(Intro));

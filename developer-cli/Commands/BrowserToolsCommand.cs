@@ -1,22 +1,21 @@
 using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 
-namespace DeveloperCli.Commands;
+namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class BrowserToolsCommand : Command
 {
-    public BrowserToolsCommand() : base(name: "browser-tools", description: "Start the browser tools server for debugging")
+    public BrowserToolsCommand() : base("browser-tools", "Start the browser MCP server for debugging")
     {
-        this.AddAlias("bt");
-        this.SetHandler(Execute);
+        Handler = CommandHandler.Create(Execute);
     }
 
-    private void Execute()
+    private static void Execute()
     {
-        ProcessHelper.StartProcessWithSystemShell(
-            "npx @agentdeskai/browser-tools-server@1.2.0",
-            Configuration.SourceCodeFolder
-        );
+        Prerequisite.Ensure(Prerequisite.Node);
+
+        ProcessHelper.StartProcessWithSystemShell("npx @agentdeskai/browser-tools-server@1.2.0", Configuration.SourceCodeFolder);
     }
 }

@@ -21,19 +21,19 @@ public class TranslateCommand : Command
         Handler = CommandHandler.Create<string?, string?>(Execute);
     }
 
-    private static async Task<int> Execute(string? selfContainedSystem, string? language)
+    private static async Task Execute(string? selfContainedSystem, string? language)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
+
         try
         {
             var translationFiles = GetTranslationFiles(selfContainedSystem, language);
             await RunTranslation(translationFiles);
-            return 0;
         }
         catch (Exception e)
         {
             AnsiConsole.MarkupLine($"[red]Translation failed. {e.Message}[/]");
-            return 1;
+            Environment.Exit(1);
         }
     }
 
