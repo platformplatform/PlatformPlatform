@@ -6,9 +6,9 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class CodeCoverageCommand : Command
+public class CoverageCommand : Command
 {
-    public CodeCoverageCommand() : base("code-coverage", "Run JetBrains Code Coverage")
+    public CoverageCommand() : base("coverage", "Run JetBrains Code Coverage")
     {
         AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
 
