@@ -6,11 +6,11 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public sealed class AmendAsCoAuthorCommand : Command
+public sealed class CoAuthorCommand : Command
 {
     private const string CoAuthorTrailer = "Co-authored-by";
 
-    public AmendAsCoAuthorCommand() : base("amend-as-coauthor", "Amends the current commit and adds you as a co-author")
+    public CoAuthorCommand() : base("coauthor", "Amends the current commit and adds you as a co-author")
     {
         Handler = CommandHandler.Create(Execute);
     }
