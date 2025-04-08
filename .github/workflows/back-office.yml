@@ -219,6 +219,7 @@ jobs:
 
   database-migrations-stage:
     name: Database Staging
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
     needs: build-and-test
     uses: ./.github/workflows/_migrate-database.yml
     secrets: inherit
