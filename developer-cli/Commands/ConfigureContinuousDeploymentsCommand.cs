@@ -1007,7 +1007,7 @@ public class Config
 
     public bool IsLoggedIn()
     {
-        var githubAuthStatus = ProcessHelper.StartProcess("gh auth status", redirectOutput: true);
+        var githubAuthStatus = ProcessHelper.StartProcess("gh auth status", redirectOutput: true, exitOnError: false);
 
         return githubAuthStatus.Contains("Logged in to github.com");
     }
