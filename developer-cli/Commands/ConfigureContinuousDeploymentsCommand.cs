@@ -696,19 +696,30 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CreateGithubEnvironments()
     {
-        ProcessHelper.StartProcess(
+        var stagingResult = ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/staging""",
-            redirectOutput: true
+            redirectOutput: true,
+            exitOnError: false
         );
 
-        ProcessHelper.StartProcess(
+        var productionResult = ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/production""",
-            redirectOutput: true
+            redirectOutput: true,
+            exitOnError: false
         );
 
-        AnsiConsole.MarkupLine(
-            "[green]Successfully created 'staging' and 'production' environments in the GitHub repository.[/]"
-        );
+        if (stagingResult.Contains("Not Found") || productionResult.Contains("Not Found"))
+        {
+            AnsiConsole.MarkupLine(
+                "[yellow]Warning: Could not create GitHub environments. This is normal for free accounts or public repositories. You can manually create environments later in GitHub repository settings if needed.[/]"
+            );
+        }
+        else
+        {
+            AnsiConsole.MarkupLine(
+                "[green]Successfully created 'staging' and 'production' environments in the GitHub repository.[/]"
+            );
+        }
     }
 
     private void CreateGithubSecretsAndVariables()
