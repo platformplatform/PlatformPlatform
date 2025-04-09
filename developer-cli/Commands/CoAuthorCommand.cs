@@ -6,16 +6,16 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public sealed class AmendAsCoAuthorCommand : Command
+public sealed class CoAuthorCommand : Command
 {
     private const string CoAuthorTrailer = "Co-authored-by";
 
-    public AmendAsCoAuthorCommand() : base("amend-as-coauthor", "Amends the current commit and adds you as a co-author")
+    public CoAuthorCommand() : base("coauthor", "Amends the current commit and adds you as a co-author")
     {
         Handler = CommandHandler.Create(Execute);
     }
 
-    private static int Execute()
+    private static void Execute()
     {
         var gitUserName = ProcessHelper.StartProcess("git config user.name", Configuration.SourceCodeFolder, true).Trim();
         var gitUserEmail = ProcessHelper.StartProcess("git config user.email", Configuration.SourceCodeFolder, true).Trim();
@@ -57,7 +57,5 @@ public sealed class AmendAsCoAuthorCommand : Command
         var amendMessage = isAlreadyCoAuthor ? "--no-edit" : $"-m \"{commitMessage.TrimEnd()}\n\n{coAuthorLine}\"";
         ProcessHelper.StartProcess($"git commit --amend {amendMessage}", Configuration.SourceCodeFolder);
         AnsiConsole.MarkupLine("[green]Successfully amended commit with co-author information.[/]");
-
-        return 0;
     }
 }

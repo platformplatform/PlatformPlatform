@@ -6,21 +6,16 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class CodeCoverageCommand : Command
+public class CoverageCommand : Command
 {
-    public CodeCoverageCommand() : base("code-coverage", "Run JetBrains Code Coverage")
+    public CoverageCommand() : base("coverage", "Run JetBrains Code Coverage")
     {
-        var solutionNameOption = new Option<string?>(
-            ["<solution-name>", "--solution-name", "-s"],
-            "The name of the self-contained system to build"
-        );
-
-        AddOption(solutionNameOption);
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
 
         Handler = CommandHandler.Create(Execute);
     }
 
-    private int Execute(string? solutionName)
+    private static void Execute(string? solutionName)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
@@ -40,7 +35,5 @@ public class CodeCoverageCommand : Command
         var codeCoverageReport = Path.Combine(Configuration.ApplicationFolder, "coverage", "dotCover.html");
         AnsiConsole.MarkupLine($"[green]Code Coverage Report.[/] {codeCoverageReport}");
         ProcessHelper.StartProcess($"open {codeCoverageReport}", Configuration.ApplicationFolder);
-
-        return 0;
     }
 }

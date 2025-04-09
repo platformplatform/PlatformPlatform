@@ -1,7 +1,9 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.Diagnostics;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
+using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -9,24 +11,58 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds a self-contained system")
     {
-        var solutionNameOption = new Option<string?>(
-            ["<solution-name>", "--solution-name", "-s"],
-            "The name of the self-contained system to build"
-        );
+        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
 
-        AddOption(solutionNameOption);
+        AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend build"));
+        AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend build"));
+        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build (only used for backend builds)"));
 
-        Handler = CommandHandler.Create<string?>(Execute);
+        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
     }
 
-    private int Execute(string? solutionName)
+    private static void Execute(bool backend, bool frontend, string? solutionName)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        var buildBackend = backend || !frontend;
+        var buildFrontend = frontend || !backend;
 
-        ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+        try
+        {
+            var totalStopwatch = Stopwatch.StartNew();
+            var backendTime = TimeSpan.Zero;
+            var frontendTime = TimeSpan.Zero;
 
-        return 0;
+            if (buildBackend)
+            {
+                AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
+                var solutionFile = SolutionHelper.GetSolution(solutionName);
+                ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                backendTime = totalStopwatch.Elapsed;
+            }
+
+            if (buildFrontend)
+            {
+                AnsiConsole.MarkupLine("[blue]Running frontend build...[/]");
+                ProcessHelper.StartProcess("npm run build", Configuration.ApplicationFolder);
+                frontendTime = totalStopwatch.Elapsed - backendTime;
+            }
+
+            AnsiConsole.MarkupLine($"[green]Build completed successfully in {totalStopwatch.Elapsed.Format()}[/]");
+            if (buildBackend && buildFrontend)
+            {
+                AnsiConsole.MarkupLine(
+                    $"""
+                     Backend:     [green]{backendTime.Format()}[/]
+                     Frontend:    [green]{frontendTime.Format()}[/]
+                     """
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]Error during build: {ex.Message}[/]");
+            Environment.Exit(1);
+        }
     }
 }
