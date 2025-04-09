@@ -379,9 +379,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 $"""ad sp list --display-name "{appRegistration.Name}" --query "[].appId" -o tsv"""
             ).Trim();
 
-            appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
-                $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
-            ).Trim();
+            if (appRegistration.AppRegistrationId != string.Empty)
+            {
+                appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
+                    $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
+                ).Trim();
+            }
 
             if (appRegistration.AppRegistrationId != string.Empty && appRegistration.ServicePrincipalId != string.Empty)
             {
@@ -693,19 +696,30 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private void CreateGithubEnvironments()
     {
-        ProcessHelper.StartProcess(
+        var stagingResult = ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/staging""",
-            redirectOutput: true
+            redirectOutput: true,
+            exitOnError: false
         );
 
-        ProcessHelper.StartProcess(
+        var productionResult = ProcessHelper.StartProcess(
             $"""gh api --method PUT -H "Accept: application/vnd.github+json" repos/{Config.GithubInfo!.Path}/environments/production""",
-            redirectOutput: true
+            redirectOutput: true,
+            exitOnError: false
         );
 
-        AnsiConsole.MarkupLine(
-            "[green]Successfully created 'staging' and 'production' environments in the GitHub repository.[/]"
-        );
+        if (stagingResult.Contains("Not Found") || productionResult.Contains("Not Found"))
+        {
+            AnsiConsole.MarkupLine(
+                "[yellow]Warning: Could not create GitHub environments. This is normal for free accounts or public repositories. You can manually create environments later in GitHub repository settings if needed.[/]"
+            );
+        }
+        else
+        {
+            AnsiConsole.MarkupLine(
+                "[green]Successfully created 'staging' and 'production' environments in the GitHub repository.[/]"
+            );
+        }
     }
 
     private void CreateGithubSecretsAndVariables()
@@ -909,9 +923,17 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private string RunAzureCliCommand(string arguments, bool redirectOutput = true)
     {
-        var azureCliCommand = Configuration.IsWindows ? "cmd.exe /C az" : "az";
-
-        return ProcessHelper.StartProcess($"{azureCliCommand} {arguments}", redirectOutput: redirectOutput, exitOnError: false);
+        return ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = Configuration.IsWindows ? "cmd.exe" : "az",
+                Arguments = Configuration.IsWindows ? $"/C az {arguments}" : arguments,
+                RedirectStandardOutput = redirectOutput,
+                RedirectStandardError = redirectOutput,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            },
+            exitOnError: false
+        );
     }
 
     private static Dictionary<string, string> GetAzureLocations()
@@ -996,7 +1018,7 @@ public class Config
 
     public bool IsLoggedIn()
     {
-        var githubAuthStatus = ProcessHelper.StartProcess("gh auth status", redirectOutput: true);
+        var githubAuthStatus = ProcessHelper.StartProcess("gh auth status", redirectOutput: true, exitOnError: false);
 
         return githubAuthStatus.Contains("Logged in to github.com");
     }
