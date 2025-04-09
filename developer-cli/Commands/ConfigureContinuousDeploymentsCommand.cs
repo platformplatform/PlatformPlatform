@@ -379,9 +379,12 @@ public class ConfigureContinuousDeploymentsCommand : Command
                 $"""ad sp list --display-name "{appRegistration.Name}" --query "[].appId" -o tsv"""
             ).Trim();
 
-            appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
-                $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
-            ).Trim();
+            if (appRegistration.AppRegistrationId != string.Empty)
+            {
+                appRegistration.ServicePrincipalObjectId = RunAzureCliCommand(
+                    $"""ad sp list --filter "appId eq '{appRegistration.AppRegistrationId}'" --query "[].id" -o tsv"""
+                ).Trim();
+            }
 
             if (appRegistration.AppRegistrationId != string.Empty && appRegistration.ServicePrincipalId != string.Empty)
             {
