@@ -135,9 +135,9 @@ jobs:
       - name: Run Code Inspections
         working-directory: developer-cli
         run: |
-          dotnet run code-inspections | tee inspection-output.log
+          dotnet run inspect --backend | tee inspection-output.log
 
-          if ! grep -q "No issues found!" inspection-output.log; then
+          if ! grep -q "No backend issues found!" inspection-output.log; then
             echo "Code inspection issues found."
             exit 1
           fi
@@ -145,11 +145,11 @@ jobs:
       - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
-          dotnet run code-cleanup
+          dotnet run format --backend
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run code-cleanup' from /developer-cli folder locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run format --backend' from /developer-cli folder locally and commit the formatted code."
             exit 1
           }
 
