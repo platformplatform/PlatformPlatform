@@ -26,7 +26,7 @@ public class InspectCommand : Command
 
         try
         {
-            var totalStopwatch = Stopwatch.StartNew();
+            var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
 
@@ -34,17 +34,17 @@ public class InspectCommand : Command
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
                 RunBackendInspections(solutionName, noBuild);
-                backendTime = totalStopwatch.Elapsed;
+                backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
             if (inspectFrontend)
             {
                 Prerequisite.Ensure(Prerequisite.Node);
                 RunFrontendInspections();
-                frontendTime = totalStopwatch.Elapsed - backendTime;
+                frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
-            AnsiConsole.MarkupLine($"[green]Code inspections completed in {totalStopwatch.Elapsed.Format()}[/]");
+            AnsiConsole.MarkupLine($"[green]Code inspections completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
             if (inspectBackend && inspectFrontend)
             {
                 AnsiConsole.MarkupLine(
