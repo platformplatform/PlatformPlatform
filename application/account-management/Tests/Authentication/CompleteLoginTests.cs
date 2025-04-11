@@ -156,7 +156,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("TenantId", DatabaseSeeder.Tenant1Owner.TenantId.ToString()),
                 ("UserId", DatabaseSeeder.Tenant1Owner.Id.ToString()),
                 ("Id", loginId.ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("EmailConfirmationId", emailConfirmationId.ToString()),
                 ("Completed", false)
@@ -164,12 +164,12 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         );
         Connection.Insert("EmailConfirmations", [
                 ("Id", emailConfirmationId.ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Owner.Email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", DateTime.UtcNow.AddMinutes(-10)),
+                ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)

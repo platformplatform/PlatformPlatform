@@ -103,12 +103,12 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
             Connection.Insert("EmailConfirmations", [
                     ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", DateTime.UtcNow.AddHours(-i)),
+                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddHours(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
                     ("Type", EmailConfirmationType.Signup.ToString()),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", DateTime.UtcNow.AddHours(-i).AddMinutes(5)),
+                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddHours(-i).AddMinutes(5)),
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)

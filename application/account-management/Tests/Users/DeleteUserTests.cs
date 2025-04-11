@@ -35,7 +35,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", userId.ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Person.FirstName),
@@ -77,7 +77,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", userId.ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Person.FirstName),
@@ -97,7 +97,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", loginId.ToString()),
                 ("UserId", userId.ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-5)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-5)),
                 ("ModifiedAt", null),
                 ("EmailConfirmationId", emailConfirmationId.ToString()),
                 ("Completed", true)
