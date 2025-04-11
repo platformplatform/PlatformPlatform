@@ -22,7 +22,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Email),
                 ("FirstName", FirstName),
@@ -37,7 +37,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Name.FirstName()),

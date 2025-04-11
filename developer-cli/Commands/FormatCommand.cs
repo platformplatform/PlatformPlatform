@@ -33,7 +33,7 @@ public class FormatCommand : Command
                 AnsiConsole.MarkupLine("[yellow]Warning: You have unstaged changes in your working directory.[/]");
             }
 
-            var totalStopwatch = Stopwatch.StartNew();
+            var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
 
@@ -41,14 +41,14 @@ public class FormatCommand : Command
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
                 RunBackendFormat(solutionName);
-                backendTime = totalStopwatch.Elapsed;
+                backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
             if (formatFrontend)
             {
                 Prerequisite.Ensure(Prerequisite.Node);
                 RunFrontendFormat();
-                frontendTime = totalStopwatch.Elapsed - backendTime;
+                frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
             var uncommittedFilesAfterFormat = GitHelper.GetChangedFiles();
@@ -63,7 +63,7 @@ public class FormatCommand : Command
                 AnsiConsole.MarkupLine($"[blue]{string.Join(Environment.NewLine, modifiedFiles)}[/]");
             }
 
-            AnsiConsole.MarkupLine($"[green]Code format completed in {totalStopwatch.Elapsed.Format()}[/]");
+            AnsiConsole.MarkupLine($"[green]Code format completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
             if (formatBackend && formatFrontend)
             {
                 AnsiConsole.MarkupLine(

@@ -29,23 +29,23 @@ public class CheckCommand : Command
 
         try
         {
-            var totalStopwatch = Stopwatch.StartNew();
+            var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
 
             if (checkBackend)
             {
                 RunBackendChecks(solutionName, skipFormat, skipInspect);
-                backendTime = totalStopwatch.Elapsed;
+                backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
             if (checkFrontend)
             {
                 RunFrontendChecks();
-                frontendTime = totalStopwatch.Elapsed - backendTime;
+                frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
-            AnsiConsole.MarkupLine($"[green]All checks completed successfully in {totalStopwatch.Elapsed.Format()}[/]");
+            AnsiConsole.MarkupLine($"[green]All checks completed successfully in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
             if (checkBackend && checkFrontend)
             {
                 AnsiConsole.MarkupLine(

@@ -29,7 +29,7 @@ public class BuildCommand : Command
 
         try
         {
-            var totalStopwatch = Stopwatch.StartNew();
+            var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
 
@@ -38,17 +38,17 @@ public class BuildCommand : Command
                 AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
                 var solutionFile = SolutionHelper.GetSolution(solutionName);
                 ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                backendTime = totalStopwatch.Elapsed;
+                backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
             if (buildFrontend)
             {
                 AnsiConsole.MarkupLine("[blue]Running frontend build...[/]");
                 ProcessHelper.StartProcess("npm run build", Configuration.ApplicationFolder);
-                frontendTime = totalStopwatch.Elapsed - backendTime;
+                frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
-            AnsiConsole.MarkupLine($"[green]Build completed successfully in {totalStopwatch.Elapsed.Format()}[/]");
+            AnsiConsole.MarkupLine($"[green]Build completed successfully in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
             if (buildBackend && buildFrontend)
             {
                 AnsiConsole.MarkupLine(
