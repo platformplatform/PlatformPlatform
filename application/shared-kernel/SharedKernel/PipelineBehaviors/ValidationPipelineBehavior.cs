@@ -37,7 +37,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
             }
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 
     /// <summary>

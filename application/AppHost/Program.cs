@@ -36,7 +36,8 @@ builder
     .AddContainer("mail-server", "axllent/mailpit")
     .WithHttpEndpoint(9003, 8025)
     .WithEndpoint(9004, 1025)
-    .WithLifetime(ContainerLifetime.Persistent);
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithUrlForEndpoint("http", u => u.DisplayText = "Read mail here");
 
 CreateBlobContainer("avatars");
 
@@ -76,13 +77,17 @@ var backOfficeApi = builder
     .WithReference(azureStorage)
     .WaitFor(backOfficeWorkers);
 
-builder
+var appGateway = builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(frontendBuild)
     .WithReference(accountManagementApi)
     .WithReference(backOfficeApi)
     .WaitFor(accountManagementApi)
-    .WaitFor(frontendBuild);
+    .WaitFor(frontendBuild)
+    .WithUrlForEndpoint("https", url => url.DisplayText = "Web App");
+
+appGateway.WithUrl($"{appGateway.GetEndpoint("https")}/back-office", "Back Office");
+appGateway.WithUrl($"{appGateway.GetEndpoint("https")}/openapi", "Open API");
 
 await builder.Build().RunAsync();
 

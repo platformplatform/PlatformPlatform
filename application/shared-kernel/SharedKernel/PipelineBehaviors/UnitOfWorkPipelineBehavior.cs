@@ -16,7 +16,7 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         concurrentCommandCounter.Increment();
-        var response = await next();
+        var response = await next(cancellationToken);
 
         if (response is ResultBase { IsSuccess: true } || response.CommitChangesOnFailure)
         {
