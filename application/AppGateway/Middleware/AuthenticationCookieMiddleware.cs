@@ -69,9 +69,7 @@ public class AuthenticationCookieMiddleware(
                 ReplaceAuthenticationHeaderWithCookie(context, refreshToken, accessToken);
             }
 
-            context.Request.Headers.Authorization = context.Request.Path.Value == RefreshAuthenticationTokensEndpoint
-                ? $"Bearer {refreshToken}" // When calling the refresh endpoint, use the refresh token as Bearer
-                : $"Bearer {accessToken}";
+            context.Request.Headers.Authorization = $"Bearer {accessToken}";
         }
         catch (SecurityTokenException ex)
         {
