@@ -14,23 +14,28 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Create a public sealed record marked with `[PublicAPI]` that implements `ICommand` and `IRequest<Result>` or `IRequest<Result<T>>`.
    - Name with `Command` suffix: `CreateUserCommand`.
    - Define properties in the primary constructor.
-   - Use property initializers for simple input normalization: `public string Email { get; } = Email.Trim().ToLower();`.
+   - Use property initializers for simple input normalization, such as trimming and casing. E.g. `public string Email { get; } = Email.Trim().ToLower();`.
    - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment).
-3. Validator:
-   - Create public sealed class with `Validator` suffix: e.g. `CreateUserValidator`.
+3. Command validator:
+   - If the command has user input, create public sealed class using FluentValidation with the `Validator` suffix: e.g. `CreateUserValidator`.
+     - Skip the validator if the command only has system-generated values.
    - Each property should have one shared error message (e.g. "Email must be in a valid format and no longer than 100 characters.").
-   - Validation should only validate command properties (format, length, etc.); domain validation like uniqueness checks belongs in the handler.
+     - Ideally each property should only have one validation line.
+   - Validation should be fast, and only validate command properties (format, length, etc.).
+     - Don't make complex queries to repositories; use guards in the Command handler instead.
 4. Handler:
    - Create public sealed class with `Handler` suffix: e.g. `CreateUserHandler`.
    - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
    - Commands typically return `Result` (void); only return `Result<T>` when a newly created ID or similar is needed.
-   - Use guard statements with early returns that return `Result.BadRequest()`, `Result.NotFound()`, or similar instead of throwing exceptions.
-   - Always create telemetry events for successful command results, and optionally for failed commands; always consult [Telemetry Events](/.ai-rules/backend/telemetry-events.md) when implementing telemetry events.
-   - Always use repositories to persist changes, and never use `SaveChangesAsync()` directly.
+   - Use guard statements with early returns that return `Result.BadRequest()`, `Result.NotFound()`
+   - Never throw exceptions, but always return `Result.Xxx()`. 
+   - Always create telemetry events for successful command results, and optionally for failed commands; always consult [Telemetry Events](.ai-rules/backend/telemetry-events.) when implementing telemetry events.
+   - Save changes:
+     - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes, as Entity Framework change tracking is disabled.
+     - Never call Entity Framework `SaveChangesAsync()` directly; this is handled by MediatR UnitOfWork pipeline behavior.
 5. Command Composition:
    - Use MediatR to chain commands: e.g. `await mediator.Send(new CreateUserCommand(...))`.
    - Extract shared logic to separate classes and store them in `/[scs-name]/Core/Features/[Feature]/Shared` (e.g. `await avatarUpdater.UpdateAvatar(user, ...)`).
-6. After changing the API make sure to run `dotnet build` in the [application](/application) directory to generate the Open API JSON contract. Then run `npm run build` from the [application](/application) directory to trigger `openapi-typescript` to generate the API contract used by the frontend.
 
 Commands run through MediatR pipeline behaviors in this order: Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents. Nested commands and domain events are handled within the UnitOfWork transaction.
 

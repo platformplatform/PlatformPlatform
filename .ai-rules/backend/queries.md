@@ -36,7 +36,7 @@ Queries should be created in the `/[scs-name]/Core/Features/[Feature]/Queries` d
    - Use repository methods to retrieve data.
    - Map domain objects to response DTOs using Mapster.
    - Queries should rarely track TelemetryEvents.
-6. After changing the API make sure to run `dotnet build` in the [application](/application) directory to generate the Open API JSON contract. Then run `npm run build` from the [application](/application) directory to trigger `openapi-typescript` to generate the API contract used by the frontend.
+6. After changing the API make sure to run `cd developer-cli && dotnet run build --backend` to generate the Open API JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
 
 Queries run through MediatR pipeline behaviors in this order: Validation → Query → PublishTelemetryEvents
 

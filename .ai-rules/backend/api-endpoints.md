@@ -9,7 +9,7 @@ API endpoints should be created in the `/application/[scs-name]/Api/Endpoints` d
 ## Implementation
 
 1. Create endpoint class implementing `IEndpoints` interface with proper naming (`[Feature]Endpoints.cs`).
-2. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[feature]`:
+2. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[Feature]`:
    ```csharp
    private const string RoutesPrefix = "/api/account-management/users";
    ```
@@ -26,7 +26,7 @@ API endpoints should be created in the `/application/[scs-name]/Api/Endpoints` d
    - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
    - Use `[AsParameters]` for query parameters.
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
-6. After changing the API make sure to run `dotnet build` in the [application](/application) directory to generate the Open API JSON contract. Then run `npm run build` from the [application](/application) directory to trigger `openapi-typescript` to generate the API contract used by the frontend.
+6. After changing the API make sure to run `cd developer-cli && dotnet run build --backend` to generate the Open API JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
 7. `IEndpoints` are automatically registered in the SharedKernel.
 
 

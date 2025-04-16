@@ -30,8 +30,14 @@ IMPORTANT: Always follow these steps very carefully when implementing changes:
 1. Consult any relevant rules files listed below and start by listing which rule files have been used to guide your response (e.g., `Rules consulted: form-with-validation.md, tanstack-query-api-integration.md`).
 2. Search the codebase for similar code before implementing new code.
 3. Reference existing implementations to maintain consistency.
-4. Always run `npm run build && npm run lint` (as a single command) from `/application/` to verify the code compiles.
-5. Fix any compiler warnings or test failures.
+4. Build and format your changes:
+   - After each minor change, run `dotnet run format --frontend` from the [developer-cli](developer-cli) folder to ensure consistent code style.
+   - This is important because Cursor AI often formats files differently than our CLI tool.
+5. Verify your changes:
+   - When you think a feature is complete, run `dotnet run check --frontend` from the [developer-cli](developer-cli) folder.
+   - This command runs build, format, and check in that order.
+   - You can skip running format separately when running check.
+6. Fix any compiler warnings or test failures before proceeding.
 
 ## Frontend Rules Files
 

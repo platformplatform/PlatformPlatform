@@ -1,10 +1,21 @@
 # AI Rules
 
-This directory contains specific guidance for AI assistants to follow when working with this codebase, but also serve as a great reference for developers.
+# Workflow
 
-## AI Assistant Instructions
+## High-Level Problem Solving Strategy
 
-When responding start by reading the relevant instructions from these areas.
+1. Understand the problem deeply. Carefully read the instructions and think critically about what is required.
+2. Always ask questions if something is unclear before starting to implement.
+3. Investigate the codebase. Explore relevant files, search for key functions, and gather context.
+4. Develop a clear, step-by-step plan. Break down the fix into manageable, incremental steps.
+5. Before each code change, always read the relevant rule files (e.g. read [Commands](/.ai-rules/backend/commands.md) when working with CQRS commands), to make sure you understand the rules and follow the conventions in the codebase. Failure to do this is the main reason for making unacceptable changes.
+6. Iterate until you are extremely confident the fix is complete and all tests pass.
+7. After each change make sure you follow the rules in [Backend Rules](/.ai-rules/backend/README.md) or [Frontend Rules](/.ai-rules/frontend/README.md), on how to correctly use the custom CLI tool for building, testing, and formatting the code. Never use e.g. npm or dotnet CLI directly.
+   - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
+
+## AI Rules
+
+When making changes consult these files depending on what part of the system you are changing.
 
 - [Backend Rules](/.ai-rules/backend/README.md) 
 - [Frontend Rules](/.ai-rules/frontend/README.md)
@@ -14,15 +25,9 @@ When responding start by reading the relevant instructions from these areas.
   - [Git Commit Rules](/.ai-rules/other/git-commits.md)
   - [Pull Request Rules](/.ai-rules/other/pull-request.md)
 
-It is **EXTREMELY important that you follow the instructions in the rule files very carefully**.
-
-When making changes to both the frontend and backend, build the backend by running `dotnet build` in the [application](/application) directory to generate the Open API JSON contract. Then run `npm run build` from the [application](/application) directory to trigger `openapi-typescript` to generate the API contract used by the frontend.
-
-When we learn new things that deviate from the existing rules, suggest making changes to the rules files or creating new rules files. When creating new rules files, always make sure to add them to the relevant README.md file.
-
 ## Project Structure
 
-This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure. Use this overview to gain an understanding of the codebase structure.
+Use the structure below to understand the codebase. This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure. Use this overview to gain an understanding of the codebase structure.
 
 - [.github](/.github): GitHub workflows and other GitHub artifacts
 - [application](/application): Contains application code

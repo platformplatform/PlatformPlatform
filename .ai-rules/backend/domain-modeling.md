@@ -12,14 +12,16 @@ Aggregates are the root of the DDD model, and map 1:1 to database tables. Reposi
 
 By default entities and value objects should be stored as JSON columns on the Aggregate in the database. This might seem controversial, but it's very performant and allows for complex Aggregates without having to use EF Core's `Include()` method. And without risking having an Aggregate where a navigation property is not loaded. EF Core 8 and 9 have great support for complex LINQ queries on Json columns.
 
+Domain objects should be modeled as POCO (Plain Old C# Objects) and must never make calls to repositories, integrations, telemetry, etc. They should work with only primitive types but can use strongly typed elements (like strongly typed IDs) from the Domain. 
+
 ### Aggregate Implementation
 
 1. Use public sealed classes for Aggregates and inherit from `AggregateRoot<TId>`.
-2. Create a strongly typed ID for aggregates (in the same class); always consult [Strongly Typed IDs](./strongly-typed-ids.md) for details.
+2. Create a strongly typed ID for aggregates (in the same class); always consult [Strongly Typed IDs](strongly-typed-ids.md) for details.
 3. Never use navigational properties to other aggregates (e.g. don't use `User.Tenant`, or `Order.Customer`).
 4. Use factory methods when creating new aggregates.
 5. Make properties private, and use methods when changing state and enforcing business rules and invariants.
-6. Create a corresponding repository interface and implementation; consult [Repository](./repositories.md) for details.
+6. Create a corresponding repository interface and implementation; consult [Repository](repositories.md) for details.
 
 ### Entity Implementation
 

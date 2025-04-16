@@ -34,6 +34,8 @@ For example:
    - `ExecuteScalar` to verify data was correctly inserted
    - `RowExists` to check if specific records exist
 
+Never use Dapper!
+
 Example:
 
 IMPORTANT: Pay special attention to ensure consistent ordering, naming, spacing, line breaks of methods, parameters, variables, etc. For example, when creating SQL dummy data, ensure columns are in the exact same order as in the database. Or if you make several tests make sure things that are similar is written in the same way.
@@ -47,6 +49,7 @@ public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
     // Arrange
     var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email);
     var command = new CompleteLoginCommand(CorrectOneTimePassword);
+    TelemetryEventsCollectorSpy.Reset();
 
     // Act
     var response = await AnonymousHttpClient
