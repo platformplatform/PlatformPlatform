@@ -60,4 +60,11 @@ public static class SqliteConnectionExtensions
 
         command.ExecuteNonQuery();
     }
+
+    public static void Delete(this SqliteConnection connection, string tableName, string id)
+    {
+        using var command = new SqliteCommand($"DELETE FROM {tableName} WHERE Id = @id", connection);
+        command.Parameters.AddWithValue("@id", id);
+        command.ExecuteNonQuery();
+    }
 }
