@@ -136,6 +136,7 @@ _ReSharper*/
 
 # Rider
 .idea
+.run
 result.xml
 result.json
 
