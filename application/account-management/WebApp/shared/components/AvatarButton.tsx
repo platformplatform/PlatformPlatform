@@ -23,6 +23,9 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onSuccess: () => {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
+    },
+    meta: {
+      skipQueryInvalidation: true
     }
   });
 

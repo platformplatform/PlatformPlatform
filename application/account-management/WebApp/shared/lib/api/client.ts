@@ -20,7 +20,11 @@ export type Schemas = components["schemas"];
 
 export const queryClient = new QueryClient({
   mutationCache: new MutationCache({
-    onSuccess: () => {
+    onSuccess: (_data, _variables, _context, mutation) => {
+      // Skip invalidation if the mutation is marked to skip it
+      if (mutation.options.meta?.skipQueryInvalidation) {
+        return;
+      }
       queryClient.invalidateQueries();
     }
   })
