@@ -1,3 +1,8 @@
+---
+description: Rules for writing clear, actionable pull request titles and descriptions, including summary, motivation, and downstream project guidance.
+globs: 
+alwaysApply: false
+---
 # Pull Request Conventions
 
 This guide defines clear and actionable rules for writing commit descriptions (commonly used in pull requests), optimized for readability, precision, and downstream integration in the PlatformPlatform project. This guide is intended for use by AI coding assistants or automation tools generating descriptions.
@@ -20,10 +25,10 @@ When generating a commit description, always follow these steps to get more cont
 
 Create a pull request title following these conventions:
 
-- Use imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.)
-- Write the title as a sentence (not in Title Case)
-- Do not end the title with a period
-- Keep it short, but descriptive
+- Use imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.).
+- Write the title as a sentence (not in Title Case).
+- Do not end the title with a period.
+- Keep it short, but descriptive.
 
 ## Create a good pull request description
 

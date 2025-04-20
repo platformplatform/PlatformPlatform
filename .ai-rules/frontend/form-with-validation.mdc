@@ -1,6 +1,9 @@
+---
+description: Rules for implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
+globs: *.tsx
+alwaysApply: false
+---
 # Form with Validation
-
-When implementing forms with validation in the frontend, follow these rules very carefully.
 
 ## Implementation Guidelines
 

@@ -1,6 +1,9 @@
+---
+description: Rules and conventions for writing backend unit and integration tests, including naming, structure, and best practices.
+globs: **/Tests/*.cs
+alwaysApply: false
+---
 # Writing Unit and Integration Tests
-
-When writing tests for backend code, follow these rules very carefully.
 
 ## Naming Convention
 
@@ -9,8 +12,8 @@ When writing tests for backend code, follow these rules very carefully.
 3. Test methods should follow this pattern: `[Method]_[Condition]_[ExpectedResult]`.
 
 For example:
-- `CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest`
-- `GetUsers_WhenSearchingBasedOnUserEmail_ShouldReturnUser`
+- `CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest`.
+- `GetUsers_WhenSearchingBasedOnUserEmail_ShouldReturnUser`.
 
 ## Test Organization
 
@@ -30,9 +33,9 @@ For example:
 6. Test both happy path and error cases.
 7. Verify side effects like database changes and telemetry events.
 8. For creating and verifying test data, use the `Connection` property from `EndpointBaseTest<TContext>`. This provides a `Microsoft.Data.Sqlite` connection with methods like:
-   - `Insert` to populate test data into the database
-   - `ExecuteScalar` to verify data was correctly inserted
-   - `RowExists` to check if specific records exist
+   - `Insert` to populate test data into the database.
+   - `ExecuteScalar` to verify data was correctly inserted.
+   - `RowExists` to check if specific records exist.
 
 Never use Dapper!
 
@@ -177,9 +180,9 @@ public void PublicClassesInCore_ShouldBeSealed()
 
 ## Example 5 - Setting Up Test Data
 
-1. Use `DatabaseSeeder` for common test data
-2. For feature-specific test data, set up in the test class constructor
-3. Use SQL queries or EF Core operations for database manipulation
+1. Use `DatabaseSeeder` for common test data.
+2. For feature-specific test data, set up in the test class constructor.
+3. Use SQL queries or EF Core operations for database manipulation.
 
 ```csharp
 public GetUsersTests()

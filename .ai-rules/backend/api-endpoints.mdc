@@ -1,6 +1,9 @@
+---
+description: Guidelines for implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
+globs: **/Endpoints/*.cs,*Endpoints.cs
+alwaysApply: false
+---
 # API Endpoints
-
-When implementing API endpoints, follow these rules very carefully.
 
 ## Structure
 
@@ -8,25 +11,25 @@ API endpoints should be created in the `/application/[scs-name]/Api/Endpoints` d
 
 ## Implementation
 
-1. Create endpoint class implementing `IEndpoints` interface with proper naming (`[Feature]Endpoints.cs`).
+1. Create an endpoint class implementing the `IEndpoints` interface with proper naming (`[Feature]Endpoints.cs`).
 2. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[Feature]`:
    ```csharp
    private const string RoutesPrefix = "/api/account-management/users";
    ```
-3. Set up route group with these configurations:
+3. Set up the route group with these configurations:
    ```csharp
    var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
    ```
 4. Structure each endpoint in exactly 3 lines (no logic in the body):
    - Line 1: Signature with route and parameters (don't break the line even if longer than 120 characters).
    - Line 2: Expression calling `=> mediator.Send()`.
-   - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.)
+   - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
 5. Follow these requirements:
    - Use strongly typed IDs for route parameters.
    - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
    - Use `[AsParameters]` for query parameters.
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
-6. After changing the API make sure to run `cd developer-cli && dotnet run build --backend` to generate the Open API JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
+6. After changing the API, make sure to run `cd developer-cli && dotnet run build --backend` to generate the OpenAPI JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
 7. `IEndpoints` are automatically registered in the SharedKernel.
 
 

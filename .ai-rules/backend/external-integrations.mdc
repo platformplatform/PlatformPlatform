@@ -1,10 +1,13 @@
+---
+description: Rules for implementing integrations with external services in the backend, including structure, error handling, and client conventions.
+globs: **/Integrations/**/*.cs
+alwaysApply: false
+---
 # External Integrations
-
-When implementing integration to external services, follow these rules very carefully.
 
 ## Structure
 
-Integration to external services should be implemented as a client in a file located at `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs`.
+Integrations to external services should be implemented as a client in a file located at `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs`.
 
 ## Implementation
 
@@ -14,7 +17,7 @@ Integration to external services should be implemented as a client in a file loc
 4. Use typed clients with HttpClient injection (via AddHttpClient<T>) for HTTP-based integrations.
 5. Consider timeouts, retry policies, and circuit breakers for resilience.
 6. Create DTOs for request and response data when needed (but don't postfix with `Dto`).
-7. Keep implementation in one file.
+7. Keep the implementation in one file.
 
 ## Example - Gravatar Integration
 
@@ -59,12 +62,12 @@ public sealed class GravatarClient(HttpClient httpClient, ILogger<GravatarClient
 
 ## Key Implementation Details
 
-1. Constructor Injection: Uses constructor injection with primary constructor syntax for dependencies.
-2. Typed Client Pattern: Uses the HttpClient directly via constructor injection.
-3. Error Handling: Properly handles HTTP status codes and avoid throwing exceptions.
+1. Constructor injection: Uses constructor injection with primary constructor syntax for dependencies.
+2. Typed client pattern: Uses the HttpClient directly via constructor injection.
+3. Error handling: Properly handles HTTP status codes and avoids throwing exceptions.
 4. Logging: Logs information and errors with structured logging.
-5. Return Type: Returns null when the resource is not found or an error occurs.
-6. Cancellation Support: Accepts and passes through a CancellationToken.
+5. Return type: Returns null when the resource is not found or an error occurs.
+6. Cancellation support: Accepts and passes through a CancellationToken.
 
 ## Registration
 

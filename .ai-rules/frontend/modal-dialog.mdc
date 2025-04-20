@@ -1,11 +1,14 @@
+---
+description: Rules for implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
+globs: *Dialog.tsx,*Modal.tsx
+alwaysApply: false
+---
 # Modal Dialog
-
-When implementing modal dialogs in the frontend, follow these rules very carefully.
 
 ## Implementation
 
 1. Use React Aria Components from `@application/shared-webapp/ui/components`.
-2. Use the `Dialog` component for creating modals.
+2. Use the `Dialog` component from shared-webapp for all dialogs and modal dialogs.
 3. Manage dialog state with React hooks (either `useState` or context depending on scope).
 4. Use `onPress` instead of `onClick` for event handlers.
 5. Include appropriate aria labels for accessibility.

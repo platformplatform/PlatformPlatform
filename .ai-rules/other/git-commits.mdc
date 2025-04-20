@@ -1,6 +1,9 @@
+---
+description: Rules for writing consistent and effective git commit messages, including format, inspection, and examples.
+globs: 
+alwaysApply: false
+---
 # Git Commit Messages
-
-When writing commit messages, follow these rules to maintain consistency across the codebase:
 
 ## Inspect changes
 
@@ -19,11 +22,11 @@ When writing commit messages, follow these rules to maintain consistency across 
 
 ## Format Rules
 
-1. Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature")
-2. Start with a capital letter (sentence case)
-3. Do not end the message with punctuation
-4. Keep the message to a single line
-5. Describe what is changed and the motivation but keep it concise
+1. Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature").
+2. Start with a capital letter (sentence case).
+3. Do not end the message with punctuation.
+4. Keep the message to a single line.
+5. Describe what is changed and the motivation, but keep it concise.
 
 ## Examples
 

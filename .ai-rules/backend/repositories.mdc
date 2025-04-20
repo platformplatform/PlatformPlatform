@@ -1,6 +1,9 @@
+---
+description: Rules for implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+globs: *Repository.cs
+alwaysApply: false
+---
 # DDD Repositories
-
-When implementing a Domain-Driven Design (DDD) Repository, follow these rules very carefully.
 
 ## Structure
 
@@ -8,17 +11,17 @@ Repositories should be created alongside their corresponding aggregates in the `
 
 ## Implementation
 
-1. Create an public sealed class implementation using primary constructor.
+1. Create a public sealed class implementation using a primary constructor.
 2. All implementations must inherit from `RepositoryBase<TAggregate, TId>`.
 3. Create an interface that extends `IBaseRepository<TAggregate, TId>` or `ICrudRepository<TAggregate, TId>`:
    - Use `IBaseRepository` when you do not need all CRUD operations.
    - Only include methods that are needed for your specific aggregate.
 4. Only return Aggregates or custom projections, but never Entities or Value Objects from a repository.
-5. Never return `[PublicApi]` response DTOs.
+5. Never return `[PublicAPI]` response DTOs.
 6. Keep repositories focused on persistence operations, not business logic.
 7. Repositories are automatically registered in the DI container.
-8. By default Aggregates with the ITenantScopedEntity interface are automatically filtered by tenant using Entity Framework Core query filters:
-   - In rare cases you may need to disable this by using the `IgnoreQueryFilters` method, e.g. when looking up an anonymous user by email.
+8. By default, Aggregates with the ITenantScopedEntity interface are automatically filtered by tenant using Entity Framework Core query filters:
+   - In rare cases, you may need to disable this by using the `IgnoreQueryFilters` method, e.g., when looking up an anonymous user by email.
 9. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration (such as mapping of strongly typed IDs).
 
 ## Example 1 - Simple example with only basic operations

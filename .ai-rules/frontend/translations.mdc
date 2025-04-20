@@ -1,15 +1,18 @@
+---
+description: Rules for implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
+globs: *.tsx
+alwaysApply: false
+---
 # Translations
-
-When implementing translations in the frontend, follow these rules very carefully.
 
 ## Implementation
 
 1. Use `<Trans>...</Trans>` for TSX/component content.
-2. Use t\`...\` for string translations.
+2. Use the t\`...\` syntax for string translations in code.
 3. Always use plain English text in translation markers.
 4. Never hardcode text without proper translation wrappers.
-5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.)
-6. Never change the `*.po` files directly they are auto generated based on the uses of `<Trans>...</Trans>` and t\`...\`
+5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.).
+6. Never change the `*.po` files directly; they are auto-generated based on the uses of `<Trans>...</Trans>` and t\`...\`.
 
 ## Example 1 - Component Translation
 

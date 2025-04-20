@@ -1,14 +1,18 @@
+---
+description: Rules for integrating with backend APIs in the frontend using TanStack Query, covering data fetching, mutation, and API contract usage.
+globs: *.tsx
+alwaysApply: false
+---
 # TanStack Query API Integration
-
-When integrating with backend APIs in the frontend, follow these rules very carefully.
 
 ## Implementation
 
-1. Use TanStack Query hooks from the API utilities.
-2. Leverage the strongly typed API contract generated from the .NET backend.
-3. Use `api.useQuery` for data fetching operations.
-4. Use `api.useMutation` for data modification operations.
-5. Use `mutationSubmitter` for form submissions with mutations.
+1. Use TanStack Query for all API integration.
+2. Use the shared-webapp library for common hooks and API clients.
+3. Leverage the strongly typed API contract generated from the .NET backend.
+4. Use `api.useQuery` for data fetching operations.
+5. Use `api.useMutation` for data modification operations.
+6. Use `mutationSubmitter` for form submissions with mutations.
 
 Note: All .NET API endpoints are available as strongly typed API contracts in the frontend. When compiling the .NET backend, an OpenApi.json file is generated, and the frontend build uses `openapi-typescript` to generate the API contracts.
 
