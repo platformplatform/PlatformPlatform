@@ -40,7 +40,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.ExecuteScalar("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email = email.ToLower() }).Should().Be(1);
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM Users WHERE Email = @email", new { email = email.ToLower() }).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
