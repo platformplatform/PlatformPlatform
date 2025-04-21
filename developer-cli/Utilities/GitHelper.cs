@@ -131,9 +131,12 @@ public static class GitHelper
     public static Dictionary<string, string> GetChangedFiles()
     {
         var status = ProcessHelper.StartProcess("git status --porcelain", Configuration.SourceCodeFolder, true);
-        return status.Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(line => line.Substring(3)) // Skip the status flags (first 3 characters)
-            .ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
+        var changedFiles = status
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Where(f => !f.EndsWith('/') && !f.EndsWith('\\'))
+            .Select(line => line[3..].Trim());
+
+        return changedFiles.ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
 
         string GetFileHash(string file)
         {

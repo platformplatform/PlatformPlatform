@@ -31,7 +31,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        var updatedLoginCount = Connection.ExecuteScalar(
+        var updatedLoginCount = Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", new { id = loginId.ToString() }
         );
         updatedLoginCount.Should().Be(1);
@@ -79,9 +79,9 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         // Verify retry count increment and event collection
-        var loginCompleted = Connection.ExecuteScalar("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() });
+        var loginCompleted = Connection.ExecuteScalar<long>("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() });
         loginCompleted.Should().Be(0);
-        var updatedRetryCount = Connection.ExecuteScalar("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() });
+        var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() });
         updatedRetryCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
@@ -126,11 +126,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
 
         // Verify retry count increment and event collection
-        var loginCompleted = Connection.ExecuteScalar(
+        var loginCompleted = Connection.ExecuteScalar<long>(
             "SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() }
         );
         loginCompleted.Should().Be(0);
-        var updatedRetryCount = Connection.ExecuteScalar(
+        var updatedRetryCount = Connection.ExecuteScalar<long>(
             "SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() }
         );
         updatedRetryCount.Should().Be(4);
@@ -205,7 +205,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
 
         // Assert
-        Connection.ExecuteScalar(
+        Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 1",
             new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }
         ).Should().Be(1);

@@ -26,7 +26,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.ExecuteScalar(
+        Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 0",
             new { tenantId, email = email.ToLower() }
         ).Should().Be(1);
