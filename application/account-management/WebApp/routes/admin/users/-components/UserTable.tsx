@@ -9,6 +9,8 @@ import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { formatDate } from "@repo/utils/date/formatDate";
+import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -178,8 +180,8 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
                   </div>
                 </Cell>
                 <Cell>{user.email}</Cell>
-                <Cell>{toFormattedDate(user.createdAt)}</Cell>
-                <Cell>{toFormattedDate(user.modifiedAt)}</Cell>
+                <Cell>{formatDate(user.createdAt)}</Cell>
+                <Cell>{formatDate(user.modifiedAt)}</Cell>
                 <Cell>
                   <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
                 </Cell>
@@ -263,22 +265,4 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
       </div>
     </>
   );
-}
-
-function toFormattedDate(input: string | undefined | null) {
-  if (!input) {
-    return "";
-  }
-  const date = new Date(input);
-  return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-}
-
-function getInitials(firstName: string | undefined, lastName: string | undefined, email: string | undefined) {
-  if (firstName && lastName) {
-    return `${firstName[0]}${lastName[0]}`;
-  }
-  if (email == null) {
-    return "";
-  }
-  return email.split("@")[0].slice(0, 2).toUpperCase();
 }
