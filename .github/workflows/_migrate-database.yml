@@ -62,7 +62,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          global-json-file: application/global.json
 
       - name: Restore .NET Tools
         working-directory: application
@@ -93,7 +93,7 @@ jobs:
         run: |
           CONNECTION_STRING="Server=tcp:${{ env.SQL_SERVER_FQDN }},1433;Database=${{ inputs.database_name }};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;"
           
-          echo "Checking for pending migrations..."        
+          echo "Checking for pending migrations..."
           MIGRATION_INFO=$(dotnet ef migrations list \
             --project ${{ inputs.relative_project_path }} \
             --startup-project ${{ inputs.relative_startup_project }} \
@@ -137,7 +137,7 @@ jobs:
             echo "$MIGRATION_JSON"
             echo "has_migrations_to_apply=false" >> $GITHUB_OUTPUT
           fi
-        
+
       - name: Close Firewall
         if: always()
         working-directory: cloud-infrastructure/cluster
@@ -168,7 +168,7 @@ jobs:
             const migrationsList = migrationJson.map(m => `- ${m.name} (${m.id})`).join('\n');
             
             const migrationInfo = `## Approve Database Migration \`${{ inputs.database_name }}\` database on \`${{ inputs.azure_environment }}\`
-
+            
             The following pending migration(s) will be applied to the database when approved:
             ${migrationsList}
             

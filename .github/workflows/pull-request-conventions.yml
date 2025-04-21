@@ -71,7 +71,7 @@ jobs:
           # Check if description contains the phrase "pull request"
           DESCRIPTION=$(gh pr view $PULL_REQUEST_NUMBER --json body -q '.body' --repo $GITHUB_REPOSITORY)
           DESCRIPTION_LOWER="${DESCRIPTION,,}"
-          
+
           if echo "$DESCRIPTION_LOWER" | grep -qiE 'pull(-)?request\b'; then
             echo "❌ Pull request description should not contain the phrase 'pull request' or 'pull-request'"
             EXIT_CODE=1
@@ -87,7 +87,7 @@ jobs:
             echo "❌ Please check the box: 'I have added tests, or done manual regression tests'"
             EXIT_CODE=1
           fi
-          
+
           if ! echo "$DESCRIPTION" | grep -q "\- \[x\] I have updated the documentation, if necessary"; then
             echo "❌ Please check the box: 'I have updated the documentation, if necessary'"
             EXIT_CODE=1

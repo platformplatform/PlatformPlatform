@@ -59,7 +59,7 @@ jobs:
         run: |
           deploy_staging="${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}"
           echo "deploy_staging=$deploy_staging" >> $GITHUB_OUTPUT
-          
+
           deploy_production="${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}"
           echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
 
@@ -75,7 +75,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          global-json-file: application/global.json
 
       - name: Restore .NET Tools
         working-directory: application
@@ -174,7 +174,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          global-json-file: application/global.json
 
       - name: Restore .NET Tools
         working-directory: application
