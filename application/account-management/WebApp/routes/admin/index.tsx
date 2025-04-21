@@ -3,6 +3,7 @@ import { TopMenu } from "@/shared/components/topMenu";
 import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/")({
@@ -47,8 +48,8 @@ export default function Home() {
             to="/admin/users"
             search={{
               userStatus: UserStatus.Active,
-              startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 10),
-              endDate: new Date().toISOString().slice(0, 10)
+              startDate: getDateDaysAgo(30),
+              endDate: getTodayIsoDate()
             }}
             className="mx-6 w-1/3 rounded-xl bg-muted/50 p-6 transition-all hover:bg-accent"
             aria-label={t`View active users`}
