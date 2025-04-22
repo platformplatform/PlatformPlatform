@@ -26,7 +26,7 @@ Rules files should be created in appropriate subfolders of the `.ai-rules/` dire
 2. Always follow this standard document structure:
    - Start with a level 1 heading (`# Heading`) that matches the file name (without extension).
    - Follow with a level 2 heading called "## Implementation" that contains the implementation steps.
-   - Include a level 2 heading called "## Example" with practical examples.
+   - Include a level 2 heading called "## Examples" with practical examples.
    - Only deviate from this structure when absolutely necessary.
    - Number implementation steps for easy reference.
    - Use bulleted lists for related items and examples.
@@ -74,7 +74,11 @@ Rules files should be created in appropriate subfolders of the `.ai-rules/` dire
    - Reference actual code over theoretical examples.
    - Use consistent formatting across all rule files.
 
-## Example
+7. When creating or renaming files, update the index in [ai-instructions.mdc](mdc:.ai-rules/rules/ai-instructions.mdc) to ensure AI tools without file scanning like Windsurf and GitHub Co-pilot can find the rules.
+
+## Examples
+
+### Example 1 - Rule File Structure
 
 ```markdown
 ---
@@ -92,7 +96,9 @@ alwaysApply: false
 4. Initialize arrays and objects with concise syntax.
 5. Use optional chaining and nullish coalescing for safer code.
 
-## Example
+## Examples
+
+### Example 1 - Code Examples with DO and DON'T Patterns
 
 ```typescript
 // ✅ DO: Use explicit return types

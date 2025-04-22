@@ -5,38 +5,55 @@ alwaysApply: false
 ---
 # DDD Repositories
 
-## Structure
-
-Repositories should be created alongside their corresponding aggregates in the `/[scs-name]/Core/Features/[Feature]/Domain` directory.
-
 ## Implementation
 
-1. Create a public sealed class implementation using a primary constructor.
-2. All implementations must inherit from `RepositoryBase<TAggregate, TId>`.
-3. Create an interface that extends `IBaseRepository<TAggregate, TId>` or `ICrudRepository<TAggregate, TId>`:
+1. Create repositories alongside their corresponding aggregates in the `/[scs-name]/Core/Features/[Feature]/Domain` directory.
+2. Create a public sealed class implementation using a primary constructor.
+3. All implementations must inherit from `RepositoryBase<TAggregate, TId>`.
+4. Create an interface that extends `IBaseRepository<TAggregate, TId>` or `ICrudRepository<TAggregate, TId>`:
    - Use `IBaseRepository` when you do not need all CRUD operations.
    - Only include methods that are needed for your specific aggregate.
-4. Only return Aggregates or custom projections, but never Entities or Value Objects from a repository.
-5. Never return `[PublicAPI]` response DTOs.
-6. Keep repositories focused on persistence operations, not business logic.
-7. Repositories are automatically registered in the DI container.
-8. By default, Aggregates with the ITenantScopedEntity interface are automatically filtered by tenant using Entity Framework Core query filters:
+5. Only return Aggregates or custom projections, but never Entities or Value Objects from a repository.
+6. Never return `[PublicAPI]` response DTOs.
+7. Keep repositories focused on persistence operations, not business logic.
+8. Repositories are automatically registered in the DI container.
+9. By default, Aggregates with the ITenantScopedEntity interface are automatically filtered by tenant using Entity Framework Core query filters:
    - In rare cases, you may need to disable this by using the `IgnoreQueryFilters` method, e.g., when looking up an anonymous user by email.
-9. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration (such as mapping of strongly typed IDs).
+10. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration.
+11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
+    - `MapStronglyTypedUuid` for ULIDs.
+    - `MapStronglyTypedLongId` for long IDs.
+    - `MapStronglyTypedGuid` for GUIDs.
 
-## Example 1 - Simple example with only basic operations
+## Examples
+
+### Example 1 - Simple Repository
 
 ```csharp
+// ✅ DO: Create focused interfaces with only the methods you need
 public interface ILoginRepository : IAppendRepository<Login, LoginId>
 {
     void Update(Login aggregate);
 }
 
+// ✅ DO: Use primary constructor and inherit from RepositoryBase
 public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext)
     : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
+
+// ❌ DON'T: Create interfaces with methods you don't need
+public interface IBadLoginRepository : ICrudRepository<Login, LoginId> // Wrong: using ICrudRepository when not all CRUD operations are needed
+{
+    // This interface inherits methods like Delete that aren't needed for this aggregate
+}
+
+// ❌ DON'T: Return response DTOs from repositories
+public interface IBadRepository : IBaseRepository<User, UserId>
+{
+    Task<UserResponse> GetUserResponseByIdAsync(UserId id); // Wrong: returning a response DTO
+}
 ```
 
-## Example 2 - Complex example with search and pagination and using `IgnoreQueryFilters`
+### Example 2 - Complex Repository with Search and Pagination
 
 ```csharp
 public interface IUserRepository : ICrudRepository<User, UserId>
@@ -206,22 +223,37 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     }
 }
 ```
-## Entity Framework Core Mapping
-
-Strongly typed IDs must be properly mapped in Entity Framework Core configurations:
+### Example 3 - Entity Framework Core Mapping
 
 ```csharp
+// ✅ DO: Use IEntityTypeConfiguration for mapping strongly typed IDs
 public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
         builder.MapStronglyTypedLongId<User, TenantId>(u => u.TenantId);
+        
+        // Configure other properties as needed
+        builder.Property(u => u.Email).HasMaxLength(100).IsRequired();
+        builder.HasIndex(u => new { u.TenantId, u.Email }).IsUnique();
+    }
+}
+
+// ❌ DON'T: Configure entities in OnModelCreating
+public class BadDbContext : DbContext
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Wrong: configuring entities directly in OnModelCreating
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.Id).HasConversion(
+                id => id.Value,
+                value => new UserId(value));
+        });
     }
 }
 ```
 
-Use the appropriate mapping extension method based on the ID type:
-- `MapStronglyTypedUuid` for ULIDs.
-- `MapStronglyTypedLongId` for long IDs.
-- `MapStronglyTypedGuid` for GUIDs.
+See [Domain Modeling](mdc:.ai-rules/backend/domain-modeling.mdc) for details on implementing the domain models that these repositories persist.

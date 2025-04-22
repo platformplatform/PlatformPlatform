@@ -14,7 +14,9 @@ alwaysApply: false
 5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.).
 6. Never change the `*.po` files directly; they are auto-generated based on the uses of `<Trans>...</Trans>` and t\`...\`.
 
-## Example 1 - Component Translation
+## Examples
+
+### Example 1 - Component Translation
 
 ```tsx
 import { Trans } from "@lingui/react/macro";
@@ -28,7 +30,7 @@ import { Trans } from "@lingui/react/macro";
 </Heading>
 ```
 
-## Example 2 - String Translation
+### Example 2 - String Translation
 
 ```tsx
 import { t } from "@lingui/core/macro";
@@ -40,7 +42,7 @@ const errorMessage = t`An error occurred while processing your request`;
 alert(t`Are you sure you want to delete this item?`);
 ```
 
-## Example 3 - Pluralization
+### Example 3 - Pluralization
 
 ```tsx
 import { plural } from "@lingui/core/macro";

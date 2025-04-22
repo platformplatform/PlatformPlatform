@@ -14,7 +14,9 @@ alwaysApply: false
 5. Include appropriate aria labels for accessibility.
 6. Use `<Trans>...</Trans>` or t\`...\` for translations (content should be plain English).
 
-## Example 1 - Simple Dialog
+## Examples
+
+### Example 1 - Simple Dialog
 
 ```typescript
 const [isOpen, setIsOpen] = useState(false);

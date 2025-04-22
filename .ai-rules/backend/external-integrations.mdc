@@ -5,23 +5,31 @@ alwaysApply: false
 ---
 # External Integrations
 
-## Structure
-
-Integrations to external services should be implemented as a client in a file located at `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs`.
-
 ## Implementation
 
-1. Create a client class with a clear purpose and name.
-2. Implement proper error handling and logging.
-3. Return appropriate types (null, optional, or Result types) rather than throwing exceptions.
-4. Use typed clients with HttpClient injection (via AddHttpClient<T>) for HTTP-based integrations.
-5. Consider timeouts, retry policies, and circuit breakers for resilience.
-6. Create DTOs for request and response data when needed (but don't postfix with `Dto`).
-7. Keep the implementation in one file.
+1. Create integration clients in the `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs` file location.
+2. Create a client class with a clear purpose and name.
+3. Use constructor injection with primary constructor syntax for dependencies.
+4. Implement proper error handling and logging:
+   - Never throw exceptions from integration clients.
+   - Return appropriate types (null, optional, or Result types) instead.
+   - Log errors with appropriate severity levels and structured data.
+5. Use typed clients with HttpClient injection (via AddHttpClient<T>) for HTTP-based integrations.
+6. Configure resilience policies:
+   - Set appropriate timeouts for external calls.
+   - Implement retry policies for transient errors.
+   - Consider circuit breakers for failing services.
+7. Support cancellation tokens for proper request cancellation.
+8. Create DTOs for request and response data when needed (but don't postfix with `Dto`).
+9. Keep the implementation of one client in one file. Only if the client is very complex, should it be split into multiple files.
+10. Register clients in the DI container using the typed client pattern.
 
-## Example - Gravatar Integration
+## Examples
+
+### Example 1 - HTTP Client Integration
 
 ```csharp
+// ✅ DO: Use typed clients with proper error handling and logging
 public sealed record Gravatar(Stream Stream, string ContentType);
 
 public sealed class GravatarClient(HttpClient httpClient, ILogger<GravatarClient> logger)
@@ -58,38 +66,63 @@ public sealed class GravatarClient(HttpClient httpClient, ILogger<GravatarClient
         }
     }
 }
+
+// ❌ DON'T: Throw exceptions from integration clients
+public class BadGravatarClient
+{
+    private readonly HttpClient _httpClient;
+    
+    public BadGravatarClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+    
+    public async Task<Gravatar> GetGravatar(string email)
+    {
+        var hash = Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(email)));
+        var gravatarUrl = $"avatar/{hash.ToLowerInvariant()}";
+        
+        // Don't do this - throws exceptions for not found or error responses
+        var response = await _httpClient.GetAsync(gravatarUrl);
+        response.EnsureSuccessStatusCode(); // This throws an exception!
+        
+        return new Gravatar(
+            await response.Content.ReadAsStreamAsync(),
+            response.Content.Headers.ContentType?.MediaType!
+        );
+    }
+}
 ```
 
-## Key Implementation Details
-
-1. Constructor injection: Uses constructor injection with primary constructor syntax for dependencies.
-2. Typed client pattern: Uses the HttpClient directly via constructor injection.
-3. Error handling: Properly handles HTTP status codes and avoids throwing exceptions.
-4. Logging: Logs information and errors with structured logging.
-5. Return type: Returns null when the resource is not found or an error occurs.
-6. Cancellation support: Accepts and passes through a CancellationToken.
-
-## Registration
-
-Register the client in the DI container using the typed client pattern:
+### Example 2 - Client Registration
 
 ```csharp
-services.AddHttpClient<GravatarClient>(client =>
+// ✅ DO: Register clients with proper configuration and resilience policies
+public static class ServiceCollectionExtensions
 {
-    client.BaseAddress = new Uri("https://gravatar.com/");
-    client.Timeout = TimeSpan.FromSeconds(5);
-});
-```
+    public static IServiceCollection AddGravatarClient(this IServiceCollection services)
+    {
+        services.AddHttpClient<GravatarClient>(client =>
+        {
+            client.BaseAddress = new Uri("https://gravatar.com/");
+            client.Timeout = TimeSpan.FromSeconds(5);
+        })
+        .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
+            new[] { TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(1) }
+        ));
+        
+        return services;
+    }
+}
 
-For additional resilience, you can add Polly policies (requires `Microsoft.Extensions.Http.Polly` package):
-
-```csharp
-services.AddHttpClient<GravatarClient>(client =>
+// ❌ DON'T: Create clients without proper configuration
+public static class BadServiceCollectionExtensions
 {
-    client.BaseAddress = new Uri("https://gravatar.com/");
-    client.Timeout = TimeSpan.FromSeconds(5);
-})
-.AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(
-    new[] { TimeSpan.FromMilliseconds(500), TimeSpan.FromSeconds(1) }
-));
+    public static IServiceCollection AddBadGravatarClient(this IServiceCollection services)
+    {
+        // Missing timeout, base address, and resilience policies
+        services.AddHttpClient<BadGravatarClient>();
+        return services;
+    }
+}
 ```
