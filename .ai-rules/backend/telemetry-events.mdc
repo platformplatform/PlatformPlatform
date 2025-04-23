@@ -1,0 +1,83 @@
+---
+description: Rules for implementing telemetry events in the backend, including event structure, naming, and publishing practices.
+globs: **/Commands/*.cs,TelemetryEvents.cs
+alwaysApply: false
+---
+# Telemetry Events
+
+## Implementation
+
+1. Create telemetry events to collect information about the application's behavior and usage, helping business stakeholders understand how the application is being used and gather valuable insights.
+2. Always create telemetry events in the existing `/[scs-name]/Core/TelemetryEvents.cs` file to maintain high quality and consistent naming.
+3. Name telemetry events in past tense (e.g., `LoginCompleted`, `UserCreated`) and inherit from `TelemetryEvent`.
+4. Ensure events are sorted alphabetically in the `TelemetryEvents.cs` file.
+5. Use primary constructors to define the event properties.
+6. Include relevant contextual information in the event that allows for better insights:
+   - As a rule of thumb, include the ID of aggregates and entities when performing mutations. But be aware that UserId and TenantId are tracked from the execution context.
+   - For example, in `LoginCompleted`, include `UserId` and `LoginTimeInSeconds` to measure how long it takes users to complete login.
+7. Use snake_case for property names in event data to align with OpenTelemetry conventions.
+8. Collect events using the `events.CollectEvent()` method in command handlers just before returning.
+9. By default, events are only collected for successful commands. To collect events for failed commands, set `commitChanges: true` in the Result.
+
+Note: Telemetry events are automatically annotated with extra data from the request, including current tenant ID, authenticated user ID, user role, application version, user's location, device type, browser, etc.
+
+## Examples
+
+### Example 1 - Telemetry Event Definitions
+
+```csharp
+// ✅ DO: Use past tense naming and snake_case for property names
+public sealed class EmailConfirmationFailed(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
+    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+
+public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
+    : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
+
+public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole toRole)
+    : TelemetryEvent(("user_id", userId), ("from_role", fromRole), ("to_role", toRole));
+
+// ❌ DON'T: Use present tense or collect personal information
+public sealed class CompleteLogin(UserId userId, string email, string ipAddress) // Wrong: present tense and collects personal info
+    : TelemetryEvent(("user_id", userId), ("email", email), ("ip_address", ipAddress));
+```
+
+### Example 2 - Using Telemetry Events in Command Handlers
+
+```csharp
+// ✅ DO: Collect events just before returning and use commitChanges for failed commands
+public async Task<Result> Handle(CompleteLoginCommand command, CancellationToken cancellationToken)
+{
+    // Business logic...
+    
+    if (login.HasExpired())
+    {
+        events.CollectEvent(new LoginExpired(login.UserId, login.SecondsSinceStarted));
+        return Result.BadRequest("The code is no longer valid.", commitChanges: true);
+    }
+
+    // More business logic...
+
+    events.CollectEvent(new LoginCompleted(user.Id, login.SecondsSinceStarted));
+
+    return Result.Success();
+}
+
+// ❌ DON'T: Collect events throughout the method or forget to use commitChanges for failed commands
+public async Task<Result> Handle(BadCompleteLoginCommand command, CancellationToken cancellationToken)
+{
+    // Wrong: collecting events too early
+    events.CollectEvent(new LoginStarted(command.Id));
+    
+    // Business logic...
+    
+    if (login.HasExpired())
+    {
+        // Wrong: missing commitChanges: true, so event won't be published
+        return Result.BadRequest("The code is no longer valid.");
+    }
+
+    return Result.Success();
+}
+```
+
+See [Commands](mdc:.ai-rules/backend/commands.mdc) for details on implementing command handlers that use telemetry events.

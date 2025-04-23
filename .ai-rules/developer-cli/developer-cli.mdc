@@ -1,0 +1,8 @@
+---
+description: Rules and guidelines for implementing and extending the custom Developer CLI, including future command and testing conventions.
+globs: developer-cli/**
+alwaysApply: false
+---
+# Developer CLI Rules
+
+*No specific rules defined yet. Future rules will cover CLI command implementation, documentation, and testing.*

@@ -1,0 +1,167 @@
+---
+description: Rules for writing clear, actionable pull request titles and descriptions, including summary, motivation, and downstream project guidance.
+globs: 
+alwaysApply: false
+---
+# Pull Request Conventions
+
+## Implementation
+
+1. Before creating a pull request, gather context by inspecting the changes:
+   - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`
+   - View the full diff: `git --no-pager diff main`
+   - If needed, examine specific files for more context.
+
+2. Create a pull request title that is:
+   - In imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.)
+   - Written as a sentence (not in Title Case).
+   - Without a period at the end.
+   - Short but descriptive.
+
+3. Write a clear description that:
+   - Explains what the change does and why it was made.
+   - Focuses on the functional impact of the change.
+   - Includes any important technical details or trade-offs.
+   - Do not use the term "Pull Request", "PR", or any abbreviation of it.
+   - Do not use personal pronouns such as "we", "our", "he", "she".
+   - Do not end your description with fluffy summary statements like "These changes enhance the developer experience" or "This will make the system more robust".
+     - Adding vague, generic statements without specific details is the most common reason pull request descriptions fail to effectively communicate changes.
+   - Describe functional changes and their motivation without overselling. 
+   - If the description contains nested code blocks, save it in a markdown file called `###-branch-name.md` in the repository root.
+
+4. Always use the official pull request template ([mdc:.github/PULL_REQUEST_TEMPLATE.md](mdc:.github/PULL_REQUEST_TEMPLATE.md)) which includes:
+   - **Summary & Motivation**: Start with the most important change, use bullet points for multiple changes, and mention minor fixes last.
+   - **Checklist**: Ensure all necessary steps have been completed.
+
+5. Only for pull-requests to "PlatformPlatform Upstream repository" add a `### Downstream projects` section if needed:
+   - Downstream projects integrate all pull requests from the PlatformPlatform Upstream repository into their own downstream repository, which typically has one extra self-contained system.
+   - If the file [mdc:application/PlatformPlatform.slnx](mdc:application/PlatformPlatform.slnx) exists this is the "PlatformPlatform Upstream repository". In downstream projects the Visual Studio solution file has been renamed.
+   - Include this section only when changes require modifications in downstream projects.
+   - A sign that this is needed is when:
+     - Similar changes have been made across the two self-contained systems [Account Management](mdc:application/account-management) and [Back Office](mdc:application/back-office).
+     - Similar changes have been made to workflow files [account-management.yml](mdc:.github/workflows/account-management.yml) and [back-office.yml](mdc:.github/workflows/back-office.yml).
+     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`), that might require changes in downstream projects.
+     - Updates to NuGet or npm packages required changes to [Account Management](mdc:application/account-management) and [Back Office](mdc:application/back-office) that also needed to be applied to other self-contained systems.
+   - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:"
+   - Avoid phrases like "Downstream projects should" or "Downstream projects must" - use more direct phrasing.
+   - Use a numbered list for multiple changes, make it clear if multiple changes are required.
+   - Be very specific about the changes needed.
+     - Often any changes to [Back Office](mdc:application/back-office) are 1:1 with the changes that need to be applied to downstream self-contained systems.
+   - Include exact filenames, code snippets, and Git diffs as needed.
+   - Use the placeholder term `your-self-contained-system` for downstream implementations.
+
+## Examples
+
+### Example 1 - Pull Request Title
+
+```
+# ✅ DO: Use imperative form, sentence case, no period
+Add user profile image upload functionality
+Fix data protection key sharing between SCSs
+Update dependency versions to latest stable releases
+
+# ❌ DON'T: Use past tense, title case, periods, or be vague
+Added User Profile Image Upload Functionality.
+Fixed a bug
+Updating dependencies
+PR: Implement new feature
+```
+
+### Example 2 - Pull Request Description
+
+```markdown
+# ✅ DO: Follow the template structure with clear sections
+
+### Summary & Motivation
+
+Add data protection key sharing between self-contained systems to fix antiforgery token validation failures. Previously, each SCS had isolated encryption keys, causing tokens generated in one SCS to be invalid in another.
+
+- Configure a common application name ("PlatformPlatform") for all SCSs.
+- Store keys in a user-accessible directory on disk.
+- Make configuration environment-aware to work in both local and Azure environments.
+
+### Downstream projects
+
+Please update your GitHub Actions workflow to use the new CLI commands:
+
+In your workflow files under `.github/workflows/your-self-contained-system.yml`, replace:
+
+```diff
+- dotnet run code-inspections -s YourSolutionFile.slnf
++ dotnet run inspect --backend --solution-name YourSolutionFile.slnf
+
+-if ! grep -q "No issues found!" inspection-output.log; then
++if ! grep -q "No backend issues found!" inspection-output.log; then
+```
+
+# ❌ DON'T: Use personal pronouns, vague descriptions, incorrect structure, and finalizing with genric summary.
+
+### Summary
+
+We fixed a bug in our PR that was causing issues with the tokens. Our team implemented a solution that improves code quality and makes the system more robust.
+
+- We added some configuration.
+- Fixed the bug.
+- Made other improvements to the codebase.
+
+These changes make the system more robust and maintainable.
+```
+
+### Example 3 - Complete Pull Request Example
+
+```markdown
+### Summary & Motivation
+
+Add data protection key sharing between self-contained systems to fix antiforgery token validation failures. Previously, each SCS had isolated encryption keys, causing tokens generated in one SCS to be invalid in another.
+
+- Configure a common application name ("PlatformPlatform") for all SCSs.
+- Store keys in a user-accessible directory on disk.
+- Make configuration environment-aware to work in both local and Azure environments.
+
+Also improve error handling for key directory creation with a fallback to the temp directory if permission issues occur.
+
+### Downstream projects
+
+Please update your API configuration to use the shared data protection keys:
+
+1. Update `your-self-contained-system/Api/Program.cs`
+
+```diff
+- // No shared data protection configuration
++ // Configure shared data protection keys
++ builder.Services.AddDataProtection()
++     .SetApplicationName("PlatformPlatform")
++     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".platformplatform", "dataprotection-keys")));
+```
+
+2. Update `your-self-contained-system/Api/ApiDependencyConfiguration.cs` to make it environment-aware
+
+```csharp
+public static void AddApiDependencies(this IServiceCollection services, IConfiguration configuration)
+{
+    // Existing code...
+    
+    // Only apply custom data protection in non-Azure environments
+    if (!SharedInfrastructureConfiguration.IsRunningInAzure)
+    {
+        services.AddDataProtection()
+            .SetApplicationName("PlatformPlatform")
+            .PersistKeysToFileSystem(GetDataProtectionKeyDirectory());
+    }
+}
+
+private static DirectoryInfo GetDataProtectionKeyDirectory()
+{
+    try
+    {
+        var directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".platformplatform", "dataprotection-keys");
+        Directory.CreateDirectory(directoryPath);
+        return new DirectoryInfo(directoryPath);
+    }
+    catch (Exception)
+    {
+        // Fallback to temp directory if we can't create the directory
+        return new DirectoryInfo(Path.Combine(Path.GetTempPath(), "platformplatform-dataprotection-keys"));
+    }
+}
+```

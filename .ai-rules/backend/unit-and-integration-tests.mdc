@@ -1,0 +1,314 @@
+---
+description: Rules and conventions for writing backend unit and integration tests, including naming, structure, and best practices.
+globs: **/Tests/*.cs
+alwaysApply: false
+---
+# Writing Unit and Integration Tests
+
+## Implementation
+
+1. Follow these naming conventions:
+   - Test files should be named `[Feature]/[Command|Query]Tests.cs` (e.g., `Users/GetUsersTests.cs`).
+   - Test classes should be named `[Command|Query]Tests` and be `sealed`.
+   - Test methods should follow this pattern: `[Method]_[Condition]_[ExpectedResult]` (e.g., `CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest`).
+2. Organize tests by feature area in directories matching the feature structure. E.g. `/Users/*Tests.cs`. Do _not_ create a `/features/` top level folder.
+3. For endpoint tests, inherit from `EndpointBaseTest<TContext>` for access to HTTP clients and test infrastructure.
+4. Prefer creating API Tests to test behavior over implementation:
+   - Use `AuthenticatedOwnerHttpClient` or `AuthenticatedMemberHttpClient` for authenticated requests.
+   - Use `AnonymousHttpClient` for anonymous requests.
+5. Use xUnit with `[Fact]` attribute or `[Theory]` if multiple test cases are needed.
+6. Use FluentAssertions for clear assertion syntax.
+7. Use NSubstitute for mocking external dependencies but never mock repositories.
+8. Follow the Arrange-Act-Assert pattern with clear comments for each section:
+   - Only use these three comment sections: `// Arrange`, `// Act`, and `// Assert`
+   - Do not add additional comments for subsections (e.g., no `// Setup database` or `// Verify telemetry events`)
+9. Test both happy path and error cases.
+10. Verify side effects like database changes and telemetry events.
+11. Always call `TelemetryEventsCollectorSpy.Reset()` as the last statement in the Arrange section, especially if API calls were made to set up the test state.
+12. For creating and verifying test data, use the `Connection` property from `EndpointBaseTest<TContext>`. This provides a `Microsoft.Data.Sqlite` connection with methods like:
+    - `Insert` to populate test data into the database.
+    - `Update` to update test data into the database.
+    - `Delete` to delete test data into the database.
+    - `ExecuteScalar<T>` to verify data was correctly inserted.
+    - `RowExists` to check if specific records exist.
+13. Never use Dapper for database operations in tests.
+    - Using Dapper is the main reason for making tests that cannot be accepted.
+14. Create architecture tests for enforcing code style and structure patterns.
+15. The `EndpointBaseTest<TContext>` class provides:
+    - Authenticated and anonymous HTTP clients for endpoint testing.
+    - In-memory SQLite database for test isolation.
+    - Service mocking with NSubstitute.
+    - Telemetry event collection for verifying events.
+    - Proper test cleanup with the Dispose pattern.
+
+IMPORTANT: Pay special attention to ensure consistent ordering, naming, spacing, line breaks of methods, parameters, variables, etc. For example, when creating SQL dummy data, ensure columns are in the exact same order as in the database. Or if you make several tests make sure things that are similar is written in the same way.
+
+## Examples
+
+### Example 1 - Command Test
+
+```csharp
+// ✅ DO: Follow the Arrange-Act-Assert pattern with clear comments and verify side effects
+[Fact]
+public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
+{
+    // Arrange
+    var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email);
+    var command = new CompleteLoginCommand(CorrectOneTimePassword);
+    // Always reset telemetry events collector as the last statement in Arrange
+    TelemetryEventsCollectorSpy.Reset();
+
+    // Act
+    var response = await AnonymousHttpClient
+        .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+    // Assert
+    await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+    var updatedLoginCount = Connection.ExecuteScalar(
+        "SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", new { id = loginId.ToString() }
+    );
+    updatedLoginCount.Should().Be(1);
+
+    TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+    TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+    TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+    TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.User1.Id);
+    TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+
+    response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
+    response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
+}
+
+// ❌ DON'T: Mix Arrange-Act-Assert or skip verifying side effects
+[Fact]
+public async Task BadCompleteLogin_WhenValid_ShouldCompleteLogin()
+{
+    // Missing clear section comments
+    var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email);
+    var command = new CompleteLoginCommand(CorrectOneTimePassword);
+    // Missing TelemetryEventsCollectorSpy.Reset() at the end of Arrange
+    
+    var response = await AnonymousHttpClient
+        .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+    
+    // Missing verification of database changes and telemetry events
+    response.StatusCode.Should().Be(HttpStatusCode.OK);
+}
+```
+
+### Example 2 - Query Test
+
+```csharp
+// ✅ DO: Use proper naming and clear assertions
+[Fact]
+public async Task GetUsers_WhenSearchingBasedOnUserEmail_ShouldReturnUser()
+{
+    // Arrange
+    const string searchString = "willgate";
+
+    // Act
+    var response = await AuthenticatedMemberHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
+
+    // Assert
+    response.ShouldBeSuccessfulGetRequest();
+    var userResponse = await response.DeserializeResponse<GetUsersResponse>();
+    userResponse.Should().NotBeNull();
+    userResponse.TotalCount.Should().Be(1);
+    userResponse.Users.First().Email.Should().Be(Email);
+}
+
+// ❌ DON'T: Use unclear naming or assertions
+[Fact]
+public async Task GetData() // Bad: unclear naming
+{
+    var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/users?search=willgate");
+    
+    // Bad: using basic assertions instead of FluentAssertions
+    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    var content = await response.Content.ReadAsStringAsync();
+    Assert.Contains("willgate", content);
+}
+```
+
+### Example 3 - Error Case Test
+
+```csharp
+// ❌ DON'T: Add additional comments beyond Arrange-Act-Assert
+[Fact]
+public async Task BadCompleteLogin_WithTooManyComments_ShouldReturnBadRequest()
+{
+    // Arrange
+    var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.User1.Email);
+    
+    // Setup command with wrong password - Bad: Extra comment
+    var command = new CompleteLoginCommand(WrongOneTimePassword);
+    
+    // Reset telemetry - Bad: Extra comment
+    TelemetryEventsCollectorSpy.Reset();
+
+    // Act
+    var response = await AnonymousHttpClient
+        .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+    // Assert
+    await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
+    
+    // Check database state - Bad: Extra comment
+    var loginCompleted = Connection.ExecuteScalar("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() });
+    loginCompleted.Should().Be(0);
+    
+    // Verify retry count - Bad: Extra comment
+    var updatedRetryCount = Connection.ExecuteScalar("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", 
+        new { id = emailConfirmationId.ToString() });
+    updatedRetryCount.Should().Be(1);
+    
+    // Check telemetry events - Bad: Extra comment
+    TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+    TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+    TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
+    TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+}
+```
+
+### Example 4 - Error Case Test
+
+```csharp
+// ✅ DO: Test error cases and verify side effects
+[Fact]
+public async Task CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
+{
+    // Arrange
+    var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.User1.Email);
+    var command = new CompleteLoginCommand(WrongOneTimePassword);
+    // Always reset telemetry events collector as the last statement in Arrange
+    TelemetryEventsCollectorSpy.Reset();
+
+    // Act
+    var response = await AnonymousHttpClient
+        .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+    // Assert
+    await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
+
+    // Verify retry count increment and event collection
+    var loginCompleted = Connection.ExecuteScalar("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() });
+    loginCompleted.Should().Be(0);
+    var updatedRetryCount = Connection.ExecuteScalar("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() });
+    updatedRetryCount.Should().Be(1);
+
+    TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+    TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+    TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
+    TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+}
+```
+
+### Example 4 - Multiple Error Case Test
+
+```csharp
+// ✅ DO: Test multiple validation errors
+[Fact]
+public async Task UpdateCurrentUser_WhenInvalid_ShouldReturnBadRequest()
+{
+    // Arrange
+    var command = new UpdateCurrentUserCommand
+    {
+        FirstName = Faker.Random.String(31),
+        LastName = Faker.Random.String(31),
+        Title = Faker.Random.String(51)
+    };
+
+    // Act
+    var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account-management/users/me", command);
+
+    // Assert
+    var expectedErrors = new[]
+    {
+        new ErrorDetail("firstName", "First name must be no longer than 30 characters."),
+        new ErrorDetail("lastName", "Last name must be no longer than 30 characters."),
+        new ErrorDetail("title", "Title must be no longer than 50 characters.")
+    };
+    await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+}
+```
+
+### Example 5 - Architecture Test
+
+```csharp
+// ✅ DO: Create architecture tests to enforce code style and structure
+[Fact]
+public void PublicClassesInCore_ShouldBeSealed()
+{
+    // Act
+    var types = Types
+        .InAssembly(Configuration.Assembly)
+        .That().ArePublic()
+        .And().AreNotAbstract()
+        .And().DoNotHaveName(typeof(Result<>).Name);
+
+    var result = types
+        .Should().BeSealed()
+        .GetResult();
+
+    // Assert
+    var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
+    result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
+}
+```
+
+### Example 6 - Setting Up Test Data
+
+```csharp
+// ✅ DO: Use SQL for test data setup with consistent column ordering
+public GetUsersTests()
+{
+    Connection.Insert("Users", [
+            ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+            ("Id", UserId.NewId().ToString()),
+            ("CreatedAt", DateTime.UtcNow.AddMinutes(-10)),
+            ("ModifiedAt", null),
+            ("Email", Email),
+            ("FirstName", FirstName),
+            ("LastName", LastName),
+            ("Title", "Philanthropist & Innovator"),
+            ("Role", UserRole.ToString()),
+            ("EmailConfirmed", true),
+            ("Avatar", JsonSerializer.Serialize(new Avatar())),
+            ("Locale", "en-US")
+        ]
+    );
+    
+    // Verify data was inserted correctly
+    var userExists = Connection.RowExists("Users", new { Email });
+    userExists.Should().BeTrue();
+    
+    var firstName = Connection.ExecuteScalar<string>("SELECT FirstName FROM Users WHERE Email = @Email", new { Email });
+    firstName.Should().Be(FirstName);
+}
+
+// ❌ DON'T: Use Dapper in tests - this is the #1 reason AI-generated tests fail
+public class BadTestSetup
+{
+    public BadTestSetup()
+    {
+        // Wrong: Using Dapper instead of Connection.Insert
+        using var connection = new SqliteConnection(Connection.ConnectionString);
+        connection.Open();
+        
+        // Wrong: Using Dapper Execute
+        connection.Execute(@"
+            INSERT INTO Users (Email, FirstName, LastName, Id, TenantId) 
+            VALUES (@Email, @FirstName, @LastName, @Id, @TenantId)",
+            new { Email = "test@example.com", FirstName = "Test", LastName = "User", Id = Guid.NewGuid(), TenantId = 1 });
+            
+        // Wrong: Using Dapper Query methods
+        var user = connection.QuerySingleOrDefault<User>("SELECT * FROM Users WHERE Email = @Email", 
+            new { Email = "test@example.com" });
+        
+        // Wrong: Using Dapper for verification
+        var count = connection.ExecuteScalar<int>("SELECT COUNT(*) FROM Users");
+    }
+}
+```
+
+See [Commands](mdc:.ai-rules/backend/commands.mdc) and [Queries](mdc:.ai-rules/backend/queries.mdc) for details on implementing the features that these tests verify.

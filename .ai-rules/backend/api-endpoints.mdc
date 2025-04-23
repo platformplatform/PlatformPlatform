@@ -1,0 +1,159 @@
+---
+description: Guidelines for implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
+globs: **/Endpoints/*.cs,*Endpoints.cs
+alwaysApply: false
+---
+# API Endpoints
+
+## Implementation
+
+1. Create API endpoint classes in the `/application/[scs-name]/Api/Endpoints` directory, organized by feature area.
+2. Create an endpoint class implementing the `IEndpoints` interface with proper naming (`[Feature]Endpoints.cs`).
+3. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[Feature]`:
+   ```csharp
+   private const string RoutesPrefix = "/api/account-management/users";
+   ```
+4. Set up the route group with a tags name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`. E.g.: 
+   ```csharp
+   var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
+   ```
+5. Structure each endpoint in exactly 3 lines (no logic in the body):
+   - Line 1: Signature with route and parameters (don't break the line even if longer than 120 characters).
+   - Line 2: Expression calling `=> mediator.Send()`.
+   - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
+6. Follow these requirements:
+   - Use [Strongly Typed IDs](mdc:.ai-rules/backend/strongly-typed-ids.mdc) for route parameters.
+   - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
+   - Use `[AsParameters]` for query parameters.
+   - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
+7. After changing the API, make sure to run `cd developer-cli && dotnet run build --backend` to generate the OpenAPI JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
+8. `IEndpoints` are automatically registered in the SharedKernel.
+
+## Examples
+
+### Example 1 - User Endpoints
+
+```csharp
+// ✅ DO: Structure endpoints in exactly 3 lines with no logic in the body
+public sealed class UserEndpoints : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
+
+        group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<GetUsersResponse>();
+
+        group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
+            => await mediator.Send(new DeleteUserCommand(id))
+        );
+
+        group.MapPost("/bulk-delete", async Task<ApiResult> (BulkDeleteUsersCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
+            => await mediator.Send(command with { Id = id })
+        );
+        
+        group.MapPost("/invite", async Task<ApiResult> (InviteUserCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
+        // The following endpoints are for the current user only
+        group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<UserResponse>();
+    }
+}
+
+// ❌ DON'T: Add business logic inside endpoint methods or break the 3-line structure
+public sealed class BadUserEndpoints : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/users";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization();
+
+        group.MapGet("/", async (IMediator mediator, HttpContext context) => 
+        {
+            // Don't add business logic here
+            var tenantId = context.User.GetTenantId();
+            var query = new GetUsersQuery { TenantId = tenantId };
+            var result = await mediator.Send(query);
+            return Results.Ok(result);
+        });
+
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (
+            UserId id,
+            ChangeUserRoleCommand command,
+            IMediator mediator
+         ) // Don't break the line even if it extends 120 characters
+            => await mediator.Send(command with { Id = id })
+        );
+    }
+}
+```
+
+### Example 2 - Authentication Endpoints
+
+```csharp
+// ✅ DO: Use proper route prefixes and consistent configuration
+public sealed class AuthenticationEndpoints : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/authentication";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").RequireAuthorization().ProducesValidationProblem();
+
+        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        ).Produces<StartLoginResponse>().AllowAnonymous();
+
+        group.MapPost("/login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
+            => await mediator.Send(command with { Id = id })
+        ).AllowAnonymous();
+
+        group.MapPost("/login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+            => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
+        ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
+
+        group.MapPost("/logout", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new LogoutCommand())
+        );
+
+        // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
+        routes.MapPost("/internal-api/account-management/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new RefreshAuthenticationTokensCommand())
+        );
+    }
+}
+
+// ❌ DON'T: Use inconsistent route formatting or forget leading slashes
+public sealed class BadAuthenticationEndpoints : IEndpoints
+{
+    private const string RoutesPrefix = "/api/account-management/authentication";
+
+    public void MapEndpoints(IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication"); // Don't skip .RequireAuthorization() even if all endpoints AllowAnonymous
+
+        // Missing leading slash in route segments
+        group.MapPost("login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        ).AllowAnonymous();
+        
+        // Inconsistent route formatting
+        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
+            => await mediator.Send(command with { Id = id })
+        ).AllowAnonymous();
+    }
+}
+```
+
+See [Commands](mdc:.ai-rules/backend/commands.mdc) and [Queries](mdc:.ai-rules/backend/queries.mdc) for details on implementing the command and query handlers used by these endpoints.

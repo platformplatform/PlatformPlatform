@@ -1,0 +1,51 @@
+---
+description: Core conventions and best practices for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
+globs: *.cs,*.csproj,*.slnx,Directory.Packages.props,global.json,dotnet-tools.json
+alwaysApply: false
+---
+# Backend
+
+## Code Style
+
+- Always use these C# 8 features:
+  - Top-level namespaces.
+  - Primary constructors.
+  - Array initializers.
+  - Pattern matching with `is null` and `is not null` instead of `== null` and `!= null`.
+- Records for immutable types.
+- Mark all C# types as sealed.
+- Use `var` when possible.
+- Use simple collection types like `UserId[]` instead of `List<UserId>` whenever possible.
+- JetBrains tooling is used for automatically formatting code, but automatic line breaking has been disabled for more readable code:
+  - Wrap lines if "new language" constructs are started after 120 characters. This allows lines longer than 120 characters, but ensures that no "important code" is hidden after the 120 character mark.
+- Use clear names instead of making comments.
+- Never use acronyms. E.g., use `SharedAccessSignature` instead of `Sas`.
+- Avoid using exceptions for control flow:
+  - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
+  - Use `UnreachableException` to signal unreachable code that cannot be reached by tests.
+  - Exception messages should include a period.
+- Log only meaningful events at appropriate severity levels.
+  - Logging messages should not include a period.
+  - Use structured logging.
+- Never introduce new NuGet dependencies.
+- Don't do defensive coding (e.g., do not add exception handling to handle situations we don't know will happen).
+- Avoid try-catch unless we cannot fix the reason. We have global exception handling to handle unknown exceptions.
+- Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if we are running in Azure.
+- Don't add comments unless the code is truly not expressing the intent.
+- Never add XML comments.
+- Use TimeProvider.System.GetUtcNow() and not DateTime.UtcNow().
+
+## Implementation
+
+IMPORTANT: Always follow these steps very carefully when implementing changes:
+
+1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [Unit and Integration Tests](mdc:unit-and-integration-tests.mdc) for details.
+2. Build and test your changes:
+   - Always run `dotnet run build --backend` from the [developer-cli](mdc:developer-cli) folder to build the backend.
+   - Run `dotnet run test` from the [developer-cli](mdc:developer-cli) folder to run all tests.
+3. Format your code:
+   - When all tests are passing and you think you are feature complete, run `dotnet run format --backend` from the [developer-cli](mdc:developer-cli) folder.
+   - The format command will automatically fix code style issues according to our conventions.
+
+When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account-management`, `back-office`) you're working with. Replace `[Feature]` with the specific feature name you're working with (e.g., `Users`, `Tenants`, `Authentication`). A feature is often 1:1 with a domain aggregate (e.g., `User`, `Tenant`, `Login`).
+

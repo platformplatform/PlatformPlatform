@@ -1,0 +1,319 @@
+---
+description: Core conventions, code style, and workflow for frontend TypeScript and React development, including component structure and build/format steps.
+globs: *.tsx
+alwaysApply: false
+---
+# Frontend
+
+## Implementation
+
+1. Follow these code style and pattern conventions:
+   - Use proper naming conventions:
+     - PascalCase for components (e.g., `UserProfile`, `NavigationMenu`)
+     - camelCase for variables and functions (e.g., `userName`, `handleSubmit`)
+   - Create semantically correct components with clear boundaries and responsibilities:
+     - Each component should have a single, well-defined purpose
+     - UI elements with different functionality should be in separate components
+     - Avoid mixing unrelated functionality in one component
+   - Use clear, descriptive names instead of making comments
+   - Never use acronyms in code (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`, `navigation` not `nav`, `parameters` not `params`)
+   - Prioritize code readability and maintainability
+   - Never introduce new npm dependencies without explicit approval
+
+2. Use the following React patterns and libraries:
+   - Use React Aria Components from `@repo/ui/components/ComponentName`
+   - Use `onPress` instead of `onClick` for event handlers
+   - Use `<Trans>...</Trans>` or t-string literals (t`...`) for translations
+   - Use TanStack Query for API interactions
+   - Throw errors sparingly and ensure error messages include a period
+
+3. Always follow these steps when implementing changes:
+   - Consult relevant rule files and list which ones guided your implementation
+   - Search the codebase for similar code before implementing new code
+   - Reference existing implementations to maintain consistency
+
+4. Build and format your changes:
+   - After each minor change, run `dotnet run format --frontend` from the [developer-cli](mdc:developer-cli) folder
+   - This ensures consistent code style across the codebase
+
+5. Verify your changes:
+   - When a feature is complete, run `dotnet run check --frontend` from the [developer-cli](mdc:developer-cli) folder
+   - This command runs build, format, and check in that order
+   - Fix any compiler warnings or test failures before proceeding
+
+6. See these related rule files for specific implementation patterns:
+   - [Form with Validation](mdc:.ai-rules/frontend/form-with-validation.mdc)
+   - [Modal Dialog](mdc:.ai-rules/frontend/modal-dialog.mdc)
+   - [React Aria Components](mdc:.ai-rules/frontend/react-aria-components.mdc)
+   - [TanStack Query API Integration](mdc:.ai-rules/frontend/tanstack-query-api-integration.mdc)
+   - [Translations](mdc:.ai-rules/frontend/translations.mdc)
+
+## Examples
+
+### Example 1 - Component Structure
+
+```tsx
+// ✅ DO: Create focused components with clear responsibilities
+import { Trans } from "@lingui/react/macro";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuHeader, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { LogOutIcon, UserIcon } from "lucide-react";
+
+export function AvatarMenu({ userInfo, onProfileClick, onLogoutClick }: AvatarMenuProps) {
+  return (
+    <Menu placement="bottom end">
+      <MenuHeader>
+        <div className="flex flex-row items-center gap-2">
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
+          <div className="my-1 flex flex-col">
+            <h2>{userInfo.fullName}</h2>
+            <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
+          </div>
+        </div>
+      </MenuHeader>
+      <MenuItem onAction={onProfileClick}>
+        <UserIcon className="h-4 w-4" />
+        <Trans>Profile</Trans>
+      </MenuItem>
+      <MenuSeparator />
+      <MenuItem onAction={onLogoutClick}>
+        <LogOutIcon className="h-4 w-4" />
+        <Trans>Log out</Trans>
+      </MenuItem>
+    </Menu>
+  );
+}
+
+// ❌ DON'T: Mix unrelated functionality in a single component
+function BadAvatarMenu({ userInfo }) { // Bad: Mixing menu with logout functionality
+  return (
+    <div className="menu">
+      <div className="header">
+        <img src={userInfo.avatarUrl} alt="User avatar" />
+        <h2>{userInfo.fullName}</h2>
+      </div>
+      <button onClick={() => showProfile()}>
+        <i className="icon-user"></i> Profile
+      </button>
+      <button onClick={() => {
+        // Bad: Implementing logout logic directly in the component
+        fetch("/api/account-management/authentication/logout", { method: "POST" })
+          .then(() => window.location.href = "/login");
+      }}>
+        <i className="icon-logout"></i> Log out
+      </button>
+    </div>
+  );
+}
+```
+
+### Example 2 - API Integration
+
+```tsx
+// ✅ DO: Use TanStack Query for API interactions
+import { api } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { TextField } from "@repo/ui/components/TextField";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useState } from "react";
+
+export function LoginForm() {
+  const [email, setEmail] = useState("");
+  
+  // Simple mutation without manual query invalidation
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
+  
+  // Handle successful login
+  if (startLoginMutation.isSuccess) {
+    const { loginId } = startLoginMutation.data;
+    // Navigate to verification page
+    return <Navigate to={`/login/verify/${loginId}`} />;
+  }
+  
+  return (
+    <Form
+      onSubmit={mutationSubmitter(startLoginMutation)}
+      validationErrors={startLoginMutation.error?.errors}
+      validationBehavior="aria"
+    >
+      <TextField
+        name="email"
+        type="email"
+        label={t`Email`}
+        autoFocus={true}
+        isRequired={true}
+        value={email}
+        onChange={setEmail}
+        placeholder={t`yourname@example.com`}
+      />
+      <FormErrorMessage error={startLoginMutation.error} />
+      <Button type="submit" isDisabled={startLoginMutation.isPending}>
+        {startLoginMutation.isPending ? <Trans>Processing...</Trans> : <Trans>Continue</Trans>}
+      </Button>
+    </Form>
+  );
+}
+
+// ❌ DON'T: Use direct fetch calls or useState for API state management
+function BadLoginForm() {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch("/api/account-management/authentication/login/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.title);
+      } else {
+        const data = await response.json();
+        window.location.href = `/login/verify/${data.loginId}`;
+      }
+    } catch (err) {
+      setError("Network error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="email">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+      </div>
+      {error && <div className="error">{error}</div>}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? "Processing..." : "Continue"}
+      </button>
+    </form>
+  );
+}
+```
+
+### Form Implementation
+
+```tsx
+// ✅ DO: Use Form component with proper validation and error handling
+import { api } from "@/shared/lib/api/client";
+import { Trans } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
+import { Button } from "@repo/ui/components/Button";
+import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { TextField } from "@repo/ui/components/TextField";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+
+export function LoginForm() {
+  const [email, setEmail] = useState("");
+  
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
+
+  return (
+    <Form
+      onSubmit={mutationSubmitter(startLoginMutation)}
+      validationErrors={startLoginMutation.error?.errors}
+      validationBehavior="aria"
+      className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
+    >
+      <TextField
+        name="email"
+        type="email"
+        label={t`Email`}
+        autoFocus={true}
+        isRequired={true}
+        value={email}
+        onChange={setEmail}
+        autoComplete="email webauthn"
+        placeholder={t`yourname@example.com`}
+        className="flex w-full flex-col"
+      />
+      <FormErrorMessage error={startLoginMutation.error} />
+      <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
+        <Trans>Continue</Trans>
+      </Button>
+    </Form>
+  );
+}
+
+// ❌ DON'T: Use raw HTML forms without proper validation
+function BadLoginForm() {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/account-management/authentication/login/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.title || "Login failed");
+      }
+    } catch (err) {
+      setError("Network error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div>
+        <label htmlFor="email">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+        />
+      </div>
+      {error && <div className="error">{error}</div>}
+      <button type="submit" disabled={isLoading}>
+        {isLoading ? "Loading..." : "Continue"}
+      </button>
+    </form>
+  );
+}
+```
+
+### Build and Format Workflow
+
+```bash
+# ✅ DO: Format code after each change
+# From the developer-cli folder
+dotnet run format --frontend
+
+# ✅ DO: Verify changes when complete
+dotnet run check --frontend
+
+# ❌ DON'T: Skip formatting or verification steps
+# Don't rely on IDE formatting alone
+# Don't commit code without running checks
+```
