@@ -4,6 +4,7 @@ using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.SharedKernel.Tests;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
@@ -26,6 +27,25 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountManagemen
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantUpdated");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateCurrentTenant_WhenUserIsNotOwner_ShouldReturnForbidden()
+    {
+        // Arrange
+        var originalName = DatabaseSeeder.Tenant1.Name;
+        var command = new UpdateCurrentTenantCommand { Name = Faker.TenantName() };
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners are allowed to update the tenant.");
+
+        var updatedName = Connection.ExecuteScalar<string>(
+            "SELECT Name FROM Tenants WHERE Id = @id", new { id = DatabaseSeeder.Tenant1.Id.ToString() }
+        );
+        updatedName.Should().Be(originalName);
     }
 
     [Fact]
