@@ -22,6 +22,9 @@ msgstr "Kontonavn"
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Account suspended"
+msgstr "Konto suspenderet"
+
 msgid "Actions"
 msgstr "Handlinger"
 
@@ -109,9 +112,6 @@ msgstr "Slet bruger"
 
 msgid "Delete users"
 msgstr "Slet brugere"
-
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
@@ -309,6 +309,15 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Suspend account"
+msgstr "Suspender konto"
+
+msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
+msgstr "Ved at suspendere kontoen deaktiveres alle produktfunktioner. Kun lejerejere vil kunne logge ind. Suspension er påkrævet før sletning."
+
+msgid "Suspending..."
+msgstr "Suspenderer..."
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
@@ -386,6 +395,12 @@ msgstr "Velkommen hjem"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
+
+msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
+msgstr "Du er ved at suspendere din konto. Dette vil medføre følgende konsekvenser:<0/><1/>• Alle produktfunktioner vil blive deaktiveret<2/>• Kun lejerejere vil kunne logge ind<3/>• Kontosuspension er krævet før sletning<4/><5/>Du kan genaktivere din konto når som helst."
+
+msgid "Your account has been suspended successfully."
+msgstr "Din konto er blevet suspenderet med succes."
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"

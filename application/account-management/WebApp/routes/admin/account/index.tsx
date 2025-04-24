@@ -4,26 +4,30 @@ import logoWrap from "@/shared/images/logo-wrap.svg";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { TextField } from "@repo/ui/components/TextField";
+import {} from "@repo/ui/components/Tooltip";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { PauseCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Label, Separator } from "react-aria-components";
-import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
+import SuspendAccountConfirmation from "./-components/SuspendAccountConfirmation";
 
 export const Route = createFileRoute("/admin/account/")({
   component: AccountSettings
 });
 
 export function AccountSettings() {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuspendModalOpen, setIsSuspendModalOpen] = useState(false);
   const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
+
+  const isOwner = useUserInfo()?.role === "Owner";
 
   if (isLoading) {
     return null;
@@ -70,14 +74,15 @@ export function AccountSettings() {
                 isRequired={true}
                 name="name"
                 defaultValue={tenant?.name ?? ""}
-                isDisabled={updateCurrentTenantMutation.isPending}
+                isDisabled={updateCurrentTenantMutation.isPending || !isOwner}
                 label={t`Account name`}
                 validationBehavior="aria"
               />
             </div>
 
             <FormErrorMessage error={updateCurrentTenantMutation.error} />
-            <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
+
+            <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending || !isOwner}>
               {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
             </Button>
           </Form>
@@ -88,25 +93,30 @@ export function AccountSettings() {
             </h3>
             <Separator />
             <div className="flex flex-col gap-4">
-              <p className="font-normal text-sm">
-                <Trans>
-                  Deleting the account and all associated data. This action cannot be undone, so please proceed with
-                  caution.
-                </Trans>
-              </p>
+              <div>
+                <p className="mb-2 font-normal text-sm">
+                  <Trans>
+                    Suspending the account will disable all product features. Only tenant owners will be able to log in.
+                    Suspension is required before deletion.
+                  </Trans>
+                </p>
 
-              <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
-                <Trash2 />
-                <Trans>Delete account</Trans>
-              </Button>
+                <Button
+                  variant="destructive"
+                  onPress={() => setIsSuspendModalOpen(true)}
+                  className="w-fit"
+                  isDisabled={!isOwner}
+                >
+                  <PauseCircleIcon className="mr-1 h-4 w-4" />
+                  <Trans>Suspend account</Trans>
+                </Button>
+              </div>
             </div>
           </div>
-
-          <Separator className="my-8" />
         </div>
       </div>
 
-      <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
+      <SuspendAccountConfirmation isOpen={isSuspendModalOpen} onOpenChange={setIsSuspendModalOpen} />
     </>
   );
 }

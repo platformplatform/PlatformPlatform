@@ -22,6 +22,9 @@ msgstr "Accountnaam"
 msgid "Account settings"
 msgstr "Accountinstellingen"
 
+msgid "Account suspended"
+msgstr "Account opgeschort"
+
 msgid "Actions"
 msgstr "Acties"
 
@@ -109,9 +112,6 @@ msgstr "Gebruiker verwijderen"
 
 msgid "Delete users"
 msgstr "Gebruikers verwijderen"
-
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Code niet ontvangen? Verstuur opnieuw"
@@ -309,6 +309,15 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "Suspend account"
+msgstr "Account opschorten"
+
+msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
+msgstr "Het account opschorten zal alle productfuncties uitschakelen. Alleen eigenaars van huurders kunnen inloggen. Opschorting is vereist voor verwijdering."
+
+msgid "Suspending..."
+msgstr "Opschorten..."
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
@@ -386,6 +395,12 @@ msgstr "Welkom home"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
+
+msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
+msgstr "Je staat op het punt je account op te schorten. Dit heeft de volgende gevolgen:<0/><1/>• Alle productfuncties worden uitgeschakeld<2/>• Alleen eigenaars van huurders kunnen inloggen<3/>• Opschorting van het account is vereist voor verwijdering<4/><5/>Je kunt je account op elk moment opnieuw activeren."
+
+msgid "Your account has been suspended successfully."
+msgstr "Je account is succesvol opgeschort."
 
 msgid "yourname@example.com"
 msgstr "jouwnaam@voorbeeld.com"

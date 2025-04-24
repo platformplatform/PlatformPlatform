@@ -22,6 +22,9 @@ msgstr "Account name"
 msgid "Account settings"
 msgstr "Account settings"
 
+msgid "Account suspended"
+msgstr "Account suspended"
+
 msgid "Actions"
 msgstr "Actions"
 
@@ -109,9 +112,6 @@ msgstr "Delete user"
 
 msgid "Delete users"
 msgstr "Delete users"
-
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"
@@ -309,6 +309,15 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Suspend account"
+msgstr "Suspend account"
+
+msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
+msgstr "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
+
+msgid "Suspending..."
+msgstr "Suspending..."
+
 msgid "Terms of use"
 msgstr "Terms of use"
 
@@ -386,6 +395,12 @@ msgstr "Welcome home"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+
+msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
+msgstr "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
+
+msgid "Your account has been suspended successfully."
+msgstr "Your account has been suspended successfully."
 
 msgid "yourname@example.com"
 msgstr "yourname@example.com"
