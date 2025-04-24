@@ -3,24 +3,20 @@ description: This is the main entry point for AI-based development when working 
 globs: 
 alwaysApply: true
 ---
-
 # Main entry point
-
-This guide serves as the main entry point for AI-based development, providing structured access to all development guidelines and important documentation.
 
 Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
 
 ## High-Level Problem Solving Strategy
 
 1. Understand the problem deeply. Carefully read the instructions and think critically about what is required.
-2. Always ask questions if something is unclear before starting to implement.
-3. Investigate the codebase. Explore relevant files, search for key functions, and gather context.
-4. Develop a clear, step-by-step plan. Break down the fix into manageable, incremental steps.
-5. Before each code change, always consult the relevant rule files, to make sure you understand the rules and follow the conventions in the codebase.
+2. Investigate the codebase. Explore relevant files, search for key functions, and gather context.
+3. Develop a clear, step-by-step plan. Break down the fix into manageable, incremental steps.
+4. Before each code change, always consult the relevant rule files, and follow the rules very carefully.
    - Failure to follow the rules is the main reason for making unacceptable changes.
-   - Before each code change list which rule files have been used to guide your response (e.g., `Rules consulted: [Commands](mdc:.ai-rules/backend/commands.mdc), [Unit and Integration Tests](mdc:.ai-rules/backend/unit-and-integration-tests.mdc)`).
-6. Iterate until you are extremely confident the fix is complete and all tests pass.
-7. After each change make sure you follow the rules in [Backend Rules](mdc:.ai-rules/backend/backend.mdc) or [Frontend Rules](mdc:.ai-rules/frontend/frontend.mdc), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
+5. Iterate until you are extremely confident the fix is complete.
+   - When changing code, do not add comments about what you changed.
+6. After each change make sure you follow the rules in [Backend Rules](mdc:.ai-rules/backend/backend.mdc) or [Frontend Rules](mdc:.ai-rules/frontend/frontend.mdc), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
    - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
 
 ## Overview of all guidelines rule files
@@ -30,7 +26,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
   - [API Endpoints](mdc:.ai-rules/backend/api-endpoints.mdc) - Guidelines for minimal API endpoints.  
   - [Commands](mdc:.ai-rules/backend/commands.mdc) - Implementation of state-changing operations using CQRS commands.
   - [Domain Modeling](mdc:.ai-rules/backend/domain-modeling.mdc) - Implementation of DDD aggregates, entities, and value objects.
-  - [External Integrations](mdc:.ai-rules/backend/external-integrations.mdc) - Implementation of integration to external services.
+  - [External Integrations](mdc:.ai-rules/backend/external-integrations.mdc) - Implementation of integrations to external services.
   - [Queries](mdc:.ai-rules/backend/queries.mdc) - Implementation of data retrieval operations using CQRS queries.
   - [Repositories](mdc:.ai-rules/backend/repositories.mdc) - Persistence abstractions for aggregates.
   - [Strongly Typed IDs](mdc:.ai-rules/backend/strongly-typed-ids.mdc) - Type-safe DDD identifiers for domain entities.
@@ -49,7 +45,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 - [Infrastructure Rules](mdc:.ai-rules/infrastructure/infrastructure.mdc) - Cloud infrastructure guidelines.
 
 ### Developer CLI
-- [Developer CLI Rules](mdc:.ai-rules/developer-cli/developer-cli.mdc) - Guide lines for extending the custom Developer CLI.
+- [Developer CLI Rules](mdc:.ai-rules/developer-cli/developer-cli.mdc) - Guidelines for extending the custom Developer CLI.
 
 ### Other Rules
 - [Git Commit Rules](mdc:.ai-rules/other/git-commits.mdc) - Guidelines for creating commit messages.
@@ -58,7 +54,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 
 ## Project Structure
 
-This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure. Use this overview to gain an understanding of the codebase structure.
+This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure.
 
 - [.github](mdc:.github): GitHub workflows and other GitHub artifacts.
 - [application](mdc:application): Contains application code:
