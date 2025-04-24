@@ -1,6 +1,4 @@
-using JetBrains.Annotations;
-
-namespace PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+namespace PlatformPlatform.SharedKernel.Domain;
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -10,4 +8,3 @@ public enum TenantState
     Active,
     Suspended
 }
-

@@ -98,11 +98,11 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>());
+        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>(), DatabaseSeeder.Tenant1.State);
         AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
 
-        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
+        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>(), DatabaseSeeder.Tenant1.State);
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
 

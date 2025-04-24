@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
@@ -8,21 +9,22 @@ public sealed class AuthenticationTokenService(
     IHttpContextAccessor httpContextAccessor
 )
 {
-    public void CreateAndSetAuthenticationTokens(UserInfo userInfo)
+    public void CreateAndSetAuthenticationTokens(UserInfo userInfo, TenantState tenantState)
     {
         var refreshToken = refreshTokenGenerator.Generate(userInfo);
-        var accessToken = accessTokenGenerator.Generate(userInfo);
+        var accessToken = accessTokenGenerator.Generate(userInfo, tenantState);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
     public void RefreshAuthenticationTokens(
         UserInfo userInfo,
+        TenantState tenantState,
         RefreshTokenId refreshTokenId,
         int currentRefreshTokenVersion,
         DateTimeOffset expires)
     {
         var refreshToken = refreshTokenGenerator.Update(userInfo, refreshTokenId, currentRefreshTokenVersion, expires);
-        var accessToken = accessTokenGenerator.Generate(userInfo);
+        var accessToken = accessTokenGenerator.Generate(userInfo, tenantState);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 

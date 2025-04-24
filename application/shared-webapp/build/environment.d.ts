@@ -57,6 +57,10 @@ export declare global {
      **/
     tenantId?: string;
     /**
+     * Tenant State
+     **/
+    tenantState?: "Trial" | "Active" | "Suspended";
+    /**
      * User role
      **/
     role?: "Owner" | "Admin" | "Member";

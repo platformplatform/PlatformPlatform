@@ -3,6 +3,7 @@ using Mapster;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -20,6 +21,7 @@ public sealed record CompleteSignupCommand(string OneTimePassword, string Prefer
 
 public sealed class CompleteSignupHandler(
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     AuthenticationTokenService authenticationTokenService,
     IMediator mediator,
     ITelemetryEventsCollector events
@@ -42,7 +44,9 @@ public sealed class CompleteSignupHandler(
         if (!createTenantResult.IsSuccess) return Result.From(createTenantResult);
 
         var user = await userRepository.GetByIdAsync(createTenantResult.Value!.UserId, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(user!.Adapt<UserInfo>());
+        var tenant = await tenantRepository.GetByIdAsync(user!.TenantId, cancellationToken);
+
+        authenticationTokenService.CreateAndSetAuthenticationTokens(user.Adapt<UserInfo>(), tenant!.State);
 
         events.CollectEvent(
             new SignupCompleted(createTenantResult.Value.TenantId, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds)

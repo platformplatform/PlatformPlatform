@@ -29,6 +29,8 @@ public class UserInfo
 
     public TenantId? TenantId { get; init; }
 
+    public string? TenantState { get; init; }
+
     public string? Role { get; init; }
 
     public string? Email { get; init; }
@@ -59,6 +61,7 @@ public class UserInfo
             IsAuthenticated = true,
             Id = userId == null ? null : new UserId(userId),
             TenantId = tenantId == null ? null : new TenantId(long.Parse(tenantId)),
+            TenantState = user.FindFirstValue("tenant_state"),
             Role = user.FindFirstValue(ClaimTypes.Role),
             Email = user.FindFirstValue(ClaimTypes.Email),
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),

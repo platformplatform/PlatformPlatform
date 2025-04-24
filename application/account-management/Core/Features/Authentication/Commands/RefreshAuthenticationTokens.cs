@@ -3,6 +3,7 @@ using System.Security.Claims;
 using JetBrains.Annotations;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -17,6 +18,7 @@ public sealed record RefreshAuthenticationTokensCommand : ICommand, IRequest<Res
 
 public sealed class RefreshAuthenticationTokensHandler(
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     IHttpContextAccessor httpContextAccessor,
     AuthenticationTokenService authenticationTokenService,
     ITelemetryEventsCollector events,
@@ -77,7 +79,10 @@ public sealed class RefreshAuthenticationTokensHandler(
 
         // TODO: Check if the refreshTokenId exists in the database and if the jwtId and refreshTokenVersion are valid
 
-        authenticationTokenService.RefreshAuthenticationTokens(user.Adapt<UserInfo>(), refreshTokenId, refreshTokenVersion, refreshTokenExpires);
+        var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
+        authenticationTokenService.RefreshAuthenticationTokens(
+            user.Adapt<UserInfo>(), tenant!.State, refreshTokenId, refreshTokenVersion, refreshTokenExpires
+        );
         events.CollectEvent(new AuthenticationTokensRefreshed());
 
         return Result.Success();

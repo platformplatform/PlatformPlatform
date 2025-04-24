@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.SinglePageApp;
@@ -98,11 +99,11 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner);
+        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>(), TenantState.Trial);
         AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
 
-        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
+        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>(), TenantState.Trial);
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
 

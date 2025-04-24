@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
@@ -11,7 +12,7 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
     // For example, if a user gets a new role, the changes will not take effect until the access token expires.
     private const int ValidForMinutes = 5;
 
-    public string Generate(UserInfo userInfo)
+    public string Generate(UserInfo userInfo, TenantState tenantState)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -24,7 +25,8 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
                     new Claim("tenant_id", userInfo.TenantId!.ToString()),
                     new Claim("title", userInfo.Title ?? string.Empty),
                     new Claim("avatar_url", userInfo.AvatarUrl ?? string.Empty),
-                    new Claim("locale", userInfo.Locale!)
+                    new Claim("locale", userInfo.Locale!),
+                    new Claim("tenant_state", tenantState.ToString())
                 ]
             )
         };
