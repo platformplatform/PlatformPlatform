@@ -9,9 +9,7 @@ public sealed class CascadeDeleteLogins : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropForeignKey(
-            name: "FK_Logins_User_UserId",
-            table: "Logins");
+        migrationBuilder.DropForeignKey("FK_Logins_User_UserId", "Logins");
 
         migrationBuilder.AddForeignKey(
             name: "FK_Logins_User_UserId",
@@ -19,6 +17,7 @@ public sealed class CascadeDeleteLogins : Migration
             column: "UserId",
             principalTable: "Users",
             principalColumn: "Id",
-            onDelete: ReferentialAction.Cascade);
+            onDelete: ReferentialAction.Cascade
+        );
     }
 }

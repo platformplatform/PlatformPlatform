@@ -369,6 +369,38 @@
         }
       }
     },
+    "/api/account-management/tenants/current/state": {
+      "put": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "PutApiAccountManagementTenantsCurrentState",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeTenantStateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/users": {
       "get": {
         "tags": [
@@ -1065,6 +1097,15 @@
         "properties": {
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "ChangeTenantStateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newState": {
+            "$ref": "#/components/schemas/TenantState"
           }
         }
       },

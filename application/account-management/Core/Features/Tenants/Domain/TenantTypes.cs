@@ -10,3 +10,4 @@ public enum TenantState
     Active,
     Suspended
 }
+

@@ -51,6 +51,9 @@ public sealed class TenantCreated(TenantId tenantId, TenantState state)
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState, int usersDeleted)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState), ("users_deleted", usersDeleted));
 
+public sealed class TenantStateChanged(TenantId tenantId, TenantState fromState, TenantState toState)
+    : TelemetryEvent(("tenant_id", tenantId), ("tenant_from_state", fromState), ("tenant_to_state", toState));
+
 public sealed class TenantUpdated
     : TelemetryEvent;
 
