@@ -22,7 +22,12 @@ public static class SslCertificateManager
         var certificateLocation = GetCertificateLocation("localhost");
         try
         {
-            X509CertificateLoader.LoadPkcs12FromFile(certificateLocation, certificatePassword);
+            var certificate2 = X509CertificateLoader.LoadPkcs12FromFile(certificateLocation, certificatePassword);
+            if (certificate2.NotAfter < DateTime.UtcNow)
+            {
+                Console.WriteLine($"Certificate {certificateLocation} is expired. Creating a new certificate.");
+                CreateNewSelfSignedDeveloperCertificate(certificateLocation, certificatePassword);
+            }
         }
         catch (CryptographicException)
         {
