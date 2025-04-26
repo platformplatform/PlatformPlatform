@@ -17,7 +17,7 @@ alwaysApply: false
    - For example, in `LoginCompleted`, include `UserId` and `LoginTimeInSeconds` to measure how long it takes users to complete login.
 7. Use snake_case for property names in event data to align with OpenTelemetry conventions.
 8. Collect events using the `events.CollectEvent()` method in command handlers just before returning.
-9. By default, events are only collected for successful commands. To collect events for failed commands, set `commitChanges: true` in the Result.
+9. By default, events are only collected for successful commands. To collect events for failed commands, set `commitChanges: true` in the Result object.
 
 Note: Telemetry events are automatically annotated with extra data from the request, including current tenant ID, authenticated user ID, user role, application version, user's location, device type, browser, etc.
 
@@ -79,5 +79,3 @@ public async Task<Result> Handle(BadCompleteLoginCommand command, CancellationTo
     return Result.Success();
 }
 ```
-
-See [Commands](mdc:.ai-rules/backend/commands.mdc) for details on implementing command handlers that use telemetry events.

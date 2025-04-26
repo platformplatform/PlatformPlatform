@@ -33,6 +33,7 @@ alwaysApply: false
    - Create a public sealed class with `Handler` suffix: e.g., `GetUsersHandler`.
    - Implement `IRequestHandler<QueryType, Result<ResponseType>>`.
    - Use guard statements with early returns that return [Result<T>](mdc:application/shared-kernel/SharedKernel/Cqrs/Result.cs) instead of throwing exceptions.
+   - If result messages contain values always enclose them in single quotes: `$"User with ID '{userId}' not found."`
    - Use repositories to retrieve data from the database, and never use Entity Framework directly.
    - Prefer using Mapster to map domain aggregates and entities to response DTOs. For complex mapping, map manually.
    - Queries should rarely track TelemetryEvents.
@@ -42,101 +43,26 @@ Note: Queries run through MediatR pipeline behaviors in this order: Validation �
 
 ## Examples
 
-### Example 1 - Simple Query
-
 ```csharp
-// ✅ DO: Create simple, focused queries with clear naming
-[PublicAPI]
-public sealed record GetCurrentTenantQuery : IRequest<Result<TenantResponse>>;
-
-[PublicAPI]
-public sealed record TenantResponse(TenantId Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
-
-public sealed class GetTenantHandler(ITenantRepository tenantRepository)
-    : IRequestHandler<GetCurrentTenantQuery, Result<TenantResponse>>
+[PublicAPI]  // ✅ DO: Mark public API with [PublicAPI] and suffix with Query
+public sealed record GetUsersQuery(string? Search = null, UserRole? UserRole = null, int PageOffset = 0, int PageSize = 25) 
+    : IRequest<Result<UsersResponse>>
 {
-    public async Task<Result<TenantResponse>> Handle(GetCurrentTenantQuery query, CancellationToken cancellationToken)
-    {
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-        return tenant.Adapt<TenantResponse>();
-    }
+    public string? Search { get; } = Search?.Trim().ToLower(); // ✅ DO: Sanitize input
 }
 
-// ❌ DON'T: Mix query and command responsibilities
-[PublicAPI]
-public sealed record BadTenantQuery : IRequest<Result<GetTenantResponse>>
-{
-    // Don't modify state in queries
-    public bool UpdateLastAccessed { get; init; } = true;
-}
-
-[PublicAPI] // Don't prefix the response object with `Get`
-public sealed record GetTenantResponse(TenantId Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
-
-public sealed class BadTenantHandler(ITenantRepository tenantRepository)
-    : IRequestHandler<BadTenantQuery, Result<GetTenantResponse>>
-{
-    public async Task<Result<GetTenantResponse>> Handle(BadTenantQuery query, CancellationToken cancellationToken)
-    {
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-        
-        // Don't modify state in queries
-        if (query.UpdateLastAccessed)
-        {
-            tenant.UpdateLastAccessed();
-            await tenantRepository.UpdateAsync(tenant, cancellationToken);
-        }
-        
-        return tenant.Adapt<GetTenantResponse>();
-    }
-}
-```
-
-### Example 2 - Complex Query with Input Validation and Pagination
-
-```csharp
-// ✅ DO: Use proper validation and pagination for complex queries
-[PublicAPI]
-public sealed record GetUsersQuery(
-    string? Search = null,
-    UserRole? UserRole = null,
-    UserStatus? UserStatus = null,
-    DateTimeOffset? StartDate = null,
-    DateTimeOffset? EndDate = null,
-    SortableUserProperties OrderBy = SortableUserProperties.Name,
-    SortOrder SortOrder = SortOrder.Ascending,
-    int? PageOffset = null,
-    int PageSize = 25
-) : IRequest<Result<UsersResponse>>
-{
-    // ✅ DO: Use property initializers for input normalization
-    public string? Search { get; } = Search?.Trim().ToLower();
-};
+[PublicAPI]  // ✅ DO: Mark public API with [PublicAPI] and suffix with Response
+public sealed record UsersResponse(int TotalCount, int PageSize, UserDetails[] Users);
 
 [PublicAPI]
-public sealed record UsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, UserDetails[] Users);
-
-[PublicAPI]
-public sealed record UserDetails(
-    UserId Id,
-    DateTimeOffset CreatedAt,
-    DateTimeOffset? ModifiedAt,
-    string Email,
-    UserRole Role,
-    string FirstName,
-    string LastName,
-    string Title,
-    bool EmailConfirmed,
-    string? AvatarUrl
-);
+public sealed record UserDetails(UserId Id, string Email, UserRole Role);
 
 public sealed class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 {
     public GetUsersQueryValidator()
     {
+        // ✅ DO: Validate input
         RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
-        RuleFor(x => x.PageSize).InclusiveBetween(0, 1000).WithMessage("The page size must be between 0 and 1000.");
-        RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("The page offset must be greater than or equal to 0.");
     }
 }
 
@@ -145,50 +71,42 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
 {
     public async Task<Result<UsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
-        var (users, count, totalPages) = await userRepository.Search(
-            query.Search,
-            query.UserRole,
-            query.UserStatus,
-            query.StartDate,
-            query.EndDate,
-            query.OrderBy,
-            query.SortOrder,
-            query.PageOffset,
-            query.PageSize,
-            cancellationToken
-        );
-
-        // ✅ DO: Use guard statements with early returns
-        if (query.PageOffset.HasValue && query.PageOffset.Value >= totalPages)
+        if (query.PageOffset >= totalPages)
         {
-            return Result<UsersResponse>.BadRequest($"The page offset {query.PageOffset.Value} is greater than the total number of pages.");
+            // ✅ DO: Return Result<T> instead of throwing exceptions and enclose values in single quotes
+            return Result<UsersResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var userResponses = users.Adapt<UserDetails[]>();
-        return new UsersResponse(count, query.PageSize, totalPages, query.PageOffset ?? 0, userResponses);
+        var (users, count) = await userRepository.Search(query.Search, query.UserRole, query.PageOffset, query.PageSize, cancellationToken);
+
+        var userResponses = users.Adapt<UserDetails[]>();  // ✅ DO: Use Mapster for simple cases
+        return new UsersResponse(count, query.PageSize, userResponses);
     }
 }
+```
 
-// ❌ DON'T: Throw exceptions in query handlers
-public sealed class BadQueryHandler(IUserRepository userRepository)
-    : IRequestHandler<GetUsersQuery, Result<UsersResponse>>
+```csharp
+[PublicAPI] // ❌ No Query suffix and don't use class instead of record
+public sealed class BadUsers : IRequest<Result<BadUsersDto>>
 {
-    public async Task<Result<UsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
+    public bool UpdateLastAccessed { get; init; } = true; // ❌ Mutates state
+}
+
+// ❌ Don't use DTO suffix and don't skip the [PublicAPI] attribute
+public sealed record BadUsersDto(UserId Id, string Email, UserRole Role);
+
+public sealed class BadUsersHandler(IUserRepository userRepository)
+    : IRequestHandler<BadUsers, Result<BadUsersDto>>
+{
+    public async Task<Result<BadUsersDto>> Handle(BadUsers query, CancellationToken cancellationToken)
     {
-        // Don't do this - use Result.NotFound() instead
         var user = await userRepository.GetByIdAsync(query.UserId, cancellationToken);
         if (user == null)
         {
-            throw new NotFoundException($"User with ID {query.UserId} not found"); // Wrong!
+            throw new NotFoundException($"User with ID {query.UserId} not found"); // ❌ Throws exception, wrong message format
         }
-        
-        // Instead do this:
-        // if (user == null)
-        // {
-        //     return Result<UsersResponse>.NotFound($"User with ID {query.UserId} not found");
-        // }
-        
-        return user.Adapt<UsersResponse>();
+
+        return new BadUsersDto(user.Id, user.Email, user.Role); // ❌ Manual mapping when Mapster can be used
     }
 }
 ```
