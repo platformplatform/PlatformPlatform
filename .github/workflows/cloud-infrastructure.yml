@@ -24,7 +24,7 @@ permissions:
 jobs:
   stage:
     name: Staging
-    if: ${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
     uses: ./.github/workflows/_deploy-infrastructure.yml
     secrets: inherit
     with:
