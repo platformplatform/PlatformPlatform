@@ -38,7 +38,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-24.04
-    environment: ${{ inputs.azure_environment == 'prod' && 'production' || 'staging' }}
+    environment: ${{ github.event_name != 'pull_request' && (inputs.azure_environment == 'prod' && 'production' || 'staging') || '' }}
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       ENVIRONMENT: ${{ inputs.azure_environment }}
