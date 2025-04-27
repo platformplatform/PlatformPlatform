@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account activated"
+msgstr "Konto aktiveret"
+
 msgid "Account name"
 msgstr "Kontonavn"
 
@@ -66,6 +69,9 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 #. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
+
+msgid "As an account owner, you can reactivate this account."
+msgstr "Som kontoejer kan du genaktivere denne konto."
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
@@ -197,6 +203,9 @@ msgstr "Log ind"
 msgid "Log out"
 msgstr "Log ud"
 
+msgid "Logging out..."
+msgstr "Logger ud..."
+
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
 
@@ -245,6 +254,9 @@ msgstr "Afventer"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
+msgid "Please contact your account owner."
+msgstr "Kontakt venligst din kontoejer."
+
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
@@ -262,6 +274,12 @@ msgstr "Fortrolighedspolitikker"
 
 msgid "Profile picture"
 msgstr "Profilbillede"
+
+msgid "Reactivate account"
+msgstr "Genaktiver konto"
+
+msgid "Reactivating..."
+msgstr "Genaktiverer..."
 
 msgid "Region"
 msgstr "Region"
@@ -312,6 +330,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "Suspend account"
 msgstr "Suspender konto"
 
+msgid "Suspended"
+msgstr "Suspenderet"
+
 msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
 msgstr "Ved at suspendere kontoen deaktiveres alle produktfunktioner. Kun lejerejere vil kunne logge ind. Suspension er påkrævet før sletning."
 
@@ -326,6 +347,9 @@ msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræf
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
+
+msgid "This account is currently suspended, and all features are disabled."
+msgstr "Denne konto er i øjeblikket suspenderet, og alle funktioner er deaktiveret."
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -398,6 +422,9 @@ msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via Platf
 
 msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
 msgstr "Du er ved at suspendere din konto. Dette vil medføre følgende konsekvenser:<0/><1/>• Alle produktfunktioner vil blive deaktiveret<2/>• Kun lejerejere vil kunne logge ind<3/>• Kontosuspension er krævet før sletning<4/><5/>Du kan genaktivere din konto når som helst."
+
+msgid "Your account has been reactivated successfully."
+msgstr "Din konto er blevet genaktiveret med succes."
 
 msgid "Your account has been suspended successfully."
 msgstr "Din konto er blevet suspenderet med succes."

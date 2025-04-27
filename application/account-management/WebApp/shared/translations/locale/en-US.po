@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Account"
 
+msgid "Account activated"
+msgstr "Account activated"
+
 msgid "Account name"
 msgstr "Account name"
 
@@ -66,6 +69,9 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 #. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Are you sure you want to delete <0>{0}?</0>"
+
+msgid "As an account owner, you can reactivate this account."
+msgstr "As an account owner, you can reactivate this account."
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
@@ -197,6 +203,9 @@ msgstr "Log in"
 msgid "Log out"
 msgstr "Log out"
 
+msgid "Logging out..."
+msgstr "Logging out..."
+
 msgid "Login verification code"
 msgstr "Login verification code"
 
@@ -245,6 +254,9 @@ msgstr "Pending"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
+msgid "Please contact your account owner."
+msgstr "Please contact your account owner."
+
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
@@ -262,6 +274,12 @@ msgstr "Privacy policies"
 
 msgid "Profile picture"
 msgstr "Profile picture"
+
+msgid "Reactivate account"
+msgstr "Reactivate account"
+
+msgid "Reactivating..."
+msgstr "Reactivating..."
 
 msgid "Region"
 msgstr "Region"
@@ -312,6 +330,9 @@ msgstr "Signup verification code"
 msgid "Suspend account"
 msgstr "Suspend account"
 
+msgid "Suspended"
+msgstr "Suspended"
+
 msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
 msgstr "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
 
@@ -326,6 +347,9 @@ msgstr "The verification code you are trying to use has expired for Email Confir
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
+
+msgid "This account is currently suspended, and all features are disabled."
+msgstr "This account is currently suspended, and all features are disabled."
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
@@ -398,6 +422,9 @@ msgstr "You are about to permanently delete the account and the entire data envi
 
 msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
 msgstr "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
+
+msgid "Your account has been reactivated successfully."
+msgstr "Your account has been reactivated successfully."
 
 msgid "Your account has been suspended successfully."
 msgstr "Your account has been suspended successfully."

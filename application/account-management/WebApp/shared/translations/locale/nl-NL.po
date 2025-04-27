@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Account"
 
+msgid "Account activated"
+msgstr "Account geactiveerd"
+
 msgid "Account name"
 msgstr "Accountnaam"
 
@@ -66,6 +69,9 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 #. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
+
+msgid "As an account owner, you can reactivate this account."
+msgstr "Als accounteigenaar kun je dit account opnieuw activeren."
 
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
@@ -197,6 +203,9 @@ msgstr "Inloggen"
 msgid "Log out"
 msgstr "Uitloggen"
 
+msgid "Logging out..."
+msgstr "Uitloggen..."
+
 msgid "Login verification code"
 msgstr "Verificatiecode voor inloggen"
 
@@ -245,6 +254,9 @@ msgstr "In behandeling"
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
+msgid "Please contact your account owner."
+msgstr "Neem contact op met de eigenaar van je account."
+
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
@@ -262,6 +274,12 @@ msgstr "Privacybeleid"
 
 msgid "Profile picture"
 msgstr "Profielfoto"
+
+msgid "Reactivate account"
+msgstr "Account reactiveren"
+
+msgid "Reactivating..."
+msgstr "Opnieuw activeren..."
 
 msgid "Region"
 msgstr "Regio"
@@ -312,6 +330,9 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Suspend account"
 msgstr "Account opschorten"
 
+msgid "Suspended"
+msgstr "Opgeschort"
+
 msgid "Suspending the account will disable all product features. Only tenant owners will be able to log in. Suspension is required before deletion."
 msgstr "Het account opschorten zal alle productfuncties uitschakelen. Alleen eigenaars van huurders kunnen inloggen. Opschorting is vereist voor verwijdering."
 
@@ -326,6 +347,9 @@ msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailb
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
+
+msgid "This account is currently suspended, and all features are disabled."
+msgstr "Dit account is momenteel opgeschort en alle functies zijn uitgeschakeld."
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
@@ -398,6 +422,9 @@ msgstr "Je staat op het punt om het account en de volledige gegevensomgeving per
 
 msgid "You are about to suspend your account. This will have the following consequences:<0/><1/>• All product features will be disabled<2/>• Only tenant owners will be able to log in<3/>• Account suspension is required before deletion<4/><5/>You can reactivate your account at any time."
 msgstr "Je staat op het punt je account op te schorten. Dit heeft de volgende gevolgen:<0/><1/>• Alle productfuncties worden uitgeschakeld<2/>• Alleen eigenaars van huurders kunnen inloggen<3/>• Opschorting van het account is vereist voor verwijdering<4/><5/>Je kunt je account op elk moment opnieuw activeren."
+
+msgid "Your account has been reactivated successfully."
+msgstr "Je account is succesvol opnieuw geactiveerd."
 
 msgid "Your account has been suspended successfully."
 msgstr "Je account is succesvol opgeschort."
