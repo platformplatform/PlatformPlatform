@@ -1,5 +1,6 @@
 import { queryClient } from "@/shared/lib/api/client";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { useTenantSuspensionGuard } from "@repo/infrastructure/auth/tenantSuspensionGuard";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
@@ -17,6 +18,9 @@ export const Route = createRootRoute({
 function Root() {
   const navigate = useNavigate();
   useInitializeLocale();
+
+  // Check for tenant suspension redirects
+  useTenantSuspensionGuard();
 
   return (
     <QueryClientProvider client={queryClient}>
