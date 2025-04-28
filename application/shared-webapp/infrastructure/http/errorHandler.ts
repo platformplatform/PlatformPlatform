@@ -20,23 +20,23 @@ const isFormValidationError = (error: unknown): boolean => {
   return !!problemDetails.errors && Object.keys(problemDetails.errors).length > 0;
 };
 
-type ToastVariant = "info" | "warning" | "danger";
+type ToastVariant = { variant: "info" | "warning" | "danger"; duration?: number };
 
 // Helper function to determine toast importance based on status code
 function getToastVariant(status: number): ToastVariant {
   // Success codes are information
   if (status >= 200 && status < 300) {
-    return "info";
+    return { variant: "info", duration: 3000 }; // 3 seconds for information
   }
 
   // Critical errors that block user flow
   const criticalErrors = [401, 403, 407, 423, 426, 451, ...Array.from({ length: 100 }, (_, i) => i + 500)];
   if (criticalErrors.includes(status)) {
-    return "danger";
+    return { variant: "danger" }; // No auto-dismiss for critical
   }
 
   // All other 4xx errors are warning
-  return "warning";
+  return { variant: "warning", duration: 5000 }; // 5 seconds for warning
 }
 
 // Helper function to show error toast based on status code
@@ -53,13 +53,14 @@ function showErrorToast(status: number, title: string, message: string, traceId?
   };
 
   // Determine toast importance and settings
-  const variant = getToastVariant(status);
+  const { variant, duration } = getToastVariant(status);
 
   // Add the toast with appropriate settings
   toastQueue.add({
     variant,
     title: title || "Error", // Use the title from the API response
-    description: formatMessage(message)
+    description: formatMessage(message),
+    duration
   });
 }
 
