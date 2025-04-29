@@ -1,5 +1,6 @@
 import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/AuthenticationMiddleware";
 import { createAntiforgeryMiddleware } from "@repo/infrastructure/http/antiforgeryTokenHandler";
+import { createErrorHandlerMiddleware } from "@repo/infrastructure/http/errorHandler";
 import { MutationCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
@@ -13,6 +14,7 @@ export const apiClient = createFetchClient<paths>({
 
 apiClient.use(createAuthenticationMiddleware());
 apiClient.use(createAntiforgeryMiddleware());
+apiClient.use(createErrorHandlerMiddleware());
 
 export const api = createClient(apiClient);
 

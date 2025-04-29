@@ -3,6 +3,7 @@ import { router } from "@/shared/lib/router/router";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { initializeHttpInterceptors } from "@repo/infrastructure/http/antiforgeryTokenHandler";
 import { Translation } from "@repo/infrastructure/translations/Translation";
+import { GlobalToastRegion } from "@repo/ui/components/Toast";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import reactDom from "react-dom/client";
@@ -25,6 +26,7 @@ reactDom.createRoot(rootElement).render(
     <TranslationProvider>
       <ApplicationInsightsProvider>
         <RouterProvider router={router} />
+        <GlobalToastRegion />
       </ApplicationInsightsProvider>
     </TranslationProvider>
   </React.StrictMode>
