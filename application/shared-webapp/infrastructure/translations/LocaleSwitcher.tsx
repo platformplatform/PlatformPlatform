@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react";
 import type { Key } from "@react-types/shared";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
-import { fetchWithAntiforgeryToken } from "@repo/infrastructure/http/antiforgeryTokenHandler";
+import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
 import { CheckIcon, LanguagesIcon } from "lucide-react";
@@ -27,16 +27,14 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
     const locale = key.toString() as Locale;
     if (locale !== currentLocale) {
       if (userInfo?.isAuthenticated) {
-        fetchWithAntiforgeryToken("/api/account-management/users/me/change-locale", {
+        enhancedFetch("/api/account-management/users/me/change-locale", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ locale })
-        })
-          .then(async (_) => {
-            await setLocale(locale);
-            localStorage.setItem(preferredLocaleKey, locale);
-          })
-          .catch((error) => console.error("Failed to update locale:", error));
+        }).then(async (_: Response) => {
+          await setLocale(locale);
+          localStorage.setItem(preferredLocaleKey, locale);
+        });
       } else {
         setLocale(locale).then(() => {
           localStorage.setItem(preferredLocaleKey, locale);
