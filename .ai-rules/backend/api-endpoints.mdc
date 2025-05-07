@@ -13,7 +13,7 @@ alwaysApply: false
    ```csharp
    private const string RoutesPrefix = "/api/account-management/users";
    ```
-4. Set up the route group with a tags name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`. E.g.: 
+4. Set up the route group with a tag name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`. E.g.: 
    ```csharp
    var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
    ```
@@ -55,15 +55,6 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
-        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
-        );
-        
-        group.MapPost("/invite", async Task<ApiResult> (InviteUserCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        );
-
-        // The following endpoints are for the current user only
         group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<UserResponse>();
@@ -77,83 +68,36 @@ public sealed class BadUserEndpoints : IEndpoints
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization();
+        var group = routes.MapGroup(RoutesPrefix).WithTags("Users"); // ❌ DON'T: Skip .RequireAuthorization() even if all endpoints AllowAnonymous
 
         group.MapGet("/", async (IMediator mediator, HttpContext context) => 
         {
-            // Don't add business logic here
+            // ❌ DON'T: Add business logic inside endpoint methods
             var tenantId = context.User.GetTenantId();
             var query = new GetUsersQuery { TenantId = tenantId };
             var result = await mediator.Send(query);
             return Results.Ok(result);
         });
 
+        // ❌ DON'T: Use Put for commands that don't update an existing resource
         group.MapPut("/{id}/change-user-role", async Task<ApiResult> (
             UserId id,
             ChangeUserRoleCommand command,
             IMediator mediator
-         ) // Don't break the line even if it extends 120 characters
+         ) // ❌ DON'T: Break the line even if it extends 120 characters
             => await mediator.Send(command with { Id = id })
         );
+
+        // ❌ DON'T: Use MVC [FromBody] attribute
+        group.MapPost("/bulk-delete", async Task<ApiResult> ([FromBody] BulkDeleteUsersCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
+        // ❌ DON'T: Forget leading slashes
+        group.MapGet("me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<UserResponse>();
+
     }
 }
 ```
-
-### Example 2 - Authentication Endpoints
-
-```csharp
-// ✅ DO: Use proper route prefixes and consistent configuration
-public sealed class AuthenticationEndpoints : IEndpoints
-{
-    private const string RoutesPrefix = "/api/account-management/authentication";
-
-    public void MapEndpoints(IEndpointRouteBuilder routes)
-    {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").RequireAuthorization().ProducesValidationProblem();
-
-        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        ).Produces<StartLoginResponse>().AllowAnonymous();
-
-        group.MapPost("/login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
-        ).AllowAnonymous();
-
-        group.MapPost("/login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
-            => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
-        ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
-
-        group.MapPost("/logout", async Task<ApiResult> (IMediator mediator)
-            => await mediator.Send(new LogoutCommand())
-        );
-
-        // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
-        routes.MapPost("/internal-api/account-management/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)
-            => await mediator.Send(new RefreshAuthenticationTokensCommand())
-        );
-    }
-}
-
-// ❌ DON'T: Use inconsistent route formatting or forget leading slashes
-public sealed class BadAuthenticationEndpoints : IEndpoints
-{
-    private const string RoutesPrefix = "/api/account-management/authentication";
-
-    public void MapEndpoints(IEndpointRouteBuilder routes)
-    {
-        var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication"); // Don't skip .RequireAuthorization() even if all endpoints AllowAnonymous
-
-        // Missing leading slash in route segments
-        group.MapPost("login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        ).AllowAnonymous();
-        
-        // Inconsistent route formatting
-        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
-        ).AllowAnonymous();
-    }
-}
-```
-
-See [Commands](mdc:.ai-rules/backend/commands.mdc) and [Queries](mdc:.ai-rules/backend/queries.mdc) for details on implementing the command and query handlers used by these endpoints.
