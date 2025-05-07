@@ -49,9 +49,9 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 - [Developer CLI Rules](mdc:.ai-rules/developer-cli/developer-cli.mdc) - Guidelines for extending the custom Developer CLI.
 
 ### Other Rules
+- [AI Rules](mdc:.ai-rules/other/ai-rules.mdc) - Guidelines for creating and updating AI rules.
 - [Git Commit Rules](mdc:.ai-rules/other/git-commits.mdc) - Guidelines for creating commit messages.
 - [Pull Request Rules](mdc:.ai-rules/other/pull-request.mdc) - Guidelines for creating pull requests.
-- [Creating and Updating AI Rules](mdc:.ai-rules/other/creating-and-updating-ai-rules.mdc) - Guidelines for creating and updating AI rules.
 
 ## Project Structure
 
