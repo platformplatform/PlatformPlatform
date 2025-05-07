@@ -25,6 +25,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 - [Backend Rules](mdc:.ai-rules/backend/backend.mdc) - Core guidelines for C# and .NET development:
   - [API Endpoints](mdc:.ai-rules/backend/api-endpoints.mdc) - Guidelines for minimal API endpoints.  
   - [Commands](mdc:.ai-rules/backend/commands.mdc) - Implementation of state-changing operations using CQRS commands.
+  - [Database Migrations](mdc:.ai-rules/backend/database-migrations.mdc) - Guidelines for database migrations.
   - [Domain Modeling](mdc:.ai-rules/backend/domain-modeling.mdc) - Implementation of DDD aggregates, entities, and value objects.
   - [External Integrations](mdc:.ai-rules/backend/external-integrations.mdc) - Implementation of integrations to external services.
   - [Queries](mdc:.ai-rules/backend/queries.mdc) - Implementation of data retrieval operations using CQRS queries.
