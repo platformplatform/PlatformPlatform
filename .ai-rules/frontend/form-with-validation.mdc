@@ -166,5 +166,3 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
   );
 }
 ```
-
-See [TanStack Query API Integration](mdc:.ai-rules/frontend/tanstack-query-api-integration.mdc) for more details on API interactions and [React Aria Components](mdc:.ai-rules/frontend/react-aria-components.mdc) for information about form components.

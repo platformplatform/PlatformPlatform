@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## Implementation
 
-1. Use React Aria Components from `@application/shared-webapp/ui/components`.
+1. Use React Aria Components from `@repo/ui/components`.
 2. Use the `Dialog` component from shared-webapp for all dialogs and modal dialogs.
 3. Manage dialog state with React hooks (either `useState` or context depending on scope).
 4. Use `onPress` instead of `onClick` for event handlers.
