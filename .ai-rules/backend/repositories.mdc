@@ -17,8 +17,9 @@ alwaysApply: false
 6. Never return `[PublicAPI]` response DTOs.
 7. Keep repositories focused on persistence operations, not business logic.
 8. Repositories are automatically registered in the DI container.
-9. By default, Aggregates with the ITenantScopedEntity interface are automatically filtered by tenant using Entity Framework Core query filters:
+9. By default, Aggregates with the `ITenantScopedEntity` interface are automatically filtered by tenant using Entity Framework Core query filters:
    - In rare cases, you may need to disable this by using the `IgnoreQueryFilters` method, e.g., when looking up an anonymous user by email.
+   - If you use `IgnoreQueryFilters`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
 10. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration.
 11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
     - `MapStronglyTypedUuid` for ULIDs.
@@ -27,233 +28,53 @@ alwaysApply: false
 
 ## Examples
 
-### Example 1 - Simple Repository
-
 ```csharp
-// ✅ DO: Create focused interfaces with only the methods you need
-public interface ILoginRepository : IAppendRepository<Login, LoginId>
+// ✅ DO: Only include needed methods, use correct base interface, and inherit RepositoryBase
+public interface ILoginRepository : IAppendRepository<Login, LoginId> // ✅ DO: Use only needed base interface
 {
-    void Update(Login aggregate);
+    void Update(Login aggregate); // ✅ DO: Add only needed methods
 }
 
-// ✅ DO: Use primary constructor and inherit from RepositoryBase
-public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext)
+public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and primary constructor
     : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
 
-// ❌ DON'T: Create interfaces with methods you don't need
-public interface IBadLoginRepository : ICrudRepository<Login, LoginId> // Wrong: using ICrudRepository when not all CRUD operations are needed
+// ❌ DON'T: Use ICrudRepository if not all CRUD ops needed, or return DTOs
+public interface IBadLoginRepository : ICrudRepository<Login, LoginId> // ❌ DON'T: Use ICrudRepository if not all CRUD ops needed
 {
-    // This interface inherits methods like Delete that aren't needed for this aggregate
+    Task<LoginDto> GetDto(LoginId id); // ❌ DON'T: Return DTOs from repositories
 }
 
-// ❌ DON'T: Return response DTOs from repositories
-public interface IBadRepository : IBaseRepository<User, UserId>
+// ✅ DO: Example with a custom query method
+public interface IEmailConfirmationRepository : IAppendRepository<EmailConfirmation, EmailConfirmationId>
 {
-    Task<UserResponse> GetUserResponseByIdAsync(UserId id); // Wrong: returning a response DTO
+    EmailConfirmation[] GetByEmail(string email); // ✅ DO: Custom query method allowed
+}
+
+public sealed class EmailConfirmationRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and inherit RepositoryBase
+    : RepositoryBase<EmailConfirmation, EmailConfirmationId>(accountManagementDbContext), IEmailConfirmationRepository
+{
+    public EmailConfirmation[] GetByEmail(string email)
+        => DbSet.Where(ec => !ec.Completed && ec.Email == email.ToLowerInvariant()).ToArray(); // ✅ DO: Implement custom query
 }
 ```
 
-### Example 2 - Complex Repository with Search and Pagination
+### Use of .IgnoreQueryFilters()
+
+- If you use `.IgnoreQueryFilters()`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
 
 ```csharp
-public interface IUserRepository : ICrudRepository<User, UserId>
+/// <summary> // ✅ DO: Add XML comment explaining whay ignoring quiery filters are ok
+///     Retrieves a user by email without applying tenant query filters.
+///     This method should only be used during the login processes where tenant context is not yet established.
+/// </summary>
+public async Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken) // ✅ DO: Add `Unfiltered` to the surffix
 {
-    Task<User?> GetByIdUnfilteredAsync(UserId id, CancellationToken cancellationToken);
-
-    Task<User> GetLoggedInUserAsync(CancellationToken cancellationToken);
-
-    Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
-
-    Task<bool> IsEmailFreeAsync(string email, CancellationToken cancellationToken);
-
-    Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken);
-
-    Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken);
-
-    Task<(User[] Users, int TotalItems, int TotalPages)> Search(
-        string? search,
-        UserRole? userRole,
-        UserStatus? userStatus,
-        DateTimeOffset? startDate,
-        DateTimeOffset? endDate,
-        SortableUserProperties? orderBy,
-        SortOrder? sortOrder,
-        int? pageOffset,
-        int? pageSize,
-        CancellationToken cancellationToken
-    );
+    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ✅ DO: Use .IgnoreQueryFilters() only in rare cases, with UnfilteredAsync suffix and XML comment
 }
 
-internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
-    : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
+// ❌ DON'T: Use .IgnoreQueryFilters() without UnfilteredAsync suffix or without an XML warning comment
+public async Task<User?> GetUserByEmail(string email, CancellationToken cancellationToken)
 {
-    /// <summary>
-    ///     Retrieves a user by ID without applying tenant query filters.
-    ///     This method should only be used during authentication processes where tenant context is not yet established.
-    /// </summary>
-    public async Task<User?> GetByIdUnfilteredAsync(UserId id, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .IgnoreQueryFilters()
-            .SingleOrDefaultAsync(u => u.Id == id, cancellationToken);
-    }
-
-    public async Task<User> GetLoggedInUserAsync(CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(executionContext.UserInfo.Id);
-        return await GetByIdAsync(executionContext.UserInfo.Id, cancellationToken) ??
-               throw new InvalidOperationException("Logged in user not found.");
-    }
-
-    /// <summary>
-    ///     Retrieves a user by email without applying tenant query filters.
-    ///     This method should only be used during the login processes where tenant context is not yet established.
-    /// </summary>
-    public async Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken);
-    }
-
-    public async Task<bool> IsEmailFreeAsync(string email, CancellationToken cancellationToken)
-    {
-        return !await DbSet.AnyAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken);
-    }
-
-    public Task<int> CountTenantUsersAsync(TenantId tenantId, CancellationToken cancellationToken)
-    {
-        return DbSet.CountAsync(u => u.TenantId == tenantId, cancellationToken);
-    }
-
-    public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
-    {
-        var thirtyDaysAgo = TimeProvider.System.GetUtcNow().AddDays(-30);
-
-        var summary = await DbSet
-            .GroupBy(_ => 1) // Group all records into a single group to calculate multiple COUNT aggregates in one query
-            .Select(g => new
-                {
-                    TotalUsers = g.Count(),
-                    ActiveUsers = g.Count(u => u.EmailConfirmed && u.ModifiedAt >= thirtyDaysAgo),
-                    PendingUsers = g.Count(u => !u.EmailConfirmed)
-                }
-            )
-            .SingleAsync(cancellationToken);
-
-        return (summary.TotalUsers, summary.ActiveUsers, summary.PendingUsers);
-    }
-
-    public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
-        string? search,
-        UserRole? userRole,
-        UserStatus? userStatus,
-        DateTimeOffset? startDate,
-        DateTimeOffset? endDate,
-        SortableUserProperties? orderBy,
-        SortOrder? sortOrder,
-        int? pageOffset,
-        int? pageSize,
-        CancellationToken cancellationToken
-    )
-    {
-        IQueryable<User> users = DbSet;
-
-        if (search is not null)
-        {
-            // Concatenate first and last name to enable searching by full name
-            users = users.Where(u =>
-                u.Email.Contains(search) ||
-                (u.FirstName + " " + u.LastName).Contains(search) ||
-                (u.Title ?? "").Contains(search)
-            );
-        }
-
-        if (userRole is not null)
-        {
-            users = users.Where(u => u.Role == userRole);
-        }
-
-        if (userStatus is not null)
-        {
-            var active = userStatus == UserStatus.Active;
-            users = users.Where(u => u.EmailConfirmed == active);
-        }
-
-        if (startDate is not null)
-        {
-            users = users.Where(u => u.ModifiedAt >= startDate);
-        }
-
-        if (endDate is not null)
-        {
-            users = users.Where(u => u.ModifiedAt < endDate.Value.AddDays(1));
-        }
-
-        users = orderBy switch
-        {
-            SortableUserProperties.CreatedAt => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.CreatedAt)
-                : users.OrderByDescending(u => u.CreatedAt),
-            SortableUserProperties.ModifiedAt => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.ModifiedAt)
-                : users.OrderByDescending(u => u.ModifiedAt),
-            SortableUserProperties.Name => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
-                : users.OrderByDescending(u => u.FirstName).ThenByDescending(u => u.LastName),
-            SortableUserProperties.Email => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.Email)
-                : users.OrderByDescending(u => u.Email),
-            SortableUserProperties.Role => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.Role)
-                : users.OrderByDescending(u => u.Role),
-            _ => users
-        };
-
-        pageSize ??= 50;
-        var itemOffset = (pageOffset ?? 0) * pageSize.Value;
-        var result = await users.Skip(itemOffset).Take(pageSize.Value).ToArrayAsync(cancellationToken);
-
-        var totalItems = pageOffset == 0 && result.Length < pageSize
-            ? result.Length // If the first page returns fewer items than page size, skip querying the total count
-            : await users.CountAsync(cancellationToken);
-
-        var totalPages = (totalItems - 1) / pageSize.Value + 1;
-        return (result, totalItems, totalPages);
-    }
+    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ❌ DON'T: Missing UnfilteredAsync suffix and XML comment
 }
 ```
-### Example 3 - Entity Framework Core Mapping
-
-```csharp
-// ✅ DO: Use IEntityTypeConfiguration for mapping strongly typed IDs
-public sealed class UserConfiguration : IEntityTypeConfiguration<User>
-{
-    public void Configure(EntityTypeBuilder<User> builder)
-    {
-        builder.MapStronglyTypedUuid<User, UserId>(u => u.Id);
-        builder.MapStronglyTypedLongId<User, TenantId>(u => u.TenantId);
-        
-        // Configure other properties as needed
-        builder.Property(u => u.Email).HasMaxLength(100).IsRequired();
-        builder.HasIndex(u => new { u.TenantId, u.Email }).IsUnique();
-    }
-}
-
-// ❌ DON'T: Configure entities in OnModelCreating
-public class BadDbContext : DbContext
-{
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        // Wrong: configuring entities directly in OnModelCreating
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.Property(e => e.Id).HasConversion(
-                id => id.Value,
-                value => new UserId(value));
-        });
-    }
-}
-```
-
-See [Domain Modeling](mdc:.ai-rules/backend/domain-modeling.mdc) for details on implementing the domain models that these repositories persist.
