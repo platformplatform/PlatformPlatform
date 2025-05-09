@@ -16,7 +16,7 @@ alwaysApply: false
 3. Store entities and value objects as JSON columns on the Aggregate in the database to avoid EF Core's `.Include()` method.
 4. For Aggregates:
    - Use public sealed classes that inherit from `AggregateRoot<TId>`.
-   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](mdc:.ai-rules/backend/strongly-typed-ids.mdc) for details.
+   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) for details.
    - Never use navigational properties to other aggregates (e.g., don't use `User.Tenant`, or `Order.Customer`).
    - Use factory methods when creating aggregates.
    - Make properties private, and use methods when changing state and enforcing business rules.

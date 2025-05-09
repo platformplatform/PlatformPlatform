@@ -22,7 +22,7 @@ alwaysApply: false
    - Line 2: Expression calling `=> mediator.Send()`.
    - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
 6. Follow these requirements:
-   - Use [Strongly Typed IDs](mdc:.ai-rules/backend/strongly-typed-ids.mdc) for route parameters.
+   - Use [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) for route parameters.
    - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
    - Use `[AsParameters]` for query parameters.
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
