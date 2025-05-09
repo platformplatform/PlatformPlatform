@@ -200,7 +200,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├─ .ai-rules             # AI Rules for AI assistants, and documentation for developers
+├─ .cursor               # AI Rules for Cursor AI editor, and documentation for developers
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker

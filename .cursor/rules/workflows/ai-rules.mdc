@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # AI Rules Workflow
 
-Follow these steps to create and update AI rules files should be created in appropriate subfolders of the `.ai-rules/` directory, with clear file names that reflect their purpose (e.g., `.ai-rules/backend/strongly-typed-ids.mdc`, `.ai-rules/frontend/tanstack-query-api-integration.mdc`).
+Follow these steps to create and update AI rules files should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/backend/strongly-typed-ids.mdc`, `.cursor/frontend/tanstack-query-api-integration.mdc`).
 
 1. Start each rule file with the required frontmatter:
    ```markdown
@@ -30,7 +30,7 @@ Follow these steps to create and update AI rules files should be created in appr
 
 3. Reference related files and documentation:
    - Use `[filename](mdc:path/to/file)` syntax to link to other files.
-   - Example: `[Commands](mdc:.ai-rules/backend/commands.mdc)` for rule references.
+   - Example: `[Commands](mdc:.cursor/rules/backend/commands.mdc)` for rule references.
    - Example: `[UserRepository.cs](mdc:application/account-management/Core/Features/Users/Domain/UserRepository.cs)` for code references.
 
 4. Include clear code examples:
@@ -41,10 +41,10 @@ Follow these steps to create and update AI rules files should be created in appr
    - Reference specific files using proper MDC links for examples:
      ```markdown
      # Example 1 - Simple example with only basic operations
-     See [repositories.mdc](mdc:.ai-rules/backend/repositories.mdc) for a complete example.
+     See [repositories.mdc](mdc:.cursor/rules/backend/repositories.mdc) for a complete example.
      
      # Example 2 - Complex example with search and pagination 
-     See [queries.mdc](mdc:.ai-rules/backend/queries.mdc) for examples with pagination.
+     See [queries.mdc](mdc:.cursor/rules/backend/queries.mdc) for examples with pagination.
      ```
    - For standard examples, use this format:
    ```typescript
@@ -54,7 +54,7 @@ Follow these steps to create and update AI rules files should be created in appr
    // ❌ DON'T: Show anti-patterns
    const badExample = false;
    ```
-   - See [Queries](mdc:.ai-rules/backend/queries.mdc) for a reference of well-structured examples.
+   - See [Queries](mdc:.cursor/rules/backend/queries.mdc) for a reference of well-structured examples.
 
 5. Structure rule content effectively:
    - Start with a high-level overview of the rule's purpose.
@@ -70,7 +70,7 @@ Follow these steps to create and update AI rules files should be created in appr
    - Reference actual code over theoretical examples.
    - Use consistent formatting across all rule files.
 
-7. When creating or renaming files, update the index in [ai-instructions.mdc](mdc:.ai-rules/rules/ai-instructions.mdc) to ensure AI tools without file scanning like Windsurf and GitHub Co-pilot can find the rules.
+7. When creating or renaming files, update the index in [ai-instructions.mdc](mdc:.cursor/rules/ai-instructions.mdc) to ensure AI tools without file scanning like Windsurf and GitHub Co-pilot can find the rules.
 
 ## Examples
 

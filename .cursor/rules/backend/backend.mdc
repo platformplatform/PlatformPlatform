@@ -39,7 +39,7 @@ alwaysApply: false
 
 IMPORTANT: Always follow these steps very carefully when implementing changes:
 
-1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [Unit and Integration Tests](mdc:.ai-rules/backend/unit-and-integration-tests.mdc) for details.
+1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [Unit and Integration Tests](mdc:.cursor/rules/backend/unit-and-integration-tests.mdc) for details.
 2. Build and test your changes:
    - Always run `dotnet run build --backend` from the [developer-cli](mdc:developer-cli) directory to build the backend.
    - Run `dotnet run test` from the [developer-cli](mdc:developer-cli) directory to run all tests.

@@ -16,42 +16,42 @@ Always follow these rule files very carefully, as they have been crafted to ensu
    - Failure to follow the rules is the main reason for making unacceptable changes.
 5. Iterate until you are extremely confident the fix is complete.
    - When changing code, do not add comments about what you changed.
-6. After each change make sure you follow the rules in [Backend Rules](mdc:.ai-rules/backend/backend.mdc) or [Frontend Rules](mdc:.ai-rules/frontend/frontend.mdc), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
+6. After each change make sure you follow the rules in [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) or [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
    - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
 
 ## Overview of all guidelines rule files
 
 ### Backend Development
-- [Backend Rules](mdc:.ai-rules/backend/backend.mdc) - Core guidelines for C# and .NET development:
-  - [API Endpoints](mdc:.ai-rules/backend/api-endpoints.mdc) - Guidelines for minimal API endpoints.  
-  - [Commands](mdc:.ai-rules/backend/commands.mdc) - Implementation of state-changing operations using CQRS commands.
-  - [Database Migrations](mdc:.ai-rules/backend/database-migrations.mdc) - Guidelines for database migrations.
-  - [Domain Modeling](mdc:.ai-rules/backend/domain-modeling.mdc) - Implementation of DDD aggregates, entities, and value objects.
-  - [External Integrations](mdc:.ai-rules/backend/external-integrations.mdc) - Implementation of integrations to external services.
-  - [Queries](mdc:.ai-rules/backend/queries.mdc) - Implementation of data retrieval operations using CQRS queries.
-  - [Repositories](mdc:.ai-rules/backend/repositories.mdc) - Persistence abstractions for aggregates.
-  - [Strongly Typed IDs](mdc:.ai-rules/backend/strongly-typed-ids.mdc) - Type-safe DDD identifiers for domain entities.
-  - [Telemetry Events](mdc:.ai-rules/backend/telemetry-events.mdc) - Standardized observability event patterns.
-  - [Unit and Integration Tests](mdc:.ai-rules/backend/unit-and-integration-tests.mdc) - Test suite patterns for commands, queries, and domain logic.
+- [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) - Core guidelines for C# and .NET development:
+  - [API Endpoints](mdc:.cursor/rules/backend/api-endpoints.mdc) - Guidelines for minimal API endpoints.  
+  - [Commands](mdc:.cursor/rules/backend/commands.mdc) - Implementation of state-changing operations using CQRS commands.
+  - [Database Migrations](mdc:.cursor/rules/backend/database-migrations.mdc) - Guidelines for database migrations.
+  - [Domain Modeling](mdc:.cursor/rules/backend/domain-modeling.mdc) - Implementation of DDD aggregates, entities, and value objects.
+  - [External Integrations](mdc:.cursor/rules/backend/external-integrations.mdc) - Implementation of integrations to external services.
+  - [Queries](mdc:.cursor/rules/backend/queries.mdc) - Implementation of data retrieval operations using CQRS queries.
+  - [Repositories](mdc:.cursor/rules/backend/repositories.mdc) - Persistence abstractions for aggregates.
+  - [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) - Type-safe DDD identifiers for domain entities.
+  - [Telemetry Events](mdc:.cursor/rules/backend/telemetry-events.mdc) - Standardized observability event patterns.
+  - [Unit and Integration Tests](mdc:.cursor/rules/backend/unit-and-integration-tests.mdc) - Test suite patterns for commands, queries, and domain logic.
 
 ### Frontend Development
-- [Frontend Rules](mdc:.ai-rules/frontend/frontend.mdc) - Core guidelines for React/TypeScript:
-  - [Form with Validation](mdc:.ai-rules/frontend/form-with-validation.mdc) - Forms with validation and API integration using TanStack Query.
-  - [Modal Dialog](mdc:.ai-rules/frontend/modal-dialog.mdc) - Modal dialog implementation patterns.
-  - [React Aria Components](mdc:.ai-rules/frontend/react-aria-components.mdc) - Usage of shared component library.
-  - [TanStack Query API Integration](mdc:.ai-rules/frontend/tanstack-query-api-integration.mdc) - Data fetching and mutation patterns.
-  - [Translations](mdc:.ai-rules/frontend/translations.mdc) - Internationalization implementation for UI text.
+- [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc) - Core guidelines for React/TypeScript:
+  - [Form with Validation](mdc:.cursor/rules/frontend/form-with-validation.mdc) - Forms with validation and API integration using TanStack Query.
+  - [Modal Dialog](mdc:.cursor/rules/frontend/modal-dialog.mdc) - Modal dialog implementation patterns.
+  - [React Aria Components](mdc:.cursor/rules/frontend/react-aria-components.mdc) - Usage of shared component library.
+  - [TanStack Query API Integration](mdc:.cursor/rules/frontend/tanstack-query-api-integration.mdc) - Data fetching and mutation patterns.
+  - [Translations](mdc:.cursor/rules/frontend/translations.mdc) - Internationalization implementation for UI text.
 
 ### Azure Infrastructure
-- [Infrastructure Rules](mdc:.ai-rules/infrastructure/infrastructure.mdc) - Cloud infrastructure guidelines.
+- [Infrastructure Rules](mdc:.cursor/rules/infrastructure/infrastructure.mdc) - Cloud infrastructure guidelines.
 
 ### Developer CLI
-- [Developer CLI Rules](mdc:.ai-rules/developer-cli/developer-cli.mdc) - Guidelines for extending the custom Developer CLI.
+- [Developer CLI Rules](mdc:.cursor/rules/developer-cli/developer-cli.mdc) - Guidelines for extending the custom Developer CLI.
 
 ### Other Rules
-- [AI Rules](mdc:.ai-rules/other/ai-rules.mdc) - Guidelines for creating and updating AI rules.
-- [Git Commit Rules](mdc:.ai-rules/other/git-commits.mdc) - Guidelines for creating commit messages.
-- [Pull Request Rules](mdc:.ai-rules/other/pull-request.mdc) - Guidelines for creating pull requests.
+- [AI Rules](mdc:.cursor/rules/other/ai-rules.mdc) - Guidelines for creating and updating AI rules.
+- [Git Commit Rules](mdc:.cursor/rules/other/git-commits.mdc) - Guidelines for creating commit messages.
+- [Pull Request Rules](mdc:.cursor/rules/other/pull-request.mdc) - Guidelines for creating pull requests.
 
 ## Project Structure
 

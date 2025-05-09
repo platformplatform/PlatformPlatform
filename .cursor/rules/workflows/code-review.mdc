@@ -14,8 +14,8 @@ Follow these steps carefully to review files *one by one*:
    - Combine and deduplicate the file list for review.
      - Exclude all auto generated files (e.g. `*.Api.json`, `*.po`)
 
-2. Inspect all *.mdc files in `.ai-rules` and compile the rule list:
-   - Read all *.mdc files in `.ai-rules` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
+2. Inspect all *.mdc files in `.cursor` and compile the rule list:
+   - Read all *.mdc files in `.cursor` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
    - Memorize this list so it can be reused for each changed file, without re-reading all *.mdc files for each file.
 
 3. Review backend files first, then frontend files:
@@ -50,9 +50,9 @@ Follow these steps carefully to review files *one by one*:
 
 ```markdown
 # ✅ DO: List all issues with references to rules
-- The command record is not marked as `sealed`. ([backend.mdc](mdc:.ai-rules/backend/backend.mdc))
-- The validator uses different messages for the same property. ([commands.mdc](mdc:.ai-rules/backend/commands.mdc))
-- Telemetry event is not named in past tense. ([telemetry-events.mdc](mdc:.ai-rules/backend/telemetry-events.mdc))
+- The command record is not marked as `sealed`. ([backend.mdc](mdc:.cursor/rules/backend/backend.mdc))
+- The validator uses different messages for the same property. ([commands.mdc](mdc:.cursor/rules/backend/commands.mdc))
+- Telemetry event is not named in past tense. ([telemetry-events.mdc](mdc:.cursor/rules/backend/telemetry-events.mdc))
 
 # ❌ DON'T: Be vague or skip minor issues
 - Looks good overall, just a few nits.
@@ -65,7 +65,7 @@ Follow these steps carefully to review files *one by one*:
 # Step 1: List files to review (current branch)
 git diff --name-only $(git merge-base HEAD main)..HEAD
 
-# Step 2: Inspect all *.mdc files in .ai-rules and compile the rule list
+# Step 2: Inspect all *.mdc files in .cursor and compile the rule list
 # Step 3: Review backend files first, then frontend files
 # Step 4: For each file, determine applicable rules, review, and print issues
 # Step 5: Fix all issues in the file
@@ -79,6 +79,6 @@ dotnet run check --frontend
 ### Example 3 - Referencing rules for issues
 
 ```markdown
-- Property names are not in snake_case. ([telemetry-events.mdc](mdc:.ai-rules/backend/telemetry-events.mdc))
-- Used `DateTime.UtcNow()` instead of `TimeProvider.System.GetUtcNow()`. ([backend.mdc](mdc:.ai-rules/backend/backend.mdc))
+- Property names are not in snake_case. ([telemetry-events.mdc](mdc:.cursor/rules/backend/telemetry-events.mdc))
+- Used `DateTime.UtcNow()` instead of `TimeProvider.System.GetUtcNow()`. ([backend.mdc](mdc:.cursor/rules/backend/backend.mdc))
 ```
