@@ -3,11 +3,11 @@ description: Rules for writing consistent and effective git commit messages, inc
 globs: 
 alwaysApply: false
 ---
-# Git Commit Messages
+# Git Commit Workflow
 
-## Implementation
+Follow these steps to commit changes:
 
-1. Before committing, always inspect your changes:
+1. Inspect changes:
    - Review staged changes: `git --no-pager diff --staged`
    - View unstaged changes: `git --no-pager diff`
    - For a combined view: `git --no-pager diff HEAD`
