@@ -3,9 +3,9 @@ description: Rules for writing clear, actionable pull request titles and descrip
 globs: 
 alwaysApply: false
 ---
-# Pull Request Conventions
+# Pull Request Workflow
 
-## Implementation
+Follow these steps to create pull request titles and descriptions:
 
 1. Before creating a pull request, gather context by inspecting the changes:
    - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`
