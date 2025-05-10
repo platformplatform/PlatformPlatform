@@ -21,39 +21,9 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 6. After each change make sure you follow the rules in [Backend Rules](/.windsurf/rules/backend/backend.md) or [Frontend Rules](/.windsurf/rules/frontend/frontend.md), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
    - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
 
-## Overview of all guidelines rule files
+## Rules for implementing changes
 
-### Backend Development
-- [Backend Rules](/.windsurf/rules/backend/backend.md) - Core guidelines for C# and .NET development:
-  - [API Endpoints](/.windsurf/rules/backend/api-endpoints.md) - Guidelines for minimal API endpoints.  
-  - [Commands](/.windsurf/rules/backend/commands.md) - Implementation of state-changing operations using CQRS commands.
-  - [Database Migrations](/.windsurf/rules/backend/database-migrations.md) - Guidelines for database migrations.
-  - [Domain Modeling](/.windsurf/rules/backend/domain-modeling.md) - Implementation of DDD aggregates, entities, and value objects.
-  - [External Integrations](/.windsurf/rules/backend/external-integrations.md) - Implementation of integrations to external services.
-  - [Queries](/.windsurf/rules/backend/queries.md) - Implementation of data retrieval operations using CQRS queries.
-  - [Repositories](/.windsurf/rules/backend/repositories.md) - Persistence abstractions for aggregates.
-  - [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) - Type-safe DDD identifiers for domain entities.
-  - [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) - Standardized observability event patterns.
-  - [Unit and Integration Tests](/.windsurf/rules/backend/unit-and-integration-tests.md) - Test suite patterns for commands, queries, and domain logic.
-
-### Frontend Development
-- [Frontend Rules](/.windsurf/rules/frontend/frontend.md) - Core guidelines for React/TypeScript:
-  - [Form with Validation](/.windsurf/rules/frontend/form-with-validation.md) - Forms with validation and API integration using TanStack Query.
-  - [Modal Dialog](/.windsurf/rules/frontend/modal-dialog.md) - Modal dialog implementation patterns.
-  - [React Aria Components](/.windsurf/rules/frontend/react-aria-components.md) - Usage of shared component library.
-  - [TanStack Query API Integration](/.windsurf/rules/frontend/tanstack-query-api-integration.md) - Data fetching and mutation patterns.
-  - [Translations](/.windsurf/rules/frontend/translations.md) - Internationalization implementation for UI text.
-
-### Azure Infrastructure
-- [Infrastructure Rules](/.windsurf/rules/infrastructure/infrastructure.md) - Cloud infrastructure guidelines.
-
-### Developer CLI
-- [Developer CLI Rules](/.windsurf/rules/developer-cli/developer-cli.md) - Guidelines for extending the custom Developer CLI.
-
-### Other Rules
-- [AI Rules](/.windsurf/rules/other/ai-rules.md) - Guidelines for creating and updating AI rules.
-- [Git Commit Rules](/.windsurf/rules/other/git-commits.md) - Guidelines for creating commit messages.
-- [Pull Request Rules](/.windsurf/rules/other/pull-request.md) - Guidelines for creating pull requests.
+Always consult the relevant rule files before each code change.
 
 ## Project Structure
 
