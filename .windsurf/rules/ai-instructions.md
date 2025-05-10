@@ -20,61 +20,27 @@ Always follow these rule files very carefully, as they have been crafted to ensu
 6. After each change make sure you follow the rules in [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) or [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
    - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
 
-## Overview of all guidelines rule files
-
-### Backend Development
-- [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) - Core guidelines for C# and .NET development:
-  - [API Endpoints](mdc:.cursor/rules/backend/api-endpoints.mdc) - Guidelines for minimal API endpoints.  
-  - [Commands](mdc:.cursor/rules/backend/commands.mdc) - Implementation of state-changing operations using CQRS commands.
-  - [Database Migrations](mdc:.cursor/rules/backend/database-migrations.mdc) - Guidelines for database migrations.
-  - [Domain Modeling](mdc:.cursor/rules/backend/domain-modeling.mdc) - Implementation of DDD aggregates, entities, and value objects.
-  - [External Integrations](mdc:.cursor/rules/backend/external-integrations.mdc) - Implementation of integrations to external services.
-  - [Queries](mdc:.cursor/rules/backend/queries.mdc) - Implementation of data retrieval operations using CQRS queries.
-  - [Repositories](mdc:.cursor/rules/backend/repositories.mdc) - Persistence abstractions for aggregates.
-  - [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) - Type-safe DDD identifiers for domain entities.
-  - [Telemetry Events](mdc:.cursor/rules/backend/telemetry-events.mdc) - Standardized observability event patterns.
-  - [Unit and Integration Tests](mdc:.cursor/rules/backend/unit-and-integration-tests.mdc) - Test suite patterns for commands, queries, and domain logic.
-
-### Frontend Development
-- [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc) - Core guidelines for React/TypeScript:
-  - [Form with Validation](mdc:.cursor/rules/frontend/form-with-validation.mdc) - Forms with validation and API integration using TanStack Query.
-  - [Modal Dialog](mdc:.cursor/rules/frontend/modal-dialog.mdc) - Modal dialog implementation patterns.
-  - [React Aria Components](mdc:.cursor/rules/frontend/react-aria-components.mdc) - Usage of shared component library.
-  - [TanStack Query API Integration](mdc:.cursor/rules/frontend/tanstack-query-api-integration.mdc) - Data fetching and mutation patterns.
-  - [Translations](mdc:.cursor/rules/frontend/translations.mdc) - Internationalization implementation for UI text.
-
-### Azure Infrastructure
-- [Infrastructure Rules](mdc:.cursor/rules/infrastructure/infrastructure.mdc) - Cloud infrastructure guidelines.
-
-### Developer CLI
-- [Developer CLI Rules](mdc:.cursor/rules/developer-cli/developer-cli.mdc) - Guidelines for extending the custom Developer CLI.
-
-### Other Rules
-- [AI Rules](mdc:.cursor/rules/other/ai-rules.mdc) - Guidelines for creating and updating AI rules.
-- [Git Commit Rules](mdc:.cursor/rules/other/git-commits.mdc) - Guidelines for creating commit messages.
-- [Pull Request Rules](mdc:.cursor/rules/other/pull-request.mdc) - Guidelines for creating pull requests.
-
 ## Project Structure
 
 This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure.
 
-- [.github](mdc:.github): GitHub workflows and other GitHub artifacts.
-- [application](mdc:application): Contains application code:
-  - [account-management](mdc:application/account-management): An SCS for tenant and user management:
-    - [WebApp](mdc:application/account-management/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/account-management/Api): .NET 9 minimal API.
-    - [Core](mdc:application/account-management/Core): .NET 9 Vertical Sliced Architecture.
-    - [Workers](mdc:application/account-management/Workers): A .NET Console job.
-    - [Tests](mdc:application/account-management/Tests): xUnit tests for backend.
-  - [back-office](mdc:application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
-    - [WebApp](mdc:application/back-office/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/back-office/Api): .NET 9 minimal API.
-    - [Core](mdc:application/back-office/Core): .NET 9 Vertical Sliced Architecture.
-    - [Workers](mdc:application/back-office/Workers): A .NET Console job.
-    - [Tests](mdc:application/back-office/Tests): xUnit tests for backend.
-  - [AppHost](mdc:application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
-  - [AppGateway](mdc:application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
-  - [shared-kernel](mdc:application/shared-kernel): Reusable .NET backend shared by all SCSs.
-  - [shared-webapp](mdc:application/shared-webapp): Reusable frontend shared by all SCSs.
-- [cloud-infrastructure](mdc:cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
-- [developer-cli](mdc:developer-cli): A .NET CLI tool for automating common developer tasks.
+- [.github](github): GitHub workflows and other GitHub artifacts.
+- [application](application): Contains application code:
+  - [account-management](application/account-management): An SCS for tenant and user management:
+    - [WebApp](application/account-management/WebApp): A React, TypeScript SPA.
+    - [Api](application/account-management/Api): .NET 9 minimal API.
+    - [Core](application/account-management/Core): .NET 9 Vertical Sliced Architecture.
+    - [Workers](application/account-management/Workers): A .NET Console job.
+    - [Tests](application/account-management/Tests): xUnit tests for backend.
+  - [back-office](application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
+    - [WebApp](application/back-office/WebApp): A React, TypeScript SPA.
+    - [Api](application/back-office/Api): .NET 9 minimal API.
+    - [Core](application/back-office/Core): .NET 9 Vertical Sliced Architecture.
+    - [Workers](application/back-office/Workers): A .NET Console job.
+    - [Tests](application/back-office/Tests): xUnit tests for backend.
+  - [AppHost](application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
+  - [AppGateway](application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
+  - [shared-kernel](application/shared-kernel): Reusable .NET backend shared by all SCSs.
+  - [shared-webapp](application/shared-webapp): Reusable frontend shared by all SCSs.
+- [cloud-infrastructure](cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
+- [developer-cli](developer-cli): A .NET CLI tool for automating common developer tasks.
