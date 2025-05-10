@@ -1,0 +1,83 @@
+---
+trigger: glob
+globs: *Repository.cs
+description: Rules for DDD repositories, including tenant scoping, interface conventions, and use of Entity Framework
+---
+
+# DDD Repositories
+
+Carefully follow these instructions when implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+
+## Implementation
+
+1. Create repositories alongside their corresponding aggregates in the `/[scs-name]/Core/Features/[Feature]/Domain` directory.
+2. Create a public sealed class implementation using a primary constructor.
+3. All implementations must inherit from `RepositoryBase<TAggregate, TId>`.
+4. Create an interface that extends `IBaseRepository<TAggregate, TId>` or `ICrudRepository<TAggregate, TId>`:
+   - Use `IBaseRepository` when you do not need all CRUD operations.
+   - Only include methods that are needed for your specific aggregate.
+5. Only return Aggregates or custom projections, but never Entities or Value Objects from a repository.
+6. Never return `[PublicAPI]` response DTOs.
+7. Keep repositories focused on persistence operations, not business logic.
+8. Repositories are automatically registered in the DI container.
+9. By default, Aggregates with the `ITenantScopedEntity` interface are automatically filtered by tenant using Entity Framework Core query filters:
+   - In rare cases, you may need to disable this by using the `IgnoreQueryFilters` method, e.g., when looking up an anonymous user by email.
+   - If you use `IgnoreQueryFilters`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
+10. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration.
+11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
+    - `MapStronglyTypedUuid` for ULIDs.
+    - `MapStronglyTypedLongId` for long IDs.
+    - `MapStronglyTypedGuid` for GUIDs.
+
+## Examples
+
+```csharp
+// ✅ DO: Only include needed methods, use correct base interface, and inherit RepositoryBase
+public interface ILoginRepository : IAppendRepository<Login, LoginId> // ✅ DO: Use only needed base interface
+{
+    void Update(Login aggregate); // ✅ DO: Add only needed methods
+}
+
+public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and primary constructor
+    : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
+
+// ❌ DON'T: Use ICrudRepository if not all CRUD ops needed, or return DTOs
+public interface IBadLoginRepository : ICrudRepository<Login, LoginId> // ❌ DON'T: Use ICrudRepository if not all CRUD ops needed
+{
+    Task<LoginDto> GetDto(LoginId id); // ❌ DON'T: Return DTOs from repositories
+}
+
+// ✅ DO: Example with a custom query method
+public interface IEmailConfirmationRepository : IAppendRepository<EmailConfirmation, EmailConfirmationId>
+{
+    EmailConfirmation[] GetByEmail(string email); // ✅ DO: Custom query method allowed
+}
+
+public sealed class EmailConfirmationRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and inherit RepositoryBase
+    : RepositoryBase<EmailConfirmation, EmailConfirmationId>(accountManagementDbContext), IEmailConfirmationRepository
+{
+    public EmailConfirmation[] GetByEmail(string email)
+        => DbSet.Where(ec => !ec.Completed && ec.Email == email.ToLowerInvariant()).ToArray(); // ✅ DO: Implement custom query
+}
+```
+
+### Use of .IgnoreQueryFilters()
+
+- If you use `.IgnoreQueryFilters()`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
+
+```csharp
+/// <summary> // ✅ DO: Add XML comment explaining whay ignoring quiery filters are ok
+///     Retrieves a user by email without applying tenant query filters.
+///     This method should only be used during the login processes where tenant context is not yet established.
+/// </summary>
+public async Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken) // ✅ DO: Add `Unfiltered` to the surffix
+{
+    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ✅ DO: Use .IgnoreQueryFilters() only in rare cases, with UnfilteredAsync suffix and XML comment
+}
+
+// ❌ DON'T: Use .IgnoreQueryFilters() without UnfilteredAsync suffix or without an XML warning comment
+public async Task<User?> GetUserByEmail(string email, CancellationToken cancellationToken)
+{
+    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ❌ DON'T: Missing UnfilteredAsync suffix and XML comment
+}
+```
