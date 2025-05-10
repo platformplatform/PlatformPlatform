@@ -45,6 +45,21 @@ Follow these steps to create pull request titles and descriptions:
    - Include exact filenames, code snippets, and Git diffs as needed.
    - Use the placeholder term `your-self-contained-system` for downstream implementations.
 
+6. Build, test, format and inspect the codebase:
+   - If changes have been done to backend `*.cs` but only to one self-contained system, run:
+      ```bash
+      [CLI_ALIAS] check --backend --solution-name SelfContainedSystem.slnf
+      ```
+   - If backend changes have been made to `*.cs` in multiple self-contained systems or the Shared Kernel, run:
+      ```bash
+      [CLI_ALIAS] check --backend
+      ```
+   - If changes have been done to frontend `*.ts`, run:
+      ```bash
+      [CLI_ALIAS] check --frontend
+      ```
+   - If there are errors, they must be fixed before the commit can be made.
+
 ## Examples
 
 ### Example 1 - Pull Request Title

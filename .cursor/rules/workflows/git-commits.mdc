@@ -19,6 +19,27 @@ Follow these steps to commit changes:
    - Keep the message to a single line
    - Describe what is changed and the motivation, but keep it concise
 
+3. Build and test the codebase:
+   - If changes have been done to backend `*.cs`, run:
+      ```bash
+      [CLI_ALIAS] test --backend
+      ```
+   - If changes have been done to frontend `*.ts`, run:
+      ```bash
+      [CLI_ALIAS] check --frontend
+      ```
+   - If there are errors, they must be fixed before the commit can be made.
+
+4. Format the codebase:
+   - If changes have been done to backend `*.cs`, run:
+      ```bash
+      [CLI_ALIAS] format --backend
+      ```
+   - If changes have been done to frontend `*.ts`, run:
+      ```bash
+      [CLI_ALIAS] format --frontend
+      ```
+
 ## Examples
 
 ### Example 1 - Commit Message Format
