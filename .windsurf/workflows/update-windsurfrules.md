@@ -1,0 +1,74 @@
+---
+description: Workflow for updating the .windsurfrules file which is used by Windsurf's JetBrains Add-in.
+---
+
+Carefully follow these step-by-step instructions to update the `.windsurfrules` file with the latest AI rules and project structure. Do not ask for question or confirmation, just follow these steps now to update the `.windsurfrules`.
+
+## Step 1: Sync windsurf AI rules with cursur rule
+
+Run the `[CLI_ALIAS] sync-windsurf-ai-rules` command to ensure that the `.windsurf/rules` and `.windsurf/workflows` folders are in sync with Cursor rules.
+
+## Step 2: Sync the first part of .windsurfrules
+
+1. Overwrite the entire content of `.windsurfrules` with the content from `.windsurf/rules/main.md`. 
+
+2. Remove the frontformatter section (the few lines `---`) including any blank lines.
+
+3. In the "## Rules for implementing changes" create an overview of rules and workflows following this structure:
+
+   - Each folder should be listed as a section (e.g. "General Rules" (Top level folder), "Backend", "Frontend", "Infrastructure", "Developer CLI", "Workflows") using the format:
+     ```
+     *Section Name*:
+     ```
+
+   - The main rule file named the same as the folder should be listed first if exists, with the format:
+     ```
+     - [Rule Title](/.windsurf/rules/section.md) - The decription from the frontformatter
+     ```
+
+   - Sub-rules for each section should be listed underneath, indented by two spaces, in alphabetical order, with the format:
+     ```
+         - [Sub-rule Title](/.windsurf/rules/section-subrule.md) - The decription from the frontformatter
+     ```
+
+   - For the Workflows section, list each workflow file in the root of `.windsurf/workflows/` in the format:
+     ```
+     - [Workflow Title](/.windsurf/workflows/workflow.md) - The decription from the frontformatter
+     ```
+
+     * Skip listing the `.windsurf/rules/main.md` file, as the content is already included in the main rule file.
+     * If a rule or workflow does not have a title, deduct it from the file name.
+  
+## Example:
+
+The final file would look something like this
+
+   ```
+   # Main Entry Point
+
+   ...
+
+   ## High-Level Problem Solving Strategy
+
+   ...
+
+   ## Rules for implementing changes
+
+   Always consult the relevant rule files before each code change.
+
+   *General Rules*:
+     - [Tools](/.windsurf/rules/tools.md) - Rules for how to use Developer CLI tools to build, test, and format code correctly over using direct commands like `npm run format` or `dotnet test`.
+
+   *Backend*:
+     - [Backend](/.windsurf/rules/backend/backend.md) - Core rules for C# development and tooling
+     - [API Endpoints](/.windsurf/rules/backend/api-endpoints.md) - Rules for ASP.NET minimal API endpoints
+     - [Commands](/.windsurf/rules/backend/commands.md) - Rules for implementing CQRS commands, validation, handlers, and structure
+
+   *Workflows*:
+   - [AI Rules Workflow](/.windsurf/workflows/ai-rules.md) - Workflow for creating and maintaining AI rules
+
+   ## Project Structure
+
+   ...
+   
+   ```
