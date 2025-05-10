@@ -1,9 +1,9 @@
 ---
-description: Create a code review for a branch, uncommitted changes, or a list of specific files or folders.
+description: Workflow for code review of branches, uncommitted changes, or files
 globs: 
 alwaysApply: false
 ---
-# Code review workflow
+# Code Review Workflow
 
 Follow these steps carefully to review files *one by one*:
 

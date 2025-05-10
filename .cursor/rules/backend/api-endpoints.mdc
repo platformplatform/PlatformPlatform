@@ -1,9 +1,11 @@
 ---
-description: Guidelines for implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
+description: Rules for ASP.NET minimal API endpoints
 globs: **/Endpoints/*.cs,*Endpoints.cs
 alwaysApply: false
 ---
 # API Endpoints
+
+Carefully follow these instructions when implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
 
 ## Implementation
 

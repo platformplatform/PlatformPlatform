@@ -1,5 +1,5 @@
 ---
-description: Rules for writing clear, actionable pull request titles and descriptions, including summary, motivation, and downstream project guidance.
+description: Workflow for writing pull request titles and descriptions
 globs: 
 alwaysApply: false
 ---

@@ -1,9 +1,11 @@
 ---
-description: Rules and patterns for implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
+description: Rules for implementing CQRS commands, validation, handlers, and structure
 globs: **/Commands/*.cs
 alwaysApply: false
 ---
 # CQRS Commands
+
+Carefully follow these instructions when implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
 
 ## Structure
 

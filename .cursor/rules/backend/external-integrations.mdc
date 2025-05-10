@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing integrations with external services in the backend, including structure, error handling, and client conventions.
+description: Rules for creating external integration services
 globs: **/Integrations/**/*.cs
 alwaysApply: false
 ---
 # External Integrations
+
+Carefully follow these instructions when implementing integrations with external services in the backend, including structure, error handling, and client conventions.
 
 ## Implementation
 

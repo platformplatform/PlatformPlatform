@@ -1,9 +1,11 @@
 ---
-description: Core conventions, code style, and workflow for frontend TypeScript and React development, including component structure and build/format steps.
+description: Core rules for frontend TypeScript and React development
 globs: *.tsx
 alwaysApply: false
 ---
 # Frontend
+
+Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, and build/format steps.
 
 ## Implementation
 

@@ -1,9 +1,11 @@
 ---
-description: Rules and guidelines for implementing and extending the custom Developer CLI commands.
+description: Rules for implementing Developer CLI commands
 globs: developer-cli/Commands/*.cs
 alwaysApply: false
 ---
 # Developer CLI Rules
+
+Carefully follow these instructions when implementing and extending the custom Developer CLI commands.
 
 ## Implementation
 
