@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing telemetry events in the backend, including event structure, naming, and publishing practices.
+description: Rules for telemetry events including important rules of where to create events, naming, and what properties to track
 globs: **/Commands/*.cs,TelemetryEvents.cs
 alwaysApply: false
 ---
 # Telemetry Events
+
+Carefully follow these instructions when implementing telemetry events in the backend, including event structure, naming, and publishing practices.
 
 ## Implementation
 

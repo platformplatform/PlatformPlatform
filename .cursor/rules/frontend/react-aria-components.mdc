@@ -1,9 +1,11 @@
 ---
-description: Rules for using React Aria Components in the frontend, including usage, accessibility, and event handling best practices.
+description: Rules for using React Aria Components
 globs: *.tsx
 alwaysApply: false
 ---
 # React Aria Components
+
+Carefully follow these instructions when using React Aria Components in the frontend, including usage, accessibility, and event handling best practices.
 
 ## Implementation
 

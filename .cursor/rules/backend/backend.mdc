@@ -1,9 +1,11 @@
 ---
-description: Core conventions and best practices for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
+description: Core rules for C# development and tooling
 globs: *.cs,*.csproj,*.slnx,Directory.Packages.props,global.json,dotnet-tools.json
 alwaysApply: false
 ---
 # Backend
+
+Carefully follow these instructions for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
 
 ## Code Style
 

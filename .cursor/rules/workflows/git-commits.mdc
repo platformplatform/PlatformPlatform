@@ -1,5 +1,5 @@
 ---
-description: Rules for writing consistent and effective git commit messages, including format, inspection, and examples.
+description: Workflow for writing effective git commit messages
 globs: 
 alwaysApply: false
 ---

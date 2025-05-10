@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
+description: Rules for forms with validation using React Aria Components
 globs: *.tsx
 alwaysApply: false
 ---
 # Form with Validation
+
+Carefully follow these instructions when implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
 
 ## Implementation
 

@@ -1,9 +1,11 @@
 ---
-description: This is the main entry point for AI-based development when working with this codebase, but also serves as a great reference for developers.
+description: Main entry point for AI-based development and developer reference
 globs: 
 alwaysApply: true
 ---
-# Main entry point
+# Main Entry Point
+
+This is the main entry point for AI-based development when working with this codebase, but also serves as a great reference for developers.
 
 Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
 

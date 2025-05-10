@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
+description: Rules for translations and internationalization
 globs: *.tsx
 alwaysApply: false
 ---
 # Translations
+
+Carefully follow these instructions when implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
 
 ## Implementation
 

@@ -1,9 +1,11 @@
 ---
-description: Rules and conventions for writing backend unit and integration tests, including naming, structure, and best practices.
+description: Rules for writing unit and integration tests
 globs: **/Tests/*.cs
 alwaysApply: false
 ---
 # Writing Unit and Integration Tests
+
+Carefully follow these instructions when writing backend unit and integration tests, including naming, structure, and best practices.
 
 ## Implementation
 

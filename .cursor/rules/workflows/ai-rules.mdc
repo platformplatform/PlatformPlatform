@@ -1,5 +1,5 @@
 ---
-description: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
+description: Workflow for creating and maintaining AI rules
 globs:
 alwaysApply: false
 ---

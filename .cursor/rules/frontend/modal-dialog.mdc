@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
+description: Rules for modal dialogs using React Aria Components
 globs: *Dialog.tsx,*Modal.tsx
 alwaysApply: false
 ---
 # Modal Dialog
+
+Carefully follow these instructions when implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
 
 ## Implementation
 
