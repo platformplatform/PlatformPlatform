@@ -36,11 +36,11 @@ Carefully follow these instructions for frontend TypeScript and React developmen
    - Reference existing implementations to maintain consistency.
 
 4. Build and format your changes:
-   - After each minor change, run `dotnet run format --frontend` from the [developer-cli](mdc:developer-cli) folder.
+   - After each minor change, run `[CLI_ALIAS] format --frontend` to format your code. See [Tools](mdc:.cursor/rules/tools.mdc) for details.
    - This ensures consistent code style across the codebase.
 
 5. Verify your changes:
-   - When a feature is complete, run `dotnet run check --frontend` from the [developer-cli](mdc:developer-cli) folder.
+   - When a feature is complete, run `[CLI_ALIAS] check --frontend` to verify your changes.
    - This command runs build, format, and check in that order.
    - Fix any compiler warnings or test failures before proceeding.
 

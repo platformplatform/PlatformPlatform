@@ -36,11 +36,11 @@ Follow these steps carefully to review files *one by one*:
    - If a fix is not obvious, reference the rule and provide a rationale for leaving it as-is.
 
 6. After all backend files are reviewed and fixed:
-   - Run `dotnet run check --backend` from the developer-cli directory. This command runs build, format, test, and inspect for the backend.
+   - Run `[CLI_ALIAS] check --backend` to run build, format, test, and inspect for the backend. See [Tools](/.windsurf/rules/tools.md) for details.
    - Ensure all checks pass before proceeding to review frontend files.
 
 7. After all frontend files are reviewed and fixed:
-   - Run `dotnet run check --frontend` from the developer-cli directory. This command runs build, format, test, and inspect for the frontend.
+   - Run `[CLI_ALIAS] check --frontend` to run build, format, test, and inspect for the frontend.
    - Ensure all checks pass before completing the review process.
 
 ## Examples
@@ -69,10 +69,9 @@ git diff --name-only $(git merge-base HEAD main)..HEAD
 # Step 4: For each file, determine applicable rules, review, and print issues
 # Step 5: Fix all issues in the file
 # Step 6: After all backend files are reviewed and fixed, run:
-cd developer-cli
-dotnet run check --backend
+[CLI_ALIAS] check --backend
 # Step 7: After all frontend files are reviewed and fixed, run:
-dotnet run check --frontend
+[CLI_ALIAS] check --frontend
 ```
 
 ### Example 3 - Referencing rules for issues
