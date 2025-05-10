@@ -1,0 +1,148 @@
+---
+trigger: manual
+glob: **/Domain/*.cs
+description:
+---
+
+# Domain Modeling
+
+Carefully follow these instructions when implementing Domain-Driven Design models for aggregates, entities, and value objects in the backend, including structure and implementation guidelines.
+
+## Implementation
+
+1. Create all DDD models in the `/[scs-name]/Core/Features/[Feature]/Domain` directory, including aggregates, entities, value objects, strongly typed IDs, repositories, and repository configurations.
+2. Understand the core DDD concepts:
+   - Aggregates are the root of the DDD model and map 1:1 to database tables.
+   - Entities belong to aggregates but have their own identity.
+   - Value objects are immutable and have no identity.
+   - Repositories are used to read and write aggregates in the database.
+3. Store entities and value objects as JSON columns on the Aggregate in the database for better performance and to avoid EF Core's `Include()` method.
+4. For Aggregates:
+   - Use public sealed classes that inherit from `AggregateRoot<TId>`.
+   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) for details.
+   - Never use navigational properties to other aggregates (e.g., don't use `User.Tenant`, or `Order.Customer`).
+   - Use factory methods when creating new aggregates.
+   - Make properties private, and use methods when changing state and enforcing business rules.
+   - Make properties immutable.
+   - Create a corresponding repository interface and implementation for each aggregate; consult [Repositories](mdc:.cursor/rules/backend/repositories.mdc) for details.
+5. For Entities:
+   - Use public sealed classes that inherit from `Entity<TId>`.
+   - Create a strongly typed ID for entities.
+   - Use factory methods when creating new entities.
+   - Use private setters to control state changes.
+   - Make properties private, and use methods when changing state and enforcing business rules.
+6. For Value Objects:
+   - Use records to ensure immutability.
+   - Value objects do not have an ID.
+   - Store value objects as JSON columns on the Aggregate in the database.
+ 
+## Examples
+
+```csharp
+// Invoice.cs
+public sealed class Invoice : AggregateRoot<InvoiceId>, ITenantScopedEntity // ✅ DO: Make aggregates tenant scoped by default
+{
+    private Invoice(TenantId tenantId, Address billingAddress)
+        : base(InvoiceId.NewId())
+    {
+        TenantId = tenantId;
+        BillingAddress = billingAddress
+        Status = InvoiceStatus.Created;
+        InvoiceLines = ImmutableArray<InvoiceLine>.Empty;
+    }
+
+    public InvoiceStatus Status { get; private set; }
+
+    public BillingAddress? BillingAddress { get; private set; }
+
+    public ImmutableArray<InvoiceLine> InvoiceLines { get; private set; } // ✅ DO: Use ImmutableArray for entity collections
+
+    public TenantId TenantId { get; }
+
+    public static Invoice Create(TenantId tenantId, Address billingAddress) // ✅ DO: Use factory methods
+    {
+        return new Invoice(tenantId, billingAddress);
+    }
+
+    public void AddInvoiceLine(string description, decimal price)
+    {
+        var invoiceLine = InvoiceLine.Create(description, price);
+        InvoiceLines = InvoiceLines.Add(invoiceLine);
+    }
+}
+
+[PublicAPI]
+[IdPrefix("order")] // ✅ DO: Create strongly typed prefix with max 5 characters
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, InvoiceId>))]
+public sealed record InvoiceId(string Value) : StronglyTypedUlid<InvoiceId>(Value);
+
+public sealed record BillingAddress(string Street, string City, string State, string ZipCode, string Country);
+
+// InvoiceLine.cs   
+public sealed class InvoiceLine : Entity<InvoiceLineId>
+{
+    private InvoiceLine(string description, decimal price)
+        : base(InvoiceLineId.NewId())
+    {
+        Description = description;
+        UnitPrice = price;
+    }
+
+    public string Description { get; init; } // ✅ DO: Use init for properties that cannot be changed
+
+    public decimal Price { get; init; }
+
+    internal static InvoiceLine Create(string description, decimal price)
+    {
+        return new InvoiceLine(description, price);
+    }
+}
+
+[PublicAPI]
+[IdPrefix("oline")]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, InvoiceLineId>))]
+public sealed record InvoiceLineId(string Value) : StronglyTypedUlid<InvoiceLineId>(Value);
+
+// InvoiceTypes.cs
+public enum InvoiceStatus
+{
+    Created,
+    Paid
+}
+
+// InvoiceConfiguration.cs
+public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice> 
+{
+    private static readonly JsonSerializerOptions JsonSerializerOptions = JsonSerializerOptions.Default;
+
+    public void Configure(EntityTypeBuilder<Invoice> builder)
+    {
+        // ✅ DO: Only configure EF mapping for complex types
+        builder.MapStronglyTypedUuid<Invoice, InvoiceId>(o => o.Id);
+        builder.MapStronglyTypedLongId<Invoice, TenantId>(o => o.TenantId);
+
+        builder.OwnsOne(o => o.ShippingAddress, b => b.ToJson()); // ✅ DO: Map 1:1 valueobjects and entites with .ToJson()
+
+        // ✅ DO: Map collection with custom JsonSerializer
+        builder.Property(t => t.InvoiceLines)
+            .HasColumnName("InvoiceLines")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
+                v => JsonSerializer.Deserialize<ImmutableArray<InvoiceLine>>(v, JsonSerializerOptions)
+            );
+    }
+}
+
+// ❌ Anti-patterns to avoid
+public class BadInvoice : AggregateRoot<BadInvoiceId>
+{
+    // ❌ Public constructor instead of factory method and generating the Id outside
+    public BadInvoice(InvoiceId id, CustomerId customerId) : base(id) { }
+    // ❌ Public setters expose mutable state
+    public string CustomerEmail { get; set; }
+    // ❌ Direct reference to another aggregate
+    public Customer Customer { get; set; }
+    // ❌ Mutable collection exposed directly
+    public List<BadInvoiceLine> InvoiceLines { get; set; } = new();
+}
+```
