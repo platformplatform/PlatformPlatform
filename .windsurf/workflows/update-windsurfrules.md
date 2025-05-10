@@ -1,0 +1,61 @@
+---
+description: Rules for writing clear, actionable pull request titles and descriptions, including summary, motivation, and downstream project guidance.
+---
+# Updating the .windsurfrules File
+
+This workflow provides step-by-step instructions for keeping the `.windsurfrules` file up to date with the latest AI rules and project structure.
+
+## Step 1: Sync the First Part of .windsurfrules
+
+1. Copy the content from `.cursor/rules/ai-instructions.mdc` up to and including the Project Structure section.
+
+2. Paste this content into the beginning of `.windsurfrules`, replacing everything up to the "Consult rules file before implementing any changes" section.
+
+3. Make sure to maintain the following differences:
+   - The first line in `.windsurfrules` should be: "This is the main entry point for Windsurf JetBrains Add-in until it supports .windsurf/rules and .windsurf/workflows."
+   - In the High-Level Problem Solving Strategy section, the references to "@Backend Rules" and "@Frontend Rules" instead of the markdown links.
+   - In the Project Structure section, use plain text references (without markdown links).
+
+## Step 2: Update the Rules Sections
+
+1. Create or update the "Consult rules file before implementing any changes" section in `.windsurfrules`.
+
+2. For each rules category (Backend, Frontend, Infrastructure, Developer CLI, Workflows), follow this pattern:
+
+   a. Create a header for the section:
+   ```
+   ## [Category] Development
+   ```
+
+   b. List the main entry point file first:
+   ```
+   - [Backend Rules](.windsurf/backend.md) - [Description from first line of the file]
+   ```
+
+   c. List all related rule files in alphabetical order, indented under the main entry point:
+   ```
+     - [API Endpoints](.windsurf/backend-api-endpoints.md) - [Description from first line of the file]
+   ```
+
+3. For each rule file, get the description by reading the first line of the file:
+```bash
+head -n 1 /Users/thomasjespersen/Developer/PlatformPlatform/.windsurf/rules/[filename].md
+```
+
+4. Make sure all links point to `.windsurf/*.md` files (not `.mdc` files).
+
+## Step 3: Verify the Update
+
+1. Check that all sections are properly formatted and all links are correct.
+
+2. Ensure that all rule files in the `.windsurf/rules` directory are included in the `.windsurfrules` file.
+
+3. Verify that the file structure in the Project Structure section matches the actual repository structure.
+
+## Step 4: Commit the Changes
+
+1. After verifying the updates, commit the changes to the repository:
+```bash
+git add .windsurfrules .cursor/rules/ai-instructions.mdc
+git commit -m "Update .windsurfrules and AI instructions with latest project structure and rules"
+```
