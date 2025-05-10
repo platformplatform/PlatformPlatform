@@ -1,0 +1,78 @@
+# Main entry point
+
+This is the main entry point for Windsurf JetBrains Add-in until it supports .windsurf/rules and .windsurf/workflows.
+
+Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
+
+## High-Level Problem Solving Strategy
+
+1. Understand the problem deeply. Carefully read the instructions and think critically about what is required.
+2. Investigate the codebase. Explore relevant files, search for key functions, and gather context.
+3. Develop a clear, step-by-step plan. Break down the fix into manageable, incremental steps.
+4. Before each code change, always consult the relevant rule files, and follow the rules very carefully.
+   - Failure to follow the rules is the main reason for making unacceptable changes.
+5. Iterate until you are extremely confident the fix is complete.
+   - When changing code, do not add comments about what you changed.
+6. After each change make sure you follow the rules in [Backend Rules](.windsurf/rules/backend.md) or [Frontend Rules](.windsurf/rules/frontend.md), on how to correctly use the custom CLI tool for building, testing, and formatting the code.
+   - Failure to use the custom CLI tool after each change is the second most common reason for making unacceptable changes.
+
+## Project Structure
+
+This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure.
+
+- [.github](.github): GitHub workflows and other GitHub artifacts.
+- [application](application): Contains application code:
+  - [account-management](application/account-management): An SCS for tenant and user management:
+    - [WebApp](application/account-management/WebApp): A React, TypeScript SPA.
+    - [Api](application/account-management/Api): .NET 9 minimal API.
+    - [Core](application/account-management/Core): .NET 9 Vertical Sliced Architecture.
+    - [Workers](application/account-management/Workers): A .NET Console job.
+    - [Tests](application/account-management/Tests): xUnit tests for backend.
+  - [back-office](application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
+    - [WebApp](application/back-office/WebApp): A React, TypeScript SPA.
+    - [Api](application/back-office/Api): .NET 9 minimal API.
+    - [Core](application/back-office/Core): .NET 9 Vertical Sliced Architecture.
+    - [Workers](application/back-office/Workers): A .NET Console job.
+    - [Tests](application/back-office/Tests): xUnit tests for backend.
+  - [AppHost](application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
+  - [AppGateway](application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
+  - [shared-kernel](application/shared-kernel): Reusable .NET backend shared by all SCSs.
+  - [shared-webapp](application/shared-webapp): Reusable frontend shared by all SCSs.
+- [cloud-infrastructure](cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
+- [developer-cli](developer-cli): A .NET CLI tool for automating common developer tasks.
+
+# Consult rules file before implementing any changes
+
+Before implementing any changes, always consult the relevant rule files, and follow the rules very carefully.
+
+## Backend Development
+- [Backend Rules](.windsurf/rules/backend.md) - Carefully follow these instructions for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
+  - [API Endpoints](.windsurf/rules/backend-api-endpoints.md) - Carefully follow these instructions when implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
+  - [Commands](.windsurf/rules/backend-commands.md) - Carefully follow these instructions when implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
+  - [Database Migrations](.windsurf/rules/backend-database-migrations.md) - Carefully follow these instructions when creating database migrations.
+  - [Domain Modeling](.windsurf/rules/backend-domain-modeling.md) - Carefully follow these instructions when implementing Domain-Driven Design models for aggregates, entities, and value objects in the backend, including structure and implementation guidelines.
+  - [External Integrations](.windsurf/rules/backend-external-integrations.md) - Carefully follow these instructions when implementing integrations with external services in the backend, including structure, error handling, and client conventions.
+  - [Queries](.windsurf/rules/backend-queries.md) - Carefully follow these instructions when implementing CQRS queries, including structure, validation, response types, and MediatR pipeline behaviors.
+  - [Repositories](.windsurf/rules/backend-repositories.md) - Carefully follow these instructions when implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+  - [Strongly Typed IDs](.windsurf/rules/backend-strongly-typed-ids.md) - Carefully follow these instructions when implementing strongly typed IDs in the backend, covering type safety, naming, serialization, and EF Core mapping.
+  - [Telemetry Events](.windsurf/rules/backend-telemetry-events.md) - Carefully follow these instructions when implementing telemetry events in the backend, including event structure, naming, and publishing practices.
+  - [Unit and Integration Tests](.windsurf/rules/backend-unit-and-integration-tests.md) - Carefully follow these instructions when writing backend unit and integration tests, including naming, structure, and best practices.
+
+## Frontend Development
+- [Frontend Rules](.windsurf/rules/frontend.md) - Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, and build/format steps.
+  - [Form with Validation](.windsurf/rules/frontend-form-with-validation.md) - Carefully follow these instructions when implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
+  - [Modal Dialog](.windsurf/rules/frontend-modal-dialog.md) - Carefully follow these instructions when implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
+  - [React Aria Components](.windsurf/rules/frontend-react-aria-components.md) - Carefully follow these instructions when using React Aria Components in the frontend, including usage, accessibility, and event handling best practices.
+  - [TanStack Query API Integration](.windsurf/rules/frontend-tanstack-query-api-integration.md) - Carefully follow these instructions when integrating with backend APIs in the frontend using TanStack Query, covering data fetching, mutation, and API contract usage.
+  - [Translations](.windsurf/rules/frontend-translations.md) - Carefully follow these instructions when implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
+
+## Infrastructure
+- [Infrastructure Rules](.windsurf/rules/infrastructure.md) - Carefully follow these instructions for cloud setup, deployment patterns, and future Azure/cloud configuration guidelines.
+
+## Developer CLI
+- [Developer CLI Rules](.windsurf/rules/developer-cli.md) - Carefully follow these instructions when implementing and extending the custom Developer CLI, including command structure, error handling, and execution patterns.
+
+## Workflow Rules
+- [Git Commit Rules](.windsurf/workflows/git-commits.md) - Guidelines for creating commit messages.
+- [Pull Request Rules](.windsurf/workflows/pull-request.md) - Guidelines for creating pull requests.
+- [Creating and Updating AI Rules](.windsurf/workflows/creating-and-updating-ai-rules.md) - Guidelines for creating and updating AI rules.
