@@ -1,0 +1,132 @@
+---
+trigger: glob
+globs: **/Commands/*.cs
+description: Rules for implementing CQRS commands, validation, handlers, and structure
+---
+
+# CQRS Commands
+
+Carefully follow these instructions when implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
+
+## Structure
+
+Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands` directory.
+
+## Implementation
+
+1. Create one file per command containing `Command`, `Validator`, and `Handler`:
+   - Name the file after the command without suffix.
+2. Command Record:
+   - Create a public sealed record marked with `[PublicAPI]` that implements `ICommand` and `IRequest<Result>` or `IRequest<Result<T>>`.
+   - Name with `Command` suffix.
+   - Define properties in the primary constructor.
+   - Use property initializers for simple input sanitization, such as trimming and casing.
+   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment).
+3. Command validator:
+   - Only validate if the command has user input.
+   - Ideally each property should only have one shared validation message for all cases (required, max length, etc.).
+   - Don't inject dependencies like repositories to validators; use guards in the handler instead.
+4. Handler:
+   - Create a public sealed class with `Handler`.
+   - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
+   - Commands can optionally return e.g. a newly created ID.
+   - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`.
+     - Enclose dynamic values in single quotes and end messages with a period.
+   - Never throw exceptions, but always return `Result.Xxx()`.
+   - Always create [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) for successful command results
+     - Optionally log telemetry for failed commands.
+   - Save changes:
+     - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.
+     - Never call Entity Framework `SaveChangesAsync()` directly.
+5. Command Composition:
+   - Inject MediatR to chain commands: e.g., `await mediator.Send(new CreateUserCommand(...))`.
+   - Extract shared logic to separate classes and store them in `/[scs-name]/Core/Features/[Feature]/Shared` (e.g., `await avatarUpdater.UpdateAvatar(user, ...)`).
+
+Note: Commands run through MediatR pipeline behaviors in this order: Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents. Nested commands and domain events are handled within the UnitOfWork transaction. Also, note that Entity Framework change tracking is disabled.
+
+## Example
+
+```csharp
+// CreateUser.cs
+public sealed record CreateUserCommand(TenantId TenantId, string Email, string Name)
+    : ICommand, IRequest<Result>
+{
+    [JsonIgnore] // Removes from API contract // ✅ DO: Add JsonIgnore for route parameters 
+    public TenantId TenantId { get; init; } = null!;
+
+    // ✅ DO: Normalize input in property initializers
+    public string Email { get; } = Email.Trim().ToLower();
+}
+
+public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
+{
+    public CreateUserValidator()
+    {
+        // ✅ DO: Use the same message for better user experience and easier localization
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Name must be between 1 and 50 characters.")
+            .MaximumLength(50).WithMessage("Name must be between 1 and 50 characters.");
+    }
+}
+
+public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
+    : IRequestHandler<CreateUserCommand, Result>
+{
+    public async Task<Result> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+    {
+        // ✅ DO: Use guard statements with early returns
+        if (await userRepository.IsEmailFreeAsync(command.Email, cancellationToken) == false)
+        {
+            return Result.BadRequest($"User with email '{command.Email}' already exists.");
+        }
+
+        var user = User.Create(command.Email, command.Name);
+        await userRepository.AddAsync(user, cancellationToken);
+
+        // ✅ DO: Always collect telemetry events
+        events.CollectEvent(new UserCreated(user.Id, user.Avatar.IsGravatar));
+
+        return Result.Success();
+    }
+}
+```
+
+```csharp
+public sealed record CreateUserCommand(string Email, string Name)
+    : ICommand, IRequest<Result>;
+
+public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
+{
+    public CreateUserValidator()
+    {
+        // ❌ DON'T: Use different validation messages for the same property
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Name must not be empty.")
+            .MaximumLength(50).WithMessage("Name must not be more than 50 characters.");
+    }
+}
+
+public sealed class CreateUserHandler(
+    ITelemetryEventsCollector events, // ❌ DON'T: Place generic dependencies before specific ones
+    IUserRepository userRepository,
+    SendEmailHandler sendEmailHandler // ❌ DON'T: Inject handlers directly
+): IRequestHandler<CreateUserCommand, Result>
+{
+    public async Task<Result> Handle(CreateUserCommand command, CancellationToken cancellationToken)
+    {
+        // ❌ DON'T: Perform validation in the handler that should be in the validator
+        if (!command.Email.Contains('@'))
+        {
+            // ❌ DON'T: Forgetting to enclose values in single quotes and forgetting trailing period
+            throw new ArgumentException($"Email {command.Email} must be valid"); // ❌ DON'T: Throw exceptions
+        }
+               
+        // ❌ DON'T: Call handlers directly instead of using MediatR or raise domain events
+        await sendEmailHandler.Handle(new SendEmailCommand(command.Email, "Welcome!"), cancellationToken);
+
+        // ❌ DON'T: Forget to track telemetry events
+
+        return Result.Success();
+    }
+}
+```
