@@ -69,8 +69,6 @@ Follow these steps to create and update AI rules files should be created in appr
    - Reference actual code over theoretical examples.
    - Use consistent formatting across all rule files.
 
-7. When creating or renaming files, update the index in [ai-instructions.mdc](mdc:.cursor/rules/ai-instructions.mdc) to ensure AI tools without file scanning like Windsurf and GitHub Co-pilot can find the rules.
-
 ## Examples
 
 ### Example 1 - Rule File Structure
