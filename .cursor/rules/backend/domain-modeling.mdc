@@ -1,9 +1,11 @@
 ---
-description: Domain-Driven Design modeling rules for aggregates, entities, and value objects in the backend, including structure and implementation guidelines.
+description:
 globs: **/Domain/*.cs
 alwaysApply: false
 ---
 # Domain Modeling
+
+Carefully follow these instructions when implementing Domain-Driven Design models for aggregates, entities, and value objects in the backend, including structure and implementation guidelines.
 
 ## Implementation
 

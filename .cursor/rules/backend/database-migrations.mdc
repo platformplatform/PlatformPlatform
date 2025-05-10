@@ -1,9 +1,11 @@
 ---
-description: Guidelines for creating database migrations
+description:
 globs: **/Database/Migrations/*.cs
 alwaysApply: false
 ---
 # Database Migrations
+
+Carefully follow these instructions when creating database migrations.
 
 ## Implementation
 

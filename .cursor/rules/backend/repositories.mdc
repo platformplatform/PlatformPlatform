@@ -1,9 +1,11 @@
 ---
-description: Rules for implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+description:
 globs: *Repository.cs
 alwaysApply: false
 ---
 # DDD Repositories
+
+Carefully follow these instructions when implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
 
 ## Implementation
 
