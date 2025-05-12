@@ -7,6 +7,17 @@ description: You have access to several tools and MCP servers
 # MCP Servers
 
 * BrowserMCP: Use this to troubleshoot frontend issues. The base URL is https://localhost:9000. The website is already running, so never start it manually.
+* `[PRODUCT_MANAGEMENT_TOOL]`: Use this MCP tool to create and manage product backlog items. 
+
+# Product Management Tools
+
+> **Update this value in ONE place:**
+>
+> ```
+> PRODUCT_MANAGEMENT_TOOL="Linear"
+> ```
+>
+> Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the variable.
 
 # Developer CLI Commands Reference
 
