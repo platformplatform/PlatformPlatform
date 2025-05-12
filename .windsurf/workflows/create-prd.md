@@ -1,0 +1,107 @@
+---
+description: Workflow for creating a product requirement description (PRD)
+---
+
+The user will provide a description of a new feature. You will create a product requirement description (PRD) based on this description.
+
+The goal is to create a `./tasks/[prd-title]/prd.md` file with the high-level PRD and, when approved, create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured) with the PRD as the description.
+
+> **Update this value in ONE place:**
+>
+> ```
+> PRODUCT_MANAGEMENT_TOOL="Linear"
+> ```
+>
+> Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the variable.
+
+# Workflow
+
+Follow the steps below to create the PRD.
+
+## Step 1: Research and understand the feature
+
+Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
+
+Research a feasible solution that takes the existing codebase and features into consideration. This includes:
+- Understanding the user’s requirements and business context.
+- Investigating the current state and implementation in the codebase:
+  - Specify which self-contained system (e.g., `account-management`, `back-office`) the feature belongs to.
+  - Avoid modifying `shared-kernel` or `shared-webapp` unless explicitly agreed.
+  - Respect the multi-tenant nature: design features to work for one tenant by default, unless otherwise specified.
+- Using MCP tools or other methods for necessary information, best practices, or technologies.
+- Consulting the relevant [rules files](/.windsurf/rules).
+- Asking clarifying questions if any detail, edge case, or scope is unclear.
+
+## Step 2: Create the PRD
+
+Based on your research, create a `./tasks/[prd-title]/prd.md` file containing the high-level PRD. The `[prd-title]` should be a short, relevant title in kebab-case.
+
+Use this [Product requirement description example](/.windsurf/workflows/samples/example-prd.md) as a template.
+
+When writing the PRD:
+- Use sentence case for level-1 headers.
+- Stay at a high level—no implementation details or code examples.
+- Use correct domain terminology: multi-tenant, self-contained system, shared kernel, tenant, user, etc.
+- Specify which self-contained system(s) are in scope.
+- Reuse existing concepts before inventing new ones.
+- Use `backticks` for names of classes, properties, file names, MCP tools.
+- Avoid repetition.
+
+## Step 3: Save and get approval of the PRD
+
+Save the PRD to `./tasks/[prd-title]/prd.md` for user review. Present it to the user and iterate until approved before moving to phases.
+
+## Step 4: Create an overview of the phases
+
+After approval, draft an overview of phases needed to implement the feature. Each phase must be independently deployable (like a pull request).
+
+- Research the codebase before defining phases.
+- Break the PRD into phases, each representing a deployable pull request unit.
+- Create one file per phase under `./tasks/[prd-title]/phase-a-tasks.md`, `phase-b-tasks.md`, etc.
+- At the top of each phase file include:
+  - **Purpose:**  a short description of what this phase delivers and the features it contains.
+  - **NOT included:** out-of-scope items.
+  - **Dependencies:** previous phases or external requirements.
+  - **IMPORTANT:** warning not to work outside this scope.
+- Begin each phase with a level-1 header, for example `# Phase A`.
+
+Update `./tasks/[prd-title]/prd.md` to include the high-level PRD and the phase overview.
+
+## Step 5: Create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured)
+
+After final approval:
+1. Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create a backlog item named after the PRD with the markdown description.
+2. If and only if the backlog item creation succeeds, delete `./tasks/[prd-title]/prd.md`.
+
+### ✅ DO:
+- Follow the exact structure in the example PRD.
+- Conduct deep research by reading code, consulting rule files, and using MCP tools or other research methods.
+- Specify the self-contained system for the feature.
+- Avoid touching `shared-kernel` or `shared-webapp` unless agreed.
+- Respect multi-tenant design by default.
+- Keep the PRD high level—no code snippets.
+- Save the PRD for review before approval.
+- Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create the backlog item after final PRD approval, with the full PRD d
+- Define phases that are small, deployable pull requests.
+- Create phases that are small and can be independently deployed.
+
+### ❌ DON'T:
+- Break down the PRD into phases before high-level approval.
+- Break phases into tasks and subtasks.
+- Skip research. Always understand the problem first.
+- Ignore code. Always read existing multi-tenant, self-contained architecture.
+- Ignore rule files.
+- Include implementation details or code examples in the PRD.
+- Repeat information across sections.
+- Write PRDs as user stories—use the example structure.
+- Write titles in Title Case—use sentence case.
+- Use `@rule` notation. Always to files like `[rule-name](/.windsurf/rules/structure/rule-name.md)`.
+- Create `prd.md` outside `./tasks/[prd-title]/`.
+- Rename the file—must be `prd.md`.
+- Delete the PRD file unless the backlog item was created successfully.
+- Update the backlog item description differently from the approved PRD.
+- Save questions in the PRD file. Always ask clarifying questions in chat.
+- Create phases that e.g. split tests, implementation, and migrations across separate phases.
+
+**SERIOUSLY:**  
+Do the research. Read code and rule files. Ask questions. No shortcuts.
