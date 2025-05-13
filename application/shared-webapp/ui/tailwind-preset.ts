@@ -72,7 +72,11 @@ export default {
         info: {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))"
-        }
+        },
+        // Dark theme specific colors
+        sidebar: "hsl(var(--sidebar))",
+        "hover-background": "hsl(var(--hover-background))",
+        "active-background": "hsl(var(--active-background))"
       },
       borderRadius: {
         lg: "var(--radius)",

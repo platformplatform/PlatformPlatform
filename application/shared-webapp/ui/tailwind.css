@@ -29,7 +29,7 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
 
     --danger: 0 70% 35%;
@@ -59,33 +59,37 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 29% 12%; /* #161B26 - Updated background color */
     --foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
+    --muted: 223 15% 18%; /* #222530 - Slightly lighter than background for muted areas */
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --popover: 222 29% 12%; /* Same as background */
     --popover-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --card: 222.2 84% 4.9%;
+    --border: 217 19% 27%; /* #303644 - Border color from Figma */
+    --input: 217 19% 27%; /* #303644 - Same as border */
+    --card: 222 29% 12%; /* Same as background */
     --card-foreground: 210 40% 98%;
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217 19% 27%; /* #303644 - Secondary background elements */
     --secondary-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --accent: 219 15% 34%; /* #404759 - Accent background elements */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 80% 58%; /* More vibrant red for destructive actions */
     --destructive-foreground: 210 40% 98%;
+    --ring: 217 19% 27%; /* Same as border */
+    --sidebar: 222 29% 12%; /* #161B26 - Same as background */
+    --hover-background: 223 24% 16%; /* #1F2535 - For hover states, slightly lighter */
+    --active-background: 222 22% 20%; /* #262E41 - For active/selected states, even lighter */
 
-    --danger: 0 63% 31%;
-    --danger-foreground: 210 40% 98%;
-    --warning: 41 96% 40%;
-    --warning-foreground: 210 40% 98%;
-    --success: 144 61% 20%;
-    --success-foreground: 210 40% 98%;
-    --info: 224 64% 33%;
-    --info-foreground: 210 40% 98%;
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
 
     --ring: 216 34% 17%;
     --panel-opacity: 0.5;
@@ -111,9 +115,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
   html {
-    font-family: "Inter", sans-serif;
+    -webkit-text-size-adjust: 100%;
+    font-variation-settings: normal;
+    font-variant: normal;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-synthesis: none;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    touch-action: manipulation;
   }
 }
 
