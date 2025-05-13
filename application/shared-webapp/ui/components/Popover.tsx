@@ -19,7 +19,7 @@ export interface PopoverProps extends Omit<AriaPopoverProps, "children"> {
 }
 
 const styles = tv({
-  base: "rounded-lg border bg-popover text-popover-foreground shadow-lg backdrop-blur-2xl transition-opacity forced-colors:bg-[Canvas]",
+  base: "rounded-lg border bg-input-background text-popover-foreground shadow-lg backdrop-blur-2xl transition-opacity forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
       true: "fade-in-0 animate-in duration-200 ease-out"

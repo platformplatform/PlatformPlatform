@@ -29,14 +29,14 @@ const buttonStyles = tv({
   extend: focusRing,
   base: [
     "flex h-10 w-full min-w-[150px] cursor-default items-center gap-4 py-2 pr-2 pl-3 text-start transition",
-    "rounded-md border border-border text-foreground"
+    "rounded-md border border-border bg-input-background text-foreground"
   ],
   variants: {
     isInvalid: {
       true: "border-destructive group-invalid:border-destructive forced-colors:group-invalid:border-[Mark]"
     },
     isDisabled: {
-      false: "pressed:bg-accent pressed:text-accent-foreground hover:bg-accent/90",
+      false: "pressed:bg-active-background pressed:text-accent-foreground hover:bg-hover-background",
       true: "opacity-50 forced-colors:border-[GrayText] forced-colors:text-[GrayText]"
     }
   }
@@ -75,7 +75,7 @@ export function Select<T extends object>({
       </Button>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover className="min-w-[--trigger-width]">
+      <Popover className="min-w-[--trigger-width] bg-input-background">
         <ListBox
           items={items}
           className="max-h-[inherit] overflow-auto p-1 outline-none [clip-path:inset(0_0_0_0_round_.75rem)]"

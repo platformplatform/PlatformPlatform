@@ -76,7 +76,8 @@ export default {
         // Dark theme specific colors
         sidebar: "hsl(var(--sidebar))",
         "hover-background": "hsl(var(--hover-background))",
-        "active-background": "hsl(var(--active-background))"
+        "active-background": "hsl(var(--active-background))",
+        "input-background": "hsl(var(--input-background))"
       },
       borderRadius: {
         lg: "var(--radius)",
