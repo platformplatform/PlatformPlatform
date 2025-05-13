@@ -27,7 +27,7 @@
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 96.1%;
+    --accent: 210 40% 90%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
@@ -54,6 +54,10 @@
     --ring: 215 20.2% 65.1%;
     --panel-opacity: 0.5;
     --radius: 0.5rem;
+    --input-background: 0 0% 100%; /* Same as background for light mode */
+    --hover-background: 210 40% 96.1%; /* Light gray for hover states */
+    --active-background: 210 40% 94%; /* Slightly darker for active/selected states */
+    --selected-hover-background: 210 40% 92%; /* Even darker for selected hover states */
 
     --accordion-content-height: 36px;
   }
@@ -79,8 +83,9 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 217 19% 27%; /* Same as border */
     --sidebar: 222 29% 12%; /* #161B26 - Same as background */
-    --hover-background: 223 24% 16%; /* #1F2535 - For hover states, slightly lighter */
+    --hover-background: 218 35% 15%; /* #1F242F - For hover states, updated to match design */
     --active-background: 222 22% 20%; /* #262E41 - For active/selected states, even lighter */
+    --input-background: 222 45% 8%; /* #0C111D - Darker background for input fields */
 
     --danger: 0 84% 60%;
     --danger-foreground: 0 0% 100%;

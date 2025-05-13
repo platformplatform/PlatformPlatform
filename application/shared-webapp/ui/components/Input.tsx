@@ -15,7 +15,7 @@ export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefA
 
 const inputStyles = tv({
   extend: focusRing,
-  base: "h-10 shrink-0 rounded-md border bg-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
+  base: "h-10 shrink-0 rounded-md border bg-input-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
   variants: {
     isInvalid: {
       true: "border-destructive"
