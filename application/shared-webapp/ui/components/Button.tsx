@@ -29,9 +29,8 @@ const button = tv({
       secondary: "bg-secondary pressed:bg-secondary/70 text-secondary-foreground hover:bg-secondary/80",
       destructive: "bg-destructive pressed:bg-destructive/80 text-destructive-foreground hover:bg-destructive/90",
       outline:
-        "border border-input pressed:bg-accent/80 text-accent-foreground hover:bg-accent hover:text-accent-foreground/90",
-      ghost:
-        "pressed:bg-active-background text-accent-foreground hover:bg-hover-background hover:text-accent-foreground/90",
+        "border border-input pressed:bg-accent/80 text-accent-foreground hover:bg-hover-background hover:text-accent-foreground/90",
+      ghost: "pressed:bg-accent/80 text-accent-foreground hover:bg-hover-background hover:text-accent-foreground/90",
       link: "pressed:text-primary/80 text-primary underline-offset-4 hover:underline"
     },
     size: {

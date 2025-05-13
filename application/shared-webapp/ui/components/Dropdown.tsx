@@ -22,6 +22,9 @@ export const dropdownItemStyles = tv({
     },
     isFocused: {
       true: "bg-hover-background text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+    },
+    isSelected: {
+      true: "bg-active-background hover:bg-selected-hover-background"
     }
   },
   compoundVariants: [

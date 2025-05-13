@@ -77,6 +77,7 @@ export default {
         sidebar: "hsl(var(--sidebar))",
         "hover-background": "hsl(var(--hover-background))",
         "active-background": "hsl(var(--active-background))",
+        "selected-hover-background": "hsl(var(--selected-hover-background))",
         "input-background": "hsl(var(--input-background))"
       },
       borderRadius: {

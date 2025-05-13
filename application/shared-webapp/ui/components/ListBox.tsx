@@ -31,7 +31,7 @@ export const itemStyles = tv({
   variants: {
     isSelected: {
       false: "bg-background pressed:bg-active-background hover:bg-hover-background",
-      true: "bg-active-background pressed:bg-active-background hover:bg-hover-background forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
+      true: "bg-active-background pressed:bg-active-background hover:bg-selected-hover-background forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
     },
     isDisabled: {
       true: "text-muted-foreground/50 forced-colors:text-[GrayText]"
