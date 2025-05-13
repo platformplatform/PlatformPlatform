@@ -27,7 +27,7 @@
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --accent: 210 40% 90%;
+    --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
@@ -54,10 +54,6 @@
     --ring: 215 20.2% 65.1%;
     --panel-opacity: 0.5;
     --radius: 0.5rem;
-    --input-background: 0 0% 100%; /* Same as background for light mode */
-    --hover-background: 210 40% 96.1%; /* Light gray for hover states */
-    --active-background: 210 40% 94%; /* Slightly darker for active/selected states */
-    --selected-hover-background: 210 40% 92%; /* Even darker for selected hover states */
 
     --accordion-content-height: 36px;
   }
@@ -81,22 +77,21 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 80% 58%; /* More vibrant red for destructive actions */
     --destructive-foreground: 210 40% 98%;
-    --ring: 217 19% 27%; /* Same as border */
-    --sidebar: 222 29% 12%; /* #161B26 - Same as background */
-    --hover-background: 218 35% 15%; /* #1F242F - For hover states, updated to match design */
-    --active-background: 222 22% 20%; /* #262E41 - For active/selected states, even lighter */
-    --input-background: 222 45% 8%; /* #0C111D - Darker background for input fields */
+    --ring: 0 0% 100%;
+    --sidebar: 222 29% 12%; /* Same as background */
+    --hover-background: 219 31% 15%;
+    --active-background: 222 45% 8%; /* Same as input-background */
+    --selected-hover-background: 219 31% 15%; /* Same as hover-background */
+    --input-background: 222 45% 8%;
 
-    --danger: 0 84% 60%;
+    --danger: 2 66% 51%;
     --danger-foreground: 0 0% 100%;
-    --success: 142 76% 36%;
+    --success: 143 64% 24%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
-
-    --ring: 216 34% 17%;
     --panel-opacity: 0.5;
     --radius: 0.5rem;
   }

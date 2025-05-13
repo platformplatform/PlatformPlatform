@@ -32,7 +32,7 @@ export function SearchField({ label, description, errorMessage, placeholder, ...
       <FieldGroup>
         <SearchIcon
           aria-hidden={true}
-          className="ml-2 h-4 w-4 text-muted-foreground group-disabled:opacity-50 forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
+          className="ml-2 h-4 min-h-[16px] w-4 min-w-[16px] text-muted-foreground group-disabled:opacity-50 forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
         <Input
           placeholder={placeholder}
