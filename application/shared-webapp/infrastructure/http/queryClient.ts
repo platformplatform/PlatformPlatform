@@ -39,7 +39,6 @@ function createHttpMiddleware() {
       const signal = abortController.signal;
       return new Request(request, { signal });
     },
-
     onResponse: async ({ response }: { request: Request; response: Response }) => {
       if (!response.ok) {
         // Process error directly through handleError to ensure validation errors are properly handled
@@ -49,7 +48,6 @@ function createHttpMiddleware() {
 
       return response;
     },
-
     onRequestError: async ({ error }: { error: unknown; request: Request }) => {
       // Process error directly through handleError to ensure validation errors are properly handled
       const processedError = await handleError(error);
@@ -77,6 +75,9 @@ export const queryClient = new QueryClient({
     }
   }),
   mutationCache: new MutationCache({
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+    },
     onError: (error: unknown) => {
       handleError(error);
     }
