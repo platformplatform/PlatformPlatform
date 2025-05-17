@@ -1,0 +1,71 @@
+---
+description: Workflow for creating tasks based on a product requirement description (PRD)
+globs:
+alwaysApply: false
+---
+The user will provide a link to a product requirement description (PRD) or a [Project ID] from [PRODUCT_MANAGEMENT_TOOL], and ask you to create technical tasks for one phase.
+
+The goal is to create a `./tasks/[prd-title]/phase-*-tasks.md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL].
+
+# Workflow
+
+Follow the steps below to create and publish tasks.
+
+## Step 2: Break phases into tasks
+
+- For each phase, list tasks where each task equals one commit and contains the smallest vertical slice possible (for example, database migration, one API endpoint, and its tests).
+- Keep tasks small enough to build and test in isolation. Do not combine create, read, update and delete in one task.
+- Prefix each task with a level-2 header, for example `## 1 Create POST endpoint`. Use "Sentence case" and not "Title Case" for task headers.
+
+Note: Tests are API tests by default, and rarely test domain logic, so full vertical slices are needed to build and test in isolation.
+
+## Step 3: Add subtasks
+
+- Under each task, add subtasks for:
+  - Implementation steps linked to the relevant rules files.
+  - Build, test and format steps with the Developer CLI linked to [Tools](mdc:.cursor/rules/tools.mdc).
+  - User confirmation and commit step linked to [Git Commits](mdc:.cursor/rules/workflows/git-commits.mdc).
+- Prefix each subtask with a numbered checkbox, for example `[ ] 1.1 Implement aggregate root`.
+- Include detailed bullet points under each subtask explaining implementation details.
+- Add a line break after each task item for better readability.
+- Use consistent terminology throughout the tasks (e.g., "time zone" vs "TimeZone").
+
+## Step 4: Review, approve and publish
+
+1. Save all phase files under `./tasks/[prd-title]/phase-a-[phase-title].md` for user review.
+2. After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create each phase as a task in the specified project.
+3. If and only if the tasks are successfully created in [PRODUCT_MANAGEMENT_TOOL], delete the corresponding files in `./tasks/[prd-title]/`.
+
+### Tools available:
+
+- Perplexity MCP tool for research on complex implementation questions.
+- Context7 MCP tool for up-to-date best practices and technology updates.
+- Sequential thinking MCP tool to ensure tasks are ordered correctly.
+
+### ✅ DO:
+
+- Define phases as deployable units equal to a pull request deployment.
+- Use multiple phases when needed, for example Phase A (Backend), Phase B (Frontend), Phase C (Integration), Phase D (Backend), Phase E (Frontend).
+- Use the Sequential thinking MCP tool to order tasks correctly.
+- Create one file per phase under `./tasks/[prd-title]/`.
+- Keep tasks focused on the smallest vertical slices with API tests and one commit per task.
+- Link every step to the appropriate rules file, for example `Create command – Consult [Commands](mdc:.cursor/rules/backend/commands.mdc)`.
+- Save files for review before approval.
+- Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to publish tasks after approval.
+- Delete phase files only if the tasks were created successfully in [PRODUCT_MANAGEMENT_TOOL].
+
+### ❌ DON'T:
+
+- Skip research – always read existing code and rules before writing tasks and subtasks.
+- Combine multiple commands or queries into one task or combine frontend and backend tasks into one.
+- Create separate tasks for tests.
+- Omit to add a line break between subtasks, needed for the Markdown preview to display line breaks.
+- Create tasks that cannot be tested in isolation (for example, a command without an API endpoint).
+- Include implementation details that cannot be built or tested in one commit.
+- Create tasks that depend on details that will be implemented later.
+- Modify `shared-kernel` or `shared-webapp` without explicit agreement.
+- Use `@rule` notation – always link like `[rule-name](mdc:.cursor/rules/.../rule-name.mdc)`.
+- Create or delete phase files outside `./tasks/[prd-title]/`.
+- Delete phase files unless you are 100 percent certain the tasks exist in [PRODUCT_MANAGEMENT_TOOL].
+- Write Titles in Title Case, and not Sentence Case.
+

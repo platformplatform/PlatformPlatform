@@ -1,0 +1,110 @@
+---
+trigger: glob
+globs: *.tsx
+description: Core rules for frontend TypeScript and React development
+---
+
+# Frontend
+
+Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, and build/format steps.
+
+## Implementation
+
+1. Follow these code style and pattern conventions:
+   - Use proper naming conventions:
+     - PascalCase for components (e.g., `UserProfile`, `NavigationMenu`).
+     - camelCase for variables and functions (e.g., `userName`, `handleSubmit`).
+   - Create semantically correct components with clear boundaries and responsibilities:
+     - Each component should have a single, well-defined purpose.
+     - UI elements with different functionality should be in separate components.
+     - Avoid mixing unrelated functionality in one component.
+   - Use clear, descriptive names instead of making comments.
+   - Never use acronyms in code (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`, `navigation` not `nav`, `parameters` not `params`).
+   - Prioritize code readability and maintainability.
+   - Never introduce new npm dependencies.
+   - Always use React Aria Components, and do not use native HTML elements like: `<a>`, `<button>`, `<div>`, `<fieldset>`, `<form>`, `<h1>` to `<h6>`, `<hr>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<span>`, `<table>`, `<textarea>`, `<ul>`.
+
+2. Use the following React patterns and libraries:
+   - Use React Aria Components from `@repo/ui/components/ComponentName`.
+   - Use `onPress` instead of `onClick` for event handlers.
+   - Use `<Trans>...</Trans>` or t-string literals (t`...`) for translations.
+   - Use TanStack Query for API interactions, and don't use `fetch` directly.
+   - Throw errors sparingly and ensure error messages include a period.
+
+3. Always follow these steps when implementing changes:
+   - Consult relevant rule files and list which ones guided your implementation.
+   - Search the codebase for similar code before implementing new code.
+   - Reference existing implementations to maintain consistency.
+
+4. Build and format your changes:
+   - After each minor change, run `[CLI_ALIAS] format --frontend` to format your code. See [Tools](/.windsurf/rules/tools.md) for details.
+   - This ensures consistent code style across the codebase.
+
+5. Verify your changes:
+   - When a feature is complete, run `[CLI_ALIAS] check --frontend` to verify your changes.
+   - This command runs build, format, and check in that order.
+   - Fix any compiler warnings or test failures before proceeding.
+
+## Examples
+
+### Example 1 - Component Structure
+
+```tsx
+// ✅ DO: Create focused components with clear responsibilities
+import { Trans } from "@lingui/react/macro";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
+import { Menu, MenuHeader, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { LogOutIcon, UserIcon } from "lucide-react";
+
+export function AvatarMenu({ userInfo, onProfileClick, onLogoutClick }: AvatarMenuProps) {
+  return (
+    <Menu placement="bottom end">
+      <MenuHeader>
+        <div className="flex flex-row items-center gap-2">
+          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
+          <div className="my-1 flex flex-col">
+            <h2>{userInfo.fullName}</h2>
+            <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
+          </div>
+        </div>
+      </MenuHeader>
+      <MenuItem onAction={onProfileClick}>
+        <UserIcon className="h-4 w-4" />
+        <Trans>Profile</Trans>
+      </MenuItem>
+      <MenuSeparator />
+      <MenuItem onAction={onLogoutClick}>
+        <LogOutIcon className="h-4 w-4" />
+        <Trans>Log out</Trans>
+      </MenuItem>
+    </Menu>
+  );
+}
+
+// ❌ DON'T: Mix unrelated functionality in a single component
+function BadAvatarMenu({ userInfo }) { // Bad: Mixing menu with logout functionality
+  return (
+    <div className="menu"> // ❌ DON'T: use css styles instead of Tailwind
+      <div className="header">
+        <div className="flex flex-row items-center gap-2"> // ❌ DON'T: <div> as the only element inside another <div>
+          <div className="m-12">
+            <img src={userInfo.avatarUrl} alt="User avatar" /> // ❌ DON'T: Use native <img>
+            <h2>{userInfo.fullName}</h2>
+          </div>
+        </div>
+      </div>
+      <button onClick={() => showProfile()}> // ❌ DON'T: use native <button>
+        <i className="icon-user"></i> Profile
+      </button>
+      <button onClick={() => {
+        // ❌ DON'T: Implement logout logic directly in the component, and don't call fetch directly
+        fetch("/api/account-management/authentication/logout", { method: "POST" })
+          .then(() => window.location.href = "/login");
+      }}>
+        <i className="icon-logout"></i> Log out
+      </button>
+    </div>
+  );
+}
+```
