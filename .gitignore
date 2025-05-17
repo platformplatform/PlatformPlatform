@@ -393,6 +393,8 @@ FodyWeavers.xsd
 .swc/
 dist/
 .turbo/
-
 **/translations/locale/*.ts
-CHANGELOG.md
+
+# Git submodules
+.gitmodules
+
