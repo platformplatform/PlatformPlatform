@@ -28,11 +28,11 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
 4. Handler:
    - Create a public sealed class with `Handler`.
    - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
-   - Commands can optionally return e.g. a newly created ID.
+   - Commands can optionally return e.g., a newly created ID.
    - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`.
      - Enclose dynamic values in single quotes and end messages with a period.
    - Never throw exceptions, but always return `Result.Xxx()`.
-   - Always create [Telemetry Events](mdc:.cursor/rules/backend/telemetry-events.mdc) for successful command results
+   - Always create [Telemetry Events](mdc:.cursor/rules/backend/telemetry-events.mdc) for successful command results.
      - Optionally log telemetry for failed commands.
    - Save changes:
      - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.

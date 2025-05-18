@@ -4,7 +4,7 @@ description: Workflow for creating and maintaining AI rules
 
 # AI Rules Workflow
 
-Follow these steps to create and update AI rules files should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/backend/strongly-typed-ids.mdc`, `.cursor/frontend/tanstack-query-api-integration.mdc`).
+Follow these steps to create and update AI rules files. Rules should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/backend/strongly-typed-ids.mdc`, `.cursor/frontend/tanstack-query-api-integration.mdc`).
 
 1. Start each rule file with the required frontmatter:
    ```markdown

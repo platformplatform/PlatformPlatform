@@ -12,9 +12,9 @@ When approved, create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured
 
 Follow the steps below to create the PRD.
 
-## Step 0: Ensure `task-manager` git repository exist
+## Step 0: Ensure `task-manager` git repository exists
 
-Before creating a PRD, run this script to ensure the `task-manager` directory exist, as a seperate git repository.
+Before creating a PRD, run this script to ensure the `task-manager` directory exists, as a separate git repository.
 
 **For Unix/Mac:**
 ```bash
@@ -63,7 +63,7 @@ Save the PRD description to `./task-manager/[prd-title]/prd.md` for user review.
 
 ## Step 4: Create product increments overview
 
-A product increment is a small, independent, deployable unit of work that will typically equal a pull request. E.g., with CRUD for one new aggregate with domain model, commands, queries, database migration, and tests. Or a frontend to call CRUD operations. Often af PRD would required multiple production increments for mulitple Aggregates, UI, etc. 
+A product increment is a small, independent, deployable unit of work that will typically equal a pull request. E.g., with CRUD for one new aggregate with domain model, commands, queries, database migration, and tests. Or a frontend to call CRUD operations. Often a PRD would require multiple product increments for multiple Aggregates, UI, etc. 
 
 To break down a PRD into product increments you must:
 

@@ -6,14 +6,15 @@ description: Rules for writing backend API tests
 
 # Writing API Tests
 
-Carefully follow these instructions when writing tests for the backend. By default, tests should test API endpoints to test behavior over implementation. Only in rare cases should unit tests be used.
+Carefully follow these instructions when writing tests for the backend. By default, tests should test API endpoints to verify behavior over implementation. Only in rare cases should unit tests be used.
+
 ## Implementation
 
 1. Follow these naming conventions:
    - Test files should be named `[Feature]/[Command|Query]Tests.cs`.
    - Test classes should be named `[Command|Query]Tests` and be `sealed`.
    - Test methods should follow this pattern: `[Method]_[Condition]_[ExpectedResult]`.
-2. Organize tests by feature area in directories matching the feature structure. Do _not_ create a `/features/` top level folder.
+2. Organize tests by feature area in directories matching the feature structure. Do _not_ create a `/features/` top-level folder.
 3. For endpoint tests, inherit from `EndpointBaseTest<TContext>` for access to HTTP clients and test infrastructure.
 4. Prefer creating API Tests to test behavior over implementation:
    - Use `AuthenticatedOwnerHttpClient` or `AuthenticatedMemberHttpClient` for authenticated requests.
@@ -25,14 +26,14 @@ Carefully follow these instructions when writing tests for the backend. By defau
 9. Follow the Arrange-Act-Assert pattern with clear comments for each section:
    - Only use these three comment sections: `// Arrange`, `// Act`, and `// Assert`
    - Only include `// Arrange` comments in tests when there's actually an arrange section with setup code.
-   - Do not add additional comments for subsections (e.g., no `// Setup database` or `// Verify telemetry events`)
+   - Do not add additional comments for subsections (e.g., no `// Setup database` or `// Verify telemetry events`).
 10. Test both happy path and error cases.
 11. Avoid sharing fields between tests as they can change for different reasons; prefer local constants or variables within each test method.
 12. Verify side effects like database changes and telemetry events.
 13. Always call `TelemetryEventsCollectorSpy.Reset()` as the last statement in the Arrange section, if and only if you used API calls to set up state.
 14. For creating and verifying test data, use the `Connection` property from `EndpointBaseTest<TContext>`. This provides a `Microsoft.Data.Sqlite` connection with methods like:
     - `Insert` to populate test data into the database.
-    - `Update` to update test data into the database.
+    - `Update` to update test data in the database.
     - `Delete` to delete test data from the database.
     - `ExecuteScalar<T>` to verify data was correctly inserted.
     - `RowExists` to check if specific records exist.
@@ -45,7 +46,7 @@ Carefully follow these instructions when writing tests for the backend. By defau
     - Telemetry event collection for verifying events.
     - Proper test cleanup with the Dispose pattern.
 
-IMPORTANT: Pay special attention to ensure consistent ordering, naming, spacing, line breaks of methods, parameters, variables, etc. For example, when creating SQL dummy data, ensure columns are in the exact same order as in the database. Or if you make several tests make sure things that are similar are written in the same way.
+IMPORTANT: Pay special attention to ensure consistent ordering, naming, spacing, and line breaks of methods, parameters, variables, etc. For example, when creating SQL dummy data, ensure columns are in the exact same order as in the database. If you create several tests, make sure similar elements are written in the same way.
 
 ## Examples
 

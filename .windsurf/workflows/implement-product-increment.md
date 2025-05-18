@@ -2,7 +2,6 @@
 description: Workflow for implementing tasks for a product increment
 ---
 
-
 # Implement tasks within a product increment
 
 The user will provide a link to files with a PRD and a product increment description, or links to a backlog item in [PRODUCT_MANAGEMENT_TOOL] with the PRD and a link to a product increment. Your job is to implement the tasks defined in the product increment. If no product increment is provided, inspect all product increments to find the first product increment that has not been fully completed.
@@ -11,16 +10,16 @@ The product increment contains tasks with several subtasks that must be implemen
 
 ## Workflow
 
-Follow these steps describes in details how you must implement the tasks in the provided product increment.
+Follow these steps which describe in detail how you must implement the tasks in the provided product increment.
 
 ### Step 1: Review rules files
 
 Before implementing each task, review the relevant rules thoroughly:
 
 - For **backend tasks**:
-  - Review all the [Backend](/.windsurf/rules/backend/) rule files.
+  - Review all the [Backend](/.windsurf/rules/backend) rule files.
 - For **frontend tasks**:
-  - Review all the [Frontend](/.windsurf/rules/frontend/) rule files.
+  - Review all the [Frontend](/.windsurf/rules/frontend) rule files.
 
 These rules define the conventions and must be strictly adhered to during implementation.
 
@@ -97,14 +96,14 @@ After completing **all subtasks** in a **frontend** task:
 - Skip writing and running comprehensive tests, including edge cases.
 - Forget to ask for explicit user confirmation before moving on.
 - Proceed without committing after user confirmation.
-- Continue without following explicit rules defined in [Rules](/.windsurf/rules/).
+- Continue without following explicit rules defined in [Rules](/.windsurf/rules).
 
 ## Example Implementation Flow (Product Increment):
 
 Using the provided `1-backend-sample.md` example:
 
 - **Task 1: Create Team aggregate, command, endpoint, migration, and tests**
-  - Review backend rules in [Backend](/.windsurf/rules/backend/).
+  - Review backend rules in [Backend](/.windsurf/rules/backend).
   - Research existing aggregates, commands, and API structures.
   - Implement each subtask sequentially:
     - `[x] 1.1 Create Team aggregate`  

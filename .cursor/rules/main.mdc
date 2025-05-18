@@ -18,7 +18,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
    - Failure to follow the rules is the main reason for making unacceptable changes.
 5. Iterate until you are extremely confident the fix is complete.
    - When changing code, do not add comments about what you changed.
-6. After each change make sure you follow the rules in [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) or [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc), on how to correctly use the [CLI_ALIAS] CLI tool for building, testing, and formatting the code.
+6. After each change, make sure you follow the rules in [Backend Rules](mdc:.cursor/rules/backend/backend.mdc) or [Frontend Rules](mdc:.cursor/rules/frontend/frontend.mdc) on how to correctly use the [CLI_ALIAS] CLI tool for building, testing, and formatting the code.
    - Failure to use the [CLI_ALIAS] CLI tool after each change is the second most common reason for making unacceptable changes.
    - Always use the [CLI_ALIAS] CLI commands as described in [Tools](mdc:.cursor/rules/tools.mdc) for building, testing, formatting, and inspecting code.
 

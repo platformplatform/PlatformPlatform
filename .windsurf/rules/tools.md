@@ -100,7 +100,7 @@ Only conduct these steps if the `[CLI_ALIAS]` command fails with a message like 
 
 1. Instruct the user to install the CLI by running `dotnet run install` from the `developer-cli` directory. NEVER install the CLI on behalf of the user.
 2. The Developer CLI auto updates when there are changes to the codebase. If you see output like "The CLI was successfully updated. Please rerun the command." simply rerun the command.
-3. If `CLI_ALIAS` at the beginning of this document doesn't match `<AssemblyName>` in `.developer-cli/DeveloperCli.csproj`, instruct the user to update `CLI_ALIAS` to match `<AssemblyName>`.
+3. If `CLI_ALIAS` at the beginning of this document doesn't match `<AssemblyName>` in `developer-cli/DeveloperCli.csproj`, instruct the user to update `CLI_ALIAS` to match `<AssemblyName>`.
 4. macOS comes with a `pp` command that may conflict with the Developer CLI, given errors like `/usr/bin/pp: No input files specified`. Instruct the user to add this to the `~/.zshrc` file:
 
 ```bash

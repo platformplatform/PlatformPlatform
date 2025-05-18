@@ -2,11 +2,11 @@
 description: Workflow for updating the .windsurfrules file which is used by Windsurf's JetBrains Add-in.
 ---
 
-Carefully follow these step-by-step instructions to update the `.windsurfrules` file with the latest AI rules and project structure. Do not ask for question or confirmation, just follow these steps now to update the `.windsurfrules`.
+Carefully follow these step-by-step instructions to update the `.windsurfrules` file with the latest AI rules and project structure. Do not ask for questions or confirmation, just follow these steps now to update the `.windsurfrules`.
 
-## Step 1: Sync windsurf AI rules with cursur rule
+## Step 1: Sync windsurf AI rules with cursor rules
 
-Run the `[CLI_ALIAS] sync-windsurf-ai-rules` command to ensure that the `.windsurf/rules` and `.windsurf/workflows` folders are in sync with Cursor rules.
+Run the `[CLI_ALIAS] sync-windsurf-ai-rules` command, to ensure that the `.windsurf/rules` and `.windsurf/workflows` folders are in sync with Cursor rules.
 
 ## Step 2: Sync the first part of .windsurfrules
 

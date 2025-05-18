@@ -22,7 +22,7 @@ Follow the steps below to create and publish tasks.
 
 ## Step 2: Break product increments into tasks
 
-A tasks is the same as one commit.
+A task is the same as one commit.
 
 - For each product increment, list tasks where each task equals one commit and contains the smallest vertical slice possible (for example, create repository method, create query and query handler, create get API endpoint, and create API tests).
 - Keep tasks small enough to build and test in isolation. Do not combine create, read, update and delete in one task.
@@ -36,7 +36,7 @@ Note: Tests are API tests so make sure to create full but very small vertical sl
 - For each task add small subtasks for each implementation step.
 - Include detailed bullet points under each subtask explaining implementation details.
 - Prefix each subtask with a numbered checkbox, for example `[ ] 1.1 Implement aggregate root`.
-- Add linebreak before each subtask, as markdown preview does not display corectly if a line break is missing before bullets start with `[ ]`.
+- Add linebreak before each subtask, as markdown preview does not display correctly if a line break is missing before bullets start with `[ ]`.
 - Avoid modifying `shared-kernel` or `shared-webapp` unless explicitly agreed.
 - Consulting the relevant [rules files](/.windsurf/rules).
 - Use `backticks` for names of classes, properties, file names, MCP tools.
@@ -48,7 +48,7 @@ Save all product increment files under `./task-manager/[prd-title]/[#-increment-
 ## Step 5: Create product increment and tasks in [PRODUCT_MANAGEMENT_TOOL]
 
 After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create one task for the product increment:
-- The task for the product incremant must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
+- The task for the product increment must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
 - The description should include the full list of tasks and subtasks (copy the content of the file `./task-manager/[prd-title]/[#-increment-title].md`)
 
 ## Tools available:
@@ -77,7 +77,7 @@ Using these examples, to understand how to write tasks and subtasks for product 
 - Skip research – always read existing code and rules before writing tasks and subtasks.
 - Combine multiple commands or queries into one task or combine frontend and backend tasks into one.
 - Create separate tasks for tests. Test should be part of the task.
-- Omit to add a line break between subtasks. Markdown preview does not display corectly if a line break is missing before bullets start with `[ ]`.
+- Omit to add a line break between subtasks. Markdown preview does not display correctly if a line break is missing before bullets start with `[ ]`.
 - Create tasks that cannot be tested in isolation (for example, a command without an API endpoint).
 - Include implementation details that cannot be built or tested in one commit.
 - Create tasks that depend on details that will be implemented later.

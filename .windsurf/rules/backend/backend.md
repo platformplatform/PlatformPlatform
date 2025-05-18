@@ -10,7 +10,7 @@ Carefully follow these instructions for C# backend development, including code s
 
 ## Code Style
 
-- Always use these C# 8 features:
+- Always use these C# features:
   - Top-level namespaces.
   - Primary constructors.
   - Array initializers.
@@ -20,7 +20,7 @@ Carefully follow these instructions for C# backend development, including code s
 - Use `var` when possible.
 - Use simple collection types like `UserId[]` instead of `List<UserId>` whenever possible.
 - JetBrains tooling is used for automatically formatting code, but automatic line breaking has been disabled for more readable code:
-  - Wrap lines if "new language" constructs are started after 120 characters. This allows lines longer than 120 characters, but ensures that no "important code" is hidden after the 120 character mark.
+  - Wrap lines if "new language" constructs are started after 120 characters. This allows lines longer than 120 characters but ensures that no "important code" is hidden after the 120 character mark.
 - Use clear names instead of making comments.
 - Never use acronyms. E.g., use `SharedAccessSignature` instead of `Sas`.
 - Avoid using exceptions for control flow:
@@ -36,7 +36,7 @@ Carefully follow these instructions for C# backend development, including code s
 - Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if we are running in Azure.
 - Don't add comments unless the code is truly not expressing the intent.
 - Never add XML comments.
-- Use TimeProvider.System.GetUtcNow() and not DateTime.UtcNow().
+- Use `TimeProvider.System.GetUtcNow()` and not `DateTime.UtcNow()`.
 
 ## Implementation
 

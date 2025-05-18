@@ -100,7 +100,6 @@ public sealed class BadUserEndpoints : IEndpoints
         group.MapGet("me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<UserResponse>();
-
     }
 }
 ```

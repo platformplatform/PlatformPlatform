@@ -35,7 +35,7 @@ Follow these steps to create pull request titles and descriptions:
    - A sign that this is needed is when:
      - Similar changes have been made across the two self-contained systems [Account Management](/application/account-management) and [Back Office](/application/back-office).
      - Similar changes have been made to workflow files [account-management.yml](/.github/workflows/account-management.yml) and [back-office.yml](/.github/workflows/back-office.yml).
-     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`), that might require changes in downstream projects.
+     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that might require changes in downstream projects.
      - Updates to NuGet or npm packages required changes to [Account Management](/application/account-management) and [Back Office](/application/back-office) that also needed to be applied to other self-contained systems.
    - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:"
    - Avoid phrases like "Downstream projects should" or "Downstream projects must" - use more direct phrasing.
@@ -46,7 +46,7 @@ Follow these steps to create pull request titles and descriptions:
    - Use the placeholder term `your-self-contained-system` for downstream implementations.
 
 6. Build, test, format and inspect the codebase:
-   - If changes have been done to backend `*.cs` but only to one self-contained system, run:
+   - If changes have been made to backend `*.cs` but only to one self-contained system, run:
       ```bash
       [CLI_ALIAS] check --backend --solution-name SelfContainedSystem.slnf
       ```
@@ -54,11 +54,11 @@ Follow these steps to create pull request titles and descriptions:
       ```bash
       [CLI_ALIAS] check --backend
       ```
-   - If changes have been done to frontend `*.ts`, run:
+   - If changes have been made to frontend `*.ts`, run:
       ```bash
       [CLI_ALIAS] check --frontend
       ```
-   - If there are errors, they must be fixed before the commit can be made.
+   - If there are errors, they must be fixed before the pull request can be submitted.
 
 ## Examples
 
