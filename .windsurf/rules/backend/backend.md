@@ -42,7 +42,7 @@ Carefully follow these instructions for C# backend development, including code s
 
 IMPORTANT: Always follow these steps very carefully when implementing changes:
 
-1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [Unit and Integration Tests](/.windsurf/rules/backend/unit-and-integration-tests.md) for details.
+1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [API Tests](/.windsurf/rules/backend/api-tests.md) for details.
 2. Build and test your changes:
    - Always run `[CLI_ALIAS] build --backend` to build the backend. See [Tools](/.windsurf/rules/tools.md) for details.
    - Run `[CLI_ALIAS] test` to run all tests.

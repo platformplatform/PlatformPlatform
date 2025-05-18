@@ -41,7 +41,7 @@ Carefully follow these instructions for C# backend development, including code s
 
 IMPORTANT: Always follow these steps very carefully when implementing changes:
 
-1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [Unit and Integration Tests](mdc:.cursor/rules/backend/unit-and-integration-tests.mdc) for details.
+1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [API Tests](mdc:.cursor/rules/backend/api-tests.mdc) for details.
 2. Build and test your changes:
    - Always run `[CLI_ALIAS] build --backend` to build the backend. See [Tools](mdc:.cursor/rules/tools.mdc) for details.
    - Run `[CLI_ALIAS] test` to run all tests.

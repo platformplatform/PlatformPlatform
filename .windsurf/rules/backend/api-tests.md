@@ -1,13 +1,12 @@
 ---
 trigger: glob
 globs: **/Tests/*.cs
-description: Rules for writing unit and integration tests
+description: Rules for writing backend API tests
 ---
 
-# Writing Unit and Integration Tests
+# Writing API Tests
 
-Carefully follow these instructions when writing backend unit and integration tests, including naming, structure, and best practices.
-
+Carefully follow these instructions when writing tests for the backend. By default, tests should test API endpoints to test behavior over implementation. Only in rare cases should unit tests be used.
 ## Implementation
 
 1. Follow these naming conventions:

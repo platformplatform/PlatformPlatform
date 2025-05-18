@@ -34,7 +34,7 @@ Always consult the relevant rule files before each code change.
   - [Repositories](/.windsurf/rules/backend/repositories.md) - Rules for DDD repositories, including tenant scoping, interface conventions, and use of Entity Framework
   - [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) - Rules for creating strongly typed IDs for DDD aggregates and entities
   - [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) - Rules for telemetry events including important rules of where to create events, naming, and what properties to track
-  - [Unit and Integration Tests](/.windsurf/rules/backend/unit-and-integration-tests.md) - Rules for writing unit and integration tests
+  - [API Tests](/.windsurf/rules/backend/api-tests.md) - Rules for writing backend API tests
 
 *Frontend*:
   - [Frontend](/.windsurf/rules/frontend/frontend.md) - Core rules for frontend TypeScript and React development
