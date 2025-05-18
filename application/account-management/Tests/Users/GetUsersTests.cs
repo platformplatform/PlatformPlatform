@@ -114,7 +114,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
-        userResponse.TotalCount.Should().Be(2);
+        userResponse.TotalCount.Should().Be(3);
         userResponse.Users.First().Role.Should().Be(UserRole);
     }
 
@@ -128,7 +128,7 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var userResponse = await response.DeserializeResponse<UsersResponse>();
         userResponse.Should().NotBeNull();
-        userResponse.TotalCount.Should().Be(3);
+        userResponse.TotalCount.Should().Be(4);
         userResponse.Users.First().Role.Should().Be(UserRole.Member);
         userResponse.Users.Last().Role.Should().Be(UserRole.Owner);
     }

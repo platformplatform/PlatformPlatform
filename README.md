@@ -200,8 +200,10 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├─ .ai-rules             # AI Rules for AI assistants, and documentation for developers
+├─ .cursor               # AI Rules for Cursor AI editor, and documentation for developers
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
+├─ .windsurf             # Copy of .cursor for Windsurf AI editor (synchronized by CLI)
+├─ .windsurfrules        # AI Rules for JetBrains Windsurf Add-in (updated by AI workflow)
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
