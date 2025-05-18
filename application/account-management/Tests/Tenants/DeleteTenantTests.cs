@@ -67,6 +67,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
     public async Task DeleteTenant_WhenTenantHasNoUsers_ShouldDeleteTenant()
     {
         // Arrange
+        Connection.Delete("Users", DatabaseSeeder.Tenant1Member.Id);
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
