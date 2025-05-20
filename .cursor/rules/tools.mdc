@@ -112,3 +112,4 @@ Never start inspecting or fixing the Developer CLI. If it does not work, ask the
 ## ❌ Anti-patterns to avoid
 - Don't change the working directory before running the CLI command. The CLI can be run from any location with the same result.
 - Never fall back to using direct commands like `npm run format` or `dotnet test`. Always use the Developer CLI with the appropriate alias.
+- Don't run `[CLI_ALIAS] format --frontend` when you change code, this is only needed before commit.
