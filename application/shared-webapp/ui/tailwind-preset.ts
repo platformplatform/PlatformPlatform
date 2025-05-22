@@ -9,6 +9,7 @@ export default {
     path.join(path.dirname(require.resolve("@repo/ui")), "components", "*.js"),
     path.join(path.dirname(require.resolve("@repo/ui")), "components", "**/*.js")
   ],
+  safelist: [".dark", ".light"],
   darkMode: ["class"],
   theme: {
     container: {
