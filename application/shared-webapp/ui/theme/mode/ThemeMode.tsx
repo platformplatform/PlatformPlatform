@@ -60,12 +60,17 @@ export const useThemeMode = () => useContext(ThemeModeContext);
 
 export function toggleThemeMode(mode: ThemeMode): ThemeMode {
   const systemMode = getSystemThemeMode();
-  if (mode === "light") {
-    return systemMode === "dark" ? "system" : "dark";
+
+  // First click should go to opposite of system
+  if (mode === "system") {
+    return systemMode === "dark" ? "light" : "dark";
   }
-  if (mode === "dark") {
-    return systemMode === "light" ? "system" : "light";
+
+  // Second click should force the same mode as system
+  if (mode !== systemMode) {
+    return mode === "dark" ? "light" : "dark";
   }
-  // mode was system so toggle between light and dark
-  return systemMode === "dark" ? "light" : "dark";
+
+  // Third click should go back to system
+  return "system";
 }
