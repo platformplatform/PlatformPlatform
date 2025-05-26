@@ -20,4 +20,5 @@
     </Folder>
     <Project Path="AppGateway\AppGateway.csproj" />
     <Project Path="AppHost\AppHost.csproj" />
+    <Project Path="End2EndTests\End2EndTests.esproj" />
 </Solution>
