@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "End2EndTests",
+  "extends": "@repo/config/typescript/node-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node"],
+    "paths": {
+      "@/shared/*": ["./shared/*"]
+    }
+  },
+  "include": ["tests/**/*.ts", "shared/**/*.ts"],
+  "exclude": ["node_modules", "test-results", "playwright-report"]
+}

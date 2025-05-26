@@ -7,7 +7,8 @@
   "workspaces": [
     "account-management/WebApp",
     "back-office/WebApp",
-    "shared-webapp/*"
+    "shared-webapp/*",
+    "End2EndTests"
   ],
   "scripts": {
     "start": "npm install && turbo dev",
@@ -15,7 +16,8 @@
     "build": "turbo build",
     "test": "turbo test",
     "check": "turbo check",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "postinstall": "npx playwright install --with-deps"
   },
   "dependencies": {
     "@fontsource/inter": "5.1.0",
@@ -45,6 +47,7 @@
     "@lingui/cli": "5.1.0",
     "@lingui/format-po": "5.1.0",
     "@lingui/swc-plugin": "5.0.1",
+    "@playwright/test": "1.42.1",
     "@rsbuild/core": "1.1.10",
     "@rsbuild/plugin-react": "1.1.0",
     "@rsbuild/plugin-svgr": "1.0.6",
@@ -53,10 +56,12 @@
     "@tailwindcss/container-queries": "0.1.1",
     "@tanstack/router-devtools": "1.90.0",
     "@tanstack/router-plugin": "1.87.13",
+    "@types/node": "^22.15.28",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "openapi-typescript": "7.4.4",
     "openapi-typescript-helpers": "0.0.15",
+    "playwright": "1.42.1",
     "rimraf": "6.0.1",
     "tailwindcss": "3.4.16",
     "tailwindcss-animate": "1.0.7",
