@@ -4,7 +4,9 @@ description: Workflow for creating and maintaining AI rules
 
 # AI Rules Workflow
 
-Follow these steps to create and update AI rules files. Rules should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/backend/strongly-typed-ids.mdc`, `.cursor/frontend/tanstack-query-api-integration.mdc`).
+Follow these steps to create and update AI rules files. Rules should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/rules/backend/strongly-typed-ids.mdc`, `.cursor/rules/frontend/tanstack-query-api-integration.mdc`).
+
+## Implementation
 
 1. Start each rule file with the required frontmatter:
    ```markdown
@@ -16,58 +18,84 @@ Follow these steps to create and update AI rules files. Rules should be created 
    ```
    - Make the description concise but descriptive.
    - Use appropriate glob patterns to target specific file types. Be as specific as possible, e.g. `**/Commands/*.cs` or `**/Domain/*Repository.cs`.
-   - Set `alwaysApply` to false.
+   - Set `alwaysApply` to false for most rules (except main.mdc which should have `alwaysApply: true`).
 
-2. Always follow this standard document structure:
+2. Follow this standard document structure for all rule files:
    - Start with a level 1 heading (`# Heading`) that matches the file name (without extension).
-   - Follow with a level 2 heading called "## Implementation" that contains the implementation steps.
+   - Begin with a brief overview paragraph describing the rule's purpose.
+   - Include a level 2 heading called "## Implementation" that contains the implementation steps.
    - Include a level 2 heading called "## Examples" with practical examples.
-   - Only deviate from this structure when absolutely necessary.
    - Number implementation steps for easy reference.
-   - Use bulleted lists for related items and examples.
+   - Use bulleted lists for related items within a step.
    - Bullets should end with a period like a sentence.
 
-3. Reference related files and documentation:
+3. Write implementation steps clearly and actionably:
+   - Begin each step with a directive verb (Use, Follow, Create, Implement, etc.).
+   - Be specific about requirements and conventions.
+   - Provide clear guidance that can be followed without ambiguity.
+   - Organize related requirements under the same numbered step using bullet points.
+   - Cover both the "what" and the "how" in your instructions.
+
+4. Reference related files and documentation:
    - Use `[filename](mdc:path/to/file)` syntax to link to other files.
    - Example: `[Commands](mdc:.cursor/rules/backend/commands.mdc)` for rule references.
    - Example: `[UserRepository.cs](mdc:application/account-management/Core/Features/Users/Domain/UserRepository.cs)` for code references.
+   - Reference actual implementation examples from the codebase whenever possible.
 
-4. Include clear code examples:
-   - Use language-specific code blocks.
-   - Show both good and bad examples for clarity.
-   - Include comments to highlight key points.
-   - Prefer multiple numbered examples (e.g., "Example 1", "Example 2").
-   - Reference specific files using proper MDC links for examples:
-     ```markdown
-     # Example 1 - Simple example with only basic operations
-     See [repositories.mdc](mdc:.cursor/rules/backend/repositories.mdc) for a complete example.
-     
-     # Example 2 - Complex example with search and pagination 
-     See [queries.mdc](mdc:.cursor/rules/backend/queries.mdc) for examples with pagination.
-     ```
-   - For standard examples, use this format:
-   ```typescript
-   // ✅ DO: Show good examples
-   const goodExample = true;
+5. Include clear code examples:
+   - Use language-specific code blocks with proper syntax highlighting.
+   - Always show both good (DO) and bad (DON'T) examples for clarity.
+   - Use comments with ✅ DO: and ❌ DON'T: prefixes to highlight key points.
+   - Structure examples in a consistent format:
+   ```csharp
+   // ✅ DO: Show good examples with clear explanation
+   public class GoodExample
+   {
+       // Implementation details
+   }
    
-   // ❌ DON'T: Show anti-patterns
-   const badExample = false;
+   // ❌ DON'T: Show anti-patterns with explanation why
+   public class BadExample
+   {
+       // Implementation details
+   }
    ```
-   - See [Queries](mdc:.cursor/rules/backend/queries.mdc) for a reference of well-structured examples.
+   - Provide multiple examples for complex rules, using numbered headings like "### Example 1" and "### Example 2".
 
-5. Structure rule content effectively:
-   - Start with a high-level overview of the rule's purpose.
-   - Include specific, actionable requirements.
-   - Show examples of correct implementation.
-   - Reference existing code when possible.
-   - Keep rules DRY by referencing other rules.
+6. Ensure consistency across all rule files:
+   - Maintain consistent terminology across related rule files.
+   - Use the same formatting conventions in all rules.
+   - Ensure the level of detail is similar across rules of the same category.
+   - Reference other rule files when dependencies exist between rules.
+   - Keep file organization consistent within each directory.
 
-6. Format content consistently:
-   - Use bullet points for clarity and readability.
-   - Keep descriptions concise but complete.
-   - Include both DO and DON'T examples.
-   - Reference actual code over theoretical examples.
-   - Use consistent formatting across all rule files.
+7. Update rules when implementation patterns change:
+   - Review and update rules when new patterns or libraries are introduced.
+   - Ensure rules reflect the current best practices in the codebase.
+   - Remove outdated guidance when development patterns evolve.
+   - Add new examples that showcase modern implementations.
+
+8. Organize rules logically by category:
+   - Backend rules in `.cursor/rules/backend/`
+   - Frontend rules in `.cursor/rules/frontend/`
+   - Infrastructure rules in `.cursor/rules/infrastructure/`
+   - Developer CLI rules in `.cursor/rules/developer-cli/`
+   - Workflow instructions in `.cursor/rules/workflows/`
+
+9. Remember that workflow files (in `.cursor/rules/workflows/`) are special:
+   - These are not automatically included in AI context.
+   - They are activated ad-hoc by the user when needed.
+   - These should follow the same structure as other rule files.
+   - They should have clear, actionable steps for completing specific workflows.
+
+10. IMPORTANT: Never modify files in the `.windsurf/` directory:
+    - Only modify files in the `.cursor/` directory.
+    - The `.windsurf/` directory is updated using the `[CLI_ALIAS] sync-windsurf-ai-rules` command.
+    - Always run `[CLI_ALIAS] sync-windsurf-ai-rules` after updating rules and before committing.
+
+11. Keep rule files under 6000 characters:
+    - This limit is enforced by Windsurf.
+    - Split complex rules into multiple files if necessary.
 
 ## Examples
 
