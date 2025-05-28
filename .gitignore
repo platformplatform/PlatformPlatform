@@ -395,6 +395,8 @@ dist/
 .turbo/
 **/translations/locale/*.ts
 
+# AI Rules
+.windsurfrules
+
 # Git submodules
 .gitmodules
-
