@@ -23,6 +23,8 @@ Carefully follow these instructions when implementing translations and internati
 
 ```tsx
 import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
+import { Heading } from "@repo/ui/components/Heading";
 
 <Button onPress={handleLogin}>
   <Trans>Log in</Trans>
