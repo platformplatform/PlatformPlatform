@@ -3,7 +3,7 @@ description: Workflow for implementing tasks for a product increment
 globs: 
 alwaysApply: false
 ---
-# Implement tasks within a product increment
+# Implement Product Increment Workflow
 
 The user will provide a link to files with a PRD and a product increment description, or links to a backlog item in [PRODUCT_MANAGEMENT_TOOL] with the PRD and a link to a product increment. Your job is to implement the tasks defined in the product increment. If no product increment is provided, inspect all product increments to find the first product increment that has not been fully completed.
 

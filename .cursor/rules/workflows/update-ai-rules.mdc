@@ -3,7 +3,7 @@ description: Workflow for creating and maintaining AI rules
 globs: 
 alwaysApply: false
 ---
-# AI Rules Workflow
+# Update AI Rules Workflow
 
 Follow these steps to create and update AI rules files. Rules should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/rules/backend/strongly-typed-ids.mdc`, `.cursor/rules/frontend/tanstack-query-api-integration.mdc`).
 

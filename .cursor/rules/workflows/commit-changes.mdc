@@ -3,7 +3,7 @@ description: Workflow for writing effective git commit messages
 globs: 
 alwaysApply: false
 ---
-# Git Commit Workflow
+# Commite Changes Workflow
 
 Follow these steps to commit changes:
 

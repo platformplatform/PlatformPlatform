@@ -3,7 +3,7 @@ description: Workflow for code review of branches, uncommitted changes, or files
 globs: 
 alwaysApply: false
 ---
-# Code Review Workflow
+# Review Code Workflow
 
 Follow these steps carefully to review files *one by one*:
 

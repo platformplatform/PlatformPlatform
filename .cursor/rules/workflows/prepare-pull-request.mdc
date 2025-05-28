@@ -3,7 +3,7 @@ description: Workflow for writing pull request titles and descriptions
 globs: 
 alwaysApply: false
 ---
-# Pull Request Workflow
+# Prepare Pull Request Workflow
 
 Follow these steps to create pull request titles and descriptions:
 
