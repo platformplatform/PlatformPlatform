@@ -3,6 +3,8 @@ description: Workflow for creating a product requirement description (PRD)
 globs: 
 alwaysApply: false
 ---
+# Create PRD Workflow
+
 The user will provide a description of a new feature. Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
 
 The output will be a `./task-manager/[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature.

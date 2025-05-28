@@ -3,6 +3,8 @@ description: Workflow for creating small product increments based on a product r
 globs: 
 alwaysApply: false
 ---
+# Plan Product Increment Workflow
+
 The user will provide a link to a product requirement description (PRD) or a link to a backlog item in [PRODUCT_MANAGEMENT_TOOL], and ask you to create technical tasks for one product increment.
 
 The goal is to create a `./task-manager/[prd-title]/[#-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL].

@@ -28,6 +28,9 @@ Note: All .NET API endpoints are available as strongly typed API contracts in th
 ## Example 1 - Data Fetching Example
 
 ```typescript
+import { LoadingSpinner } from "@repo/ui/components/LoadingSpinner";
+import { UserList } from "@repo/ui/components/UserList";
+
 const { data: users, isLoading } = api.useQuery("get", "/api/users", {
   params: { query: { Search: search } }
 });
@@ -66,6 +69,12 @@ const handleComplete = () => {
 ## Example 3 - Form Submission Example
 
 ```typescript
+import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
+import { TextField } from "@repo/ui/components/TextField";
+import { Button } from "@repo/ui/components/Button";
+import { Trans } from "@lingui/react/macro";
+
 <Form
   onSubmit={mutationSubmitter(completeLoginMutation, { 
     path: { id: loginId } 

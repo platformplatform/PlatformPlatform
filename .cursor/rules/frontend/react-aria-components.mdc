@@ -25,6 +25,7 @@ import { Form } from "@repo/ui/components/Form";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Button } from "@repo/ui/components/Button";
 import { TextField } from "@repo/ui/components/TextField";
+import { Trans } from "@lingui/react/macro";
 
 <Form>
   <TextField 

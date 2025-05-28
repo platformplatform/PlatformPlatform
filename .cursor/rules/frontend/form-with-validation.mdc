@@ -97,18 +97,18 @@ function BadUserProfileForm({ user }) {
   };
   
   return (
-    <form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit}>
       {/* Missing proper validation and error handling */}
-      <input name="firstName" defaultValue={user?.firstName} required />
-      <input name="lastName" defaultValue={user?.lastName} required />
-      <input name="title" defaultValue={user?.title} />
+      <TextField name="firstName" defaultValue={user?.firstName} isRequired />
+      <TextField name="lastName" defaultValue={user?.lastName} isRequired />
+      <TextField name="title" defaultValue={user?.title} />
       
-      {error && <div className="error">{error.message}</div>}
+      {error && <FormErrorMessage error={error} />}
       
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? "Saving..." : "Save changes"}
-      </button>
-    </form>
+      <Button type="submit" isDisabled={isLoading}>
+        {isLoading ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+      </Button>
+    </Form>
   );
 }
 ```
