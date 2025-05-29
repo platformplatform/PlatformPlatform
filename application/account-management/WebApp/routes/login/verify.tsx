@@ -12,11 +12,12 @@ import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { getLoginState, setLoginState } from "./-shared/loginState";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { clearLoginState, getLoginState, hasLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/verify")({
   validateSearch: (search) => {
@@ -27,10 +28,29 @@ export const Route = createFileRoute("/login/verify")({
     };
   },
   component: function LoginVerifyRoute() {
+    const navigate = useNavigate();
     const isAuthenticated = useIsAuthenticated();
+    const [hasShownToast, setHasShownToast] = useState(false);
 
-    if (isAuthenticated) {
-      return <Navigate to={loggedInPath} />;
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigate({ to: loggedInPath });
+        return;
+      }
+
+      if (!hasLoginState() && !hasShownToast) {
+        navigate({ to: "/login", search: { returnPath: undefined } });
+        toastQueue.add({
+          title: "No active login session",
+          description: "Please start the login process again.",
+          variant: "warning"
+        });
+        setHasShownToast(true);
+      }
+    }, [isAuthenticated, navigate, hasShownToast]);
+
+    if (!hasLoginState()) {
+      return null;
     }
 
     return (
@@ -39,15 +59,18 @@ export const Route = createFileRoute("/login/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: (props) => (
-    <HorizontalHeroLayout>
-      <ErrorMessage {...props} />
-    </HorizontalHeroLayout>
-  )
+  errorComponent: (props) => {
+    return (
+      <HorizontalHeroLayout>
+        <ErrorMessage {...props} />
+      </HorizontalHeroLayout>
+    );
+  }
 });
 
 export function CompleteLoginForm() {
-  const { loginId, emailConfirmationId, email, expireAt } = getLoginState();
+  const loginState = getLoginState();
+  const { loginId, emailConfirmationId, email, expireAt } = loginState;
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const { returnPath } = Route.useSearch();
 
@@ -55,6 +78,7 @@ export function CompleteLoginForm() {
 
   useEffect(() => {
     if (completeLoginMutation.isSuccess) {
+      clearLoginState();
       window.location.href = returnPath ?? loggedInPath;
     }
   }, [completeLoginMutation.isSuccess, returnPath]);
@@ -67,14 +91,15 @@ export function CompleteLoginForm() {
   useEffect(() => {
     if (resendLoginCodeMutation.isSuccess && resendLoginCodeMutation.data) {
       setLoginState({
-        ...getLoginState(),
+        ...loginState,
         expireAt: new Date(Date.now() + resendLoginCodeMutation.data.validForSeconds * 1000)
       });
     }
-  }, [resendLoginCodeMutation.isSuccess, resendLoginCodeMutation.data]);
+  }, [resendLoginCodeMutation.isSuccess, resendLoginCodeMutation.data, loginState]);
 
   useEffect(() => {
     if (isExpired) {
+      clearLoginState();
       window.location.href = "/login/expired";
     }
   }, [isExpired]);

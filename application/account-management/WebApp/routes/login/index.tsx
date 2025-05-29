@@ -14,8 +14,8 @@ import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { setLoginState } from "./-shared/loginState";
+import { useEffect, useState } from "react";
+import { clearLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -50,6 +50,11 @@ export function LoginForm() {
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
+
+  // Clear any existing login state when starting a new login flow
+  useEffect(() => {
+    clearLoginState();
+  }, []);
 
   if (startLoginMutation.isSuccess) {
     const { loginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
