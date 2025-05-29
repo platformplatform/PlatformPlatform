@@ -13,18 +13,38 @@ import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { getSignupState, setSignupState } from "./-shared/signupState";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { clearSignupState, getSignupState, hasSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {
+    const navigate = useNavigate();
     const isAuthenticated = useIsAuthenticated();
+    const [hasShownToast, setHasShownToast] = useState(false);
 
-    if (isAuthenticated) {
-      return <Navigate to={loggedInPath} />;
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigate({ to: loggedInPath });
+        return;
+      }
+
+      if (!hasSignupState() && !hasShownToast) {
+        navigate({ to: "/signup" });
+        toastQueue.add({
+          title: t`No active signup session`,
+          description: t`Please start the signup process again.`,
+          variant: "warning"
+        });
+        setHasShownToast(true);
+      }
+    }, [isAuthenticated, navigate, hasShownToast]);
+
+    if (isAuthenticated || !hasSignupState()) {
+      return null;
     }
 
     return (
@@ -33,15 +53,18 @@ export const Route = createFileRoute("/signup/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: (props) => (
-    <HorizontalHeroLayout>
-      <ErrorMessage {...props} />
-    </HorizontalHeroLayout>
-  )
+  errorComponent: (props) => {
+    return (
+      <HorizontalHeroLayout>
+        <ErrorMessage {...props} />
+      </HorizontalHeroLayout>
+    );
+  }
 });
 
 export function CompleteSignupForm() {
-  const { email, emailConfirmationId, expireAt } = getSignupState();
+  const signupState = getSignupState();
+  const { email, emailConfirmationId, expireAt } = signupState;
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
   const completeSignupMutation = api.useMutation(
@@ -51,6 +74,7 @@ export function CompleteSignupForm() {
 
   useEffect(() => {
     if (completeSignupMutation.isSuccess) {
+      clearSignupState();
       window.location.href = signedUpPath;
     }
   }, [completeSignupMutation.isSuccess]);
@@ -63,14 +87,15 @@ export function CompleteSignupForm() {
   useEffect(() => {
     if (resendSignupCodeMutation.isSuccess && resendSignupCodeMutation.data) {
       setSignupState({
-        ...getSignupState(),
+        ...signupState,
         expireAt: new Date(Date.now() + resendSignupCodeMutation.data.validForSeconds * 1000)
       });
     }
-  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data]);
+  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data, signupState]);
 
   useEffect(() => {
     if (isExpired) {
+      clearSignupState();
       window.location.href = "/signup/expired";
     }
   }, [isExpired]);
