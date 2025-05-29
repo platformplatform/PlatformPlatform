@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { lazy } from "react";
+import { Suspense, lazy } from "react";
 
 const AvatarButton = lazy(() => import("account-management/AvatarButton"));
 
@@ -31,7 +31,9 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
           </Button>
           <LocaleSwitcher aria-label={t`Select language`} />
         </span>
-        <AvatarButton aria-label={t`User profile menu`} />
+        <Suspense fallback={<div className="h-10 w-10 rounded-full bg-secondary" />}>
+          <AvatarButton aria-label={t`User profile menu`} />
+        </Suspense>
       </div>
     </nav>
   );
