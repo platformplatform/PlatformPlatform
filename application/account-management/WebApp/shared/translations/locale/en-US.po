@@ -256,11 +256,8 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Next"
 
-msgid "No active login."
-msgstr "No active login."
-
-msgid "No active signup session."
-msgstr "No active signup session."
+msgid "No active signup session"
+msgstr "No active signup session"
 
 msgid "OK"
 msgstr "OK"
@@ -279,6 +276,9 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
+
+msgid "Please start the signup process again."
+msgstr "Please start the signup process again."
 
 msgid "Powered by"
 msgstr "Powered by"

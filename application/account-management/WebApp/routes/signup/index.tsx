@@ -16,8 +16,8 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
-import { useState } from "react";
-import { setSignupState } from "./-shared/signupState";
+import { useEffect, useState } from "react";
+import { clearSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -44,6 +44,11 @@ export function StartSignupForm() {
   const [email, setEmail] = useState("");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
+
+  // Clear any existing signup state when starting a new signup flow
+  useEffect(() => {
+    clearSignupState();
+  }, []);
 
   if (startSignupMutation.isSuccess) {
     const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
