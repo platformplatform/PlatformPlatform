@@ -2,62 +2,64 @@
 description: Workflow for creating small product increments based on a product requirement description (PRD)
 ---
 
+# Plan Product Increment Workflow
+
 The user will provide a link to a product requirement description (PRD) or a link to a backlog item in [PRODUCT_MANAGEMENT_TOOL], and ask you to create technical tasks for one product increment.
 
 The goal is to create a `./task-manager/[prd-title]/[#-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL].
 
-# Workflow
+## Workflow
 
 Follow the steps below to create and publish tasks.
 
-## Step 1: Create product increment header and description
+1. Create product increment header and description
 
-- Create a product increment file `./task-manager/[prd-title]/[#-increment-title].md`, where the `#` and `increment-title` is the same as used in the PRD's "Product increments" section.
-- At the top of each product increment file include:
-  - **Level 1 header**: This should match the product increment title from the PRD.
-  - **Purpose:**  a short description of what this product increment delivers and the features it contains.
-  - **NOT included:** out-of-scope items.
-  - **Dependencies:** previous product increments or external requirements.
-  - **IMPORTANT:** warning not to work outside this scope.
+  - Create a product increment file `./task-manager/[prd-title]/[#-increment-title].md`, where the `#` and `increment-title` is the same as used in the PRD's "Product increments" section.
+  - At the top of each product increment file include:
+    - **Level 1 header**: This should match the product increment title from the PRD.
+    - **Purpose:**  a short description of what this product increment delivers and the features it contains.
+    - **NOT included:** out-of-scope items.
+    - **Dependencies:** previous product increments or external requirements.
+    - **IMPORTANT:** warning not to work outside this scope.
 
-## Step 2: Break product increments into tasks
+2. Break product increments into tasks
 
-A task is the same as one commit.
+   A task is the same as one commit.
 
-- For each product increment, list tasks where each task equals one commit and contains the smallest vertical slice possible (for example, create repository method, create query and query handler, create get API endpoint, and create API tests).
-- Keep tasks small enough to build and test in isolation. Do not combine create, read, update and delete in one task.
-- Prefix each task with a level-2 header, for example `## 1 Create repository method`. Use "Sentence case" and not "Title Case" for task headers.
-- Add a line break after each task item for better readability.
+   - For each product increment, list tasks where each task equals one commit and contains the smallest vertical slice possible (for example, create repository method, create query and query handler, create get API endpoint, and create API tests).
+   - Keep tasks small enough to build and test in isolation. Do not combine create, read, update and delete in one task.
+   - Prefix each task with a level-2 header, for example `## 1 Create repository method`. Use "Sentence case" and not "Title Case" for task headers.
+   - Add a line break after each task item for better readability.
 
-Note: Tests are API tests so make sure to create full but very small vertical slices needed to implement, build and test each task isolation.
+   > Note: Tests are API tests so make sure to create full but very small vertical slices needed to implement, build and test each task isolation.
 
-## Step 3: Add subtasks
+3. Add subtasks
 
-- For each task add small subtasks for each implementation step.
-- Include detailed bullet points under each subtask explaining implementation details.
-- Prefix each subtask with a numbered checkbox, for example `[ ] 1.1 Implement aggregate root`.
-- Add linebreak before each subtask, as markdown preview does not display correctly if a line break is missing before bullets start with `[ ]`.
-- Avoid modifying `shared-kernel` or `shared-webapp` unless explicitly agreed.
-- Consulting the relevant [rules files](/.windsurf/rules).
-- Use `backticks` for names of classes, properties, file names, MCP tools.
+   - For each task add small subtasks for each implementation step.
+   - Include detailed bullet points under each subtask explaining implementation details.
+   - Prefix each subtask with a numbered checkbox, for example `[ ] 1.1 Implement aggregate root`.
+   - Add linebreak before each subtask, as markdown preview does not display correctly if a line break is missing before bullets start with `[ ]`.
+   - Avoid modifying `shared-kernel` or `shared-webapp` unless explicitly agreed.
+   - Consulting the relevant [rules files](/.windsurf/rules).
+   - Use `backticks` for names of classes, properties, file names, MCP tools.
 
-## Step 4: Review, approve and publish
+4. Review, approve and publish
 
-Save all product increment files under `./task-manager/[prd-title]/[#-increment-title].md` for user review.
+   Save all product increment files under `./task-manager/[prd-title]/[#-increment-title].md` for user review.
 
-## Step 5: Create product increment and tasks in [PRODUCT_MANAGEMENT_TOOL]
+5. Create product increment and tasks in [PRODUCT_MANAGEMENT_TOOL]
 
-After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create one task for the product increment:
-- The task for the product increment must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
-- The description should include the full list of tasks and subtasks (copy the content of the file `./task-manager/[prd-title]/[#-increment-title].md`)
+   After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create one task for the product increment:
+   - The task for the product increment must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
+   - The description should include the full list of tasks and subtasks (copy the content of the file `./task-manager/[prd-title]/[#-increment-title].md`)
 
-## Tools available:
+6. Tools available:
 
-- Perplexity MCP tool for research on complex implementation questions.
-- Context7 MCP tool for up-to-date best practices and technology updates.
-- Sequential thinking MCP tool to ensure tasks are ordered correctly.
+   - Perplexity MCP tool for research on complex implementation questions.
+   - Context7 MCP tool for up-to-date best practices and technology updates.
+   - Sequential thinking MCP tool to ensure tasks are ordered correctly.
 
-# Example
+## Example
 
 Using these examples, to understand how to write tasks and subtasks for product increments:
 

@@ -3,23 +3,25 @@ description: Workflow for writing effective git commit messages
 globs: 
 alwaysApply: false
 ---
-# Commite Changes Workflow
+# Commit Changes Workflow
 
-Follow these steps to commit changes:
+Use this workflow to commit changes to the repository.
 
-1. Inspect changes:
-   - Review staged changes: `git --no-pager diff --staged`
-   - View unstaged changes: `git --no-pager diff`
-   - For a combined view: `git --no-pager diff HEAD`
+## Workflow
+
+1. Inspect changes (if you don't already know what has changed):
+   - Review staged changes: `git --no-pager diff --staged`.
+   - View unstaged changes: `git --no-pager diff`.
+   - For a combined view: `git --no-pager diff HEAD`.
 
 2. Follow these format rules for commit messages:
-   - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature")
-   - Start with a capital letter (sentence case)
-   - Do not end the message with punctuation
-   - Keep the message to a single line
-   - Describe what is changed and the motivation, but keep it concise
+   - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature").
+   - Start with a capital letter (sentence case).
+   - Do not end the message with punctuation.
+   - Keep the message to a single line.
+   - Describe what is changed and the motivation, but keep it concise.
 
-3. Build and test the codebase:
+3. Build and test the codebase (unless you just did it):
    - If changes have been made to backend `*.cs`, run:
       ```bash
       [CLI_ALIAS] test --backend
@@ -30,7 +32,7 @@ Follow these steps to commit changes:
       ```
    - If there are errors, they must be fixed before the commit can be made.
 
-4. Format the codebase:
+4. Format the codebase (unless you just did it):
    - If changes have been made to backend `*.cs`, run:
       ```bash
       [CLI_ALIAS] format --backend
@@ -42,7 +44,7 @@ Follow these steps to commit changes:
 
 ## Examples
 
-### Example 1 - Commit Message Format
+### Example 1 - Commit message format
 
 ```
 # ✅ DO: Use imperative form, start with capital letter, no punctuation

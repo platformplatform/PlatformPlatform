@@ -5,14 +5,16 @@ alwaysApply: false
 ---
 # Review Code Workflow
 
-Follow these steps carefully to review files *one by one*:
+Follow this workflow to review files *one by one*.
+
+## Workflow
 
 1. Determine review scope:
    - If the prompt provides a list of files or folders, use that list as the review scope.
    - If the repository has uncommitted changes, assume the current branch is the review scope. Use `git status --porcelain` and `git diff --name-only` to list all modified, staged, and untracked files, ensuring all uncommitted changes are included.
    - If the repository has no uncommitted changes, assume the current branch is the review scope. Use `git diff --name-only $(git merge-base HEAD main)..HEAD` to list all files changed in the branch.
    - Combine and deduplicate the file list for review.
-     - Exclude all auto generated files (e.g. `*.Api.json`, `*.po`)
+   - Exclude all auto generated files (e.g. `*.Api.json`, `*.po`).
 
 2. Inspect all *.mdc files in `.cursor` and compile the rule list:
    - Read all *.mdc files in `.cursor` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.

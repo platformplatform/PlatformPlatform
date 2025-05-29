@@ -33,7 +33,7 @@ Carefully follow these instructions when creating database migrations.
    - Create indexes using the `IX_TableName_ColumnName` naming convention.
 
 5. Migrate existing data:
-   - Use `migrationBuilder.Sql("UPDATE [table] SET [column] = [value] WHERE [condition]")` to update existing records to have the default time zone
+   - Use `migrationBuilder.Sql("UPDATE [table] SET [column] = [value] WHERE [condition]")` to update data... but use with care.
 
 6. Use standard SQL Server naming conventions:
    - Table names should be plural (e.g., `Users`, not `User`).
@@ -120,7 +120,6 @@ public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
 protected override void Up(MigrationBuilder migrationBuilder)
 {
     migrationBuilder.AddColumn<string>("TimeZone", "Users", "varchar(50)", nullable: false, defaultValue: "UTC"); // ✅ DO: Match column size to validator
-    // ✅ DO: Run complex logic here to update existing records
-    migrationBuilder.AlterColumn<string>("TimeZone", "Users", "varchar(50)", nullable: false, defaultValue: null); // ✅ DO: Remove default constaint
+    // ✅ DO: Consider running complex logic here to update existing records
 }
 ```

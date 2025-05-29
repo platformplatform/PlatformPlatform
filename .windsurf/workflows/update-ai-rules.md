@@ -2,11 +2,11 @@
 description: Workflow for creating and maintaining AI rules
 ---
 
-# AI Rules Workflow
+# Update AI Rules Workflow
 
-Follow these steps to create and update AI rules files. Rules should be created in appropriate subfolders of the `.cursor/` directory, with clear file names that reflect their purpose (e.g., `.cursor/rules/backend/strongly-typed-ids.mdc`, `.cursor/rules/frontend/tanstack-query-api-integration.mdc`).
+Follow this workflow to create and update AI rules files. Rules should be created in appropriate subfolders of the `.windsurf/` directory, with clear file names that reflect their purpose (e.g., `.windsurf/rules/backend/strongly-typed-ids.md`, `.windsurf/rules/frontend/tanstack-query-api-integration.md`).
 
-## Implementation
+## Workflow
 
 1. Start each rule file with the required frontmatter:
    ```markdown
@@ -18,7 +18,7 @@ Follow these steps to create and update AI rules files. Rules should be created 
    ```
    - Make the description concise but descriptive.
    - Use appropriate glob patterns to target specific file types. Be as specific as possible, e.g. `**/Commands/*.cs` or `**/Domain/*Repository.cs`.
-   - Set `alwaysApply` to false for most rules (except main.mdc which should have `alwaysApply: true`).
+   - Set `alwaysApply` to false for most rules (except main.md which should have `alwaysApply: true`).
 
 2. Follow this standard document structure for all rule files:
    - Start with a level 1 heading (`# Heading`) that matches the file name (without extension).
@@ -37,9 +37,9 @@ Follow these steps to create and update AI rules files. Rules should be created 
    - Cover both the "what" and the "how" in your instructions.
 
 4. Reference related files and documentation:
-   - Use `[filename](mdc:path/to/file)` syntax to link to other files.
-   - Example: `[Commands](mdc:.cursor/rules/backend/commands.mdc)` for rule references.
-   - Example: `[UserRepository.cs](mdc:application/account-management/Core/Features/Users/Domain/UserRepository.cs)` for code references.
+   - Use `[filename](/path/to/file)` syntax to link to other files.
+   - Example: `[Commands](/.windsurf/rules/backend/commands.md)` for rule references.
+   - Example: `[UserRepository.cs](/application/account-management/Core/Features/Users/Domain/UserRepository.cs)` for code references.
    - Reference actual implementation examples from the codebase whenever possible.
 
 5. Include clear code examples:
@@ -53,8 +53,8 @@ Follow these steps to create and update AI rules files. Rules should be created 
    {
        // Implementation details
    }
-   
-   // ❌ DON'T: Show anti-patterns with explanation why
+
+   // ❌ DON'T: Violate the convention
    public class BadExample
    {
        // Implementation details
@@ -76,20 +76,20 @@ Follow these steps to create and update AI rules files. Rules should be created 
    - Add new examples that showcase modern implementations.
 
 8. Organize rules logically by category:
-   - Backend rules in `.cursor/rules/backend/`
-   - Frontend rules in `.cursor/rules/frontend/`
-   - Infrastructure rules in `.cursor/rules/infrastructure/`
-   - Developer CLI rules in `.cursor/rules/developer-cli/`
-   - Workflow instructions in `.cursor/rules/workflows/`
+   - Backend rules in `.windsurf/rules/backend/`
+   - Frontend rules in `.windsurf/rules/frontend/`
+   - Infrastructure rules in `.windsurf/rules/infrastructure/`
+   - Developer CLI rules in `.windsurf/rules/developer-cli/`
+   - Workflow instructions in `.windsurf/workflows/`
 
-9. Remember that workflow files (in `.cursor/rules/workflows/`) are special:
+9. Remember that workflow files (in `.windsurf/workflows/`) are special:
    - These are not automatically included in AI context.
    - They are activated ad-hoc by the user when needed.
    - These should follow the same structure as other rule files.
    - They should have clear, actionable steps for completing specific workflows.
 
 10. IMPORTANT: Never modify files in the `.windsurf/` directory:
-    - Only modify files in the `.cursor/` directory.
+    - Only modify files in the `.windsurf/` directory.
     - The `.windsurf/` directory is updated using the `[CLI_ALIAS] sync-windsurf-ai-rules` command.
     - Always run `[CLI_ALIAS] sync-windsurf-ai-rules` after updating rules and before committing.
 
@@ -99,7 +99,7 @@ Follow these steps to create and update AI rules files. Rules should be created 
 
 ## Examples
 
-### Example 1 - Rule File Structure
+### Example 1 - Rule file structure
 
 ```markdown
 ---
