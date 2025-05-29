@@ -1,5 +1,4 @@
 import type { Schemas } from "@/shared/lib/api/client";
-import { t } from "@lingui/core/macro";
 
 interface SignupState {
   emailConfirmationId: Schemas["EmailConfirmationId"];
@@ -13,9 +12,14 @@ export function setSignupState(newSignup: SignupState): void {
   currentSignupState = newSignup;
 }
 
+export function clearSignupState(): void {
+  currentSignupState = undefined;
+}
+
+export function hasSignupState(): boolean {
+  return currentSignupState != null;
+}
+
 export function getSignupState() {
-  if (currentSignupState == null) {
-    throw new Error(t`No active signup session.`);
-  }
-  return currentSignupState;
+  return currentSignupState as SignupState;
 }
