@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
         <PackageReference Include="Azure.Identity" Version="1.13.2" />
         <PackageReference Include="Azure.ResourceManager" Version="1.13.0" />
         <PackageReference Include="Bogus" Version="35.6.1" />

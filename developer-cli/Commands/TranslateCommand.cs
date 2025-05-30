@@ -1,6 +1,8 @@
+using System.ClientModel;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Text;
+using Azure.AI.OpenAI;
 using Karambolo.PO;
 using OpenAI.Chat;
 using PlatformPlatform.DeveloperCli.Installation;
@@ -298,35 +300,61 @@ public class TranslateCommand : Command
         private readonly ChatClient _client;
         public readonly Gpt4OUsageStatistics UsageStatistics = new();
 
-        private OpenAiTranslationService(string apiKey)
+        private OpenAiTranslationService(ChatClient chatClient)
         {
-            _client = new ChatClient(ModelName, apiKey);
+            _client = chatClient;
         }
 
         public static OpenAiTranslationService Create()
         {
-            var apiKey = GetApiKey();
-            return new OpenAiTranslationService(apiKey);
+            var (apiKey, endpoint) = GetApiKeyAndEndpoint();
+
+            ChatClient chatClient;
+            if (endpoint is null)
+            {
+                // Use standard OpenAI client for default endpoint
+                chatClient = new ChatClient(ModelName, apiKey);
+            }
+            else
+            {
+                // Use Azure OpenAI client for custom endpoints
+                var azureClient = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+                chatClient = azureClient.GetChatClient(ModelName);
+            }
+
+            return new OpenAiTranslationService(chatClient);
         }
 
-        private static string GetApiKey()
+        private static (string apiKey, string? endpoint) GetApiKeyAndEndpoint()
         {
             const string apiKeySecretName = "OpenAIApiKey";
+            const string endpointSecretName = "OpenAIEndpoint";
+
             var apiKey = SecretHelper.GetSecret(apiKeySecretName);
-            if (!string.IsNullOrWhiteSpace(apiKey))
+            var endpoint = SecretHelper.GetSecret(endpointSecretName);
+
+            if (apiKey is not null)
             {
-                return apiKey;
+                return (apiKey, endpoint);
             }
 
-            AnsiConsole.MarkupLine("OpenAPI Key is missing.");
-            apiKey = AnsiConsole.Ask<string>("[yellow]Please enter your OpenAPI Key.[/]");
-            if (!string.IsNullOrWhiteSpace(apiKey))
+            AnsiConsole.MarkupLine("OpenAI Key is missing.");
+            apiKey = AnsiConsole.Prompt(
+                new TextPrompt<string>("[yellow]Enter your OpenAI Key. Use a standard OpenAI key (sk-...) or an Azure OpenAI key ([a-z0-9]{32})[/]")
+                    .Validate(key => key.Length >= 32 ? ValidationResult.Success() : ValidationResult.Error("Open AI Keys starts with 'sk-' and must be at least 51 characters long and Azure Open AI key must be 32 characters long.")));
+
+            if (!apiKey.StartsWith("sk-"))
             {
-                SecretHelper.SetSecret(apiKeySecretName, apiKey);
-                return apiKey;
+                AnsiConsole.MarkupLine("[green]API Key is not a standard OpenAI key. Azure OpenAI key detected.[/]");
+                endpoint = AnsiConsole.Prompt(
+                    new TextPrompt<string>("[yellow]Please enter the Azure OpenAI endpoint URL (e.g. https://<your-resource-name>.openai.azure.com)[/]")
+                        .Validate(url => Uri.TryCreate(url, UriKind.Absolute, out _)));
+                SecretHelper.SetSecret(endpointSecretName, endpoint);
             }
 
-            throw new InvalidOperationException("Invalid OpenAPI Key provided.");
+            SecretHelper.SetSecret(apiKeySecretName, apiKey);
+
+            return (apiKey, endpoint);
         }
 
         public async Task<POSingularEntry> Translate(
