@@ -22,7 +22,7 @@ This workflow guides you through the process of creating comprehensive end-to-en
    - Note any edge cases or potential issues discovered during exploration.
 
 3. Review existing test examples:
-   - Read [End-to-End Tests](/.windsurf/rules/end-to-end-tests/e2e-tests.md) for detailed information.
+   - Read [End-to-End Tests](/.windsurf/rules/end-to-end-tests/tests/e2e.md) for detailed information.
    - Examine [signup.spec.ts](/application/End2EndTests/tests/account-management/signup.spec.ts) and [login.spec.ts](/application/End2EndTests/tests/account-management/login.spec.ts) for inspiration.
    - Note the structure, assertions, and test organization.
 
@@ -53,6 +53,6 @@ This workflow guides you through the process of creating comprehensive end-to-en
 ## Key principles
 
 - Comprehensive coverage: Test all critical paths and important edge cases.
-- Follow conventions: Adhere to the established patterns in [End-to-End Tests](/.windsurf/rules/end-to-end-tests/e2e-tests.md).
+- Follow conventions: Adhere to the established patterns in [End-to-End Tests](/.windsurf/rules/end-to-end-tests/tests/e2e.md).
 - Clear organization: Properly categorize tests and use descriptive names.
 - Realistic user journeys: Test scenarios that reflect actual user behavior.
