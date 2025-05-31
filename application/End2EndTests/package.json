@@ -1,8 +1,0 @@
-{
-  "name": "end-2-endtests",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "test": "playwright test"
-  }
-}
