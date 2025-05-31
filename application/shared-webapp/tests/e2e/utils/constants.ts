@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 /**
  * Shared constants for End2End tests
  */
