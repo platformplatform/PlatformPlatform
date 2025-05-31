@@ -7,8 +7,7 @@
   "workspaces": [
     "account-management/WebApp",
     "back-office/WebApp",
-    "shared-webapp/*",
-    "End2EndTests"
+    "shared-webapp/*"
   ],
   "scripts": {
     "start": "npm install && turbo dev",
@@ -47,7 +46,7 @@
     "@lingui/cli": "5.1.0",
     "@lingui/format-po": "5.1.0",
     "@lingui/swc-plugin": "5.0.1",
-    "@playwright/test": "1.42.1",
+    "@playwright/test": "1.52.0",
     "@rsbuild/core": "1.1.10",
     "@rsbuild/plugin-react": "1.1.0",
     "@rsbuild/plugin-svgr": "1.0.6",
@@ -61,7 +60,7 @@
     "@types/react-dom": "19.0.0",
     "openapi-typescript": "7.4.4",
     "openapi-typescript-helpers": "0.0.15",
-    "playwright": "1.42.1",
+    "playwright": "1.52.0",
     "rimraf": "6.0.1",
     "tailwindcss": "3.4.16",
     "tailwindcss-animate": "1.0.7",

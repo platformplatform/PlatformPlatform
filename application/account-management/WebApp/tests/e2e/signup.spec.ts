@@ -4,8 +4,8 @@ import {
   assertToastMessage,
   assertValidationError,
   createTestContext
-} from "../../../shared-webapp/tests/e2e/utils/test-assertions";
-import { getVerificationCode, testUser } from "../../../shared-webapp/tests/e2e/utils/test-data";
+} from "../../../../shared-webapp/tests/e2e/utils/test-assertions";
+import { getVerificationCode, testUser } from "../../../../shared-webapp/tests/e2e/utils/test-data";
 
 test.describe("Signup", () => {
   test.describe("@smoke", () => {
