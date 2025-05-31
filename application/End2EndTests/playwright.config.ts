@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { defineConfig, devices } from "@playwright/test";
-import { getBaseUrl } from "./shared/constants";
+import { getBaseUrl } from "../shared-webapp/e2e-tests/utils/constants";
 
 /**
  * See https://playwright.dev/docs/test-configuration.

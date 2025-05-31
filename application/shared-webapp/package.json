@@ -1,0 +1,12 @@
+{
+  "name": "@repo/shared-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./e2e-tests/utils/*": "./e2e-tests/utils/*",
+    "./e2e-tests/config/*": "./e2e-tests/config/*"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}
