@@ -1,11 +1,11 @@
+import { expect, test } from "@playwright/test";
 import {
   assertNoUnexpectedErrors,
   assertToastMessage,
   assertValidationError,
   createTestContext
-} from "@/shared/test-assertions";
-import { getVerificationCode, testUser } from "@/shared/test-data";
-import { expect, test } from "@playwright/test";
+} from "../../../shared-webapp/tests/e2e/utils/test-assertions";
+import { getVerificationCode, testUser } from "../../../shared-webapp/tests/e2e/utils/test-data";
 
 test.describe("Signup", () => {
   test.describe("@smoke", () => {
