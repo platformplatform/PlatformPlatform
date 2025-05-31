@@ -60,17 +60,23 @@ public class End2EndCommand : Command
     {
         Prerequisite.Ensure(Prerequisite.Node);
 
-        var end2EndProjectPath = Path.Combine(Configuration.ApplicationFolder, "End2EndTests");
+        // Get available self-contained systems
+        var availableSystems = GetAvailableSelfContainedSystems();
 
-        // Clean up report directory if we're going to show it
-        if (showReport)
+        if (availableSystems.Length == 0)
         {
-            var reportPath = Path.Combine(end2EndProjectPath, "playwright-report");
-            if (Directory.Exists(reportPath))
-            {
-                AnsiConsole.MarkupLine("[blue]Cleaning up previous test report...[/]");
-                Directory.Delete(reportPath, true);
-            }
+            AnsiConsole.MarkupLine("[red]No self-contained systems with e2e tests found.[/]");
+            Environment.Exit(1);
+        }
+
+        // If no specific SCS is provided, run tests for all available systems
+        var systemsToTest = selfContainedSystem != null ? [selfContainedSystem] : availableSystems;
+
+        // Validate self-contained system if provided
+        if (selfContainedSystem is not null && !availableSystems.Contains(selfContainedSystem))
+        {
+            AnsiConsole.MarkupLine($"[red]Invalid self-contained system '{selfContainedSystem}'. Available systems: {string.Join(", ", availableSystems)}[/]");
+            Environment.Exit(1);
         }
 
         // Validate browser option
@@ -80,23 +86,74 @@ public class End2EndCommand : Command
             Environment.Exit(1);
         }
 
-        // Validate self-contained system if provided
-        if (selfContainedSystem is not null)
-        {
-            var availableSystems = GetAvailableSelfContainedSystems();
-            if (!availableSystems.Contains(selfContainedSystem))
-            {
-                AnsiConsole.MarkupLine($"[red]Invalid self-contained system '{selfContainedSystem}'. Available systems: {string.Join(", ", availableSystems)}[/]");
-                Environment.Exit(1);
-            }
-        }
-
         AnsiConsole.MarkupLine("[blue]Checking server availability...[/]");
         CheckWebsiteAccessibility();
 
         var stopwatch = Stopwatch.StartNew();
+        var overallSuccess = true;
 
-        AnsiConsole.MarkupLine("[blue]Starting Playwright tests...[/]");
+        foreach (var system in systemsToTest)
+        {
+            var systemSuccess = RunTestsForSystem(system, testPatterns, browser, debug, grep, headed, includeSlow,
+                lastFailed, onlyChanged, quiet, repeatEach, retries, showReport, slowMotion, smoke, stopOnFirstFailure, ui
+            );
+
+            if (!systemSuccess)
+            {
+                overallSuccess = false;
+            }
+        }
+
+        stopwatch.Stop();
+
+        AnsiConsole.MarkupLine(overallSuccess
+            ? $"[green]All tests completed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
+            : $"[red]Some tests failed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
+        );
+
+        if (!overallSuccess) Environment.Exit(1);
+    }
+
+    private static bool RunTestsForSystem(
+        string system,
+        string[] testPatterns,
+        string browser,
+        bool debug,
+        string? grep,
+        bool headed,
+        bool includeSlow,
+        bool lastFailed,
+        bool onlyChanged,
+        bool quiet,
+        int? repeatEach,
+        int? retries,
+        bool showReport,
+        bool slowMotion,
+        bool smoke,
+        bool stopOnFirstFailure,
+        bool ui)
+    {
+        var systemPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp");
+        var e2eTestsPath = Path.Combine(systemPath, "tests/e2e");
+
+        if (!Directory.Exists(e2eTestsPath))
+        {
+            AnsiConsole.MarkupLine($"[yellow]No e2e tests found for {system}, skipping...[/]");
+            return true;
+        }
+
+        AnsiConsole.MarkupLine($"[blue]Running tests for {system}...[/]");
+
+        // Clean up report directory if we're going to show it
+        if (showReport)
+        {
+            var reportPath = Path.Combine(e2eTestsPath, "playwright-report");
+            if (Directory.Exists(reportPath))
+            {
+                AnsiConsole.MarkupLine("[blue]Cleaning up previous test report...[/]");
+                Directory.Delete(reportPath, true);
+            }
+        }
 
         var showBrowser = headed || debug || slowMotion;
         var runSequential = showBrowser;
@@ -104,18 +161,18 @@ public class End2EndCommand : Command
 
         var playwrightArgs = BuildPlaywrightArgs(
             testPatterns, browser, debug, grep, showBrowser, includeSlow, lastFailed, onlyChanged, quiet, repeatEach,
-            retries, runSequential, selfContainedSystem, smoke, stopOnFirstFailure, ui
+            retries, runSequential, smoke, stopOnFirstFailure, ui
         );
 
         var processStartInfo = new ProcessStartInfo
         {
             FileName = Configuration.IsWindows ? "cmd.exe" : "npx",
-            Arguments = $"{(Configuration.IsWindows ? "/C npx" : string.Empty)} playwright test {playwrightArgs}",
-            WorkingDirectory = end2EndProjectPath,
+            Arguments = $"{(Configuration.IsWindows ? "/C npx" : string.Empty)} playwright test --config=./tests/playwright.config.ts {playwrightArgs}",
+            WorkingDirectory = systemPath,
             UseShellExecute = false
         };
 
-        AnsiConsole.MarkupLine($"[cyan]Running command: npx playwright test {playwrightArgs}[/]");
+        AnsiConsole.MarkupLine($"[cyan]Running command in {system}: npx playwright test --config=./tests/playwright.config.ts {playwrightArgs}[/]");
 
         processStartInfo.EnvironmentVariables["PUBLIC_URL"] = BaseUrl;
 
@@ -130,27 +187,20 @@ public class End2EndCommand : Command
         try
         {
             ProcessHelper.StartProcess(processStartInfo, throwOnError: true);
+            AnsiConsole.MarkupLine($"[green]Tests for {system} completed successfully[/]");
         }
         catch (Exception)
         {
             testsFailed = true;
+            AnsiConsole.MarkupLine($"[red]Tests for {system} failed[/]");
         }
 
-        stopwatch.Stop();
-
-        AnsiConsole.MarkupLine(testsFailed
-            ? $"[red]Tests failed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
-            : $"[green]Tests completed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
-        );
-
-        if (quiet) return;
-
-        if (showReport || testsFailed)
+        if (!quiet && (showReport || testsFailed))
         {
-            OpenHtmlReport(end2EndProjectPath);
+            OpenHtmlReport(e2eTestsPath, system);
         }
 
-        if (testsFailed) Environment.Exit(1);
+        return !testsFailed;
     }
 
     private static void CheckWebsiteAccessibility()
@@ -178,31 +228,30 @@ public class End2EndCommand : Command
         Environment.Exit(1);
     }
 
-    // Process grep pattern to make it compatible with Playwright's expectations
-    private static string ProcessGrepPattern(string grep)
-    {
-        // Check if the grep pattern contains our special marker and restore the @ symbol
-        if (grep.StartsWith(CommandLineArgumentsPreprocessor.EscapedAtSymbolMarker))
-        {
-            return "@" + grep.Substring(CommandLineArgumentsPreprocessor.EscapedAtSymbolMarker.Length);
-        }
-
-        // If the pattern is a tag (starts with @), return it as-is without any additional processing
-        // This ensures tags like @slow, @smoke, @comprehensive are passed directly to Playwright
-        if (grep.StartsWith("@"))
-        {
-            return grep;
-        }
-
-        // For non-tag patterns, use a simpler approach that doesn't rely on complex escaping
-        // Just double-quote the pattern to handle spaces and special characters
-        return $"\"{grep}\"";
-    }
-
     private static string[] GetAvailableSelfContainedSystems()
     {
-        var testsPath = Path.Combine(Configuration.ApplicationFolder, "End2EndTests", "tests");
-        return Directory.GetDirectories(testsPath).Select(Path.GetFileName).ToArray()!;
+        var applicationPath = Configuration.ApplicationFolder;
+        var systems = new List<string>();
+
+        // Look for directories that contain WebApp/tests/e2e
+        foreach (var directory in Directory.GetDirectories(applicationPath))
+        {
+            var dirName = Path.GetFileName(directory);
+
+            // Skip known non-SCS directories
+            if (dirName is "AppHost" or "AppGateway" or "shared-kernel" or "shared-webapp")
+            {
+                continue;
+            }
+
+            var e2eTestsPath = Path.Combine(directory, "WebApp", "tests/e2e");
+            if (Directory.Exists(e2eTestsPath))
+            {
+                systems.Add(dirName);
+            }
+        }
+
+        return systems.ToArray();
     }
 
     private static string BuildPlaywrightArgs(
@@ -218,7 +267,6 @@ public class End2EndCommand : Command
         int? repeatEach,
         int? retries,
         bool runSequential,
-        string? selfContainedSystem,
         bool smoke,
         bool stopOnFirstFailure,
         bool ui)
@@ -235,20 +283,13 @@ public class End2EndCommand : Command
         // Let playwright.config.ts handle reporters
         if (quiet) args.Add("--reporter=list");
 
-        // Handle test patterns
+        // Handle test patterns - they should be relative to the tests/e2e directory
         if (testPatterns.Length > 0)
         {
-            args.AddRange(NormalizeTestPatterns(testPatterns, selfContainedSystem));
-        }
-        else if (selfContainedSystem is not null)
-        {
-            // If no test patterns but self-contained system is specified, use its tests directory
-            args.Add(Path.Combine("tests", selfContainedSystem));
-        }
-        else
-        {
-            // If no patterns and no self-contained system, use the tests directory
-            args.Add("tests");
+            args.AddRange(testPatterns.Select(pattern =>
+                    pattern.StartsWith("./") || pattern.StartsWith("tests/e2e/") ? pattern : $"./tests/e2e/{pattern}"
+                )
+            );
         }
 
         // Handle test filtering
@@ -271,64 +312,17 @@ public class End2EndCommand : Command
         return string.Join(" ", args);
     }
 
-    private static string[] NormalizeTestPatterns(string[] testPatterns, string? selfContainedSystem)
+    private static void OpenHtmlReport(string e2eTestsPath, string system)
     {
-        var end2EndProjectPath = Path.Combine(Configuration.ApplicationFolder, "End2EndTests");
-
-        if (testPatterns.Length == 0)
-        {
-            // If no test patterns provided but self-contained system is specified, use its tests directory
-            if (selfContainedSystem is not null)
-            {
-                return [Path.Combine("tests", selfContainedSystem)];
-            }
-
-            return [];
-        }
-
-        // Process each test pattern
-        return testPatterns.Select(pattern =>
-            {
-                // If pattern already starts with 'tests/', return as is
-                if (pattern.StartsWith("tests/", StringComparison.OrdinalIgnoreCase))
-                {
-                    return pattern;
-                }
-
-                // If self-contained system is specified, prepend its tests directory
-                if (selfContainedSystem is not null)
-                {
-                    return Path.Combine("tests", selfContainedSystem, pattern);
-                }
-
-                // Try to infer the self-contained system from the pattern
-                var availableSystems = GetAvailableSelfContainedSystems();
-                foreach (var system in availableSystems)
-                {
-                    var testPath = Path.Combine("tests", system, pattern);
-                    if (File.Exists(Path.Combine(end2EndProjectPath, testPath)))
-                    {
-                        return testPath;
-                    }
-                }
-
-                // If no match found in any self-contained system, just prepend 'tests/'
-                return Path.Combine("tests", pattern);
-            }
-        ).ToArray();
-    }
-
-    private static void OpenHtmlReport(string end2EndProjectPath)
-    {
-        var reportPath = Path.Combine(end2EndProjectPath, "playwright-report", "index.html");
+        var reportPath = Path.Combine(e2eTestsPath, "playwright-report", "index.html");
         if (File.Exists(reportPath))
         {
-            AnsiConsole.MarkupLine("[green]Opening test report...[/]");
+            AnsiConsole.MarkupLine($"[green]Opening test report for {system}...[/]");
             ProcessHelper.OpenBrowser(reportPath);
         }
         else
         {
-            AnsiConsole.MarkupLine("[yellow]No test report found at playwright-report/index.html[/]");
+            AnsiConsole.MarkupLine($"[yellow]No test report found for {system} at playwright-report/index.html[/]");
         }
     }
 }
