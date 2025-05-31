@@ -1,14 +1,11 @@
 /// <reference types="node" />
 import { defineConfig, devices } from "@playwright/test";
-import { getBaseUrl } from "../shared-webapp/tests/e2e/utils/constants";
+import { getBaseUrl } from "./utils/constants";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  // Look for test files in the "tests" directory, relative to this configuration file.
-  testDir: "tests",
-
   // Run tests in files in parallel
   fullyParallel: true,
 
