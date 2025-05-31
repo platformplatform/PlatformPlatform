@@ -7,12 +7,14 @@ import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const userInfo = useUserInfo();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (userInfo?.isAuthenticated && (!userInfo.firstName || !userInfo.lastName)) {
@@ -21,6 +23,11 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
   }, [userInfo]);
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
+    onMutate: async () => {
+      // Cancel all ongoing queries and remove them from cache to prevent 401 errors
+      await queryClient.cancelQueries();
+      queryClient.clear();
+    },
     onSuccess: () => {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     },
