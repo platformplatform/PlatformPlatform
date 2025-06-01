@@ -43,12 +43,18 @@ msgstr "Tilføj profilbillede"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Africa"
+msgstr ""
+
 msgid "All users"
 msgstr "Alle brugere"
 
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
+
+msgid "Andorra"
+msgstr ""
 
 msgid "Any role"
 msgstr "Enhver rolle"
@@ -64,11 +70,35 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
 
+msgid "Argentina"
+msgstr ""
+
+msgid "Asia"
+msgstr ""
+
+msgid "Australia"
+msgstr ""
+
+msgid "Austria"
+msgstr ""
+
+msgid "Belgium"
+msgstr ""
+
+msgid "Brazil"
+msgstr ""
+
+msgid "Bulgaria"
+msgstr ""
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kan du ikke finde din kode? Tjek din spammappe."
+
+msgid "Canada"
+msgstr ""
 
 msgid "Cancel"
 msgstr "Annuller"
@@ -82,14 +112,38 @@ msgstr "Skift rolle"
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
+msgid "Chile"
+msgstr ""
+
+msgid "China"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "Colombia"
+msgstr ""
+
 msgid "Continue"
 msgstr "Fortsæt"
+
+msgid "Country"
+msgstr ""
 
 msgid "Create your account"
 msgstr "Opret din konto"
 
 msgid "Created"
 msgstr "Oprettet"
+
+msgid "Croatia"
+msgstr ""
+
+msgid "Cyprus"
+msgstr ""
+
+msgid "Czech Republic"
+msgstr ""
 
 msgid "Danger zone"
 msgstr "Farezone"
@@ -113,6 +167,9 @@ msgstr "Slet brugere"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
 
+msgid "Denmark"
+msgstr ""
+
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
 
@@ -134,6 +191,9 @@ msgstr "F.eks. Taylor"
 msgid "Edit profile"
 msgstr "Rediger profil"
 
+msgid "Egypt"
+msgstr ""
+
 msgid "Email"
 msgstr "E-mail"
 
@@ -149,14 +209,29 @@ msgstr "Fejl: Noget gik galt!"
 msgid "Error: Verification code has expired"
 msgstr "Fejl: Bekræftelseskoden er udløbet"
 
+msgid "Estonia"
+msgstr ""
+
 msgid "Europe"
 msgstr "Europa"
 
 msgid "Fetching data..."
 msgstr "Henter data..."
 
+msgid "Finland"
+msgstr ""
+
 msgid "First name"
 msgstr "Fornavn"
+
+msgid "France"
+msgstr ""
+
+msgid "Germany"
+msgstr ""
+
+msgid "Greece"
+msgstr ""
 
 msgid "Help"
 msgstr "Hjælp"
@@ -173,8 +248,17 @@ msgstr "Skjul filtre"
 msgid "Home"
 msgstr "Hjem"
 
+msgid "Hungary"
+msgstr ""
+
+msgid "Iceland"
+msgstr ""
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
+
+msgid "India"
+msgstr ""
 
 msgid "Invite user"
 msgstr "Inviter bruger"
@@ -188,8 +272,29 @@ msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger 
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Ireland"
+msgstr ""
+
+msgid "Italy"
+msgstr ""
+
+msgid "Japan"
+msgstr ""
+
+msgid "Kenya"
+msgstr ""
+
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Latvia"
+msgstr ""
+
+msgid "Liechtenstein"
+msgstr ""
+
+msgid "Lithuania"
+msgstr ""
 
 msgid "Log in"
 msgstr "Log ind"
@@ -203,6 +308,12 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Luxembourg"
+msgstr ""
+
+msgid "Malta"
+msgstr ""
+
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
@@ -215,20 +326,47 @@ msgstr "Medlem"
 msgid "Menu"
 msgstr "Menu"
 
+msgid "Mexico"
+msgstr ""
+
 msgid "Modified"
 msgstr "Ændret"
 
 msgid "Modified date"
 msgstr "Ændret dato"
 
+msgid "Monaco"
+msgstr ""
+
+msgid "Morocco"
+msgstr ""
+
 msgid "Name"
 msgstr "Navn"
+
+msgid "Netherlands"
+msgstr ""
+
+msgid "New Zealand"
+msgstr ""
 
 msgid "Next"
 msgstr "Næste"
 
+msgid "Nigeria"
+msgstr ""
+
 msgid "No active signup session"
 msgstr "Ingen aktiv tilmeldingssession"
+
+msgid "North America"
+msgstr ""
+
+msgid "Norway"
+msgstr ""
+
+msgid "Oceania"
+msgstr ""
 
 msgid "Organization"
 msgstr "Organisation"
@@ -239,6 +377,9 @@ msgstr "Ejer"
 msgid "Pending"
 msgstr "Afventer"
 
+msgid "Peru"
+msgstr ""
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -247,6 +388,12 @@ msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Please start the signup process again."
 msgstr "Start venligst tilmeldingsprocessen igen."
+
+msgid "Poland"
+msgstr ""
+
+msgid "Portugal"
+msgstr ""
 
 msgid "Powered by"
 msgstr "Drevet af"
@@ -271,6 +418,12 @@ msgstr "Fjern profilbillede"
 
 msgid "Role"
 msgstr "Rolle"
+
+msgid "Romania"
+msgstr ""
+
+msgid "San Marino"
+msgstr ""
 
 msgid "Save changes"
 msgstr "Gem ændringer"
@@ -309,8 +462,38 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Singapore"
+msgstr ""
+
+msgid "Slovakia"
+msgstr ""
+
+msgid "Slovenia"
+msgstr ""
+
+msgid "South Africa"
+msgstr ""
+
+msgid "South America"
+msgstr ""
+
+msgid "South Korea"
+msgstr ""
+
+msgid "Spain"
+msgstr ""
+
+msgid "Sweden"
+msgstr ""
+
+msgid "Switzerland"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
+
+msgid "Thailand"
+msgstr ""
 
 msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræftelses-ID: {emailConfirmationId}"
@@ -335,6 +518,12 @@ msgstr "Totalt antal brugere"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "United Kingdom"
+msgstr ""
+
+msgid "United States"
+msgstr ""
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
@@ -363,11 +552,17 @@ msgstr "Brugere"
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
+msgid "Vatican City"
+msgstr ""
+
 msgid "Verify"
 msgstr "Bekræft"
 
 msgid "Verifying..."
 msgstr "Bekræfter..."
+
+msgid "Vietnam"
+msgstr ""
 
 msgid "View active users"
 msgstr "Se aktive brugere"

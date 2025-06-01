@@ -43,12 +43,18 @@ msgstr "Profielfoto toevoegen"
 msgid "Admin"
 msgstr "Beheerder"
 
+msgid "Africa"
+msgstr ""
+
 msgid "All users"
 msgstr "Alle gebruikers"
 
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
+
+msgid "Andorra"
+msgstr ""
 
 msgid "Any role"
 msgstr "Elke rol"
@@ -64,11 +70,35 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
 
+msgid "Argentina"
+msgstr ""
+
+msgid "Asia"
+msgstr ""
+
+msgid "Australia"
+msgstr ""
+
+msgid "Austria"
+msgstr ""
+
+msgid "Belgium"
+msgstr ""
+
+msgid "Brazil"
+msgstr ""
+
+msgid "Bulgaria"
+msgstr ""
+
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kun je je code niet vinden? Controleer je spammap."
+
+msgid "Canada"
+msgstr ""
 
 msgid "Cancel"
 msgstr "Annuleren"
@@ -82,14 +112,38 @@ msgstr "Rol wijzigen"
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
+msgid "Chile"
+msgstr ""
+
+msgid "China"
+msgstr ""
+
+msgid "City"
+msgstr ""
+
+msgid "Colombia"
+msgstr ""
+
 msgid "Continue"
 msgstr "Verder"
+
+msgid "Country"
+msgstr ""
 
 msgid "Create your account"
 msgstr "Maak je account aan"
 
 msgid "Created"
 msgstr "Aangemaakt"
+
+msgid "Croatia"
+msgstr ""
+
+msgid "Cyprus"
+msgstr ""
+
+msgid "Czech Republic"
+msgstr ""
 
 msgid "Danger zone"
 msgstr "Gevaarzone"
@@ -113,6 +167,9 @@ msgstr "Gebruikers verwijderen"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
 
+msgid "Denmark"
+msgstr ""
+
 msgid "Didn't receive the code? Resend"
 msgstr "Code niet ontvangen? Verstuur opnieuw"
 
@@ -134,6 +191,9 @@ msgstr "Bijv., Taylor"
 msgid "Edit profile"
 msgstr "Profiel bewerken"
 
+msgid "Egypt"
+msgstr ""
+
 msgid "Email"
 msgstr "E-mailadres"
 
@@ -149,14 +209,29 @@ msgstr "Fout: Er is iets misgegaan!"
 msgid "Error: Verification code has expired"
 msgstr "Fout: Verificatiecode is verlopen"
 
+msgid "Estonia"
+msgstr ""
+
 msgid "Europe"
 msgstr "Europa"
 
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
+msgid "Finland"
+msgstr ""
+
 msgid "First name"
 msgstr "Voornaam"
+
+msgid "France"
+msgstr ""
+
+msgid "Germany"
+msgstr ""
+
+msgid "Greece"
+msgstr ""
 
 msgid "Help"
 msgstr "Help"
@@ -173,8 +248,17 @@ msgstr "Filters verbergen"
 msgid "Home"
 msgstr "Home"
 
+msgid "Hungary"
+msgstr ""
+
+msgid "Iceland"
+msgstr ""
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Afbeelding moet kleiner zijn dan 1 MB."
+
+msgid "India"
+msgstr ""
 
 msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
@@ -188,8 +272,29 @@ msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inl
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
+msgid "Ireland"
+msgstr ""
+
+msgid "Italy"
+msgstr ""
+
+msgid "Japan"
+msgstr ""
+
+msgid "Kenya"
+msgstr ""
+
 msgid "Last name"
 msgstr "Achternaam"
+
+msgid "Latvia"
+msgstr ""
+
+msgid "Liechtenstein"
+msgstr ""
+
+msgid "Lithuania"
+msgstr ""
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -203,6 +308,12 @@ msgstr "Verificatiecode voor inloggen"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Luxembourg"
+msgstr ""
+
+msgid "Malta"
+msgstr ""
+
 msgid "Manage your account here."
 msgstr "Beheer je account hier."
 
@@ -215,20 +326,47 @@ msgstr "Lid"
 msgid "Menu"
 msgstr "Menu"
 
+msgid "Mexico"
+msgstr ""
+
 msgid "Modified"
 msgstr "Gewijzigd"
 
 msgid "Modified date"
 msgstr "Gewijzigde datum"
 
+msgid "Monaco"
+msgstr ""
+
+msgid "Morocco"
+msgstr ""
+
 msgid "Name"
 msgstr "Naam"
+
+msgid "Netherlands"
+msgstr ""
+
+msgid "New Zealand"
+msgstr ""
 
 msgid "Next"
 msgstr "Volgende"
 
+msgid "Nigeria"
+msgstr ""
+
 msgid "No active signup session"
 msgstr "Geen actieve registratiesessie"
+
+msgid "North America"
+msgstr ""
+
+msgid "Norway"
+msgstr ""
+
+msgid "Oceania"
+msgstr ""
 
 msgid "Organization"
 msgstr "Organisatie"
@@ -239,6 +377,9 @@ msgstr "Eigenaar"
 msgid "Pending"
 msgstr "In behandeling"
 
+msgid "Peru"
+msgstr ""
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
@@ -247,6 +388,12 @@ msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
 msgid "Please start the signup process again."
 msgstr "Begin het registratieproces opnieuw."
+
+msgid "Poland"
+msgstr ""
+
+msgid "Portugal"
+msgstr ""
 
 msgid "Powered by"
 msgstr "Mogelijk gemaakt door"
@@ -271,6 +418,12 @@ msgstr "Profielfoto verwijderen"
 
 msgid "Role"
 msgstr "Rol"
+
+msgid "Romania"
+msgstr ""
+
+msgid "San Marino"
+msgstr ""
 
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
@@ -309,8 +462,38 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "Singapore"
+msgstr ""
+
+msgid "Slovakia"
+msgstr ""
+
+msgid "Slovenia"
+msgstr ""
+
+msgid "South Africa"
+msgstr ""
+
+msgid "South America"
+msgstr ""
+
+msgid "South Korea"
+msgstr ""
+
+msgid "Spain"
+msgstr ""
+
+msgid "Sweden"
+msgstr ""
+
+msgid "Switzerland"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
+
+msgid "Thailand"
+msgstr ""
 
 msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailbevestiging ID: {emailConfirmationId}"
@@ -335,6 +518,12 @@ msgstr "Totale gebruikers"
 
 msgid "Try again"
 msgstr "Probeer opnieuw"
+
+msgid "United Kingdom"
+msgstr ""
+
+msgid "United States"
+msgstr ""
 
 msgid "Update your profile picture and personal details here."
 msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
@@ -363,11 +552,17 @@ msgstr "Gebruikers"
 msgid "Users who haven't confirmed their email"
 msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
+msgid "Vatican City"
+msgstr ""
+
 msgid "Verify"
 msgstr "Verifiëren"
 
 msgid "Verifying..."
 msgstr "Verifiëren..."
+
+msgid "Vietnam"
+msgstr ""
 
 msgid "View active users"
 msgstr "Actieve gebruikers bekijken"

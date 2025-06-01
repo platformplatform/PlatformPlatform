@@ -43,12 +43,18 @@ msgstr "Add profile picture"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Africa"
+msgstr "Africa"
+
 msgid "All users"
 msgstr "All users"
 
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
+
+msgid "Andorra"
+msgstr "Andorra"
 
 msgid "Any role"
 msgstr "Any role"
@@ -64,11 +70,35 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{0}?</0>"
 msgstr "Are you sure you want to delete <0>{0}?</0>"
 
+msgid "Argentina"
+msgstr "Argentina"
+
+msgid "Asia"
+msgstr "Asia"
+
+msgid "Australia"
+msgstr "Australia"
+
+msgid "Austria"
+msgstr "Austria"
+
+msgid "Belgium"
+msgstr "Belgium"
+
+msgid "Brazil"
+msgstr "Brazil"
+
+msgid "Bulgaria"
+msgstr "Bulgaria"
+
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Can't find your code? Check your spam folder."
+
+msgid "Canada"
+msgstr "Canada"
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -82,14 +112,38 @@ msgstr "Change role"
 msgid "Change user role"
 msgstr "Change user role"
 
+msgid "Chile"
+msgstr "Chile"
+
+msgid "China"
+msgstr "China"
+
+msgid "City"
+msgstr "City"
+
+msgid "Colombia"
+msgstr "Colombia"
+
 msgid "Continue"
 msgstr "Continue"
+
+msgid "Country"
+msgstr "Country"
 
 msgid "Create your account"
 msgstr "Create your account"
 
 msgid "Created"
 msgstr "Created"
+
+msgid "Croatia"
+msgstr "Croatia"
+
+msgid "Cyprus"
+msgstr "Cyprus"
+
+msgid "Czech Republic"
+msgstr "Czech Republic"
 
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -113,6 +167,9 @@ msgstr "Delete users"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 
+msgid "Denmark"
+msgstr "Denmark"
+
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"
 
@@ -134,6 +191,9 @@ msgstr "E.g., Taylor"
 msgid "Edit profile"
 msgstr "Edit profile"
 
+msgid "Egypt"
+msgstr "Egypt"
+
 msgid "Email"
 msgstr "Email"
 
@@ -149,14 +209,29 @@ msgstr "Error: Something went wrong!"
 msgid "Error: Verification code has expired"
 msgstr "Error: Verification code has expired"
 
+msgid "Estonia"
+msgstr "Estonia"
+
 msgid "Europe"
 msgstr "Europe"
 
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
+msgid "Finland"
+msgstr "Finland"
+
 msgid "First name"
 msgstr "First name"
+
+msgid "France"
+msgstr "France"
+
+msgid "Germany"
+msgstr "Germany"
+
+msgid "Greece"
+msgstr "Greece"
 
 msgid "Help"
 msgstr "Help"
@@ -173,8 +248,17 @@ msgstr "Hide filters"
 msgid "Home"
 msgstr "Home"
 
+msgid "Hungary"
+msgstr "Hungary"
+
+msgid "Iceland"
+msgstr "Iceland"
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
+
+msgid "India"
+msgstr "India"
 
 msgid "Invite user"
 msgstr "Invite user"
@@ -188,8 +272,29 @@ msgstr "Invite users and assign them roles. They will appear once they log in."
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Ireland"
+msgstr "Ireland"
+
+msgid "Italy"
+msgstr "Italy"
+
+msgid "Japan"
+msgstr "Japan"
+
+msgid "Kenya"
+msgstr "Kenya"
+
 msgid "Last name"
 msgstr "Last name"
+
+msgid "Latvia"
+msgstr "Latvia"
+
+msgid "Liechtenstein"
+msgstr "Liechtenstein"
+
+msgid "Lithuania"
+msgstr "Lithuania"
 
 msgid "Log in"
 msgstr "Log in"
@@ -203,6 +308,12 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Luxembourg"
+msgstr "Luxembourg"
+
+msgid "Malta"
+msgstr "Malta"
+
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
@@ -215,20 +326,47 @@ msgstr "Member"
 msgid "Menu"
 msgstr "Menu"
 
+msgid "Mexico"
+msgstr "Mexico"
+
 msgid "Modified"
 msgstr "Modified"
 
 msgid "Modified date"
 msgstr "Modified date"
 
+msgid "Monaco"
+msgstr "Monaco"
+
+msgid "Morocco"
+msgstr "Morocco"
+
 msgid "Name"
 msgstr "Name"
+
+msgid "Netherlands"
+msgstr "Netherlands"
+
+msgid "New Zealand"
+msgstr "New Zealand"
 
 msgid "Next"
 msgstr "Next"
 
+msgid "Nigeria"
+msgstr "Nigeria"
+
 msgid "No active signup session"
 msgstr "No active signup session"
+
+msgid "North America"
+msgstr "North America"
+
+msgid "Norway"
+msgstr "Norway"
+
+msgid "Oceania"
+msgstr "Oceania"
 
 msgid "Organization"
 msgstr "Organization"
@@ -239,6 +377,9 @@ msgstr "Owner"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "Peru"
+msgstr "Peru"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
@@ -247,6 +388,12 @@ msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
 msgid "Please start the signup process again."
 msgstr "Please start the signup process again."
+
+msgid "Poland"
+msgstr "Poland"
+
+msgid "Portugal"
+msgstr "Portugal"
 
 msgid "Powered by"
 msgstr "Powered by"
@@ -271,6 +418,12 @@ msgstr "Remove profile picture"
 
 msgid "Role"
 msgstr "Role"
+
+msgid "Romania"
+msgstr "Romania"
+
+msgid "San Marino"
+msgstr "San Marino"
 
 msgid "Save changes"
 msgstr "Save changes"
@@ -309,8 +462,38 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Singapore"
+msgstr "Singapore"
+
+msgid "Slovakia"
+msgstr "Slovakia"
+
+msgid "Slovenia"
+msgstr "Slovenia"
+
+msgid "South Africa"
+msgstr "South Africa"
+
+msgid "South America"
+msgstr "South America"
+
+msgid "South Korea"
+msgstr "South Korea"
+
+msgid "Spain"
+msgstr "Spain"
+
+msgid "Sweden"
+msgstr "Sweden"
+
+msgid "Switzerland"
+msgstr "Switzerland"
+
 msgid "Terms of use"
 msgstr "Terms of use"
+
+msgid "Thailand"
+msgstr "Thailand"
 
 msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
 msgstr "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
@@ -335,6 +518,12 @@ msgstr "Total users"
 
 msgid "Try again"
 msgstr "Try again"
+
+msgid "United Kingdom"
+msgstr "United Kingdom"
+
+msgid "United States"
+msgstr "United States"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
@@ -363,11 +552,17 @@ msgstr "Users"
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
 
+msgid "Vatican City"
+msgstr "Vatican City"
+
 msgid "Verify"
 msgstr "Verify"
 
 msgid "Verifying..."
 msgstr "Verifying..."
+
+msgid "Vietnam"
+msgstr "Vietnam"
 
 msgid "View active users"
 msgstr "View active users"
