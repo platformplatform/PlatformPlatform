@@ -14,7 +14,7 @@ builder
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
     .AddWorkerServices()
-    .AddAccountManagementServices();
+    .AddAccountManagementServices(builder.Configuration);
 
 builder.Services.AddTransient<DatabaseMigrationService<AccountManagementDbContext>>();
 

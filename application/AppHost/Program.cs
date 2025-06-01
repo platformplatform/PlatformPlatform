@@ -1,6 +1,8 @@
+using System.Reflection;
 using AppHost;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -8,6 +10,11 @@ var builder = DistributedApplication.CreateBuilder(args);
 var certificatePassword = builder.CreateSslCertificateIfNotExists();
 
 SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
+
+// Read Geoapify API key from .NET Secrets
+var userSecretsId = Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
+var config = new ConfigurationBuilder().AddUserSecrets(userSecretsId).Build();
+var geoapifyApiKey = config["GeoapifyApiKey"];
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
@@ -52,6 +59,7 @@ var accountManagementWorkers = builder
     .AddProject<AccountManagement_Workers>("account-management-workers")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("GEOAPIFY_API_KEY", geoapifyApiKey)
     .WaitFor(accountManagementDatabase);
 
 var accountManagementApi = builder
@@ -59,6 +67,7 @@ var accountManagementApi = builder
     .WithUrlConfiguration("/account-management")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("GEOAPIFY_API_KEY", geoapifyApiKey)
     .WaitFor(accountManagementWorkers);
 
 var backOfficeDatabase = sqlServer

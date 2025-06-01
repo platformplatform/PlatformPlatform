@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.SharedKernel.Authentication;
@@ -44,6 +45,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Services = new ServiceCollection();
 
         Services.AddLogging();
+        Services.AddMemoryCache();
         Services.AddTransient<DatabaseSeeder>();
 
         // Create connection and add DbContext to the service collection
@@ -51,7 +53,16 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Connection.Open();
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-        Services.AddAccountManagementServices();
+        // Create a mock configuration for tests
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Geoapify:ApiKey"] = null // No API key for tests - should gracefully handle missing key
+                }
+            )
+            .Build();
+
+        Services.AddAccountManagementServices(configuration);
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
         Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
@@ -81,6 +92,9 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
                         services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
                         services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+
+                        // Add memory cache for tests
+                        services.AddMemoryCache();
 
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

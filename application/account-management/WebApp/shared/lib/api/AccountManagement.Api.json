@@ -6,6 +6,47 @@
     "version": "v1"
   },
   "paths": {
+    "/api/account-management/addresses/search": {
+      "get": {
+        "tags": [
+          "Addresses"
+        ],
+        "operationId": "GetApiAccountManagementAddressesSearch",
+        "parameters": [
+          {
+            "name": "Query",
+            "x-originalName": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SearchAddressesQuery"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchAddressesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/authentication/login/start": {
       "post": {
         "tags": [
@@ -858,6 +899,57 @@
             "nullable": true
           },
           "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SearchAddressesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddressSuggestion"
+            }
+          }
+        }
+      },
+      "AddressSuggestion": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "formattedAddress": {
+            "type": "string"
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "zip": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SearchAddressesQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "query": {
             "type": "string",
             "nullable": true
           }
