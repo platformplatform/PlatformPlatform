@@ -48,11 +48,14 @@ public sealed class SignupStarted
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
+public sealed class TenantAddressUpdated(bool hasCompleteAddress)
+    : TelemetryEvent(("has_complete_address", hasCompleteAddress));
+
 public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState, int usersDeleted)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState), ("users_deleted", usersDeleted));
 
-public sealed class TenantUpdated
-    : TelemetryEvent;
+public sealed class TenantUpdated(bool nameChanged, bool addressChanged)
+    : TelemetryEvent(("name_changed", nameChanged), ("address_changed", addressChanged));
 
 public sealed class UserAvatarRemoved
     : TelemetryEvent;
