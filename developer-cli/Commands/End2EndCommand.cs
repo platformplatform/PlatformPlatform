@@ -69,8 +69,8 @@ public class End2EndCommand : Command
             Environment.Exit(1);
         }
 
-        // If no specific SCS is provided, run tests for all available systems
-        var systemsToTest = selfContainedSystem != null ? [selfContainedSystem] : availableSystems;
+        // If no specific self-contained system is provided, run tests for all available self-contained systems
+        var selfContainedSystemsToTest = selfContainedSystem != null ? [selfContainedSystem] : availableSystems;
 
         // Validate self-contained system if provided
         if (selfContainedSystem is not null && !availableSystems.Contains(selfContainedSystem))
@@ -91,16 +91,18 @@ public class End2EndCommand : Command
 
         var stopwatch = Stopwatch.StartNew();
         var overallSuccess = true;
+        var failedSelfContainedSystems = new List<string>();
 
-        foreach (var system in systemsToTest)
+        foreach (var currentSelfContainedSystem in selfContainedSystemsToTest)
         {
-            var systemSuccess = RunTestsForSystem(system, testPatterns, browser, debug, grep, headed, includeSlow,
-                lastFailed, onlyChanged, quiet, repeatEach, retries, showReport, slowMotion, smoke, stopOnFirstFailure, ui
+            var selfContainedSystemSuccess = RunTestsForSystem(currentSelfContainedSystem, testPatterns, browser, debug, grep, headed, includeSlow, lastFailed,
+                onlyChanged, quiet, repeatEach, retries, showReport, slowMotion, smoke, stopOnFirstFailure, ui
             );
 
-            if (!systemSuccess)
+            if (!selfContainedSystemSuccess)
             {
                 overallSuccess = false;
+                failedSelfContainedSystems.Add(currentSelfContainedSystem);
             }
         }
 
@@ -111,11 +113,29 @@ public class End2EndCommand : Command
             : $"[red]Some tests failed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
         );
 
+        if (!quiet)
+        {
+            if (showReport)
+            {
+                foreach (var currentSelfContainedSystem in selfContainedSystemsToTest)
+                {
+                    OpenHtmlReport(currentSelfContainedSystem);
+                }
+            }
+            else if (!overallSuccess)
+            {
+                foreach (var currentSelfContainedSystem in failedSelfContainedSystems)
+                {
+                    OpenHtmlReport(currentSelfContainedSystem);
+                }
+            }
+        }
+
         if (!overallSuccess) Environment.Exit(1);
     }
 
     private static bool RunTestsForSystem(
-        string system,
+        string selfContainedSystem,
         string[] testPatterns,
         string browser,
         bool debug,
@@ -133,25 +153,25 @@ public class End2EndCommand : Command
         bool stopOnFirstFailure,
         bool ui)
     {
-        var systemPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp");
+        var systemPath = Path.Combine(Configuration.ApplicationFolder, selfContainedSystem, "WebApp");
         var e2eTestsPath = Path.Combine(systemPath, "e2e-tests");
 
         if (!Directory.Exists(e2eTestsPath))
         {
-            AnsiConsole.MarkupLine($"[yellow]No e2e tests found for {system}, skipping...[/]");
+            AnsiConsole.MarkupLine($"[yellow]No e2e tests found for {selfContainedSystem}. Skipping...[/]");
             return true;
         }
 
-        AnsiConsole.MarkupLine($"[blue]Running tests for {system}...[/]");
+        AnsiConsole.MarkupLine($"[blue]Running tests for {selfContainedSystem}...[/]");
 
         // Clean up report directory if we're going to show it
         if (showReport)
         {
-            var reportPath = Path.Combine(e2eTestsPath, "playwright-report");
-            if (Directory.Exists(reportPath))
+            var reportDirectory = Path.Combine(e2eTestsPath, "playwright-report");
+            if (Directory.Exists(reportDirectory))
             {
                 AnsiConsole.MarkupLine("[blue]Cleaning up previous test report...[/]");
-                Directory.Delete(reportPath, true);
+                Directory.Delete(reportDirectory, true);
             }
         }
 
@@ -172,7 +192,7 @@ public class End2EndCommand : Command
             UseShellExecute = false
         };
 
-        AnsiConsole.MarkupLine($"[cyan]Running command in {system}: npx playwright test --config=./e2e-tests/playwright.config.ts {playwrightArgs}[/]");
+        AnsiConsole.MarkupLine($"[cyan]Running command in {selfContainedSystem}: npx playwright test --config=./e2e-tests/playwright.config.ts {playwrightArgs}[/]");
 
         processStartInfo.EnvironmentVariables["PUBLIC_URL"] = BaseUrl;
 
@@ -187,17 +207,14 @@ public class End2EndCommand : Command
         try
         {
             ProcessHelper.StartProcess(processStartInfo, throwOnError: true);
-            AnsiConsole.MarkupLine($"[green]Tests for {system} completed successfully[/]");
+            AnsiConsole.MarkupLine(testsFailed
+                ? $"[red]Tests for {selfContainedSystem} failed[/]"
+                : $"[green]Tests for {selfContainedSystem} completed successfully[/]");
         }
         catch (Exception)
         {
             testsFailed = true;
-            AnsiConsole.MarkupLine($"[red]Tests for {system} failed[/]");
-        }
-
-        if (!quiet && (showReport || testsFailed))
-        {
-            OpenHtmlReport(e2eTestsPath, system);
+            AnsiConsole.MarkupLine($"[red]Tests for {selfContainedSystem} failed[/]");
         }
 
         return !testsFailed;
@@ -230,16 +247,16 @@ public class End2EndCommand : Command
 
     private static string[] GetAvailableSelfContainedSystems()
     {
-        var applicationPath = Configuration.ApplicationFolder;
-        var systems = new List<string>();
+        var selfContainedSystems = new List<string>();
 
         // Look for directories that contain WebApp/e2e-tests
-        foreach (var directory in Directory.GetDirectories(applicationPath))
+        foreach (var directory in Directory.GetDirectories(Configuration.ApplicationFolder))
         {
-            var dirName = Path.GetFileName(directory);
+            var directoryName = Path.GetFileName(directory);
 
-            // Skip known non-SCS directories
-            if (dirName is "AppHost" or "AppGateway" or "shared-kernel" or "shared-webapp")
+            // Skip directories that are not self-contained systems
+            if (directoryName.StartsWith('.') || directoryName == "AppGateway" || directoryName == "AppHost" ||
+                directoryName == "shared-kernel" || directoryName == "shared-webapp")
             {
                 continue;
             }
@@ -247,11 +264,11 @@ public class End2EndCommand : Command
             var e2eTestsPath = Path.Combine(directory, "WebApp", "e2e-tests");
             if (Directory.Exists(e2eTestsPath))
             {
-                systems.Add(dirName);
+                selfContainedSystems.Add(directoryName);
             }
         }
 
-        return systems.ToArray();
+        return selfContainedSystems.ToArray();
     }
 
     private static string BuildPlaywrightArgs(
@@ -312,17 +329,18 @@ public class End2EndCommand : Command
         return string.Join(" ", args);
     }
 
-    private static void OpenHtmlReport(string e2eTestsPath, string system)
+    private static void OpenHtmlReport(string selfContainedSystem)
     {
-        var reportPath = Path.Combine(e2eTestsPath, "playwright-report", "index.html");
+        var reportPath = Path.Combine(Configuration.ApplicationFolder, selfContainedSystem, "WebApp", "playwright-report", "index.html");
+
         if (File.Exists(reportPath))
         {
-            AnsiConsole.MarkupLine($"[green]Opening test report for {system}...[/]");
+            AnsiConsole.MarkupLine($"[green]Opening test report for '{selfContainedSystem}'...[/]");
             ProcessHelper.OpenBrowser(reportPath);
         }
         else
         {
-            AnsiConsole.MarkupLine($"[yellow]No test report found for {system} at playwright-report/index.html[/]");
+            AnsiConsole.MarkupLine($"[yellow]No test report found for '{selfContainedSystem}' at '{reportPath}'[/]");
         }
     }
 }
