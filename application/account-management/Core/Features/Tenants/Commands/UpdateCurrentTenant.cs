@@ -30,7 +30,7 @@ public sealed class UpdateTenantHandler(ITenantRepository tenantRepository, ITel
     {
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
 
-        tenant.Update(command.Name);
+        tenant.Update(command.Name, null);
         tenantRepository.Update(tenant);
 
         events.CollectEvent(new TenantUpdated());

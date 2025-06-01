@@ -2,6 +2,13 @@ using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 
+public sealed record Address(string? Street, string? City, string? Zip, string? State, string? Country)
+{
+    public Address() : this(null, null, null, null, null)
+    {
+    }
+}
+
 public sealed class Tenant : AggregateRoot<TenantId>
 {
     private Tenant() : base(TenantId.NewId())
@@ -13,6 +20,8 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public TenantState State { get; private set; }
 
+    public Address? Address { get; private set; }
+
     public static Tenant Create(string email)
     {
         var tenant = new Tenant();
@@ -20,8 +29,9 @@ public sealed class Tenant : AggregateRoot<TenantId>
         return tenant;
     }
 
-    public void Update(string tenantName)
+    public void Update(string tenantName, Address? address)
     {
         Name = tenantName;
+        Address = address;
     }
 }
