@@ -11,6 +11,9 @@ public class End2EndCommand : Command
 {
     private static readonly string[] ValidBrowsers = ["chromium", "firefox", "webkit", "safari", "all"];
 
+    // Get available self-contained systems
+    private static readonly string[] AvailableSelfContainedSystems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+
     public End2EndCommand() : base("e2e", "Run end-to-end tests using Playwright")
     {
         // Add argument for test file patterns
@@ -27,7 +30,7 @@ public class End2EndCommand : Command
         AddOption(new Option<bool>(["--quiet"], () => false, "Suppress all output including terminal output and automatic report opening"));
         AddOption(new Option<int?>(["--repeat-each"], "Number of times to repeat each test"));
         AddOption(new Option<int?>(["--retries"], "Maximum retry count for flaky tests, zero for no retries"));
-        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to test (account-management, back-office, etc.)"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], $"The name of the self-contained system to test ({string.Join(", ", AvailableSelfContainedSystems)}, etc.)"));
         AddOption(new Option<bool>(["--show-report"], () => false, "Always show HTML report after test run"));
         AddOption(new Option<bool>(["--slow-motion"], () => false, "Run tests in slow motion (automatically enables headed mode)"));
         AddOption(new Option<bool>(["--smoke"], () => false, "Run only smoke tests"));
@@ -60,23 +63,27 @@ public class End2EndCommand : Command
     {
         Prerequisite.Ensure(Prerequisite.Node);
 
-        // Get available self-contained systems
-        var availableSystems = GetAvailableSelfContainedSystems();
-
-        if (availableSystems.Length == 0)
+        // If debug or UI mode is enabled, we need a specific self-contained system
+        if ((debug || ui) && selfContainedSystem is null)
         {
-            AnsiConsole.MarkupLine("[red]No self-contained systems with e2e tests found.[/]");
-            Environment.Exit(1);
+            selfContainedSystem = SelfContainedSystemHelper.PromptForSelfContainedSystem(AvailableSelfContainedSystems);
         }
 
         // Determine which self-contained systems to test based on the provided patterns or grep
-        var selfContainedSystemsToTest = DetermineSystemsToTest(selfContainedSystem, availableSystems, testPatterns, grep);
-
-        // Validate self-contained system if provided
-        if (selfContainedSystem is not null && !availableSystems.Contains(selfContainedSystem))
+        string[] selfContainedSystemsToTest;
+        if (selfContainedSystem is not null)
         {
-            AnsiConsole.MarkupLine($"[red]Invalid self-contained system '{selfContainedSystem}'. Available systems: {string.Join(", ", availableSystems)}[/]");
-            Environment.Exit(1);
+            if (!AvailableSelfContainedSystems.Contains(selfContainedSystem))
+            {
+                AnsiConsole.MarkupLine($"[red]Invalid self-contained system '{selfContainedSystem}'. Available systems: {string.Join(", ", AvailableSelfContainedSystems)}[/]");
+                Environment.Exit(1);
+            }
+
+            selfContainedSystemsToTest = [selfContainedSystem];
+        }
+        else
+        {
+            selfContainedSystemsToTest = DetermineSystemsToTest(testPatterns, grep, AvailableSelfContainedSystems);
         }
 
         // Validate browser option
@@ -103,7 +110,7 @@ public class End2EndCommand : Command
             {
                 overallSuccess = false;
                 failedSelfContainedSystems.Add(currentSelfContainedSystem);
-                
+
                 // If stop on first failure is enabled, exit the loop after the first failure
                 if (stopOnFirstFailure)
                 {
@@ -215,7 +222,8 @@ public class End2EndCommand : Command
             ProcessHelper.StartProcess(processStartInfo, throwOnError: true);
             AnsiConsole.MarkupLine(testsFailed
                 ? $"[red]Tests for {selfContainedSystem} failed[/]"
-                : $"[green]Tests for {selfContainedSystem} completed successfully[/]");
+                : $"[green]Tests for {selfContainedSystem} completed successfully[/]"
+            );
         }
         catch (Exception)
         {
@@ -251,51 +259,27 @@ public class End2EndCommand : Command
         Environment.Exit(1);
     }
 
-    private static string[] DetermineSystemsToTest(string? specifiedSelfContainedSystem, string[] availableSystems, string[] testPatterns, string? grep)
+    private static string[] DetermineSystemsToTest(string[] testPatterns, string? grep, string[] availableSystems)
     {
-        // If a specific self-contained system is provided, use only that one
-        if (specifiedSelfContainedSystem != null)
-        {
-            return [specifiedSelfContainedSystem];
-        }
-
-        // If no patterns or grep are provided, run tests for all systems
         if ((testPatterns.Length == 0 || testPatterns[0] == "*") && string.IsNullOrEmpty(grep))
         {
             return availableSystems;
         }
 
-        // Check if test patterns match specific files in any self-contained system
         var matchingSystems = new HashSet<string>();
 
-        foreach (var pattern in testPatterns)
+        foreach (var pattern in testPatterns.Where(p => p != null && p != "*"))
         {
-            // Skip wildcard patterns as they don't help us narrow down the systems
-            if (pattern == "*" || (pattern.Contains("*") && !pattern.EndsWith(".spec.ts")))
-            {
-                continue;
-            }
-
-            if (pattern is null)
-            {
-                continue;
-            }
-
-            // Normalize the pattern to handle both file names and paths
             var normalizedPattern = pattern.EndsWith(".spec.ts") ? pattern : $"{pattern}.spec.ts";
             normalizedPattern = Path.GetFileName(normalizedPattern);
 
             foreach (var system in availableSystems)
             {
                 var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "e2e-tests");
-                if (!Directory.Exists(e2eTestsPath))
-                {
-                    continue;
-                }
+                if (!Directory.Exists(e2eTestsPath)) continue;
 
                 var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories)
-                    .Select(Path.GetFileName)
-                    .ToArray();
+                    .Select(Path.GetFileName);
 
                 if (testFiles.Any(file => file?.Equals(normalizedPattern, StringComparison.OrdinalIgnoreCase) == true))
                 {
@@ -304,69 +288,30 @@ public class End2EndCommand : Command
             }
         }
 
-        // If we found matching systems based on file patterns, return those
-        if (matchingSystems.Count > 0)
-        {
-            return matchingSystems.ToArray();
-        }
+        if (matchingSystems.Count > 0) return matchingSystems.ToArray();
 
-        // If grep is provided, try to find matching test content
         if (!string.IsNullOrEmpty(grep))
         {
             foreach (var system in availableSystems)
             {
                 var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "e2e-tests");
-                if (!Directory.Exists(e2eTestsPath))
-                {
-                    continue;
-                }
+                if (!Directory.Exists(e2eTestsPath)) continue;
 
                 var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories);
                 foreach (var testFile in testFiles)
                 {
-                    var fileContent = File.ReadAllText(testFile);
-                    if (fileContent.Contains(grep, StringComparison.OrdinalIgnoreCase))
+                    if (File.ReadAllText(testFile).Contains(grep, StringComparison.OrdinalIgnoreCase))
                     {
                         matchingSystems.Add(system);
-                        break; // Found a match in this system, no need to check other files
+                        break;
                     }
                 }
             }
 
-            if (matchingSystems.Count > 0)
-            {
-                return matchingSystems.ToArray();
-            }
+            if (matchingSystems.Count > 0) return matchingSystems.ToArray();
         }
 
-        // If we couldn't determine specific systems, run tests for all systems
         return availableSystems;
-    }
-
-    private static string[] GetAvailableSelfContainedSystems()
-    {
-        var selfContainedSystems = new List<string>();
-
-        // Look for directories that contain WebApp/e2e-tests
-        foreach (var directory in Directory.GetDirectories(Configuration.ApplicationFolder))
-        {
-            var directoryName = Path.GetFileName(directory);
-
-            // Skip directories that are not self-contained systems
-            if (directoryName.StartsWith('.') || directoryName == "AppGateway" || directoryName == "AppHost" ||
-                directoryName == "shared-kernel" || directoryName == "shared-webapp")
-            {
-                continue;
-            }
-
-            var e2eTestsPath = Path.Combine(directory, "WebApp", "e2e-tests");
-            if (Directory.Exists(e2eTestsPath))
-            {
-                selfContainedSystems.Add(directoryName);
-            }
-        }
-
-        return selfContainedSystems.ToArray();
     }
 
     private static string BuildPlaywrightArgs(
@@ -425,6 +370,26 @@ public class End2EndCommand : Command
         if (stopOnFirstFailure) args.Add("-x");
 
         return string.Join(" ", args);
+    }
+
+    private static string PromptForSelfContainedSystem(string[] availableSystems)
+    {
+        if (availableSystems.Length == 0)
+        {
+            AnsiConsole.MarkupLine("[red]No self-contained systems found.[/]");
+            Environment.Exit(1);
+            return string.Empty; // This line will never be reached but is needed to satisfy the compiler
+        }
+
+        var selectedSystem = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select a [green]self-contained system[/] to test:")
+                .PageSize(10)
+                .MoreChoicesText("[grey](Move up and down to reveal more systems)[/]")
+                .AddChoices(availableSystems)
+        );
+
+        return selectedSystem;
     }
 
     private static void OpenHtmlReport(string selfContainedSystem)
