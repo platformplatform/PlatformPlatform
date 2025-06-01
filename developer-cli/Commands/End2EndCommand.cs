@@ -69,8 +69,8 @@ public class End2EndCommand : Command
             Environment.Exit(1);
         }
 
-        // If no specific self-contained system is provided, run tests for all available self-contained systems
-        var selfContainedSystemsToTest = selfContainedSystem != null ? [selfContainedSystem] : availableSystems;
+        // Determine which self-contained systems to test based on the provided patterns or grep
+        var selfContainedSystemsToTest = DetermineSystemsToTest(selfContainedSystem, availableSystems, testPatterns, grep);
 
         // Validate self-contained system if provided
         if (selfContainedSystem is not null && !availableSystems.Contains(selfContainedSystem))
@@ -103,6 +103,12 @@ public class End2EndCommand : Command
             {
                 overallSuccess = false;
                 failedSelfContainedSystems.Add(currentSelfContainedSystem);
+                
+                // If stop on first failure is enabled, exit the loop after the first failure
+                if (stopOnFirstFailure)
+                {
+                    break;
+                }
             }
         }
 
@@ -243,6 +249,98 @@ public class End2EndCommand : Command
         AnsiConsole.MarkupLine($"[red]Server is not accessible at {BaseUrl}[/]");
         AnsiConsole.MarkupLine($"[yellow]Please start AppHost in your IDE before running '{Configuration.AliasName} e2e'[/]");
         Environment.Exit(1);
+    }
+
+    private static string[] DetermineSystemsToTest(string? specifiedSelfContainedSystem, string[] availableSystems, string[] testPatterns, string? grep)
+    {
+        // If a specific self-contained system is provided, use only that one
+        if (specifiedSelfContainedSystem != null)
+        {
+            return [specifiedSelfContainedSystem];
+        }
+
+        // If no patterns or grep are provided, run tests for all systems
+        if ((testPatterns.Length == 0 || testPatterns[0] == "*") && string.IsNullOrEmpty(grep))
+        {
+            return availableSystems;
+        }
+
+        // Check if test patterns match specific files in any self-contained system
+        var matchingSystems = new HashSet<string>();
+
+        foreach (var pattern in testPatterns)
+        {
+            // Skip wildcard patterns as they don't help us narrow down the systems
+            if (pattern == "*" || (pattern.Contains("*") && !pattern.EndsWith(".spec.ts")))
+            {
+                continue;
+            }
+
+            if (pattern is null)
+            {
+                continue;
+            }
+
+            // Normalize the pattern to handle both file names and paths
+            var normalizedPattern = pattern.EndsWith(".spec.ts") ? pattern : $"{pattern}.spec.ts";
+            normalizedPattern = Path.GetFileName(normalizedPattern);
+
+            foreach (var system in availableSystems)
+            {
+                var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "e2e-tests");
+                if (!Directory.Exists(e2eTestsPath))
+                {
+                    continue;
+                }
+
+                var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories)
+                    .Select(Path.GetFileName)
+                    .ToArray();
+
+                if (testFiles.Any(file => file?.Equals(normalizedPattern, StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    matchingSystems.Add(system);
+                }
+            }
+        }
+
+        // If we found matching systems based on file patterns, return those
+        if (matchingSystems.Count > 0)
+        {
+            return matchingSystems.ToArray();
+        }
+
+        // If grep is provided, try to find matching test content
+        if (!string.IsNullOrEmpty(grep))
+        {
+            foreach (var system in availableSystems)
+            {
+                var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "e2e-tests");
+                if (!Directory.Exists(e2eTestsPath))
+                {
+                    continue;
+                }
+
+                var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories);
+                foreach (var testFile in testFiles)
+                {
+                    var fileContent = File.ReadAllText(testFile);
+                    if (fileContent.Contains(grep, StringComparison.OrdinalIgnoreCase))
+                    {
+                        matchingSystems.Add(system);
+                        break; // Found a match in this system, no need to check other files
+                    }
+                }
+            }
+
+            if (matchingSystems.Count > 0)
+            {
+                return matchingSystems.ToArray();
+            }
+        }
+
+        // If we couldn't determine specific systems, run tests for all systems
+        return availableSystems;
     }
 
     private static string[] GetAvailableSelfContainedSystems()
