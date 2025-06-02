@@ -21,6 +21,15 @@
               "$ref": "#/components/schemas/SearchAddressesQuery"
             },
             "x-position": 1
+          },
+          {
+            "name": "CountryCode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
           }
         ],
         "responses": {
@@ -950,6 +959,10 @@
         "additionalProperties": false,
         "properties": {
           "query": {
+            "type": "string",
+            "nullable": true
+          },
+          "countryCode": {
             "type": "string",
             "nullable": true
           }

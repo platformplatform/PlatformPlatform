@@ -6,28 +6,28 @@ public sealed class CachedGeoapifyClient(GeoapifyClient geoapifyClient, IMemoryC
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
 
-    public async Task<GeoapifySearchResponse?> SearchAddressesAsync(string query, CancellationToken cancellationToken)
+    public async Task<GeoapifySearchResponse?> SearchAddressesAsync(string query, string? countryCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(query))
         {
             return new GeoapifySearchResponse([]);
         }
 
-        var cacheKey = $"geoapify_search_{query.ToLowerInvariant()}";
+        var cacheKey = $"geoapify_search_{query.ToLowerInvariant()}_{countryCode?.ToLowerInvariant() ?? "any"}";
 
         if (memoryCache.TryGetValue(cacheKey, out GeoapifySearchResponse? cachedResult))
         {
-            logger.LogDebug("Cache hit for Geoapify search query '{Query}'", query);
+            logger.LogDebug("Cache hit for Geoapify search query '{Query}' with country '{CountryCode}'", query, countryCode);
             return cachedResult;
         }
 
-        logger.LogDebug("Cache miss for Geoapify search query '{Query}', calling underlying client", query);
-        var result = await geoapifyClient.SearchAddressesAsync(query, cancellationToken);
+        logger.LogDebug("Cache miss for Geoapify search query '{Query}' with country '{CountryCode}', calling underlying client", query, countryCode);
+        var result = await geoapifyClient.SearchAddressesAsync(query, countryCode, cancellationToken);
 
         if (result != null)
         {
             memoryCache.Set(cacheKey, result, CacheDuration);
-            logger.LogDebug("Cached Geoapify search result for query '{Query}' for {Duration}", query, CacheDuration);
+            logger.LogDebug("Cached Geoapify search result for query '{Query}' with country '{CountryCode}' for {Duration}", query, countryCode, CacheDuration);
         }
 
         return result;

@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 namespace PlatformPlatform.AccountManagement.Features.Addresses.Queries;
 
 [PublicAPI]
-public sealed record SearchAddressesQuery(string? Query = null) : IRequest<Result<SearchAddressesResponse>>;
+public sealed record SearchAddressesQuery(string? Query = null, string? CountryCode = null) : IRequest<Result<SearchAddressesResponse>>;
 
 [PublicAPI]
 public sealed record SearchAddressesResponse(AddressSuggestion[] Suggestions);
@@ -40,7 +40,7 @@ public sealed class SearchAddressesHandler(IGeoapifyClient geoapifyClient) : IRe
             return new SearchAddressesResponse([]);
         }
 
-        var response = await geoapifyClient.SearchAddressesAsync(query.Query, cancellationToken);
+        var response = await geoapifyClient.SearchAddressesAsync(query.Query, query.CountryCode, cancellationToken);
 
         if (response is null)
         {

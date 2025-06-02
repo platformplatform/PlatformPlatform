@@ -14,7 +14,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Collection, Header, Label, ListBoxSection, Separator } from "react-aria-components";
+import { Header, Label, Section, Separator } from "react-aria-components";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/admin/account/")({
@@ -373,22 +373,16 @@ export function AccountSettings() {
                   placeholder={t`Select country for address filtering`}
                 >
                   {continents.map((continent) => (
-                    <ListBoxSection
-                      key={continent.name}
-                      id={continent.name}
-                      className="first:-mt-[5px] after:block after:h-[5px] after:content-['']"
-                    >
-                      <Header className="-top-[5px] -mt-px -mx-1 sticky z-10 truncate border-y bg-accent px-4 py-1 font-semibold text-accent-foreground text-sm backdrop-blur-md [&+*]:mt-1">
+                    <Section key={continent.name}>
+                      <Header className="sticky top-0 z-10 border-b bg-background px-2 py-1 font-semibold text-muted-foreground text-xs">
                         {continent.name}
                       </Header>
-                      <Collection items={continent.countries}>
-                        {(country) => (
-                          <SelectItem key={country.code} id={country.code}>
-                            {country.name}
-                          </SelectItem>
-                        )}
-                      </Collection>
-                    </ListBoxSection>
+                      {continent.countries.map((country) => (
+                        <SelectItem key={country.code} id={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </Section>
                   ))}
                 </Select>
               </div>

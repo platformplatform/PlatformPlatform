@@ -797,9 +797,6 @@ msgstr ""
 msgid "Select a country first to enable address search"
 msgstr ""
 
-msgid "Select a country to help filter address suggestions"
-msgstr ""
-
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"

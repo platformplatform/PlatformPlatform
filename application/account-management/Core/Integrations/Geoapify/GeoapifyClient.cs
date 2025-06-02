@@ -6,7 +6,7 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
 {
     private static readonly string? ApiKey = Environment.GetEnvironmentVariable("GEOAPIFY_API_KEY");
 
-    public async Task<GeoapifySearchResponse?> SearchAddressesAsync(string query, CancellationToken cancellationToken)
+    public async Task<GeoapifySearchResponse?> SearchAddressesAsync(string query, string? countryCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(ApiKey))
         {
@@ -17,6 +17,12 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
         try
         {
             var requestUri = $"autocomplete?text={Uri.EscapeDataString(query)}&apiKey={ApiKey}&limit=20&format=json";
+            
+            // Add country filter if provided
+            if (!string.IsNullOrWhiteSpace(countryCode))
+            {
+                requestUri += $"&filter=countrycode:{Uri.EscapeDataString(countryCode.ToLowerInvariant())}";
+            }
 
             var response = await httpClient.GetAsync(requestUri, cancellationToken);
 

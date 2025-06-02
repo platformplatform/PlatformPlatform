@@ -57,7 +57,7 @@ export function AddressAutocomplete({
           // @ts-ignore - OpenAPI contract mismatch: expects { Query: { query: string } } but backend wants { Query: string }
           Query: debouncedQuery || undefined,
           // Include country code in search if available
-          ...(countryCode && { Country: countryCode })
+          ...(countryCode && { CountryCode: countryCode })
         }
       }
     },
@@ -91,26 +91,38 @@ export function AddressAutocomplete({
     }
   };
 
-  const handleBlur = () => {
-    // Delay hiding to allow for selection
-    setTimeout(() => {
-      setIsPopoverOpen(false);
-    }, 150);
+  const handleBlur = (event: React.FocusEvent) => {
+    // Only close if focus is moving outside the entire autocomplete component
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    const popoverElement = document.querySelector("[data-popover]");
+
+    if (!relatedTarget || !popoverElement?.contains(relatedTarget)) {
+      // Delay to allow for selection to complete
+      setTimeout(() => {
+        setIsPopoverOpen(false);
+      }, 150);
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "ArrowDown" && suggestions.length > 0) {
       event.preventDefault();
       setIsPopoverOpen(true);
-      // Focus first item in the listbox
+      // Only focus the ListBox when user explicitly presses ArrowDown
       setTimeout(() => {
-        const firstItem = document.querySelector('[role="listbox"] [role="option"]') as HTMLElement;
-        if (firstItem) {
-          firstItem.focus();
+        const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+        if (listbox) {
+          listbox.focus();
+          // Focus first option
+          const firstOption = listbox.querySelector('[role="option"]') as HTMLElement;
+          if (firstOption) {
+            firstOption.focus();
+          }
         }
       }, 0);
     } else if (event.key === "Escape") {
       setIsPopoverOpen(false);
+      triggerRef.current?.focus();
     }
   };
 
@@ -170,7 +182,7 @@ export function AddressAutocomplete({
           triggerRef.current.focus();
           triggerRef.current.setSelectionRange(streetName.length, streetName.length);
         }
-      }, 0);
+      }, 100);
     }
   };
 
@@ -187,6 +199,9 @@ export function AddressAutocomplete({
         onKeyDown={handleKeyDown}
         isDisabled={isDisabled || !countryCode}
         name={name}
+        aria-expanded={shouldShowPopover && isPopoverOpen}
+        aria-haspopup="listbox"
+        aria-autocomplete="list"
       />
 
       {shouldShowPopover && isPopoverOpen && (
@@ -196,6 +211,7 @@ export function AddressAutocomplete({
           triggerRef={triggerRef}
           placement="bottom start"
           className="max-h-[400px] min-w-[300px] max-w-[500px] overflow-hidden"
+          data-popover={true}
         >
           <ListBox
             aria-label={t`Address suggestions`}
@@ -203,7 +219,7 @@ export function AddressAutocomplete({
             className="max-h-[360px] overflow-y-auto"
             onSelectionChange={(keys) => {
               const key = Array.from(keys)[0];
-              if (key) {
+              if (key !== undefined) {
                 handleSelection(key);
               }
             }}
@@ -211,12 +227,14 @@ export function AddressAutocomplete({
               id: index.toString(),
               ...suggestion
             }))}
+            shouldFocusWrap={true}
+            disallowEmptySelection={true}
           >
             {(item: SuggestionItem) => (
               <ListBoxItem
                 key={item.id}
                 textValue={item.formattedAddress}
-                className="cursor-pointer px-3 py-2 hover:bg-accent"
+                className="cursor-pointer px-3 py-2 hover:bg-accent focus:bg-accent focus:outline-none"
               >
                 <div className="flex flex-col">
                   <div className="font-medium text-sm">{item.street || item.formattedAddress}</div>
