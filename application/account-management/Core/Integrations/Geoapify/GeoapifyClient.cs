@@ -1,4 +1,7 @@
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using PlatformPlatform.AccountManagement.Features.Addresses.Queries;
 
 namespace PlatformPlatform.AccountManagement.Integrations.Geoapify;
 
@@ -6,12 +9,16 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
 {
     private static readonly string? ApiKey = Environment.GetEnvironmentVariable("GEOAPIFY_API_KEY");
 
-    public async Task<GeoapifySearchResponse?> SearchAddressesAsync(string query, string? countryCode, CancellationToken cancellationToken)
+    public async Task<GeoapifyResult> SearchAddressesAsync(string query, string? countryCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(ApiKey))
         {
             logger.LogWarning("Geoapify API key is not configured. Address auto-completion is disabled");
-            return new GeoapifySearchResponse([]);
+            return new GeoapifyResult(
+                new GeoapifySearchResponse([]), 
+                ServiceStatus.NotConfigured, 
+                "The Geoapify service is not configured"
+            );
         }
 
         try
@@ -21,37 +28,39 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
             // Add country filter if provided
             if (!string.IsNullOrWhiteSpace(countryCode))
             {
-                requestUri += $"&filter=countrycode:{Uri.EscapeDataString(countryCode.ToLowerInvariant())}";
+                requestUri += $"&filter=countrycode:{Uri.EscapeDataString(countryCode)}";
             }
+
+            logger.LogDebug("Searching addresses with query '{Query}' and country '{CountryCode}'", query, countryCode);
 
             var response = await httpClient.GetAsync(requestUri, cancellationToken);
 
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                logger.LogError("Geoapify API request failed with status code {StatusCode} for query '{Query}'", response.StatusCode, query);
-                return new GeoapifySearchResponse([]);
-            }
-
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            var searchResponse = JsonSerializer.Deserialize<GeoapifySearchResponse>(content, new JsonSerializerOptions
+                var jsonResponse = await response.Content.ReadAsStringAsync(cancellationToken);
+                var searchResponse = JsonSerializer.Deserialize<GeoapifySearchResponse>(jsonResponse, new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-                }
+                });
+
+                return new GeoapifyResult(searchResponse, ServiceStatus.Available);
+            }
+
+            logger.LogWarning("Geoapify API returned error status: {StatusCode}", response.StatusCode);
+            return new GeoapifyResult(
+                new GeoapifySearchResponse([]), 
+                ServiceStatus.NotResponding, 
+                "The Geoapify service is not responding"
             );
-
-            logger.LogDebug("Geoapify API returned {ResultCount} results for query '{Query}'", searchResponse?.Results?.Length ?? 0, query);
-
-            return searchResponse ?? new GeoapifySearchResponse([]);
-        }
-        catch (TaskCanceledException ex)
-        {
-            logger.LogError(ex, "Timeout when calling Geoapify API for query '{Query}'", query);
-            return new GeoapifySearchResponse([]);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error calling Geoapify API for query '{Query}'", query);
-            return new GeoapifySearchResponse([]);
+            logger.LogError(ex, "Error occurred while searching addresses with Geoapify");
+            return new GeoapifyResult(
+                new GeoapifySearchResponse([]), 
+                ServiceStatus.NotResponding, 
+                "The Geoapify service is not responding"
+            );
         }
     }
 }

@@ -67,7 +67,7 @@ export function Select<T extends object>({
     <AriaSelect {...props} name={name} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
       <Button className={(renderProps) => buttonStyles({ ...renderProps, isInvalid })}>
-        <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
+        <SelectValue className="flex-1 text-sm placeholder:text-muted-foreground" />
         <ChevronDown
           aria-hidden={true}
           className="h-4 w-4 text-muted-foreground group-disabled:text-muted forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"

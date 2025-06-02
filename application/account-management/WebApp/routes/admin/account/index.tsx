@@ -347,6 +347,18 @@ export function AccountSettings() {
             </Label>
             <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <h3 className="font-semibold text-lg">
+                  <Trans>Address</Trans>
+                </h3>
+              </div>
+              <Separator />
+              <p className="font-normal text-muted-foreground text-sm">
+                <Trans>Enter name and address information.</Trans>
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="w-full">
                 <TextField
@@ -355,7 +367,8 @@ export function AccountSettings() {
                   name="name"
                   defaultValue={tenant?.name ?? ""}
                   isDisabled={updateCurrentTenantMutation.isPending}
-                  label={t`Account name`}
+                  label={t`Name`}
+                  placeholder={t`Enter name`}
                   validationBehavior="aria"
                 />
               </div>
@@ -370,7 +383,7 @@ export function AccountSettings() {
                     setAddress((prev) => ({ ...prev, country: value as string }));
                   }}
                   isDisabled={updateCurrentTenantMutation.isPending}
-                  placeholder={t`Select country for address filtering`}
+                  placeholder={t`Select country`}
                 >
                   {continents.map((continent) => (
                     <Section key={continent.name}>
@@ -388,29 +401,27 @@ export function AccountSettings() {
               </div>
             </div>
 
-            <Separator />
+            <AddressForm
+              address={address}
+              onAddressChange={handleAddressChange}
+              onAddressSelect={handleAddressSelect}
+              countryCode={selectedCountry}
+              isDisabled={updateCurrentTenantMutation.isPending || !selectedCountry}
+            />
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <h3 className="font-semibold text-lg">
-                  <Trans>Address</Trans>
-                </h3>
-                <p className="font-normal text-muted-foreground text-sm">
-                  {selectedCountry ? (
-                    <Trans>Enter your business address or search for suggestions.</Trans>
-                  ) : (
-                    <Trans>Select a country above to enable address entry.</Trans>
-                  )}
-                </p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="w-full">
+                <TextField
+                  label={t`State/Province`}
+                  name="state"
+                  value={address.state}
+                  onChange={(value) => {
+                    setAddress((prev) => ({ ...prev, state: value as string }));
+                  }}
+                  isDisabled={updateCurrentTenantMutation.isPending || !selectedCountry}
+                  placeholder={t`Enter state or province`}
+                />
               </div>
-
-              <AddressForm
-                address={address}
-                onAddressChange={handleAddressChange}
-                onAddressSelect={handleAddressSelect}
-                countryCode={selectedCountry}
-                isDisabled={updateCurrentTenantMutation.isPending || !selectedCountry}
-              />
             </div>
 
             <FormErrorMessage error={updateCurrentTenantMutation.error} />

@@ -3,7 +3,9 @@ import { t } from "@lingui/core/macro";
 import { ListBox, ListBoxItem } from "@repo/ui/components/ListBox";
 import { Popover } from "@repo/ui/components/Popover";
 import { TextField } from "@repo/ui/components/TextField";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
+import { AlertTriangle } from "lucide-react";
 import { useRef, useState } from "react";
 import type { AddressData } from "./AddressForm";
 
@@ -191,18 +193,35 @@ export function AddressAutocomplete({
       <TextField
         ref={triggerRef}
         label={label || t`Street address`}
-        placeholder={placeholder || t`Start typing an address...`}
+        placeholder={placeholder || t`Enter street address`}
         value={inputValue}
         onChange={handleInputChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         isDisabled={isDisabled || !countryCode}
-        name={name}
+        name={name || "addressLine1"}
+        autoComplete="off"
         aria-expanded={shouldShowPopover && isPopoverOpen}
         aria-haspopup="listbox"
         aria-autocomplete="list"
       />
+
+      {/* Show service warning icon with tooltip */}
+      {response && "serviceStatus" in response && response.serviceStatus !== "Available" && (
+        <TooltipTrigger delay={0}>
+          <button
+            type="button"
+            className="-mt-[34] absolute right-2 z-50 rounded-sm p-1 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Service status warning"
+          >
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+          </button>
+          <Tooltip className="z-50 max-w-xs rounded-md border bg-popover px-3 py-2 text-popover-foreground text-sm shadow-md">
+            {(response as { serviceMessage?: string }).serviceMessage || t`Address service is currently not working`}
+          </Tooltip>
+        </TooltipTrigger>
+      )}
 
       {shouldShowPopover && isPopoverOpen && (
         <Popover

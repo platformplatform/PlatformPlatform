@@ -26,9 +26,6 @@ export function AddressForm({
   countryCode,
   isDisabled = false
 }: AddressFormProps) {
-  // Check if other fields should be enabled
-  const isStreetFilled = Boolean(address.street && address.street.trim().length > 0);
-
   const handleAddressChange = (field: keyof AddressData, value: string) => {
     onAddressChange({
       ...address,
@@ -49,7 +46,6 @@ export function AddressForm({
           onChange={(value) => handleAddressChange("street", value)}
           onAddressSelect={handleAddressSelect}
           isDisabled={isDisabled}
-          placeholder={countryCode ? t`Start typing an address...` : t`Select a country first to enable address search`}
           label={t`Street address`}
           name="street"
           countryCode={countryCode}
@@ -62,7 +58,7 @@ export function AddressForm({
           name="street2"
           value={address.street2}
           onChange={(value) => handleAddressChange("street2", value)}
-          isDisabled={isDisabled || !isStreetFilled}
+          isDisabled={isDisabled || !countryCode}
           placeholder={t`Apartment, suite, etc.`}
         />
       </div>
@@ -72,7 +68,7 @@ export function AddressForm({
         name="zip"
         value={address.zip}
         onChange={(value) => handleAddressChange("zip", value)}
-        isDisabled={isDisabled || !isStreetFilled}
+        isDisabled={isDisabled || !countryCode}
         placeholder={t`Enter ZIP or postal code`}
       />
 
@@ -81,17 +77,8 @@ export function AddressForm({
         name="city"
         value={address.city}
         onChange={(value) => handleAddressChange("city", value)}
-        isDisabled={isDisabled || !isStreetFilled}
+        isDisabled={isDisabled || !countryCode}
         placeholder={t`Enter city`}
-      />
-
-      <TextField
-        label={t`State/Province`}
-        name="state"
-        value={address.state}
-        onChange={(value) => handleAddressChange("state", value)}
-        isDisabled={isDisabled || !isStreetFilled}
-        placeholder={t`Enter state or province`}
       />
     </div>
   );

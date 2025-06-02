@@ -16,9 +16,6 @@ msgstr ""
 msgid "Account"
 msgstr "Account"
 
-msgid "Account name"
-msgstr "Account name"
-
 msgid "Account settings"
 msgstr "Account settings"
 
@@ -42,6 +39,9 @@ msgstr "Add profile picture"
 
 msgid "Address"
 msgstr "Address"
+
+msgid "Address service is currently not working"
+msgstr "Address service is currently not working"
 
 msgid "Address suggestions"
 msgstr "Address suggestions"
@@ -317,11 +317,17 @@ msgstr "Email"
 msgid "Enter city"
 msgstr "Enter city"
 
+msgid "Enter name"
+msgstr "Enter name"
+
+msgid "Enter name and address information."
+msgstr "Enter name and address information."
+
 msgid "Enter state or province"
 msgstr "Enter state or province"
 
-msgid "Enter your business address or search for suggestions."
-msgstr "Enter your business address or search for suggestions."
+msgid "Enter street address"
+msgstr "Enter street address"
 
 msgid "Enter your email below to log in"
 msgstr "Enter your email below to log in"
@@ -791,18 +797,12 @@ msgstr "Screenshots of the dashboard project with mobile versions"
 msgid "Search"
 msgstr "Search"
 
-msgid "Select a country above to enable address entry."
-msgstr "Select a country above to enable address entry."
-
-msgid "Select a country first to enable address search"
-msgstr "Select a country first to enable address search"
-
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
-msgid "Select country for address filtering"
-msgstr "Select country for address filtering"
+msgid "Select country"
+msgstr "Select country"
 
 msgid "Select language"
 msgstr "Select language"
@@ -866,9 +866,6 @@ msgstr "Spain"
 
 msgid "Sri Lanka"
 msgstr "Sri Lanka"
-
-msgid "Start typing an address..."
-msgstr "Start typing an address..."
 
 msgid "State/Province"
 msgstr "State/Province"

@@ -1,4 +1,4 @@
-import type { AddressSuggestion } from "@repo/ui/components/AddressAutocomplete";
+import type { AddressSuggestion } from "@/shared/components/AddressAutocomplete";
 import { useCallback } from "react";
 
 interface ApiAddressSuggestion {
@@ -42,11 +42,11 @@ export function useAddressSearch() {
       if (data?.suggestions) {
         return data.suggestions.map((suggestion: ApiAddressSuggestion) => ({
           formattedAddress: suggestion.formattedAddress || "",
-          street: suggestion.street,
-          city: suggestion.city,
-          state: suggestion.state,
-          zip: suggestion.zip,
-          country: suggestion.country
+          street: suggestion.street || null,
+          city: suggestion.city || null,
+          state: suggestion.state || null,
+          zip: suggestion.zip || null,
+          country: suggestion.country || null
         }));
       }
 

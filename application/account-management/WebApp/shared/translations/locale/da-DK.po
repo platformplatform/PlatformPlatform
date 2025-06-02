@@ -16,9 +16,6 @@ msgstr ""
 msgid "Account"
 msgstr "Konto"
 
-msgid "Account name"
-msgstr "Kontonavn"
-
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
@@ -41,6 +38,9 @@ msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
 
 msgid "Address"
+msgstr ""
+
+msgid "Address service is currently not working"
 msgstr ""
 
 msgid "Address suggestions"
@@ -317,10 +317,16 @@ msgstr "E-mail"
 msgid "Enter city"
 msgstr ""
 
+msgid "Enter name"
+msgstr ""
+
+msgid "Enter name and address information."
+msgstr ""
+
 msgid "Enter state or province"
 msgstr ""
 
-msgid "Enter your business address or search for suggestions."
+msgid "Enter street address"
 msgstr ""
 
 msgid "Enter your email below to log in"
@@ -791,17 +797,11 @@ msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
-msgid "Select a country above to enable address entry."
-msgstr ""
-
-msgid "Select a country first to enable address search"
-msgstr ""
-
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
-msgid "Select country for address filtering"
+msgid "Select country"
 msgstr ""
 
 msgid "Select language"
@@ -865,9 +865,6 @@ msgid "Spain"
 msgstr ""
 
 msgid "Sri Lanka"
-msgstr ""
-
-msgid "Start typing an address..."
 msgstr ""
 
 msgid "State/Province"

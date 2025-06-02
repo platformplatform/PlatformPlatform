@@ -922,6 +922,13 @@
             "items": {
               "$ref": "#/components/schemas/AddressSuggestion"
             }
+          },
+          "serviceStatus": {
+            "$ref": "#/components/schemas/ServiceStatus"
+          },
+          "serviceMessage": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -953,6 +960,20 @@
             "nullable": true
           }
         }
+      },
+      "ServiceStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Available",
+          "NotConfigured",
+          "NotResponding"
+        ],
+        "enum": [
+          "Available",
+          "NotConfigured",
+          "NotResponding"
+        ]
       },
       "SearchAddressesQuery": {
         "type": "object",
