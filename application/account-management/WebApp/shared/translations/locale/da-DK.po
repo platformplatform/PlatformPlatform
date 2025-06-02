@@ -40,10 +40,25 @@ msgstr "Tilføj flere i Brugere menuen"
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
 
+msgid "Address"
+msgstr ""
+
+msgid "Address suggestions"
+msgstr ""
+
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Afghanistan"
+msgstr ""
+
 msgid "Africa"
+msgstr ""
+
+msgid "Albania"
+msgstr ""
+
+msgid "Algeria"
 msgstr ""
 
 msgid "All users"
@@ -56,11 +71,20 @@ msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 msgid "Andorra"
 msgstr ""
 
+msgid "Angola"
+msgstr ""
+
+msgid "Antigua and Barbuda"
+msgstr ""
+
 msgid "Any role"
 msgstr "Enhver rolle"
 
 msgid "Any status"
 msgstr "Enhver status"
+
+msgid "Apartment, suite, etc."
+msgstr ""
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -73,6 +97,9 @@ msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
 msgid "Argentina"
 msgstr ""
 
+msgid "Armenia"
+msgstr ""
+
 msgid "Asia"
 msgstr ""
 
@@ -82,17 +109,68 @@ msgstr ""
 msgid "Austria"
 msgstr ""
 
+msgid "Azerbaijan"
+msgstr ""
+
+msgid "Bahamas"
+msgstr ""
+
+msgid "Bahrain"
+msgstr ""
+
+msgid "Bangladesh"
+msgstr ""
+
+msgid "Barbados"
+msgstr ""
+
+msgid "Belarus"
+msgstr ""
+
 msgid "Belgium"
+msgstr ""
+
+msgid "Belize"
+msgstr ""
+
+msgid "Benin"
+msgstr ""
+
+msgid "Bhutan"
+msgstr ""
+
+msgid "Bolivia"
+msgstr ""
+
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+msgid "Botswana"
 msgstr ""
 
 msgid "Brazil"
 msgstr ""
 
+msgid "Brunei"
+msgstr ""
+
 msgid "Bulgaria"
+msgstr ""
+
+msgid "Burkina Faso"
+msgstr ""
+
+msgid "Burundi"
 msgstr ""
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
+
+msgid "Cambodia"
+msgstr ""
+
+msgid "Cameroon"
+msgstr ""
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kan du ikke finde din kode? Tjek din spammappe."
@@ -102,6 +180,15 @@ msgstr ""
 
 msgid "Cancel"
 msgstr "Annuller"
+
+msgid "Cape Verde"
+msgstr ""
+
+msgid "Central African Republic"
+msgstr ""
+
+msgid "Chad"
+msgstr ""
 
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
@@ -124,8 +211,17 @@ msgstr ""
 msgid "Colombia"
 msgstr ""
 
+msgid "Comoros"
+msgstr ""
+
+msgid "Congo"
+msgstr ""
+
 msgid "Continue"
 msgstr "Fortsæt"
+
+msgid "Costa Rica"
+msgstr ""
 
 msgid "Country"
 msgstr ""
@@ -137,6 +233,9 @@ msgid "Created"
 msgstr "Oprettet"
 
 msgid "Croatia"
+msgstr ""
+
+msgid "Cuba"
 msgstr ""
 
 msgid "Cyprus"
@@ -167,14 +266,26 @@ msgstr "Slet brugere"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
 
+msgid "Democratic Republic of the Congo"
+msgstr ""
+
 msgid "Denmark"
 msgstr ""
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
 
+msgid "Djibouti"
+msgstr ""
+
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
+
+msgid "Dominica"
+msgstr ""
+
+msgid "Dominican Republic"
+msgstr ""
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
@@ -188,20 +299,44 @@ msgstr "F.eks., Softwareingeniør"
 msgid "E.g., Taylor"
 msgstr "F.eks. Taylor"
 
+msgid "Ecuador"
+msgstr ""
+
 msgid "Edit profile"
 msgstr "Rediger profil"
 
 msgid "Egypt"
 msgstr ""
 
+msgid "El Salvador"
+msgstr ""
+
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Enter city"
+msgstr ""
+
+msgid "Enter state or province"
+msgstr ""
+
+msgid "Enter your business address or search for suggestions."
+msgstr ""
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
 
 msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
+
+msgid "Enter ZIP or postal code"
+msgstr ""
+
+msgid "Equatorial Guinea"
+msgstr ""
+
+msgid "Eritrea"
+msgstr ""
 
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
@@ -212,11 +347,23 @@ msgstr "Fejl: Bekræftelseskoden er udløbet"
 msgid "Estonia"
 msgstr ""
 
+msgid "Eswatini"
+msgstr ""
+
+msgid "Ethiopia"
+msgstr ""
+
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Falkland Islands"
+msgstr ""
+
 msgid "Fetching data..."
 msgstr "Henter data..."
+
+msgid "Fiji"
+msgstr ""
 
 msgid "Finland"
 msgstr ""
@@ -227,10 +374,43 @@ msgstr "Fornavn"
 msgid "France"
 msgstr ""
 
+msgid "French Guiana"
+msgstr ""
+
+msgid "Gabon"
+msgstr ""
+
+msgid "Gambia"
+msgstr ""
+
+msgid "Georgia"
+msgstr ""
+
 msgid "Germany"
 msgstr ""
 
+msgid "Ghana"
+msgstr ""
+
 msgid "Greece"
+msgstr ""
+
+msgid "Grenada"
+msgstr ""
+
+msgid "Guatemala"
+msgstr ""
+
+msgid "Guinea"
+msgstr ""
+
+msgid "Guinea-Bissau"
+msgstr ""
+
+msgid "Guyana"
+msgstr ""
+
+msgid "Haiti"
 msgstr ""
 
 msgid "Help"
@@ -248,6 +428,12 @@ msgstr "Skjul filtre"
 msgid "Home"
 msgstr "Hjem"
 
+msgid "Honduras"
+msgstr ""
+
+msgid "Hong Kong"
+msgstr ""
+
 msgid "Hungary"
 msgstr ""
 
@@ -258,6 +444,9 @@ msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
 
 msgid "India"
+msgstr ""
+
+msgid "Indonesia"
 msgstr ""
 
 msgid "Invite user"
@@ -272,22 +461,67 @@ msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger 
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Iran"
+msgstr ""
+
+msgid "Iraq"
+msgstr ""
+
 msgid "Ireland"
+msgstr ""
+
+msgid "Israel"
 msgstr ""
 
 msgid "Italy"
 msgstr ""
 
+msgid "Ivory Coast"
+msgstr ""
+
+msgid "Jamaica"
+msgstr ""
+
 msgid "Japan"
 msgstr ""
 
+msgid "Jordan"
+msgstr ""
+
+msgid "Kazakhstan"
+msgstr ""
+
 msgid "Kenya"
+msgstr ""
+
+msgid "Kiribati"
+msgstr ""
+
+msgid "Kuwait"
+msgstr ""
+
+msgid "Kyrgyzstan"
+msgstr ""
+
+msgid "Laos"
 msgstr ""
 
 msgid "Last name"
 msgstr "Efternavn"
 
 msgid "Latvia"
+msgstr ""
+
+msgid "Lebanon"
+msgstr ""
+
+msgid "Lesotho"
+msgstr ""
+
+msgid "Liberia"
+msgstr ""
+
+msgid "Libya"
 msgstr ""
 
 msgid "Liechtenstein"
@@ -311,6 +545,24 @@ msgstr "Logo"
 msgid "Luxembourg"
 msgstr ""
 
+msgid "Macao"
+msgstr ""
+
+msgid "Madagascar"
+msgstr ""
+
+msgid "Malawi"
+msgstr ""
+
+msgid "Malaysia"
+msgstr ""
+
+msgid "Maldives"
+msgstr ""
+
+msgid "Mali"
+msgstr ""
+
 msgid "Malta"
 msgstr ""
 
@@ -319,6 +571,15 @@ msgstr "Administrer din konto her."
 
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
+
+msgid "Marshall Islands"
+msgstr ""
+
+msgid "Mauritania"
+msgstr ""
+
+msgid "Mauritius"
+msgstr ""
 
 msgid "Member"
 msgstr "Medlem"
@@ -329,20 +590,47 @@ msgstr "Menu"
 msgid "Mexico"
 msgstr ""
 
+msgid "Micronesia"
+msgstr ""
+
 msgid "Modified"
 msgstr "Ændret"
 
 msgid "Modified date"
 msgstr "Ændret dato"
 
+msgid "Moldova"
+msgstr ""
+
 msgid "Monaco"
+msgstr ""
+
+msgid "Mongolia"
+msgstr ""
+
+msgid "Montenegro"
 msgstr ""
 
 msgid "Morocco"
 msgstr ""
 
+msgid "Mozambique"
+msgstr ""
+
+msgid "Myanmar"
+msgstr ""
+
 msgid "Name"
 msgstr "Navn"
+
+msgid "Namibia"
+msgstr ""
+
+msgid "Nauru"
+msgstr ""
+
+msgid "Nepal"
+msgstr ""
 
 msgid "Netherlands"
 msgstr ""
@@ -353,6 +641,12 @@ msgstr ""
 msgid "Next"
 msgstr "Næste"
 
+msgid "Nicaragua"
+msgstr ""
+
+msgid "Niger"
+msgstr ""
+
 msgid "Nigeria"
 msgstr ""
 
@@ -362,10 +656,19 @@ msgstr "Ingen aktiv tilmeldingssession"
 msgid "North America"
 msgstr ""
 
+msgid "North Korea"
+msgstr ""
+
+msgid "North Macedonia"
+msgstr ""
+
 msgid "Norway"
 msgstr ""
 
 msgid "Oceania"
+msgstr ""
+
+msgid "Oman"
 msgstr ""
 
 msgid "Organization"
@@ -374,10 +677,31 @@ msgstr "Organisation"
 msgid "Owner"
 msgstr "Ejer"
 
+msgid "Pakistan"
+msgstr ""
+
+msgid "Palau"
+msgstr ""
+
+msgid "Palestine"
+msgstr ""
+
+msgid "Panama"
+msgstr ""
+
+msgid "Papua New Guinea"
+msgstr ""
+
+msgid "Paraguay"
+msgstr ""
+
 msgid "Pending"
 msgstr "Afventer"
 
 msgid "Peru"
+msgstr ""
+
+msgid "Philippines"
 msgstr ""
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
@@ -410,6 +734,9 @@ msgstr "Fortrolighedspolitikker"
 msgid "Profile picture"
 msgstr "Profilbillede"
 
+msgid "Qatar"
+msgstr ""
+
 msgid "Region"
 msgstr "Region"
 
@@ -422,7 +749,31 @@ msgstr "Rolle"
 msgid "Romania"
 msgstr ""
 
+msgid "Russia"
+msgstr ""
+
+msgid "Rwanda"
+msgstr ""
+
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+msgid "Saint Lucia"
+msgstr ""
+
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+msgid "Samoa"
+msgstr ""
+
 msgid "San Marino"
+msgstr ""
+
+msgid "São Tomé and Príncipe"
+msgstr ""
+
+msgid "Saudi Arabia"
 msgstr ""
 
 msgid "Save changes"
@@ -440,9 +791,21 @@ msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Select a country above to enable address entry."
+msgstr ""
+
+msgid "Select a country first to enable address search"
+msgstr ""
+
+msgid "Select a country to help filter address suggestions"
+msgstr ""
+
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
+
+msgid "Select country for address filtering"
+msgstr ""
 
 msgid "Select language"
 msgstr "Vælg sprog"
@@ -450,11 +813,23 @@ msgstr "Vælg sprog"
 msgid "Send invite"
 msgstr "Send invitation"
 
+msgid "Senegal"
+msgstr ""
+
+msgid "Serbia"
+msgstr ""
+
 msgid "Settings"
 msgstr "Indstillinger"
 
+msgid "Seychelles"
+msgstr ""
+
 msgid "Show filters"
 msgstr "Vis filtre"
+
+msgid "Sierra Leone"
+msgstr ""
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
@@ -471,6 +846,12 @@ msgstr ""
 msgid "Slovenia"
 msgstr ""
 
+msgid "Solomon Islands"
+msgstr ""
+
+msgid "Somalia"
+msgstr ""
+
 msgid "South Africa"
 msgstr ""
 
@@ -480,13 +861,49 @@ msgstr ""
 msgid "South Korea"
 msgstr ""
 
+msgid "South Sudan"
+msgstr ""
+
 msgid "Spain"
+msgstr ""
+
+msgid "Sri Lanka"
+msgstr ""
+
+msgid "Start typing an address..."
+msgstr ""
+
+msgid "State/Province"
+msgstr ""
+
+msgid "Street address"
+msgstr ""
+
+msgid "Street address 2 (optional)"
+msgstr ""
+
+msgid "Sudan"
+msgstr ""
+
+msgid "Suriname"
 msgstr ""
 
 msgid "Sweden"
 msgstr ""
 
 msgid "Switzerland"
+msgstr ""
+
+msgid "Syria"
+msgstr ""
+
+msgid "Taiwan"
+msgstr ""
+
+msgid "Tajikistan"
+msgstr ""
+
+msgid "Tanzania"
 msgstr ""
 
 msgid "Terms of use"
@@ -504,6 +921,9 @@ msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {lo
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
 
+msgid "Timor-Leste"
+msgstr ""
+
 msgid "Title"
 msgstr "Titel"
 
@@ -513,11 +933,41 @@ msgstr "Skift kollapset menu"
 msgid "Toggle theme"
 msgstr "Skift tema"
 
+msgid "Togo"
+msgstr ""
+
+msgid "Tonga"
+msgstr ""
+
 msgid "Total users"
 msgstr "Totalt antal brugere"
 
+msgid "Trinidad and Tobago"
+msgstr ""
+
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Tunisia"
+msgstr ""
+
+msgid "Turkey"
+msgstr ""
+
+msgid "Turkmenistan"
+msgstr ""
+
+msgid "Tuvalu"
+msgstr ""
+
+msgid "Uganda"
+msgstr ""
+
+msgid "Ukraine"
+msgstr ""
+
+msgid "United Arab Emirates"
+msgstr ""
 
 msgid "United Kingdom"
 msgstr ""
@@ -530,6 +980,9 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
+
+msgid "Uruguay"
+msgstr ""
 
 msgid "User profile"
 msgstr "Brugerprofil"
@@ -552,7 +1005,16 @@ msgstr "Brugere"
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
+msgid "Uzbekistan"
+msgstr ""
+
+msgid "Vanuatu"
+msgstr ""
+
 msgid "Vatican City"
+msgstr ""
+
+msgid "Venezuela"
 msgstr ""
 
 msgid "Verify"
@@ -579,8 +1041,20 @@ msgstr "Se brugere"
 msgid "Welcome home"
 msgstr "Velkommen hjem"
 
+msgid "Yemen"
+msgstr ""
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"
+
+msgid "Zambia"
+msgstr ""
+
+msgid "Zimbabwe"
+msgstr ""
+
+msgid "ZIP/Postal code"
+msgstr ""

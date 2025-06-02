@@ -40,11 +40,26 @@ msgstr "Add more in the Users menu"
 msgid "Add profile picture"
 msgstr "Add profile picture"
 
+msgid "Address"
+msgstr "Address"
+
+msgid "Address suggestions"
+msgstr "Address suggestions"
+
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Afghanistan"
+msgstr "Afghanistan"
+
 msgid "Africa"
 msgstr "Africa"
+
+msgid "Albania"
+msgstr "Albania"
+
+msgid "Algeria"
+msgstr "Algeria"
 
 msgid "All users"
 msgstr "All users"
@@ -56,11 +71,20 @@ msgstr "An error occurred while processing your request. {0}"
 msgid "Andorra"
 msgstr "Andorra"
 
+msgid "Angola"
+msgstr "Angola"
+
+msgid "Antigua and Barbuda"
+msgstr "Antigua and Barbuda"
+
 msgid "Any role"
 msgstr "Any role"
 
 msgid "Any status"
 msgstr "Any status"
+
+msgid "Apartment, suite, etc."
+msgstr "Apartment, suite, etc."
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -73,6 +97,9 @@ msgstr "Are you sure you want to delete <0>{0}?</0>"
 msgid "Argentina"
 msgstr "Argentina"
 
+msgid "Armenia"
+msgstr "Armenia"
+
 msgid "Asia"
 msgstr "Asia"
 
@@ -82,17 +109,68 @@ msgstr "Australia"
 msgid "Austria"
 msgstr "Austria"
 
+msgid "Azerbaijan"
+msgstr "Azerbaijan"
+
+msgid "Bahamas"
+msgstr "Bahamas"
+
+msgid "Bahrain"
+msgstr "Bahrain"
+
+msgid "Bangladesh"
+msgstr "Bangladesh"
+
+msgid "Barbados"
+msgstr "Barbados"
+
+msgid "Belarus"
+msgstr "Belarus"
+
 msgid "Belgium"
 msgstr "Belgium"
+
+msgid "Belize"
+msgstr "Belize"
+
+msgid "Benin"
+msgstr "Benin"
+
+msgid "Bhutan"
+msgstr "Bhutan"
+
+msgid "Bolivia"
+msgstr "Bolivia"
+
+msgid "Bosnia and Herzegovina"
+msgstr "Bosnia and Herzegovina"
+
+msgid "Botswana"
+msgstr "Botswana"
 
 msgid "Brazil"
 msgstr "Brazil"
 
+msgid "Brunei"
+msgstr "Brunei"
+
 msgid "Bulgaria"
 msgstr "Bulgaria"
 
+msgid "Burkina Faso"
+msgstr "Burkina Faso"
+
+msgid "Burundi"
+msgstr "Burundi"
+
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
+
+msgid "Cambodia"
+msgstr "Cambodia"
+
+msgid "Cameroon"
+msgstr "Cameroon"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Can't find your code? Check your spam folder."
@@ -102,6 +180,15 @@ msgstr "Canada"
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Cape Verde"
+msgstr "Cape Verde"
+
+msgid "Central African Republic"
+msgstr "Central African Republic"
+
+msgid "Chad"
+msgstr "Chad"
 
 msgid "Change profile picture"
 msgstr "Change profile picture"
@@ -124,8 +211,17 @@ msgstr "City"
 msgid "Colombia"
 msgstr "Colombia"
 
+msgid "Comoros"
+msgstr "Comoros"
+
+msgid "Congo"
+msgstr "Congo"
+
 msgid "Continue"
 msgstr "Continue"
+
+msgid "Costa Rica"
+msgstr "Costa Rica"
 
 msgid "Country"
 msgstr "Country"
@@ -138,6 +234,9 @@ msgstr "Created"
 
 msgid "Croatia"
 msgstr "Croatia"
+
+msgid "Cuba"
+msgstr "Cuba"
 
 msgid "Cyprus"
 msgstr "Cyprus"
@@ -167,14 +266,26 @@ msgstr "Delete users"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 
+msgid "Democratic Republic of the Congo"
+msgstr "Democratic Republic of the Congo"
+
 msgid "Denmark"
 msgstr "Denmark"
 
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"
 
+msgid "Djibouti"
+msgstr "Djibouti"
+
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
+
+msgid "Dominica"
+msgstr "Dominica"
+
+msgid "Dominican Republic"
+msgstr "Dominican Republic"
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
@@ -188,20 +299,44 @@ msgstr "E.g., Software engineer"
 msgid "E.g., Taylor"
 msgstr "E.g., Taylor"
 
+msgid "Ecuador"
+msgstr "Ecuador"
+
 msgid "Edit profile"
 msgstr "Edit profile"
 
 msgid "Egypt"
 msgstr "Egypt"
 
+msgid "El Salvador"
+msgstr "El Salvador"
+
 msgid "Email"
 msgstr "Email"
+
+msgid "Enter city"
+msgstr "Enter city"
+
+msgid "Enter state or province"
+msgstr "Enter state or province"
+
+msgid "Enter your business address or search for suggestions."
+msgstr "Enter your business address or search for suggestions."
 
 msgid "Enter your email below to log in"
 msgstr "Enter your email below to log in"
 
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
+
+msgid "Enter ZIP or postal code"
+msgstr "Enter ZIP or postal code"
+
+msgid "Equatorial Guinea"
+msgstr "Equatorial Guinea"
+
+msgid "Eritrea"
+msgstr "Eritrea"
 
 msgid "Error: Something went wrong!"
 msgstr "Error: Something went wrong!"
@@ -212,11 +347,23 @@ msgstr "Error: Verification code has expired"
 msgid "Estonia"
 msgstr "Estonia"
 
+msgid "Eswatini"
+msgstr "Eswatini"
+
+msgid "Ethiopia"
+msgstr "Ethiopia"
+
 msgid "Europe"
 msgstr "Europe"
 
+msgid "Falkland Islands"
+msgstr "Falkland Islands"
+
 msgid "Fetching data..."
 msgstr "Fetching data..."
+
+msgid "Fiji"
+msgstr "Fiji"
 
 msgid "Finland"
 msgstr "Finland"
@@ -227,11 +374,44 @@ msgstr "First name"
 msgid "France"
 msgstr "France"
 
+msgid "French Guiana"
+msgstr "French Guiana"
+
+msgid "Gabon"
+msgstr "Gabon"
+
+msgid "Gambia"
+msgstr "Gambia"
+
+msgid "Georgia"
+msgstr "Georgia"
+
 msgid "Germany"
 msgstr "Germany"
 
+msgid "Ghana"
+msgstr "Ghana"
+
 msgid "Greece"
 msgstr "Greece"
+
+msgid "Grenada"
+msgstr "Grenada"
+
+msgid "Guatemala"
+msgstr "Guatemala"
+
+msgid "Guinea"
+msgstr "Guinea"
+
+msgid "Guinea-Bissau"
+msgstr "Guinea-Bissau"
+
+msgid "Guyana"
+msgstr "Guyana"
+
+msgid "Haiti"
+msgstr "Haiti"
 
 msgid "Help"
 msgstr "Help"
@@ -248,6 +428,12 @@ msgstr "Hide filters"
 msgid "Home"
 msgstr "Home"
 
+msgid "Honduras"
+msgstr "Honduras"
+
+msgid "Hong Kong"
+msgstr "Hong Kong"
+
 msgid "Hungary"
 msgstr "Hungary"
 
@@ -259,6 +445,9 @@ msgstr "Image must be smaller than 1 MB."
 
 msgid "India"
 msgstr "India"
+
+msgid "Indonesia"
+msgstr "Indonesia"
 
 msgid "Invite user"
 msgstr "Invite user"
@@ -272,23 +461,68 @@ msgstr "Invite users and assign them roles. They will appear once they log in."
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Iran"
+msgstr "Iran"
+
+msgid "Iraq"
+msgstr "Iraq"
+
 msgid "Ireland"
 msgstr "Ireland"
+
+msgid "Israel"
+msgstr "Israel"
 
 msgid "Italy"
 msgstr "Italy"
 
+msgid "Ivory Coast"
+msgstr "Ivory Coast"
+
+msgid "Jamaica"
+msgstr "Jamaica"
+
 msgid "Japan"
 msgstr "Japan"
 
+msgid "Jordan"
+msgstr "Jordan"
+
+msgid "Kazakhstan"
+msgstr "Kazakhstan"
+
 msgid "Kenya"
 msgstr "Kenya"
+
+msgid "Kiribati"
+msgstr "Kiribati"
+
+msgid "Kuwait"
+msgstr "Kuwait"
+
+msgid "Kyrgyzstan"
+msgstr "Kyrgyzstan"
+
+msgid "Laos"
+msgstr "Laos"
 
 msgid "Last name"
 msgstr "Last name"
 
 msgid "Latvia"
 msgstr "Latvia"
+
+msgid "Lebanon"
+msgstr "Lebanon"
+
+msgid "Lesotho"
+msgstr "Lesotho"
+
+msgid "Liberia"
+msgstr "Liberia"
+
+msgid "Libya"
+msgstr "Libya"
 
 msgid "Liechtenstein"
 msgstr "Liechtenstein"
@@ -311,6 +545,24 @@ msgstr "Logo"
 msgid "Luxembourg"
 msgstr "Luxembourg"
 
+msgid "Macao"
+msgstr "Macao"
+
+msgid "Madagascar"
+msgstr "Madagascar"
+
+msgid "Malawi"
+msgstr "Malawi"
+
+msgid "Malaysia"
+msgstr "Malaysia"
+
+msgid "Maldives"
+msgstr "Maldives"
+
+msgid "Mali"
+msgstr "Mali"
+
 msgid "Malta"
 msgstr "Malta"
 
@@ -319,6 +571,15 @@ msgstr "Manage your account here."
 
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
+
+msgid "Marshall Islands"
+msgstr "Marshall Islands"
+
+msgid "Mauritania"
+msgstr "Mauritania"
+
+msgid "Mauritius"
+msgstr "Mauritius"
 
 msgid "Member"
 msgstr "Member"
@@ -329,20 +590,47 @@ msgstr "Menu"
 msgid "Mexico"
 msgstr "Mexico"
 
+msgid "Micronesia"
+msgstr "Micronesia"
+
 msgid "Modified"
 msgstr "Modified"
 
 msgid "Modified date"
 msgstr "Modified date"
 
+msgid "Moldova"
+msgstr "Moldova"
+
 msgid "Monaco"
 msgstr "Monaco"
+
+msgid "Mongolia"
+msgstr "Mongolia"
+
+msgid "Montenegro"
+msgstr "Montenegro"
 
 msgid "Morocco"
 msgstr "Morocco"
 
+msgid "Mozambique"
+msgstr "Mozambique"
+
+msgid "Myanmar"
+msgstr "Myanmar"
+
 msgid "Name"
 msgstr "Name"
+
+msgid "Namibia"
+msgstr "Namibia"
+
+msgid "Nauru"
+msgstr "Nauru"
+
+msgid "Nepal"
+msgstr "Nepal"
 
 msgid "Netherlands"
 msgstr "Netherlands"
@@ -353,6 +641,12 @@ msgstr "New Zealand"
 msgid "Next"
 msgstr "Next"
 
+msgid "Nicaragua"
+msgstr "Nicaragua"
+
+msgid "Niger"
+msgstr "Niger"
+
 msgid "Nigeria"
 msgstr "Nigeria"
 
@@ -362,11 +656,20 @@ msgstr "No active signup session"
 msgid "North America"
 msgstr "North America"
 
+msgid "North Korea"
+msgstr "North Korea"
+
+msgid "North Macedonia"
+msgstr "North Macedonia"
+
 msgid "Norway"
 msgstr "Norway"
 
 msgid "Oceania"
 msgstr "Oceania"
+
+msgid "Oman"
+msgstr "Oman"
 
 msgid "Organization"
 msgstr "Organization"
@@ -374,11 +677,32 @@ msgstr "Organization"
 msgid "Owner"
 msgstr "Owner"
 
+msgid "Pakistan"
+msgstr "Pakistan"
+
+msgid "Palau"
+msgstr "Palau"
+
+msgid "Palestine"
+msgstr "Palestine"
+
+msgid "Panama"
+msgstr "Panama"
+
+msgid "Papua New Guinea"
+msgstr "Papua New Guinea"
+
+msgid "Paraguay"
+msgstr "Paraguay"
+
 msgid "Pending"
 msgstr "Pending"
 
 msgid "Peru"
 msgstr "Peru"
+
+msgid "Philippines"
+msgstr "Philippines"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
@@ -410,6 +734,9 @@ msgstr "Privacy policies"
 msgid "Profile picture"
 msgstr "Profile picture"
 
+msgid "Qatar"
+msgstr "Qatar"
+
 msgid "Region"
 msgstr "Region"
 
@@ -422,8 +749,32 @@ msgstr "Role"
 msgid "Romania"
 msgstr "Romania"
 
+msgid "Russia"
+msgstr "Russia"
+
+msgid "Rwanda"
+msgstr "Rwanda"
+
+msgid "Saint Kitts and Nevis"
+msgstr "Saint Kitts and Nevis"
+
+msgid "Saint Lucia"
+msgstr "Saint Lucia"
+
+msgid "Saint Vincent and the Grenadines"
+msgstr "Saint Vincent and the Grenadines"
+
+msgid "Samoa"
+msgstr "Samoa"
+
 msgid "San Marino"
 msgstr "San Marino"
+
+msgid "São Tomé and Príncipe"
+msgstr "São Tomé and Príncipe"
+
+msgid "Saudi Arabia"
+msgstr "Saudi Arabia"
 
 msgid "Save changes"
 msgstr "Save changes"
@@ -440,9 +791,21 @@ msgstr "Screenshots of the dashboard project with mobile versions"
 msgid "Search"
 msgstr "Search"
 
+msgid "Select a country above to enable address entry."
+msgstr "Select a country above to enable address entry."
+
+msgid "Select a country first to enable address search"
+msgstr "Select a country first to enable address search"
+
+msgid "Select a country to help filter address suggestions"
+msgstr "Select a country to help filter address suggestions"
+
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
+
+msgid "Select country for address filtering"
+msgstr "Select country for address filtering"
 
 msgid "Select language"
 msgstr "Select language"
@@ -450,11 +813,23 @@ msgstr "Select language"
 msgid "Send invite"
 msgstr "Send invite"
 
+msgid "Senegal"
+msgstr "Senegal"
+
+msgid "Serbia"
+msgstr "Serbia"
+
 msgid "Settings"
 msgstr "Settings"
 
+msgid "Seychelles"
+msgstr "Seychelles"
+
 msgid "Show filters"
 msgstr "Show filters"
+
+msgid "Sierra Leone"
+msgstr "Sierra Leone"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
@@ -471,6 +846,12 @@ msgstr "Slovakia"
 msgid "Slovenia"
 msgstr "Slovenia"
 
+msgid "Solomon Islands"
+msgstr "Solomon Islands"
+
+msgid "Somalia"
+msgstr "Somalia"
+
 msgid "South Africa"
 msgstr "South Africa"
 
@@ -480,14 +861,50 @@ msgstr "South America"
 msgid "South Korea"
 msgstr "South Korea"
 
+msgid "South Sudan"
+msgstr "South Sudan"
+
 msgid "Spain"
 msgstr "Spain"
+
+msgid "Sri Lanka"
+msgstr "Sri Lanka"
+
+msgid "Start typing an address..."
+msgstr "Start typing an address..."
+
+msgid "State/Province"
+msgstr "State/Province"
+
+msgid "Street address"
+msgstr "Street address"
+
+msgid "Street address 2 (optional)"
+msgstr "Street address 2 (optional)"
+
+msgid "Sudan"
+msgstr "Sudan"
+
+msgid "Suriname"
+msgstr "Suriname"
 
 msgid "Sweden"
 msgstr "Sweden"
 
 msgid "Switzerland"
 msgstr "Switzerland"
+
+msgid "Syria"
+msgstr "Syria"
+
+msgid "Taiwan"
+msgstr "Taiwan"
+
+msgid "Tajikistan"
+msgstr "Tajikistan"
+
+msgid "Tanzania"
+msgstr "Tanzania"
 
 msgid "Terms of use"
 msgstr "Terms of use"
@@ -504,6 +921,9 @@ msgstr "The verification code you are trying to use has expired for Login ID: {l
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
 
+msgid "Timor-Leste"
+msgstr "Timor-Leste"
+
 msgid "Title"
 msgstr "Title"
 
@@ -513,11 +933,41 @@ msgstr "Toggle collapsed menu"
 msgid "Toggle theme"
 msgstr "Toggle theme"
 
+msgid "Togo"
+msgstr "Togo"
+
+msgid "Tonga"
+msgstr "Tonga"
+
 msgid "Total users"
 msgstr "Total users"
 
+msgid "Trinidad and Tobago"
+msgstr "Trinidad and Tobago"
+
 msgid "Try again"
 msgstr "Try again"
+
+msgid "Tunisia"
+msgstr "Tunisia"
+
+msgid "Turkey"
+msgstr "Turkey"
+
+msgid "Turkmenistan"
+msgstr "Turkmenistan"
+
+msgid "Tuvalu"
+msgstr "Tuvalu"
+
+msgid "Uganda"
+msgstr "Uganda"
+
+msgid "Ukraine"
+msgstr "Ukraine"
+
+msgid "United Arab Emirates"
+msgstr "United Arab Emirates"
 
 msgid "United Kingdom"
 msgstr "United Kingdom"
@@ -530,6 +980,9 @@ msgstr "Update your profile picture and personal details here."
 
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
+
+msgid "Uruguay"
+msgstr "Uruguay"
 
 msgid "User profile"
 msgstr "User profile"
@@ -552,8 +1005,17 @@ msgstr "Users"
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
 
+msgid "Uzbekistan"
+msgstr "Uzbekistan"
+
+msgid "Vanuatu"
+msgstr "Vanuatu"
+
 msgid "Vatican City"
 msgstr "Vatican City"
+
+msgid "Venezuela"
+msgstr "Venezuela"
 
 msgid "Verify"
 msgstr "Verify"
@@ -579,8 +1041,20 @@ msgstr "View users"
 msgid "Welcome home"
 msgstr "Welcome home"
 
+msgid "Yemen"
+msgstr "Yemen"
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 
 msgid "yourname@example.com"
 msgstr "yourname@example.com"
+
+msgid "Zambia"
+msgstr "Zambia"
+
+msgid "Zimbabwe"
+msgstr "Zimbabwe"
+
+msgid "ZIP/Postal code"
+msgstr "ZIP/Postal code"

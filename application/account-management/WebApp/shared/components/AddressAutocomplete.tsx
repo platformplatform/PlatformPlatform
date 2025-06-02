@@ -1,8 +1,10 @@
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
-import { ComboBox, ComboBoxItem } from "@repo/ui/components/ComboBox";
+import { ListBox, ListBoxItem } from "@repo/ui/components/ListBox";
+import { Popover } from "@repo/ui/components/Popover";
+import { TextField } from "@repo/ui/components/TextField";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { AddressData } from "./AddressForm";
 
 export interface AddressSuggestion {
@@ -22,11 +24,29 @@ export interface AddressAutocompleteProps {
   onAddressSelect: (address: AddressData) => void;
   isDisabled?: boolean;
   placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  label?: string;
+  name?: string;
+  countryCode?: string;
 }
 
-export function AddressAutocomplete({ onAddressSelect, isDisabled = false, placeholder }: AddressAutocompleteProps) {
-  const [inputValue, setInputValue] = useState("");
+export function AddressAutocomplete({
+  onAddressSelect,
+  isDisabled = false,
+  placeholder,
+  value = "",
+  onChange,
+  label,
+  name,
+  countryCode
+}: AddressAutocompleteProps) {
+  const [inputValue, setInputValue] = useState(value);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [lastSelectedAddress, setLastSelectedAddress] = useState<string>("");
   const debouncedQuery = useDebounce(inputValue, 300);
+  const triggerRef = useRef<HTMLInputElement>(null);
 
   const { data: response } = api.useQuery(
     "get",
@@ -34,57 +54,181 @@ export function AddressAutocomplete({ onAddressSelect, isDisabled = false, place
     {
       params: {
         query: {
-          Query: { query: debouncedQuery }
+          // @ts-ignore - OpenAPI contract mismatch: expects { Query: { query: string } } but backend wants { Query: string }
+          Query: debouncedQuery || undefined,
+          // Include country code in search if available
+          ...(countryCode && { Country: countryCode })
         }
       }
     },
     {
-      enabled: Boolean(debouncedQuery && debouncedQuery.length >= 2)
+      enabled: Boolean(
+        debouncedQuery &&
+          debouncedQuery.length >= 2 &&
+          !isSelecting &&
+          debouncedQuery !== lastSelectedAddress &&
+          countryCode // Only enable search if country is selected
+      )
     }
   );
 
-  const suggestions = response?.suggestions || [];
+  // Limit suggestions to 20 items for better UX while still providing good coverage
+  const suggestions = (response?.suggestions || []).slice(0, 20);
 
-  const handleSelectionChange = (key: string | number | null) => {
-    if (key) {
-      const selectedSuggestion = suggestions.find((_, index) => index.toString() === key);
-      if (selectedSuggestion) {
-        onAddressSelect({
-          street: selectedSuggestion.street || "",
-          street2: "",
-          city: selectedSuggestion.city || "",
-          state: selectedSuggestion.state || "",
-          zip: selectedSuggestion.zip || "",
-          country: selectedSuggestion.country || ""
-        });
-        setInputValue("");
-      }
+  // Show popover when we have suggestions and the input is focused
+  const shouldShowPopover = suggestions.length > 0 && !isSelecting && inputValue.length >= 2 && countryCode;
+
+  const handleInputChange = (newValue: string) => {
+    setInputValue(newValue);
+    setIsSelecting(false);
+    setIsPopoverOpen(true);
+    onChange?.(newValue);
+  };
+
+  const handleFocus = () => {
+    if (suggestions.length > 0 && inputValue.length >= 2 && countryCode) {
+      setIsPopoverOpen(true);
+    }
+  };
+
+  const handleBlur = () => {
+    // Delay hiding to allow for selection
+    setTimeout(() => {
+      setIsPopoverOpen(false);
+    }, 150);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "ArrowDown" && suggestions.length > 0) {
+      event.preventDefault();
+      setIsPopoverOpen(true);
+      // Focus first item in the listbox
+      setTimeout(() => {
+        const firstItem = document.querySelector('[role="listbox"] [role="option"]') as HTMLElement;
+        if (firstItem) {
+          firstItem.focus();
+        }
+      }, 0);
+    } else if (event.key === "Escape") {
+      setIsPopoverOpen(false);
+    }
+  };
+
+  const handleSelection = (key: string | number) => {
+    setIsSelecting(true);
+    setIsPopoverOpen(false);
+
+    const selectedSuggestion = suggestions.find((_, index) => index.toString() === key);
+    if (selectedSuggestion) {
+      // Extract just the street name, not the full formatted address
+      const streetName = selectedSuggestion.street || "";
+      setInputValue(streetName);
+      setLastSelectedAddress(streetName);
+      onChange?.(streetName);
+
+      // Map country name to country code
+      const getCountryCode = (countryName: string | null): string => {
+        if (!countryName) {
+          return countryCode || "";
+        }
+
+        // Simple mapping for common countries - this could be expanded
+        const countryMap: Record<string, string> = {
+          Denmark: "DK",
+          Germany: "DE",
+          "United States": "US",
+          "United Kingdom": "GB",
+          Canada: "CA",
+          Australia: "AU",
+          France: "FR",
+          Spain: "ES",
+          Italy: "IT",
+          Netherlands: "NL",
+          Sweden: "SE",
+          Norway: "NO",
+          Finland: "FI"
+        };
+
+        return countryMap[countryName] || countryCode || countryName;
+      };
+
+      const addressData: AddressData = {
+        street: streetName,
+        street2: "",
+        city: selectedSuggestion.city || "",
+        state: selectedSuggestion.state || "",
+        zip: selectedSuggestion.zip || "",
+        country: getCountryCode(selectedSuggestion.country)
+      };
+
+      // Fill out the rest of the form
+      onAddressSelect(addressData);
+
+      // Focus the input and position cursor at the end for continued editing
+      setTimeout(() => {
+        if (triggerRef.current) {
+          triggerRef.current.focus();
+          triggerRef.current.setSelectionRange(streetName.length, streetName.length);
+        }
+      }, 0);
     }
   };
 
   return (
-    <ComboBox
-      label={t`Search for address`}
-      placeholder={placeholder || t`Start typing an address...`}
-      inputValue={inputValue}
-      onInputChange={setInputValue}
-      onSelectionChange={handleSelectionChange}
-      isDisabled={isDisabled}
-      items={suggestions.map((suggestion, index) => ({
-        id: index.toString(),
-        ...suggestion
-      }))}
-    >
-      {(item: SuggestionItem) => (
-        <ComboBoxItem key={item.id} textValue={item.formattedAddress}>
-          <div className="flex flex-col">
-            <div className="font-medium">{item.street || item.formattedAddress}</div>
-            <div className="text-muted-foreground text-sm">
-              {[item.city, item.zip, item.country].filter(Boolean).join(", ")}
-            </div>
-          </div>
-        </ComboBoxItem>
+    <div className="relative">
+      <TextField
+        ref={triggerRef}
+        label={label || t`Street address`}
+        placeholder={placeholder || t`Start typing an address...`}
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        isDisabled={isDisabled || !countryCode}
+        name={name}
+      />
+
+      {shouldShowPopover && isPopoverOpen && (
+        <Popover
+          isOpen={true}
+          onOpenChange={setIsPopoverOpen}
+          triggerRef={triggerRef}
+          placement="bottom start"
+          className="max-h-[400px] min-w-[300px] max-w-[500px] overflow-hidden"
+        >
+          <ListBox
+            aria-label={t`Address suggestions`}
+            selectionMode="single"
+            className="max-h-[360px] overflow-y-auto"
+            onSelectionChange={(keys) => {
+              const key = Array.from(keys)[0];
+              if (key) {
+                handleSelection(key);
+              }
+            }}
+            items={suggestions.map((suggestion, index) => ({
+              id: index.toString(),
+              ...suggestion
+            }))}
+          >
+            {(item: SuggestionItem) => (
+              <ListBoxItem
+                key={item.id}
+                textValue={item.formattedAddress}
+                className="cursor-pointer px-3 py-2 hover:bg-accent"
+              >
+                <div className="flex flex-col">
+                  <div className="font-medium text-sm">{item.street || item.formattedAddress}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {[item.city, item.zip, item.country].filter(Boolean).join(", ")}
+                  </div>
+                </div>
+              </ListBoxItem>
+            )}
+          </ListBox>
+        </Popover>
       )}
-    </ComboBox>
+    </div>
   );
 }

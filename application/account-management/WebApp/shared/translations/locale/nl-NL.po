@@ -40,10 +40,25 @@ msgstr "Nieuwe toevoegen via het Gebruikers menu"
 msgid "Add profile picture"
 msgstr "Profielfoto toevoegen"
 
+msgid "Address"
+msgstr ""
+
+msgid "Address suggestions"
+msgstr ""
+
 msgid "Admin"
 msgstr "Beheerder"
 
+msgid "Afghanistan"
+msgstr ""
+
 msgid "Africa"
+msgstr ""
+
+msgid "Albania"
+msgstr ""
+
+msgid "Algeria"
 msgstr ""
 
 msgid "All users"
@@ -56,11 +71,20 @@ msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
 msgid "Andorra"
 msgstr ""
 
+msgid "Angola"
+msgstr ""
+
+msgid "Antigua and Barbuda"
+msgstr ""
+
 msgid "Any role"
 msgstr "Elke rol"
 
 msgid "Any status"
 msgstr "Elke status"
+
+msgid "Apartment, suite, etc."
+msgstr ""
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -73,6 +97,9 @@ msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
 msgid "Argentina"
 msgstr ""
 
+msgid "Armenia"
+msgstr ""
+
 msgid "Asia"
 msgstr ""
 
@@ -82,17 +109,68 @@ msgstr ""
 msgid "Austria"
 msgstr ""
 
+msgid "Azerbaijan"
+msgstr ""
+
+msgid "Bahamas"
+msgstr ""
+
+msgid "Bahrain"
+msgstr ""
+
+msgid "Bangladesh"
+msgstr ""
+
+msgid "Barbados"
+msgstr ""
+
+msgid "Belarus"
+msgstr ""
+
 msgid "Belgium"
+msgstr ""
+
+msgid "Belize"
+msgstr ""
+
+msgid "Benin"
+msgstr ""
+
+msgid "Bhutan"
+msgstr ""
+
+msgid "Bolivia"
+msgstr ""
+
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+msgid "Botswana"
 msgstr ""
 
 msgid "Brazil"
 msgstr ""
 
+msgid "Brunei"
+msgstr ""
+
 msgid "Bulgaria"
+msgstr ""
+
+msgid "Burkina Faso"
+msgstr ""
+
+msgid "Burundi"
 msgstr ""
 
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
+
+msgid "Cambodia"
+msgstr ""
+
+msgid "Cameroon"
+msgstr ""
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kun je je code niet vinden? Controleer je spammap."
@@ -102,6 +180,15 @@ msgstr ""
 
 msgid "Cancel"
 msgstr "Annuleren"
+
+msgid "Cape Verde"
+msgstr ""
+
+msgid "Central African Republic"
+msgstr ""
+
+msgid "Chad"
+msgstr ""
 
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
@@ -124,8 +211,17 @@ msgstr ""
 msgid "Colombia"
 msgstr ""
 
+msgid "Comoros"
+msgstr ""
+
+msgid "Congo"
+msgstr ""
+
 msgid "Continue"
 msgstr "Verder"
+
+msgid "Costa Rica"
+msgstr ""
 
 msgid "Country"
 msgstr ""
@@ -137,6 +233,9 @@ msgid "Created"
 msgstr "Aangemaakt"
 
 msgid "Croatia"
+msgstr ""
+
+msgid "Cuba"
 msgstr ""
 
 msgid "Cyprus"
@@ -167,14 +266,26 @@ msgstr "Gebruikers verwijderen"
 msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
 msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
 
+msgid "Democratic Republic of the Congo"
+msgstr ""
+
 msgid "Denmark"
 msgstr ""
 
 msgid "Didn't receive the code? Resend"
 msgstr "Code niet ontvangen? Verstuur opnieuw"
 
+msgid "Djibouti"
+msgstr ""
+
 msgid "Do you already have an account?"
 msgstr "Heb je al een account?"
+
+msgid "Dominica"
+msgstr ""
+
+msgid "Dominican Republic"
+msgstr ""
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Heb je geen account? <0>Maak er één aan</0>"
@@ -188,20 +299,44 @@ msgstr "Bijv., Software engineer"
 msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
 
+msgid "Ecuador"
+msgstr ""
+
 msgid "Edit profile"
 msgstr "Profiel bewerken"
 
 msgid "Egypt"
 msgstr ""
 
+msgid "El Salvador"
+msgstr ""
+
 msgid "Email"
 msgstr "E-mailadres"
+
+msgid "Enter city"
+msgstr ""
+
+msgid "Enter state or province"
+msgstr ""
+
+msgid "Enter your business address or search for suggestions."
+msgstr ""
 
 msgid "Enter your email below to log in"
 msgstr "Voer je e-mailadres hieronder in om in te loggen"
 
 msgid "Enter your verification code"
 msgstr "Voer je verificatiecode in"
+
+msgid "Enter ZIP or postal code"
+msgstr ""
+
+msgid "Equatorial Guinea"
+msgstr ""
+
+msgid "Eritrea"
+msgstr ""
 
 msgid "Error: Something went wrong!"
 msgstr "Fout: Er is iets misgegaan!"
@@ -212,11 +347,23 @@ msgstr "Fout: Verificatiecode is verlopen"
 msgid "Estonia"
 msgstr ""
 
+msgid "Eswatini"
+msgstr ""
+
+msgid "Ethiopia"
+msgstr ""
+
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Falkland Islands"
+msgstr ""
+
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
+
+msgid "Fiji"
+msgstr ""
 
 msgid "Finland"
 msgstr ""
@@ -227,10 +374,43 @@ msgstr "Voornaam"
 msgid "France"
 msgstr ""
 
+msgid "French Guiana"
+msgstr ""
+
+msgid "Gabon"
+msgstr ""
+
+msgid "Gambia"
+msgstr ""
+
+msgid "Georgia"
+msgstr ""
+
 msgid "Germany"
 msgstr ""
 
+msgid "Ghana"
+msgstr ""
+
 msgid "Greece"
+msgstr ""
+
+msgid "Grenada"
+msgstr ""
+
+msgid "Guatemala"
+msgstr ""
+
+msgid "Guinea"
+msgstr ""
+
+msgid "Guinea-Bissau"
+msgstr ""
+
+msgid "Guyana"
+msgstr ""
+
+msgid "Haiti"
 msgstr ""
 
 msgid "Help"
@@ -248,6 +428,12 @@ msgstr "Filters verbergen"
 msgid "Home"
 msgstr "Home"
 
+msgid "Honduras"
+msgstr ""
+
+msgid "Hong Kong"
+msgstr ""
+
 msgid "Hungary"
 msgstr ""
 
@@ -258,6 +444,9 @@ msgid "Image must be smaller than 1 MB."
 msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 
 msgid "India"
+msgstr ""
+
+msgid "Indonesia"
 msgstr ""
 
 msgid "Invite user"
@@ -272,22 +461,67 @@ msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inl
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
+msgid "Iran"
+msgstr ""
+
+msgid "Iraq"
+msgstr ""
+
 msgid "Ireland"
+msgstr ""
+
+msgid "Israel"
 msgstr ""
 
 msgid "Italy"
 msgstr ""
 
+msgid "Ivory Coast"
+msgstr ""
+
+msgid "Jamaica"
+msgstr ""
+
 msgid "Japan"
 msgstr ""
 
+msgid "Jordan"
+msgstr ""
+
+msgid "Kazakhstan"
+msgstr ""
+
 msgid "Kenya"
+msgstr ""
+
+msgid "Kiribati"
+msgstr ""
+
+msgid "Kuwait"
+msgstr ""
+
+msgid "Kyrgyzstan"
+msgstr ""
+
+msgid "Laos"
 msgstr ""
 
 msgid "Last name"
 msgstr "Achternaam"
 
 msgid "Latvia"
+msgstr ""
+
+msgid "Lebanon"
+msgstr ""
+
+msgid "Lesotho"
+msgstr ""
+
+msgid "Liberia"
+msgstr ""
+
+msgid "Libya"
 msgstr ""
 
 msgid "Liechtenstein"
@@ -311,6 +545,24 @@ msgstr "Logo"
 msgid "Luxembourg"
 msgstr ""
 
+msgid "Macao"
+msgstr ""
+
+msgid "Madagascar"
+msgstr ""
+
+msgid "Malawi"
+msgstr ""
+
+msgid "Malaysia"
+msgstr ""
+
+msgid "Maldives"
+msgstr ""
+
+msgid "Mali"
+msgstr ""
+
 msgid "Malta"
 msgstr ""
 
@@ -319,6 +571,15 @@ msgstr "Beheer je account hier."
 
 msgid "Manage your users and permissions here."
 msgstr "Beheer je gebruikers en rechten hier."
+
+msgid "Marshall Islands"
+msgstr ""
+
+msgid "Mauritania"
+msgstr ""
+
+msgid "Mauritius"
+msgstr ""
 
 msgid "Member"
 msgstr "Lid"
@@ -329,20 +590,47 @@ msgstr "Menu"
 msgid "Mexico"
 msgstr ""
 
+msgid "Micronesia"
+msgstr ""
+
 msgid "Modified"
 msgstr "Gewijzigd"
 
 msgid "Modified date"
 msgstr "Gewijzigde datum"
 
+msgid "Moldova"
+msgstr ""
+
 msgid "Monaco"
+msgstr ""
+
+msgid "Mongolia"
+msgstr ""
+
+msgid "Montenegro"
 msgstr ""
 
 msgid "Morocco"
 msgstr ""
 
+msgid "Mozambique"
+msgstr ""
+
+msgid "Myanmar"
+msgstr ""
+
 msgid "Name"
 msgstr "Naam"
+
+msgid "Namibia"
+msgstr ""
+
+msgid "Nauru"
+msgstr ""
+
+msgid "Nepal"
+msgstr ""
 
 msgid "Netherlands"
 msgstr ""
@@ -353,6 +641,12 @@ msgstr ""
 msgid "Next"
 msgstr "Volgende"
 
+msgid "Nicaragua"
+msgstr ""
+
+msgid "Niger"
+msgstr ""
+
 msgid "Nigeria"
 msgstr ""
 
@@ -362,10 +656,19 @@ msgstr "Geen actieve registratiesessie"
 msgid "North America"
 msgstr ""
 
+msgid "North Korea"
+msgstr ""
+
+msgid "North Macedonia"
+msgstr ""
+
 msgid "Norway"
 msgstr ""
 
 msgid "Oceania"
+msgstr ""
+
+msgid "Oman"
 msgstr ""
 
 msgid "Organization"
@@ -374,10 +677,31 @@ msgstr "Organisatie"
 msgid "Owner"
 msgstr "Eigenaar"
 
+msgid "Pakistan"
+msgstr ""
+
+msgid "Palau"
+msgstr ""
+
+msgid "Palestine"
+msgstr ""
+
+msgid "Panama"
+msgstr ""
+
+msgid "Papua New Guinea"
+msgstr ""
+
+msgid "Paraguay"
+msgstr ""
+
 msgid "Pending"
 msgstr "In behandeling"
 
 msgid "Peru"
+msgstr ""
+
+msgid "Philippines"
 msgstr ""
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
@@ -410,6 +734,9 @@ msgstr "Privacybeleid"
 msgid "Profile picture"
 msgstr "Profielfoto"
 
+msgid "Qatar"
+msgstr ""
+
 msgid "Region"
 msgstr "Regio"
 
@@ -422,7 +749,31 @@ msgstr "Rol"
 msgid "Romania"
 msgstr ""
 
+msgid "Russia"
+msgstr ""
+
+msgid "Rwanda"
+msgstr ""
+
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+msgid "Saint Lucia"
+msgstr ""
+
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+msgid "Samoa"
+msgstr ""
+
 msgid "San Marino"
+msgstr ""
+
+msgid "São Tomé and Príncipe"
+msgstr ""
+
+msgid "Saudi Arabia"
 msgstr ""
 
 msgid "Save changes"
@@ -440,9 +791,21 @@ msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
 msgid "Search"
 msgstr "Zoeken"
 
+msgid "Select a country above to enable address entry."
+msgstr ""
+
+msgid "Select a country first to enable address search"
+msgstr ""
+
+msgid "Select a country to help filter address suggestions"
+msgstr ""
+
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
+
+msgid "Select country for address filtering"
+msgstr ""
 
 msgid "Select language"
 msgstr "Selecteer taal"
@@ -450,11 +813,23 @@ msgstr "Selecteer taal"
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
+msgid "Senegal"
+msgstr ""
+
+msgid "Serbia"
+msgstr ""
+
 msgid "Settings"
 msgstr "Instellingen"
 
+msgid "Seychelles"
+msgstr ""
+
 msgid "Show filters"
 msgstr "Filters tonen"
+
+msgid "Sierra Leone"
+msgstr ""
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
@@ -471,6 +846,12 @@ msgstr ""
 msgid "Slovenia"
 msgstr ""
 
+msgid "Solomon Islands"
+msgstr ""
+
+msgid "Somalia"
+msgstr ""
+
 msgid "South Africa"
 msgstr ""
 
@@ -480,13 +861,49 @@ msgstr ""
 msgid "South Korea"
 msgstr ""
 
+msgid "South Sudan"
+msgstr ""
+
 msgid "Spain"
+msgstr ""
+
+msgid "Sri Lanka"
+msgstr ""
+
+msgid "Start typing an address..."
+msgstr ""
+
+msgid "State/Province"
+msgstr ""
+
+msgid "Street address"
+msgstr ""
+
+msgid "Street address 2 (optional)"
+msgstr ""
+
+msgid "Sudan"
+msgstr ""
+
+msgid "Suriname"
 msgstr ""
 
 msgid "Sweden"
 msgstr ""
 
 msgid "Switzerland"
+msgstr ""
+
+msgid "Syria"
+msgstr ""
+
+msgid "Taiwan"
+msgstr ""
+
+msgid "Tajikistan"
+msgstr ""
+
+msgid "Tanzania"
 msgstr ""
 
 msgid "Terms of use"
@@ -504,6 +921,9 @@ msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login I
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 
+msgid "Timor-Leste"
+msgstr ""
+
 msgid "Title"
 msgstr "Titel"
 
@@ -513,11 +933,41 @@ msgstr "Ingeklapt menu wisselen"
 msgid "Toggle theme"
 msgstr "Thema wisselen"
 
+msgid "Togo"
+msgstr ""
+
+msgid "Tonga"
+msgstr ""
+
 msgid "Total users"
 msgstr "Totale gebruikers"
 
+msgid "Trinidad and Tobago"
+msgstr ""
+
 msgid "Try again"
 msgstr "Probeer opnieuw"
+
+msgid "Tunisia"
+msgstr ""
+
+msgid "Turkey"
+msgstr ""
+
+msgid "Turkmenistan"
+msgstr ""
+
+msgid "Tuvalu"
+msgstr ""
+
+msgid "Uganda"
+msgstr ""
+
+msgid "Ukraine"
+msgstr ""
+
+msgid "United Arab Emirates"
+msgstr ""
 
 msgid "United Kingdom"
 msgstr ""
@@ -530,6 +980,9 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
+
+msgid "Uruguay"
+msgstr ""
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
@@ -552,7 +1005,16 @@ msgstr "Gebruikers"
 msgid "Users who haven't confirmed their email"
 msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
+msgid "Uzbekistan"
+msgstr ""
+
+msgid "Vanuatu"
+msgstr ""
+
 msgid "Vatican City"
+msgstr ""
+
+msgid "Venezuela"
 msgstr ""
 
 msgid "Verify"
@@ -579,8 +1041,20 @@ msgstr "Gebruikers bekijken"
 msgid "Welcome home"
 msgstr "Welkom home"
 
+msgid "Yemen"
+msgstr ""
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
 msgid "yourname@example.com"
 msgstr "jouwnaam@voorbeeld.com"
+
+msgid "Zambia"
+msgstr ""
+
+msgid "Zimbabwe"
+msgstr ""
+
+msgid "ZIP/Postal code"
+msgstr ""
