@@ -15,6 +15,7 @@ Carefully follow these instructions when implementing translations and internati
 4. Never hardcode text without proper translation wrappers.
 5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.).
 6. Never change the `*.po` files directly; they are auto-generated based on the uses of `<Trans>...</Trans>` and t\`...\`.
+7. Be carefull not to translate fully dynamic content, such as variable values or dynamic text.
 
 ## Examples
 
@@ -32,6 +33,8 @@ import { Heading } from "@repo/ui/components/Heading";
 <Heading>
   <Trans>Welcome to PlatformPlatform</Trans>
 </Heading>
+<Trans>Dynamic content: {dynamicContent}</Trans> // ✅ DO:: Translate parameterized dynamic content
+<Trans>{dynamicContent}</Trans> // ❌ DON'T: Do not translate completly dynamic content
 ```
 
 ### Example 2 - String Translation
