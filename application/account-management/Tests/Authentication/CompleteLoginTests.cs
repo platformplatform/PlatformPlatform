@@ -47,7 +47,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenLoginNotFound_ShouldReturnNotFound()
+    public async Task CompleteLogin_WhenLoginNotFound_ShouldReturnBadRequest()
     {
         // Arrange
         var invalidLoginId = LoginId.NewId();
@@ -57,8 +57,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{invalidLoginId}/complete", command);
 
         // Assert
-        var expectedDetail = $"Login with id '{invalidLoginId}' not found.";
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, expectedDetail);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
