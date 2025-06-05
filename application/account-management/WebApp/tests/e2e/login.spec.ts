@@ -7,7 +7,7 @@ import {
   assertValidationError,
   createTestContext
 } from "../../../../shared-webapp/tests/e2e/utils/test-assertions";
-import { getVerificationCode, testUser } from "../../../../shared-webapp/tests/e2e/utils/test-data";
+import { getVerificationCode } from "../../../../shared-webapp/tests/e2e/utils/test-data";
 
 test.describe("Login", () => {
   test.describe("@smoke", () => {
@@ -139,10 +139,8 @@ test.describe("Login", () => {
   });
 
   test.describe("@comprehensive", () => {
-    test("should validate email format and show server validation error message", async ({
-      unauthenticatedPageWithTenant
-    }) => {
-      const { page } = unauthenticatedPageWithTenant;
+    test("should validate email format and show server validation error message", async ({ anonymousPage }) => {
+      const { page } = anonymousPage;
       const context = createTestContext(page);
 
       // Step 1: Navigate to login page and verify content
@@ -159,10 +157,8 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should validate email length and show server validation error message", async ({
-      unauthenticatedPageWithTenant
-    }) => {
-      const { page } = unauthenticatedPageWithTenant;
+    test("should validate email length and show server validation error message", async ({ anonymousPage }) => {
+      const { page } = anonymousPage;
       const context = createTestContext(page);
 
       // Step 1: Navigate to login page and verify content
@@ -180,8 +176,8 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle login with non-existent email address", async ({ unauthenticatedPageWithTenant }) => {
-      const { page } = unauthenticatedPageWithTenant;
+    test("should handle login with non-existent email address", async ({ anonymousPage }) => {
+      const { page } = anonymousPage;
       const context = createTestContext(page);
       const nonExistentEmail = `nonexistent.user.${Date.now()}@platformplatform.net`;
 
@@ -208,8 +204,8 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle login with wrong verification code", async ({ unauthenticatedPageWithTenant }) => {
-      const { page } = unauthenticatedPageWithTenant;
+    test("should handle login with wrong verification code", async ({ anonymousPage }) => {
+      const { page } = anonymousPage;
       const context = createTestContext(page);
       const testEmail = `test.wrong.code.${Date.now()}@platformplatform.net`;
 
@@ -252,8 +248,8 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle login form validation and error messages", async ({ unauthenticatedPageWithTenant }) => {
-      const { page } = unauthenticatedPageWithTenant;
+    test("should handle login form validation and error messages", async ({ anonymousPage }) => {
+      const { page } = anonymousPage;
       const context = createTestContext(page);
 
       // Step 1: Navigate to login page and verify content
@@ -336,32 +332,14 @@ test.describe("Login", () => {
   test.describe("@slow", () => {
     test.describe.configure({ timeout: 360000 }); // 6 minutes timeout
 
-    test("should handle verification code expiration during login (5-minute timeout)", async ({ page }) => {
+    test("should handle verification code expiration during login (5-minute timeout)", async ({ anonymousPage }) => {
       // NOTE: This test currently expects React errors in the console due to a bug in the application.
       // The /login/expired page tries to call getLoginState() which throws "No active login."
-      const user = testUser();
-
-      // Step 1: Create a user account first through signup flow
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 2: Logout to test login flow
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+      const { page, tenant } = anonymousPage;
 
       // Step 3: Navigate to login page and submit email to start login process
       await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
@@ -377,31 +355,13 @@ test.describe("Login", () => {
       // assertNoUnexpectedErrors(context); // Commented out due to known application bug
     });
 
-    test("should handle rate limiting for verification code resend requests", async ({ page }) => {
+    test("should handle rate limiting for verification code resend requests", async ({ anonymousPage }) => {
+      const { page, tenant } = anonymousPage;
       const context = createTestContext(page);
-      const user = testUser();
-
-      // Step 1: Create a user account first through signup flow
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 2: Logout to test login flow
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
       // Step 3: Navigate to login page and submit email to reach verification page
       await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
@@ -428,40 +388,26 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle session timeout and automatic logout scenarios", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Step 1: Create and login with user account
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+    test("should handle session timeout and automatic logout scenarios", async ({ ownerPage }) => {
+      const context = createTestContext(ownerPage);
 
       // Step 2: Verify user is authenticated and can access admin features
-      await page.getByRole("button", { name: "Users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
-      await expect(page.getByText(user.email)).toBeVisible();
+      await ownerPage.goto("/admin");
+      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await ownerPage.getByRole("button", { name: "Users" }).click();
+      await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Step 3: Wait for session to timeout (this test simulates long session inactivity)
       // Note: Actual session timeout varies by configuration, this simulates the behavior
-      await page.waitForTimeout(60000); // 1 minute wait to simulate session timeout conditions
+      await ownerPage.waitForTimeout(60000); // 1 minute wait to simulate session timeout conditions
 
       // Step 4: Attempt to access a protected resource and verify redirect to login
-      await page.goto("/admin/users");
+      await ownerPage.goto("/admin/users");
       // Note: This may or may not trigger a redirect depending on actual session timeout configuration
       // The test validates that the authentication system properly handles session management
 
       // Step 5: Verify that authentication state is properly maintained or redirected as expected
-      const currentUrl = page.url();
+      const currentUrl = ownerPage.url();
       const isLoggedIn = currentUrl.includes("/admin");
       const isRedirectToLogin = currentUrl.includes("/login");
 
