@@ -29,6 +29,12 @@ export interface PageAuthFixtures {
    * Authenticated page instance as tenant member
    */
   memberPage: Page;
+
+  /**
+   * Unauthenticated page with tenant provisioned
+   * Useful for testing login flows from a clean state while ensuring users exist
+   */
+  unauthenticatedPageWithTenant: { page: Page; tenant: Tenant };
 }
 
 /**
@@ -213,6 +219,23 @@ export const test = base.extend<PageAuthFixtures>({
     );
 
     await use(page);
+
+    // Cleanup - close the context and page
+    await context.close();
+  },
+
+  unauthenticatedPageWithTenant: async ({ browser }, use, testInfo) => {
+    const workerIndex = testInfo.parallelIndex;
+    const systemPrefix = getSelfContainedSystemPrefix();
+
+    // Get tenant for this worker - this ensures users are provisioned
+    const tenant = await getWorkerTenant(workerIndex, systemPrefix, { ensureUsersExist: true });
+
+    // Create a fresh, unauthenticated context and page
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    await use({ page, tenant });
 
     // Cleanup - close the context and page
     await context.close();

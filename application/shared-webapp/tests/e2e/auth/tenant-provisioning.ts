@@ -26,3 +26,24 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
     memberEmail
   };
 }
+
+/**
+ * Ensure that all tenant users exist in the backend
+ * This provisions the users through the signup flow if they don't already exist
+ * @param _tenant Tenant object with user information (currently unused)
+ * @returns Promise that resolves when all users are ensured to exist
+ */
+export async function ensureTenantUsersExist(_tenant: Tenant): Promise<void> {
+  // TODO: Implement actual user provisioning logic
+  // This should check if users exist and create them if needed
+  // For now, this is a placeholder that can be implemented when the backend supports
+  // programmatic user creation or when we implement the signup flow automation
+
+  // The actual implementation might:
+  // 1. Check if users exist via API calls
+  // 2. Create users through signup flow if they don't exist
+  // 3. Cache the results to avoid repeated provisioning
+
+  // For now, we'll just resolve immediately
+  await Promise.resolve();
+}

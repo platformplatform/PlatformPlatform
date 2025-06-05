@@ -29,7 +29,7 @@ export {
 } from "../auth/storage-state";
 
 // Re-export tenant provisioning utilities
-export { createTenantWithUsers } from "../auth/tenant-provisioning";
+export { createTenantWithUsers, ensureTenantUsersExist } from "../auth/tenant-provisioning";
 
 /**
  * Extended test object with authentication fixtures
@@ -42,6 +42,13 @@ export { createTenantWithUsers } from "../auth/tenant-provisioning";
  * test("should access admin features as owner", async ({ ownerPage }) => {
  *   await ownerPage.goto("/admin");
  *   // Test with authenticated owner page
+ * });
+ *
+ * test("should login successfully", async ({ unauthenticatedPageWithTenant }) => {
+ *   const { page, tenant } = unauthenticatedPageWithTenant;
+ *   await page.goto("/login");
+ *   await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
+ *   // Test login flow with known existing user
  * });
  * ```
  */

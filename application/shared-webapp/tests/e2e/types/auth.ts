@@ -36,6 +36,7 @@ export interface TenantProvisioningOptions {
   workerIndex: number;
   selfContainedSystemPrefix?: string;
   isolated?: boolean;
+  ensureUsersExist?: boolean;
 }
 
 /**
