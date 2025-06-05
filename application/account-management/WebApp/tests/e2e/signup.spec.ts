@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "../../../../shared-webapp/tests/e2e/fixtures";
 import {
   assertNoUnexpectedErrors,
   assertToastMessage,
@@ -145,33 +146,22 @@ test.describe("Signup", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should prevent signup when user is already authenticated", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
+    test("should prevent signup when user is already authenticated", async ({ ownerPage }) => {
+      const context = createTestContext(ownerPage);
 
-      // Step 1: Complete full signup process to establish authentication
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
+      // Step 1: Verify user is already authenticated and can access admin dashboard
+      await ownerPage.goto("/admin");
+      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Step 2: Complete verification process and verify navigation
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
+      // Step 2: Attempt to access signup page while authenticated and verify redirect
+      await ownerPage.goto("/signup");
+      await expect(ownerPage).toHaveURL("/admin");
 
-      // Step 3: Complete profile setup and verify authentication is established
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      // Step 3: Attempt to access signup verification page and verify redirect
+      await ownerPage.goto("/signup/verify");
+      await expect(ownerPage).toHaveURL("/admin");
 
-      // Step 4: Attempt to access signup page while authenticated and verify redirect
-      await page.goto("/signup");
-      await expect(page).toHaveURL("/admin");
-
-      // Step 5: Assert no unexpected errors occurred
+      // Step 4: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
   });
