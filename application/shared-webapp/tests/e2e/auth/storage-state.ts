@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { BrowserContext, Page } from "@playwright/test";
-import type { StorageStateInfo } from "../types/auth";
+import type { StorageStateInfo } from "@shared/e2e/types/auth";
 
 /**
  * Save authentication state from a page's context to a file

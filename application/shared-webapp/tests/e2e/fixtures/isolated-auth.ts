@@ -1,6 +1,6 @@
 import { type BrowserContext, type Page, test as base } from "@playwright/test";
-import type { UserRole } from "../types/auth";
-import { getSelfContainedSystemPrefix } from "./worker-auth";
+import { getSelfContainedSystemPrefix } from "@shared/e2e/fixtures/worker-auth";
+import type { UserRole } from "@shared/e2e/types/auth";
 
 /**
  * Isolated authentication fixtures for tests that need separate tenants or users

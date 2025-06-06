@@ -1,8 +1,8 @@
 import { type Browser, type BrowserContext, type Page, test as base, expect } from "@playwright/test";
-import { createAuthStateManager } from "../auth/auth-state-manager";
-import type { Tenant, User, UserRole } from "../types/auth";
-import { completeSignupFlow } from "../utils/test-data";
-import { getSelfContainedSystemPrefix, getWorkerTenant } from "./worker-auth";
+import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
+import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
+import type { Tenant, User, UserRole } from "@shared/e2e/types/auth";
+import { completeSignupFlow } from "@shared/e2e/utils/test-data";
 
 // Extend the global interface to include testTenant
 declare global {

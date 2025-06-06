@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import type { Tenant, User } from "../types/auth";
+import type { Tenant, User } from "@shared/e2e/types/auth";
 
 /**
  * Create a tenant with owner, admin, and member users

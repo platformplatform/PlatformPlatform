@@ -1,7 +1,7 @@
 import { type Browser, type BrowserContext, type Page, test as base } from "@playwright/test";
-import { createAuthStateManager } from "../auth/auth-state-manager";
-import type { UserRole } from "../types/auth";
-import { getSelfContainedSystemPrefix, getWorkerTenant } from "./worker-auth";
+import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
+import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
+import type { UserRole } from "@shared/e2e/types/auth";
 
 /**
  * Multi-context authentication fixtures for testing scenarios with multiple users

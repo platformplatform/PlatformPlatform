@@ -1,6 +1,6 @@
-import { getStorageStatePath, isAuthenticationStateValid } from "../auth/storage-state";
-import { createTenantWithUsers, ensureTenantUsersExist } from "../auth/tenant-provisioning";
-import type { Tenant, TenantProvisioningOptions } from "../types/auth";
+import { getStorageStatePath, isAuthenticationStateValid } from "@shared/e2e/auth/storage-state";
+import { createTenantWithUsers, ensureTenantUsersExist } from "@shared/e2e/auth/tenant-provisioning";
+import type { Tenant, TenantProvisioningOptions } from "@shared/e2e/types/auth";
 
 /**
  * Worker-scoped tenant cache to ensure each worker gets a unique tenant

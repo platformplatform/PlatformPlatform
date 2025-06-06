@@ -1,13 +1,13 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../../shared-webapp/tests/e2e/fixtures";
+import { test } from "@shared/e2e/fixtures/page-auth";
 import {
   assertNetworkErrors,
   assertNoUnexpectedErrors,
   assertToastMessage,
   assertValidationError,
   createTestContext
-} from "../../../../shared-webapp/tests/e2e/utils/test-assertions";
-import { completeSignupFlow, getVerificationCode, testUser } from "../../../../shared-webapp/tests/e2e/utils/test-data";
+} from "@shared/e2e/utils/test-assertions";
+import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Login", () => {
   test.describe("@smoke", () => {

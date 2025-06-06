@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../../shared-webapp/tests/e2e/fixtures";
-import { assertNoUnexpectedErrors, createTestContext } from "../../../../shared-webapp/tests/e2e/utils/test-assertions";
+import { test } from "@shared/e2e/fixtures/page-auth";
+import { assertNoUnexpectedErrors, createTestContext } from "@shared/e2e/utils/test-assertions";
 
 test("@smoke back-office homepage", async ({ ownerPage }) => {
   const context = createTestContext(ownerPage);

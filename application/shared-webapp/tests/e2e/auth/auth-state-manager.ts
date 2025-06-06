@@ -1,12 +1,12 @@
 import { promises as fs } from "node:fs";
 import type { BrowserContext, Page } from "@playwright/test";
-import type { UserRole } from "../types/auth";
 import {
   getStorageStatePath,
   isAuthenticationStateValid,
   loadAuthenticationState,
   saveAuthenticationState
-} from "./storage-state";
+} from "@shared/e2e/auth/storage-state";
+import type { UserRole } from "@shared/e2e/types/auth";
 
 /**
  * Authentication state manager for handling persistence and validation
