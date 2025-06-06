@@ -75,11 +75,8 @@ export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
     // Save authentication state for reuse
     const authManager = createAuthStateManager(0, "account-management"); // Use worker 0 for shared users
     await authManager.saveAuthState(page, "Owner");
-  } catch (_error) {
-    // If user already exists or there's a conflict, that's fine - we just want to ensure they exist
-    // Silently continue as this is expected behavior for existing users
   } finally {
-    // Cleanup
+    // Cleanup - always close browser resources
     await context.close();
     await browser.close();
   }

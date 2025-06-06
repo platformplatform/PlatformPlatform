@@ -13,13 +13,6 @@ export function uniqueEmail(domain = "platformplatform.net"): string {
   return `${username}.${timestamp}@${domain}`;
 }
 
-/**
- * Generate a random email using Faker
- * @returns Random email address
- */
-export function randomEmail(): string {
-  return faker.internet.email();
-}
 
 /**
  * Generate a random first name
@@ -37,13 +30,6 @@ export function lastName(): string {
   return faker.person.lastName();
 }
 
-/**
- * Generate a random full name
- * @returns Random full name
- */
-export function fullName(): string {
-  return faker.person.fullName();
-}
 
 /**
  * Generate a random job title

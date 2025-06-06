@@ -102,7 +102,7 @@ function startMonitoring(page: Page): MonitoringResults {
   });
 
   // Poll for toast messages to capture all toasts that appear
-  const toastPollingInterval = setInterval(async () => {
+  results.toastPollingInterval = setInterval(async () => {
     try {
       const currentToasts = await captureToastMessages(page, 500);
       for (const toast of currentToasts) {
@@ -115,9 +115,6 @@ function startMonitoring(page: Page): MonitoringResults {
       // Ignore polling errors
     }
   }, 250);
-
-  // Store the interval ID so we can clear it later
-  results.toastPollingInterval = toastPollingInterval;
 
   return results;
 }
@@ -174,7 +171,14 @@ export async function assertToastMessage(
   }
 
   if (hasStatus && options.expectNetworkError) {
-    const expectedStatusCode = typeof status === "number" ? status : status === "Forbidden" ? 403 : 400;
+    let expectedStatusCode: number;
+    if (typeof status === "number") {
+      expectedStatusCode = status;
+    } else if (status === "Forbidden") {
+      expectedStatusCode = 403;
+    } else {
+      expectedStatusCode = 400;
+    }
     monitoring.expectedStatusCodes.push(expectedStatusCode);
   }
 }
@@ -265,67 +269,87 @@ export function assertNoUnexpectedErrors(context: TestContext): void {
     monitoring.toastPollingInterval = undefined;
   }
 
-  // Handle any expected network errors
-  if (monitoring.expectedStatusCodes.length > 0) {
-    for (const expectedStatusCode of monitoring.expectedStatusCodes) {
-      const expectedNetworkError = `HTTP ${expectedStatusCode}`;
-      const networkErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+  // Clean up expected network errors and tracking errors
+  cleanupExpectedNetworkErrors(monitoring);
+  filterOutTrackingErrors(monitoring);
 
-      // Remove all matching network errors (Firefox may create multiple)
-      for (const error of networkErrors) {
-        const index = monitoring.networkErrors.indexOf(error);
-        if (index !== -1) {
-          monitoring.networkErrors.splice(index, 1);
-        }
-      }
-    }
-  }
-
-  // Always ignore tracking endpoint errors
-  monitoring.networkErrors = monitoring.networkErrors.filter(
-    (error) => !error.includes("POST https://localhost:9000/api/track - HTTP 400")
-  );
-
-  // Check for unexpected network errors
+  // Check for any remaining unexpected issues
   const hasUnexpectedNetworkErrors = monitoring.networkErrors.length > 0;
-
-  // Check for unasserted toast messages
   const unassertedToasts = monitoring.toastMessages.filter((toast) => !monitoring.assertedToasts.includes(toast));
   const hasUnexpectedToasts = unassertedToasts.length > 0;
 
-  // If we have any unexpected issues, create a helpful error message
+  // If we have any unexpected issues, throw a helpful error message
   if (hasUnexpectedNetworkErrors || hasUnexpectedToasts) {
-    const errorParts: string[] = [];
-
-    errorParts.push("🎭 Test completed successfully, BUT unexpected issues were detected:");
-    errorParts.push(""); // Empty line for readability
-
-    if (hasUnexpectedNetworkErrors) {
-      errorParts.push("❌ UNEXPECTED NETWORK ERRORS:");
-      monitoring.networkErrors.forEach((error) => {
-        errorParts.push(`   ${error}`);
-      });
-      errorParts.push("");
-      errorParts.push("💡 Solutions:");
-      errorParts.push("   • If this error is expected, use: assertNetworkErrors(context, [statusCode])");
-      errorParts.push("   • If this is a bug, fix the root cause in the application");
-      errorParts.push("");
-    }
-
-    if (hasUnexpectedToasts) {
-      errorParts.push("🍞 UNEXPECTED TOAST MESSAGES:");
-      unassertedToasts.forEach((toast) => {
-        errorParts.push(`   "${toast}"`);
-      });
-      errorParts.push("");
-      errorParts.push("💡 Solutions:");
-      errorParts.push('   • If this toast is expected, use: assertToastMessage(context, "message")');
-      errorParts.push("   • If this toast shouldn't appear, fix the root cause in the application");
-      errorParts.push("");
-    }
-
-    throw new Error(errorParts.join("\n"));
+    const errorMessage = buildUnexpectedErrorsMessage(monitoring.networkErrors, unassertedToasts);
+    throw new Error(errorMessage);
   }
+}
+
+/**
+ * Remove expected network errors from monitoring results
+ */
+function cleanupExpectedNetworkErrors(monitoring: MonitoringResults): void {
+  if (monitoring.expectedStatusCodes.length === 0) {
+    return;
+  }
+
+  for (const expectedStatusCode of monitoring.expectedStatusCodes) {
+    const expectedNetworkError = `HTTP ${expectedStatusCode}`;
+    const networkErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+
+    // Remove all matching network errors (Firefox may create multiple)
+    for (const error of networkErrors) {
+      const index = monitoring.networkErrors.indexOf(error);
+      if (index !== -1) {
+        monitoring.networkErrors.splice(index, 1);
+      }
+    }
+  }
+}
+
+/**
+ * Filter out tracking endpoint errors that are expected
+ */
+function filterOutTrackingErrors(monitoring: MonitoringResults): void {
+  monitoring.networkErrors = monitoring.networkErrors.filter(
+    (error) => !error.includes("POST https://localhost:9000/api/track - HTTP 400")
+  );
+}
+
+/**
+ * Build a comprehensive error message for unexpected issues
+ */
+function buildUnexpectedErrorsMessage(networkErrors: string[], unassertedToasts: string[]): string {
+  const errorParts: string[] = [];
+
+  errorParts.push("🎭 Test completed successfully, BUT unexpected issues were detected:");
+  errorParts.push(""); // Empty line for readability
+
+  if (networkErrors.length > 0) {
+    errorParts.push("❌ UNEXPECTED NETWORK ERRORS:");
+    networkErrors.forEach((error) => {
+      errorParts.push(`   ${error}`);
+    });
+    errorParts.push("");
+    errorParts.push("💡 Solutions:");
+    errorParts.push("   • If this error is expected, use: assertNetworkErrors(context, [statusCode])");
+    errorParts.push("   • If this is a bug, fix the root cause in the application");
+    errorParts.push("");
+  }
+
+  if (unassertedToasts.length > 0) {
+    errorParts.push("🍞 UNEXPECTED TOAST MESSAGES:");
+    unassertedToasts.forEach((toast) => {
+      errorParts.push(`   "${toast}"`);
+    });
+    errorParts.push("");
+    errorParts.push("💡 Solutions:");
+    errorParts.push('   • If this toast is expected, use: assertToastMessage(context, "message")');
+    errorParts.push("   • If this toast shouldn't appear, fix the root cause in the application");
+    errorParts.push("");
+  }
+
+  return errorParts.join("\n");
 }
 
 /**

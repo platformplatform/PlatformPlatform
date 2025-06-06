@@ -56,11 +56,7 @@ export async function isAuthenticationStateValid(filePath: string): Promise<bool
   }
 }
 
-
-
-
 // Helper functions
-
 async function ensureDirectoryExists(dirPath: string): Promise<void> {
   try {
     await fs.mkdir(dirPath, { recursive: true });

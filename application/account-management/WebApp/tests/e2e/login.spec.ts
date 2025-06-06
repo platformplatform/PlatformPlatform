@@ -42,7 +42,7 @@ test.describe("Login", () => {
       await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
       await expect(page.getByText(user.email)).toBeVisible();
 
-      // Step 7: Assert no unexpected errors occurred
+      // Step 5: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
