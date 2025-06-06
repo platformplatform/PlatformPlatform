@@ -1,4 +1,5 @@
-import type { Tenant } from "../types/auth";
+import { expect } from "@playwright/test";
+import type { Tenant, User } from "../types/auth";
 
 /**
  * Create a tenant with owner, admin, and member users
@@ -21,8 +22,8 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
   return {
     tenantId,
     tenantName,
-    ownerEmail,
-    adminEmail,
-    memberEmail
+    owner,
+    admin,
+    member
   };
 }
