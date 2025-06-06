@@ -228,7 +228,7 @@ export const test = base.extend<PageAuthFixtures>({
     const workerIndex = testInfo.parallelIndex;
     const systemPrefix = getSelfContainedSystemPrefix();
 
-    // Get tenant for this worker - this ensures users are provisioned
+    // Get tenant for this worker - ensure users exist for testing existing user flows
     const tenant = await getWorkerTenant(workerIndex, systemPrefix, {
       workerIndex,
       selfContainedSystemPrefix: systemPrefix,

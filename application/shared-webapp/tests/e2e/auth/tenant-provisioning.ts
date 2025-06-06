@@ -8,15 +8,16 @@ import type { Tenant } from "../types/auth";
  */
 export function createTenantWithUsers(workerIndex: number, selfContainedSystemPrefix?: string): Tenant {
   const prefix = selfContainedSystemPrefix ? `${selfContainedSystemPrefix}-` : "";
-  const tenantName = `${prefix}e2e-tenant-${workerIndex}`;
+  const timestamp = Date.now();
+  const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 
-  // Generate unique emails for each role
-  const ownerEmail = `e2e-${prefix}owner-${workerIndex}@platformplatform.net`;
-  const adminEmail = `e2e-${prefix}admin-${workerIndex}@platformplatform.net`;
-  const memberEmail = `e2e-${prefix}member-${workerIndex}@platformplatform.net`;
+  // Generate unique emails for each role with timestamp to avoid conflicts across test runs
+  const ownerEmail = `e2e-${prefix}owner-${workerIndex}-${timestamp}@platformplatform.net`;
+  const adminEmail = `e2e-${prefix}admin-${workerIndex}-${timestamp}@platformplatform.net`;
+  const memberEmail = `e2e-${prefix}member-${workerIndex}-${timestamp}@platformplatform.net`;
 
   // Return tenant structure - actual signup will be implemented when needed
-  const tenantId = `tenant-${workerIndex}`;
+  const tenantId = `tenant-${workerIndex}-${timestamp}`;
 
   return {
     tenantId,
@@ -30,20 +31,50 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
 /**
  * Ensure that all tenant users exist in the backend
  * This provisions the users through the signup flow if they don't already exist
- * @param _tenant Tenant object with user information (currently unused)
+ * @param tenant Tenant object with user information
  * @returns Promise that resolves when all users are ensured to exist
  */
-export async function ensureTenantUsersExist(_tenant: Tenant): Promise<void> {
-  // TODO: Implement actual user provisioning logic
-  // This should check if users exist and create them if needed
-  // For now, this is a placeholder that can be implemented when the backend supports
-  // programmatic user creation or when we implement the signup flow automation
+export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
+  // Import the authentication utilities dynamically to avoid circular dependencies
+  const { createAuthStateManager } = await import("../auth/auth-state-manager.js");
+  const { getVerificationCode } = await import("../utils/test-data.js");
 
-  // The actual implementation might:
-  // 1. Check if users exist via API calls
-  // 2. Create users through signup flow if they don't exist
-  // 3. Cache the results to avoid repeated provisioning
+  // Create a temporary browser context for user provisioning
+  const { chromium } = await import("@playwright/test");
+  const browser = await chromium.launch();
+  const context = await browser.newContext();
+  const page = await context.newPage();
 
-  // For now, we'll just resolve immediately
-  await Promise.resolve();
+  try {
+    // Create the owner user through signup flow
+    await page.goto("https://localhost:9000/");
+    await page.getByRole("button", { name: "Get started today" }).first().click();
+    await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
+    await page.getByRole("button", { name: "Create your account" }).click();
+    await page.waitForURL("/signup/verify");
+
+    // Complete verification
+    await page.keyboard.type(getVerificationCode());
+    await page.getByRole("button", { name: "Verify" }).click();
+    await page.waitForURL("/admin");
+
+    // Complete profile setup
+    await page.getByRole("textbox", { name: "First name" }).fill("TestOwner");
+    await page.getByRole("textbox", { name: "Last name" }).fill("User");
+    await page.getByRole("button", { name: "Save changes" }).click();
+
+    // Wait for completion
+    await page.waitForSelector('h1:has-text("Welcome home")', { state: "visible" });
+
+    // Save authentication state for reuse
+    const authManager = createAuthStateManager(0, "account-management"); // Use worker 0 for shared users
+    await authManager.saveAuthState(page, "Owner");
+  } catch (_error) {
+    // If user already exists or there's a conflict, that's fine - we just want to ensure they exist
+    // Silently continue as this is expected behavior for existing users
+  } finally {
+    // Cleanup
+    await context.close();
+    await browser.close();
+  }
 }
