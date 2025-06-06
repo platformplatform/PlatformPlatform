@@ -22,7 +22,8 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Use Browser MCP to manually test the feature and verify it works correctly outside of automated tests.
 
 3. Organize tests in a consistent file structure:
-   - One file per feature (e.g., `signup.spec.ts`).
+   - For smoke tests: One `smoke.spec.ts` file per self-contained system that tests the entire system comprehensively.
+   - For comprehensive tests: Separate files by feature area (e.g., `user-management.spec.ts`, `authentication.spec.ts`, `tenant-settings.spec.ts`).
    - Group tests using nested `test.describe` blocks with these 3 tags:
      ```typescript
      test.describe("Feature Name", () => {
@@ -37,15 +38,23 @@ These rules outline the structure, patterns, and best practices for writing end-
      ```
   - `@smoke` tests:
     - Critical tests run on deployment of any self-contained system.
-    - Should be very long test scenarios testing all happy paths and selected boundary cases in a few tailored tests.
+    - Should be comprehensive, long-running scenarios that test entire user journeys.
+    - Each smoke test should cover multiple features in a single flow (e.g., signup → invite user → change role → login → logout → update tenant).
+    - Focus on must-work functionality with extensive validation steps.
+    - Include boundary cases and error handling within the same test scenario.
+    - Aim for fewer, more elaborate tests rather than many isolated tests.
 
   - `@comprehensive` tests:
     - Thorough tests run when a specific self-contained system is deployed.
-    - Focused on testing a specific area covering all edge cases, e.g., responsive design, keyboard navigation, concurrency, error handling, and validation.
+    - Focus on edge cases, error conditions, and less common scenarios.
+    - Test specific features in depth with various input combinations.
+    - Include tests for concurrency, validation rules, accessibility, localization, etc.
+    - Group related edge cases together to reduce test count while maintaining coverage.
 
   - `@slow` tests:
     - Optional and run only ad-hoc using `--include-slow` flag.
     - Any tests that require waiting like `waitForTimeout` (e.g., for OTP timeouts) must be marked as `@slow`.
+    - Include tests for rate limiting with actual wait times, session timeouts, etc.
 
 4. Structure each test with clear *steps*, assertions, and proper monitoring:
    - All tests must start with `const context = createTestContext(page);` and end with `assertNoUnexpectedErrors(context);`

@@ -43,13 +43,18 @@ This workflow guides you through the process of creating comprehensive end-to-en
 
 5. Categorize tests appropriately:
    - `@smoke`: Essential functionality that will run on deployment of any system.
+     - Create one comprehensive smoke.spec.ts per self-contained system.
+     - Test complete user journeys: signup → profile setup → invite users → manage roles → tenant settings → logout.
+     - Include validation errors, retries, and recovery scenarios within the journey.
    - `@comprehensive`: More thorough tests covering edge cases that will run on deployment of the system under test.
+     - Focus on specific feature areas with deep testing of edge cases.
+     - Group related scenarios to minimize test count while maximizing coverage.
    - `@slow`: Tests involving timeouts or waiting periods that will run ad-hoc, when features under test are changed.
 
 6. Create or update test structure:
-   - For new features, create a new test file at `application/End2EndTests/tests/[scs-name]/[feature].spec.ts`.
-   - For existing features, review and update tests to follow current conventions.
-   - For refactored features, update selectors and assertions to match new implementation.
+   - For smoke tests: Create/update `application/[scs-name]/WebApp/tests/e2e/smoke.spec.ts`.
+   - For comprehensive tests: Create feature-specific files like `user-management.spec.ts`, `authentication.spec.ts`.
+   - Avoid creating many small, isolated tests - prefer comprehensive scenarios that test multiple aspects.
 
 ## Key principles
 
