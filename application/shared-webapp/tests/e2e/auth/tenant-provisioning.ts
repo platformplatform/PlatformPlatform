@@ -13,9 +13,9 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
   const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 
   // Generate unique emails for each role with timestamp to avoid conflicts across test runs
-  const ownerEmailAddress = `e2e-${prefix}owner-${workerIndex}-${timestamp}@platformplatform.net`;
-  const adminEmailAddress = `e2e-${prefix}admin-${workerIndex}-${timestamp}@platformplatform.net`;
-  const memberEmailAddress = `e2e-${prefix}member-${workerIndex}-${timestamp}@platformplatform.net`;
+  const ownerEmailAddress = `e2e-${prefix}-owner-${workerIndex}-${timestamp}@platformplatform.net`;
+  const adminEmailAddress = `e2e-${prefix}-admin-${workerIndex}-${timestamp}@platformplatform.net`;
+  const memberEmailAddress = `e2e-${prefix}-member-${workerIndex}-${timestamp}@platformplatform.net`;
 
   // Create User objects for each role
   const owner: User = {
