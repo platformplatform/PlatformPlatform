@@ -57,9 +57,3 @@ export function getSelfContainedSystemPrefix(): string | undefined {
   return match ? match[1] : undefined;
 }
 
-/**
- * Clear the worker tenant cache (useful for testing or cleanup)
- */
-export function clearWorkerTenantCache(): void {
-  workerTenantCache.clear();
-}
