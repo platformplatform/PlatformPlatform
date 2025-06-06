@@ -1,7 +1,7 @@
-import { type Browser, type BrowserContext, type Page, test as base } from "@playwright/test";
+import { type Browser, type BrowserContext, type Page, test as base, expect } from "@playwright/test";
 import { createAuthStateManager } from "../auth/auth-state-manager";
-import type { Tenant, UserRole } from "../types/auth";
-import { getVerificationCode } from "../utils/test-data";
+import type { Tenant, User, UserRole } from "../types/auth";
+import { completeSignupFlow } from "../utils/test-data";
 import { getSelfContainedSystemPrefix, getWorkerTenant } from "./worker-auth";
 
 // Extend the global interface to include testTenant
@@ -47,32 +47,11 @@ async function performFreshAuthentication(
   // Create a new page for authentication
   const page = await context.newPage();
 
-  // Get the email for this role
-  const email = getEmailForRole(tenant, role);
+  // Get the user for this role
+  const user = getUserForRole(tenant, role);
 
-  // Perform signup flow to create the user
-  await page.goto("/");
-  await page.getByRole("button", { name: "Get started today" }).first().click();
-  await page.getByRole("textbox", { name: "Email" }).fill(email);
-  await page.getByRole("button", { name: "Create your account" }).click();
-  await page.waitForURL("/signup/verify");
-
-  // Enter verification code
-  await page.keyboard.type(getVerificationCode());
-  await page.getByRole("button", { name: "Verify" }).click();
-  await page.waitForURL("/admin");
-
-  // Complete profile setup
-  const firstName = `Test${role}`;
-  const lastName = `Worker${authManager.getStateFilePath(role).match(/worker-(\d+)/)?.[1] || "0"}`;
-
-  await page.getByRole("textbox", { name: "First name" }).fill(firstName);
-  await page.getByRole("textbox", { name: "Last name" }).fill(lastName);
-  await page.getByRole("button", { name: "Save changes" }).click();
-
-  // Wait for successful login and ensure we're on the welcome page
-  // Also ensure any profile dialog is closed
-  await page.waitForSelector('h1:has-text("Welcome home")', { state: "visible" });
+  // Use the centralized signup flow utility
+  await completeSignupFlow(page, expect, user);
 
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {
@@ -88,16 +67,16 @@ async function performFreshAuthentication(
 }
 
 /**
- * Get email for a specific role from tenant data
+ * Get user for a specific role from tenant data
  */
-function getEmailForRole(tenant: Tenant, role: UserRole): string {
+function getUserForRole(tenant: Tenant, role: UserRole): User {
   switch (role) {
     case "Owner":
-      return tenant.ownerEmail;
+      return tenant.owner;
     case "Admin":
-      return tenant.adminEmail;
+      return tenant.admin;
     case "Member":
-      return tenant.memberEmail;
+      return tenant.member;
     default:
       throw new Error(`Unknown role: ${role}`);
   }
