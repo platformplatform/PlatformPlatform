@@ -104,36 +104,6 @@ export class AuthStateManager {
     }
   }
 
-  /**
-   * Clear all authentication states for this worker
-   * @returns Promise resolving when all states are cleared
-   */
-  async clearAllAuthStates(): Promise<void> {
-    const roles: UserRole[] = ["Owner", "Admin", "Member"];
-    await Promise.all(roles.map((role) => this.clearAuthState(role)));
-  }
-
-  /**
-   * Get a summary of authentication state validity for all roles
-   * @returns Promise resolving to an object with validity status per role
-   */
-  async getAuthStateSummary(): Promise<Record<UserRole, boolean>> {
-    const roles: UserRole[] = ["Owner", "Admin", "Member"];
-    const results = await Promise.all(
-      roles.map(async (role) => ({
-        role,
-        isValid: await this.hasValidAuthState(role)
-      }))
-    );
-
-    return results.reduce(
-      (summary, { role, isValid }) => {
-        summary[role] = isValid;
-        return summary;
-      },
-      {} as Record<UserRole, boolean>
-    );
-  }
 }
 
 /**
