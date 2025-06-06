@@ -25,6 +25,9 @@ msgstr "Kontonavn"
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Account updated successfully"
+msgstr "Konto opdateret succesfuldt"
+
 msgid "Actions"
 msgstr "Handlinger"
 
@@ -292,6 +295,9 @@ msgstr "Fortrolighedspolitikker"
 msgid "Profile picture"
 msgstr "Profilbillede"
 
+msgid "Profile updated successfully"
+msgstr "Profil opdateret succesfuldt"
+
 msgid "Region"
 msgstr "Region"
 
@@ -385,6 +391,12 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
+
+msgid "User invited successfully"
+msgstr "Bruger inviteret succesfuldt"
+
+msgid "User invited successfully"
+msgstr "Bruger inviteret succesfuldt"
 
 msgid "User profile"
 msgstr "Brugerprofil"

@@ -25,6 +25,9 @@ msgstr "Account name"
 msgid "Account settings"
 msgstr "Account settings"
 
+msgid "Account updated successfully"
+msgstr "Account updated successfully"
+
 msgid "Actions"
 msgstr "Actions"
 
@@ -292,6 +295,9 @@ msgstr "Privacy policies"
 msgid "Profile picture"
 msgstr "Profile picture"
 
+msgid "Profile updated successfully"
+msgstr "Profile updated successfully"
+
 msgid "Region"
 msgstr "Region"
 
@@ -385,6 +391,12 @@ msgstr "Update your profile picture and personal details here."
 
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
+
+msgid "User invited successfully"
+msgstr "User invited successfully"
+
+msgid "User invited successfully"
+msgstr "User invited successfully"
 
 msgid "User profile"
 msgstr "User profile"

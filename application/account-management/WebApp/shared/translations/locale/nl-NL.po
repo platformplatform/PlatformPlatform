@@ -25,6 +25,9 @@ msgstr "Accountnaam"
 msgid "Account settings"
 msgstr "Accountinstellingen"
 
+msgid "Account updated successfully"
+msgstr "Account succesvol bijgewerkt"
+
 msgid "Actions"
 msgstr "Acties"
 
@@ -292,6 +295,9 @@ msgstr "Privacybeleid"
 msgid "Profile picture"
 msgstr "Profielfoto"
 
+msgid "Profile updated successfully"
+msgstr "Profiel succesvol bijgewerkt"
+
 msgid "Region"
 msgstr "Regio"
 
@@ -385,6 +391,12 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
+
+msgid "User invited successfully"
+msgstr "Gebruiker succesvol uitgenodigd"
+
+msgid "User invited successfully"
+msgstr "Gebruiker succesvol uitgenodigd"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
