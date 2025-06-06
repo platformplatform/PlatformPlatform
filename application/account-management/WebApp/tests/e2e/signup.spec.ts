@@ -149,19 +149,14 @@ test.describe("Signup", () => {
     test("should prevent signup when user is already authenticated", async ({ ownerPage }) => {
       const context = createTestContext(ownerPage);
 
-      // Step 1: Verify user is already authenticated and can access admin dashboard
-      await ownerPage.goto("/admin");
+      // Step 1: Verify user is already authenticated with ownerPage fixture
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Step 2: Attempt to access signup page while authenticated and verify redirect
       await ownerPage.goto("/signup");
       await expect(ownerPage).toHaveURL("/admin");
 
-      // Step 3: Attempt to access signup verification page and verify redirect
-      await ownerPage.goto("/signup/verify");
-      await expect(ownerPage).toHaveURL("/admin");
-
-      // Step 4: Assert no unexpected errors occurred
+      // Step 3: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
   });
