@@ -60,8 +60,8 @@ export default defineConfig({
     timeout: 5000
   },
 
-  // Output directories
-  outputDir: "test-results/",
+  // Output directories - centralized test artifacts
+  outputDir: "tests/test-results/test-artifacts/",
 
   // Configure projects for major browsers
   projects: [

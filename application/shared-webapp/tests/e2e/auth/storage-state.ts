@@ -30,7 +30,7 @@ export async function loadAuthenticationState(_context: BrowserContext, filePath
  * Get the storage state file path for a specific worker, role, and system
  */
 export function getStorageStatePath(workerIndex: number, userRole: string, selfContainedSystemPrefix?: string): string {
-  const baseDir = path.join(process.cwd(), ".auth");
+  const baseDir = path.join(process.cwd(), "tests/test-results/auth-state");
   const systemPrefix = selfContainedSystemPrefix ?? "default";
   return path.join(baseDir, systemPrefix, `worker-${workerIndex}-${userRole.toLowerCase()}.json`);
 }
