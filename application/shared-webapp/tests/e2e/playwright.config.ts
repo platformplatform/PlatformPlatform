@@ -1,6 +1,15 @@
 /// <reference types="node" />
 import { defineConfig, devices } from "@playwright/test";
-import { getBaseUrl } from "./utils/constants";
+import { getBaseUrl, isWindows } from "./utils/constants";
+
+let workers: number | undefined;
+if (process.env.CI) {
+  workers = 1; // Limit to 1 worker on CI
+} else if (isWindows) {
+  workers = 4; // Limit to 4 workers on Windows to avoid performance issues
+} else {
+  workers = undefined; // On non-Windows systems, use all available CPUs
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -16,7 +25,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   // Opt out of parallel tests on CI.
-  workers: process.env.CI ? 1 : undefined,
+
+  workers: workers,
 
   // Reporter to use. See https://playwright.dev/docs/test-reporters
   reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
