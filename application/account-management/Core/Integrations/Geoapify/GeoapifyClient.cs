@@ -15,8 +15,8 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
         {
             logger.LogWarning("Geoapify API key is not configured. Address auto-completion is disabled");
             return new GeoapifyResult(
-                new GeoapifySearchResponse([]), 
-                ServiceStatus.NotConfigured, 
+                new GeoapifySearchResponse([]),
+                ServiceStatus.NotConfigured,
                 "The Geoapify service is not configured"
             );
         }
@@ -24,12 +24,6 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
         try
         {
             var requestUri = $"autocomplete?text={Uri.EscapeDataString(query)}&apiKey={ApiKey}&limit=20&format=json";
-            
-            // Add country filter if provided
-            if (!string.IsNullOrWhiteSpace(countryCode))
-            {
-                requestUri += $"&filter=countrycode:{Uri.EscapeDataString(countryCode)}";
-            }
 
             logger.LogDebug("Searching addresses with query '{Query}' and country '{CountryCode}'", query, countryCode);
 
@@ -48,8 +42,8 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
 
             logger.LogWarning("Geoapify API returned error status: {StatusCode}", response.StatusCode);
             return new GeoapifyResult(
-                new GeoapifySearchResponse([]), 
-                ServiceStatus.NotResponding, 
+                new GeoapifySearchResponse([]),
+                ServiceStatus.NotResponding,
                 "The Geoapify service is not responding"
             );
         }
@@ -57,8 +51,8 @@ public sealed class GeoapifyClient(HttpClient httpClient, ILogger<GeoapifyClient
         {
             logger.LogError(ex, "Error occurred while searching addresses with Geoapify");
             return new GeoapifyResult(
-                new GeoapifySearchResponse([]), 
-                ServiceStatus.NotResponding, 
+                new GeoapifySearchResponse([]),
+                ServiceStatus.NotResponding,
                 "The Geoapify service is not responding"
             );
         }

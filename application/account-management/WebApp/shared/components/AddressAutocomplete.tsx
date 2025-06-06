@@ -65,11 +65,7 @@ export function AddressAutocomplete({
     },
     {
       enabled: Boolean(
-        debouncedQuery &&
-          debouncedQuery.length >= 2 &&
-          !isSelecting &&
-          debouncedQuery !== lastSelectedAddress &&
-          countryCode // Only enable search if country is selected
+        debouncedQuery && debouncedQuery.length >= 2 && !isSelecting && debouncedQuery !== lastSelectedAddress
       )
     }
   );
@@ -78,7 +74,7 @@ export function AddressAutocomplete({
   const suggestions = (response?.suggestions || []).slice(0, 20);
 
   // Show popover when we have suggestions and the input is focused
-  const shouldShowPopover = suggestions.length > 0 && !isSelecting && inputValue.length >= 2 && countryCode;
+  const shouldShowPopover = suggestions.length > 0 && !isSelecting && inputValue.length >= 2;
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
@@ -88,7 +84,7 @@ export function AddressAutocomplete({
   };
 
   const handleFocus = () => {
-    if (suggestions.length > 0 && inputValue.length >= 2 && countryCode) {
+    if (suggestions.length > 0 && inputValue.length >= 2) {
       setIsPopoverOpen(true);
     }
   };
@@ -199,7 +195,7 @@ export function AddressAutocomplete({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        isDisabled={isDisabled || !countryCode}
+        isDisabled={isDisabled}
         name={name || "addressLine1"}
         autoComplete="off"
         aria-expanded={shouldShowPopover && isPopoverOpen}
