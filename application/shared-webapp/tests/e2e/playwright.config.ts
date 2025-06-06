@@ -77,7 +77,12 @@ export default defineConfig({
 
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] }
+      use: {
+        ...devices["Desktop Safari"],
+        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        ignoreHTTPSErrors: isWindows
+      }
     }
   ]
 });
