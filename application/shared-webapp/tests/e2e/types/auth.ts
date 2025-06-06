@@ -10,14 +10,24 @@ import type { BrowserContext } from "@playwright/test";
 export type UserRole = "Owner" | "Admin" | "Member";
 
 /**
+ * User interface containing all user information for E2E testing
+ */
+export interface User {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+}
+
+/**
  * Tenant interface containing all user information for E2E testing
  */
 export interface Tenant {
   tenantId: string;
   tenantName: string;
-  ownerEmail: string;
-  adminEmail: string;
-  memberEmail: string;
+  owner: User;
+  admin: User;
+  member: User;
 }
 
 /**

@@ -1,4 +1,5 @@
-import type { Tenant } from "../types/auth";
+import { expect } from "@playwright/test";
+import type { Tenant, User } from "../types/auth";
 
 /**
  * Create a tenant with owner, admin, and member users
@@ -12,9 +13,31 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
   const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 
   // Generate unique emails for each role with timestamp to avoid conflicts across test runs
-  const ownerEmail = `e2e-${prefix}owner-${workerIndex}-${timestamp}@platformplatform.net`;
-  const adminEmail = `e2e-${prefix}admin-${workerIndex}-${timestamp}@platformplatform.net`;
-  const memberEmail = `e2e-${prefix}member-${workerIndex}-${timestamp}@platformplatform.net`;
+  const ownerEmailAddress = `e2e-${prefix}owner-${workerIndex}-${timestamp}@platformplatform.net`;
+  const adminEmailAddress = `e2e-${prefix}admin-${workerIndex}-${timestamp}@platformplatform.net`;
+  const memberEmailAddress = `e2e-${prefix}member-${workerIndex}-${timestamp}@platformplatform.net`;
+
+  // Create User objects for each role
+  const owner: User = {
+    email: ownerEmailAddress,
+    firstName: "TestOwner",
+    lastName: `Worker${workerIndex}`,
+    role: "Owner"
+  };
+
+  const admin: User = {
+    email: adminEmailAddress,
+    firstName: "TestAdmin",
+    lastName: `Worker${workerIndex}`,
+    role: "Admin"
+  };
+
+  const member: User = {
+    email: memberEmailAddress,
+    firstName: "TestMember",
+    lastName: `Worker${workerIndex}`,
+    role: "Member"
+  };
 
   // Return tenant structure - actual signup will be implemented when needed
   const tenantId = `tenant-${workerIndex}-${timestamp}`;
@@ -22,9 +45,9 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
   return {
     tenantId,
     tenantName,
-    ownerEmail,
-    adminEmail,
-    memberEmail
+    owner,
+    admin,
+    member
   };
 }
 
@@ -37,7 +60,7 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
 export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
   // Import the authentication utilities dynamically to avoid circular dependencies
   const { createAuthStateManager } = await import("../auth/auth-state-manager.js");
-  const { getVerificationCode } = await import("../utils/test-data.js");
+  const { completeSignupFlow } = await import("../utils/test-data.js");
 
   // Create a temporary browser context for user provisioning
   const { chromium } = await import("@playwright/test");
@@ -46,25 +69,8 @@ export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
   const page = await context.newPage();
 
   try {
-    // Create the owner user through signup flow
-    await page.goto("https://localhost:9000/");
-    await page.getByRole("button", { name: "Get started today" }).first().click();
-    await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
-    await page.getByRole("button", { name: "Create your account" }).click();
-    await page.waitForURL("/signup/verify");
-
-    // Complete verification
-    await page.keyboard.type(getVerificationCode());
-    await page.getByRole("button", { name: "Verify" }).click();
-    await page.waitForURL("/admin");
-
-    // Complete profile setup
-    await page.getByRole("textbox", { name: "First name" }).fill("TestOwner");
-    await page.getByRole("textbox", { name: "Last name" }).fill("User");
-    await page.getByRole("button", { name: "Save changes" }).click();
-
-    // Wait for completion
-    await page.waitForSelector('h1:has-text("Welcome home")', { state: "visible" });
+    // Create the owner user through centralized signup flow
+    await completeSignupFlow(page, expect, tenant.owner);
 
     // Save authentication state for reuse
     const authManager = createAuthStateManager(0, "account-management"); // Use worker 0 for shared users

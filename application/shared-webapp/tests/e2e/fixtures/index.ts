@@ -32,28 +32,6 @@ export {
 export { createTenantWithUsers, ensureTenantUsersExist } from "../auth/tenant-provisioning";
 
 /**
- * Extended test object with authentication fixtures
- * Use this instead of the base Playwright test for authenticated testing
- *
- * @example
- * ```typescript
- * import { test } from "@repo/shared-webapp/tests/e2e/fixtures";
- *
- * test("should access admin features as owner", async ({ ownerPage }) => {
- *   await ownerPage.goto("/admin");
- *   // Test with authenticated owner page
- * });
- *
- * test("should login successfully", async ({ unauthenticatedPageWithTenant }) => {
- *   const { page, tenant } = unauthenticatedPageWithTenant;
- *   await page.goto("/login");
- *   await page.getByRole("textbox", { name: "Email" }).fill(tenant.ownerEmail);
- *   // Test login flow with known existing user
- * });
- * ```
- */
-
-/**
  * Default export for convenience - the extended test with auth fixtures
  */
 export { test as default } from "./page-auth";
