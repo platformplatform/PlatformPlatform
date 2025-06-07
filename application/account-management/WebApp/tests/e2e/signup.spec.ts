@@ -16,7 +16,7 @@ test.describe("Signup", () => {
 
       // Step 1: Navigate from homepage to signup page and verify
       await page.goto("/");
-      await expect(page).toHaveTitle(/PlatformPlatform/);
+      await expect(page).toHaveTitle("PlatformPlatform");
       await page.getByRole("button", { name: "Get started today" }).first().click();
       await expect(page).toHaveURL("/signup");
 

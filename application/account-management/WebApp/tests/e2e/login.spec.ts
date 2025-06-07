@@ -424,7 +424,7 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/login/verify");
 
       // Step 3: Verify countdown timer is visible and wait for expiration
-      await expect(page.getByText(/\(\d+:\d+\)/).first()).toBeVisible();
+      await expect(page.getByText("(5:00)")).toBeVisible();
       await page.waitForTimeout(300000); // 5 minutes
 
       // Step 5: Verify that session has expired and error message is shown

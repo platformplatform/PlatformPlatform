@@ -51,13 +51,13 @@ test.describe("Account Management System", () => {
       await assertValidationError(context, "First name must be no longer than 30 characters.");
       await assertValidationError(context, "'Last Name' must not be empty.");
 
-      // Step 7: Test very long title validation
+      // Step 7: Fill title field with too long value and verify validation error
       const longTitle = "B".repeat(51);
       await page.getByRole("textbox", { name: "Title" }).fill(longTitle);
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertValidationError(context, "Title must be no longer than 50 characters.");
 
-      // Step 8: Complete profile setup with valid data
+      // Step 8: Complete profile setup with valid data and verify navigation to dashboard
       await page.getByRole("textbox", { name: "First name" }).fill(owner.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(owner.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
@@ -75,17 +75,29 @@ test.describe("Account Management System", () => {
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
       await page.getByRole("button", { name: "Cancel" }).click();
 
-      // Step 10: Test light/dark mode toggle and verify theme persistence
-      const initialThemeClass = await page.locator("html").getAttribute("class"); // Get initial theme state
-      const isInitiallyLight = initialThemeClass?.includes("light");
-      const initialTheme = isInitiallyLight ? "light" : "dark";
-      const oppositeTheme = isInitiallyLight ? "dark" : "light";
-
-      await page.getByRole("button", { name: "Toggle theme" }).click(); // Toggle theme
-      await expect(page.locator("html")).toHaveClass(new RegExp(oppositeTheme));
-
-      await page.getByRole("button", { name: "Toggle theme" }).click(); // Toggle back to original theme
-      await expect(page.locator("html")).toHaveClass(new RegExp(initialTheme));
+      // Step 10: Test theme toggle cycle and verify theme changes work correctly
+      const themeButton = page.getByRole("button", { name: "Toggle theme" });
+      
+      // Get initial system theme (system is default on first load)
+      const initialThemeClass = await page.locator("html").getAttribute("class");
+      const systemThemeIsLight = initialThemeClass?.includes("light");
+      const systemTheme = systemThemeIsLight ? "light" : "dark";
+      const oppositeTheme = systemThemeIsLight ? "dark" : "light";
+      
+      // Verify accessibility label
+      await expect(themeButton).toHaveAttribute("aria-label", "Toggle theme");
+      
+      // First click: system → opposite
+      await themeButton.click();
+      await expect(page.locator("html")).toHaveClass(oppositeTheme);
+      
+      // Second click: opposite → system (same as initial)
+      await themeButton.click();
+      await expect(page.locator("html")).toHaveClass(systemTheme);
+      
+      // Third click: system → opposite (for rest of test)
+      await themeButton.click();
+      await expect(page.locator("html")).toHaveClass(oppositeTheme);
 
       // Step 11: Navigate to users page and verify owner is listed
       await page.getByRole("button", { name: "Users" }).click();
@@ -94,37 +106,37 @@ test.describe("Account Management System", () => {
       await expect(page.getByText(owner.email)).toBeVisible();
       await expect(page.getByText("Owner")).toBeVisible();
 
-      // Step 12: Test user invitation - try invalid email first
+      // Step 12: Submit invalid email invitation and verify validation error, then invite valid user
       await page.getByRole("button", { name: "Invite user" }).click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
-      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email); // Now invite with valid email
+      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertToastMessage(context, "Success", "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Step 13: Invite second user
+      // Step 13: Invite second user and verify successful invitation
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(ownerUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertToastMessage(context, "Success", "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Step 14: Invite third user
+      // Step 14: Invite third user and verify successful invitation
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertToastMessage(context, "Success", "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Step 15: Try to invite duplicate user and verify error
+      // Step 15: Attempt to invite duplicate user email and verify error message
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await expect(page.getByText(/already in use by another user/)).toBeVisible();
+      await expect(page.getByText("already in use by another user")).toBeVisible();
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
@@ -134,58 +146,54 @@ test.describe("Account Management System", () => {
       await expect(page.getByText(memberUser.email)).toBeVisible();
       await expect(page.getByText("Member").first()).toBeVisible();
 
-      // Step 17: Test user filtering and verify search functionality
+      // Step 17: Filter users by email search and verify filtered results display correctly
       await page.getByPlaceholder("Search").fill(adminUser.email);
       await expect(page.getByText(adminUser.email)).toBeVisible();
       await expect(page.getByText(ownerUser.email)).not.toBeVisible();
       await expect(page.getByText(memberUser.email)).not.toBeVisible();
-      await page.getByPlaceholder("Search").clear(); // Clear search
+      await page.getByPlaceholder("Search").clear();
       await expect(page.getByText(adminUser.email)).toBeVisible();
       await expect(page.getByText(ownerUser.email)).toBeVisible();
       await expect(page.getByText(memberUser.email)).toBeVisible();
 
-      // Step 18: Test role filtering and verify filter functionality
+      // Step 18: Filter users by role and verify role-based filtering works correctly
       await page.getByRole("button", { name: "Show filters" }).click();
       await page.getByRole("button", { name: "Any role User role" }).click();
       await page.getByRole("option", { name: "Owner" }).click();
       await expect(page.getByText(owner.email)).toBeVisible();
       await expect(page.getByText(adminUser.email)).not.toBeVisible();
-      await page.getByRole("button", { name: "Owner User role" }).click(); // Reset role filter
+      await page.getByRole("button", { name: "Owner User role" }).click();
       await page.getByRole("option", { name: "Any role" }).click();
       await expect(page.getByText(adminUser.email)).toBeVisible();
 
-      // Step 19: Test sidebar collapse and verify navigation changes
+      // Step 19: Collapse sidebar menu and verify layout changes
       await page.getByRole("button", { name: "Toggle collapsed menu" }).click();
 
-      // Step 20: Test dashboard navigation and verify filtering functionality
+      // Step 20: Navigate to dashboard and click active users link to verify URL filtering
       await page.getByRole("button", { name: "Home" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await page.getByRole("link", { name: "Active users" }).click(); // Test dashboard link to users with active filter
+      await page.getByRole("link", { name: "Active users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       expect(page.url()).toContain("userStatus=Active");
 
-      // Step 21: Test tenant settings validation and verify error handling
+      // Step 21: Clear account name field and verify validation error appears
       await page.getByRole("button", { name: "Account" }).click();
       await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertValidationError(context, "'Name' must not be empty.");
 
-      // Step 22: Update tenant name successfully and verify form submission completes  
-      const newTenantName = `Tech Corp ${Date.now()}`;
-      await page.getByRole("textbox", { name: "Account name" }).fill(newTenantName);
+      // Step 22: Update account name and verify successful save
+      const newAccountName = `Tech Corp ${Date.now()}`;
+      const accountNameField = page.getByRole("textbox", { name: "Account name" });
+      await accountNameField.clear();
+      await accountNameField.fill(newAccountName);
+      await accountNameField.blur();
+      await expect(accountNameField).toHaveValue(newAccountName);
       await page.getByRole("button", { name: "Save changes" }).click();
-      
-      // Try to verify success toast appears (may be browser-specific timing)
-      try {
-        await assertToastMessage(context, "Success", "Account updated successfully");
-      } catch {
-        // In some browsers, the toast may appear and disappear quickly or have timing differences
-        // Verify success by checking the form value instead
-        await expect(page.getByRole("textbox", { name: "Account name" })).toHaveValue(newTenantName);
-      }
+      await assertToastMessage(context, "Success", "Account updated successfully");
 
-      // Step 23: Update user profile and test avatar functionality
+      // Step 23: Update user profile title and verify successful profile update
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Edit profile" }).click();
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
@@ -193,68 +201,68 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertToastMessage(context, "Success", "Profile updated successfully");
 
-      // Step 24: Test locale change functionality and user preference persistence
+      // Step 24: Change language to Danish and verify language preference persists
       await page.getByRole("button", { name: "Select language" }).click();
       await page.getByRole("menuitem", { name: "Dansk" }).click();
       await page.getByRole("button", { name: "Annuller" }).click();
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
 
-      // Step 25: Test logout and verify redirect to login
+      // Step 25: Logout from Danish interface and verify redirect to login page
       await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
       await page.getByRole("menuitem", { name: "Log ud" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
 
-      // Step 26: Change language to English on login page
+      // Step 26: Change login page language to English and verify interface updates
       await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 27: Test wrong login credentials and verify error message
+      // Step 27: Submit wrong login credentials and verify error message appears
       await page.getByRole("textbox", { name: "Email" }).fill("nonexistent@example.com");
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL(/\/login\/verify/);
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
 
-      // Step 28: Login with correct credentials and verify successful access
+      // Step 28: Login with correct credentials and verify successful authentication
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL(/\/login\/verify/);
+      await expect(page).toHaveURL("/login/verify");
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
-      // Step 29: Verify language preference persisted (should be Danish) and logout
+      // Step 29: Verify user's Danish language preference persisted after login
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
 
-      // Step 30: Test login through Dutch interface and verify user's personal language preference persists
+      // Step 30: Logout and login through Dutch interface to verify personal preference overrides UI language
       await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
       await page.getByRole("menuitem", { name: "Log ud" }).click();
 
-      await page.getByRole("button", { name: "Vælg sprog" }).click(); // Change to Dutch on login page
+      await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "Nederlands" }).click();
 
-      await page.getByRole("textbox", { name: "E-mail" }).fill(owner.email); // Login as original owner user
+      await page.getByRole("textbox", { name: "E-mail" }).fill(owner.email);
       await page.getByRole("button", { name: "Verder" }).click();
-      await expect(page).toHaveURL(/\/login\/verify/); // Wait for navigation to complete
-      await page.keyboard.type(getVerificationCode()); // Type verification code using same method as working tests
+      await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await expect(page).toHaveURL("/admin");
 
-      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible(); // Verify Danish is the user's persisted language preference
+      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
 
-      // Step 31: Test protected route access and verify session persistence
-      await page.getByRole("button", { name: "Konto" }).click(); // "Account" in Danish
-      await expect(page.getByRole("textbox", { name: "Kontonavn" })).toBeVisible(); // Verify account settings page is accessible
+      // Step 31: Access protected account route and verify session maintains authentication
+      await page.getByRole("button", { name: "Konto" }).click();
+      await expect(page.getByRole("textbox", { name: "Kontonavn" })).toBeVisible();
 
-      // Step 32: Reset language back to English for final verification
+      // Step 32: Reset language to English and verify interface updates properly
       await page.goto("/admin");
-      await page.getByRole("button", { name: "Vælg sprog" }).click(); // "Select language" in Danish
+      await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
