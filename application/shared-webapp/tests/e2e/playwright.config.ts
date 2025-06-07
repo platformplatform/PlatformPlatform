@@ -29,7 +29,7 @@ export default defineConfig({
   workers: workers,
 
   // Reporter to use. See https://playwright.dev/docs/test-reporters
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never", outputFolder: "test-results/playwright-report" }]],
 
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
@@ -61,7 +61,7 @@ export default defineConfig({
   },
 
   // Output directories - centralized test artifacts
-  outputDir: "tests/test-results/test-artifacts/",
+  outputDir: "test-results/test-artifacts/",
 
   // Configure projects for major browsers
   projects: [
