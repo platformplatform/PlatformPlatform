@@ -185,11 +185,8 @@ test.describe("Account Management System", () => {
 
       // Step 22: Update account name and verify successful save
       const newAccountName = `Tech Corp ${Date.now()}`;
-      const accountNameField = page.getByRole("textbox", { name: "Account name" });
-      await accountNameField.clear();
-      await accountNameField.fill(newAccountName);
-      await accountNameField.blur();
-      await expect(accountNameField).toHaveValue(newAccountName);
+      await page.getByRole("textbox", { name: "Account name" }).fill(newAccountName);
+      await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit issue, we need to trigger a
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertToastMessage(context, "Success", "Account updated successfully");
 
