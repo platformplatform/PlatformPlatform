@@ -3,6 +3,7 @@ import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
 import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
 import type { Tenant, User, UserRole } from "@shared/e2e/types/auth";
 import { completeSignupFlow } from "@shared/e2e/utils/test-data";
+import { createTestContext } from "@shared/e2e/utils/test-assertions";
 
 // Extend the global interface to include testTenant
 declare global {
@@ -41,7 +42,7 @@ export interface PageAuthFixtures {
  * Perform fresh authentication by going through signup/login flow
  */
 async function performFreshAuthentication(
-  context: BrowserContext,
+  browserContext: BrowserContext,
   role: UserRole,
   tenant: Tenant | undefined,
   authManager: ReturnType<typeof createAuthStateManager>
@@ -51,13 +52,14 @@ async function performFreshAuthentication(
   }
 
   // Create a new page for authentication
-  const page = await context.newPage();
+  const page = await browserContext.newPage();
 
   // Get the user for this role
   const user = getUserForRole(tenant, role);
 
   // Use the centralized signup flow utility
-  await completeSignupFlow(page, expect, user);
+  const testContext = createTestContext(page);
+  await completeSignupFlow(page, expect, user, testContext);
 
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {

@@ -224,7 +224,7 @@ test.describe("Login", () => {
       const user = testUser();
 
       // Step 1: Create a test user and logout to allow testing login flow
-      await completeSignupFlow(page, expect, user, false);
+      await completeSignupFlow(page, expect, user, context, false);
 
       // Step 2: Navigate to login page and submit email
       await page.goto("/login");
@@ -247,7 +247,7 @@ test.describe("Login", () => {
       const user = testUser();
 
       // Step 1: Create a test user and logout to allow testing login flow
-      await completeSignupFlow(page, expect, user, false);
+      await completeSignupFlow(page, expect, user, context, false);
 
       // Step 2: Navigate to login page and submit email to reach verification page
       await page.goto("/login");
@@ -256,8 +256,7 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/login/verify");
 
       // Step 3: Click resend button and verify no errors occur
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This should work similarly to signup resend functionality
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This should work similarly to signup resend functionality
 
       // Step 4: Verify the resend functionality works and we're still on verification page
       await expect(page).toHaveURL("/login/verify");
@@ -287,7 +286,7 @@ test.describe("Login", () => {
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
       // Step 4: Create a test user first to ensure the next step works
-      await completeSignupFlow(page, expect, user);
+      await completeSignupFlow(page, expect, user, context);
 
       // Step 5: Logout and return to login page
       await page.getByRole("button", { name: "User profile menu" }).click();
@@ -371,7 +370,7 @@ test.describe("Login", () => {
       const user = testUser();
 
       // Step 1: Create a test user and logout to allow testing login flow
-      await completeSignupFlow(page, expect, user, false);
+      await completeSignupFlow(page, expect, user, context, false);
 
       // Step 2: Navigate to login page and submit email
       await page.goto("/login");
@@ -412,10 +411,11 @@ test.describe("Login", () => {
     test("should handle verification code expiration during login (5-minute timeout)", async ({ page }) => {
       // NOTE: This test currently expects React errors in the console due to a bug in the application.
       // The /login/expired page tries to call getLoginState() which throws "No active login."
+      const context = createTestContext(page);
       const user = testUser();
 
       // Step 1: Create a test user and logout to allow testing login flow
-      await completeSignupFlow(page, expect, user, false);
+      await completeSignupFlow(page, expect, user, context, false);
 
       // Step 2: Navigate to login page and submit email to start login process
       await page.goto("/login");
@@ -440,7 +440,7 @@ test.describe("Login", () => {
       const user = testUser();
 
       // Step 1: Create a test user and logout to allow testing login flow
-      await completeSignupFlow(page, expect, user, false);
+      await completeSignupFlow(page, expect, user, context, false);
 
       // Step 2: Navigate to login page and submit email to reach verification page
       await page.goto("/login");
@@ -449,8 +449,7 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/login/verify");
 
       // Step 3: Test first resend attempt and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This should work similarly to signup resend functionality
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This should work similarly to signup resend functionality
 
       // Step 4: Test second resend attempt and verify rate limiting
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -464,8 +463,7 @@ test.describe("Login", () => {
       await page.waitForTimeout(30000); // 30 seconds
 
       // Step 6: Test third resend attempt after waiting and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: After the 30-second wait, rate limiting should reset, so this should succeed
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
 
       // Step 7: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
@@ -491,12 +489,10 @@ test.describe("Login", () => {
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Step 3: Wait for session to timeout (this test simulates long session inactivity)
-      // Note: Actual session timeout varies by configuration, this simulates the behavior
-      await page.waitForTimeout(60000); // 1 minute wait to simulate session timeout conditions
+      await page.waitForTimeout(60000); // 1 minute wait to simulate session timeout conditions (actual session timeout varies by configuration)
 
       // Step 4: Attempt to access a protected resource and verify redirect to login
-      await page.goto("/admin/users");
-      // Note: This may or may not trigger a redirect depending on actual session timeout configuration
+      await page.goto("/admin/users"); // Note: This may or may not trigger a redirect depending on actual session timeout configuration
       // The test validates that the authentication system properly handles session management
 
       // Step 5: Verify that authentication state is properly maintained or redirected as expected
@@ -504,8 +500,7 @@ test.describe("Login", () => {
       const isLoggedIn = currentUrl.includes("/admin");
       const isRedirectToLogin = currentUrl.includes("/login");
 
-      // Either should be logged in still, or redirected to login - both are valid session management behaviors
-      expect(isLoggedIn || isRedirectToLogin).toBeTruthy();
+      expect(isLoggedIn || isRedirectToLogin).toBeTruthy(); // Either should be logged in still, or redirected to login - both are valid session management behaviors
 
       // Step 6: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);

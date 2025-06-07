@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import type { Page} from "@playwright/test";
 import { isLocalhost } from "./constants";
+import type { TestContext } from "./test-assertions";
+import { assertToastMessage } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
@@ -88,12 +90,14 @@ export function testUser() {
  * @param expect Playwright expect function
  * @param user User data object with email, firstName, lastName
  * @param keepUserLoggedIn Whether to keep the user logged in after signup (default: true)
+ * @param context Test context for asserting toasts
  * @returns Promise that resolves when signup is complete
  */
 export async function completeSignupFlow(
   page: Page,
   expect: typeof import("@playwright/test").expect,
   user: { email: string; firstName: string; lastName: string },
+  context: TestContext,
   keepUserLoggedIn = true
 ): Promise<void> {
   // Step 1: Navigate directly to signup page
@@ -109,10 +113,11 @@ export async function completeSignupFlow(
   await page.keyboard.type(getVerificationCode());
   await page.getByRole("button", { name: "Verify" }).click();
 
-  // Step 4: Complete profile setup
+  // Step 4: Complete profile setup and verify successful save
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
+  await assertToastMessage(context, "Success", "Profile updated successfully");
 
   // Step 5: Wait for successful completion
   await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();

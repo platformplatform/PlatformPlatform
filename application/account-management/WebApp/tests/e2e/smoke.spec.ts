@@ -74,30 +74,27 @@ test.describe("Account Management System", () => {
       await page.getByRole("menuitem", { name: "Edit profile" }).click();
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
       await page.getByRole("button", { name: "Cancel" }).click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
 
       // Step 10: Test theme toggle cycle and verify theme changes work correctly
       const themeButton = page.getByRole("button", { name: "Toggle theme" });
-      
-      // Get initial system theme (system is default on first load)
-      const initialThemeClass = await page.locator("html").getAttribute("class");
-      const systemThemeIsLight = initialThemeClass?.includes("light");
-      const systemTheme = systemThemeIsLight ? "light" : "dark";
-      const oppositeTheme = systemThemeIsLight ? "dark" : "light";
-      
-      // Verify accessibility label
-      await expect(themeButton).toHaveAttribute("aria-label", "Toggle theme");
-      
-      // First click: system → opposite
-      await themeButton.click();
-      await expect(page.locator("html")).toHaveClass(oppositeTheme);
-      
-      // Second click: opposite → system (same as initial)
-      await themeButton.click();
-      await expect(page.locator("html")).toHaveClass(systemTheme);
-      
-      // Third click: system → opposite (for rest of test)
-      await themeButton.click();
-      await expect(page.locator("html")).toHaveClass(oppositeTheme);
+
+      const initialThemeClass = await page.locator("html").getAttribute("class"); // Get initial system theme
+      const initialIsLight = initialThemeClass?.includes("light");
+      const firstTheme = initialIsLight ? "dark" : "light";
+      const secondTheme = initialIsLight ? "light" : "dark";
+      const thirdTheme = initialIsLight ? "dark" : "light";
+
+      await expect(themeButton).toHaveAttribute("aria-label", "Toggle theme"); // Verify accessibility label
+
+      await themeButton.click(); // First click: System → opposite
+      await expect(page.locator("html")).toHaveClass(firstTheme);
+
+      await themeButton.click(); // Second click: opposite → original
+      await expect(page.locator("html")).toHaveClass(secondTheme);
+
+      await themeButton.click(); // Third click: original → opposite (for rest of test)
+      await expect(page.locator("html")).toHaveClass(thirdTheme);
 
       // Step 11: Navigate to users page and verify owner is listed
       await page.getByRole("button", { name: "Users" }).click();
@@ -186,7 +183,7 @@ test.describe("Account Management System", () => {
       // Step 22: Update account name and verify successful save
       const newAccountName = `Tech Corp ${Date.now()}`;
       await page.getByRole("textbox", { name: "Account name" }).fill(newAccountName);
-      await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit issue, we need to trigger a
+      await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit requires explicit focus before clicking
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertToastMessage(context, "Success", "Account updated successfully");
 
@@ -246,7 +243,7 @@ test.describe("Account Management System", () => {
 
       await page.getByRole("textbox", { name: "E-mail" }).fill(owner.email);
       await page.getByRole("button", { name: "Verder" }).click();
-      await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
+      await page.waitForURL("/login/verify?returnPath=%2Fadmin");
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await expect(page).toHaveURL("/admin");
@@ -307,7 +304,7 @@ test.describe("Account Management System", () => {
       await page2.goto("/login");
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page2.getByRole("button", { name: "Continue" }).click();
-      await expect(page2).toHaveURL(/\/login\/verify/);
+      await expect(page2).toHaveURL("/login/verify");
       await page2.keyboard.type(getVerificationCode());
       await page2.getByRole("button", { name: "Verify" }).click();
       await expect(page2).toHaveURL("/admin");

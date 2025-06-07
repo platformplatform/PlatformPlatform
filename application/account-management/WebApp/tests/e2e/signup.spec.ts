@@ -26,34 +26,35 @@ test.describe("Signup", () => {
       await expect(page.getByText("Europe")).toBeVisible(); // Verify region is pre-selected
       await page.getByRole("button", { name: "Create your account" }).click();
 
-      // Step 3: Complete email verification process and verify navigation
+      // Step 3: Verify email verification page and content
       await expect(page).toHaveURL("/signup/verify");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await expect(
         page.getByText(`Please check your email for a verification code sent to ${user.email}`)
       ).toBeVisible();
 
+      // Step 4: Complete email verification process and verify navigation
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
-
-      // Step 4: Complete profile setup form and verify navigation
       await expect(page).toHaveURL("/admin");
+
+      // Step 5: Complete profile setup form and verify navigation
       await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertToastMessage(context, "Success", "Profile updated successfully");
 
-      // Step 5: Verify successful completion and navigation to dashboard
+      // Step 6: Verify successful completion and navigation to dashboard
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(page.getByText("Here's your overview of what's happening.")).toBeVisible();
 
-      // Step 6: Verify admin functionality is accessible and working
+      // Step 7: Verify admin functionality is accessible and working
       await page.getByRole("button", { name: "Users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
       await expect(page.getByText(user.email)).toBeVisible();
 
-      // Step 7: Assert no unexpected errors occurred
+      // Step 8: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -109,8 +110,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 3: Click resend button and verify no errors occur
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This appears to be a bug - no success toast is shown for resend
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
 
       // Step 4: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
@@ -264,6 +264,7 @@ test.describe("Signup", () => {
       await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Software Engineer");
       await page.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(context, "Success", "Profile updated successfully");
       await expect(page.getByRole("dialog", { name: "User profile" })).not.toBeVisible();
       await expect(page).toHaveURL("/admin");
 
@@ -385,6 +386,7 @@ test.describe("Signup", () => {
       await page.keyboard.press("Tab");
       await page.keyboard.type(user.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(context, "Success", "Profile updated successfully");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Step 7: Assert no unexpected errors occurred
@@ -445,8 +447,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 2: Test first resend attempt and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This appears to be a bug - no success toast is shown for resend
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
       assertNoUnexpectedErrors(context);
 
       // Step 3: Test immediate second resend attempt and verify rate limiting
@@ -510,8 +511,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 2: Test first resend attempt and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This appears to be a bug - no success toast is shown for resend
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
       //await assertToastMessage(context, "You must wait at least 30 seconds before requesting a new code.");
 
       // Step 3: Test second resend attempt and verify rate limiting
@@ -567,8 +567,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 2: Test first resend attempt and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: This appears to be a bug - no success toast is shown for resend
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
 
       // Step 3: Test second resend attempt and verify rate limiting
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -582,8 +581,7 @@ test.describe("Signup", () => {
       await page.waitForTimeout(30000); // 30 seconds
 
       // Step 5: Test third resend attempt after waiting and verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      // Note: After the 30-second wait, rate limiting should reset, so this should succeed
+      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
 
       // Step 6: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);

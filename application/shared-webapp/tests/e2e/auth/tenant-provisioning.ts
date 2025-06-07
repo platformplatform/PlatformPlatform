@@ -70,7 +70,9 @@ export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
 
   try {
     // Create the owner user through centralized signup flow
-    await completeSignupFlow(page, expect, tenant.owner);
+    const { createTestContext } = await import("../utils/test-assertions.js");
+    const testContext = createTestContext(page);
+    await completeSignupFlow(page, expect, tenant.owner, testContext);
 
     // Save authentication state for reuse
     const authManager = createAuthStateManager(0, "account-management"); // Use worker 0 for shared users
