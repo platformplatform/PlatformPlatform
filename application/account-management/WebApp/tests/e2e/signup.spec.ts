@@ -41,6 +41,7 @@ test.describe("Signup", () => {
       await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(context, "Success", "Profile updated successfully");
 
       // Step 5: Verify successful completion and navigation to dashboard
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -84,6 +85,7 @@ test.describe("Signup", () => {
       await page.getByRole("textbox", { name: "Voornaam" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Achternaam" }).fill(user.lastName);
       await page.getByRole("button", { name: "Wijzigingen opslaan" }).click();
+      await assertToastMessage(context, "Geslaagd", "Profiel succesvol bijgewerkt");
 
       // Step 6: Verify interface remains in Dutch after signup completion
       await expect(page.getByRole("heading", { name: "Welkom home" })).toBeVisible();
