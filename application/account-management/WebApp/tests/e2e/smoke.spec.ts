@@ -168,32 +168,40 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await expect(page.getByText("already in use by another user")).toBeVisible();
+      await expect(page.getByText(`The email '${adminUser.email}' is already in use by another user on this tenant.`)).toBeVisible();
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
       // Act & Assert: Check users table & verify invited users appear
-      await expect(page.getByText(adminUser.email)).toBeVisible();
-      await expect(page.getByText(ownerUser.email)).toBeVisible();
-      await expect(page.getByText(memberUser.email)).toBeVisible();
+      const userTable = page.locator('tbody');
+      await expect(userTable.locator('tr')).toHaveCount(4); // owner + 3 invited users
+      await expect(userTable).toContainText(adminUser.email);
+      await expect(userTable).toContainText(ownerUser.email);
+      await expect(userTable).toContainText(memberUser.email);
       await expect(page.getByText("Member").first()).toBeVisible();
 
       // Act & Assert: Filter users by email search & verify filtered results display correctly
       await page.getByPlaceholder("Search").fill(adminUser.email);
-      await expect(page.getByText(adminUser.email)).toBeVisible();
-      await expect(page.getByText(ownerUser.email)).not.toBeVisible();
-      await expect(page.getByText(memberUser.email)).not.toBeVisible();
+      await page.keyboard.press('Enter'); // Trigger search immediately without debounce
+      await expect(userTable.locator('tr')).toHaveCount(1);
+      await expect(userTable).toContainText(adminUser.email);
+      await expect(userTable).not.toContainText(ownerUser.email);
+      await expect(userTable).not.toContainText(memberUser.email);
+
       await page.getByPlaceholder("Search").clear();
-      await expect(page.getByText(adminUser.email)).toBeVisible();
-      await expect(page.getByText(ownerUser.email)).toBeVisible();
-      await expect(page.getByText(memberUser.email)).toBeVisible();
+      await page.keyboard.press('Enter'); // Trigger search immediately to show all results
+      await expect(userTable.locator('tr')).toHaveCount(4);
+      await expect(userTable).toContainText(adminUser.email);
+      await expect(userTable).toContainText(ownerUser.email);
+      await expect(userTable).toContainText(memberUser.email);
 
       // Act & Assert: Filter users by role & verify role-based filtering works correctly
       await page.getByRole("button", { name: "Show filters" }).click();
       await page.getByRole("button", { name: "Any role User role" }).click();
       await page.getByRole("option", { name: "Owner" }).click();
-      await expect(page.getByText(owner.email)).toBeVisible();
-      await expect(page.getByText(adminUser.email)).not.toBeVisible();
+      await expect(userTable.locator('tr')).toHaveCount(1); // After filtering by Owner role, should only have 1 owner (the original)
+      await expect(userTable).toContainText(owner.email);
+      await expect(userTable).not.toContainText(adminUser.email);
       await page.getByRole("button", { name: "Owner User role" }).click();
       await page.getByRole("option", { name: "Any role" }).click();
       await expect(page.getByText(adminUser.email)).toBeVisible();
