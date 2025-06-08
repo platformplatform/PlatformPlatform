@@ -46,7 +46,7 @@ test.describe("Login", () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Act & Assert: Submit non-existent email & verify it appears to proceed (security measure)
+      // Act & Assert: Submit non-existent email & verify it appears to proceed with verification page setup
       await page.getByRole("textbox", { name: "Email" }).fill(nonExistentEmail);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
@@ -54,10 +54,14 @@ test.describe("Login", () => {
       await expect(
         page.getByText(`Please check your email for a verification code sent to ${nonExistentEmail}`)
       ).toBeVisible();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
 
-      // Act & Assert: Try to verify with any code & verify it fails without revealing whether email exists
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page.keyboard.type(getVerificationCode());
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify authentication fails correctly
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page).toHaveURL("/login/verify");
@@ -98,13 +102,17 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Act & Assert: Test tablet viewport (768x1024) & verify content displays correctly
+      // Act & Assert: Change to tablet viewport & verify content displays with proper initial state
       await page.setViewportSize({ width: 768, height: 1024 });
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
 
-      // Act & Assert: Complete verification on tablet viewport & verify navigation to admin
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page.keyboard.type(getVerificationCode());
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify navigation to admin
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
@@ -121,19 +129,20 @@ test.describe("Login", () => {
       await page.goto("/login");
       await expect(page.getByRole("textbox", { name: "Email" })).toBeFocused();
 
-      // Act & Assert: Complete login form using keyboard navigation & verify form submission
+      // Act & Assert: Complete login form using keyboard navigation & verify verification page setup
       await page.keyboard.type(user.email);
       await page.keyboard.press("Enter"); // Submit form using Enter on input field
       await expect(page).toHaveURL("/login/verify");
-
-      // Act & Assert: Verify accessibility attributes on verification page & verify proper attributes
       const codeInput = page.getByLabel("Login verification code").locator("input").first();
       await expect(codeInput).toHaveAttribute("type", "text");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
 
-      // Act & Assert: Complete verification using keyboard & verify successful completion
-      await codeInput.focus();
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page.keyboard.type(getVerificationCode());
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify successful navigation to admin
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
     });
@@ -232,6 +241,5 @@ test.describe("Login", () => {
       // Act & Assert: Test third resend attempt after waiting & verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
     });
-
   });
 });

@@ -13,7 +13,6 @@ test.describe("Account Management System", () => {
     test.describe.configure({ timeout: 120000 }); // Bump timeout to 2 minutes as smoke tests are very comprehensive
 
     test("account management smoke test", async ({ page }) => {
-
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
@@ -29,18 +28,19 @@ test.describe("Account Management System", () => {
       await expect(page).toHaveURL("/signup");
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
-      // Act & Assert: Complete signup with valid email & verify navigation to verification page
+      // Act & Assert: Complete signup with valid email & verify navigation to verification page with initial state
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await expect(page.getByText("Europe")).toBeVisible();
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
 
-      // Act & Assert: Test resend verification code functionality & verify no errors occur
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
-
-      // Act & Assert: Complete verification process with correct code & verify navigation to admin
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page.keyboard.type(getVerificationCode());
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify navigation to admin
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
@@ -265,13 +265,15 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "Verder" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers");
       await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+
+      // Act & Assert: Type wrong verification code & verify error handling
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
 
-      // Act & Assert: Login with correct credentials & verify interface is Danish
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Verify first input gets focus after validation error & login with correct credentials
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await expect(page).toHaveURL("/admin/users");

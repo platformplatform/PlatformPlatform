@@ -16,12 +16,14 @@ test.describe("Signup", () => {
       const testContext2 = createTestContext(page2);
       const user = testUser();
 
-      // Act & Assert: Start signup in first browser & verify navigation to verification page
+      // Act & Assert: Start signup in first browser & verify navigation to verification page with initial state
       await page1.goto("/");
       await page1.getByRole("button", { name: "Get started today" }).first().click();
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup/verify");
+      await expect(page1.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page1.getByRole("button", { name: "Verify" })).toBeDisabled();
 
       // Act & Assert: Attempt signup with same email in second browser & verify conflict error
       await page2.goto("/");
@@ -34,8 +36,11 @@ test.describe("Signup", () => {
         "Email confirmation for this email has already been started. Please check your spam folder."
       );
 
-      // Act & Assert: Complete signup in first browser & verify successful completion
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page1.keyboard.type(getVerificationCode());
+      await expect(page1.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify navigation to admin
       await page1.getByRole("button", { name: "Verify" }).click();
       await expect(page1).toHaveURL("/admin");
       await page1.getByRole("textbox", { name: "First name" }).fill(user.firstName);
@@ -43,12 +48,19 @@ test.describe("Signup", () => {
       await page1.getByRole("button", { name: "Save changes" }).click();
       await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Act & Assert: Try to login in second browser while first is still logged in & verify successful login
+      // Act & Assert: Try to login in second browser & verify navigation to verification with initial state
       await page2.goto("/login");
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page2.getByRole("button", { name: "Continue" }).click();
       await expect(page2).toHaveURL("/login/verify");
+      await expect(page2.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page2.getByRole("button", { name: "Verify" })).toBeDisabled();
+
+      // Act & Assert: Type verification code & verify button becomes enabled
       await page2.keyboard.type(getVerificationCode());
+      await expect(page2.getByRole("button", { name: "Verify" })).toBeEnabled();
+
+      // Act & Assert: Click verify button & verify successful login
       await page2.getByRole("button", { name: "Verify" }).click();
       await expect(page2).toHaveURL("/admin");
 
@@ -84,7 +96,7 @@ test.describe("Signup", () => {
       // Act & Assert: Close manually created contexts & verify cleanup completes
       await context1.close();
       await context2.close();
-    })
+    });
 
     test("should handle browser navigation during signup with state preservation", async ({ page }) => {
       const context = createTestContext(page);
@@ -183,8 +195,10 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
 
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
       await page.keyboard.type(getVerificationCode());
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
@@ -234,7 +248,6 @@ test.describe("Signup", () => {
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
     });
-
   });
 
   test.describe("@slow", () => {
