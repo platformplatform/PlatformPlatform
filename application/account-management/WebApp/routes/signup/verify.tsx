@@ -12,12 +12,12 @@ import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
+import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clearSignupState, getSignupState, hasSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
@@ -67,6 +67,9 @@ export function CompleteSignupForm() {
   const { email, emailConfirmationId, expireAt } = signupState;
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
 
+  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef>(null);
+  const [isOneTimeCodeComplete, setIsOneTimeCodeComplete] = useState(false);
+
   const completeSignupMutation = api.useMutation(
     "post",
     "/api/account-management/signups/{emailConfirmationId}/complete"
@@ -100,6 +103,13 @@ export function CompleteSignupForm() {
     }
   }, [isExpired]);
 
+  // Focus first input after validation error
+  useEffect(() => {
+    if (completeSignupMutation.error) {
+      oneTimeCodeInputRef.current?.focus();
+    }
+  }, [completeSignupMutation.error]);
+
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
@@ -125,11 +135,13 @@ export function CompleteSignupForm() {
           </div>
           <div className="flex w-full flex-col gap-4">
             <OneTimeCodeInput
+              ref={oneTimeCodeInputRef}
               name="oneTimePassword"
               digitPattern={DigitPattern.DigitsAndChars}
               length={6}
               autoFocus={true}
               ariaLabel={t`Signup verification code`}
+              onValueChange={(_, isComplete) => setIsOneTimeCodeComplete(isComplete)}
             />
           </div>
           {!isExpired ? (
@@ -144,7 +156,9 @@ export function CompleteSignupForm() {
           <Button
             type="submit"
             className="mt-4 w-full text-center"
-            isDisabled={completeSignupMutation.isPending || resendSignupCodeMutation.isPending}
+            isDisabled={
+              completeSignupMutation.isPending || resendSignupCodeMutation.isPending || !isOneTimeCodeComplete
+            }
           >
             {completeSignupMutation.isPending ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
           </Button>

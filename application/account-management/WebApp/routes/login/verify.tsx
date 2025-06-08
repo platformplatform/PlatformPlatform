@@ -11,12 +11,12 @@ import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
-import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
+import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clearLoginState, getLoginState, hasLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/verify")({
@@ -74,6 +74,9 @@ export function CompleteLoginForm() {
   const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
   const { returnPath } = Route.useSearch();
 
+  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef>(null);
+  const [isOneTimeCodeComplete, setIsOneTimeCodeComplete] = useState(false);
+
   const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
   useEffect(() => {
@@ -104,6 +107,13 @@ export function CompleteLoginForm() {
     }
   }, [isExpired]);
 
+  // Focus first input after validation error
+  useEffect(() => {
+    if (completeLoginMutation.error) {
+      oneTimeCodeInputRef.current?.focus();
+    }
+  }, [completeLoginMutation.error]);
+
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
@@ -129,11 +139,13 @@ export function CompleteLoginForm() {
           </div>
           <div className="flex w-full flex-col gap-4">
             <OneTimeCodeInput
+              ref={oneTimeCodeInputRef}
               name="oneTimePassword"
               digitPattern={DigitPattern.DigitsAndChars}
               length={6}
               autoFocus={true}
               ariaLabel={t`Login verification code`}
+              onValueChange={(_, isComplete) => setIsOneTimeCodeComplete(isComplete)}
             />
           </div>
           {!isExpired ? (
@@ -148,7 +160,7 @@ export function CompleteLoginForm() {
           <Button
             type="submit"
             className="mt-4 w-full text-center"
-            isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending}
+            isDisabled={completeLoginMutation.isPending || resendLoginCodeMutation.isPending || !isOneTimeCodeComplete}
           >
             {completeLoginMutation.isPending ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
           </Button>
