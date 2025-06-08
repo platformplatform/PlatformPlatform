@@ -2,7 +2,6 @@ import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import {
   assertNetworkErrors,
-  assertNoUnexpectedErrors,
   assertToastMessage,
   assertValidationError,
   createTestContext
@@ -288,9 +287,6 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Check error monitoring & verify no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
   });
 });

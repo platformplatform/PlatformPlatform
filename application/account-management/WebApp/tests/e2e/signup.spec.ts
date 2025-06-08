@@ -1,11 +1,10 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { assertNoUnexpectedErrors, assertToastMessage, createTestContext} from "@shared/e2e/utils/test-assertions";
+import { assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Signup", () => {
   test.describe("@comprehensive", () => {
-
     test("should handle concurrent sessions and authentication conflicts", async ({ browser }) => {
       // Create two browser contexts to simulate different sessions
       const context1 = await browser.newContext();
@@ -82,10 +81,6 @@ test.describe("Signup", () => {
       await page2.goto("/admin");
       await expect(page2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Act & Assert: Check error monitoring & verify no unexpected errors occurred
-      assertNoUnexpectedErrors(testContext1);
-      assertNoUnexpectedErrors(testContext2);
-
       // Act & Assert: Close manually created contexts & verify cleanup completes
       await context1.close();
       await context2.close();
@@ -122,9 +117,6 @@ test.describe("Signup", () => {
         409,
         "Email confirmation for this email has already been started. Please check your spam folder."
       );
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should provide keyboard navigation support with proper focus management", async ({ page }) => {
@@ -168,13 +160,9 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Save changes" }).click();
       await assertToastMessage(context, "Success", "Profile updated successfully");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should handle form data security and prevent data persistence across sessions", async ({ page }) => {
-      const context = createTestContext(page);
       const user = testUser();
 
       // Act & Assert: Fill signup form and navigate away & verify form clears
@@ -211,9 +199,6 @@ test.describe("Signup", () => {
       // Act & Assert: Verify page is still accessible and functional & verify page functionality
       await expect(page.getByRole("textbox", { name: "First name" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Last name" })).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should enforce verification attempt rate limiting after three failed attempts", async ({ page }) => {
@@ -248,9 +233,6 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
   });
@@ -278,9 +260,6 @@ test.describe("Signup", () => {
       // Act & Assert: Verify that session has expired & verify error message is shown
       await expect(page).toHaveURL("/signup/expired");
       await expect(page.getByText("No active signup session.").first()).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred
-      //assertNoUnexpectedErrors(context);
     });
 
     test("should handle resend rate limiting with actual thirty second waits", async ({ page }) => {
@@ -310,9 +289,6 @@ test.describe("Signup", () => {
 
       // Act & Assert: Test third resend attempt after waiting & verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
   });
 });

@@ -1,7 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import {
-  assertNoUnexpectedErrors,
   assertToastMessage,
   assertValidationError,
   createTestContext
@@ -22,9 +21,6 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should validate email length and show server validation error message", async ({ page }) => {
@@ -40,9 +36,6 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should handle login with non-existent email address", async ({ page }) => {
@@ -68,9 +61,6 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page).toHaveURL("/login/verify");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should handle verification code resend functionality during login", async ({ page }) => {
@@ -92,15 +82,11 @@ test.describe("Login", () => {
       // Act & Assert: Verify resend functionality works & verify still on verification page
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should work correctly across different viewport sizes", async ({ anonymousPage }) => {
       const { page, tenant } = anonymousPage;
       const user = tenant.owner;
-      const context = createTestContext(page);
 
       // Act & Assert: Test mobile viewport (375x667) and start login process & verify content displays
       await page.setViewportSize({ width: 375, height: 667 });
@@ -125,15 +111,11 @@ test.describe("Login", () => {
       // Act & Assert: Test desktop viewport (1920x1080) & verify content displays correctly
       await page.setViewportSize({ width: 1920, height: 1080 });
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should provide keyboard navigation support with proper focus management", async ({ anonymousPage }) => {
       const { page, tenant } = anonymousPage;
       const user = tenant.owner;
-      const context = createTestContext(page);
 
       // Act & Assert: Navigate to login page & verify proper focus is set
       await page.goto("/login");
@@ -154,9 +136,6 @@ test.describe("Login", () => {
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
     test("should handle rate limiting for failed login attempts", async ({ page }) => {
@@ -193,9 +172,6 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
   });
 
@@ -224,9 +200,6 @@ test.describe("Login", () => {
       // Act & Assert: Verify that session has expired & verify error message is shown
       await expect(page).toHaveURL("/login/expired");
       await expect(page.getByText("The verification code you are trying to use has expired").first()).toBeVisible();
-
-      // Assert: Assert no unexpected errors occurred (except for the known bug)
-      // assertNoUnexpectedErrors(context); // Commented out due to known application bug
     });
 
     test("should handle rate limiting for verification code resend requests", async ({ page }) => {
@@ -258,9 +231,6 @@ test.describe("Login", () => {
 
       // Act & Assert: Test third resend attempt after waiting & verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
     });
 
   });

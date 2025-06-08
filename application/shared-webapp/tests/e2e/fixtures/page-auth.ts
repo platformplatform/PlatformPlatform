@@ -3,7 +3,8 @@ import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
 import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
 import type { Tenant, User, UserRole } from "@shared/e2e/types/auth";
 import { completeSignupFlow } from "@shared/e2e/utils/test-data";
-import { createTestContext } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, assertNoUnexpectedErrors } from "@shared/e2e/utils/test-assertions";
+
 
 // Extend the global interface to include testTenant
 declare global {
@@ -224,5 +225,16 @@ export const test = base.extend<PageAuthFixtures>({
 
     // Cleanup - close the context and page
     await context.close();
+  }
+});
+
+// Global afterEach hook to automatically run error checking for ALL tests
+base.afterEach(async ({ page }) => {
+  if (page) {
+    // Retrieve the existing context that was created during the test
+    const existingContext = (page as any).__testContext;
+    if (existingContext) {
+      assertNoUnexpectedErrors(existingContext);
+    }
   }
 });

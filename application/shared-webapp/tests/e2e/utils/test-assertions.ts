@@ -35,7 +35,12 @@ interface AssertToastOptions {
  */
 export function createTestContext(page: Page): TestContext {
   const monitoring = startMonitoring(page);
-  return { page, monitoring };
+  const context = { page, monitoring };
+  
+  // Store context on page object so afterEach hook can access the same instance
+  (page as any).__testContext = context;
+  
+  return context;
 }
 
 /**
