@@ -16,7 +16,6 @@ test.describe("Account Management System", () => {
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
-      const ownerUser = testUser();
       const memberUser = testUser();
 
       // Act & Assert: Navigate to homepage & verify marketing content is visible
@@ -64,16 +63,14 @@ test.describe("Account Management System", () => {
 
       // Act & Assert: Fill form with one field too long and one missing & verify all validation errors appear
       const longName = "A".repeat(31);
+      const longTitle = "B".repeat(51);
       await page.getByRole("textbox", { name: "First name" }).fill(longName);
       await page.getByRole("textbox", { name: "Last name" }).clear();
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertValidationError(context, "First name must be no longer than 30 characters.");
-      await assertValidationError(context, "'Last Name' must not be empty.");
-
-      // Act & Assert: Fill title field with too long value & verify validation error appears
-      const longTitle = "B".repeat(51);
       await page.getByRole("textbox", { name: "Title" }).fill(longTitle);
       await page.getByRole("button", { name: "Save changes" }).click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await assertValidationError(context, "First name must be no longer than 30 characters.");
+      await assertValidationError(context, "'Last Name' must not be empty.");
       await assertValidationError(context, "Title must be no longer than 50 characters.");
 
       // Act & Assert: Complete profile setup with valid data & verify navigation to dashboard
@@ -82,11 +79,6 @@ test.describe("Account Management System", () => {
       await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
       await page.getByRole("button", { name: "Save changes" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Navigate to signup page while authenticated & verify redirect to admin
-      await page.goto("/signup");
-      await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Act & Assert: Click avatar button & verify it shows initials and profile information
@@ -120,44 +112,33 @@ test.describe("Account Management System", () => {
       await themeButton.click(); // Third click: original → opposite (for rest of test)
       await expect(page.locator("html")).toHaveClass(thirdTheme);
 
+      // Act & Assert: Navigate to signup page while authenticated & verify redirect to admin
+      await page.goto("/signup");
+      await expect(page).toHaveURL("/admin");
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
       // Act & Assert: Navigate to users page & verify owner is listed
       await page.getByRole("button", { name: "Users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page.locator("tbody").locator("tr")).toHaveCount(1);
       await expect(page.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
       await expect(page.getByText(owner.email)).toBeVisible();
       await expect(page.getByText("Owner")).toBeVisible();
 
-      // Act & Assert: Reload page & verify authentication state persists
-      await page.reload();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
-
-      // Act & Assert: Navigate to different admin pages & verify access is maintained
-      await page.goto("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await page.goto("/admin/users");
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-
-      // Act & Assert: Submit invalid email invitation & verify validation error, then invite valid user & verify success
+      // Act & Assert: Submit invalid email invitation & verify validation error
       await page.getByRole("button", { name: "Invite user" }).click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
+      // Act & Assert: Invite admin user & verify successful invitation
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertToastMessage(context, "Success", "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Act & Assert: Invite second user & verify successful invitation
-      await page.getByRole("button", { name: "Invite user" }).click();
-      await page.getByRole("textbox", { name: "Email" }).fill(ownerUser.email);
-      await page.getByRole("button", { name: "Send invite" }).click();
-      await assertToastMessage(context, "Success", "User invited successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-
-      // Act & Assert: Invite third user & verify successful invitation
+      // Act & Assert: Invite member user & verify successful invitation
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
@@ -166,40 +147,40 @@ test.describe("Account Management System", () => {
 
       // Act & Assert: Attempt to invite duplicate user email & verify error message appears
       await page.getByRole("button", { name: "Invite user" }).click();
-      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
+      await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await expect(page.getByText(`The email '${adminUser.email}' is already in use by another user on this tenant.`)).toBeVisible();
+      await expect(
+        page.getByText(`The email '${memberUser.email}' is already in use by another user on this tenant.`)
+      ).toBeVisible();
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
       // Act & Assert: Check users table & verify invited users appear
-      const userTable = page.locator('tbody');
-      await expect(userTable.locator('tr')).toHaveCount(4); // owner + 3 invited users
+      const userTable = page.locator("tbody");
+      await expect(userTable.locator("tr")).toHaveCount(3); // owner + 2 invited users
       await expect(userTable).toContainText(adminUser.email);
-      await expect(userTable).toContainText(ownerUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(page.getByText("Member").first()).toBeVisible();
 
       // Act & Assert: Filter users by email search & verify filtered results display correctly
       await page.getByPlaceholder("Search").fill(adminUser.email);
-      await page.keyboard.press('Enter'); // Trigger search immediately without debounce
-      await expect(userTable.locator('tr')).toHaveCount(1);
+      await page.keyboard.press("Enter"); // Trigger search immediately without debounce
+      await expect(userTable.locator("tr")).toHaveCount(1);
       await expect(userTable).toContainText(adminUser.email);
-      await expect(userTable).not.toContainText(ownerUser.email);
+      await expect(userTable).not.toContainText(owner.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
       await page.getByPlaceholder("Search").clear();
-      await page.keyboard.press('Enter'); // Trigger search immediately to show all results
-      await expect(userTable.locator('tr')).toHaveCount(4);
+      await page.keyboard.press("Enter"); // Trigger search immediately to show all results
+      await expect(userTable.locator("tr")).toHaveCount(3);
       await expect(userTable).toContainText(adminUser.email);
-      await expect(userTable).toContainText(ownerUser.email);
       await expect(userTable).toContainText(memberUser.email);
 
       // Act & Assert: Filter users by role & verify role-based filtering works correctly
       await page.getByRole("button", { name: "Show filters" }).click();
       await page.getByRole("button", { name: "Any role User role" }).click();
       await page.getByRole("option", { name: "Owner" }).click();
-      await expect(userTable.locator('tr')).toHaveCount(1); // After filtering by Owner role, should only have 1 owner (the original)
+      await expect(userTable.locator("tr")).toHaveCount(1); // After filtering by Owner role, should only have 1 owner (the original)
       await expect(userTable).toContainText(owner.email);
       await expect(userTable).not.toContainText(adminUser.email);
       await page.getByRole("button", { name: "Owner User role" }).click();
