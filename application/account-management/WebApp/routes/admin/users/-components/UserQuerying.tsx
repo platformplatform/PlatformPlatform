@@ -41,6 +41,7 @@ export function UserQuerying() {
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
+  const [searchTimeoutId, setSearchTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
   // Convert URL date strings to DateRange if they exist
@@ -71,9 +72,14 @@ export function UserQuerying() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       updateFilter({ search: (search as string) || undefined });
+      setSearchTimeoutId(null);
     }, 500);
+    setSearchTimeoutId(timeoutId);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId);
+      setSearchTimeoutId(null);
+    };
   }, [search, updateFilter]);
 
   // Count active filters for badge
@@ -121,7 +127,20 @@ export function UserQuerying() {
 
   return (
     <div className="flex items-center gap-2">
-      <SearchField placeholder={t`Search`} value={search} onChange={setSearch} label={t`Search`} autoFocus={true} />
+      <SearchField
+        placeholder={t`Search`}
+        value={search}
+        onChange={setSearch}
+        onSubmit={() => {
+          if (searchTimeoutId) {
+            clearTimeout(searchTimeoutId);
+            setSearchTimeoutId(null);
+          }
+          updateFilter({ search: (search as string) || undefined });
+        }}
+        label={t`Search`}
+        autoFocus={true}
+      />
 
       {showAllFilters && (
         <>
