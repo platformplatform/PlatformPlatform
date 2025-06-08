@@ -13,6 +13,7 @@ test.describe("Account Management System", () => {
     test.describe.configure({ timeout: 120000 }); // Bump timeout to 2 minutes as smoke tests are very comprehensive
 
     test("should complete full user journey from signup to tenant management", async ({ page }) => {
+      
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
@@ -252,6 +253,7 @@ test.describe("Account Management System", () => {
       const context2 = await browser.newContext();
       const page1 = await context1.newPage();
       const page2 = await context2.newPage();
+      
       const testContext1 = createTestContext(page1);
       const testContext2 = createTestContext(page2);
       const user = testUser();
