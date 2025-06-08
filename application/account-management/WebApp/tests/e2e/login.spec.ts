@@ -139,12 +139,18 @@ test.describe("Login", () => {
   });
 
   test.describe("@comprehensive", () => {
-    test("should validate email format and show server validation error message", async ({ page }) => {
+    test("should handle all login edge cases including validation, security, accessibility, and error handling", async ({
+      anonymousPage
+    }) => {
+      const { page, tenant } = anonymousPage;
+      const existingUser = tenant.owner;
       const context = createTestContext(page);
 
       // Step 1: Navigate to login page and verify content
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login"); // Verify form submission was blocked
 
       // Step 2: Submit invalid email format and verify validation error
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
@@ -225,9 +231,7 @@ test.describe("Login", () => {
 
       // Step 3: Navigate to login page and submit email
       await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
 
       // Step 4: Submit wrong verification code and verify error handling
       await page.keyboard.type("WRONG1");

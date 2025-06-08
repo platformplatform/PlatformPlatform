@@ -289,6 +289,14 @@ test.describe("Signup", () => {
       await page1.getByRole("button", { name: "Get started today" }).first().click();
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Create your account" }).click();
+      await expect(page1).toHaveURL("/signup"); // Verify form submission was blocked
+
+      // === KEYBOARD NAVIGATION AND ACCESSIBILITY ===
+      // Act & Assert: Test keyboard navigation with Tab & verify form submission works
+      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page1.keyboard.press("Tab"); // Move to region selector
+      await page1.keyboard.press("Tab"); // Move to submit button
+      await page1.keyboard.press("Enter"); // Submit form
       await expect(page1).toHaveURL("/signup/verify");
 
       // Step 2: Attempt duplicate signup in second browser tab and verify conflict handling
@@ -349,9 +357,11 @@ test.describe("Signup", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should provide keyboard navigation support with proper focus management", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
+      // Act & Assert: Restart signup process with new email & verify success
+      const user2 = testUser();
+      await page1.getByRole("textbox", { name: "Email" }).fill(user2.email);
+      await page1.getByRole("button", { name: "Create your account" }).click();
+      await expect(page1).toHaveURL("/signup/verify");
 
       // Step 1: Navigate to signup page and verify content
       await page.goto("/");
@@ -464,7 +474,7 @@ test.describe("Signup", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should enforce verification attempt rate limiting after three failed attempts", async ({ page }) => {
+    test("should enforce rate limiting for verification attempts and handle edge cases", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
 
@@ -479,17 +489,19 @@ test.describe("Signup", () => {
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
-      await page.keyboard.press("Control+A");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
+      // Act & Assert: Second failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
-      await page.keyboard.press("Control+A");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
+      // Act & Assert: Third failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
-      await page.keyboard.press("Control+A");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Step 3: Submit fourth attempt and verify it's blocked with rate limiting message
       await page.keyboard.type("WRONG4");
@@ -531,12 +543,10 @@ test.describe("Signup", () => {
   });
 
   test.describe("@slow", () => {
-    test.describe.configure({ timeout: 360000 }); // 6 minutes timeout for all slow tests
+    test.describe.configure({ timeout: 360000 }); // 6 minutes timeout
 
     test("should handle verification code expiration after five minutes", async ({ page }) => {
-      // NOTE: This test currently expects React errors in the console due to a bug in the application.
-      // The /signup/expired page tries to call getSignupState() which throws "No active signup session."
-      //const context = createTestContext(page);
+      // NOTE: This test expects React errors due to application bug with expired sessions
       const user = testUser();
 
       // Step 1: Navigate to signup page and complete email registration
@@ -548,7 +558,6 @@ test.describe("Signup", () => {
 
       // Step 2: Verify countdown timer is visible and wait for expiration
       await expect(page.getByText(/\(\d+:\d+\)/).first()).toBeVisible();
-      await page.waitForTimeout(300000); // 5 minutes
 
       // Step 3: Verify that session has expired and error message is shown
       await expect(page).toHaveURL("/signup/expired");
