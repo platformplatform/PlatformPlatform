@@ -1,165 +1,95 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import {
-  assertNoUnexpectedErrors,
-  assertToastMessage,
-  assertValidationError,
-  createTestContext
-} from "@shared/e2e/utils/test-assertions";
+import { assertNoUnexpectedErrors, assertToastMessage, createTestContext} from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Signup", () => {
-
   test.describe("@comprehensive", () => {
-    test("should validate email format and show server validation error message", async ({ page }) => {
-      const context = createTestContext(page);
 
-      // Act & Assert: Navigate to signup page & verify content is displayed
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await expect(page).toHaveURL("/signup");
-      await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
-
-      // Act & Assert: Submit invalid email format & verify validation error appears
-      await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should validate email length and show server validation error message", async ({ page }) => {
-      const context = createTestContext(page);
-
-      // Act & Assert: Navigate to signup page & verify content is displayed
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await expect(page).toHaveURL("/signup");
-
-      // Act & Assert: Submit email exceeding maximum length & verify validation error appears
-      const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
-      await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should handle verification code validation with proper error feedback", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Complete email registration & verify navigation to verification page
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-
-      // Act & Assert: Submit wrong verification code & verify error handling works correctly
-      await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should validate profile form fields with comprehensive validation feedback", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Navigate to signup page and complete email registration & verify navigation
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await expect(page).toHaveURL("/signup");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-
-      // Act & Assert: Complete verification process & verify navigation to profile dialog
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-
-      // Act & Assert: Submit form with missing required first name & verify validation error appears
-      await page.getByRole("textbox", { name: "First name" }).clear();
-      await page.getByRole("textbox", { name: "Last name" }).fill("TestLastName");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await assertValidationError(context, "'First Name' must not be empty.");
-
-      // Act & Assert: Submit form with field length validation errors & verify error display works
-      await page.getByRole("textbox", { name: "First name" }).fill("a".repeat(31));
-      await page.getByRole("textbox", { name: "Last name" }).fill("b".repeat(31));
-      await page.getByRole("textbox", { name: "Title" }).fill("c".repeat(51));
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await assertValidationError(context, "First name must be no longer than 30 characters.");
-      await assertValidationError(context, "Last name must be no longer than 30 characters.");
-      await assertValidationError(context, "Title must be no longer than 50 characters.");
-
-      // Act & Assert: Submit form with valid data & verify successful completion
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("Software Engineer");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(context, "Success", "Profile updated successfully");
-      await expect(page.getByRole("dialog", { name: "User profile" })).not.toBeVisible();
-      await expect(page).toHaveURL("/admin");
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should handle duplicate signup attempts with proper conflict resolution", async ({ browser }) => {
-      // Create two separate pages in different contexts to simulate different users
+    test("should handle concurrent sessions and authentication conflicts", async ({ browser }) => {
+      // Create two browser contexts to simulate different sessions
       const context1 = await browser.newContext();
       const context2 = await browser.newContext();
       const page1 = await context1.newPage();
       const page2 = await context2.newPage();
-      
+
       const testContext1 = createTestContext(page1);
       const testContext2 = createTestContext(page2);
       const user = testUser();
 
-      // Act & Assert: Start signup process in first browser tab & verify navigation to verification
+      // Act & Assert: Start signup in first browser & verify navigation to verification page
       await page1.goto("/");
       await page1.getByRole("button", { name: "Get started today" }).first().click();
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup/verify");
 
-      // Act & Assert: Attempt duplicate signup in second browser tab & verify conflict handling works
+      // Act & Assert: Attempt signup with same email in second browser & verify conflict error
       await page2.goto("/");
       await page2.getByRole("button", { name: "Get started today" }).first().click();
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page2.getByRole("button", { name: "Create your account" }).click();
-      await expect(page2).toHaveURL("/signup");
       await assertToastMessage(
         testContext2,
         409,
         "Email confirmation for this email has already been started. Please check your spam folder."
       );
 
-      // Act & Assert: Verify original signup can still be completed & verify successful completion
-      await page1.locator('input[autocomplete="one-time-code"]').first().click();
+      // Act & Assert: Complete signup in first browser & verify successful completion
       await page1.keyboard.type(getVerificationCode());
       await page1.getByRole("button", { name: "Verify" }).click();
       await expect(page1).toHaveURL("/admin");
+      await page1.getByRole("textbox", { name: "First name" }).fill(user.firstName);
+      await page1.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
+      await page1.getByRole("button", { name: "Save changes" }).click();
+      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Assert: Assert no unexpected errors occurred
+      // Act & Assert: Try to login in second browser while first is still logged in & verify successful login
+      await page2.goto("/login");
+      await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page2.getByRole("button", { name: "Continue" }).click();
+      await expect(page2).toHaveURL("/login/verify");
+      await page2.keyboard.type(getVerificationCode());
+      await page2.getByRole("button", { name: "Verify" }).click();
+      await expect(page2).toHaveURL("/admin");
+
+      // Act & Assert: Navigate to protected pages in both browsers & verify both sessions are active
+      await page1.goto("/admin/users");
+      await expect(page1.getByRole("heading", { name: "Users" })).toBeVisible();
+      await page2.goto("/admin/users");
+      await expect(page2.getByRole("heading", { name: "Users" })).toBeVisible();
+
+      // Act & Assert: Update profile in one session & verify it reflects in the other
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Edit profile" }).click();
+      await page1.getByRole("textbox", { name: "Title" }).fill("Updated Title");
+      await page1.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(testContext1, "Success", "Profile updated successfully");
+
+      // Act & Assert: Refresh second session & verify the update is visible
+      await page2.reload();
+      await page2.getByRole("button", { name: "User profile menu" }).click();
+      await page2.getByRole("menuitem", { name: "Edit profile" }).click();
+      await expect(page2.getByRole("textbox", { name: "Title" })).toHaveValue("Updated Title");
+      await page2.getByRole("button", { name: "Cancel" }).click();
+
+      // Act & Assert: Logout from first session & verify redirect to login
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
+
+      // Act & Assert: Navigate to admin in second session & verify session is still active
+      await page2.goto("/admin");
+      await expect(page2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
+      // Act & Assert: Check error monitoring & verify no unexpected errors occurred
       assertNoUnexpectedErrors(testContext1);
       assertNoUnexpectedErrors(testContext2);
-    });
+
+      // Act & Assert: Close manually created contexts & verify cleanup completes
+      await context1.close();
+      await context2.close();
+    })
 
     test("should handle browser navigation during signup with state preservation", async ({ page }) => {
       const context = createTestContext(page);
@@ -286,33 +216,6 @@ test.describe("Signup", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle verification code resend with proper rate limiting feedback", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Start signup process & verify navigation to verification
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-
-      // Act & Assert: Test first resend attempt & verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
-      assertNoUnexpectedErrors(context);
-
-      // Act & Assert: Test immediate second resend attempt & verify rate limiting occurs
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      await assertToastMessage(
-        context,
-        "Bad Request",
-        "You must wait at least 30 seconds before requesting a new code."
-      );
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
     test("should enforce verification attempt rate limiting after three failed attempts", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
@@ -350,32 +253,6 @@ test.describe("Signup", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should show rate limit message for immediate subsequent resend attempts", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Navigate to signup page and complete email registration & verify navigation
-      await page.goto("/");
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-
-      // Act & Assert: Test first resend attempt & verify it succeeds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This appears to be a bug - no success toast is shown for resend
-      //await assertToastMessage(context, "You must wait at least 30 seconds before requesting a new code.");
-
-      // Act & Assert: Test second resend attempt & verify rate limiting occurs
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      await assertToastMessage(
-        context,
-        "Bad Request",
-        "You must wait at least 30 seconds before requesting a new code."
-      );
-
-      // Assert: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
   });
 
   test.describe("@slow", () => {

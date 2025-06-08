@@ -13,8 +13,8 @@ test.describe("Account Management System", () => {
   test.describe("@smoke", () => {
     test.describe.configure({ timeout: 120000 }); // Bump timeout to 2 minutes as smoke tests are very comprehensive
 
-    test("should complete full user journey from signup to tenant management", async ({ page }) => {
-      
+    test("account management smoke test", async ({ page }) => {
+
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
@@ -49,7 +49,7 @@ test.describe("Account Management System", () => {
       await page.setViewportSize({ width: 375, height: 667 });
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
-      // Act & Assert: Set tablet viewport size & verify profile dialog is visible  
+      // Act & Assert: Set tablet viewport size & verify profile dialog is visible
       await page.setViewportSize({ width: 768, height: 1024 });
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
@@ -251,7 +251,7 @@ test.describe("Account Management System", () => {
       await page.goto("/admin/users");
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
       await assertNetworkErrors(context, [401]);
-      
+
       // Act & Assert: Check current URL & verify login page shows return path in URL parameters
       const currentUrl = new URL(page.url());
       expect(currentUrl.searchParams.get("returnPath")).toBe("/admin/users");
@@ -291,91 +291,6 @@ test.describe("Account Management System", () => {
 
       // Act & Assert: Check error monitoring & verify no unexpected errors occurred
       assertNoUnexpectedErrors(context);
-    });
-
-    test("should handle concurrent sessions and authentication conflicts", async ({ browser }) => {
-      // Create two browser contexts to simulate different sessions
-      const context1 = await browser.newContext();
-      const context2 = await browser.newContext();
-      const page1 = await context1.newPage();
-      const page2 = await context2.newPage();
-      
-      const testContext1 = createTestContext(page1);
-      const testContext2 = createTestContext(page2);
-      const user = testUser();
-
-      // Act & Assert: Start signup in first browser & verify navigation to verification page
-      await page1.goto("/");
-      await page1.getByRole("button", { name: "Get started today" }).first().click();
-      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Create your account" }).click();
-      await expect(page1).toHaveURL("/signup/verify");
-
-      // Act & Assert: Attempt signup with same email in second browser & verify conflict error
-      await page2.goto("/");
-      await page2.getByRole("button", { name: "Get started today" }).first().click();
-      await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page2.getByRole("button", { name: "Create your account" }).click();
-      await assertToastMessage(
-        testContext2,
-        409,
-        "Email confirmation for this email has already been started. Please check your spam folder."
-      );
-
-      // Act & Assert: Complete signup in first browser & verify successful completion
-      await page1.keyboard.type(getVerificationCode());
-      await page1.getByRole("button", { name: "Verify" }).click();
-      await expect(page1).toHaveURL("/admin");
-      await page1.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page1.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page1.getByRole("button", { name: "Save changes" }).click();
-      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Try to login in second browser while first is still logged in & verify successful login
-      await page2.goto("/login");
-      await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page2.getByRole("button", { name: "Continue" }).click();
-      await expect(page2).toHaveURL("/login/verify");
-      await page2.keyboard.type(getVerificationCode());
-      await page2.getByRole("button", { name: "Verify" }).click();
-      await expect(page2).toHaveURL("/admin");
-
-      // Act & Assert: Navigate to protected pages in both browsers & verify both sessions are active
-      await page1.goto("/admin/users");
-      await expect(page1.getByRole("heading", { name: "Users" })).toBeVisible();
-      await page2.goto("/admin/users");
-      await expect(page2.getByRole("heading", { name: "Users" })).toBeVisible();
-
-      // Act & Assert: Update profile in one session & verify it reflects in the other
-      await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Edit profile" }).click();
-      await page1.getByRole("textbox", { name: "Title" }).fill("Updated Title");
-      await page1.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(testContext1, "Success", "Profile updated successfully");
-
-      // Act & Assert: Refresh second session & verify the update is visible
-      await page2.reload();
-      await page2.getByRole("button", { name: "User profile menu" }).click();
-      await page2.getByRole("menuitem", { name: "Edit profile" }).click();
-      await expect(page2.getByRole("textbox", { name: "Title" })).toHaveValue("Updated Title");
-      await page2.getByRole("button", { name: "Cancel" }).click();
-
-      // Act & Assert: Logout from first session & verify redirect to login
-      await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
-
-      // Act & Assert: Navigate to admin in second session & verify session is still active
-      await page2.goto("/admin");
-      await expect(page2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Check error monitoring & verify no unexpected errors occurred
-      assertNoUnexpectedErrors(testContext1);
-      assertNoUnexpectedErrors(testContext2);
-
-      // Act & Assert: Close manually created contexts & verify cleanup completes
-      await context1.close();
-      await context2.close();
     });
   });
 });
