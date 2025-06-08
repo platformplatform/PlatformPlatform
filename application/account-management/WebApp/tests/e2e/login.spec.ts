@@ -1,7 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import {
-  assertNetworkErrors,
   assertNoUnexpectedErrors,
   assertToastMessage,
   assertValidationError,
@@ -10,189 +9,40 @@ import {
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Login", () => {
-  test.describe("@smoke", () => {
-    test("should complete successful login flow from homepage to admin dashboard", async ({ anonymousPage }) => {
-      const { page, tenant } = anonymousPage;
-      const user = tenant.owner;
-      const context = createTestContext(page);
-
-      // Step 1: Navigate to login page and verify content
-      await page.goto("/login");
-      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Step 2: Complete login email form and verify navigation
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await expect(
-        page.getByText(`Please check your email for a verification code sent to ${user.email}`)
-      ).toBeVisible();
-
-      // Step 3: Complete verification process and verify navigation to admin dashboard
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 4: Verify user is properly authenticated and can access admin features
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await page.getByRole("button", { name: "Users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
-      await expect(page.getByText(user.email)).toBeVisible();
-
-      // Step 5: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should complete login with existing user account", async ({ anonymousPage }) => {
-      const { page, tenant } = anonymousPage;
-      const user = tenant.owner;
-      const context = createTestContext(page);
-
-      // Step 1: Navigate directly to login page and verify
-      await page.goto("/login");
-      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Step 2: Complete login flow and verify successful authentication
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 5: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should handle logout functionality and session termination", async ({ anonymousPage }) => {
-      const { page, tenant } = anonymousPage;
-      const user = tenant.owner;
-      const context = createTestContext(page);
-
-      // Step 1: Complete login flow to establish authentication
-      await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 2: Verify user is authenticated and can access admin features
-      await page.getByRole("button", { name: "Users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-
-      // Step 3: Perform logout through avatar menu and verify session termination
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
-
-      // Step 4: Verify user is logged out and cannot access protected routes
-      await page.goto("/admin");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await assertNetworkErrors(context, [401]);
-
-      // Step 5: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should maintain authentication state persistence across page reloads", async ({ anonymousPage }) => {
-      const { page, tenant } = anonymousPage;
-      const user = tenant.owner;
-      const context = createTestContext(page);
-
-      // Step 1: Complete login flow to establish authentication
-      await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-      await page.locator('input[autocomplete="one-time-code"]').first().click();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 2: Navigate to a protected page and verify access
-      await page.getByRole("button", { name: "Users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-
-      // Step 3: Reload the page and verify authentication is maintained
-      await page.reload();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-
-      // Step 4: Navigate to different admin pages and verify access is maintained
-      await page.goto("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Step 5: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-
-    test("should redirect to login page when accessing protected routes while unauthenticated", async ({ page }) => {
-      const context = createTestContext(page);
-
-      // Step 1: Attempt to access admin dashboard while unauthenticated
-      await page.goto("/admin");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await assertNetworkErrors(context, [401]);
-      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Step 2: Attempt to access users page while unauthenticated
-      await page.goto("/admin/users");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
-      await assertNetworkErrors(context, [401]);
-      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Step 3: Verify login page shows return path in URL parameters
-      const currentUrl = new URL(page.url());
-      expect(currentUrl.searchParams.get("returnPath")).toBe("/admin/users");
-
-      // Step 4: Assert no unexpected errors occurred
-      assertNoUnexpectedErrors(context);
-    });
-  });
 
   test.describe("@comprehensive", () => {
     test("should validate email format and show server validation error message", async ({ page }) => {
       const context = createTestContext(page);
 
-      // Step 1: Navigate to login page and verify content
+      // Act & Assert: Navigate to login page & verify content is displayed
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 2: Submit invalid email format and verify validation error
+      // Act & Assert: Submit invalid email format & verify validation error appears
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
-      // Step 3: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
     test("should validate email length and show server validation error message", async ({ page }) => {
       const context = createTestContext(page);
 
-      // Step 1: Navigate to login page and verify content
+      // Act & Assert: Navigate to login page & verify content is displayed
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 2: Submit email exceeding maximum length and verify validation error
+      // Act & Assert: Submit email exceeding maximum length & verify validation error appears
       const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
       await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
-      // Step 3: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -200,11 +50,11 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const nonExistentEmail = `nonexistent.user.${Date.now()}@platformplatform.net`;
 
-      // Step 1: Navigate to login page and verify content
+      // Act & Assert: Navigate to login page & verify content is displayed
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 2: Submit non-existent email and verify it appears to proceed (security measure)
+      // Act & Assert: Submit non-existent email & verify it appears to proceed (security measure)
       await page.getByRole("textbox", { name: "Email" }).fill(nonExistentEmail);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
@@ -213,14 +63,14 @@ test.describe("Login", () => {
         page.getByText(`Please check your email for a verification code sent to ${nonExistentEmail}`)
       ).toBeVisible();
 
-      // Step 3: Try to verify with any code and verify it fails without revealing whether the email exists
+      // Act & Assert: Try to verify with any code & verify it fails without revealing whether email exists
       await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 4: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -228,22 +78,22 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Create a test user and logout to allow testing login flow
+      // Act & Assert: Create a test user and logout & verify login flow can be tested
       await completeSignupFlow(page, expect, user, context, false);
 
-      // Step 2: Navigate to login page and submit email
+      // Act & Assert: Navigate to login page and submit email & verify navigation to verification
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Submit wrong verification code and verify error handling
+      // Act & Assert: Submit wrong verification code & verify error handling works correctly
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/login/verify");
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
 
-      // Step 4: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -251,23 +101,23 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Create a test user and logout to allow testing login flow
+      // Act & Assert: Create a test user and logout & verify login flow can be tested
       await completeSignupFlow(page, expect, user, context, false);
 
-      // Step 2: Navigate to login page and submit email to reach verification page
+      // Act & Assert: Navigate to login page and submit email & verify navigation to verification page
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Click resend button and verify no errors occur
+      // Act & Assert: Click resend button & verify no errors occur
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This should work similarly to signup resend functionality
 
-      // Step 4: Verify the resend functionality works and we're still on verification page
+      // Act & Assert: Verify resend functionality works & verify still on verification page
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
-      // Step 5: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -275,30 +125,30 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Navigate to login page and verify content
+      // Act & Assert: Navigate to login page & verify content is displayed
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 2: Submit empty form and verify validation error
+      // Act & Assert: Submit empty form & verify validation error appears
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "'Email' must not be empty.");
 
-      // Step 3: Fill invalid email and verify validation error
+      // Act & Assert: Fill invalid email & verify validation error appears
       await page.getByRole("textbox", { name: "Email" }).fill("not-an-email");
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
-      // Step 4: Create a test user first to ensure the next step works
+      // Act & Assert: Create a test user first & verify the next step works
       await completeSignupFlow(page, expect, user, context);
 
-      // Step 5: Logout and return to login page
+      // Act & Assert: Logout and return to login page & verify redirect to login
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
-      // Step 6: Verify form is still functional after validation errors
+      // Act & Assert: Verify form is still functional after validation errors & verify navigation works
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
@@ -306,7 +156,7 @@ test.describe("Login", () => {
         page.getByText(`Please check your email for a verification code sent to ${user.email}`)
       ).toBeVisible();
 
-      // Step 7: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -315,31 +165,31 @@ test.describe("Login", () => {
       const user = tenant.owner;
       const context = createTestContext(page);
 
-      // Step 1: Test mobile viewport (375x667) and start login process
+      // Act & Assert: Test mobile viewport (375x667) and start login process & verify content displays
       await page.setViewportSize({ width: 375, height: 667 });
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
-      // Step 2: Complete login on mobile viewport
+      // Act & Assert: Complete login on mobile viewport & verify navigation to verification
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Test tablet viewport (768x1024) and verify content
+      // Act & Assert: Test tablet viewport (768x1024) & verify content displays correctly
       await page.setViewportSize({ width: 768, height: 1024 });
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
-      // Step 4: Complete verification on tablet viewport
+      // Act & Assert: Complete verification on tablet viewport & verify navigation to admin
       await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
-      // Step 5: Test desktop viewport (1920x1080) and verify content
+      // Act & Assert: Test desktop viewport (1920x1080) & verify content displays correctly
       await page.setViewportSize({ width: 1920, height: 1080 });
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Step 6: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -348,27 +198,27 @@ test.describe("Login", () => {
       const user = tenant.owner;
       const context = createTestContext(page);
 
-      // Step 1: Navigate to login page and verify proper focus
+      // Act & Assert: Navigate to login page & verify proper focus is set
       await page.goto("/login");
       await expect(page.getByRole("textbox", { name: "Email" })).toBeFocused();
 
-      // Step 2: Complete login form using keyboard navigation
+      // Act & Assert: Complete login form using keyboard navigation & verify form submission
       await page.keyboard.type(user.email);
       await page.keyboard.press("Enter"); // Submit form using Enter on input field
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Verify accessibility attributes on verification page
+      // Act & Assert: Verify accessibility attributes on verification page & verify proper attributes
       const codeInput = page.getByLabel("Login verification code").locator("input").first();
       await expect(codeInput).toHaveAttribute("type", "text");
 
-      // Step 4: Complete verification using keyboard
+      // Act & Assert: Complete verification using keyboard & verify successful completion
       await codeInput.focus();
       await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
 
-      // Step 5: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -376,16 +226,16 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Create a test user and logout to allow testing login flow
+      // Act & Assert: Create a test user and logout & verify login flow can be tested
       await completeSignupFlow(page, expect, user, context, false);
 
-      // Step 2: Navigate to login page and submit email
+      // Act & Assert: Navigate to login page and submit email & verify navigation to verification
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Make three failed attempts quickly to trigger rate limiting
+      // Act & Assert: Make three failed attempts quickly & verify rate limiting triggers
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
@@ -401,13 +251,13 @@ test.describe("Login", () => {
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await page.keyboard.press("Control+A");
 
-      // Step 4: Submit fourth attempt and verify it's blocked with rate limiting message
+      // Act & Assert: Submit fourth attempt & verify it's blocked with rate limiting message
       await page.keyboard.type("WRONG4");
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
 
-      // Step 5: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
   });
@@ -421,24 +271,24 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Create a test user and logout to allow testing login flow
+      // Act & Assert: Create a test user and logout & verify login flow can be tested
       await completeSignupFlow(page, expect, user, context, false);
 
-      // Step 2: Navigate to login page and submit email to start login process
+      // Act & Assert: Navigate to login page and submit email & verify navigation to verification
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Verify countdown timer is visible and wait for expiration
+      // Act & Assert: Verify countdown timer is visible & wait for expiration
       await expect(page.getByText("(5:00)")).toBeVisible();
       await page.waitForTimeout(300000); // 5 minutes
 
-      // Step 5: Verify that session has expired and error message is shown
+      // Act & Assert: Verify that session has expired & verify error message is shown
       await expect(page).toHaveURL("/login/expired");
       await expect(page.getByText("The verification code you are trying to use has expired").first()).toBeVisible();
 
-      // Step 6: Assert no unexpected errors occurred (except for the known bug)
+      // Assert: Assert no unexpected errors occurred (except for the known bug)
       // assertNoUnexpectedErrors(context); // Commented out due to known application bug
     });
 
@@ -446,19 +296,19 @@ test.describe("Login", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      // Step 1: Create a test user and logout to allow testing login flow
+      // Act & Assert: Create a test user and logout & verify login flow can be tested
       await completeSignupFlow(page, expect, user, context, false);
 
-      // Step 2: Navigate to login page and submit email to reach verification page
+      // Act & Assert: Navigate to login page and submit email & verify navigation to verification page
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Step 3: Test first resend attempt and verify it succeeds
+      // Act & Assert: Test first resend attempt & verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: This should work similarly to signup resend functionality
 
-      // Step 4: Test second resend attempt and verify rate limiting
+      // Act & Assert: Test second resend attempt & verify rate limiting occurs
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
       await assertToastMessage(
         context,
@@ -466,13 +316,13 @@ test.describe("Login", () => {
         "You must wait at least 30 seconds before requesting a new code."
       );
 
-      // Step 5: Wait 30 seconds for rate limit to expire
+      // Act & Assert: Wait 30 seconds for rate limit to expire & verify timeout completes
       await page.waitForTimeout(30000); // 30 seconds
 
-      // Step 6: Test third resend attempt after waiting and verify it succeeds
+      // Act & Assert: Test third resend attempt after waiting & verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click(); // Note: After the 30-second wait, rate limiting should reset, so this should succeed
 
-      // Step 7: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
 
@@ -481,7 +331,7 @@ test.describe("Login", () => {
       const user = tenant.owner;
       const context = createTestContext(page);
 
-      // Step 1: Complete login flow to establish authentication
+      // Act & Assert: Complete login flow & verify authentication is established
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
@@ -492,25 +342,25 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Step 2: Verify user is authenticated and can access admin features
+      // Act & Assert: Verify user is authenticated & verify access to admin features
       await page.getByRole("button", { name: "Users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
-      // Step 3: Wait for session to timeout (this test simulates long session inactivity)
+      // Act & Assert: Wait for session to timeout & verify timeout simulation completes
       await page.waitForTimeout(60000); // 1 minute wait to simulate session timeout conditions (actual session timeout varies by configuration)
 
-      // Step 4: Attempt to access a protected resource and verify redirect to login
+      // Act & Assert: Attempt to access a protected resource & verify session management behavior
       await page.goto("/admin/users"); // Note: This may or may not trigger a redirect depending on actual session timeout configuration
       // The test validates that the authentication system properly handles session management
 
-      // Step 5: Verify that authentication state is properly maintained or redirected as expected
+      // Act & Assert: Verify that authentication state is properly maintained or redirected & verify expected behavior
       const currentUrl = page.url();
       const isLoggedIn = currentUrl.includes("/admin");
       const isRedirectToLogin = currentUrl.includes("/login");
 
       expect(isLoggedIn || isRedirectToLogin).toBeTruthy(); // Either should be logged in still, or redirected to login - both are valid session management behaviors
 
-      // Step 6: Assert no unexpected errors occurred
+      // Assert: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
   });

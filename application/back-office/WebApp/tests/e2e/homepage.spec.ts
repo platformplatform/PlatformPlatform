@@ -5,10 +5,10 @@ import { assertNoUnexpectedErrors, createTestContext } from "@shared/e2e/utils/t
 test("@smoke back-office homepage", async ({ ownerPage }) => {
   const context = createTestContext(ownerPage);
 
-  // Step 1: Navigate to back-office and verify it loads
+  // Act & Assert: Navigate to back-office & verify it loads correctly
   await ownerPage.goto("/back-office");
   await expect(ownerPage.getByRole("heading", { name: "Welcome to the Back Office" })).toBeVisible();
 
-  // Step 3: Assert no unexpected errors occurred
+  // Assert: Assert no unexpected errors occurred
   assertNoUnexpectedErrors(context);
 });
