@@ -34,6 +34,7 @@ test.describe("Signup", () => {
       ).toBeVisible();
 
       // Step 4: Complete email verification process and verify navigation
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -78,6 +79,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 4: Complete verification using Dutch interface and verify navigation
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await expect(page).toHaveURL("/admin");
@@ -136,6 +138,7 @@ test.describe("Signup", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
       // Step 4: Complete verification on tablet viewport and verify navigation
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -237,6 +240,7 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 2: Complete verification process and verify navigation
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -302,6 +306,7 @@ test.describe("Signup", () => {
       );
 
       // Step 4: Verify original signup can still be completed successfully
+      await page1.locator('input[autocomplete="one-time-code"]').first().click();
       await page1.keyboard.type(getVerificationCode());
       await page1.getByRole("button", { name: "Verify" }).click();
       await expect(page1).toHaveURL("/admin");
@@ -415,6 +420,7 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
 
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");

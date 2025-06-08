@@ -30,6 +30,7 @@ test.describe("Login", () => {
       ).toBeVisible();
 
       // Step 3: Complete verification process and verify navigation to admin dashboard
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -59,6 +60,7 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -78,6 +80,7 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -111,6 +114,7 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -210,6 +214,7 @@ test.describe("Login", () => {
       ).toBeVisible();
 
       // Step 3: Try to verify with any code and verify it fails without revealing whether the email exists
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
@@ -325,6 +330,7 @@ test.describe("Login", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
       // Step 4: Complete verification on tablet viewport
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -357,6 +363,7 @@ test.describe("Login", () => {
 
       // Step 4: Complete verification using keyboard
       await codeInput.focus();
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
@@ -479,6 +486,7 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await page.locator('input[autocomplete="one-time-code"]').first().click();
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
