@@ -10,6 +10,8 @@ import { getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Account Management System", () => {
   test.describe("@smoke", () => {
+    test.describe.configure({ timeout: 120000 }); // Bump timeout to 2 minutes as smoke tests are very comprehensive
+
     test("should complete full user journey from signup to tenant management", async ({ page }) => {
       const context = createTestContext(page);
       const owner = testUser();
