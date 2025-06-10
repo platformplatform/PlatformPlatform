@@ -36,10 +36,10 @@ interface AssertToastOptions {
 export function createTestContext(page: Page): TestContext {
   const monitoring = startMonitoring(page);
   const context = { page, monitoring };
-  
+
   // Store context on page object so afterEach hook can access the same instance
   (page as any).__testContext = context;
-  
+
   return context;
 }
 
@@ -276,7 +276,6 @@ export function assertNoUnexpectedErrors(context: TestContext): void {
 
   // Clean up expected network errors and tracking errors
   cleanupExpectedNetworkErrors(monitoring);
-  filterOutTrackingErrors(monitoring);
 
   // Check for any remaining unexpected issues
   const hasUnexpectedNetworkErrors = monitoring.networkErrors.length > 0;
@@ -310,15 +309,6 @@ function cleanupExpectedNetworkErrors(monitoring: MonitoringResults): void {
       }
     }
   }
-}
-
-/**
- * Filter out tracking endpoint errors that are expected
- */
-function filterOutTrackingErrors(monitoring: MonitoringResults): void {
-  monitoring.networkErrors = monitoring.networkErrors.filter(
-    (error) => !error.includes("POST https://localhost:9000/api/track - HTTP 400")
-  );
 }
 
 /**
