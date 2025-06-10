@@ -93,6 +93,11 @@ export function CompleteSignupForm() {
         ...signupState,
         expireAt: new Date(Date.now() + resendSignupCodeMutation.data.validForSeconds * 1000)
       });
+      toastQueue.add({
+        title: t`Verification code sent`,
+        description: t`A new verification code has been sent to your email.`,
+        variant: "success"
+      });
     }
   }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data, signupState]);
 
