@@ -78,6 +78,7 @@ test.describe("Account Management System", () => {
       await page.getByRole("textbox", { name: "Last name" }).fill(owner.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
       await page.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(context, "Success", "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
@@ -126,27 +127,48 @@ test.describe("Account Management System", () => {
       await expect(page.getByText("Owner")).toBeVisible();
 
       // Act & Assert: Submit invalid email invitation & verify validation error
-      await page.getByRole("button", { name: "Invite user" }).click();
+      await page.getByRole("button", { name: "Invite users" }).click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-
-      // Act & Assert: Invite admin user & verify successful invitation
-      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
-      await page.getByRole("button", { name: "Send invite" }).click();
-      await assertToastMessage(context, "Success", "User invited successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.getByRole("dialog")).toBeVisible();
 
       // Act & Assert: Invite member user & verify successful invitation
-      await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await assertToastMessage(context, "Success", "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.locator("tbody").locator("tr")).toHaveCount(2);
+      await expect(page.getByText(`${memberUser.email}`)).toBeVisible();
+
+      // Act & Assert: Invite admin user & verify successful invitation
+      await page.getByRole("button", { name: "Invite users" }).click();
+      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
+      await page.getByRole("button", { name: "Send invite" }).click();
+      await assertToastMessage(context, "Success", "User invited successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.locator("tbody").locator("tr")).toHaveCount(3);
+      await expect(page.getByText(`${adminUser.email}`)).toBeVisible();
+
+      // Act & Assert: Change user role to Admin & verify role change is successful
+      const adminUserRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
+      await adminUserRow.getByLabel("User actions").click();
+      await page.getByRole("menuitem", { name: "Change role" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
+      await page.getByRole("button", { name: "Member User role" }).click();
+      await page.getByRole("option", { name: "Admin" }).click();
+      await assertToastMessage(context, "Success", `User role updated successfully for ${adminUser.email}`);
+      await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
+      await expect(adminUserRow).toContainText("Admin");
+
+      // Act & Assert: Verify row is selected after role change & unselect to show invite button
+      await expect(adminUserRow).toHaveAttribute("aria-selected", "true");
+      await adminUserRow.click(); // Unselect the row
+      await expect(adminUserRow).not.toHaveAttribute("aria-selected", "true");
 
       // Act & Assert: Attempt to invite duplicate user email & verify error message appears
-      await page.getByRole("button", { name: "Invite user" }).click();
+      await page.getByRole("button", { name: "Invite users" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
       await expect(
@@ -161,6 +183,13 @@ test.describe("Account Management System", () => {
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(page.getByText("Member").first()).toBeVisible();
+
+      // Act & Assert: Test owner cannot delete or change role on themselves
+      const ownerRowSelf = page.locator("tbody tr").filter({ hasText: owner.email });
+      await ownerRowSelf.getByLabel("User actions").click();
+      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+      await page.keyboard.press("Escape");
 
       // Act & Assert: Filter users by email search & verify filtered results display correctly
       await page.getByPlaceholder("Search").fill(adminUser.email);
@@ -185,7 +214,7 @@ test.describe("Account Management System", () => {
       await expect(userTable).not.toContainText(adminUser.email);
       await page.getByRole("button", { name: "Owner User role" }).click();
       await page.getByRole("option", { name: "Any role" }).click();
-      await expect(page.getByText(adminUser.email)).toBeVisible();
+      await expect(userTable).toContainText(adminUser.email);
 
       // Act & Assert: Collapse sidebar menu & verify layout changes
       await page.getByRole("button", { name: "Toggle collapsed menu" }).click();
@@ -240,14 +269,11 @@ test.describe("Account Management System", () => {
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
       await assertNetworkErrors(context, [401]);
 
-      // Act & Assert: Check current URL & verify login page shows return path in URL parameters
-      const currentUrl = new URL(page.url());
-      expect(currentUrl.searchParams.get("returnPath")).toBe("/admin/users");
-
       // Act & Assert: Change login page language to Nederlands & verify interface updates
       await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "Nederlands" }).click();
       await expect(page.getByRole("heading", { name: "Hallo! Welkom terug" })).toBeVisible();
+      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("nl-NL");
 
       // Act & Assert: Submit wrong login credentials & verify error message appears
       await page.getByRole("textbox", { name: "E-mail" }).fill(owner.email);
@@ -256,28 +282,86 @@ test.describe("Account Management System", () => {
       await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
-      // Act & Assert: Type wrong verification code & verify error handling
+      // Act & Assert: Type wrong verification code & verify error handling and that focus is returned
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-
-      // Act & Assert: Verify first input gets focus after validation error & login with correct credentials
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+
+      // Act & Assert: Submit correct verification code & and verify login and language is set to user preferences
       await page.keyboard.type(getVerificationCode());
       await page.getByRole("button", { name: "Verifiëren" }).click();
       await expect(page).toHaveURL("/admin/users");
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
+      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
 
-      // Act & Assert: Access protected account route & verify session maintains authentication
-      await page.getByRole("button", { name: "Konto" }).click();
-      await expect(page.getByRole("textbox", { name: "Kontonavn" })).toBeVisible();
-
-      // Act & Assert: Reset language to English & verify interface updates properly
-      await page.goto("/admin");
+      // Act & Assert: Reset language to English & verify interface updates properly and localStorage is properly updated
       await page.getByRole("button", { name: "Vælg sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await page.reload(); // Fix bug where localStorage is not updated before page reload
+      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
+
+      // Act & Assert: Access protected account route & verify session maintains authentication
+      await page.getByRole("button", { name: "Account" }).click();
+      await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
+
+      // Act & Assert: Navigate back to admin home before logout to ensure correct return path
+      await page.getByRole("button", { name: "Home" }).click();
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
+      // Act & Assert: Logout from owner account to test admin permissions
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+
+      // Act & Assert: Login as admin user & verify successful authentication
+      await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
+      await page.keyboard.type(getVerificationCode());
+      await page.getByRole("button", { name: "Verify" }).click();
+      await expect(page).toHaveURL("/admin");
+
+      // Act & Assert: Complete admin user profile setup & verify profile form completion
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(adminUser.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
+      await page.getByRole("textbox", { name: "Title" }).fill("Administrator");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await assertToastMessage(context, "Success", "Profile updated successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
+      // Act & Assert: Navigate to users page as admin & verify admin can see all users
+      await page.getByRole("button", { name: "Users" }).click();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page.locator("tbody tr")).toHaveCount(3); // owner + admin + member
+
+      // Act & Assert: Test admin cannot delete owner or change owner role & verify restrictions
+      const ownerRow = page.locator("tbody tr").filter({ hasText: owner.email });
+      await ownerRow.getByLabel("User actions").click();
+      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+      await page.keyboard.press("Escape");
+
+      // Act & Assert: Test admin cannot delete other admin users & verify restrictions
+      const currentAdminRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
+      await currentAdminRow.getByLabel("User actions").click();
+      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+      await page.keyboard.press("Escape");
+
+      // Act & Assert: Test admin cannot delete users (only Owners can) & verify restrictions
+      const memberRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
+      await memberRow.getByLabel("User actions").click();
+      await expect(page.getByRole("menu")).toBeVisible(); // Verify menu opens
+      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+      await page.keyboard.press("Escape");
     });
   });
 });
