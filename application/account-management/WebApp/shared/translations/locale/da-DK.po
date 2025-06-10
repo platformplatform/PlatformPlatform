@@ -342,6 +342,9 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Success"
+msgstr ""
+
 msgid "Support"
 msgstr "Support"
 
@@ -392,6 +395,9 @@ msgstr "Brugerprofilmenu"
 
 msgid "User role"
 msgstr "Brugerrolle"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 
 msgid "User status"
 msgstr "Brugerstatus"

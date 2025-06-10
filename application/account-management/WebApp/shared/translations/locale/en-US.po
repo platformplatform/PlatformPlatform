@@ -342,6 +342,9 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Success"
+msgstr "Success"
+
 msgid "Support"
 msgstr "Support"
 
@@ -392,6 +395,9 @@ msgstr "User profile menu"
 
 msgid "User role"
 msgstr "User role"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "User role updated successfully for {userDisplayName}"
 
 msgid "User status"
 msgstr "User status"
