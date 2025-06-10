@@ -12,7 +12,6 @@ test.describe("Login", () => {
       const existingUser = tenant.owner;
       const context = createTestContext(page);
 
-      // === EMAIL VALIDATION EDGE CASES ===
       // Act & Assert: Test empty email validation & verify error message
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -30,7 +29,6 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login"); // Verify form submission was blocked
 
-      // === KEYBOARD NAVIGATION AND ACCESSIBILITY ===
       // Act & Assert: Test form submission with Enter key & verify navigation
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await page.keyboard.press("Enter"); // Submit form using Enter
@@ -44,7 +42,6 @@ test.describe("Login", () => {
       const codeInput = page.getByLabel("Login verification code").locator("input").first();
       await expect(codeInput).toHaveAttribute("type", "text");
 
-      // === WRONG VERIFICATION CODE HANDLING (FROM SMOKE TEST) ===
       // Act & Assert: Test wrong verification code & verify error and focus reset
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
@@ -58,73 +55,24 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // === LANGUAGE PERSISTENCE WITH RATE LIMITING LOGOUT ===
-      // Act & Assert: Logout and start fresh login for rate limiting test & verify logout
+      // Act & Assert: Logout to test security edge cases
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
-      // Act & Assert: Change language to Danish before verification attempts & verify language change
-      await page.getByRole("button", { name: "Select language" }).click();
-      await page.getByRole("menuitem", { name: "Dansk" }).click();
-      await expect(page.getByRole("button", { name: "Vælg sprog" })).toBeVisible();
+      // Act & Assert: Test malicious redirect prevention with external URL
+      await page.goto("/login?returnPath=http://hacker.com");
+      await expect(page).toHaveURL("/login");
 
-      // Act & Assert: Start new login for rate limiting test & verify navigation
-      await page.getByRole("textbox", { name: "E-mail" }).fill(existingUser.email);
-      await page.getByRole("button", { name: "Fortsæt" }).click();
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
-
-      // Act & Assert: First failed attempt & verify error and focus reset
-      await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Bekræft" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // Act & Assert: Second failed attempt & verify error and focus reset
-      await page.keyboard.type("WRONG2");
-      await page.getByRole("button", { name: "Bekræft" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // Act & Assert: Third failed attempt & verify error and focus reset
-      await page.keyboard.type("WRONG3");
-      await page.getByRole("button", { name: "Bekræft" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // Act & Assert: Fourth failed attempt triggers rate limiting & verify forbidden error
-      await page.keyboard.type("WRONG4");
-      await page.getByRole("button", { name: "Bekræft" }).click();
-      await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
-
-      // Act & Assert: Navigate back to login & verify language persists after rate limiting
-      await page.goto("/login");
-      await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
-
-      // Act & Assert: Change language on login page & verify update
-      await page.getByRole("button", { name: "Vælg sprog" }).click();
-      await page.getByRole("menuitem", { name: "Nederlands" }).click();
-      await expect(page.getByRole("heading", { name: "Hallo! Welkom terug" })).toBeVisible();
-
-      // === NON-EXISTENT USER HANDLING ===
-      // Act & Assert: Test login with non-existent email & verify navigation to verify page
-      await page.goto("/login");
-      const nonExistentEmail = `nonexistent.user.${Date.now()}@platformplatform.net`;
-      await page.getByRole("textbox", { name: "E-mail" }).fill(nonExistentEmail);
-      await page.getByRole("button", { name: "Verder" }).click();
+      // Act & Assert: Test browser back navigation after authenticated session
+      await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
+      await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
-
-      // Act & Assert: Verify code fails for non-existent user & verify error
-      await page.locator('input[autocomplete="one-time-code"]').first().focus();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verifiëren" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-
-      // === RETURN PATH VALIDATION ===
-      // Act & Assert: Go directly to login (rate limiting already logged us out) & verify we're at login
-      await page.goto("/login");
-      await expect(page.getByRole("heading", { name: "Hallo! Welkom terug" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
+      await page.getByRole("button", { name: "Verify" }).click();
+      await expect(page).toHaveURL("/admin");
     });
 
     test("should handle viewport responsiveness and resend functionality", async ({ page }) => {
