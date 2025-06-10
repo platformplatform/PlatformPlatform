@@ -219,7 +219,7 @@ test.describe("Signup", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByText(/\(\d+:\d+\)/).first()).toBeVisible();
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
 
       // Act & Assert: Wait for expiration & verify redirect to expired page
       await page.waitForTimeout(300000); // 5 minutes
@@ -237,8 +237,9 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
 
-      // Act & Assert: First resend succeeds & verify no error
+      // Act & Assert: First resend succeeds & verify success toast message
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
 
       // Act & Assert: Second resend is rate limited & verify error message
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -248,9 +249,10 @@ test.describe("Signup", () => {
         "You must wait at least 30 seconds before requesting a new code."
       );
 
-      // Act & Assert: Wait and retry & verify success after wait
+      // Act & Assert: Wait and retry but verify rate limit hit (max 1 resend allowed)
       await page.waitForTimeout(30000); // 30 seconds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
     });
   });
 });

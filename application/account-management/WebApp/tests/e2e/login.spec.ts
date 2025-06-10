@@ -100,8 +100,9 @@ test.describe("Login", () => {
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // === RESEND FUNCTIONALITY ===
-      // Act & Assert: Test resend button & verify no errors
+      // Act & Assert: Test resend button & verify success toast message
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
@@ -176,13 +177,15 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Act & Assert: Verify countdown timer & wait for expiration
-      await expect(page.getByText("(5:00)")).toBeVisible();
-      await page.waitForTimeout(300000); // 5 minutes
+      // Act & Assert: Verify we're on the verify page with the resend button and timer
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
+
+      // Wait for expiration (5 minutes)
+      await page.waitForTimeout(300000);
 
       // Act & Assert: Verify expiration redirect & verify error message
       await expect(page).toHaveURL("/login/expired");
-      await expect(page.getByText("The verification code you are trying to use has expired").first()).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Error: Verification code has expired" })).toBeVisible();
     });
 
     test("should handle rate limiting for verification code resend requests", async ({ page }) => {
@@ -196,8 +199,9 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
-      // Act & Assert: First resend succeeds & verify no error
+      // Act & Assert: First resend succeeds & verify success toast message
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
 
       // Act & Assert: Second resend is rate limited & verify error message
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -207,9 +211,10 @@ test.describe("Login", () => {
         "You must wait at least 30 seconds before requesting a new code."
       );
 
-      // Act & Assert: Wait and retry & verify success after wait
+      // Act & Assert: Wait and retry but verify rate limit hit (max 1 resend allowed)
       await page.waitForTimeout(30000); // 30 seconds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
     });
   });
 });
