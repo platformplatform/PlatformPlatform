@@ -38,7 +38,7 @@ export function createTestContext(page: Page): TestContext {
   const context = { page, monitoring };
 
   // Store context on page object so afterEach hook can access the same instance
-  (page as any).__testContext = context;
+  (page as Page & { __testContext?: TestContext }).__testContext = context;
 
   return context;
 }
@@ -393,4 +393,24 @@ async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<strin
   }
 
   return toastMessages;
+}
+
+/**
+ * Blur the currently focused element to ensure input values are committed
+ * 
+ * This is a workaround for a Playwright issue where WebKit and Firefox don't properly
+ * register input values when a form is submitted immediately after filling an input.
+ * Without blurring the input first, these browsers may submit empty or stale values.
+ * 
+ * This issue doesn't occur in real browsers, only in Playwright's automation.
+ * 
+ * @param page The Playwright page instance
+ */
+export async function blurActiveElement(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const element = (globalThis as { document?: { activeElement?: { blur?: () => void } } }).document?.activeElement;
+    if (element?.blur) {
+      element.blur();
+    }
+  });
 }
