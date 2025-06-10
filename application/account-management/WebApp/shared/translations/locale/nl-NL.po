@@ -245,7 +245,7 @@ msgid "Member"
 msgstr "Lid"
 
 msgid "Menu"
-msgstr "Menu"
+msgstr ""
 
 msgid "Modified"
 msgstr "Gewijzigd"
@@ -395,8 +395,11 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
 
+msgid "User actions"
+msgstr "Gebruikersacties"
+
 msgid "User invited successfully"
-msgstr "Gebruiker succesvol uitgenodigd"
+msgstr ""
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"

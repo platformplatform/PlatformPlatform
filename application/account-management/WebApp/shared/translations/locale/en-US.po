@@ -395,6 +395,9 @@ msgstr "Update your profile picture and personal details here."
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
 
+msgid "User actions"
+msgstr "User actions"
+
 msgid "User invited successfully"
 msgstr "User invited successfully"
 

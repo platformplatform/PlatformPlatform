@@ -245,7 +245,7 @@ msgid "Member"
 msgstr "Medlem"
 
 msgid "Menu"
-msgstr "Menu"
+msgstr ""
 
 msgid "Modified"
 msgstr "Ændret"
@@ -395,8 +395,11 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
+msgid "User actions"
+msgstr "Brugerhandlinger"
+
 msgid "User invited successfully"
-msgstr "Bruger inviteret succesfuldt"
+msgstr ""
 
 msgid "User profile"
 msgstr "Brugerprofil"
