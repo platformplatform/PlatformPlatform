@@ -342,6 +342,9 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "Success"
+msgstr ""
+
 msgid "Support"
 msgstr "Ondersteuning"
 
@@ -392,6 +395,9 @@ msgstr "Gebruikersprofielmenu"
 
 msgid "User role"
 msgstr "Gebruikersrol"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "Gebruikersrol succesvol bijgewerkt voor {userDisplayName}"
 
 msgid "User status"
 msgstr "Gebruikersstatus"
