@@ -238,9 +238,6 @@ msgstr "Manage your users and permissions here."
 msgid "Member"
 msgstr "Member"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Modified"
 
@@ -392,8 +389,8 @@ msgstr "Update your profile picture and personal details here."
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
 
-msgid "User invited successfully"
-msgstr "User invited successfully"
+msgid "User actions"
+msgstr "User actions"
 
 msgid "User invited successfully"
 msgstr "User invited successfully"

@@ -238,9 +238,6 @@ msgstr "Administrer dine brugere og tilladelser her."
 msgid "Member"
 msgstr "Medlem"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Ændret"
 
@@ -392,8 +389,8 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
-msgid "User invited successfully"
-msgstr "Bruger inviteret succesfuldt"
+msgid "User actions"
+msgstr "Brugerhandlinger"
 
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"

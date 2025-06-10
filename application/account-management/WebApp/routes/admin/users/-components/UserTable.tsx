@@ -204,7 +204,7 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
                       }
                     }}
                   >
-                    <Button variant="icon" aria-label={t`Menu`}>
+                    <Button variant="icon" aria-label={t`User actions`}>
                       <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <Menu>

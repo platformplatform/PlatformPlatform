@@ -238,9 +238,6 @@ msgstr "Beheer je gebruikers en rechten hier."
 msgid "Member"
 msgstr "Lid"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Gewijzigd"
 
@@ -392,8 +389,8 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
 
-msgid "User invited successfully"
-msgstr "Gebruiker succesvol uitgenodigd"
+msgid "User actions"
+msgstr "Gebruikersacties"
 
 msgid "User invited successfully"
 msgstr "Gebruiker succesvol uitgenodigd"
