@@ -15,8 +15,7 @@
     "build": "turbo build",
     "test": "turbo test",
     "check": "turbo check",
-    "lint": "turbo lint",
-    "postinstall": "npx playwright install --with-deps"
+    "lint": "turbo lint"
   },
   "dependencies": {
     "@fontsource/inter": "5.1.0",
