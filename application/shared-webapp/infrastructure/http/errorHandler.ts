@@ -106,6 +106,11 @@ function showErrorToast(error: ServerError): void {
     return;
   }
 
+  // Skip showing toast for validation errors (handled by components)
+  if (error.problemDetails?.errors && Object.keys(error.problemDetails.errors).length > 0) {
+    return;
+  }
+
   let message: { title: string; detail: string };
 
   if (error.problemDetails) {
@@ -153,7 +158,10 @@ async function handleHttpResponseError(response: Response): Promise<Error> {
       serverError.kind = "server";
       serverError.status = response.status;
       serverError.problemDetails = data;
+
+      // Show toast for non-validation errors
       showErrorToast(serverError);
+
       return serverError;
     }
   } catch {
