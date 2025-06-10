@@ -13,6 +13,9 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "A new verification code has been sent to your email."
+msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
+
 msgid "Account"
 msgstr "Konto"
 
@@ -418,6 +421,9 @@ msgstr "Brugere"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
+
+msgid "Verification code sent"
+msgstr "Bekræftelseskode sendt"
 
 msgid "Verify"
 msgstr "Bekræft"

@@ -97,6 +97,11 @@ export function CompleteLoginForm() {
         ...loginState,
         expireAt: new Date(Date.now() + resendLoginCodeMutation.data.validForSeconds * 1000)
       });
+      toastQueue.add({
+        title: t`Verification code sent`,
+        description: t`A new verification code has been sent to your email.`,
+        variant: "success"
+      });
     }
   }, [resendLoginCodeMutation.isSuccess, resendLoginCodeMutation.data, loginState]);
 

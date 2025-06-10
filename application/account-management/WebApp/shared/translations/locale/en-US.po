@@ -13,6 +13,9 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "A new verification code has been sent to your email."
+msgstr "A new verification code has been sent to your email."
+
 msgid "Account"
 msgstr "Account"
 
@@ -418,6 +421,9 @@ msgstr "Users"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
+
+msgid "Verification code sent"
+msgstr "Verification code sent"
 
 msgid "Verify"
 msgstr "Verify"
