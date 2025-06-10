@@ -27,6 +27,9 @@ export default defineConfig({
     // biome-ignore lint/style/useNamingConvention: Using Playwright's required property name
     baseURL: getBaseUrl(),
 
+    // Default timeout for actions like click(), fill(), etc.
+    actionTimeout: 10000,
+
     // Browser launch options
     launchOptions: {
       // Slow motion delay controlled by CLI --slow-mo flag
@@ -57,16 +60,39 @@ export default defineConfig({
 
   // Configure projects for major browsers
   projects: [
+    // Smoke tests run first (all browsers)
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] }
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: '**/smoke.spec.ts'
     },
-
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] }
+      use: { ...devices["Desktop Firefox"] },
+      testMatch: '**/smoke.spec.ts'
+    },
+    {
+      name: "webkit",
+      use: {
+        ...devices["Desktop Safari"],
+        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        ignoreHTTPSErrors: isWindows
+      },
+      testMatch: '**/smoke.spec.ts'
     },
 
+    // All other tests (excluding smoke)
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: '**/smoke.spec.ts'
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      testIgnore: '**/smoke.spec.ts'
+    },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] }
