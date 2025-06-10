@@ -66,9 +66,8 @@ msgstr "Enhver status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
@@ -343,7 +342,7 @@ msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "Success"
-msgstr ""
+msgstr "Succes"
 
 msgid "Support"
 msgstr "Support"
