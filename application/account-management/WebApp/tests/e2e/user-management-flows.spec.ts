@@ -137,8 +137,7 @@ test.describe("User Management Flow", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(page).toHaveURL("/admin");
 
       // Act & Assert: Complete admin user profile setup & verify profile form completion

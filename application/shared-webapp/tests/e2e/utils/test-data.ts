@@ -120,8 +120,7 @@ export async function completeSignupFlow(
   await expect(page).toHaveURL("/signup/verify");
 
   // Step 3: Enter verification code
-  await page.keyboard.type(getVerificationCode());
-  await page.getByRole("button", { name: "Verify" }).click();
+  await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
   // Step 4: Complete profile setup
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
