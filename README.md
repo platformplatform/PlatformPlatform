@@ -23,23 +23,24 @@
 
 Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security.
 
-This is in the box:
+Built to demonstrate seamless flow—backend contracts feed a fully-typed React UI, pipelines make fully automated deployments to Azure, and AI guardrails keep the codebase tidy—think of it as a ready-made blueprint, not a pile of parts to assemble.
+
+## What's inside
 
 * **Backend** - .NET 9 and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
-* **Frontend** - React 19 and TypeScript, fully localized using React Aria components for world-class accessibility
-* **CI/CD** - GitHub actions for fast passwordless deployments of application (Docker) and infrastructure (Bicep)
+* **Frontend** – React 19, TypeScript, TanStack Router & Query, React Aria for accessible and UI
+* **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
+* **AI rules** – 30+ rules & workflows that guide AI tools to generate consistent, production-ready code
 
-Still in alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like multi-tenancy, authentication, SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+Still in alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
 
 Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐
 
 # Getting Started 1-2-3
 
-TL;DR: Open the [PlatformPlatform](/application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
-
-<img src="https://platformplatformgithub.blob.core.windows.net/$root/local-developer-experience.gif" alt="Getting Started" title="Developer Experience" width="800"/>
+TL;DR: Open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
 
 ### Prerequisites
 
@@ -49,23 +50,21 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 
 <summary>Install prerequisites for Windows</summary>
 	
-1.	Open a PowerShell terminal as Administrator and run the following command to install Windows Subsystem for Linux (required for Docker):
+1.	Open a PowerShell terminal as Administrator and run the following command to install Windows Subsystem for Linux (required for Docker). Restart your computer if prompted.
   
-    `wsl --install`
+    ```powershell
+    wsl --install
+    ```
 
-2.	Restart your computer if prompted.
-
-3.	Install .NET, Git, Docker Desktop, Node.js, Azure CLI, and GitHub CLI using winget (available only on Windows 11):
+2.	From an Administrator PowerShell terminal, use [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) (preinstalled on Windows 11) to install any missing packages:
 
     ```powershell
-    @(
-        "Microsoft.DotNet.SDK.9",
-        "Git.Git",
-        "Docker.DockerDesktop",
-        "OpenJS.NodeJS",
-        "Microsoft.AzureCLI",
-        "GitHub.cli"
-    ) | ForEach-Object { winget install --accept-package-agreements --accept-source-agreements --id $_ }
+    winget install Microsoft.DotNet.SDK.9
+    winget install Git.Git
+    winget install Docker.DockerDesktop
+    winget install OpenJS.NodeJS
+    winget install Microsoft.AzureCLI
+    winget install GitHub.cli
     ```
 
 </details>
@@ -74,7 +73,7 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 
 <summary>Install prerequisites for Mac</summary>
 
-Open a terminal and run the following commands:
+Open a terminal and run the following commands (if not installed):
 
 - Install [Homebrew](https://brew.sh/), a package manager for Mac
 - `brew install --cask dotnet-sdk`
@@ -87,7 +86,7 @@ Open a terminal and run the following commands:
 
 <summary>Install prerequisites for Linux/WSL2</summary>
 
-Open a terminal and run the following commands:
+Open a terminal and run the following commands (if not installed):
 
 - Install Wget
 
@@ -158,24 +157,26 @@ Open a terminal and run the following commands:
 
 ## 1. Clone the repository
 
-Forking is only required to configure GitHub repository with continuous deployments to Azure ([step 3](#4-set-up-cicd-with-passwordless-deployments-from-github-to-azure)).
-
-Our clean commit history serves as a great learning and troubleshooting resource. We recommend you keep it 😃
+We recommend you keep the commit history, which serves as a great learning and troubleshooting resource. 😃
 
 ## 2. Run the Aspire AppHost to spin up everything on localhost
 
-Using .NET Aspire, docker images with SQL Server, Blob Storage, and mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+Using .NET Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 ```bash
 cd application/AppHost
-dotnet run # First run will be slow as Docker images are downloaded
+dotnet run # First time downloading Docker containers will take several minutes
 ```
 
-Alternatively, open the [PlatformPlatform](/application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](/application/AppHost/AppHost.csproj) project.
+Alternatively, open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
+
+Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new account (https://localhost:9000/signup). A one-time password (OTP) will be sent to the development mail server, but for local development, you can always use the code `UNLOCK` instead of checking the mail server. As shown here:
+
+<img src="https://platformplatformgithub.blob.core.windows.net/$root/local-development-exp.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
 ## 3. Set up CI/CD with passwordless deployments from GitHub to Azure
 
-Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](/cloud-infrastructure/) (using Bicep) and compiling [application code](/application/) to Docker images deployed to Azure Container Apps:
+Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](./cloud-infrastructure) (using Bicep) and compiling [application code](./application) to Docker images deployed to Azure Container Apps:
 
 ```bash
 cd developer-cli
@@ -203,7 +204,6 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ .cursor               # AI Rules for Cursor AI editor, and documentation for developers
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
 ├─ .windsurf             # Copy of .cursor for Windsurf AI editor (synchronized by CLI)
-├─ .windsurfrules        # AI Rules for JetBrains Windsurf Add-in (updated by AI workflow)
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
