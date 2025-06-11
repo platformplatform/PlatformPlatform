@@ -178,7 +178,7 @@ test.describe("Signup", () => {
   });
 
   test.describe("@comprehensive", () => {
-    test("should enforce rate limiting for verification attempts and handle edge cases", async ({ page }) => {
+    test("should enforce rate limiting for verification attempts and handle direct access", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
 
@@ -215,9 +215,14 @@ test.describe("Signup", () => {
       // Act & Assert: Verify rate limiting message is shown & verify UI state
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
 
-      // Act & Assert: Resend code button is available & verify it's clickable
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeEnabled();
+      // Act & Assert: Request new code button is available & verify it's clickable
+      await expect(page.getByRole("button", { name: "Can't find your code? Request a new code." })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Can't find your code? Request a new code." })).toBeEnabled();
+
+      // Act & Assert: Test direct access to verify page without signup session & verify redirect
+      await page.goto("/signup/verify");
+      await expect(page).toHaveURL("/signup");
+      await expect(page.getByText("No active signup session").first()).toBeVisible();
     });
   });
 
@@ -234,11 +239,11 @@ test.describe("Signup", () => {
       await expect(page).toHaveURL("/signup/verify");
 
       // Act & Assert: First resend succeeds & verify success toast message
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await page.getByRole("button", { name: "Can't find your code? Request a new code." }).click();
       await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
 
       // Act & Assert: Second resend is rate limited & verify error message
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await page.getByRole("button", { name: "Can't find your code? Request a new code." }).click();
       await assertToastMessage(
         context,
         "Bad Request",
@@ -247,7 +252,7 @@ test.describe("Signup", () => {
 
       // Act & Assert: Wait and retry but verify rate limit hit (max 1 resend allowed)
       await page.waitForTimeout(30000); // 30 seconds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      await page.getByRole("button", { name: "Can't find your code? Request a new code." }).click();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
     });
 
@@ -261,12 +266,14 @@ test.describe("Signup", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Can't find your code? Request a new code." })).toBeVisible();
 
-      // Act & Assert: Wait for expiration & verify redirect to expired page
+      // Act & Assert: Wait for expiration & verify inline expiration message and resend available
       await page.waitForTimeout(300000); // 5 minutes
-      await expect(page).toHaveURL("/signup/expired");
-      await expect(page.getByText("No active signup session.").first()).toBeVisible();
+      await expect(page).toHaveURL("/signup/verify");
+      await expect(page.getByText("Your verification code has expired").first()).toBeVisible();
+      await expect(page.getByRole("link", { name: "Try again" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Can't find your code? Request a new code." })).toBeEnabled();
     });
   });
 });

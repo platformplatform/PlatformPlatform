@@ -191,9 +191,11 @@ test.describe("Login", () => {
       // Wait for expiration (5 minutes)
       await page.waitForTimeout(300000);
 
-      // Act & Assert: Verify expiration redirect & verify error message
-      await expect(page).toHaveURL("/login/expired");
-      await expect(page.getByRole("heading", { name: "Error: Verification code has expired" })).toBeVisible();
+      // Act & Assert: Verify expiration message shows inline & verify resend still available
+      await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Your verification code has expired").first()).toBeVisible();
+      await expect(page.getByRole("link", { name: "Try again" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeEnabled();
     });
   });
 });
