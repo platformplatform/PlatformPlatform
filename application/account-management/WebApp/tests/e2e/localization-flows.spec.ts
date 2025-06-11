@@ -26,8 +26,7 @@ test.describe("Localization Flow", () => {
       await expect(page.getByRole("heading", { name: "Indtast din bekræftelseskode" })).toBeVisible();
 
       // Act & Assert: Complete verification with Danish interface & verify navigation to admin
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Bekræft" }).click();
+      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(page).toHaveURL("/admin");
 
       // Act & Assert: Complete profile setup in Danish & verify profile form works
@@ -60,8 +59,7 @@ test.describe("Localization Flow", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
 
       // Act & Assert: Complete login verification & verify language resets to user's saved preference
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
@@ -93,8 +91,7 @@ test.describe("Localization Flow", () => {
       await page1.getByRole("textbox", { name: "E-mail" }).fill(user1.email);
       await page1.getByRole("button", { name: "Opret din konto" }).click();
       await expect(page1).toHaveURL("/signup/verify");
-      await page1.keyboard.type(getVerificationCode());
-      await page1.getByRole("button", { name: "Bekræft" }).click();
+      await page1.keyboard.type(getVerificationCode()); // The verification code auto submits
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
       await page1.getByRole("textbox", { name: "Efternavn" }).fill(user1.lastName);
       await page1.getByRole("button", { name: "Gem ændringer" }).click();
@@ -115,8 +112,7 @@ test.describe("Localization Flow", () => {
       await newPage1.getByRole("textbox", { name: "Email" }).fill(user1.email);
       await newPage1.getByRole("button", { name: "Continue" }).click();
       await expect(newPage1).toHaveURL("/login/verify");
-      await newPage1.keyboard.type(getVerificationCode());
-      await newPage1.getByRole("button", { name: "Verify" }).click();
+      await newPage1.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(newPage1).toHaveURL("/admin");
       await expect(newPage1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(newPage1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
@@ -129,8 +125,7 @@ test.describe("Localization Flow", () => {
       await newPage2.getByRole("textbox", { name: "Email" }).fill(user2.email);
       await newPage2.getByRole("button", { name: "Continue" }).click();
       await expect(newPage2).toHaveURL("/login/verify");
-      await newPage2.keyboard.type(getVerificationCode());
-      await newPage2.getByRole("button", { name: "Verify" }).click();
+      await newPage2.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(newPage2).toHaveURL("/admin");
       await expect(newPage2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(newPage2.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
