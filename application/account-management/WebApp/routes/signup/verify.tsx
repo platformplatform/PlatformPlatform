@@ -62,6 +62,8 @@ export const Route = createFileRoute("/signup/verify")({
   }
 });
 
+let autoSubmitCode = true;
+
 export function CompleteSignupForm() {
   const signupState = getSignupState();
   const { email, emailConfirmationId, expireAt } = signupState;
@@ -146,7 +148,16 @@ export function CompleteSignupForm() {
               length={6}
               autoFocus={true}
               ariaLabel={t`Signup verification code`}
-              onValueChange={(_, isComplete) => setIsOneTimeCodeComplete(isComplete)}
+              onValueChange={(_, isComplete) => {
+                setIsOneTimeCodeComplete(isComplete);
+
+                if (isComplete && autoSubmitCode) {
+                  autoSubmitCode = false; // Only auto-submit once
+                  setTimeout(() => {
+                    document.querySelector("form")?.requestSubmit();
+                  }, 10);
+                }
+              }}
             />
           </div>
           {!isExpired ? (
