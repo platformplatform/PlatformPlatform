@@ -65,13 +65,11 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`
    - Assert side effects immediately after an action using `assertToastMessage`, `assertValidationError`, `assertNetworkErrors`.
    - Avoid verbose explanatory comments *within* a step; if needed, add comments inline after statement.
-   - Error checking is handled automatically via global afterEach hook - no manual `assertNoUnexpectedErrors()` calls needed.
 
 5. Timeout Configuration:
-   - Global timeout configuration is handled in the shared Playwright config with `expect.timeout: 5000`.
-   - Do NOT add `page.setDefaultTimeout(5000)` calls in tests - this is handled globally.
-   - Only override timeouts for @slow tests using `test.describe.configure({ timeout: 360000 })`.
-   - The global configuration ensures consistent fast feedback across all tests.
+   - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
+   - Global timeout configuration is handled in the shared Playwright. Don't change this.
+   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
 
 6. Write deterministic tests - This is critical for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions.
