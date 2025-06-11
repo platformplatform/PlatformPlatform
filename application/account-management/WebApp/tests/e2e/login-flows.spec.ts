@@ -46,14 +46,13 @@ test.describe("Login", () => {
 
       // === VERIFICATION CODE VALIDATION ===
       // Act & Assert: Test wrong verification code & verify error and focus reset
-      await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Complete successful login & verify navigation
       await page.locator('input[autocomplete="one-time-code"]').first().focus();
-      await page.keyboard.type(getVerificationCode());
+      await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -82,9 +81,7 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-      await page.keyboard.type(getVerificationCode());
-      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
       await expect(page).toHaveURL("/admin");
     });
   });
@@ -104,8 +101,7 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/login/verify");
 
       // Act & Assert: First failed attempt & verify error and focus reset
-      await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
       await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
