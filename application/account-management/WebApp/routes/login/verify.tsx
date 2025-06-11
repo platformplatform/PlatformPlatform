@@ -68,6 +68,8 @@ export const Route = createFileRoute("/login/verify")({
   }
 });
 
+let autoSubmitCode = true;
+
 export function CompleteLoginForm() {
   const loginState = getLoginState();
   const { loginId, emailConfirmationId, email, expireAt } = loginState;
@@ -150,7 +152,16 @@ export function CompleteLoginForm() {
               length={6}
               autoFocus={true}
               ariaLabel={t`Login verification code`}
-              onValueChange={(_, isComplete) => setIsOneTimeCodeComplete(isComplete)}
+              onValueChange={(_, isComplete) => {
+                setIsOneTimeCodeComplete(isComplete);
+
+                if (isComplete && autoSubmitCode) {
+                  autoSubmitCode = false; // Only auto-submit once
+                  setTimeout(() => {
+                    document.querySelector("form")?.requestSubmit();
+                  }, 10);
+                }
+              }}
             />
           </div>
           {!isExpired ? (
