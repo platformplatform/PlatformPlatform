@@ -90,7 +90,7 @@ test.describe("Login", () => {
   });
 
   test.describe("@comprehensive", () => {
-    test("should enforce rate limiting for failed login attempts", async ({ page }) => {
+    test("should enforce rate limiting for failed login attempts and handle direct access", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
 
@@ -133,36 +133,17 @@ test.describe("Login", () => {
       // Act & Assert: Resend code button is available & verify it's clickable
       await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeEnabled();
+
+      // Act & Assert: Test direct access to verify page without login session & verify redirect
+      await page.goto("/login/verify");
+      await expect(page).toHaveURL("/login");
+      await expect(page.getByText("No active login session").first()).toBeVisible();
     });
   });
 
   test.describe("@slow", () => {
-    test.describe.configure({ timeout: 360000 }); // 6 minutes timeout
-
-    test("should handle verification code expiration during login", async ({ page }) => {
-      // NOTE: This test expects React errors due to application bug with expired sessions
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Create test user and start login & verify navigation
-      await completeSignupFlow(page, expect, user, context, false);
-      await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-
-      // Act & Assert: Verify we're on the verify page with the resend button and timer
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
-
-      // Wait for expiration (5 minutes)
-      await page.waitForTimeout(300000);
-
-      // Act & Assert: Verify expiration redirect & verify error message
-      await expect(page).toHaveURL("/login/expired");
-      await expect(page.getByRole("heading", { name: "Error: Verification code has expired" })).toBeVisible();
-    });
-
-    test("should handle rate limiting for verification code resend requests", async ({ page }) => {
+    test("should handle rate limiting for verification code resend requests - 1 minute timeout", async ({ page }) => {
+      test.setTimeout(60000); // 1 minute timeout
       const context = createTestContext(page);
       const user = testUser();
 
@@ -189,6 +170,30 @@ test.describe("Login", () => {
       await page.waitForTimeout(30000); // 30 seconds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
+    });
+
+    test("should handle verification code expiration during login - 5 minutes timeout", async ({ page }) => {
+      test.setTimeout(360000); // 6 minutes timeout
+      // NOTE: This test expects React errors due to application bug with expired sessions
+      const context = createTestContext(page);
+      const user = testUser();
+
+      // Act & Assert: Create test user and start login & verify navigation
+      await completeSignupFlow(page, expect, user, context, false);
+      await page.goto("/login");
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login/verify");
+
+      // Act & Assert: Verify we're on the verify page with the resend button and timer
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
+
+      // Wait for expiration (5 minutes)
+      await page.waitForTimeout(300000);
+
+      // Act & Assert: Verify expiration redirect & verify error message
+      await expect(page).toHaveURL("/login/expired");
+      await expect(page.getByRole("heading", { name: "Error: Verification code has expired" })).toBeVisible();
     });
   });
 });

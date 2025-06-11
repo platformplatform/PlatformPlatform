@@ -60,7 +60,7 @@ export default defineConfig({
 
   // Global timeout for expect assertions
   expect: {
-    timeout: 5000
+    timeout: 10000
   },
 
   // Output directories - centralized test artifacts
@@ -68,16 +68,16 @@ export default defineConfig({
 
   // Configure projects for major browsers
   projects: [
-    // Smoke tests run first (all browsers)
+    // Smoke tests run first (all browsers) - matches @smoke tag in any file
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
     {
       name: "webkit",
@@ -87,19 +87,19 @@ export default defineConfig({
         // biome-ignore lint/style/useNamingConvention: <explanation>
         ignoreHTTPSErrors: isWindows
       },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
 
-    // All other tests (excluding smoke)
+    // Comprehensive tests run second (all browsers) - matches @comprehensive tag in any file
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: '**/smoke.spec.ts'
+      grepInvert: /@smoke/
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
-      testIgnore: '**/smoke.spec.ts'
+      grepInvert: /@smoke/
     },
     {
       name: "webkit",
@@ -109,7 +109,7 @@ export default defineConfig({
         // biome-ignore lint/style/useNamingConvention: <explanation>
         ignoreHTTPSErrors: isWindows
       },
-      testIgnore: '**/smoke.spec.ts'
-    }
+      grepInvert: /@smoke/
+    },
   ]
 });

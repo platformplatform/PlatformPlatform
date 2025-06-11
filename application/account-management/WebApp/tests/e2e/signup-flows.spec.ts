@@ -222,26 +222,8 @@ test.describe("Signup", () => {
   });
 
   test.describe("@slow", () => {
-    test.describe.configure({ timeout: 360000 }); // 6 minutes timeout
-
-    test("should handle verification code expiration after five minutes", async ({ page }) => {
-      // NOTE: This test expects React errors due to application bug with expired sessions
-      const user = testUser();
-
-      // Act & Assert: Start signup and wait for expiration & verify countdown timer
-      await page.goto("/signup");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
-
-      // Act & Assert: Wait for expiration & verify redirect to expired page
-      await page.waitForTimeout(300000); // 5 minutes
-      await expect(page).toHaveURL("/signup/expired");
-      await expect(page.getByText("No active signup session.").first()).toBeVisible();
-    });
-
-    test("should handle resend rate limiting with actual thirty second waits", async ({ page }) => {
+    test("should handle resend rate limiting - 30 seconds timeout", async ({ page }) => {
+      test.setTimeout(60000); // 1 minute timeout
       const context = createTestContext(page);
       const user = testUser();
 
@@ -267,6 +249,24 @@ test.describe("Signup", () => {
       await page.waitForTimeout(30000); // 30 seconds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
       await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
-  });
+    });
+
+    test("should handle verification code expiration - 5 minutes timeout", async ({ page }) => {
+      test.setTimeout(360000); // 6 minutes timeout
+      // NOTE: This test expects React errors due to application bug with expired sessions
+      const user = testUser();
+
+      // Act & Assert: Start signup and wait for expiration & verify countdown timer
+      await page.goto("/signup");
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("button", { name: "Create your account" }).click();
+      await expect(page).toHaveURL("/signup/verify");
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
+
+      // Act & Assert: Wait for expiration & verify redirect to expired page
+      await page.waitForTimeout(300000); // 5 minutes
+      await expect(page).toHaveURL("/signup/expired");
+      await expect(page.getByText("No active signup session.").first()).toBeVisible();
+    });
   });
 });
