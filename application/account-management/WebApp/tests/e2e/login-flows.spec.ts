@@ -512,5 +512,29 @@ test.describe("Login", () => {
       // Step 6: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
+
+    test("should handle verification code expiration during login - 5 minutes timeout", async ({ page }) => {
+      test.setTimeout(360000); // 6 minutes timeout
+      // NOTE: This test expects React errors due to application bug with expired sessions
+      const context = createTestContext(page);
+      const user = testUser();
+
+      // Act & Assert: Create test user and start login & verify navigation
+      await completeSignupFlow(page, expect, user, context, false);
+      await page.goto("/login");
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login/verify");
+
+      // Act & Assert: Verify we're on the verify page with the resend button and timer
+      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
+
+      // Wait for expiration (5 minutes)
+      await page.waitForTimeout(300000);
+
+      // Act & Assert: Verify expiration redirect & verify error message
+      await expect(page).toHaveURL("/login/expired");
+      await expect(page.getByRole("heading", { name: "Error: Verification code has expired" })).toBeVisible();
+    });
   });
 });

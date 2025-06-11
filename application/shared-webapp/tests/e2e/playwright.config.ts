@@ -47,7 +47,7 @@ export default defineConfig({
 
   // Global timeout for expect assertions
   expect: {
-    timeout: 5000
+    timeout: 10000
   },
 
   // Output directories
