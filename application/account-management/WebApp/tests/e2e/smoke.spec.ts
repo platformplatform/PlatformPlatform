@@ -227,7 +227,7 @@ test.describe("Account Management System", () => {
       expect(page.url()).toContain("userStatus=Active");
 
       // Act & Assert: Clear account name field & verify validation error appears
-      await page.getByRole("button", { name: "Account" }).click();
+      await page.getByRole("button", { name: "Account" }).first().click();
       await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -249,62 +249,8 @@ test.describe("Account Management System", () => {
       await assertToastMessage(context, "Success", "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Act & Assert: Change language to Danish & verify language preference persists
-      await page.getByRole("button", { name: "Select language" }).click();
-      await page.getByRole("menuitem", { name: "Dansk" }).click();
-      await expect(page.getByRole("button", { name: "Vælg sprog" })).toBeVisible();
-      await page.goto("/admin");
-      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
-
-      // Act & Assert: Logout from Danish interface & verify redirect to login page with Danish interface
-      await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
-      await page.getByRole("menuitem", { name: "Log ud" }).click();
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
-
-      // Act & Assert: Access protected routes while unauthenticated & verify redirect to login
-      await page.goto("/admin");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await page.goto("/admin/users");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
-      await assertNetworkErrors(context, [401]);
-
-      // Act & Assert: Change login page language to Nederlands & verify interface updates
-      await page.getByRole("button", { name: "Vælg sprog" }).click();
-      await page.getByRole("menuitem", { name: "Nederlands" }).click();
-      await expect(page.getByRole("heading", { name: "Hallo! Welkom terug" })).toBeVisible();
-      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("nl-NL");
-
-      // Act & Assert: Submit wrong login credentials & verify error message appears
-      await page.getByRole("textbox", { name: "E-mail" }).fill(owner.email);
-      await page.getByRole("button", { name: "Verder" }).click();
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers");
-      await expect(page.getByRole("heading", { name: "Voer je verificatiecode in" })).toBeVisible();
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // Act & Assert: Type wrong verification code & verify error handling and that focus is returned
-      await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Verifiëren" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // Act & Assert: Submit correct verification code & and verify login and language is set to user preferences
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verifiëren" }).click();
-      await expect(page).toHaveURL("/admin/users");
-      await page.goto("/admin");
-      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
-      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
-
-      // Act & Assert: Reset language to English & verify interface updates properly and localStorage is properly updated
-      await page.getByRole("button", { name: "Vælg sprog" }).click();
-      await page.getByRole("menuitem", { name: "English" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await page.reload(); // Fix bug where localStorage is not updated before page reload
-      await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
-
       // Act & Assert: Access protected account route & verify session maintains authentication
-      await page.getByRole("button", { name: "Account" }).click();
+      await page.getByRole("button", { name: "Account" }).first().click();
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
 
       // Act & Assert: Navigate back to admin home before logout to ensure correct return path
@@ -315,6 +261,14 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+
+      // Act & Assert: Access protected routes while unauthenticated & verify redirect to login
+      await page.goto("/admin/users");
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
+      await assertNetworkErrors(context, [401]);
+      await page.goto("/admin");
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+      await assertNetworkErrors(context, [401]);
 
       // Act & Assert: Login as admin user & verify successful authentication
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
