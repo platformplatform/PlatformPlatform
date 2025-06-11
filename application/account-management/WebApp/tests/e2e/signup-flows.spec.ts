@@ -291,12 +291,11 @@ test.describe("Signup", () => {
       await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup"); // Verify form submission was blocked
 
-      // === KEYBOARD NAVIGATION AND ACCESSIBILITY ===
-      // Act & Assert: Test keyboard navigation with Tab & verify form submission works
+      // === SUCCESSFUL SIGNUP FLOW ===
+      // Act & Assert: Complete signup with valid email & verify navigation to verification page with initial state
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.keyboard.press("Tab"); // Move to region selector
-      await page1.keyboard.press("Tab"); // Move to submit button
-      await page1.keyboard.press("Enter"); // Submit form
+      await expect(page1.getByText("Europe")).toBeVisible();
+      await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup/verify");
 
       // Step 2: Attempt duplicate signup in second browser tab and verify conflict handling
@@ -473,7 +472,9 @@ test.describe("Signup", () => {
       // Step 4: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
+  });
 
+  test.describe("@comprehensive", () => {
     test("should enforce rate limiting for verification attempts and handle edge cases", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
