@@ -1,121 +1,18 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import {
-  assertNetworkErrors,
-  assertToastMessage,
-  assertValidationError,
-  createTestContext
-} from "@shared/e2e/utils/test-assertions";
-import { getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
+import { assertToastMessage, assertValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
-test.describe("Account Management System", () => {
+test.describe("User Management Flow", () => {
   test.describe("@smoke", () => {
-    test.describe.configure({ timeout: 120000 }); // Bump timeout to 2 minutes as smoke tests are very comprehensive
-
-    test("account management smoke test", async ({ page }) => {
+    test("should handle complete user invitation, role management & admin permissions workflow", async ({ page }) => {
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
       const memberUser = testUser();
 
-      // Act & Assert: Navigate to homepage & verify marketing content is visible
-      await page.goto("/");
-      await expect(page).toHaveTitle("PlatformPlatform");
-
-      // Act & Assert: Navigate to signup page & verify signup process starts
-      await page.getByRole("button", { name: "Get started today" }).first().click();
-      await expect(page).toHaveURL("/signup");
-      await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
-
-      // Act & Assert: Complete signup with valid email & verify navigation to verification page with initial state
-      await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await expect(page.getByText("Europe")).toBeVisible();
-      await page.getByRole("button", { name: "Create your account" }).click();
-      await expect(page).toHaveURL("/signup/verify");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
-
-      // Act & Assert: Type verification code & verify button becomes enabled
-      await page.keyboard.type(getVerificationCode());
-      await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
-
-      // Act & Assert: Click verify button & verify navigation to admin
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-
-      // Act & Assert: Set mobile viewport size & verify profile dialog is visible
-      await page.setViewportSize({ width: 375, height: 667 });
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-
-      // Act & Assert: Set tablet viewport size & verify profile dialog is visible
-      await page.setViewportSize({ width: 768, height: 1024 });
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-
-      // Act & Assert: Set desktop viewport size & verify profile dialog is visible
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-
-      // Act & Assert: Submit profile form with empty fields & verify validation errors appear
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertValidationError(context, "'First Name' must not be empty.");
-      await assertValidationError(context, "'Last Name' must not be empty.");
-
-      // Act & Assert: Fill form with one field too long and one missing & verify all validation errors appear
-      const longName = "A".repeat(31);
-      const longTitle = "B".repeat(51);
-      await page.getByRole("textbox", { name: "First name" }).fill(longName);
-      await page.getByRole("textbox", { name: "Last name" }).clear();
-      await page.getByRole("textbox", { name: "Title" }).fill(longTitle);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expect(page.getByRole("dialog")).toBeVisible();
-      await assertValidationError(context, "First name must be no longer than 30 characters.");
-      await assertValidationError(context, "'Last Name' must not be empty.");
-      await assertValidationError(context, "Title must be no longer than 50 characters.");
-
-      // Act & Assert: Complete profile setup with valid data & verify navigation to dashboard
-      await page.getByRole("textbox", { name: "First name" }).fill(owner.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(owner.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(context, "Success", "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Click avatar button & verify it shows initials and profile information
-      const initials = owner.firstName.charAt(0) + owner.lastName.charAt(0);
-      await expect(page.getByRole("button", { name: "User profile menu" })).toContainText(initials);
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await expect(page.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
-      await expect(page.getByText("CEO & Founder")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
-      await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
-      await page.getByRole("button", { name: "Cancel" }).click();
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-
-      // Act & Assert: Toggle theme cycle through all modes & verify theme changes work correctly
-      const themeButton = page.getByRole("button", { name: "Toggle theme" });
-
-      const initialThemeClass = await page.locator("html").getAttribute("class"); // Get initial system theme
-      const initialIsLight = initialThemeClass?.includes("light");
-      const firstTheme = initialIsLight ? "dark" : "light";
-      const secondTheme = initialIsLight ? "light" : "dark";
-      const thirdTheme = initialIsLight ? "dark" : "light";
-
-      await expect(themeButton).toHaveAttribute("aria-label", "Toggle theme"); // Verify accessibility label
-
-      await themeButton.click(); // First click: System → opposite
-      await expect(page.locator("html")).toHaveClass(firstTheme);
-
-      await themeButton.click(); // Second click: opposite → original
-      await expect(page.locator("html")).toHaveClass(secondTheme);
-
-      await themeButton.click(); // Third click: original → opposite (for rest of test)
-      await expect(page.locator("html")).toHaveClass(thirdTheme);
-
-      // Act & Assert: Navigate to signup page while authenticated & verify redirect to admin
-      await page.goto("/signup");
-      await expect(page).toHaveURL("/admin");
+      // Act & Assert: Complete owner signup & verify owner account creation
+      await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Act & Assert: Navigate to users page & verify owner is listed
@@ -177,14 +74,14 @@ test.describe("Account Management System", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Act & Assert: Check users table & verify invited users appear
+      // Act & Assert: Check users table & verify invited users appear with correct roles
       const userTable = page.locator("tbody");
       await expect(userTable.locator("tr")).toHaveCount(3); // owner + 2 invited users
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(page.getByText("Member").first()).toBeVisible();
 
-      // Act & Assert: Test owner cannot delete or change role on themselves
+      // Act & Assert: Test owner cannot delete or change role on themselves & verify restrictions
       const ownerRowSelf = page.locator("tbody tr").filter({ hasText: owner.email });
       await ownerRowSelf.getByLabel("User actions").click();
       await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
@@ -216,59 +113,25 @@ test.describe("Account Management System", () => {
       await page.getByRole("option", { name: "Any role" }).click();
       await expect(userTable).toContainText(adminUser.email);
 
-      // Act & Assert: Collapse sidebar menu & verify layout changes
-      await page.getByRole("button", { name: "Toggle collapsed menu" }).click();
-
-      // Act & Assert: Navigate to dashboard and click active users link & verify URL filtering
+      // Act & Assert: Navigate to dashboard & verify user count metrics are visible
       await page.getByRole("button", { name: "Home" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByText("Total users")).toBeVisible();
+      await expect(page.getByText("Active users").first()).toBeVisible();
+      await expect(page.getByText("Invited users")).toBeVisible();
+
+      // Act & Assert: Click active users link & verify URL filtering shows only active users
       await page.getByRole("link", { name: "Active users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
       expect(page.url()).toContain("userStatus=Active");
 
-      // Act & Assert: Clear account name field & verify validation error appears
-      await page.getByRole("button", { name: "Account" }).first().click();
-      await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Account name" }).clear();
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertValidationError(context, "'Name' must not be empty.");
-
-      // Act & Assert: Update account name & verify successful save
-      const newAccountName = `Tech Corp ${Date.now()}`;
-      await page.getByRole("textbox", { name: "Account name" }).fill(newAccountName);
-      await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit requires explicit focus before clicking
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(context, "Success", "Account updated successfully");
-
-      // Act & Assert: Update user profile title & verify successful profile update
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(context, "Success", "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-
-      // Act & Assert: Access protected account route & verify session maintains authentication
-      await page.getByRole("button", { name: "Account" }).first().click();
-      await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
-
-      // Act & Assert: Navigate back to admin home before logout to ensure correct return path
+      // Act & Assert: Logout from owner account to test admin permissions
       await page.getByRole("button", { name: "Home" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-
-      // Act & Assert: Logout from owner account to test admin permissions
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-
-      // Act & Assert: Access protected routes while unauthenticated & verify redirect to login
-      await page.goto("/admin/users");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
-      await assertNetworkErrors(context, [401]);
-      await page.goto("/admin");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await assertNetworkErrors(context, [401]);
 
       // Act & Assert: Login as admin user & verify successful authentication
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);

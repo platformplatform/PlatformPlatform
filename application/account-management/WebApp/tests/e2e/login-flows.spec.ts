@@ -242,6 +242,7 @@ test.describe("Login", () => {
       // Step 5: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
     });
+  });
 
     test("should handle verification code resend functionality during login", async ({ ownerPage }) => {
       const context = createTestContext(ownerPage);
