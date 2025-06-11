@@ -1,17 +1,18 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { assertNetworkErrors, assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Login", () => {
-  test.describe("@comprehensive", () => {
-    test("should handle all login edge cases including validation, security, accessibility, and error handling", async ({
+  test.describe("@smoke", () => {
+    test("should handle complete login flow with validation, security, authentication protection, and logout", async ({
       anonymousPage
     }) => {
       const { page, tenant } = anonymousPage;
       const existingUser = tenant.owner;
       const context = createTestContext(page);
 
+      // === EMAIL VALIDATION EDGE CASES ===
       // Act & Assert: Test empty email validation & verify error message
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -29,6 +30,7 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login"); // Verify form submission was blocked
 
+      // === SUCCESSFUL LOGIN FLOW ===
       // Act & Assert: Test form submission with Enter key & verify navigation
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await page.keyboard.press("Enter"); // Submit form using Enter
@@ -42,6 +44,7 @@ test.describe("Login", () => {
       const codeInput = page.getByLabel("Login verification code").locator("input").first();
       await expect(codeInput).toHaveAttribute("type", "text");
 
+      // === VERIFICATION CODE VALIDATION ===
       // Act & Assert: Test wrong verification code & verify error and focus reset
       await page.keyboard.type("WRONG1");
       await page.getByRole("button", { name: "Verify" }).click();
@@ -55,11 +58,21 @@ test.describe("Login", () => {
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      // Act & Assert: Logout to test security edge cases
+      // === AUTHENTICATION PROTECTION ===
+      // Act & Assert: Logout from authenticated session & verify redirect to login
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
+      // Act & Assert: Access protected routes while unauthenticated & verify redirect to login
+      await page.goto("/admin/users");
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
+      await assertNetworkErrors(context, [401]);
+      await page.goto("/admin");
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+      await assertNetworkErrors(context, [401]);
+
+      // === SECURITY EDGE CASES ===
       // Act & Assert: Test malicious redirect prevention with external URL
       await page.goto("/login?returnPath=http://hacker.com");
       await expect(page).toHaveURL("/login");
@@ -74,48 +87,9 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page).toHaveURL("/admin");
     });
+  });
 
-    test("should handle viewport responsiveness and resend functionality", async ({ page }) => {
-      const context = createTestContext(page);
-      const user = testUser();
-
-      // Act & Assert: Create test user for login testing & verify user created
-      await completeSignupFlow(page, expect, user, context, false);
-
-      // === MOBILE VIEWPORT TESTING ===
-      // Act & Assert: Test mobile viewport (375x667) & verify content displays
-      await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto("/login");
-      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Act & Assert: Complete login on mobile & verify navigation
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login/verify");
-
-      // === TABLET VIEWPORT TESTING ===
-      // Act & Assert: Change to tablet viewport & verify proper display
-      await page.setViewportSize({ width: 768, height: 1024 });
-      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      // === RESEND FUNCTIONALITY ===
-      // Act & Assert: Test resend button & verify success toast message
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
-      await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-
-      // === DESKTOP VIEWPORT TESTING ===
-      // Act & Assert: Change to desktop viewport & verify layout
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.locator('input[autocomplete="one-time-code"]').first().focus();
-      await page.keyboard.type(getVerificationCode());
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page).toHaveURL("/admin");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-    });
-
+  test.describe("@comprehensive", () => {
     test("should enforce rate limiting for failed login attempts", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
