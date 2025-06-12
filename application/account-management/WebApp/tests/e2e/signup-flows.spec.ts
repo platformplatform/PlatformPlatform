@@ -289,11 +289,13 @@ test.describe("Signup", () => {
       await page1.getByRole("button", { name: "Get started today" }).first().click();
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Create your account" }).click();
-      await expect(page1).toHaveURL("/signup"); // Verify form submission was blocked
+      await expect(page1).toHaveURL("/signup");
+      await expect(page1.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
 
       // === SUCCESSFUL SIGNUP FLOW ===
       // Act & Assert: Complete signup with valid email & verify navigation to verification page with initial state
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page1);
       await expect(page1.getByText("Europe")).toBeVisible();
       await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup/verify");
@@ -302,6 +304,7 @@ test.describe("Signup", () => {
       await page2.goto("/");
       await page2.getByRole("button", { name: "Get started today" }).first().click();
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page2);
       await page2.getByRole("button", { name: "Create your account" }).click();
       await expect(page2).toHaveURL("/signup");
       await assertToastMessage(
@@ -483,12 +486,12 @@ test.describe("Signup", () => {
       await page.goto("/");
       await page.getByRole("button", { name: "Get started today" }).first().click();
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
 
       // Step 2: Make three failed attempts quickly to trigger rate limiting
       await page.keyboard.type("WRONG1");
-      await page.getByRole("button", { name: "Verify" }).click();
       await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
@@ -522,8 +525,10 @@ test.describe("Signup", () => {
       await page.goto("/");
       await page.getByRole("button", { name: "Get started today" }).first().click();
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
+      await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
 
       // Step 2: Test first resend attempt and verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -554,6 +559,7 @@ test.describe("Signup", () => {
       await page.goto("/");
       await page.getByRole("button", { name: "Get started today" }).first().click();
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Create your account" }).click();
       await expect(page).toHaveURL("/signup/verify");
 
