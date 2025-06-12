@@ -20,11 +20,6 @@ public static class ChangeDetection
                     // First try simple deletion
                     File.Delete(previousExePath);
                 }
-                catch (IOException)
-                {
-                    // If file is locked, throw to handle below with admin privileges
-                    throw;
-                }
                 catch (UnauthorizedAccessException)
                 {
                     // Check command line args to determine behavior
@@ -32,20 +27,20 @@ public static class ChangeDetection
                     var isForceCommand = args.Any(arg => arg.Equals("--force", StringComparison.OrdinalIgnoreCase));
                     var isWatchCommand = args.Any(arg => arg.Equals("watch", StringComparison.OrdinalIgnoreCase));
                     var isStopCommand = args.Any(arg => arg.Equals("--stop", StringComparison.OrdinalIgnoreCase));
-                    
+
                     // For watch command without force, or with stop, skip cleanup (watch command will handle it)
                     if (isWatchCommand && (!isForceCommand || isStopCommand))
                     {
                         return;
                     }
-                    
+
                     // In non-interactive mode or with --force, automatically clean up
                     if (!AnsiConsole.Profile.Capabilities.Interactive || isForceCommand)
                     {
                         TryDeletePreviousExe(previousExePath);
                         return;
                     }
-                    
+
                     // In interactive mode, ask the user
                     AnsiConsole.MarkupLine("[yellow]The previous CLI executable is still running.[/]");
                     if (AnsiConsole.Confirm("Do you want to kill the running process and continue?"))
@@ -81,11 +76,11 @@ public static class ChangeDetection
             // Kill processes that have the file locked
             ProcessHelper.StartProcess("""powershell -Command "Get-Process pp.previous -ErrorAction SilentlyContinue | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess($$"""powershell -Command "Get-Process | Where-Object {$_.Path -eq '{{previousExePath}}'} | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
-            
+
             Thread.Sleep(1000);
-            
+
             // Try to delete with retries
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
             {
                 try
                 {
@@ -94,6 +89,7 @@ public static class ChangeDetection
                         File.SetAttributes(previousExePath, FileAttributes.Normal);
                         File.Delete(previousExePath);
                     }
+
                     return;
                 }
                 catch

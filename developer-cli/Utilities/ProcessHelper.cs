@@ -74,12 +74,12 @@ public static class ProcessHelper
     )
     {
         var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
-        
+
         foreach (var environmentVariable in environmentVariables)
         {
             processStartInfo.Environment[environmentVariable.Name] = environmentVariable.Value;
         }
-        
+
         return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
     }
 
