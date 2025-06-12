@@ -17,7 +17,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { clearSignupState, setSignupState } from "./-shared/signupState";
+import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -41,7 +41,9 @@ export const Route = createFileRoute("/signup/")({
 });
 
 export function StartSignupForm() {
-  const [email, setEmail] = useState("");
+  // Get email from signup state if available (for prefill when returning from verify)
+  const { email: savedEmail } = getSignupState();
+  const [email, setEmail] = useState(savedEmail || "");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
 
