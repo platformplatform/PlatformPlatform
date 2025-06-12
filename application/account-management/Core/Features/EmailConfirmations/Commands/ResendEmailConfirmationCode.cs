@@ -37,11 +37,6 @@ public sealed class ResendEmailConfirmationCodeHandler(
             return Result<ResendEmailConfirmationCodeResponse>.BadRequest($"The email confirmation with id {emailConfirmation.Id} has already been completed.");
         }
 
-        if (emailConfirmation.ModifiedAt > TimeProvider.System.GetUtcNow().AddSeconds(-30))
-        {
-            return Result<ResendEmailConfirmationCodeResponse>.BadRequest("You must wait at least 30 seconds before requesting a new code.");
-        }
-
         if (emailConfirmation.ResendCount >= EmailConfirmation.MaxResends)
         {
             events.CollectEvent(new EmailConfirmationResendBlocked(emailConfirmation.Id, emailConfirmation.Type, emailConfirmation.RetryCount));

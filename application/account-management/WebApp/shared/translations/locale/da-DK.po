@@ -75,8 +75,14 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
+msgid "Back to signup"
+msgstr "Tilbage til tilmelding"
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
+
+msgid "Can't find your code?"
+msgstr "Kan du ikke finde din kode?"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kan du ikke finde din kode? Tjek din spammappe."
@@ -95,6 +101,9 @@ msgstr "Skift rolle"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
+
+msgid "Check your spam folder."
+msgstr "Tjek din spammappe."
 
 msgid "Clear"
 msgstr "Ryd"
@@ -260,7 +269,7 @@ msgid "Next"
 msgstr "Næste"
 
 msgid "No active signup session"
-msgstr "Ingen aktiv tilmeldingssession"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -281,7 +290,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Please start the signup process again."
-msgstr "Start venligst tilmeldingsprocessen igen."
+msgstr ""
 
 msgid "Powered by"
 msgstr "Drevet af"
@@ -306,6 +315,9 @@ msgstr "Region"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
+
+msgid "Request a new code"
+msgstr "Anmod om en ny kode"
 
 msgid "Role"
 msgstr "Rolle"
@@ -361,9 +373,6 @@ msgstr "System"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"
-
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræftelses-ID: {emailConfirmationId}"
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"

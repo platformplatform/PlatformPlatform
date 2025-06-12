@@ -5,7 +5,7 @@ import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { loggedInPath, signedUpPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
@@ -15,16 +15,21 @@ import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { useExpirationTimeout } from "@repo/ui/hooks/useExpiration";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { clearSignupState, getSignupState, hasSignupState, setSignupState } from "./-shared/signupState";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import {
+  clearSignupState,
+  getSignupState,
+  hasSignupState,
+  setLastSubmittedCode,
+  setSignupState
+} from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {
     const navigate = useNavigate();
     const isAuthenticated = useIsAuthenticated();
-    const [hasShownToast, setHasShownToast] = useState(false);
 
     useEffect(() => {
       if (isAuthenticated) {
@@ -32,16 +37,10 @@ export const Route = createFileRoute("/signup/verify")({
         return;
       }
 
-      if (!hasSignupState() && !hasShownToast) {
-        navigate({ to: "/signup" });
-        toastQueue.add({
-          title: t`No active signup session`,
-          description: t`Please start the signup process again.`,
-          variant: "warning"
-        });
-        setHasShownToast(true);
+      if (!hasSignupState()) {
+        navigate({ to: "/signup", replace: true });
       }
-    }, [isAuthenticated, navigate, hasShownToast]);
+    }, [isAuthenticated, navigate]);
 
     if (isAuthenticated || !hasSignupState()) {
       return null;
@@ -53,36 +52,63 @@ export const Route = createFileRoute("/signup/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: (props) => {
-    return (
-      <HorizontalHeroLayout>
-        <ErrorMessage {...props} />
-      </HorizontalHeroLayout>
-    );
-  }
+  errorComponent: (props) => (
+    <HorizontalHeroLayout>
+      <ErrorMessage {...props} />
+    </HorizontalHeroLayout>
+  )
 });
 
-let autoSubmitCode = true;
+function useCountdown(expireAt: Date) {
+  const [secondsRemaining, setSecondsRemaining] = useState(() =>
+    Math.max(0, Math.ceil((expireAt.getTime() - Date.now()) / 1000))
+  );
+
+  // Reset the countdown when expireAt changes
+  useEffect(() => {
+    setSecondsRemaining(Math.max(0, Math.ceil((expireAt.getTime() - Date.now()) / 1000)));
+  }, [expireAt]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSecondsRemaining((prev) => {
+        return Math.max(0, prev - 1);
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  return secondsRemaining;
+}
 
 export function CompleteSignupForm() {
-  const signupState = getSignupState();
-  const { email, emailConfirmationId, expireAt } = signupState;
-  const { expiresInString, isExpired } = useExpirationTimeout(expireAt);
-
-  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef>(null);
+  const initialState = getSignupState();
+  const { email = "", emailConfirmationId = "" } = initialState;
+  const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
+  const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
+  const secondsRemaining = useCountdown(expireAt);
+  const isExpired = secondsRemaining === 0;
+  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef | null>(null);
   const [isOneTimeCodeComplete, setIsOneTimeCodeComplete] = useState(false);
+  const [showRequestLink, setShowRequestLink] = useState(false);
+  const [hasRequestedNewCode, setHasRequestedNewCode] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [autoSubmitCode, setAutoSubmitCode] = useState(true);
+
+  useEffect(() => {
+    if (!isExpired && !showRequestLink && !hasRequestedNewCode) {
+      const timeoutId = setTimeout(() => {
+        setShowRequestLink(true);
+      }, 30000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isExpired, showRequestLink, hasRequestedNewCode]);
 
   const completeSignupMutation = api.useMutation(
     "post",
     "/api/account-management/signups/{emailConfirmationId}/complete"
   );
-
-  useEffect(() => {
-    if (completeSignupMutation.isSuccess) {
-      clearSignupState();
-      window.location.href = signedUpPath;
-    }
-  }, [completeSignupMutation.isSuccess]);
 
   const resendSignupCodeMutation = api.useMutation(
     "post",
@@ -90,37 +116,72 @@ export function CompleteSignupForm() {
   );
 
   useEffect(() => {
+    if (completeSignupMutation.isSuccess) {
+      clearSignupState();
+      window.location.href = loggedInPath;
+    }
+  }, [completeSignupMutation.isSuccess]);
+
+  useEffect(() => {
+    if (completeSignupMutation.isError) {
+      const statusCode = completeSignupMutation.error?.status;
+      if (statusCode === 403) {
+        setIsRateLimited(true);
+        setExpireAt(new Date(0)); // Force expiration
+      } else {
+        setTimeout(() => {
+          if (oneTimeCodeInputRef.current) {
+            oneTimeCodeInputRef.current.focus?.();
+          }
+        }, 100);
+      }
+    }
+  }, [completeSignupMutation.isError, completeSignupMutation.error]);
+
+  const resetAfterResend = useCallback((validForSeconds: number) => {
+    const newExpireAt = new Date();
+    newExpireAt.setSeconds(newExpireAt.getSeconds() + validForSeconds);
+    setExpireAt(newExpireAt);
+    getSignupState().expireAt = newExpireAt;
+
+    setIsOneTimeCodeComplete(false);
+    setShowRequestLink(false);
+    setIsRateLimited(false);
+
+    setTimeout(() => {
+      oneTimeCodeInputRef.current?.reset?.();
+      oneTimeCodeInputRef.current?.focus?.();
+    }, 100);
+  }, []);
+
+  useEffect(() => {
     if (resendSignupCodeMutation.isSuccess && resendSignupCodeMutation.data) {
-      setSignupState({
-        ...signupState,
-        expireAt: new Date(Date.now() + resendSignupCodeMutation.data.validForSeconds * 1000)
-      });
+      resetAfterResend(resendSignupCodeMutation.data.validForSeconds);
+      setHasRequestedNewCode(true);
       toastQueue.add({
         title: t`Verification code sent`,
         description: t`A new verification code has been sent to your email.`,
         variant: "success"
       });
     }
-  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data, signupState]);
+  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data, resetAfterResend]);
 
-  useEffect(() => {
-    if (isExpired) {
-      clearSignupState();
-      window.location.href = "/signup/expired";
-    }
-  }, [isExpired]);
-
-  // Focus first input after validation error
-  useEffect(() => {
-    if (completeSignupMutation.error) {
-      oneTimeCodeInputRef.current?.focus();
-    }
-  }, [completeSignupMutation.error]);
+  const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
-        onSubmit={mutationSubmitter(completeSignupMutation, { path: { emailConfirmationId: emailConfirmationId } })}
+        onSubmit={(event) => {
+          const formData = new FormData(event.currentTarget);
+          const oneTimePassword = formData.get("oneTimePassword") as string;
+          if (oneTimePassword.length === 6) {
+            setLastSubmittedCode(oneTimePassword);
+          }
+          const handler = mutationSubmitter(completeSignupMutation, {
+            path: { emailConfirmationId: emailConfirmationId }
+          });
+          return handler(event);
+        }}
         validationErrors={completeSignupMutation.error?.errors}
         validationBehavior="aria"
       >
@@ -129,7 +190,7 @@ export function CompleteSignupForm() {
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/">
-              <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
+              <img src={logoMarkUrl} alt={t`Logo`} className="h-12 w-12" />
             </Link>
           </div>
           <h1 className="mb-3 w-full text-center text-2xl">
@@ -148,11 +209,14 @@ export function CompleteSignupForm() {
               length={6}
               autoFocus={true}
               ariaLabel={t`Signup verification code`}
-              onValueChange={(_, isComplete) => {
+              disabled={isExpired || resendSignupCodeMutation.isPending}
+              onValueChange={(value: string, isComplete: boolean) => {
                 setIsOneTimeCodeComplete(isComplete);
 
+                getSignupState().currentOtpValue = value;
+
                 if (isComplete && autoSubmitCode) {
-                  autoSubmitCode = false; // Only auto-submit once
+                  setAutoSubmitCode(false);
                   setTimeout(() => {
                     document.querySelector("form")?.requestSubmit();
                   }, 10);
@@ -173,7 +237,11 @@ export function CompleteSignupForm() {
             type="submit"
             className="mt-4 w-full text-center"
             isDisabled={
-              completeSignupMutation.isPending || resendSignupCodeMutation.isPending || !isOneTimeCodeComplete
+              !isOneTimeCodeComplete ||
+              isExpired ||
+              completeSignupMutation.isPending ||
+              resendSignupCodeMutation.isPending ||
+              getSignupState()?.currentOtpValue === getSignupState()?.lastSubmittedCode
             }
           >
             {completeSignupMutation.isPending ? <Trans>Verifying...</Trans> : <Trans>Verify</Trans>}
@@ -181,30 +249,43 @@ export function CompleteSignupForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-6 px-6 text-neutral-500">
-        <div className="text-center text-neutral-500 text-xs">
-          <Form
-            onSubmit={mutationSubmitter(resendSignupCodeMutation, {
-              path: { emailConfirmationId: emailConfirmationId }
-            })}
-            className="inline"
-          >
-            <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
-            <Button
-              type="submit"
-              variant="link"
-              className="h-auto p-0 text-xs"
-              isDisabled={completeSignupMutation.isPending || resendSignupCodeMutation.isPending}
+      <div className="flex flex-col items-center gap-2 px-6 text-neutral-500 text-xs">
+        <div className="text-center text-sm">
+          <Trans>Can&apos;t find your code?</Trans>{" "}
+          {/* Show either the spam folder message or the request link message based on conditions */}
+          {!showRequestLink || isRateLimited ? (
+            <Trans>Check your spam folder.</Trans>
+          ) : (
+            <Form
+              onSubmit={(e) => {
+                mutationSubmitter(resendSignupCodeMutation, { path: { emailConfirmationId } })(e);
+              }}
+              validationErrors={resendSignupCodeMutation.error?.errors}
+              className="inline"
             >
-              <Trans>Didn't receive the code? Resend</Trans>
-            </Button>
-          </Form>
-          <span className="ml-1 font-normal tabular-nums leading-none">({expiresInString})</span>
+              <Button
+                type="submit"
+                variant="link"
+                isDisabled={resendSignupCodeMutation.isPending}
+                className="h-auto p-0 text-sm"
+              >
+                <Trans>Request a new code</Trans>
+              </Button>
+            </Form>
+          )}
         </div>
-        <p className="text-xs">
-          <Trans>Can't find your code? Check your spam folder.</Trans>
-        </p>
-        <img src={poweredByUrl} alt={t`Powered by`} />
+        <Link
+          href="/signup"
+          className="mt-2 text-xs"
+          onPress={() => {
+            const signupState = getSignupState();
+            clearSignupState();
+            setSignupState({ email: signupState?.email ?? "" });
+          }}
+        >
+          <Trans>Back to signup</Trans>
+        </Link>
+        <img src={poweredByUrl} alt={t`Powered by`} className="mt-4" />
       </div>
     </div>
   );

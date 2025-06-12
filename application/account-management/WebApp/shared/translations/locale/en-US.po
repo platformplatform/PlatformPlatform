@@ -75,8 +75,14 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Back to signup"
+msgstr "Back to signup"
+
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
+
+msgid "Can't find your code?"
+msgstr "Can't find your code?"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Can't find your code? Check your spam folder."
@@ -95,6 +101,9 @@ msgstr "Change role"
 
 msgid "Change user role"
 msgstr "Change user role"
+
+msgid "Check your spam folder."
+msgstr "Check your spam folder."
 
 msgid "Clear"
 msgstr "Clear"
@@ -307,6 +316,9 @@ msgstr "Region"
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
 
+msgid "Request a new code"
+msgstr "Request a new code"
+
 msgid "Role"
 msgstr "Role"
 
@@ -361,9 +373,6 @@ msgstr "System"
 
 msgid "Terms of use"
 msgstr "Terms of use"
-
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"

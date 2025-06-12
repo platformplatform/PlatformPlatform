@@ -75,8 +75,14 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
 
+msgid "Back to signup"
+msgstr "Terug naar aanmelding"
+
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
+
+msgid "Can't find your code?"
+msgstr "Kun je je code niet vinden?"
 
 msgid "Can't find your code? Check your spam folder."
 msgstr "Kun je je code niet vinden? Controleer je spammap."
@@ -95,6 +101,9 @@ msgstr "Rol wijzigen"
 
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
+
+msgid "Check your spam folder."
+msgstr "Controleer je spammap."
 
 msgid "Clear"
 msgstr "Wissen"
@@ -260,7 +269,7 @@ msgid "Next"
 msgstr "Volgende"
 
 msgid "No active signup session"
-msgstr "Geen actieve registratiesessie"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -281,7 +290,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
 msgid "Please start the signup process again."
-msgstr "Begin het registratieproces opnieuw."
+msgstr ""
 
 msgid "Powered by"
 msgstr "Mogelijk gemaakt door"
@@ -306,6 +315,9 @@ msgstr "Regio"
 
 msgid "Remove profile picture"
 msgstr "Profielfoto verwijderen"
+
+msgid "Request a new code"
+msgstr "Vraag een nieuwe code aan"
 
 msgid "Role"
 msgstr "Rol"
@@ -361,9 +373,6 @@ msgstr "Systeem"
 
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
-
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailbevestiging ID: {emailConfirmationId}"
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
