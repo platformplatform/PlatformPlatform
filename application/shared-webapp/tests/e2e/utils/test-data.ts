@@ -6,7 +6,7 @@ import { isLocalhost } from "./constants";
  * Generate a unique email with timestamp to ensure uniqueness
  * @returns Unique email address
  */
-export function uniqueEmail(domain = "platformplatform.net"): string {
+export function uniqueEmail(domain = "localhost.local"): string {
   const timestamp = Date.now();
   const username = faker.internet.userName().toLowerCase();
   return `${username}@${timestamp}.local`;
