@@ -150,10 +150,12 @@ test.describe("Login", () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login"); // Verify form submission was blocked
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "'Email' must not be empty");
 
       // Step 2: Submit invalid email format and verify validation error
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
@@ -172,6 +174,14 @@ test.describe("Login", () => {
       // Step 2: Submit email exceeding maximum length and verify validation error
       const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
       await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
+      await blurActiveElement(page);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+
+      // Act & Assert: Test email with consecutive dots & verify validation error
+      await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
       await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
@@ -445,6 +455,14 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
+
+      // Act & Assert: Wait 30 seconds before & verify Check your spam folder is not visible and that "Request a new code" IS available
+      await page.waitForTimeout(requestNewCodeTimeout);
+      await expect(
+        page.getByRole("textbox", { name: "Can't find your code? Check your spam folder." })
+      ).not.toBeVisible();
+      await expect(page.getByText("Request a new code")).toBeVisible();
 
       // Step 4: Test first resend attempt and verify it succeeds
       await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
@@ -513,9 +531,8 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle verification code expiration during login - 5 minutes timeout", async ({ page }) => {
-      test.setTimeout(360000); // 6 minutes timeout
-      // NOTE: This test expects React errors due to application bug with expired sessions
+    test("should handle resend code 5 minutes after login when code has expired", async ({ page }) => {
+      test.setTimeout(sessionTimeout);
       const context = createTestContext(page);
       const user = testUser();
 
@@ -525,6 +542,7 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
 
       // Act & Assert: Verify we're on the verify page with the resend button and timer
       await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
