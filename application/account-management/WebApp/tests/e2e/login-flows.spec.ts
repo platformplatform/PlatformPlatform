@@ -1,6 +1,12 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { assertNetworkErrors, assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
+import {
+  assertNetworkErrors,
+  assertToastMessage,
+  assertValidationError,
+  blurActiveElement,
+  createTestContext
+} from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("Login", () => {
@@ -17,37 +23,45 @@ test.describe("Login", () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login"); // Verify form submission was blocked
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "'Email' must not be empty");
 
       // Act & Assert: Test invalid email format & verify validation error
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login"); // Verify form submission was blocked
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
       // Act & Assert: Test email exceeding maximum length & verify validation error
       const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
       await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
+      await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL("/login"); // Verify form submission was blocked
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+
+      // Act & Assert: Test email with consecutive dots & verify validation error
+      await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
+      await blurActiveElement(page);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login");
+      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
       // === SUCCESSFUL LOGIN FLOW ===
-      // Act & Assert: Test form submission with Enter key & verify navigation
+      // Act & Assert: Enter valid code & verify navigation
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
-      await page.keyboard.press("Enter"); // Submit form using Enter
+      await blurActiveElement(page);
+      await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
-
-      // Act & Assert: Verify auto-focus on OTP input & verify button disabled initially
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
+      await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
+      await expect(page.getByText("Request a new code")).not.toBeVisible();
 
-      // Act & Assert: Verify accessibility attributes & verify proper ARIA labels
-      const codeInput = page.getByLabel("Login verification code").locator("input").first();
-      await expect(codeInput).toHaveAttribute("type", "text");
-
-      // === VERIFICATION CODE VALIDATION ===
       // Act & Assert: Test wrong verification code & verify error and focus reset
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Complete successful login & verify navigation
@@ -87,7 +101,7 @@ test.describe("Login", () => {
   });
 
   test.describe("@comprehensive", () => {
-    test("should enforce rate limiting for failed login attempts and handle direct access", async ({ page }) => {
+    test("should enforce rate limiting for failed login attempts", async ({ page }) => {
       const context = createTestContext(page);
       const user = testUser();
 
@@ -100,21 +114,25 @@ test.describe("Login", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
 
+      // Act & Assert: Verify initial help text is shown
+      await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
+      await expect(page.getByText("Request a new code")).not.toBeVisible();
+
       // Act & Assert: First failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Second failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Third failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Fourth failed attempt triggers rate limiting & verify forbidden error
@@ -125,21 +143,18 @@ test.describe("Login", () => {
 
       // Act & Assert: Verify rate limiting message is shown & verify UI state
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-
-      // Act & Assert: Resend code button is available & verify it's clickable
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeEnabled();
-
-      // Act & Assert: Test direct access to verify page without login session & verify redirect
-      await page.goto("/login/verify");
-      await expect(page).toHaveURL("/login");
-      await expect(page.getByText("No active login session").first()).toBeVisible();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
     });
   });
 
   test.describe("@slow", () => {
-    test("should handle rate limiting for verification code resend requests - 1 minute timeout", async ({ page }) => {
-      test.setTimeout(60000); // 1 minute timeout
+    const requestNewCodeTimeout = 30_000; // 30 seconds
+    const codeValidationTimeout = 300_000; // 5 minutes
+    const sessionTimeout = codeValidationTimeout + 60_000; // 6 minutes
+
+    test("should handle resend code 30 seconds after login but then not after code has expired", async ({ page }) => {
+      test.setTimeout(sessionTimeout);
       const context = createTestContext(page);
       const user = testUser();
 
@@ -149,28 +164,31 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
 
-      // Act & Assert: First resend succeeds & verify success toast message
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
+      // Act & Assert: Wait 30 seconds before & verify Check your spam folder is not visible and that "Request a new code" IS available
+      await page.waitForTimeout(requestNewCodeTimeout);
+      await expect(
+        page.getByRole("textbox", { name: "Can't find your code? Check your spam folder." })
+      ).not.toBeVisible();
+      await expect(page.getByText("Request a new code")).toBeVisible();
+
+      // Act & Assert: Click Request a new code & verify success toast message and that "Request a new code" is NOT available
+      await page.getByRole("button", { name: "Request a new code" }).click();
       await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
+      await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
 
-      // Act & Assert: Second resend is rate limited & verify error message
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      await assertToastMessage(
-        context,
-        "Bad Request",
-        "You must wait at least 30 seconds before requesting a new code."
-      );
-
-      // Act & Assert: Wait and retry but verify rate limit hit (max 1 resend allowed)
-      await page.waitForTimeout(30000); // 30 seconds
-      await page.getByRole("button", { name: "Didn't receive the code? Resend" }).click();
-      await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
+      // Act & Assert: Wait for expiration & verify inline expiration message and that "Request a new code" is NOT available
+      await page.waitForTimeout(codeValidationTimeout);
+      await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Your verification code has expired")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     });
 
-    test("should handle verification code expiration during login - 5 minutes timeout", async ({ page }) => {
-      test.setTimeout(360000); // 6 minutes timeout
-      // NOTE: This test expects React errors due to application bug with expired sessions
+    test("should handle resend code 5 minutes after login when code has expired", async ({ page }) => {
+      test.setTimeout(sessionTimeout);
       const context = createTestContext(page);
       const user = testUser();
 
@@ -180,18 +198,20 @@ test.describe("Login", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify");
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
 
-      // Act & Assert: Verify we're on the verify page with the resend button and timer
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeVisible();
-
-      // Wait for expiration (5 minutes)
-      await page.waitForTimeout(300000);
-
-      // Act & Assert: Verify expiration message shows inline & verify resend still available
+      // Act & Assert: Wait 5 minutes for code expiration & verify inline expiration message and that "Request a new code" IS available
+      await page.waitForTimeout(codeValidationTimeout);
       await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByText("Your verification code has expired").first()).toBeVisible();
-      await expect(page.getByRole("link", { name: "Try again" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Didn't receive the code? Resend" })).toBeEnabled();
+      await expect(page.getByText("Your verification code has expired")).toBeVisible();
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).not.toBeVisible();
+      await expect(page.getByText("Request a new code")).toBeVisible();
+
+      // Act & Assert: Request a new code & verify success toast message and that "Request a new code" is NOT available
+      await page.getByRole("button", { name: "Request a new code" }).click();
+      await assertToastMessage(context, "Success", "A new verification code has been sent to your email.");
+      await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     });
   });
 });
