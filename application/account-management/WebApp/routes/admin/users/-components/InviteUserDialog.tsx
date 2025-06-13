@@ -33,7 +33,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           <Trans>Invite user</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
-          <Trans>Invite users and assign them roles. They will appear once they log in.</Trans>
+          <Trans>An invitation email will be sent to the user with a link to log in.</Trans>
         </p>
 
         <Form
