@@ -15,7 +15,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { clearLoginState, setLoginState } from "./-shared/loginState";
+import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -46,7 +46,9 @@ export const Route = createFileRoute("/login/")({
 });
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
+  // Get email from login state if available (for prefill when returning from verify)
+  const { email: savedEmail } = getLoginState();
+  const [email, setEmail] = useState(savedEmail || "");
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
