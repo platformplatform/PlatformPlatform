@@ -46,7 +46,7 @@ test.describe("User Management Flow", () => {
       // Act & Assert: Invite member user & verify successful invitation
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await assertToastMessage(context, "Success", "User invited successfully");
+      await assertToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.locator("tbody").locator("tr")).toHaveCount(2);
       await expect(page.getByText(`${memberUser.email}`)).toBeVisible();
@@ -55,7 +55,7 @@ test.describe("User Management Flow", () => {
       await page.getByRole("button", { name: "Invite users" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await assertToastMessage(context, "Success", "User invited successfully");
+      await assertToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.locator("tbody").locator("tr")).toHaveCount(3);
       await expect(page.getByText(`${adminUser.email}`)).toBeVisible();
@@ -67,7 +67,7 @@ test.describe("User Management Flow", () => {
       await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("button", { name: "Member User role" }).click();
       await page.getByRole("option", { name: "Admin" }).click();
-      await assertToastMessage(context, "Success", `User role updated successfully for ${adminUser.email}`);
+      await assertToastMessage(context, `User role updated successfully for ${adminUser.email}`);
       await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
       await expect(adminUserRow).toContainText("Admin");
 
@@ -80,9 +80,11 @@ test.describe("User Management Flow", () => {
       await page.getByRole("button", { name: "Invite users" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
-      await expect(
-        page.getByText(`The email '${memberUser.email}' is already in use by another user on this tenant.`)
-      ).toBeVisible();
+      await assertToastMessage(
+        context,
+        400,
+        `The email '${memberUser.email}' is already in use by another user on this tenant.`
+      );
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
@@ -145,7 +147,7 @@ test.describe("User Management Flow", () => {
       await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Administrator");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await assertToastMessage(context, "Success", "Profile updated successfully");
+      await assertToastMessage(context, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 

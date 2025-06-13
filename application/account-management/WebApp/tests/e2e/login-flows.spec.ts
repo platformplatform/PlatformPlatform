@@ -384,6 +384,38 @@ test.describe("Login", () => {
     });
   });
 
+  test.describe("@comprehensive", () => {
+    test("should show detailed error message when too many login attempts are made", async ({ page }) => {
+      const context = createTestContext(page);
+      const user = testUser();
+
+      // Act & Assert: Create test user for rate limiting test & verify user created
+      await completeSignupFlow(page, expect, user, context, false);
+
+      // Act & Assert: First 3 login attempts & verify navigation to verify page
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        await page.goto("/login");
+        await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+
+        await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+        await page.getByRole("button", { name: "Continue" }).click();
+        await expect(page).toHaveURL("/login/verify");
+      }
+
+      // Act & Assert: 4th attempt triggers rate limiting & verify error message
+      await page.goto("/login");
+      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login");
+      await assertToastMessage(
+        context,
+        429,
+        "Too many attempts to confirm this email address. Please try again later."
+      );
+    });
+  });
+
   test.describe("@slow", () => {
     test.describe.configure({ timeout: 360000 }); // 6 minutes timeout
 
@@ -531,7 +563,7 @@ test.describe("Login", () => {
       assertNoUnexpectedErrors(context);
     });
 
-    test("should handle resend code 5 minutes after login when code has expired", async ({ page }) => {
+    test("should allow resend code 5 minutes after login when code has expired", async ({ page }) => {
       test.setTimeout(sessionTimeout);
       const context = createTestContext(page);
       const user = testUser();

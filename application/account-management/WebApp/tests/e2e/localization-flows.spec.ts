@@ -37,7 +37,7 @@ test.describe("Localization Flow", () => {
       await page.getByRole("textbox", { name: "Efternavn" }).fill(user.lastName);
       await page.getByRole("textbox", { name: "Titel" }).fill("CEO");
       await page.getByRole("button", { name: "Gem ændringer" }).click();
-      await assertToastMessage(context, "Succes", "Profil opdateret succesfuldt");
+      await assertToastMessage(context, "Profil opdateret succesfuldt");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
 
@@ -97,7 +97,7 @@ test.describe("Localization Flow", () => {
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
       await page1.getByRole("textbox", { name: "Efternavn" }).fill(user1.lastName);
       await page1.getByRole("button", { name: "Gem ændringer" }).click();
-      await assertToastMessage(testContext1, "Succes", "Profil opdateret succesfuldt");
+      await assertToastMessage(testContext1, 200, "Profil opdateret succesfuldt");
       await expect(page1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(page1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
 
