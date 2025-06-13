@@ -492,26 +492,26 @@ test.describe("Signup", () => {
 
       // Step 2: Make three failed attempts quickly to trigger rate limiting
       await page.keyboard.type("WRONG1");
-      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
+      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Second failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
+      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Act & Assert: Third failed attempt & verify error and focus reset
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, "Bad Request", "The code is wrong or no longer valid.");
+      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
 
       // Step 3: Submit fourth attempt and verify it's blocked with rate limiting message
       await page.keyboard.type("WRONG4");
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-      await assertToastMessage(context, "Forbidden", "Too many attempts, please request a new code.");
+      await assertToastMessage(context, 403, "Too many attempts, please request a new code.");
 
       // Step 4: Assert no unexpected errors occurred
       assertNoUnexpectedErrors(context);
