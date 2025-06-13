@@ -53,6 +53,9 @@ msgstr "All users"
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
+msgid "An invitation email will be sent to the user with a link to log in."
+msgstr "An invitation email will be sent to the user with a link to log in."
+
 msgid "Any role"
 msgstr "Any role"
 
@@ -199,9 +202,6 @@ msgstr "Invite user"
 
 msgid "Invite users"
 msgstr "Invite users"
-
-msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr "Invite users and assign them roles. They will appear once they log in."
 
 msgid "Invited users"
 msgstr "Invited users"
