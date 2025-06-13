@@ -97,18 +97,18 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         // Arrange
         var email = Faker.Internet.Email().ToLowerInvariant();
 
-        // Create 4 signups within the last day for this email
+        // Create 4 signups within the last 15 minutes for this email
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
             Connection.Insert("EmailConfirmations", [
                     ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddHours(-i)),
+                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
                     ("Type", EmailConfirmationType.Signup.ToString()),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddHours(-i).AddMinutes(5)),
+                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)
