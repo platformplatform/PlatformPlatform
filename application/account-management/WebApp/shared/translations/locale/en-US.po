@@ -75,6 +75,9 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Back to login"
+msgstr "Back to login"
+
 msgid "Back to signup"
 msgstr "Back to signup"
 
@@ -83,9 +86,6 @@ msgstr "By continuing, you accept our policies"
 
 msgid "Can't find your code?"
 msgstr "Can't find your code?"
-
-msgid "Can't find your code? Check your spam folder."
-msgstr "Can't find your code? Check your spam folder."
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -145,9 +145,6 @@ msgstr "Delete users"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
-msgid "Didn't receive the code? Resend"
-msgstr "Didn't receive the code? Resend"
-
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
 
@@ -180,9 +177,6 @@ msgstr "Enter your verification code"
 
 msgid "Error: Something went wrong!"
 msgstr "Error: Something went wrong!"
-
-msgid "Error: Verification code has expired"
-msgstr "Error: Verification code has expired"
 
 msgid "Europe"
 msgstr "Europe"
@@ -268,9 +262,6 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Next"
 
-msgid "No active signup session"
-msgstr "No active signup session"
-
 msgid "OK"
 msgstr "OK"
 
@@ -288,9 +279,6 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
-
-msgid "Please start the signup process again."
-msgstr "Please start the signup process again."
 
 msgid "Powered by"
 msgstr "Powered by"
@@ -373,9 +361,6 @@ msgstr "System"
 
 msgid "Terms of use"
 msgstr "Terms of use"
-
-msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
 
 msgid "Theme"
 msgstr "Theme"
