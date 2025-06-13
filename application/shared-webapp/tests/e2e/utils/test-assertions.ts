@@ -1,6 +1,7 @@
 import type { ConsoleMessage, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
+
 /**
  * Interface for monitoring results - captures ALL errors/messages for strict assertion
  */
