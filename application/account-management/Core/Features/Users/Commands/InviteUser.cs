@@ -18,24 +18,18 @@ public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result
 
 public sealed class InviteUserValidator : AbstractValidator<InviteUserCommand>
 {
-    public InviteUserValidator(IUserRepository userRepository)
+    public InviteUserValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-
-        RuleFor(x => x)
-            .MustAsync((x, cancellationToken) => userRepository.IsEmailFreeAsync(x.Email, cancellationToken))
-            .WithName("Email")
-            .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
-            .When(x => !string.IsNullOrEmpty(x.Email));
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 
 public sealed class InviteUserHandler(
+    IUserRepository userRepository,
     IEmailClient emailClient,
     IExecutionContext executionContext,
     IMediator mediator,
-    ITelemetryEventsCollector events,
-    IUserRepository userRepository
+    ITelemetryEventsCollector events
 ) : IRequestHandler<InviteUserCommand, Result>
 {
     public async Task<Result> Handle(InviteUserCommand command, CancellationToken cancellationToken)
