@@ -22,7 +22,7 @@ public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
 {
     public StartSignupValidator(ITenantRepository tenantRepository)
     {
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 

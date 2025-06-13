@@ -42,9 +42,9 @@ public sealed class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 {
     public GetUsersQueryValidator()
     {
-        RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
-        RuleFor(x => x.PageSize).InclusiveBetween(0, 1000).WithMessage("The page size must be between 0 and 1000.");
-        RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("The page offset must be greater than or equal to 0.");
+        RuleFor(x => x.Search).MaximumLength(100).WithMessage("Search must be no longer than 100 characters.");
+        RuleFor(x => x.PageSize).InclusiveBetween(0, 1000).WithMessage("Page size must be between 0 and 1000.");
+        RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
     }
 }
 
