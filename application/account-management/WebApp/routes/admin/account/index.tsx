@@ -8,7 +8,6 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute } from "@tanstack/react-router";
@@ -76,7 +75,6 @@ export function AccountSettings() {
             label={t`Account name`}
             validationBehavior="aria"
           />
-          <FormErrorMessage error={updateCurrentTenantMutation.error} />
           <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
             {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
           </Button>

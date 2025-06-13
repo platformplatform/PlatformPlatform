@@ -433,5 +433,11 @@ msgstr "Welcome home, {0}"
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 
+msgid "Your verification code has expired"
+msgstr "Your verification code has expired"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Your verification code is valid for {expiresInString}"
+
 msgid "yourname@example.com"
 msgstr "yourname@example.com"

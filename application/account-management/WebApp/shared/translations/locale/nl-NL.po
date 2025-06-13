@@ -433,5 +433,11 @@ msgstr "Welkom home, {0}"
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
+msgid "Your verification code has expired"
+msgstr "Je verificatiecode is verlopen"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Je verificatiecode is geldig voor {expiresInString}"
+
 msgid "yourname@example.com"
 msgstr "jouwnaam@voorbeeld.com"
