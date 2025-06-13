@@ -151,7 +151,7 @@ test.describe("Login", () => {
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login");
-      await assertValidationError(context, "'Email' must not be empty");
+      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
 
       // Step 2: Submit invalid email format and verify validation error
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
