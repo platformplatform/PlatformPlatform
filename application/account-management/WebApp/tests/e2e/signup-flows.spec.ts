@@ -33,7 +33,7 @@ test.describe("Signup", () => {
       // Act & Assert: Test empty email validation & verify form submission blocked
       await page1.getByRole("button", { name: "Create your account" }).click();
       await expect(page1).toHaveURL("/signup");
-      await expect(page1.getByText("'Email' must not be empty")).toBeVisible();
+      await expect(page1.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
 
       // Act & Assert: Test invalid email format & verify form submission blocked
       await page1.getByRole("textbox", { name: "Email" }).fill("invalid-email");
@@ -97,8 +97,8 @@ test.describe("Signup", () => {
       // Act & Assert: Submit profile form with empty fields & verify validation errors appear
       await expect(page1.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await assertValidationError(testContext1, "'First Name' must not be empty.");
-      await assertValidationError(testContext1, "'Last Name' must not be empty.");
+      await assertValidationError(testContext1, "First name must be between 1 and 30 characters.");
+      await assertValidationError(testContext1, "Last name must be between 1 and 30 characters.");
 
       // Act & Assert: Fill form with one field too long and one missing & verify all validation errors appear
       const longName = "A".repeat(31);
@@ -108,8 +108,8 @@ test.describe("Signup", () => {
       await page1.getByRole("textbox", { name: "Title" }).fill(longTitle);
       await page1.getByRole("button", { name: "Save changes" }).click();
       await expect(page1.getByRole("dialog")).toBeVisible();
-      await assertValidationError(testContext1, "First name must be no longer than 30 characters.");
-      await assertValidationError(testContext1, "'Last Name' must not be empty.");
+      await assertValidationError(testContext1, "First name must be between 1 and 30 characters.");
+      await assertValidationError(testContext1, "Last name must be between 1 and 30 characters.");
       await assertValidationError(testContext1, "Title must be no longer than 50 characters.");
 
       // Act & Assert: Complete profile setup with valid data & verify navigation to dashboard
@@ -145,7 +145,7 @@ test.describe("Signup", () => {
       await expect(page1.getByRole("heading", { name: "Account" })).toBeVisible();
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await assertValidationError(testContext1, "'Name' must not be empty.");
+      await assertValidationError(testContext1, "Name must be between 1 and 30 characters.");
 
       // Act & Assert: Update account name & verify successful save
       const newAccountName = `Tech Corp ${Date.now()}`;
