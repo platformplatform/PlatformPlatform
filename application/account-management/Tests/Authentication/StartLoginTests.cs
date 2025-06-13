@@ -53,7 +53,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("email", "'Email' must not be empty.")
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 
