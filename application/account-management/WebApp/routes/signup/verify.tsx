@@ -11,7 +11,6 @@ import { preferredLocaleKey } from "@repo/infrastructure/translations/constants"
 import { Button } from "@repo/ui/components/Button";
 import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput } from "@repo/ui/components/OneTimeCodeInput";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -108,7 +107,15 @@ export function CompleteSignupForm() {
               ariaLabel={t`Signup verification code`}
             />
           </div>
-          <FormErrorMessage error={completeSignupMutation.error} />
+          {!isExpired ? (
+            <p className="text-center text-neutral-500 text-xs">
+              <Trans>Your verification code is valid for {expiresInString}</Trans>
+            </p>
+          ) : (
+            <p className="text-center text-destructive text-xs">
+              <Trans>Your verification code has expired</Trans>
+            </p>
+          )}
           <Button
             type="submit"
             className="mt-4 w-full text-center"

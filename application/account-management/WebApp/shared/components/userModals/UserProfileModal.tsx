@@ -4,7 +4,6 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
@@ -226,8 +225,6 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         </div>
         <TextField name="email" label={t`Email`} value={user?.email} />
         <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software engineer`} />
-
-        <FormErrorMessage error={saveMutation.error} />
 
         <div className="mt-6 flex justify-end gap-4">
           <Button
