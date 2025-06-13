@@ -9,7 +9,7 @@ import { assertToastMessage } from "./test-assertions";
  * @param domain Optional domain, defaults to 'platformplatform.net'
  * @returns Unique email address
  */
-export function uniqueEmail(domain = "platformplatform.net"): string {
+export function uniqueEmail(domain = "localhost.local"): string {
   const timestamp = Date.now();
   const username = faker.internet.userName().toLowerCase();
   return `${username}.${timestamp}@${domain}`;

@@ -1,6 +1,7 @@
 import type { ConsoleMessage, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
+
 /**
  * Interface for monitoring results - captures ALL errors/messages for strict assertion
  */
@@ -175,16 +176,12 @@ export async function assertToastMessage(
     throw new Error(`Expected toast message containing "${message}" not found within ${timeoutMs}ms`);
   }
 
-  if (hasStatus && options.expectNetworkError) {
-    let expectedStatusCode: number;
-    if (typeof status === "number") {
-      expectedStatusCode = status;
-    } else if (status === "Forbidden") {
-      expectedStatusCode = 403;
-    } else {
-      expectedStatusCode = 400;
+  if (hasStatus && options.expectNetworkError && typeof status === "number") {
+    // Only look for network errors if it's actually an error status code (4xx, 5xx)
+    if (status >= 400) {
+      // Clean up the network error immediately
+      await assertNetworkErrors(context, [status]);
     }
-    monitoring.expectedStatusCodes.push(expectedStatusCode);
   }
 }
 
@@ -397,13 +394,13 @@ async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<strin
 
 /**
  * Blur the currently focused element to ensure input values are committed
- * 
+ *
  * This is a workaround for a Playwright issue where WebKit and Firefox don't properly
  * register input values when a form is submitted immediately after filling an input.
  * Without blurring the input first, these browsers may submit empty or stale values.
- * 
+ *
  * This issue doesn't occur in real browsers, only in Playwright's automation.
- * 
+ *
  * @param page The Playwright page instance
  */
 export async function blurActiveElement(page: Page): Promise<void> {
