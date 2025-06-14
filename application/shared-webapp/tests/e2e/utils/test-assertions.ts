@@ -140,33 +140,51 @@ export async function assertToastMessage(
   const status = hasStatus ? statusOrMessage : undefined;
   const message = hasStatus ? expectedMessage : String(statusOrMessage);
 
-  try {
-    // First wait for the toast to appear in the UI
-    await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
+  // First wait for the toast to appear in the UI
+  await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
 
-    // Wait for toast with expected message to appear using locator
-    const toastLocator = page
-      .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
-      .first();
-    await toastLocator.waitFor({ timeout: timeoutMs });
+  // Wait for toast with expected message to appear using locator
+  const toastLocator = page
+    .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
+    .first();
+  await toastLocator.waitFor({ timeout: timeoutMs });
 
-    // Then wait for the toast to be added to monitoring
-    const startTime = Date.now();
-    while (Date.now() - startTime < timeoutMs) {
-      const unassertedMatches = monitoring.toastMessages.filter(
-        (toast) => toast.includes(message) && !monitoring.assertedToasts.includes(toast)
-      );
+  // Then wait for the toast to be added to monitoring
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeoutMs) {
+    const unassertedMatches = monitoring.toastMessages.filter(
+      (toast) => toast.includes(message) && !monitoring.assertedToasts.includes(toast)
+    );
 
-      if (unassertedMatches.length > 0) {
-        const matchingToast = unassertedMatches[0];
-        monitoring.assertedToasts.push(matchingToast);
+    if (unassertedMatches.length > 0) {
+      const matchingToast = unassertedMatches[0];
+      monitoring.assertedToasts.push(matchingToast);
+      break;
+    }
+
+    await page.waitForTimeout(100);
+  }
+
+  // Look for all toast containers that contain our message, then take the last one (most recent)
+  const toastContainers = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message });
+  const toastCount = await toastContainers.count();
+
+  if (toastCount > 0) {
+    // Get the last (most recent) toast with this message
+    const latestToastContainer = toastContainers.nth(toastCount - 1);
+
+    // Try multiple strategies to find and click the close button for better reliability
+    const closeButtonSelectors = ['button[aria-label="Close"]', "button:has(svg)", "button:last-child", "button"];
+
+    for (const selector of closeButtonSelectors) {
+      const closeButton = latestToastContainer.locator(selector).first();
+      const isVisible = await closeButton.isVisible();
+
+      if (isVisible) {
+        await closeButton.click();
         break;
       }
-
-      await page.waitForTimeout(100);
     }
-  } catch {
-    throw new Error(`Expected toast message containing "${message}" not found within ${timeoutMs}ms`);
   }
 
   if (hasStatus && options.expectNetworkError) {
