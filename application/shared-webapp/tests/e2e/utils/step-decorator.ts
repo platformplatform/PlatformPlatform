@@ -30,9 +30,36 @@ export function step(description: string): any {
       const originalFunction = targetOrFunction;
       return function (this: any, ...args: any[]) {
         return test.step(description, async () => {
+          const startTime = performance.now();
           const result = originalFunction.apply(this, args);
-          // If the result is a Promise, await it; otherwise return directly
-          return result && typeof result.then === 'function' ? await result : result;
+          const finalResult = result && typeof result.then === 'function' ? await result : result;
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+
+          // Debug timing output if enabled
+          if (process.env.PLAYWRIGHT_SHOW_DEBUG_TIMING === 'true') {
+            const timestamp = new Date().toLocaleTimeString('en-US', { 
+              hour12: false, 
+              hour: '2-digit', 
+              minute: '2-digit', 
+              second: '2-digit',
+              fractionalSecondDigits: 3 
+            });
+            const durationSeconds = (duration / 1000).toFixed(3);
+            
+            // Color coding: green (<250ms), yellow (250ms-1s), red (>1s)
+            let colorCode = '\x1b[32m'; // Green
+            if (duration >= 1000) {
+              colorCode = '\x1b[31m'; // Red
+            } else if (duration >= 250) {
+              colorCode = '\x1b[33m'; // Yellow
+            }
+            const resetCode = '\x1b[0m';
+            
+            console.log(`${timestamp} - ${colorCode}[${durationSeconds}s]${resetCode} - ${description}`);
+          }
+          
+          return finalResult;
         });
       };
     }
@@ -58,9 +85,36 @@ export function step(description: string): any {
 
     descriptor.value = function (this: any, ...args: any[]) {
       return test.step(description, async () => {
+        const startTime = performance.now();
         const result = originalMethod.apply(this, args);
-        // If the result is a Promise, await it; otherwise return directly
-        return result && typeof result.then === 'function' ? await result : result;
+        const finalResult = result && typeof result.then === 'function' ? await result : result;
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+
+        // Debug timing output if enabled
+        if (process.env.PLAYWRIGHT_SHOW_DEBUG_TIMING === 'true') {
+          const timestamp = new Date().toLocaleTimeString('en-US', { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            fractionalSecondDigits: 3 
+          });
+          const durationSeconds = (duration / 1000).toFixed(3);
+          
+          // Color coding: green (<250ms), yellow (250ms-1s), red (>1s)
+          let colorCode = '\x1b[32m'; // Green
+          if (duration >= 1000) {
+            colorCode = '\x1b[31m'; // Red
+          } else if (duration >= 250) {
+            colorCode = '\x1b[33m'; // Yellow
+          }
+          const resetCode = '\x1b[0m';
+          
+          console.log(`${timestamp} - ${colorCode}[${durationSeconds}s]${resetCode} - ${description}`);
+        }
+        
+        return finalResult;
       });
     };
 
