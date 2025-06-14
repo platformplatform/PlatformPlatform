@@ -230,7 +230,12 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
         <FormErrorMessage error={saveMutation.error} />
 
         <div className="mt-6 flex justify-end gap-4">
-          <Button type="reset" onPress={closeDialog} variant="secondary">
+          <Button
+            type="reset"
+            onPress={closeDialog}
+            variant="secondary"
+            isDisabled={isLoading || saveMutation.isPending}
+          >
             <Trans>Cancel</Trans>
           </Button>
           <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>

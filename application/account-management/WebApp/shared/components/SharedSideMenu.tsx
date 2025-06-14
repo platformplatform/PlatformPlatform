@@ -1,8 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useLingui } from "@lingui/react/macro";
-import { use, useContext, useState } from "react";
-import { api } from "../lib/api/client";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
@@ -27,7 +25,9 @@ import {
   UserIcon,
   UsersIcon
 } from "lucide-react";
+import { use, useState } from "react";
 import type React from "react";
+import { api } from "../lib/api/client";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
@@ -38,7 +38,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
   const userInfo = useUserInfo();
   const { i18n } = useLingui();
   const { getLocaleInfo, locales, setLocale } = use(translationContext);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [_isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { themeMode, resolvedThemeMode, setThemeMode } = useThemeMode();
 
@@ -88,7 +88,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
     }
   });
 
-  const topMenuContent = (
+  const _topMenuContent = (
     <div className="flex h-full flex-col">
       {/* User Profile Section */}
       <div className="flex flex-col gap-3">
