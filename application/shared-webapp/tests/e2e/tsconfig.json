@@ -5,6 +5,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["node"],
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@shared/e2e/fixtures/*": ["./fixtures/*"],
       "@shared/e2e/utils/*": ["./utils/*"],
