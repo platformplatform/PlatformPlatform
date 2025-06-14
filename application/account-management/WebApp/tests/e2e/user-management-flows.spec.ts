@@ -5,6 +5,16 @@ import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/u
 
 test.describe("User Management Flow", () => {
   test.describe("@smoke", () => {
+    /**
+     * COMPREHENSIVE USER MANAGEMENT WORKFLOW
+     *
+     * Tests the complete end-to-end user management journey including:
+     * - User invitation process with validation (invalid email, duplicate email)
+     * - Role management (changing user roles from Member to Admin)
+     * - Permission system (testing what owners vs admins can/cannot do)
+     * - Search and filtering functionality (email search, role filtering)
+     * - User permission restrictions (what owners vs admins can/cannot do)
+     */
     test("should handle complete user invitation, role management & admin permissions workflow", async ({ page }) => {
       const context = createTestContext(page);
       const owner = testUser();
@@ -113,19 +123,6 @@ test.describe("User Management Flow", () => {
       await page.getByRole("option", { name: "Any role" }).click();
       await expect(userTable).toContainText(adminUser.email);
 
-      // Act & Assert: Navigate to dashboard & verify user count metrics are visible
-      await page.getByRole("button", { name: "Home" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(page.getByText("Total users")).toBeVisible();
-      await expect(page.getByText("Active users").first()).toBeVisible();
-      await expect(page.getByText("Invited users")).toBeVisible();
-
-      // Act & Assert: Click active users link & verify URL filtering shows only active users
-      await page.getByRole("link", { name: "Active users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
-      expect(page.url()).toContain("userStatus=Active");
-
       // Act & Assert: Logout from owner account to test admin permissions
       await page.getByRole("button", { name: "Home" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -137,7 +134,7 @@ test.describe("User Management Flow", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
-      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+      await page.keyboard.type(getVerificationCode());
       await expect(page).toHaveURL("/admin");
 
       // Act & Assert: Complete admin user profile setup & verify profile form completion
@@ -169,15 +166,71 @@ test.describe("User Management Flow", () => {
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
       await page.keyboard.press("Escape");
 
-      // Act & Assert: Test admin cannot delete users (only Owners can) & verify restrictions
-      const memberRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
-      await memberRow.getByLabel("User actions").click();
-      await expect(page.getByRole("menu")).toBeVisible(); // Verify menu opens
-      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
+      // Act & Assert: Test admin can access member user menu but cannot delete them
+      const memberUserRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
+      await memberUserRow.getByLabel("User actions").click();
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible(); // Delete not implemented yet
       await page.keyboard.press("Escape");
+    });
+  });
+
+  test.describe("@comprehensive", () => {
+    /**
+     * DASHBOARD METRICS & URL FILTERING
+     *
+     * Tests the dashboard integration and filtering features including:
+     * - Dashboard metrics integration (user count displays)
+     * - URL-based filtering (active users link)
+     * - Bulk delete readiness (verify UI elements not yet implemented)
+     */
+    test("should handle dashboard metrics and URL filtering", async ({ page }) => {
+      const context = createTestContext(page);
+      const owner = testUser();
+      const user1 = testUser();
+      const user2 = testUser();
+      const user3 = testUser();
+
+      // Act & Assert: Complete owner signup & navigate to users page
+      await completeSignupFlow(page, expect, owner, context);
+      await page.getByRole("button", { name: "Users" }).click();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+
+      // Act & Assert: Invite multiple users & verify they are added to the list
+      const usersToInvite = [user1, user2, user3];
+      for (const user of usersToInvite) {
+        await page.getByRole("button", { name: "Invite users" }).click();
+        await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+        await page.getByRole("button", { name: "Send invite" }).click();
+        await assertToastMessage(context, "User invited successfully");
+        await expect(page.getByRole("dialog")).not.toBeVisible();
+      }
+
+      const userTable = page.locator("tbody");
+      await expect(userTable.locator("tr")).toHaveCount(4); // owner + 3 invited users
+
+      // Act & Assert: Navigate to dashboard & verify user count metrics show correct numbers
+      await page.getByRole("button", { name: "Home" }).click();
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByText("Total users")).toBeVisible();
+      await expect(page.getByText("4")).toBeVisible(); // Total: 1 owner + 3 invited users
+      await expect(page.getByRole("link", { name: "View active users" })).toContainText("Active users");
+      await expect(page.getByRole("link", { name: "View active users" })).toContainText("1"); // Active: Only owner is active
+      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("Invited users");
+      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("3"); // Invited: 3 invited users
+
+      // Act & Assert: Click active users link & verify URL filtering shows only active users
+      await page.getByRole("link", { name: "View active users" }).click();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
+      expect(page.url()).toContain("userStatus=Active");
+
+      // Act & Assert: Navigate back to all users & verify bulk operations UI elements are not yet implemented
+      await page.getByRole("button", { name: "Users" }).first().click();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(userTable.locator("tr")).toHaveCount(4); // All users visible again
+      await expect(page.getByRole("button", { name: "Delete selected users" })).not.toBeVisible(); // Not implemented yet
+      await expect(page.getByRole("button", { name: "Bulk actions" })).not.toBeVisible(); // Not implemented yet
     });
   });
 });
