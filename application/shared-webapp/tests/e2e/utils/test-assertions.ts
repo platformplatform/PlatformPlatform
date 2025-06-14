@@ -7,9 +7,6 @@ import { expect } from "@playwright/test";
 export interface MonitoringResults {
   consoleMessages: ConsoleMessage[];
   networkErrors: string[];
-  toastMessages: string[];
-  assertedToasts: string[]; // Track toasts that have been asserted to prevent re-capture
-  toastPollingInterval?: NodeJS.Timeout;
   expectedStatusCodes: number[];
 }
 
@@ -52,8 +49,6 @@ function startMonitoring(page: Page): MonitoringResults {
   const results: MonitoringResults = {
     consoleMessages: [],
     networkErrors: [],
-    toastMessages: [],
-    assertedToasts: [],
     expectedStatusCodes: []
   };
 
@@ -106,21 +101,6 @@ function startMonitoring(page: Page): MonitoringResults {
     }
   });
 
-  // Poll for toast messages to capture all toasts that appear
-  results.toastPollingInterval = setInterval(async () => {
-    try {
-      const currentToasts = await captureToastMessages(page, 500);
-      for (const toast of currentToasts) {
-        // Check if this exact toast (including Reference ID) has already been captured or asserted
-        if (!results.toastMessages.includes(toast) && !results.assertedToasts.includes(toast)) {
-          results.toastMessages.push(toast);
-        }
-      }
-    } catch {
-      // Ignore polling errors
-    }
-  }, 250);
-
   return results;
 }
 
@@ -129,7 +109,8 @@ function startMonitoring(page: Page): MonitoringResults {
  * @param context Test context containing page and monitoring
  * @param statusOrMessage The expected HTTP status code (e.g., 400, 403, 409) or just the message
  * @param expectedMessage The expected toast message text (can be partial match) - optional if first param is the message
- * @param options Options for assertion behavior
+ * @param options Options for assertion behavior:
+ *   - expectNetworkError: Whether to expect network error (default: true)
  */
 export async function assertToastMessage(
   context: TestContext,
@@ -137,7 +118,7 @@ export async function assertToastMessage(
   expectedMessage?: string,
   options: AssertToastOptions = { expectNetworkError: true }
 ): Promise<void> {
-  const { monitoring, page } = context;
+  const { page } = context;
   const toastRegionSelector = '[role="region"]';
   const timeoutMs = 3000;
 
@@ -146,51 +127,33 @@ export async function assertToastMessage(
   const status = hasStatus ? statusOrMessage : undefined;
   const message = hasStatus ? expectedMessage : String(statusOrMessage);
 
-  // First wait for the toast to appear in the UI
-  await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
-
-  // Wait for toast with expected message to appear using locator
+  // Wait for and validate toast message
   const toastLocator = page
     .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
     .first();
   await toastLocator.waitFor({ timeout: timeoutMs });
 
-  // Then wait for the toast to be added to monitoring
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeoutMs) {
-    const unassertedMatches = monitoring.toastMessages.filter(
-      (toast) => toast.includes(message) && !monitoring.assertedToasts.includes(toast)
+  // Check for multiple toasts
+  const allToasts = await checkUnexpectedToasts(context, message);
+  if (allToasts.length > 0) {
+    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    throw new Error(
+      `Expected exactly 1 toast with message "${message}", but found ${totalToastCount} toasts total.
+Expected: 1, Unexpected: ${allToasts.length}
+Unexpected toasts: ${allToasts.map((t) => `"${t}"`).join(", ")}
+Ensure tests assert all expected toasts or fix the root cause.`
     );
-
-    if (unassertedMatches.length > 0) {
-      const matchingToast = unassertedMatches[0];
-      monitoring.assertedToasts.push(matchingToast);
-      break;
-    }
-
-    await page.waitForTimeout(100);
   }
 
-  // Look for all toast containers that contain our message, then take the last one (most recent)
-  const toastContainers = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message });
-  const toastCount = await toastContainers.count();
-
-  if (toastCount > 0) {
-    // Get the last (most recent) toast with this message
-    const latestToastContainer = toastContainers.nth(toastCount - 1);
-
-    // Try multiple strategies to find and click the close button for better reliability
-    const closeButtonSelectors = ['button[aria-label="Close"]', "button:has(svg)", "button:last-child", "button"];
-
-    for (const selector of closeButtonSelectors) {
-      const closeButton = latestToastContainer.locator(selector).first();
-      const isVisible = await closeButton.isVisible();
-
-      if (isVisible) {
-        await closeButton.click();
-        break;
-      }
+  // Close the toast
+  try {
+    const toastContainer = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message }).last();
+    const closeButton = toastContainer.locator('button[aria-label="Close"]').first();
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
     }
+  } catch {
+    // Toast might have auto-dismissed, which is fine
   }
 
   if (hasStatus && options.expectNetworkError && typeof status === "number") {
@@ -279,26 +242,24 @@ export async function assertNetworkErrors(context: TestContext, expectedStatusCo
  * Assert that ALL queues are completely empty - no unexpected errors or console messages
  * @param context Test context containing page and monitoring
  */
-export function assertNoUnexpectedErrors(context: TestContext): void {
+export async function assertNoUnexpectedErrors(context: TestContext): Promise<void> {
   const monitoring = context.monitoring;
 
-  // Clear the toast polling interval to stop monitoring
-  if (monitoring.toastPollingInterval) {
-    clearInterval(monitoring.toastPollingInterval);
-    monitoring.toastPollingInterval = undefined;
-  }
+  // No polling interval cleanup needed anymore
 
   // Clean up expected network errors and tracking errors
   cleanupExpectedNetworkErrors(monitoring);
 
   // Check for any remaining unexpected issues
   const hasUnexpectedNetworkErrors = monitoring.networkErrors.length > 0;
-  const unassertedToasts = monitoring.toastMessages.filter((toast) => !monitoring.assertedToasts.includes(toast));
-  const hasUnexpectedToasts = unassertedToasts.length > 0;
+
+  // Check for unexpected toasts using our new silent checking function
+  const unexpectedToasts = await checkUnexpectedToasts(context);
+  const hasUnexpectedToasts = unexpectedToasts.length > 0;
 
   // If we have any unexpected issues, throw a helpful error message
   if (hasUnexpectedNetworkErrors || hasUnexpectedToasts) {
-    const errorMessage = buildUnexpectedErrorsMessage(monitoring.networkErrors, unassertedToasts);
+    const errorMessage = buildUnexpectedErrorsMessage(monitoring.networkErrors, unexpectedToasts);
     throw new Error(errorMessage);
   }
 }
@@ -362,40 +323,40 @@ function buildUnexpectedErrorsMessage(networkErrors: string[], unassertedToasts:
 }
 
 /**
- * Internal function to capture toast messages from the page
- * @param page Playwright page instance
- * @param timeoutMs Maximum time to wait for toast messages
- * @returns Array of toast message texts found
+ * Silently check for unexpected toasts without adding to trace
+ * This runs after each step to verify no unexpected toasts appeared
+ * @param context Test context containing page and monitoring
+ * @param expectedMessage Optional message to exclude from unexpected list (currently being asserted)
+ * @returns Array of unexpected toast messages found
  */
-async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<string[]> {
-  const toastMessages: string[] = [];
+export async function checkUnexpectedToasts(context: TestContext, expectedMessage?: string): Promise<string[]> {
+  const { page } = context;
+  const unexpectedToasts: string[] = [];
 
   try {
     const toastRegionSelector = '[role="region"]';
 
-    try {
-      await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
-    } catch {
-      return toastMessages;
+    // Quick non-blocking check - don't wait if no toasts exist
+    const toastRegions = page.locator(toastRegionSelector);
+    const regionCount = await toastRegions.count();
+
+    if (regionCount === 0) {
+      return unexpectedToasts;
     }
 
+    // Get all current toast messages
     const toastElements = await page.locator(`${toastRegionSelector} > div`).all();
 
     for (const toastElement of toastElements) {
       try {
-        // Try to get the description text specifically (the main message content)
-        // The toast structure has title (HTTP status) and description (actual message)
         const descriptionElement = toastElement.locator('div[class*="whitespace-pre-line"]').first();
         const descriptionText = await descriptionElement.textContent();
 
         if (descriptionText?.trim()) {
-          toastMessages.push(descriptionText.trim());
-        } else {
-          // Fallback: if no description element found, get the full text content
-          // This maintains backward compatibility for toasts that don't follow the expected structure
-          const text = await toastElement.textContent();
-          if (text?.trim()) {
-            toastMessages.push(text.trim());
+          const toastMessage = descriptionText.trim();
+          // Exclude the currently expected message
+          if (!expectedMessage || !toastMessage.includes(expectedMessage)) {
+            unexpectedToasts.push(toastMessage);
           }
         }
       } catch {
@@ -403,10 +364,10 @@ async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<strin
       }
     }
   } catch {
-    // No toasts found
+    // No toasts found or error accessing them
   }
 
-  return toastMessages;
+  return unexpectedToasts;
 }
 
 /**
