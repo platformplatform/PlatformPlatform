@@ -4,6 +4,9 @@
   "extends": "@repo/config/typescript/react-app.json",
   "compilerOptions": {
     "types": ["node", "@playwright/test"],
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@/*": ["../*"]
     }

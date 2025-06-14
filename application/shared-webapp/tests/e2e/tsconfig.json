@@ -5,6 +5,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["node"],
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@repo/shared-webapp/tests/e2e/utils/*": ["./utils/*"]
     }
