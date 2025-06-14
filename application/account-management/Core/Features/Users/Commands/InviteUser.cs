@@ -34,7 +34,8 @@ public sealed class InviteUserHandler(
     IEmailClient emailClient,
     IExecutionContext executionContext,
     IMediator mediator,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    IUserRepository userRepository
 ) : IRequestHandler<InviteUserCommand, Result>
 {
     public async Task<Result> Handle(InviteUserCommand command, CancellationToken cancellationToken)
@@ -42,6 +43,11 @@ public sealed class InviteUserHandler(
         if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
         {
             return Result.Forbidden("Only owners are allowed to invite other users.");
+        }
+
+        if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
+        {
+            return Result.BadRequest($"The user with '{command.Email}' already exists.");
         }
 
         var result = await mediator.Send(

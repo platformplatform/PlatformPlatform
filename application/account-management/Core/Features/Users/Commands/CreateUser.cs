@@ -47,6 +47,11 @@ internal sealed class CreateUserHandler(
             throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
         }
 
+        if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
+        {
+            return Result<UserId>.BadRequest($"The user with '{command.Email}' already exists.");
+        }
+
         var locale = SinglePageAppConfiguration.SupportedLocalizations.Contains(command.PreferredLocale)
             ? command.PreferredLocale
             : string.Empty;

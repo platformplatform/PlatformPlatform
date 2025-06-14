@@ -75,11 +75,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
 
         // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("email", $"The email '{existingUserEmail}' is already in use by another user on this tenant.")
-        };
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The user with '{existingUserEmail}' already exists.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
