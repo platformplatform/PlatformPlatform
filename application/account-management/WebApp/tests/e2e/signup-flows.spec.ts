@@ -190,9 +190,8 @@ test.describe("Signup", () => {
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await assertToastMessage(context, 403, "Too many attempts, please request a new code.");
-
-      // Act & Assert: Verify rate limiting message is shown & verify UI state
-      await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
     });
 
     test("should show detailed error message when too many signup attempts are made", async ({ page }) => {
