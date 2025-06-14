@@ -11,9 +11,7 @@ import { getVerificationCode, testUser, uniqueEmail } from "@shared/e2e/utils/te
 
 test.describe("Signup", () => {
   test.describe("@smoke", () => {
-    test("should handle complete signup flow with validation, profile setup, and account management", async ({
-      browser
-    }) => {
+    test("should handle signup flow with validation, profile setup, and account management", async ({ browser }) => {
       // Create two browser contexts to simulate different sessions
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -23,44 +21,49 @@ test.describe("Signup", () => {
       // === SIGNUP INITIATION ===
       await step("Navigate directly to signup page & verify signup process starts")(async () => {
         await page.goto("/signup");
+
         await expect(page).toHaveURL("/signup");
         await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
       })();
 
       // === EMAIL VALIDATION EDGE CASES ===
-      await step("Test empty email validation & verify form submission blocked")(async () => {
+      await step("Submit form with empty email & verify validation error")(async () => {
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup");
         await expect(
           page.getByText("Email must be in a valid format and no longer than 100 characters.")
         ).toBeVisible();
       })();
 
-      await step("Test invalid email format & verify form submission blocked")(async () => {
+      await step("Enter invalid email format & verify validation error")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup");
         await expect(
           page.getByText("Email must be in a valid format and no longer than 100 characters.")
         ).toBeVisible();
       })();
 
-      await step("Test email with consecutive dots & verify form submission blocked")(async () => {
+      await step("Enter email with consecutive dots & verify validation error")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup");
         await expect(
           page.getByText("Email must be in a valid format and no longer than 100 characters.")
         ).toBeVisible();
       })();
 
-      await step("Test email exceeding maximum length & verify form submission blocked")(async () => {
+      await step("Enter email exceeding maximum length & verify validation error")(async () => {
         const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
         await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup");
         await expect(
           page.getByText("Email must be in a valid format and no longer than 100 characters.")
@@ -74,6 +77,7 @@ test.describe("Signup", () => {
           await blurActiveElement(page);
           await expect(page.getByText("Europe")).toBeVisible();
           await page.getByRole("button", { name: "Create your account" }).click();
+
           await expect(page).toHaveURL("/signup/verify");
           await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
           await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
@@ -81,19 +85,22 @@ test.describe("Signup", () => {
       )();
 
       // === VERIFICATION CODE VALIDATION ===
-      await step("Test wrong verification code & verify error and focus reset")(async () => {
+      await step("Enter wrong verification code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG1");
+
         await assertToastMessage(testContext, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Type verification code & verify button becomes enabled")(async () => {
+      await step("Type verification code & verify submit button enables")(async () => {
         await page.keyboard.type(getVerificationCode());
+
         await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
       })();
 
       await step("Click verify button & verify navigation to admin")(async () => {
         await page.getByRole("button", { name: "Verify" }).click();
+
         await expect(page).toHaveURL("/admin");
       })();
 
@@ -101,6 +108,7 @@ test.describe("Signup", () => {
       await step("Submit profile form with empty fields & verify validation errors appear")(async () => {
         await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertValidationError(testContext, "First name must be between 1 and 30 characters.");
         await assertValidationError(testContext, "Last name must be between 1 and 30 characters.");
       })();
@@ -113,6 +121,7 @@ test.describe("Signup", () => {
           await page.getByRole("textbox", { name: "Last name" }).clear();
           await page.getByRole("textbox", { name: "Title" }).fill(longTitle);
           await page.getByRole("button", { name: "Save changes" }).click();
+
           await expect(page.getByRole("dialog")).toBeVisible();
           await assertValidationError(testContext, "First name must be between 1 and 30 characters.");
           await assertValidationError(testContext, "Last name must be between 1 and 30 characters.");
@@ -125,6 +134,7 @@ test.describe("Signup", () => {
         await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
         await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertToastMessage(testContext, 200, "Profile updated successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -140,12 +150,14 @@ test.describe("Signup", () => {
         await page.getByRole("menuitem", { name: "Edit profile" }).click();
         await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
         await page.getByRole("button", { name: "Cancel" }).click();
+
         await expect(page.getByRole("dialog")).not.toBeVisible();
       })();
 
       // === AUTHENTICATED NAVIGATION PROTECTION ===
       await step("Navigate to signup page while authenticated & verify redirect to admin")(async () => {
         await page.goto("/signup");
+
         await expect(page).toHaveURL("/admin");
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       })();
@@ -156,6 +168,7 @@ test.describe("Signup", () => {
         await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
         await page.getByRole("textbox", { name: "Account name" }).clear();
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertValidationError(testContext, "Name must be between 1 and 30 characters.");
       })();
 
@@ -164,6 +177,7 @@ test.describe("Signup", () => {
         await page.getByRole("textbox", { name: "Account name" }).fill(newAccountName);
         await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit requires explicit focus before clicking
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertToastMessage(testContext, 200, "Account updated successfully");
       })();
 
@@ -173,12 +187,14 @@ test.describe("Signup", () => {
         await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
         await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertToastMessage(testContext, 200, "Profile updated successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
       })();
 
       await step("Access protected account route & verify session maintains authentication")(async () => {
         await page.getByRole("button", { name: "Account" }).first().click();
+
         await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
       })();
 
@@ -193,35 +209,36 @@ test.describe("Signup", () => {
       const context = createTestContext(page);
       const user = testUser();
 
-      await step("Start signup process & verify navigation")(async () => {
+      await step("Navigate to signup and enter email & verify navigation")(async () => {
         await page.goto("/signup");
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup/verify");
       })();
 
-      await step("First failed attempt & verify error and focus reset")(async () => {
+      await step("Enter first wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG1");
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Second failed attempt & verify error and focus reset")(async () => {
+      await step("Enter second wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG2");
         await page.getByRole("button", { name: "Verify" }).click();
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Third failed attempt & verify error and focus reset")(async () => {
+      await step("Enter third wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG3");
         await page.getByRole("button", { name: "Verify" }).click();
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Fourth failed attempt triggers rate limiting & verify forbidden error")(async () => {
+      await step("Enter fourth wrong code & verify rate limiting triggers")(async () => {
         await page.keyboard.type("WRONG4");
         await page.getByRole("button", { name: "Verify" }).click();
         await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
@@ -251,6 +268,7 @@ test.describe("Signup", () => {
         await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
         await page.getByRole("textbox", { name: "Email" }).fill(testEmail);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup");
         await assertToastMessage(
           context,
@@ -276,6 +294,7 @@ test.describe("Signup", () => {
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup/verify");
         await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
       })();
@@ -284,6 +303,7 @@ test.describe("Signup", () => {
         "Wait 30 seconds before & verify Check your spam folder is not visible and that 'Request a new code' IS available"
       )(async () => {
         await page.waitForTimeout(requestNewCodeTimeout);
+
         await expect(
           page.getByRole("textbox", { name: "Can't find your code? Check your spam folder." })
         ).not.toBeVisible();
@@ -294,6 +314,7 @@ test.describe("Signup", () => {
         "Click Request a new code & verify success toast message and that 'Request a new code' is NOT available"
       )(async () => {
         await page.getByRole("button", { name: "Request a new code" }).click();
+
         await assertToastMessage(context, "A new verification code has been sent to your email.");
         await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
         await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
@@ -303,6 +324,7 @@ test.describe("Signup", () => {
         "Wait for expiration & verify inline expiration message and that 'Request a new code' is NOT available"
       )(async () => {
         await page.waitForTimeout(codeValidationTimeout);
+
         await expect(page).toHaveURL("/signup/verify");
         await expect(page.getByText("Your verification code has expired")).toBeVisible();
         await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
@@ -320,6 +342,7 @@ test.describe("Signup", () => {
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup/verify");
         await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
       })();
@@ -328,6 +351,7 @@ test.describe("Signup", () => {
         "Wait 5 minutes for code expiration & verify inline expiration message and that 'Request a new code' IS available"
       )(async () => {
         await page.waitForTimeout(codeValidationTimeout);
+
         await expect(page).toHaveURL("/signup/verify");
         await expect(page.getByText("Your verification code has expired")).toBeVisible();
         await expect(page.getByText("Can't find your code? Check your spam folder.")).not.toBeVisible();
@@ -337,6 +361,7 @@ test.describe("Signup", () => {
       await step("Request a new code & verify success toast message and that 'Request a new code' is NOT available")(
         async () => {
           await page.getByRole("button", { name: "Request a new code" }).click();
+
           await assertToastMessage(context, "A new verification code has been sent to your email.");
           await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
           await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();

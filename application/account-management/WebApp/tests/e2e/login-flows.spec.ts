@@ -12,7 +12,7 @@ import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/u
 
 test.describe("Login", () => {
   test.describe("@smoke", () => {
-    test("should handle complete login flow with validation, security, authentication protection, and logout", async ({
+    test("should handle login flow with validation, security, authentication protection, and logout", async ({
       anonymousPage
     }) => {
       const { page, tenant } = anonymousPage;
@@ -20,35 +20,39 @@ test.describe("Login", () => {
       const context = createTestContext(page);
 
       // === EMAIL VALIDATION EDGE CASES ===
-      await step("Test empty email validation & verify error message")(async () => {
+      await step("Submit empty email form & verify validation error")(async () => {
         await page.goto("/login");
         await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login");
         await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
       })();
 
-      await step("Test invalid email format & verify validation error")(async () => {
+      await step("Enter invalid email format & verify validation error")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login");
         await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
       })();
 
-      await step("Test email exceeding maximum length & verify validation error")(async () => {
+      await step("Enter email exceeding maximum length & verify validation error")(async () => {
         const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
         await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login");
         await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
       })();
 
-      await step("Test email with consecutive dots & verify validation error")(async () => {
+      await step("Enter email with consecutive dots & verify validation error")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login");
         await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
       })();
@@ -58,6 +62,7 @@ test.describe("Login", () => {
         await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
         await blurActiveElement(page);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login/verify");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
         await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
@@ -65,8 +70,9 @@ test.describe("Login", () => {
         await expect(page.getByText("Request a new code")).not.toBeVisible();
       })();
 
-      await step("Test wrong verification code & verify error and focus reset")(async () => {
+      await step("Enter wrong verification code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
+
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
@@ -75,6 +81,7 @@ test.describe("Login", () => {
         await page.locator('input[autocomplete="one-time-code"]').first().focus();
         await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
         await page.getByRole("button", { name: "Verify" }).click();
+
         await expect(page).toHaveURL("/admin");
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       })();
@@ -83,30 +90,36 @@ test.describe("Login", () => {
       await step("Logout from authenticated session & verify redirect to login")(async () => {
         await page.getByRole("button", { name: "User profile menu" }).click();
         await page.getByRole("menuitem", { name: "Log out" }).click();
+
         await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       })();
 
       await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
         await page.goto("/admin/users");
         await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
+
         await assertNetworkErrors(context, [401]);
+
         await page.goto("/admin");
+
         await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
         await assertNetworkErrors(context, [401]);
       })();
 
       // === SECURITY EDGE CASES ===
-      await step("Test malicious redirect prevention with external URL")(async () => {
+      await step("Navigate with malicious redirect URL & verify prevention")(async () => {
         await page.goto("/login?returnPath=http://hacker.com");
+
         await expect(page).toHaveURL("/login");
       })();
 
-      await step("Test browser back navigation after authenticated session")(async () => {
+      await step("Complete login after back navigation & verify authentication works")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
         await page.getByRole("button", { name: "Continue" }).click();
         await expect(page).toHaveURL("/login/verify");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
         await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+
         await expect(page).toHaveURL("/admin");
       })();
     });
@@ -125,37 +138,42 @@ test.describe("Login", () => {
         await page.goto("/login");
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login/verify");
       })();
 
-      await step("Verify initial help text is shown")(async () => {
+      await step("Check verification page state & verify initial help text displays")(async () => {
         await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
         await expect(page.getByText("Request a new code")).not.toBeVisible();
       })();
 
-      await step("First failed attempt & verify error and focus reset")(async () => {
+      await step("Enter first wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
+
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Second failed attempt & verify error and focus reset")(async () => {
+      await step("Enter second wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG2");
         await page.getByRole("button", { name: "Verify" }).click();
+
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Third failed attempt & verify error and focus reset")(async () => {
+      await step("Enter third wrong code & verify error and focus reset")(async () => {
         await page.keyboard.type("WRONG3");
         await page.getByRole("button", { name: "Verify" }).click();
+
         await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       })();
 
-      await step("Fourth failed attempt triggers rate limiting & verify forbidden error")(async () => {
+      await step("Enter fourth wrong code & verify rate limiting triggers")(async () => {
         await page.keyboard.type("WRONG4");
         await page.getByRole("button", { name: "Verify" }).click();
+
         await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
         await assertToastMessage(context, 403, "Too many attempts, please request a new code.");
         await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
@@ -189,6 +207,7 @@ test.describe("Login", () => {
         await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login");
         await assertToastMessage(
           context,
@@ -214,33 +233,31 @@ test.describe("Login", () => {
         await page.goto("/login");
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login/verify");
         await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
       })();
 
-      await step(
-        "Wait 30 seconds before & verify Check your spam folder is not visible and that 'Request a new code' IS available"
-      )(async () => {
+      await step("Wait 30 seconds & verify request code button appears")(async () => {
         await page.waitForTimeout(requestNewCodeTimeout);
+
         await expect(
           page.getByRole("textbox", { name: "Can't find your code? Check your spam folder." })
         ).not.toBeVisible();
         await expect(page.getByText("Request a new code")).toBeVisible();
       })();
 
-      await step(
-        "Click Request a new code & verify success toast message and that 'Request a new code' is NOT available"
-      )(async () => {
+      await step("Click request new code & verify success message and button hides")(async () => {
         await page.getByRole("button", { name: "Request a new code" }).click();
+
         await assertToastMessage(context, "A new verification code has been sent to your email.");
         await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
         await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
       })();
 
-      await step(
-        "Wait for expiration & verify inline expiration message and that 'Request a new code' is NOT available"
-      )(async () => {
+      await step("Wait for code expiration & verify expiration message displays")(async () => {
         await page.waitForTimeout(codeValidationTimeout);
+
         await expect(page).toHaveURL("/login/verify");
         await expect(page.getByText("Your verification code has expired")).toBeVisible();
         await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
@@ -258,28 +275,27 @@ test.describe("Login", () => {
         await page.goto("/login");
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login/verify");
         await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
       })();
 
-      await step(
-        "Wait 5 minutes for code expiration & verify inline expiration message and that 'Request a new code' IS available"
-      )(async () => {
+      await step("Wait for code expiration & verify request button becomes available")(async () => {
         await page.waitForTimeout(codeValidationTimeout);
+
         await expect(page).toHaveURL("/login/verify");
         await expect(page.getByText("Your verification code has expired")).toBeVisible();
         await expect(page.getByText("Can't find your code? Check your spam folder.")).not.toBeVisible();
         await expect(page.getByText("Request a new code")).toBeVisible();
       })();
 
-      await step("Request a new code & verify success toast message and that 'Request a new code' is NOT available")(
-        async () => {
-          await page.getByRole("button", { name: "Request a new code" }).click();
-          await assertToastMessage(context, "A new verification code has been sent to your email.");
-          await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
-          await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-        }
-      )();
+      await step("Request new code & verify success and button hides")(async () => {
+        await page.getByRole("button", { name: "Request a new code" }).click();
+
+        await assertToastMessage(context, "A new verification code has been sent to your email.");
+        await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
+        await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
+      })();
     });
   });
 });

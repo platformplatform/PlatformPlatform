@@ -16,7 +16,7 @@ test.describe("User Management Flow", () => {
      * - Search and filtering functionality (email search, role filtering)
      * - User permission restrictions (what owners vs admins can/cannot do)
      */
-    test("should handle complete user invitation, role management & admin permissions workflow", async ({ page }) => {
+    test("should handle user invitation, role management & permissions workflow", async ({ page }) => {
       const context = createTestContext(page);
       const owner = testUser();
       const adminUser = testUser();
@@ -29,6 +29,7 @@ test.describe("User Management Flow", () => {
 
       await step("Navigate to users page & verify owner is listed")(async () => {
         await page.getByRole("button", { name: "Users" }).click();
+
         await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
         await expect(page.locator("tbody").locator("tr")).toHaveCount(1);
         await expect(page.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
@@ -41,6 +42,7 @@ test.describe("User Management Flow", () => {
         await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
         await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
         await page.getByRole("button", { name: "Send invite" }).click();
+
         await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
         await expect(page.getByRole("dialog")).toBeVisible();
       })();
@@ -48,6 +50,7 @@ test.describe("User Management Flow", () => {
       await step("Invite member user & verify successful invitation")(async () => {
         await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
         await page.getByRole("button", { name: "Send invite" }).click();
+
         await assertToastMessage(context, "User invited successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
         await expect(page.locator("tbody").locator("tr")).toHaveCount(2);
@@ -58,28 +61,31 @@ test.describe("User Management Flow", () => {
         await page.getByRole("button", { name: "Invite users" }).click();
         await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
         await page.getByRole("button", { name: "Send invite" }).click();
+
         await assertToastMessage(context, "User invited successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
         await expect(page.locator("tbody").locator("tr")).toHaveCount(3);
         await expect(page.getByText(`${adminUser.email}`)).toBeVisible();
       })();
 
-      await step("Change user role to Admin & verify role change is successful")(async () => {
+      await step("Select Admin role from dropdown & verify role change completes")(async () => {
         const adminUserRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
         await adminUserRow.getByLabel("User actions").click();
         await page.getByRole("menuitem", { name: "Change role" }).click();
         await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
         await page.getByRole("button", { name: "Member User role" }).click();
         await page.getByRole("option", { name: "Admin" }).click();
+
         await assertToastMessage(context, `User role updated successfully for ${adminUser.email}`);
         await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
         await expect(adminUserRow).toContainText("Admin");
       })();
 
-      await step("Verify row is selected after role change & unselect to show invite button")(async () => {
+      await step("Click to unselect row after role change & verify selection clears")(async () => {
         const adminUserRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
         await expect(adminUserRow).toHaveAttribute("aria-selected", "true");
         await adminUserRow.click(); // Unselect the row
+
         await expect(adminUserRow).not.toHaveAttribute("aria-selected", "true");
       })();
 
@@ -87,8 +93,11 @@ test.describe("User Management Flow", () => {
         await page.getByRole("button", { name: "Invite users" }).click();
         await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
         await page.getByRole("button", { name: "Send invite" }).click();
+
         await assertToastMessage(context, 400, `The user with '${memberUser.email}' already exists.`);
+
         await page.getByRole("button", { name: "Cancel" }).click();
+
         await expect(page.getByRole("dialog")).not.toBeVisible();
       })();
 
@@ -100,11 +109,13 @@ test.describe("User Management Flow", () => {
         await expect(page.getByText("Member").first()).toBeVisible();
       })();
 
-      await step("Test owner cannot delete or change role on themselves & verify restrictions")(async () => {
+      await step("Try to delete owner account & verify action restrictions")(async () => {
         const ownerRowSelf = page.locator("tbody tr").filter({ hasText: owner.email });
         await ownerRowSelf.getByLabel("User actions").click();
+
         await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
         await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+
         await page.keyboard.press("Escape");
       })();
 
@@ -112,6 +123,7 @@ test.describe("User Management Flow", () => {
         const userTable = page.locator("tbody");
         await page.getByPlaceholder("Search").fill(adminUser.email);
         await page.keyboard.press("Enter"); // Trigger search immediately without debounce
+
         await expect(userTable.locator("tr")).toHaveCount(1);
         await expect(userTable).toContainText(adminUser.email);
         await expect(userTable).not.toContainText(owner.email);
@@ -119,6 +131,7 @@ test.describe("User Management Flow", () => {
 
         await page.getByPlaceholder("Search").clear();
         await page.keyboard.press("Enter"); // Trigger search immediately to show all results
+
         await expect(userTable.locator("tr")).toHaveCount(3);
         await expect(userTable).toContainText(adminUser.email);
         await expect(userTable).toContainText(memberUser.email);
@@ -129,11 +142,14 @@ test.describe("User Management Flow", () => {
         await page.getByRole("button", { name: "Show filters" }).click();
         await page.getByRole("button", { name: "Any role User role" }).click();
         await page.getByRole("option", { name: "Owner" }).click();
+
         await expect(userTable.locator("tr")).toHaveCount(1); // After filtering by Owner role, should only have 1 owner (the original)
         await expect(userTable).toContainText(owner.email);
         await expect(userTable).not.toContainText(adminUser.email);
+
         await page.getByRole("button", { name: "Owner User role" }).click();
         await page.getByRole("option", { name: "Any role" }).click();
+
         await expect(userTable).toContainText(adminUser.email);
       })();
 
@@ -142,6 +158,7 @@ test.describe("User Management Flow", () => {
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
         await page.getByRole("button", { name: "User profile menu" }).click();
         await page.getByRole("menuitem", { name: "Log out" }).click();
+
         await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       })();
 
@@ -150,6 +167,7 @@ test.describe("User Management Flow", () => {
         await page.getByRole("button", { name: "Continue" }).click();
         await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
         await page.keyboard.type(getVerificationCode());
+
         await expect(page).toHaveURL("/admin");
       })();
 
@@ -159,6 +177,7 @@ test.describe("User Management Flow", () => {
         await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
         await page.getByRole("textbox", { name: "Title" }).fill("Administrator");
         await page.getByRole("button", { name: "Save changes" }).click();
+
         await assertToastMessage(context, "Profile updated successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -166,31 +185,38 @@ test.describe("User Management Flow", () => {
 
       await step("Navigate to users page as admin & verify admin can see all users")(async () => {
         await page.getByRole("button", { name: "Users" }).click();
+
         await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
         await expect(page.locator("tbody tr")).toHaveCount(3); // owner + admin + member
       })();
 
-      await step("Test admin cannot delete owner or change owner role & verify restrictions")(async () => {
+      await step("Try to delete owner as admin & verify action restrictions")(async () => {
         const ownerRow = page.locator("tbody tr").filter({ hasText: owner.email });
         await ownerRow.getByLabel("User actions").click();
+
         await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
         await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+
         await page.keyboard.press("Escape");
       })();
 
-      await step("Test admin cannot delete other admin users & verify restrictions")(async () => {
+      await step("Try to delete admin as admin & verify action restrictions")(async () => {
         const currentAdminRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
         await currentAdminRow.getByLabel("User actions").click();
+
         await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
         await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
+
         await page.keyboard.press("Escape");
       })();
 
-      await step("Test admin can access member user menu but cannot delete them")(async () => {
+      await step("Open member user menu as admin & verify limited actions available")(async () => {
         const memberUserRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
         await memberUserRow.getByLabel("User actions").click();
+
         await expect(page.getByRole("menuitem", { name: "Change role" })).toBeVisible();
         await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible(); // Delete not implemented yet
+
         await page.keyboard.press("Escape");
       })();
     });
@@ -215,6 +241,7 @@ test.describe("User Management Flow", () => {
       await step("Complete owner signup & navigate to users page")(async () => {
         await completeSignupFlow(page, expect, owner, context);
         await page.getByRole("button", { name: "Users" }).click();
+
         await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       })();
 
@@ -234,6 +261,7 @@ test.describe("User Management Flow", () => {
 
       await step("Navigate to dashboard & verify user count metrics show correct numbers")(async () => {
         await page.getByRole("button", { name: "Home" }).click();
+
         await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
         await expect(page.getByText("Total users")).toBeVisible();
         await expect(page.getByText("4")).toBeVisible(); // Total: 1 owner + 3 invited users
@@ -245,21 +273,21 @@ test.describe("User Management Flow", () => {
 
       await step("Click active users link & verify URL filtering shows only active users")(async () => {
         await page.getByRole("link", { name: "View active users" }).click();
+
         await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
         await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
         expect(page.url()).toContain("userStatus=Active");
       })();
 
-      await step("Navigate back to all users & verify bulk operations UI elements are not yet implemented")(
-        async () => {
-          const userTable = page.locator("tbody");
-          await page.getByRole("button", { name: "Users" }).first().click();
-          await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-          await expect(userTable.locator("tr")).toHaveCount(4); // All users visible again
-          await expect(page.getByRole("button", { name: "Delete selected users" })).not.toBeVisible(); // Not implemented yet
-          await expect(page.getByRole("button", { name: "Bulk actions" })).not.toBeVisible(); // Not implemented yet
-        }
-      )();
+      await step("Navigate to all users & verify bulk operations not implemented")(async () => {
+        const userTable = page.locator("tbody");
+        await page.getByRole("button", { name: "Users" }).first().click();
+
+        await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+        await expect(userTable.locator("tr")).toHaveCount(4); // All users visible again
+        await expect(page.getByRole("button", { name: "Delete selected users" })).not.toBeVisible(); // Not implemented yet
+        await expect(page.getByRole("button", { name: "Bulk actions" })).not.toBeVisible(); // Not implemented yet
+      })();
     });
   });
 });
