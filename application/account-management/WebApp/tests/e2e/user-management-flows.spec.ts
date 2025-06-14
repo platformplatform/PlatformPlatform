@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { step } from "@shared/e2e/utils/step-decorator";
 import { assertToastMessage, assertValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
@@ -191,46 +192,54 @@ test.describe("User Management Flow", () => {
       const user2 = testUser();
       const user3 = testUser();
 
-      // Act & Assert: Complete owner signup & navigate to users page
-      await completeSignupFlow(page, expect, owner, context);
-      await page.getByRole("button", { name: "Users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await step("Complete owner signup & navigate to users page")(async () => {
+        await completeSignupFlow(page, expect, owner, context);
+        await page.getByRole("button", { name: "Users" }).click();
+        await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      })();
 
-      // Act & Assert: Invite multiple users & verify they are added to the list
-      const usersToInvite = [user1, user2, user3];
-      for (const user of usersToInvite) {
-        await page.getByRole("button", { name: "Invite users" }).click();
-        await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-        await page.getByRole("button", { name: "Send invite" }).click();
-        await assertToastMessage(context, "User invited successfully");
-        await expect(page.getByRole("dialog")).not.toBeVisible();
-      }
+      await step("Invite multiple users & verify they are added to the list")(async () => {
+        const usersToInvite = [user1, user2, user3];
+        for (const user of usersToInvite) {
+          await page.getByRole("button", { name: "Invite users" }).click();
+          await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+          await page.getByRole("button", { name: "Send invite" }).click();
+          await assertToastMessage(context, "User invited successfully");
+          await expect(page.getByRole("dialog")).not.toBeVisible();
+        }
 
-      const userTable = page.locator("tbody");
-      await expect(userTable.locator("tr")).toHaveCount(4); // owner + 3 invited users
+        const userTable = page.locator("tbody");
+        await expect(userTable.locator("tr")).toHaveCount(4); // owner + 3 invited users
+      })();
 
-      // Act & Assert: Navigate to dashboard & verify user count metrics show correct numbers
-      await page.getByRole("button", { name: "Home" }).click();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(page.getByText("Total users")).toBeVisible();
-      await expect(page.getByText("4")).toBeVisible(); // Total: 1 owner + 3 invited users
-      await expect(page.getByRole("link", { name: "View active users" })).toContainText("Active users");
-      await expect(page.getByRole("link", { name: "View active users" })).toContainText("1"); // Active: Only owner is active
-      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("Invited users");
-      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("3"); // Invited: 3 invited users
+      await step("Navigate to dashboard & verify user count metrics show correct numbers")(async () => {
+        await page.getByRole("button", { name: "Home" }).click();
+        await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+        await expect(page.getByText("Total users")).toBeVisible();
+        await expect(page.getByText("4")).toBeVisible(); // Total: 1 owner + 3 invited users
+        await expect(page.getByRole("link", { name: "View active users" })).toContainText("Active users");
+        await expect(page.getByRole("link", { name: "View active users" })).toContainText("1"); // Active: Only owner is active
+        await expect(page.getByRole("link", { name: "View invited users" })).toContainText("Invited users");
+        await expect(page.getByRole("link", { name: "View invited users" })).toContainText("3"); // Invited: 3 invited users
+      })();
 
-      // Act & Assert: Click active users link & verify URL filtering shows only active users
-      await page.getByRole("link", { name: "View active users" }).click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
-      expect(page.url()).toContain("userStatus=Active");
+      await step("Click active users link & verify URL filtering shows only active users")(async () => {
+        await page.getByRole("link", { name: "View active users" }).click();
+        await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+        await expect(page.locator("tbody tr")).toHaveCount(1); // Only active users (owner)
+        expect(page.url()).toContain("userStatus=Active");
+      })();
 
-      // Act & Assert: Navigate back to all users & verify bulk operations UI elements are not yet implemented
-      await page.getByRole("button", { name: "Users" }).first().click();
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(userTable.locator("tr")).toHaveCount(4); // All users visible again
-      await expect(page.getByRole("button", { name: "Delete selected users" })).not.toBeVisible(); // Not implemented yet
-      await expect(page.getByRole("button", { name: "Bulk actions" })).not.toBeVisible(); // Not implemented yet
+      await step("Navigate back to all users & verify bulk operations UI elements are not yet implemented")(
+        async () => {
+          const userTable = page.locator("tbody");
+          await page.getByRole("button", { name: "Users" }).first().click();
+          await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+          await expect(userTable.locator("tr")).toHaveCount(4); // All users visible again
+          await expect(page.getByRole("button", { name: "Delete selected users" })).not.toBeVisible(); // Not implemented yet
+          await expect(page.getByRole("button", { name: "Bulk actions" })).not.toBeVisible(); // Not implemented yet
+        }
+      )();
     });
   });
 });

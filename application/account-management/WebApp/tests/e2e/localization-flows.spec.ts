@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { step } from "@shared/e2e/utils/step-decorator";
 import { assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
