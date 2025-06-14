@@ -7,9 +7,6 @@ import { expect } from "@playwright/test";
 export interface MonitoringResults {
   consoleMessages: ConsoleMessage[];
   networkErrors: string[];
-  toastMessages: string[];
-  assertedToasts: string[]; // Track toasts that have been asserted to prevent re-capture
-  toastPollingInterval?: NodeJS.Timeout;
   expectedStatusCodes: number[];
 }
 
@@ -47,8 +44,6 @@ function startMonitoring(page: Page): MonitoringResults {
   const results: MonitoringResults = {
     consoleMessages: [],
     networkErrors: [],
-    toastMessages: [],
-    assertedToasts: [],
     expectedStatusCodes: []
   };
 
@@ -127,7 +122,8 @@ function startMonitoring(page: Page): MonitoringResults {
  * @param context Test context containing page and monitoring
  * @param statusOrMessage The expected HTTP status code (e.g., 400, 403, 409) or just the message
  * @param expectedMessage The expected toast message text (can be partial match) - optional if first param is the message
- * @param options Options for assertion behavior
+ * @param options Options for assertion behavior:
+ *   - expectNetworkError: Whether to expect network error (default: true)
  */
 export async function assertToastMessage(
   context: TestContext,
@@ -135,7 +131,7 @@ export async function assertToastMessage(
   expectedMessage?: string,
   options: AssertToastOptions = { expectNetworkError: true }
 ): Promise<void> {
-  const { monitoring, page } = context;
+  const { page } = context;
   const toastRegionSelector = '[role="region"]';
   const timeoutMs = 3000;
 
@@ -256,14 +252,10 @@ export async function assertNetworkErrors(context: TestContext, expectedStatusCo
  * Assert that ALL queues are completely empty - no unexpected errors or console messages
  * @param context Test context containing page and monitoring
  */
-export function assertNoUnexpectedErrors(context: TestContext): void {
+export async function assertNoUnexpectedErrors(context: TestContext): Promise<void> {
   const monitoring = context.monitoring;
 
-  // Clear the toast polling interval to stop monitoring
-  if (monitoring.toastPollingInterval) {
-    clearInterval(monitoring.toastPollingInterval);
-    monitoring.toastPollingInterval = undefined;
-  }
+  // No polling interval cleanup needed anymore
 
   // Handle any expected network errors
   if (monitoring.expectedStatusCodes.length > 0) {
@@ -329,40 +321,40 @@ export function assertNoUnexpectedErrors(context: TestContext): void {
 }
 
 /**
- * Internal function to capture toast messages from the page
- * @param page Playwright page instance
- * @param timeoutMs Maximum time to wait for toast messages
- * @returns Array of toast message texts found
+ * Silently check for unexpected toasts without adding to trace
+ * This runs after each step to verify no unexpected toasts appeared
+ * @param context Test context containing page and monitoring
+ * @param expectedMessage Optional message to exclude from unexpected list (currently being asserted)
+ * @returns Array of unexpected toast messages found
  */
-async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<string[]> {
-  const toastMessages: string[] = [];
+export async function checkUnexpectedToasts(context: TestContext, expectedMessage?: string): Promise<string[]> {
+  const { page } = context;
+  const unexpectedToasts: string[] = [];
 
   try {
     const toastRegionSelector = '[role="region"]';
 
-    try {
-      await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
-    } catch {
-      return toastMessages;
+    // Quick non-blocking check - don't wait if no toasts exist
+    const toastRegions = page.locator(toastRegionSelector);
+    const regionCount = await toastRegions.count();
+
+    if (regionCount === 0) {
+      return unexpectedToasts;
     }
 
+    // Get all current toast messages
     const toastElements = await page.locator(`${toastRegionSelector} > div`).all();
 
     for (const toastElement of toastElements) {
       try {
-        // Try to get the description text specifically (the main message content)
-        // The toast structure has title (HTTP status) and description (actual message)
         const descriptionElement = toastElement.locator('div[class*="whitespace-pre-line"]').first();
         const descriptionText = await descriptionElement.textContent();
 
         if (descriptionText?.trim()) {
-          toastMessages.push(descriptionText.trim());
-        } else {
-          // Fallback: if no description element found, get the full text content
-          // This maintains backward compatibility for toasts that don't follow the expected structure
-          const text = await toastElement.textContent();
-          if (text?.trim()) {
-            toastMessages.push(text.trim());
+          const toastMessage = descriptionText.trim();
+          // Exclude the currently expected message
+          if (!expectedMessage || !toastMessage.includes(expectedMessage)) {
+            unexpectedToasts.push(toastMessage);
           }
         }
       } catch {
@@ -370,8 +362,8 @@ async function captureToastMessages(page: Page, timeoutMs = 1000): Promise<strin
       }
     }
   } catch {
-    // No toasts found
+    // No toasts found or error accessing them
   }
 
-  return toastMessages;
+  return unexpectedToasts;
 }

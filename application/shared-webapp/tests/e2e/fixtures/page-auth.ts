@@ -55,7 +55,7 @@ async function performFreshAuthentication(
 
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {
-    await page.waitForSelector('[role="dialog"]', { state: "detached", timeout: 2000 });
+    await page.locator('[role="dialog"]').waitFor({ state: "detached", timeout: 2000 });
   } catch {
     // Dialog might not exist or already be closed, which is fine
   }
