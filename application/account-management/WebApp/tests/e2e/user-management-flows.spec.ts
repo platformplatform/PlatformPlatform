@@ -175,6 +175,7 @@ test.describe("User Management Flow", () => {
       await page.keyboard.press("Escape");
     });
   });
+});
 
   test.describe("@comprehensive", () => {
     /**
