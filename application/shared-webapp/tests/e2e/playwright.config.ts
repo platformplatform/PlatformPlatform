@@ -42,10 +42,12 @@ export default defineConfig({
     video: process.env.PLAYWRIGHT_VIDEO_MODE === "on" ? "on" : "retain-on-failure"
   },
 
-  // Global timeout for each test (dynamic based on slow tests)
-  timeout: process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT) : 30000,
-
-  // Global timeout for expect assertions
+  // Global timeout for each test (double timeout for slow motion)
+  timeout: (() => {
+    const baseTimeout = process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT) : 30000;
+    const isSlowMotion = !!process.env.PLAYWRIGHT_SLOW_MO;
+    return isSlowMotion ? baseTimeout * 2 : baseTimeout;
+  })(),
   expect: {
     timeout: 10000
   },
