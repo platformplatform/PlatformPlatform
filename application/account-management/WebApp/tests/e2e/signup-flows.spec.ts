@@ -2,10 +2,10 @@ import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { step } from "@shared/e2e/utils/step-decorator";
 import {
-  assertToastMessage,
-  assertValidationError,
   blurActiveElement,
-  createTestContext
+  createTestContext,
+  expectToastMessage,
+  expectValidationError
 } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser, uniqueEmail } from "@shared/e2e/utils/test-data";
 
@@ -79,7 +79,7 @@ test.describe("@smoke", () => {
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG1");
 
-      await assertToastMessage(testContext, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(testContext, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -100,8 +100,8 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertValidationError(testContext, "First name must be between 1 and 30 characters.");
-      await assertValidationError(testContext, "Last name must be between 1 and 30 characters.");
+      await expectValidationError(testContext, "First name must be between 1 and 30 characters.");
+      await expectValidationError(testContext, "Last name must be between 1 and 30 characters.");
     })();
 
     await step("Fill form with one field too long and one missing & verify all validation errors appear")(async () => {
@@ -113,9 +113,9 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expect(page.getByRole("dialog")).toBeVisible();
-      await assertValidationError(testContext, "First name must be between 1 and 30 characters.");
-      await assertValidationError(testContext, "Last name must be between 1 and 30 characters.");
-      await assertValidationError(testContext, "Title must be no longer than 50 characters.");
+      await expectValidationError(testContext, "First name must be between 1 and 30 characters.");
+      await expectValidationError(testContext, "Last name must be between 1 and 30 characters.");
+      await expectValidationError(testContext, "Title must be no longer than 50 characters.");
     })();
 
     await step("Complete profile setup with valid data & verify navigation to dashboard")(async () => {
@@ -124,7 +124,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Title" }).fill("CEO & Founder");
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertToastMessage(testContext, 200, "Profile updated successfully");
+      await expectToastMessage(testContext, 200, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -158,7 +158,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertValidationError(testContext, "Name must be between 1 and 30 characters.");
+      await expectValidationError(testContext, "Name must be between 1 and 30 characters.");
     })();
 
     await step("Update account name & verify successful save")(async () => {
@@ -167,7 +167,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Save changes" }).focus(); // WebKit requires explicit focus before clicking
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertToastMessage(testContext, 200, "Account updated successfully");
+      await expectToastMessage(testContext, 200, "Account updated successfully");
     })();
 
     await step("Update user profile title & verify successful profile update")(async () => {
@@ -177,7 +177,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertToastMessage(testContext, 200, "Profile updated successfully");
+      await expectToastMessage(testContext, 200, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
@@ -209,21 +209,21 @@ test.describe("@comprehensive", () => {
 
     await step("Enter first wrong code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG1");
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Enter second wrong code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Enter third wrong code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -231,7 +231,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.type("WRONG4");
       await page.getByRole("button", { name: "Verify" }).click();
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-      await assertToastMessage(context, 403, "Too many attempts, please request a new code.");
+      await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
     })();
@@ -259,7 +259,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Create your account" }).click();
 
       await expect(page).toHaveURL("/signup");
-      await assertToastMessage(
+      await expectToastMessage(
         context,
         429,
         "Too many attempts to confirm this email address. Please try again later."
@@ -304,7 +304,7 @@ test.describe("@slow", () => {
     )(async () => {
       await page.getByRole("button", { name: "Request a new code" }).click();
 
-      await assertToastMessage(context, "A new verification code has been sent to your email.");
+      await expectToastMessage(context, "A new verification code has been sent to your email.");
       await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
       await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     })();
@@ -351,7 +351,7 @@ test.describe("@slow", () => {
       async () => {
         await page.getByRole("button", { name: "Request a new code" }).click();
 
-        await assertToastMessage(context, "A new verification code has been sent to your email.");
+        await expectToastMessage(context, "A new verification code has been sent to your email.");
         await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
         await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
       }

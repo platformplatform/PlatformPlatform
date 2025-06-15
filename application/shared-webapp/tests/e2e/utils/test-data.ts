@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import type { Page} from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { assertToastMessage } from "./test-assertions";
+import { expectToastMessage } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
@@ -116,7 +116,7 @@ export async function completeSignupFlow(
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
-  await assertToastMessage(context, "Success", "Profile updated successfully");
+  await expectToastMessage(context, "Success", "Profile updated successfully");
 
   // Step 5: Wait for successful completion
   await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();

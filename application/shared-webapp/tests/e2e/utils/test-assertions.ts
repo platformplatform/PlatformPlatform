@@ -19,7 +19,7 @@ export interface TestContext {
 }
 
 /**
- * Options for assertToastMessage function
+ * Options for expectToastMessage function
  */
 interface AssertToastOptions {
   expectNetworkError?: boolean;
@@ -105,14 +105,14 @@ function startMonitoring(page: Page): MonitoringResults {
 }
 
 /**
- * Assert that EXACTLY ONE toast message occurred
+ * Expect that EXACTLY ONE toast message occurred
  * @param context Test context containing page and monitoring
  * @param statusOrMessage The expected HTTP status code (e.g., 400, 403, 409) or just the message
  * @param expectedMessage The expected toast message text (can be partial match) - optional if first param is the message
  * @param options Options for assertion behavior:
  *   - expectNetworkError: Whether to expect network error (default: true)
  */
-export async function assertToastMessage(
+export async function expectToastMessage(
   context: TestContext,
   statusOrMessage: string | number,
   expectedMessage?: string,
@@ -180,17 +180,17 @@ Ensure tests assert all expected toasts or fix the root cause.`
     // Only look for network errors if it's actually an error status code (4xx, 5xx)
     if (status >= 400) {
       // Clean up the network error immediately
-      await assertNetworkErrors(context, [status]);
+      await expectNetworkErrors(context, [status]);
     }
   }
 }
 
 /**
- * Assert that a validation error message is visible on the page and automatically clean up 400 network errors
+ * Expect that a validation error message is visible on the page and automatically clean up 400 network errors
  * @param context Test context containing page and monitoring
  * @param expectedMessage The expected validation error message text (can be partial match)
  */
-export async function assertValidationError(context: TestContext, expectedMessage: string): Promise<void> {
+export async function expectValidationError(context: TestContext, expectedMessage: string): Promise<void> {
   const { monitoring, page } = context;
   const timeoutMs = 3000;
 
@@ -222,11 +222,11 @@ export async function assertValidationError(context: TestContext, expectedMessag
 }
 
 /**
- * Assert that specific network errors occurred and remove them from monitoring
+ * Expect that specific network errors occurred and remove them from monitoring
  * @param context Test context containing page and monitoring
  * @param expectedStatusCodes Array of expected HTTP status codes (e.g., [401, 403])
  */
-export async function assertNetworkErrors(context: TestContext, expectedStatusCodes: number[]): Promise<void> {
+export async function expectNetworkErrors(context: TestContext, expectedStatusCodes: number[]): Promise<void> {
   const { monitoring } = context;
 
   for (const statusCode of expectedStatusCodes) {
@@ -322,7 +322,7 @@ function buildUnexpectedErrorsMessage(networkErrors: string[], unassertedToasts:
     });
     errorParts.push("");
     errorParts.push("💡 Solutions:");
-    errorParts.push("   • If this error is expected, use: assertNetworkErrors(context, [statusCode])");
+    errorParts.push("   • If this error is expected, use: expectNetworkErrors(context, [statusCode])");
     errorParts.push("   • If this is a bug, fix the root cause in the application");
     errorParts.push("");
   }
@@ -334,7 +334,7 @@ function buildUnexpectedErrorsMessage(networkErrors: string[], unassertedToasts:
     });
     errorParts.push("");
     errorParts.push("💡 Solutions:");
-    errorParts.push('   • If this toast is expected, use: assertToastMessage(context, "message")');
+    errorParts.push('   • If this toast is expected, use: expectToastMessage(context, "message")');
     errorParts.push("   • If this toast shouldn't appear, fix the root cause in the application");
     errorParts.push("");
   }

@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { step } from "@shared/e2e/utils/step-decorator";
-import { assertToastMessage, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@comprehensive", () => {
@@ -44,7 +44,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Titel" }).fill("CEO");
       await page.getByRole("button", { name: "Gem ændringer" }).click();
 
-      await assertToastMessage(context, "Profil opdateret succesfuldt");
+      await expectToastMessage(context, "Profil opdateret succesfuldt");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
     })();
@@ -116,7 +116,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Efternavn" }).fill(user1.lastName);
       await page1.getByRole("button", { name: "Gem ændringer" }).click();
 
-      await assertToastMessage(testContext1, 200, "Profil opdateret succesfuldt");
+      await expectToastMessage(testContext1, 200, "Profil opdateret succesfuldt");
       await expect(page1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(page1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();

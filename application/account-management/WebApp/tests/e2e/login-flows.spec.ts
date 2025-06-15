@@ -2,11 +2,11 @@ import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { step } from "@shared/e2e/utils/step-decorator";
 import {
-  assertNetworkErrors,
-  assertToastMessage,
-  assertValidationError,
   blurActiveElement,
-  createTestContext
+  createTestContext,
+  expectNetworkErrors,
+  expectToastMessage,
+  expectValidationError
 } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
@@ -25,7 +25,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
     })();
 
     await step("Enter invalid email format & verify validation error")(async () => {
@@ -34,7 +34,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
     })();
 
     await step("Enter email exceeding maximum length & verify validation error")(async () => {
@@ -44,7 +44,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
     })();
 
     await step("Enter email with consecutive dots & verify validation error")(async () => {
@@ -53,7 +53,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login");
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
     })();
 
     // === SUCCESSFUL LOGIN FLOW ===
@@ -72,7 +72,7 @@ test.describe("@smoke", () => {
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
 
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -97,12 +97,12 @@ test.describe("@smoke", () => {
       await page.goto("/admin/users");
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
 
-      await assertNetworkErrors(context, [401]);
+      await expectNetworkErrors(context, [401]);
 
       await page.goto("/admin");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await assertNetworkErrors(context, [401]);
+      await expectNetworkErrors(context, [401]);
     })();
 
     // === SECURITY EDGE CASES ===
@@ -149,7 +149,7 @@ test.describe("@comprehensive", () => {
     await step("Enter first wrong code & verify error and focus reset")(async () => {
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
 
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -157,7 +157,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
 
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -165,7 +165,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
 
-      await assertToastMessage(context, 400, "The code is wrong or no longer valid.");
+      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
@@ -174,7 +174,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Verify" }).click();
 
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-      await assertToastMessage(context, 403, "Too many attempts, please request a new code.");
+      await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
     })();
@@ -208,7 +208,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login");
-      await assertToastMessage(
+      await expectToastMessage(
         context,
         429,
         "Too many attempts to confirm this email address. Please try again later."
@@ -249,7 +249,7 @@ test.describe("@slow", () => {
     await step("Click request new code & verify success message and button hides")(async () => {
       await page.getByRole("button", { name: "Request a new code" }).click();
 
-      await assertToastMessage(context, "A new verification code has been sent to your email.");
+      await expectToastMessage(context, "A new verification code has been sent to your email.");
       await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
       await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     })();
@@ -291,7 +291,7 @@ test.describe("@slow", () => {
     await step("Request new code & verify success and button hides")(async () => {
       await page.getByRole("button", { name: "Request a new code" }).click();
 
-      await assertToastMessage(context, "A new verification code has been sent to your email.");
+      await expectToastMessage(context, "A new verification code has been sent to your email.");
       await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
       await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     })();

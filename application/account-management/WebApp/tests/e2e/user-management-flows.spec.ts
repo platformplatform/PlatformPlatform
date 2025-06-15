@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { step } from "@shared/e2e/utils/step-decorator";
-import { assertToastMessage, assertValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { expectToastMessage, expectValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
@@ -42,7 +42,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await assertValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
+      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
       await expect(page.getByRole("dialog")).toBeVisible();
     })();
 
@@ -50,7 +50,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await assertToastMessage(context, "User invited successfully");
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.locator("tbody").locator("tr")).toHaveCount(2);
       await expect(page.getByText(`${memberUser.email}`)).toBeVisible();
@@ -61,7 +61,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await assertToastMessage(context, "User invited successfully");
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.locator("tbody").locator("tr")).toHaveCount(3);
       await expect(page.getByText(`${adminUser.email}`)).toBeVisible();
@@ -75,7 +75,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Member User role" }).click();
       await page.getByRole("option", { name: "Admin" }).click();
 
-      await assertToastMessage(context, `User role updated successfully for ${adminUser.email}`);
+      await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
       await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
       await expect(adminUserRow).toContainText("Admin");
     })();
@@ -93,7 +93,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await assertToastMessage(context, 400, `The user with '${memberUser.email}' already exists.`);
+      await expectToastMessage(context, 400, `The user with '${memberUser.email}' already exists.`);
 
       await page.getByRole("button", { name: "Cancel" }).click();
 
@@ -177,7 +177,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Title" }).fill("Administrator");
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await assertToastMessage(context, "Profile updated successfully");
+      await expectToastMessage(context, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -255,7 +255,7 @@ test.describe("@comprehensive", () => {
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Send invite" }).click();
 
-        await assertToastMessage(context, "User invited successfully");
+        await expectToastMessage(context, "User invited successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
       }
 
@@ -346,7 +346,7 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "Delete" }).click();
 
-      await assertToastMessage(context, "User deleted successfully");
+      await expectToastMessage(context, "User deleted successfully");
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(2);
       await expect(page.getByText(user2.email)).not.toBeVisible();
@@ -365,7 +365,7 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "Delete" }).click();
 
-      await assertToastMessage(context, "User deleted successfully");
+      await expectToastMessage(context, "User deleted successfully");
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(1);
       await expect(page.locator("tbody")).toContainText(owner.email);

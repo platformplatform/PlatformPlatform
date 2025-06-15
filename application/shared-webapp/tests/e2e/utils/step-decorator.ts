@@ -29,7 +29,7 @@ interface StepOptions {
  * // Direct function usage
  * await step('Delete user & verify removal', { timeout: 5000 })(async () => {
  *   await deleteUser();
- *   await assertToastMessage(context, "User deleted successfully");
+ *   await expectToastMessage(context, "User deleted successfully");
  * })();
  * ```
  */
@@ -57,7 +57,7 @@ export function step(description: string, options: StepOptions = {}): any {
               `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
               `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
               `   Solutions:\n` +
-              `   • Add missing toast assertion: await assertToastMessage(context, "expected message")\n` +
+              `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
               `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
             );
           } else if (duration > allowedTimeout) {
@@ -134,7 +134,7 @@ export function step(description: string, options: StepOptions = {}): any {
             `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
             `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
             `   Solutions:\n` +
-            `   • Add missing toast assertion: await assertToastMessage(context, "expected message")\n` +
+            `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
             `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
           );
         } else if (duration > allowedTimeout) {
