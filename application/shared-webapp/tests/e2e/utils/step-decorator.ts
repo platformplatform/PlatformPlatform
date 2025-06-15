@@ -48,25 +48,32 @@ export function step(description: string, options: StepOptions = {}): any {
           const duration = endTime - startTime;
 
           // Check for slow steps that might indicate missing toast assertions
+          // Skip slow step detection during debug mode or slow-mo to prevent false failures
+          const isDebugMode = Boolean(process.env.PLAYWRIGHT_SLOW_MO) || 
+                            process.env.PLAYWRIGHT_DEBUG === '1' || 
+                            process.env.PWDEBUG === '1';
+          
           const slowThreshold = 3500; // 3.5 seconds
           const allowedTimeout = options.timeout || slowThreshold;
           
-          if (duration >= slowThreshold && !options.timeout) {
-            const durationSeconds = (duration / 1000).toFixed(1);
-            throw new Error(
-              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
-              `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
-              `   Solutions:\n` +
-              `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
-              `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
-            );
-          } else if (duration > allowedTimeout) {
-            const durationSeconds = (duration / 1000).toFixed(1);
-            const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
-            throw new Error(
-              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
-              `💡 Consider increasing the timeout or optimizing the step.`
-            );
+          if (!isDebugMode) {
+            if (duration >= slowThreshold && !options.timeout) {
+              const durationSeconds = (duration / 1000).toFixed(1);
+              throw new Error(
+                `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
+                `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
+                `   Solutions:\n` +
+                `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
+                `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
+              );
+            } else if (duration > allowedTimeout) {
+              const durationSeconds = (duration / 1000).toFixed(1);
+              const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
+              throw new Error(
+                `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
+                `💡 Consider increasing the timeout or optimizing the step.`
+              );
+            }
           }
 
           // Debug timing output if enabled
@@ -125,25 +132,32 @@ export function step(description: string, options: StepOptions = {}): any {
         const duration = endTime - startTime;
 
         // Check for slow steps that might indicate missing toast assertions
+        // Skip slow step detection during debug mode or slow-mo to prevent false failures
+        const isDebugMode = Boolean(process.env.PLAYWRIGHT_SLOW_MO) || 
+                          process.env.PLAYWRIGHT_DEBUG === '1' || 
+                          process.env.PWDEBUG === '1';
+        
         const slowThreshold = 3500; // 3.5 seconds
         const allowedTimeout = options.timeout || slowThreshold;
         
-        if (duration >= slowThreshold && !options.timeout) {
-          const durationSeconds = (duration / 1000).toFixed(1);
-          throw new Error(
-            `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
-            `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
-            `   Solutions:\n` +
-            `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
-            `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
-          );
-        } else if (duration > allowedTimeout) {
-          const durationSeconds = (duration / 1000).toFixed(1);
-          const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
-          throw new Error(
-            `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
-            `💡 Consider increasing the timeout or optimizing the step.`
-          );
+        if (!isDebugMode) {
+          if (duration >= slowThreshold && !options.timeout) {
+            const durationSeconds = (duration / 1000).toFixed(1);
+            throw new Error(
+              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
+              `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
+              `   Solutions:\n` +
+              `   • Add missing toast assertion: await expectToastMessage(context, "expected message")\n` +
+              `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
+            );
+          } else if (duration > allowedTimeout) {
+            const durationSeconds = (duration / 1000).toFixed(1);
+            const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
+            throw new Error(
+              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
+              `💡 Consider increasing the timeout or optimizing the step.`
+            );
+          }
         }
 
         // Debug timing output if enabled
