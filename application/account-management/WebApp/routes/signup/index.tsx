@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -107,7 +107,7 @@ export function StartSignupForm() {
       <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>
-      <p className="text-muted-foreground text-xs">
+      <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}
         <Link href={loginPath}>
           <Trans>Log in</Trans>
@@ -125,7 +125,12 @@ export function StartSignupForm() {
           </Link>
         </div>
       </div>
-      <img src={poweredByUrl} alt={t`Powered by`} />
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-muted-foreground text-xs">
+          <Trans>Powered by</Trans>
+        </span>
+        <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+      </div>
     </Form>
   );
 }
