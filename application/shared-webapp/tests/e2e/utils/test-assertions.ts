@@ -131,7 +131,27 @@ export async function assertToastMessage(
   const toastLocator = page
     .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
     .first();
-  await toastLocator.waitFor({ timeout: timeoutMs });
+  
+  try {
+    await toastLocator.waitFor({ timeout: timeoutMs });
+  } catch (error) {
+    // If expected toast wasn't found, provide helpful error with actual toasts
+    const actualToasts = await checkUnexpectedToasts(context);
+    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    
+    throw new Error(
+      `Expected toast with message "${message}" not found within ${timeoutMs}ms.
+Found ${totalToastCount} toast(s) total.
+Actual toasts: ${actualToasts.length > 0 ? actualToasts.map((t) => `"${t}"`).join(", ") : "None"}
+
+💡 Solutions:
+  • If this toast should appear, check the application logic
+  • If the message is different, update the expected message
+  • If no toast should appear, remove this assertion
+
+Original error: ${error}`
+    );
+  }
 
   // Check for multiple toasts
   const allToasts = await checkUnexpectedToasts(context, message);
@@ -341,6 +361,52 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
     const regionCount = await toastRegions.count();
 
     if (regionCount === 0) {
+      // DEBUG: If no role="region" found, let's look for other potential toast selectors
+      const debugToasts = await page.evaluate(() => {
+        const toasts = [];
+        
+        // Look for ANY element that might contain toast text patterns
+        document.querySelectorAll('*').forEach(el => {
+          const text = el.textContent?.trim();
+          if (text && text.length > 0) {
+            // Check for success/deletion patterns
+            if (text.includes('deleted successfully') || 
+                text.includes('User deleted') ||
+                text.includes('Success') ||
+                (text.includes('success') && text.includes('delete'))) {
+              
+              // Make sure element is visible
+              const rect = el.getBoundingClientRect();
+              if (rect.width > 0 && rect.height > 0) {
+                toasts.push(text);
+              }
+            }
+          }
+        });
+        
+        // Also specifically look for common toast class patterns
+        document.querySelectorAll('[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]').forEach(el => {
+          const text = el.textContent?.trim();
+          if (text && text.length > 0) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              toasts.push(text);
+            }
+          }
+        });
+        
+        return toasts;
+      });
+      
+      // If we found potential toasts with alternative selectors, add them
+      if (debugToasts.length > 0) {
+        debugToasts.forEach(toast => {
+          if (!expectedMessage || !toast.includes(expectedMessage)) {
+            unexpectedToasts.push(toast);
+          }
+        });
+      }
+      
       return unexpectedToasts;
     }
 

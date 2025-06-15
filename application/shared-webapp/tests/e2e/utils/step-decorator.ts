@@ -1,9 +1,15 @@
 import { test } from '@playwright/test';
 
+interface StepOptions {
+  /** Expected timeout in milliseconds for slow operations (e.g., waiting for OTP timeouts) */
+  timeout?: number;
+}
+
 /**
  * Decorator function that wraps methods in Playwright test steps.
  * 
  * @param description - Required description for the test step
+ * @param options - Optional configuration for the step
  * @returns Method decorator that wraps the original method in test.step()
  * 
  * @example
@@ -14,15 +20,20 @@ import { test } from '@playwright/test';
  *     await this.page.goto('/users');
  *   }
  * 
- *   @step('Invite user with email')
- *   async inviteUser(email: string) {
- *     await this.page.fill('[data-testid="email-input"]', email);
- *     await this.page.click('[data-testid="invite-button"]');
+ *   @step('Wait for OTP timeout', { timeout: 30000 })
+ *   async waitForOtpTimeout() {
+ *     await this.page.waitForTimeout(30000);
  *   }
  * }
+ * 
+ * // Direct function usage
+ * await step('Delete user & verify removal', { timeout: 5000 })(async () => {
+ *   await deleteUser();
+ *   await assertToastMessage(context, "User deleted successfully");
+ * })();
  * ```
  */
-export function step(description: string): any {
+export function step(description: string, options: StepOptions = {}): any {
   // Support both decorator usage and direct function wrapping
   function stepFunction(targetOrFunction: any, propertyKey?: string, descriptor?: PropertyDescriptor): any {
     // If called with a function directly (not as decorator)
@@ -35,6 +46,28 @@ export function step(description: string): any {
           const finalResult = result && typeof result.then === 'function' ? await result : result;
           const endTime = performance.now();
           const duration = endTime - startTime;
+
+          // Check for slow steps that might indicate missing toast assertions
+          const slowThreshold = 3500; // 3.5 seconds
+          const allowedTimeout = options.timeout || slowThreshold;
+          
+          if (duration >= slowThreshold && !options.timeout) {
+            const durationSeconds = (duration / 1000).toFixed(1);
+            throw new Error(
+              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
+              `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
+              `   Solutions:\n` +
+              `   • Add missing toast assertion: await assertToastMessage(context, "expected message")\n` +
+              `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
+            );
+          } else if (duration > allowedTimeout) {
+            const durationSeconds = (duration / 1000).toFixed(1);
+            const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
+            throw new Error(
+              `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
+              `💡 Consider increasing the timeout or optimizing the step.`
+            );
+          }
 
           // Debug timing output if enabled
           if (process.env.PLAYWRIGHT_SHOW_DEBUG_TIMING === 'true') {
@@ -90,6 +123,28 @@ export function step(description: string): any {
         const finalResult = result && typeof result.then === 'function' ? await result : result;
         const endTime = performance.now();
         const duration = endTime - startTime;
+
+        // Check for slow steps that might indicate missing toast assertions
+        const slowThreshold = 3500; // 3.5 seconds
+        const allowedTimeout = options.timeout || slowThreshold;
+        
+        if (duration >= slowThreshold && !options.timeout) {
+          const durationSeconds = (duration / 1000).toFixed(1);
+          throw new Error(
+            `❌ Step "${description}" took ${durationSeconds}s, which exceeds the ${slowThreshold/1000}s threshold.\n\n` +
+            `💡 This usually indicates missing toast assertions. Unasserted toasts cause 3+ second delays.\n` +
+            `   Solutions:\n` +
+            `   • Add missing toast assertion: await assertToastMessage(context, "expected message")\n` +
+            `   • If this step is intentionally slow, add timeout: step("${description}", { timeout: ${Math.ceil(duration)} })`
+          );
+        } else if (duration > allowedTimeout) {
+          const durationSeconds = (duration / 1000).toFixed(1);
+          const timeoutSeconds = (allowedTimeout / 1000).toFixed(1);
+          throw new Error(
+            `❌ Step "${description}" took ${durationSeconds}s, which exceeds the allowed timeout of ${timeoutSeconds}s.\n\n` +
+            `💡 Consider increasing the timeout or optimizing the step.`
+          );
+        }
 
         // Debug timing output if enabled
         if (process.env.PLAYWRIGHT_SHOW_DEBUG_TIMING === 'true') {
