@@ -274,6 +274,9 @@ msgstr "Owner"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 

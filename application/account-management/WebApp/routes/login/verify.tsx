@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -287,7 +287,12 @@ export function CompleteLoginForm() {
         >
           <Trans>Back to login</Trans>
         </Link>
-        <img src={poweredByUrl} alt={t`Powered by`} className="mt-4" />
+        <div className="mt-6 flex flex-col items-center gap-1">
+          <span className="text-muted-foreground text-xs">
+            <Trans>Powered by</Trans>
+          </span>
+          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+        </div>
       </div>
     </div>
   );

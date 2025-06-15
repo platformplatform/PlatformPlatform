@@ -274,6 +274,9 @@ msgstr "Ejer"
 msgid "Pending"
 msgstr "Afventer"
 
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -281,7 +284,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Powered by"
-msgstr "Drevet af"
+msgstr "Powered by"
 
 msgid "Preview avatar"
 msgstr "Forhåndsvisning af avatar"
@@ -345,7 +348,7 @@ msgid "Show filters"
 msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"

@@ -82,7 +82,7 @@ msgid "Back to signup"
 msgstr "Terug naar aanmelding"
 
 msgid "By continuing, you accept our policies"
-msgstr "Door verder te gaan, accepteer je onze voorwaarden"
+msgstr "Door te gaan, accepteer je onze voorwaarden"
 
 msgid "Can't find your code?"
 msgstr "Kun je je code niet vinden?"
@@ -274,6 +274,9 @@ msgstr "Eigenaar"
 msgid "Pending"
 msgstr "In behandeling"
 
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}</0>"
 
@@ -281,7 +284,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
 msgid "Powered by"
-msgstr "Mogelijk gemaakt door"
+msgstr "Powered by"
 
 msgid "Preview avatar"
 msgstr "Voorbeeld avatar"
@@ -345,7 +348,7 @@ msgid "Show filters"
 msgstr "Filters tonen"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlatform – net als duizenden anderen."
+msgstr "Meld je aan en begin direct met bouwen op PlatformPlatform – net als duizenden anderen."
 
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
