@@ -11,11 +11,19 @@ These rules outline the structure, patterns, and best practices for writing end-
 ## Implementation
 
 1. Use `[CLI_ALIAS] e2e` with these option categories to optimize test execution:
-   - Test filtering: `--smoke`, `--include-slow`, `--grep`, `--browser`
-   - Change scoping: `--last-failed`, `--only-changed`
+   - Test filtering: `--smoke`, `--include-slow`, search terms (e.g., `"@smoke"`, `"smoke"`, `"user"`, `"localization"`), `--browser`
+   - Change scoping: `--last-failed`, `--only-changed`  
    - Flaky test detection: `--repeat-each`, `--retries`, `--stop-on-first-failure`
 
-2. Test-Driven Debugging Process:
+2. Test Search and Filtering:
+   - Search by test tags: `[CLI_ALIAS] e2e "@smoke"` or `[CLI_ALIAS] e2e "smoke"` (both work the same)
+   - Search by test content: `[CLI_ALIAS] e2e "user"` (finds tests with "user" in title or content)
+   - Search by filename: `[CLI_ALIAS] e2e "localization"` (finds localization-flows.spec.ts)
+   - Search by specific file: `[CLI_ALIAS] e2e "user-management-flows.spec.ts"`
+   - Multiple search terms: `[CLI_ALIAS] e2e "user" "management"`
+   - The CLI automatically detects which self-contained systems contain matching tests and only runs those
+
+3. Test-Driven Debugging Process:
    - Focus on one failing test at a time and make it pass before moving to the next.
    - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
@@ -75,6 +83,54 @@ These rules outline the structure, patterns, and best practices for writing end-
 
 ## Examples
 
+### ✅ Good Step Naming Examples
+```typescript
+// ✅ DO: Business action + details & expected outcome
+await step("Submit invalid email & verify validation error")(async () => {
+  await page.getByLabel("Email").fill("invalid-email");
+  await blurActiveElement(page);
+  
+  await expectValidationError(context, "Invalid email.");
+})();
+
+await step("Sign up with valid credentials & verify account creation")(async () => {
+  await page.getByRole("button", { name: "Submit" }).click();
+  
+  await expect(page.getByText("Welcome")).toBeVisible();
+})();
+
+await step("Update user role to admin & verify permission change")(async () => {
+  const userRow = page.locator("tbody tr").first();
+  
+  await userRow.getByLabel("User actions").click();
+  await page.getByRole("menuitem", { name: "Change role" }).click();
+  
+  await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
+})();
+```
+
+### ❌ Bad Step Naming Examples
+```typescript
+// ❌ DON'T: Pure assertion steps without actions
+await step("Verify button is visible")(async () => {
+  await expect(page.getByRole("button")).toBeVisible(); // No action, only assertion
+})();
+
+// ❌ DON'T: Using test/assertion prefixes
+await step("Check user permissions")(async () => { // "Check" is assertion prefix
+  await expect(page.getByText("Admin")).toBeVisible();
+})();
+
+await step("Validate form state")(async () => { // "Validate" is assertion prefix
+  await expect(page.getByRole("textbox")).toBeEmpty();
+})();
+
+await step("Ensure user is deleted")(async () => { // "Ensure" is assertion prefix
+  await expect(page.getByText("user@example.com")).not.toBeVisible();
+})();
+```
+
+### ✅ Complete Test Example
 ```typescript
 test.describe("@smoke", () => {
     test("should complete full signup flow from homepage to admin dashboard", async ({ page }) => {
