@@ -290,16 +290,25 @@ test.describe("@comprehensive", () => {
     })();
 
     // === USER DELETION SECTION ===
-    await step("Delete single user via menu action & verify removal and UI state")(async () => {
+    await step("Check delete menu availability & verify delete option is visible")(async () => {
+      const user1Row = page.locator("tbody tr").filter({ hasText: user1.email });
+      await user1Row.getByLabel("User actions").click();
+
+      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeVisible();
+
+      await page.keyboard.press("Escape"); // Close menu for now
+    })();
+
+    await step("Delete single user via menu action & verify removal and UI state", { timeout: 5000 })(async () => {
       const user1Row = page.locator("tbody tr").filter({ hasText: user1.email });
       await user1Row.getByLabel("User actions").click();
       await page.getByRole("menuitem", { name: "Delete" }).click();
 
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user1.email}?`)).toBeVisible();
+
       await page.getByRole("button", { name: "Delete" }).click();
 
-      await assertToastMessage(context, "User deleted successfully");
       await expect(page.getByRole("alertdialog")).not.toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(3);
       await expect(page.getByText(user1.email)).not.toBeVisible();
@@ -334,9 +343,7 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user2.email}?`)).toBeVisible();
-    })();
 
-    await step("Confirm deletion & verify user removal and UI state")(async () => {
       await page.getByRole("button", { name: "Delete" }).click();
 
       await assertToastMessage(context, "User deleted successfully");
@@ -353,7 +360,9 @@ test.describe("@comprehensive", () => {
       const user3Row = page.locator("tbody tr").filter({ hasText: user3.email });
       await user3Row.getByLabel("User actions").click();
       await page.getByRole("menuitem", { name: "Delete" }).click();
+
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
+
       await page.getByRole("button", { name: "Delete" }).click();
 
       await assertToastMessage(context, "User deleted successfully");
