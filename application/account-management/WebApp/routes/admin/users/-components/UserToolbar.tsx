@@ -11,9 +11,10 @@ type UserDetails = components["schemas"]["UserDetails"];
 
 interface UserToolbarProps {
   selectedUsers: UserDetails[];
+  onSelectedUsersChange: (users: UserDetails[]) => void;
 }
 
-export function UserToolbar({ selectedUsers }: Readonly<UserToolbarProps>) {
+export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -39,7 +40,12 @@ export function UserToolbar({ selectedUsers }: Readonly<UserToolbarProps>) {
         )}
       </div>
       <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
-      <DeleteUserDialog users={selectedUsers} isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
+      <DeleteUserDialog
+        users={selectedUsers}
+        isOpen={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+        onUsersDeleted={() => onSelectedUsersChange([])}
+      />
     </div>
   );
 }
