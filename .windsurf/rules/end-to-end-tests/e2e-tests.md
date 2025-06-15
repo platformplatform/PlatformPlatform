@@ -14,6 +14,7 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Test filtering: `--smoke`, `--include-slow`, search terms (e.g., `"@smoke"`, `"smoke"`, `"user"`, `"localization"`), `--browser`
    - Change scoping: `--last-failed`, `--only-changed`  
    - Flaky test detection: `--repeat-each`, `--retries`, `--stop-on-first-failure`
+   - Performance: `--debug-timings` shows step execution times with color coding
 
 2. Test Search and Filtering:
    - Search by test tags: `[CLI_ALIAS] e2e "@smoke"` or `[CLI_ALIAS] e2e "smoke"` (both work the same)
@@ -27,7 +28,6 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Focus on one failing test at a time and make it pass before moving to the next.
    - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
-   - Use Browser MCP to manually test the feature and verify it works correctly outside of automated tests.
 
 3. Organize tests in a consistent file structure:
    - For smoke tests: One `smoke.spec.ts` file per self-contained system that tests the entire system comprehensively.
@@ -75,11 +75,28 @@ These rules outline the structure, patterns, and best practices for writing end-
 5. Write deterministic tests - This is critical for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions.
    - Never use if statements, custom error handling, or try/catch blocks in tests.
-   - Tests should be independent and not rely on state from other tests.
+   - Never use regular expressions in tests; use simple string matching instead.
 
 6. What to test:
 - Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
+
+8. Test Fixtures and Page Management:
+   - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests.
+   - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
+   - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests.
+   - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests.
+
+9. Test Data and Constants:
+   - Use underscore separators: `const timeout = 30_000; // 30 seconds`
+   - Generate unique data: `const email = uniqueEmail();`
+   - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
+   - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
+
+10. Memory Management in E2E Tests:
+    - Playwright automatically handles browser context cleanup after tests
+    - Manual cleanup steps are unnecessary - focus on test clarity over micro-optimizations
+    - E2E test suites have minimal memory leak concerns due to their limited scope and duration
 
 ## Examples
 
@@ -132,6 +149,10 @@ await step("Ensure user is deleted")(async () => { // "Ensure" is assertion pref
 
 ### ✅ Complete Test Example
 ```typescript
+import { step } from "@shared/e2e/utils/step-decorator";
+import { assertValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { testUser } from "@shared/e2e/utils/test-data";
+
 test.describe("@smoke", () => {
     test("should complete full signup flow from homepage to admin dashboard", async ({ page }) => {
     const context = createTestContext(page); // ✅ DO: Always start with this
@@ -160,7 +181,7 @@ test.describe("@smoke", () => {
 ```
 
 ```typescript
-test.describe("@security", () => { // ❌ DON'T: Don't invent new tags
+test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @smoke, @comprehensive, @slow only
   test("should handle login", async ({ page }) => {
     // ❌ DON'T: Skip createTestContext(page); step
 
@@ -170,15 +191,16 @@ test.describe("@security", () => { // ❌ DON'T: Don't invent new tags
     }
   });
 
+  // ❌ DON'T: Place assertions outside test functions
   expect(page.url().includes("/admin") || page.url().includes("/login")).toBeTruthy(); // ❌ DON'T: Use ambiguous assertions
 
-  // ❌ DON'T: Use try/catch to handle flaky behavior
+  // ❌ DON'T: Use try/catch to handle flaky behavior - makes tests unreliable
   try {
-    await page.waitForLoadState("networkidle"); // ❌ DON'T: Don't add timeout logic in tests
-    await page.getByRole("button", { name: "Submit" }).click();
+    await page.waitForLoadState("networkidle"); // ❌ DON'T: Add timeout logic in tests
+    await page.getByRole("button", { name: "Submit" }).click({ timeout: 1000 }); // ❌ DON'T: Add timeouts to actions
   } catch (error) {
-    await page.waitForTimeout(1000); // ❌ DON'T: Don't add timeout logic in tests
-    // Fallback logic - this masks real issues!
+    await page.waitForTimeout(1000); // ❌ DON'T: Add manual waits
+    console.log("Retrying..."); // ❌ DON'T: Add custom error handling
   }
 });
 
