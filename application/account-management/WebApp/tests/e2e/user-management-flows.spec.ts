@@ -274,12 +274,12 @@ test.describe("@comprehensive", () => {
     })();
 
     // === URL FILTERING SECTION ===
-    await step("Click active users link & verify URL filtering works correctly")(async () => {
-      await page.getByRole("link", { name: "View active users" }).click();
+    await step("Click invited users link & verify URL filtering works correctly")(async () => {
+      await page.getByRole("link", { name: "View invited users" }).click();
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(1);
-      await expect(page.url()).toContain("userStatus=Active");
+      await expect(page.locator("tbody tr")).toHaveCount(3);
+      await expect(page.url()).toContain("userStatus=Pending");
     })();
 
     await step("Navigate to all users & verify initial UI state")(async () => {
