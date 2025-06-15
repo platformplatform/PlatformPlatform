@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { step } from "@shared/e2e/utils/step-decorator";
-import { expectToastMessage, expectValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, expectValidationError } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
@@ -228,11 +228,13 @@ test.describe("@comprehensive", () => {
    * Tests comprehensive user deletion functionality with dashboard context including:
    * - Dashboard metrics integration (user count displays)
    * - URL-based filtering (active users link)
-   * - Single user deletion via table actions and menu
+   * - Single user deletion via menu actions
+   * - Bulk user selection by clicking rows with Ctrl/Cmd modifier
+   * - Bulk deletion of multiple users via "Delete X users" button
    * - Owner protection mechanisms (deletion restrictions)
    * - UI state management after deletions (selection clearing, button visibility)
    */
-  test("should handle user deletion workflows with dashboard integration", async ({ page }) => {
+  test("should handle single and bulk user deletion workflows with dashboard integration", async ({ page }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const user1 = testUser();
@@ -289,17 +291,8 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("button", { name: "Delete user" })).not.toBeVisible();
     })();
 
-    // === USER DELETION SECTION ===
-    await step("Check delete menu availability & verify delete option is visible")(async () => {
-      const user1Row = page.locator("tbody tr").filter({ hasText: user1.email });
-      await user1Row.getByLabel("User actions").click();
-
-      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeVisible();
-
-      await page.keyboard.press("Escape"); // Close menu for now
-    })();
-
-    await step("Delete single user via menu action & verify removal and UI state", { timeout: 5000 })(async () => {
+    // === SINGLE USER DELETION SECTION ===
+    await step("Delete single user via menu & verify removal")(async () => {
       const user1Row = page.locator("tbody tr").filter({ hasText: user1.email });
       await user1Row.getByLabel("User actions").click();
       await page.getByRole("menuitem", { name: "Delete" }).click();
@@ -310,68 +303,67 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Delete" }).click();
 
       await expect(page.getByRole("alertdialog")).not.toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(3);
+      await expect(page.locator("tbody tr")).toHaveCount(3); // owner + user2 + user3
       await expect(page.getByText(user1.email)).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete user" })).not.toBeVisible();
       await expect(page.locator("tbody")).toContainText(owner.email);
+      await expect(page.locator("tbody")).toContainText(user2.email);
+      await expect(page.locator("tbody")).toContainText(user3.email);
+    })();
+
+    // === BULK USER SELECTION SECTION ===
+    await step("Select remaining two users by clicking rows & verify selection state")(async () => {
+      const user2Row = page.locator("tbody tr").filter({ hasText: user2.email });
+      const user3Row = page.locator("tbody tr").filter({ hasText: user3.email });
+
+      // Select first user by clicking the row
+      await user2Row.click();
+      await expect(user2Row).toHaveAttribute("aria-selected", "true");
+      await expect(page.getByRole("button", { name: "Delete user" })).toBeVisible();
+
+      // Select second user by clicking the row (should enable multi-selection)
+      await user3Row.click({ modifiers: ["ControlOrMeta"] });
+      await expect(user3Row).toHaveAttribute("aria-selected", "true");
+      await expect(user2Row).toHaveAttribute("aria-selected", "true");
+      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
+    })();
+
+    // === BULK USER DELETION SECTION ===
+    await step("Cancel bulk deletion & verify users remain selected")(async () => {
+      await page.getByRole("button", { name: "Delete 2 users" }).click();
+
+      await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
+      await expect(page.getByText("Are you sure you want to delete 2 users?")).toBeVisible();
+
+      await page.getByRole("button", { name: "Cancel" }).click();
+
+      await expect(page.getByRole("alertdialog")).not.toBeVisible();
+      await expect(page.locator("tbody tr")).toHaveCount(3); // All users still present
+      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible(); // Selection maintained
+    })();
+
+    await step("Confirm bulk delete selected users & verify removal")(async () => {
+      await page.getByRole("button", { name: "Delete 2 users" }).click();
+
+      await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
+      await page.getByRole("button", { name: "Delete" }).click();
+
+      await expect(page.getByRole("alertdialog")).not.toBeVisible();
+      await expect(page.locator("tbody tr")).toHaveCount(1); // Only owner left
+      await expect(page.getByText(user2.email)).not.toBeVisible();
+      await expect(page.getByText(user3.email)).not.toBeVisible();
+      await expect(page.locator("tbody")).toContainText(owner.email);
+      await expect(page.getByRole("button", { name: "Delete 2 users" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
     })();
 
     // === OWNER PROTECTION SECTION ===
-    await step("Click owner menu & verify delete option is disabled")(async () => {
+    await step("Verify owner menu delete option is disabled")(async () => {
       const ownerRow = page.locator("tbody tr").filter({ hasText: owner.email });
       await ownerRow.getByLabel("User actions").click();
 
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
 
       await page.keyboard.press("Escape");
-    })();
-
-    await step("Hover over owner row & verify delete button is disabled")(async () => {
-      const ownerRow = page.locator("tbody tr").filter({ hasText: owner.email });
-      await ownerRow.hover();
-
-      const deleteButton = ownerRow.locator("button").first();
-      await expect(deleteButton).toBeDisabled();
-    })();
-
-    // === ADDITIONAL DELETION TESTING SECTION ===
-    await step("Delete second user via menu & verify confirmation dialog")(async () => {
-      const user2Row = page.locator("tbody tr").filter({ hasText: user2.email });
-      await user2Row.getByLabel("User actions").click();
-      await page.getByRole("menuitem", { name: "Delete" }).click();
-
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
-      await expect(page.getByText(`Are you sure you want to delete ${user2.email}?`)).toBeVisible();
-
-      await page.getByRole("button", { name: "Delete" }).click();
-
-      await expectToastMessage(context, "User deleted successfully");
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(2);
-      await expect(page.getByText(user2.email)).not.toBeVisible();
-      await expect(page.locator("tbody")).toContainText(owner.email);
-      await expect(page.locator("tbody")).toContainText(user3.email);
-      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete user" })).not.toBeVisible();
-    })();
-
-    await step("Delete remaining member user & verify final state with only owner")(async () => {
-      const user3Row = page.locator("tbody tr").filter({ hasText: user3.email });
-      await user3Row.getByLabel("User actions").click();
-      await page.getByRole("menuitem", { name: "Delete" }).click();
-
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
-
-      await page.getByRole("button", { name: "Delete" }).click();
-
-      await expectToastMessage(context, "User deleted successfully");
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
-      await expect(page.locator("tbody tr")).toHaveCount(1);
-      await expect(page.locator("tbody")).toContainText(owner.email);
-      await expect(page.getByText(user3.email)).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete user" })).not.toBeVisible();
     })();
   });
 });
