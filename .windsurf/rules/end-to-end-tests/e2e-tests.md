@@ -11,17 +11,25 @@ These rules outline the structure, patterns, and best practices for writing end-
 ## Implementation
 
 1. Use `[CLI_ALIAS] e2e` with these option categories to optimize test execution:
-   - Test filtering: `--smoke`, `--include-slow`, `--grep`, `--browser`
-   - Change scoping: `--last-failed`, `--only-changed`
+   - Test filtering: `--smoke`, `--include-slow`, search terms (e.g., `"@smoke"`, `"smoke"`, `"user"`, `"localization"`), `--browser`
+   - Change scoping: `--last-failed`, `--only-changed`  
    - Flaky test detection: `--repeat-each`, `--retries`, `--stop-on-first-failure`
    - Performance: `--debug-timings` shows step execution times with color coding
 
-2. Test-Driven Debugging Process:
+2. Test Search and Filtering:
+   - Search by test tags: `[CLI_ALIAS] e2e "@smoke"` or `[CLI_ALIAS] e2e "smoke"` (both work the same)
+   - Search by test content: `[CLI_ALIAS] e2e "user"` (finds tests with "user" in title or content)
+   - Search by filename: `[CLI_ALIAS] e2e "localization"` (finds localization-flows.spec.ts)
+   - Search by specific file: `[CLI_ALIAS] e2e "user-management-flows.spec.ts"`
+   - Multiple search terms: `[CLI_ALIAS] e2e "user" "management"`
+   - The CLI automatically detects which self-contained systems contain matching tests and only runs those
+
+3. Test-Driven Debugging Process:
    - Focus on one failing test at a time and make it pass before moving to the next.
    - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
 
-3. Organize tests in a consistent file structure:
+4. Organize tests in a consistent file structure:
    - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`).
    - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`.
    - `@smoke` tests:
@@ -45,58 +53,107 @@ These rules outline the structure, patterns, and best practices for writing end-
      - Include tests for rate limiting with actual wait times, session timeouts, etc.
      - Use `test.setTimeout()` at the individual test level based on actual wait times needed.
 
-4. Structure each test with step decorators and proper monitoring:
+5. Structure each test with step decorators and proper monitoring:
    - All tests must start with `const context = createTestContext(page);` for proper error monitoring.
    - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
    - Step naming conventions:
-     - Always follow "[Action verb + details] & [expected outcome]" pattern.
-     - Use action verbs like "Submit", "Enter", "Navigate", "Complete", "Toggle".
-     - Never use "Test" prefixes; use descriptive action words instead.
+     - Always follow "[Business action + details] & [expected outcome]" pattern.
+     - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit".
+     - Never use test/assertion prefixes like "Test", "Verify", "Check", "Validate", "Ensure"; use descriptive business actions instead.
+     - Every step must include an action (arrange/act) followed by assertions, not pure assertion steps.
    - Step structure:
      - Use blank lines to separate arrange/act/assert sections within steps.
      - Keep shared variable declarations outside steps when used across multiple steps.
      - Use section headers with `// === SECTION NAME ===` to group related steps.
      - Add JSDoc comments for complex test workflows.
    - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`.
-   - Assert side effects immediately after actions using `assertToastMessage`, `assertValidationError`, `assertNetworkErrors`.
+   - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`.
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation.
 
-5. Timeout Configuration:
+6. Timeout Configuration:
    - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
    - Global timeout configuration is handled in the shared Playwright. Don't change this.
 
-6. Write deterministic tests - This is critical for reliable testing:
+7. Write deterministic tests - This is critical for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions.
    - Never use if statements, custom error handling, or try/catch blocks in tests.
    - Never use regular expressions in tests; use simple string matching instead.
 
-7. What to test:
+8. What to test:
    - Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
-8. Test Fixtures and Page Management:
+9. Test Fixtures and Page Management:
    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests.
    - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
    - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests.
    - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests.
 
-9. Test Data and Constants:
+10. Test Data and Constants:
    - Use underscore separators: `const timeout = 30_000; // 30 seconds`
    - Generate unique data: `const email = uniqueEmail();`
    - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
    - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
 
-10. Memory Management in E2E Tests:
+11. Memory Management in E2E Tests:
     - Playwright automatically handles browser context cleanup after tests
     - Manual cleanup steps are unnecessary - focus on test clarity over micro-optimizations
     - E2E test suites have minimal memory leak concerns due to their limited scope and duration
 
 ## Examples
 
+### ✅ Good Step Naming Examples
+```typescript
+// ✅ DO: Business action + details & expected outcome
+await step("Submit invalid email & verify validation error")(async () => {
+  await page.getByLabel("Email").fill("invalid-email");
+  await blurActiveElement(page);
+  
+  await expectValidationError(context, "Invalid email.");
+})();
+
+await step("Sign up with valid credentials & verify account creation")(async () => {
+  await page.getByRole("button", { name: "Submit" }).click();
+  
+  await expect(page.getByText("Welcome")).toBeVisible();
+})();
+
+await step("Update user role to admin & verify permission change")(async () => {
+  const userRow = page.locator("tbody tr").first();
+  
+  await userRow.getByLabel("User actions").click();
+  await page.getByRole("menuitem", { name: "Change role" }).click();
+  
+  await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
+})();
+```
+
+### ❌ Bad Step Naming Examples
+```typescript
+// ❌ DON'T: Pure assertion steps without actions
+await step("Verify button is visible")(async () => {
+  await expect(page.getByRole("button")).toBeVisible(); // No action, only assertion
+})();
+
+// ❌ DON'T: Using test/assertion prefixes
+await step("Check user permissions")(async () => { // "Check" is assertion prefix
+  await expect(page.getByText("Admin")).toBeVisible();
+})();
+
+await step("Validate form state")(async () => { // "Validate" is assertion prefix
+  await expect(page.getByRole("textbox")).toBeEmpty();
+})();
+
+await step("Ensure user is deleted")(async () => { // "Ensure" is assertion prefix
+  await expect(page.getByText("user@example.com")).not.toBeVisible();
+})();
+```
+
+### ✅ Complete Test Example
 ```typescript
 import { step } from "@shared/e2e/utils/step-decorator";
-import { assertValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { expectValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
@@ -104,15 +161,15 @@ test.describe("@smoke", () => {
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Enter invalid email & verify validation error")(async () => {
+    await step("Submit invalid email & verify validation error")(async () => {
       await page.goto("/signup");
       await page.getByLabel("Email").fill("invalid-email");
       await blurActiveElement(page); // ✅ DO: Trigger validation when updating textbox second time
 
-      await assertValidationError(context, "Invalid email.");
+      await expectValidationError(context, "Invalid email.");
     })();
 
-    await step("Submit valid email & verify success")(async () => {
+    await step("Sign up with valid email & verify verification redirect")(async () => {
       await page.getByLabel("Email").fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
@@ -125,7 +182,7 @@ test.describe("@comprehensive", () => {
   test("should handle user management with pre-logged owner", async ({ ownerPage }) => {
     createTestContext(ownerPage); // ✅ DO: Create context for pre-logged users
 
-    await step("Navigate to users & verify owner access")(async () => {
+    await step("Access user management & verify owner permissions")(async () => {
       await ownerPage.getByRole("button", { name: "Users" }).click();
 
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
@@ -160,8 +217,10 @@ test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @sm
     // ❌ DON'T: Skip createTestContext(page); step
     page.setDefaultTimeout(5000); // ❌ DON'T: Set timeouts manually - use global config
     
-    // ❌ DON'T: Use "Test" prefixes in step descriptions
+    // ❌ DON'T: Use test/assertion prefixes in step descriptions
     await step("Test login functionality")(async () => { // ❌ Should be "Submit login form & verify authentication"
+    await step("Verify button is visible")(async () => { // ❌ Should be "Navigate to page & verify button is visible"
+    await step("Check user permissions")(async () => { // ❌ Should be "Click user menu & verify permissions"
       if (page.url().includes("/login/verify")) { // ❌ DON'T: Add conditional logic - tests should be linear
         await page.waitForTimeout(2000); // ❌ DON'T: Add manual timeouts
         // Continue with verification... // ❌ DON'T: Write verbose explanatory comments

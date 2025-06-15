@@ -58,7 +58,7 @@ These rules outline the structure, patterns, and best practices for writing end-
      - Use section headers with `// === SECTION NAME ===` to group related steps.
      - Add JSDoc comments for complex test workflows.
    - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`.
-   - Assert side effects immediately after actions using `assertToastMessage`, `assertValidationError`, `assertNetworkErrors`.
+   - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`.
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation.
 
 5. Timeout Configuration:
@@ -101,7 +101,7 @@ await step("Submit invalid email & verify validation error")(async () => {
   await page.getByLabel("Email").fill("invalid-email");
   await blurActiveElement(page);
   
-  await assertValidationError(context, "Invalid email.");
+  await expectValidationError(context, "Invalid email.");
 })();
 
 await step("Sign up with valid credentials & verify account creation")(async () => {
@@ -144,7 +144,7 @@ await step("Ensure user is deleted")(async () => { // "Ensure" is assertion pref
 ### ✅ Complete Test Example
 ```typescript
 import { step } from "@shared/e2e/utils/step-decorator";
-import { assertValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { expectValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
@@ -157,7 +157,7 @@ test.describe("@smoke", () => {
       await page.getByLabel("Email").fill("invalid-email");
       await blurActiveElement(page); // ✅ DO: Trigger validation when updating textbox second time
 
-      await assertValidationError(context, "Invalid email.");
+      await expectValidationError(context, "Invalid email.");
     })();
 
     await step("Sign up with valid email & verify verification redirect")(async () => {
