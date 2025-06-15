@@ -120,6 +120,7 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
         users={userToDelete ? [userToDelete] : []}
         isOpen={userToDelete !== null}
         onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
+        onUsersDeleted={() => onSelectedUsersChange([])}
       />
 
       <Table

@@ -54,7 +54,7 @@ export default function UsersPage() {
           <Trans>Manage your users and permissions here.</Trans>
         </p>
 
-        <UserToolbar selectedUsers={selectedUsers} />
+        <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
         <UserTable selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
       </AppLayout>
     </>

@@ -244,9 +244,6 @@ msgstr "Administrer dine brugere og tilladelser her."
 msgid "Member"
 msgstr "Medlem"
 
-msgid "Menu"
-msgstr ""
-
 msgid "Modified"
 msgstr "Ændret"
 

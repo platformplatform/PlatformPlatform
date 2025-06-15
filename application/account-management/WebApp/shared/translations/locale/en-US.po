@@ -244,9 +244,6 @@ msgstr "Manage your users and permissions here."
 msgid "Member"
 msgstr "Member"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Modified"
 
