@@ -30,6 +30,7 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
 
 4. Organize tests in a consistent file structure:
+   - All e2e test files must be located in `[self-contained-system]/WebApp/tests/e2e/` folder (e.g., `application/account-management/WebApp/tests/e2e/`).
    - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`).
    - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`.
    - `@smoke` tests:
@@ -53,7 +54,13 @@ These rules outline the structure, patterns, and best practices for writing end-
      - Include tests for rate limiting with actual wait times, session timeouts, etc.
      - Use `test.setTimeout()` at the individual test level based on actual wait times needed.
 
-5. Structure each test with step decorators and proper monitoring:
+5. Write clear test descriptions and documentation:
+   - Test descriptions must accurately reflect what the test covers and be kept in sync with test implementation.
+   - Use descriptive test names that clearly indicate the functionality being tested (e.g., "should handle single and bulk user deletion workflows with dashboard integration").
+   - Include JSDoc comments above complex tests listing all major features/scenarios covered.
+   - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes.
+
+6. Structure each test with step decorators and proper monitoring:
    - All tests must start with `const context = createTestContext(page);` for proper error monitoring.
    - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
    - Step naming conventions:
@@ -70,33 +77,33 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`.
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation.
 
-6. Timeout Configuration:
+7. Timeout Configuration:
    - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
    - Global timeout configuration is handled in the shared Playwright. Don't change this.
 
-7. Write deterministic tests - This is critical for reliable testing:
+8. Write deterministic tests - This is critical for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions.
    - Never use if statements, custom error handling, or try/catch blocks in tests.
    - Never use regular expressions in tests; use simple string matching instead.
 
-8. What to test:
+9. What to test:
    - Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
-9. Test Fixtures and Page Management:
+10. Test Fixtures and Page Management:
    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests.
    - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
    - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests.
    - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests.
 
-10. Test Data and Constants:
+11. Test Data and Constants:
    - Use underscore separators: `const timeout = 30_000; // 30 seconds`
    - Generate unique data: `const email = uniqueEmail();`
    - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
    - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
 
-11. Memory Management in E2E Tests:
+12. Memory Management in E2E Tests:
     - Playwright automatically handles browser context cleanup after tests
     - Manual cleanup steps are unnecessary - focus on test clarity over micro-optimizations
     - E2E test suites have minimal memory leak concerns due to their limited scope and duration
