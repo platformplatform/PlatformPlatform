@@ -282,13 +282,104 @@ test.describe("@comprehensive", () => {
       await expect(page.url()).toContain("userStatus=Pending");
     })();
 
-    await step("Navigate to all users & verify initial UI state")(async () => {
-      await page.getByRole("button", { name: "Users" }).first().click();
+    // === ADVANCED FILTERING SECTION ===
+    await step("Open filters & verify all filter options are available")(async () => {
+      // Click the filter button to expand filter options  
+      await page.locator("button:near(input[placeholder='Search'])").last().click();
 
-      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      // Wait for filters to appear and verify dropdowns are visible
+      await expect(page.getByLabel("User role").first()).toBeVisible();
+      await expect(page.getByLabel("User status").first()).toBeVisible(); 
+      await expect(page.getByLabel("Modified date").first()).toBeVisible();
+    })();
+
+    await step("Filter by Owner role & verify only owner shown")(async () => {
+      // Reset status filter first
+      await page.getByLabel("User status").first().click();
+      await page.getByRole("option", { name: "Any status" }).click();
+      
+      // Filter by Owner role
+      await page.getByLabel("User role").first().click();
+      await page.getByRole("option", { name: "Owner" }).click();
+
+      // Verify only owner is shown
+      await expect(page.locator("tbody tr")).toHaveCount(1);
+      await expect(page.locator("tbody")).toContainText(owner.email);
+      await expect(page.locator("tbody")).not.toContainText(user1.email);
+      await expect(page.locator("tbody")).not.toContainText(user2.email);
+    })();
+
+    await step("Filter by Member role & verify only members shown")(async () => {
+      // Change filter to Member role
+      await page.getByLabel("User role").first().click();
+      await page.getByRole("option", { name: "Member" }).click();
+
+      // Verify only member users are shown
+      await expect(page.locator("tbody tr")).toHaveCount(3);
+      await expect(page.locator("tbody")).toContainText(user1.email);
+      await expect(page.locator("tbody")).toContainText(user2.email);
+      await expect(page.locator("tbody")).toContainText(user3.email);
+      await expect(page.locator("tbody")).not.toContainText(owner.email);
+    })();
+
+    await step("Filter by Pending status & verify only pending users shown")(async () => {
+      // Reset role filter and set status filter
+      await page.getByLabel("User role").first().click();
+      await page.getByRole("option", { name: "Any role" }).click();
+
+      await page.getByLabel("User status").first().click();
+      await page.getByRole("option", { name: "Pending" }).click();
+
+      // Verify only pending users are shown (invited users who haven't confirmed)
+      await expect(page.locator("tbody tr")).toHaveCount(3);
+      await expect(page.locator("tbody")).toContainText(user1.email);
+      await expect(page.locator("tbody")).toContainText(user2.email);
+      await expect(page.locator("tbody")).toContainText(user3.email);
+      await expect(page.locator("tbody")).not.toContainText(owner.email);
+    })();
+
+    await step("Filter by Active status & verify only active users shown")(async () => {
+      // Change filter to Active status
+      await page.getByLabel("User status").first().click();
+      await page.getByRole("option", { name: "Active" }).click();
+
+      // Verify only active users are shown (owner who has confirmed email)
+      await expect(page.locator("tbody tr")).toHaveCount(1);
+      await expect(page.locator("tbody")).toContainText(owner.email);
+      await expect(page.locator("tbody")).not.toContainText(user1.email);
+    })();
+
+    await step("Filter by past date range & verify no users shown")(async () => {
+      // Reset status filter first
+      await page.getByLabel("User status").first().click();
+      await page.getByRole("option", { name: "Any status" }).click();
+
+      // Set date range using the DateRangePicker spinbutton segments
+      // Start date: 01/01/2020
+      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').type('01');
+      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').type('01');
+      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').type('2020');
+      
+      // End date: 12/31/2020
+      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').type('12');
+      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').type('31');
+      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').type('2020');
+      
+      // Verify no users are shown for the past date range (Playwright auto-waits for condition)
+      await expect(page.locator("tbody tr")).toHaveCount(0);
+    })();
+
+    // === CLEAR FILTERS FOR CLEAN DELETION TESTS ===
+    await step("Clear all filters & verify all users shown again for clean deletion tests")(async () => {
+      // Reset any remaining filters to show all users
+      await page.getByRole("button", { name: "Hide filters" }).click();
+
+      // Verify all users are shown again
       await expect(page.locator("tbody tr")).toHaveCount(4);
-      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete user" })).not.toBeVisible();
+      await expect(page.locator("tbody")).toContainText(owner.email);
+      await expect(page.locator("tbody")).toContainText(user1.email);
+      await expect(page.locator("tbody")).toContainText(user2.email);
+      await expect(page.locator("tbody")).toContainText(user3.email);
     })();
 
     // === SINGLE USER DELETION SECTION ===
