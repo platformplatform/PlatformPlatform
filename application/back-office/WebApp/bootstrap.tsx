@@ -1,6 +1,7 @@
 import "@repo/ui/tailwind.css";
 import { router } from "@/shared/lib/router/router";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
+import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/errorHandler";
 import { Translation } from "@repo/infrastructure/translations/Translation";
 import { GlobalToastRegion } from "@repo/ui/components/Toast";
 import { RouterProvider } from "@tanstack/react-router";
@@ -16,6 +17,8 @@ const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error("Root element not found.");
 }
+
+setupGlobalErrorHandlers();
 
 reactDom.createRoot(rootElement).render(
   <React.StrictMode>

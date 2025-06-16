@@ -13,7 +13,7 @@ import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/Authen
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
-import { handleError } from "./errorHandler";
+import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 
 /**
@@ -41,17 +41,16 @@ function createHttpMiddleware() {
     },
     onResponse: async ({ response }: { request: Request; response: Response }) => {
       if (!response.ok) {
-        // Process error directly through handleError to ensure validation errors are properly handled
-        const error = await handleError(response);
-        return Promise.reject(error);
+        // Normalize error and re-throw, so failed requests are handled via error handling
+        throw await normalizeError(response);
       }
 
       return response;
     },
     onRequestError: async ({ error }: { error: unknown; request: Request }) => {
-      // Process error directly through handleError to ensure validation errors are properly handled
-      const processedError = await handleError(error);
-      return Promise.reject(processedError);
+      // Normalize error and re-throw, so failed requests are handled via error handling
+
+      throw await normalizeError(error);
     }
   };
 }
@@ -71,7 +70,7 @@ export const queryClient = new QueryClient({
   },
   queryCache: new QueryCache({
     onError: (error: unknown) => {
-      handleError(error);
+      throw error;
     }
   }),
   mutationCache: new MutationCache({
@@ -79,7 +78,12 @@ export const queryClient = new QueryClient({
       queryClient.invalidateQueries();
     },
     onError: (error: unknown) => {
-      handleError(error);
+      // Validation errors in mutations should be handled by UI
+      const httpError = error as HttpError;
+      if (httpError.kind === "validation") {
+        return;
+      }
+      throw error;
     }
   })
 });
