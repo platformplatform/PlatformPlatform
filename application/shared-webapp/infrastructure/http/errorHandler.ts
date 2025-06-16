@@ -145,7 +145,7 @@ export function showErrorToast(error: HttpError): void {
     showTimeoutToast();
   } else if (error.kind === "server") {
     showServerErrorToast(error);
-  } else if (error.kind !== "validation") {
+  } else {
     showUnknownErrorToast(error);
   }
 }

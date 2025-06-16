@@ -65,7 +65,19 @@ export const queryClient = new QueryClient({
       retry: false
     },
     mutations: {
-      retry: false
+      retry: false,
+      // Mutations can override this error handler if custom error handling is needed.
+      onError: (error: unknown) => {
+        // Validation errors in mutations should be handled by UI
+        const httpError = error as HttpError;
+        if (httpError.kind === "validation") {
+          return;
+        }
+
+        // Re-throwing using "throw" does not bubble the error to the global error handler.
+        // We use an unhandled promise rejection instead:
+        Promise.reject(error);
+      }
     }
   },
   queryCache: new QueryCache({
@@ -76,14 +88,6 @@ export const queryClient = new QueryClient({
   mutationCache: new MutationCache({
     onSuccess: () => {
       queryClient.invalidateQueries();
-    },
-    onError: (error: unknown) => {
-      // Validation errors in mutations should be handled by UI
-      const httpError = error as HttpError;
-      if (httpError.kind === "validation") {
-        return;
-      }
-      throw error;
     }
   })
 });
