@@ -13,7 +13,7 @@ import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/Authen
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
-import { handleError } from "./errorHandler";
+import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 
 /**
@@ -41,17 +41,16 @@ function createHttpMiddleware() {
     },
     onResponse: async ({ response }: { request: Request; response: Response }) => {
       if (!response.ok) {
-        // Process error directly through handleError to ensure validation errors are properly handled
-        const error = await handleError(response);
-        return Promise.reject(error);
+        // Normalize error and re-throw, so failed requests are handled via error handling
+        throw await normalizeError(response);
       }
 
       return response;
     },
     onRequestError: async ({ error }: { error: unknown; request: Request }) => {
-      // Process error directly through handleError to ensure validation errors are properly handled
-      const processedError = await handleError(error);
-      return Promise.reject(processedError);
+      // Normalize error and re-throw, so failed requests are handled via error handling
+
+      throw await normalizeError(error);
     }
   };
 }
@@ -66,20 +65,29 @@ export const queryClient = new QueryClient({
       retry: false
     },
     mutations: {
-      retry: false
+      retry: false,
+      // Mutations can override this error handler if custom error handling is needed.
+      onError: (error: unknown) => {
+        // Validation errors in mutations should be handled by UI
+        const httpError = error as HttpError;
+        if (httpError.kind === "validation") {
+          return;
+        }
+
+        // Re-throwing using "throw" does not bubble the error to the global error handler.
+        // We use an unhandled promise rejection instead:
+        Promise.reject(error);
+      }
     }
   },
   queryCache: new QueryCache({
     onError: (error: unknown) => {
-      handleError(error);
+      throw error;
     }
   }),
   mutationCache: new MutationCache({
     onSuccess: () => {
       queryClient.invalidateQueries();
-    },
-    onError: (error: unknown) => {
-      handleError(error);
     }
   })
 });

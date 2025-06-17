@@ -8,7 +8,7 @@
  *
  * Use this module when working with endpoints that don't have OpenAPI/strongly-typed definitions
  */
-import { handleError } from "./errorHandler";
+import { normalizeError } from "./errorHandler";
 
 // Default timeout for all fetch requests (in milliseconds)
 export const DEFAULT_TIMEOUT = 30000;
@@ -50,12 +50,11 @@ export async function enhancedFetch(input: RequestInfo | URL, init?: RequestInit
     const response = await window.fetch(input, enhancedInit);
 
     if (!response.ok) {
-      throw await handleError(response);
+      throw await normalizeError(response);
     }
 
     return response;
   } catch (error) {
-    // Process any errors through the central error handler
-    throw await handleError(error);
+    throw await normalizeError(error);
   }
 }
