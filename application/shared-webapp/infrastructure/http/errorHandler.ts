@@ -24,12 +24,16 @@ export interface ServerError extends Error {
   kind: "server";
   status: number;
   problemDetails?: ProblemDetails;
+  title?: string | null;
+  detail?: string | null;
 }
 
 export interface ValidationError extends Error {
   kind: "validation";
   errors: Record<string, string[]>;
   traceId?: string;
+  title?: string | null;
+  detail?: string | null;
 }
 
 export interface TimeoutError extends Error {
@@ -182,20 +186,30 @@ async function normalizeHttpResponseError(response: Response): Promise<HttpError
     const data = await response.clone().json();
 
     // Check if data matches the ProblemDetails structure
-    if (typeof data === "object" && data !== null && "type" in data && "title" in data && "status" in data) {
+    if (typeof data === "object" && data !== null && "title" in data && "status" in data) {
       // Check if it's a validation error
       if (data.errors && Object.keys(data.errors).length > 0) {
-        return createValidationError(data.errors, data.traceId);
+        const validationError = createValidationError(data.errors, data.traceId);
+        validationError.title = data.title;
+        validationError.detail = data.detail ?? null;
+        return validationError;
       }
 
       // Regular server error with ProblemDetails
-      return createServerError(response.status, data);
+      const serverError = createServerError(response.status, data);
+      serverError.title = data.title;
+      serverError.detail = data.detail ?? null;
+      return serverError;
     }
   } catch {
     // JSON parsing failed, continue to default error handling
   }
 
-  return createServerError(response.status);
+  const serverError = createServerError(response.status);
+  const message = getServerErrorMessage(response.status);
+  serverError.title = message.title;
+  serverError.detail = message.detail;
+  return serverError;
 }
 
 /**
@@ -242,7 +256,10 @@ export async function normalizeError(errorOrResponse: unknown): Promise<Error | 
   }
 
   // Handle any other unknown errors
-  return createServerError();
+  const serverError = createServerError();
+  serverError.title = "An unexpected error occurred";
+  serverError.detail = "Please try again later.";
+  return serverError;
 }
 
 export function setupGlobalErrorHandlers() {
