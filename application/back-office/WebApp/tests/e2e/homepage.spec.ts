@@ -5,7 +5,7 @@ import { createTestContext } from "@shared/e2e/utils/test-assertions";
 import {} from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
-  test("should handle theme and responsiveness across viewport sizes and authentication", async ({ ownerPage }) => {
+  test("Navigate to back-office & verify homepage loads correctly", async ({ ownerPage }) => {
     createTestContext(ownerPage);
 
     await step("Navigate to back-office & verify homepage loads correctly")(async () => {
