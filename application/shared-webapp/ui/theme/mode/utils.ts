@@ -1,23 +1,34 @@
-export type SystemThemeMode = "light" | "dark";
-export type ThemeMode = SystemThemeMode | "system";
-
-export function sanitizeThemeMode(themeMode: string | null): ThemeMode {
-  return themeMode === "light" || themeMode === "dark" ? themeMode : "system";
+export enum SystemThemeMode {
+  Light = "light",
+  Dark = "dark"
 }
 
-export function resolveThemeMode(...modes: ThemeMode[]): SystemThemeMode {
+export enum ThemeMode {
+  System = "system",
+  Light = "light",
+  Dark = "dark"
+}
+
+export function sanitizeThemeMode(themeMode: string | null): ThemeMode {
+  return themeMode === ThemeMode.Light || themeMode === ThemeMode.Dark ? (themeMode as ThemeMode) : ThemeMode.System;
+}
+
+export function resolveThemeMode(...modes: (ThemeMode | SystemThemeMode)[]): SystemThemeMode {
   for (const mode of modes) {
-    if (mode === "light" || mode === "dark") {
-      return mode;
+    if (mode === ThemeMode.Light) {
+      return SystemThemeMode.Light;
+    }
+    if (mode === ThemeMode.Dark) {
+      return SystemThemeMode.Dark;
     }
   }
 
-  return "light";
+  return SystemThemeMode.Light;
 }
 
 export const setClassNameThemeMode = (mode: ThemeMode) => {
-  document.documentElement.classList.remove("light", "dark");
-  if (mode === "dark" || mode === "light") {
+  document.documentElement.classList.remove(SystemThemeMode.Light, SystemThemeMode.Dark);
+  if (mode === ThemeMode.Dark || mode === ThemeMode.Light) {
     document.documentElement.classList.add(mode);
     document.documentElement.style.colorScheme = mode;
   } else {
@@ -25,12 +36,12 @@ export const setClassNameThemeMode = (mode: ThemeMode) => {
   }
 };
 
-export function getClassNameThemeMode() {
-  if (document.documentElement.classList.contains("light")) {
-    return "light";
+export function getClassNameThemeMode(): ThemeMode {
+  if (document.documentElement.classList.contains(SystemThemeMode.Light)) {
+    return ThemeMode.Light;
   }
-  if (document.documentElement.classList.contains("dark")) {
-    return "dark";
+  if (document.documentElement.classList.contains(SystemThemeMode.Dark)) {
+    return ThemeMode.Dark;
   }
-  return "system";
+  return ThemeMode.System;
 }
