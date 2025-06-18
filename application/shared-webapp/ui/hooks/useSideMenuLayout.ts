@@ -7,7 +7,12 @@ import { MEDIA_QUERIES, SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_EXPANDED_WIDTH } fr
  * Listens to side menu toggle events and screen size changes to calculate
  * the correct margin and width to prevent content from being hidden behind the menu.
  */
-export function useSideMenuLayout(): { className: string; style: React.CSSProperties; isOverlayOpen: boolean } {
+export function useSideMenuLayout(): {
+  className: string;
+  style: React.CSSProperties;
+  isOverlayOpen: boolean;
+  isMobileMenuOpen: boolean;
+} {
   // Track screen sizes
   const [isSmallScreen, setIsSmallScreen] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia(MEDIA_QUERIES.sm).matches : false
@@ -37,6 +42,7 @@ export function useSideMenuLayout(): { className: string; style: React.CSSProper
   });
 
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Listen for screen size changes
   useEffect(() => {
@@ -65,12 +71,18 @@ export function useSideMenuLayout(): { className: string; style: React.CSSProper
       setIsOverlayExpanded(event.detail.isExpanded);
     };
 
+    const handleMobileMenuToggle = (event: CustomEvent) => {
+      setIsMobileMenuOpen(event.detail.isOpen);
+    };
+
     window.addEventListener("side-menu-toggle", handleMenuToggle as EventListener);
     window.addEventListener("side-menu-overlay-toggle", handleOverlayToggle as EventListener);
+    window.addEventListener("mobile-menu-toggle", handleMobileMenuToggle as EventListener);
 
     return () => {
       window.removeEventListener("side-menu-toggle", handleMenuToggle as EventListener);
       window.removeEventListener("side-menu-overlay-toggle", handleOverlayToggle as EventListener);
+      window.removeEventListener("mobile-menu-toggle", handleMobileMenuToggle as EventListener);
     };
   }, []);
 
@@ -99,5 +111,5 @@ export function useSideMenuLayout(): { className: string; style: React.CSSProper
   // Determine if in overlay mode
   const isOverlayMode = isSmallScreen && !isLargeScreen;
 
-  return { className, style, isOverlayOpen: isOverlayMode && isOverlayExpanded };
+  return { className, style, isOverlayOpen: isOverlayMode && isOverlayExpanded, isMobileMenuOpen };
 }
