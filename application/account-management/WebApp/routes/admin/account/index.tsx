@@ -4,6 +4,7 @@ import logoWrap from "@/shared/images/logo-wrap.svg";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -31,9 +32,9 @@ export function AccountSettings() {
 
   return (
     <>
-      <div className="flex h-full w-full gap-4">
-        <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
-        <div className="flex w-full flex-col gap-4 px-4 py-3">
+      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
+      <AppLayout
+        topMenu={
           <TopMenu>
             <Breadcrumb href="/admin/account">
               <Trans>Account</Trans>
@@ -42,6 +43,9 @@ export function AccountSettings() {
               <Trans>Settings</Trans>
             </Breadcrumb>
           </TopMenu>
+        }
+      >
+        <div className="flex w-full flex-col gap-4 px-4 py-3">
           <div className="20 mb-4 flex w-full items-center justify-between space-x-2 sm:mt-4">
             <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
               <h1>
@@ -104,7 +108,7 @@ export function AccountSettings() {
 
           <Separator className="my-8" />
         </div>
-      </div>
+      </AppLayout>
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
     </>
