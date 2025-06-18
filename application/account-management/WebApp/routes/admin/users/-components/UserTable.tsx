@@ -122,7 +122,7 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
         onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
       />
 
-      <div className="flex h-full w-full flex-col gap-2">
+      <div className="flex h-[calc(100vh-326px)] w-full flex-col gap-4">
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
