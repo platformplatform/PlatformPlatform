@@ -58,7 +58,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Email", "Email must be in a valid format and no longer than 100 characters.")
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 

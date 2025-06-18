@@ -27,7 +27,7 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<
             var errorDetails = validationResults
                 .SelectMany(result => result.Errors)
                 .Where(failure => failure is not null)
-                .Select(failure => new ErrorDetail(failure.PropertyName.Split('.')[0], failure.ErrorMessage))
+                .Select(failure => new ErrorDetail(failure.PropertyName, failure.ErrorMessage))
                 .Distinct()
                 .ToArray();
 
