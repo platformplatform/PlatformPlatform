@@ -475,8 +475,9 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
             );
           }}
           blur={false}
+          fullSize={true}
         >
-          <Dialog className="fixed inset-0 z-[100] bg-background">
+          <Dialog className="!h-screen !w-screen !max-h-none !rounded-none !border-0 !bg-background !p-0 !shadow-none dark:!backdrop-blur-0">
             <div className="flex h-screen w-screen flex-col bg-background" ref={dialogRef}>
               <div className="flex h-20 items-center justify-between px-4">
                 <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />

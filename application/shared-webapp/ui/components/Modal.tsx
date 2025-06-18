@@ -6,7 +6,7 @@ import { Modal as AriaModal, ModalOverlay, type ModalOverlayProps } from "react-
 import { tv } from "tailwind-variants";
 
 const overlayStyles = tv({
-  base: "fixed top-0 left-0 isolate z-20 flex h-[--visual-viewport-height] w-full bg-black/[15%] text-center",
+  base: "fixed top-0 left-0 isolate z-[100] flex h-[--visual-viewport-height] w-full bg-black/[15%] text-center",
   variants: {
     isEntering: {
       true: "fade-in animate-in duration-200 ease-out"
