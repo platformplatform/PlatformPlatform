@@ -9,13 +9,12 @@ public static class SharedValidations
         // While emails can be longer, we will limit them to 100 characters which should be enough for most cases
         private const int EmailMaxLength = 100;
 
-        public Email(string emailName = nameof(Email))
+        public Email()
         {
             const string errorMessage = "Email must be in a valid format and no longer than 100 characters.";
 
             RuleFor(email => email)
                 .EmailAddress()
-                .WithName(emailName)
                 .WithMessage(errorMessage)
                 .MaximumLength(EmailMaxLength)
                 .WithMessage(errorMessage)
