@@ -2,34 +2,38 @@ import type { Href } from "@react-types/shared";
 import { useRouter } from "@tanstack/react-router";
 import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
 import type React from "react";
-import { createContext, useContext } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { ToggleButton, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
 import { Button } from "./Button";
 import { Dialog, DialogTrigger } from "./Dialog";
 import { Modal } from "./Modal";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { focusRing } from "./focusRing";
 
 const collapsedContext = createContext(false);
+const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
 
 const menuButtonStyles = tv({
-  base: "flex w-full justify-start font-normal text-base transition-all duration-300",
+  extend: focusRing,
+  base: "menu-item flex h-11 w-full justify-start gap-0 rounded-md py-2 pr-4 pl-4 font-normal text-base text-foreground hover:bg-accent/50 hover:text-foreground/80",
   variants: {
     isCollapsed: {
-      true: "gap-0 ease-out",
-      false: "gap-4 ease-in"
+      true: "ease-out",
+      false: "ease-in"
     }
   }
 });
 
 const menuTextStyles = tv({
-  base: "text-start text-foreground transition-all duration-300",
+  base: "overflow-hidden whitespace-nowrap text-start text-foreground",
   variants: {
     isCollapsed: {
       true: "w-0 text-xs opacity-0 ease-out",
-      false: "w-fit text-base opacity-100 ease-in"
+      false: "flex-1 text-base opacity-100 ease-in"
     }
   }
 });
@@ -57,11 +61,18 @@ export function MenuButton({
   forceReload = false
 }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
+  const overlayCtx = useContext(overlayContext);
   const { navigate } = useRouter();
   const onPress = () => {
     if (to == null) {
       return;
     }
+
+    // Auto-close overlay after navigation
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+
     if (forceReload) {
       window.location.href = to;
     } else {
@@ -70,52 +81,60 @@ export function MenuButton({
   };
 
   return (
-    <TooltipTrigger delay={300}>
-      <Button variant="link" className={menuButtonStyles({ isCollapsed })} onPress={onPress} isDisabled={isDisabled}>
-        <Icon className="h-6 w-6 shrink-0 grow-0" />
-        <div className={menuTextStyles({ isCollapsed })}>{label}</div>
-      </Button>
-      {isCollapsed && <Tooltip placement="right">{label}</Tooltip>}
+    <TooltipTrigger delay={0}>
+      <ToggleButton
+        className={composeRenderProps("", (className, renderProps) =>
+          menuButtonStyles({
+            ...renderProps,
+            className,
+            isCollapsed
+          })
+        )}
+        onPress={onPress}
+        isDisabled={isDisabled}
+      >
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+          <Icon className="h-6 w-6 stroke-foreground" />
+        </div>
+        <div className={`${menuTextStyles({ isCollapsed })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
+      </ToggleButton>
+      {isCollapsed && (
+        <Tooltip placement="right" offset={4}>
+          {label}
+        </Tooltip>
+      )}
     </TooltipTrigger>
   );
 }
 
 const sideMenuStyles = tv({
-  base: "relative hidden shrink-0 grow-0 flex-col items-start py-4 pr-2 transition-all duration-300 sm:flex",
+  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background transition-all duration-200",
   variants: {
     isCollapsed: {
-      true: "w-[72px] gap-2 pl-2 ease-out",
-      false: "w-72 gap-4 pl-8 ease-in"
+      true: "w-[72px] ease-out",
+      false: "w-72 ease-in"
+    },
+    overlayMode: {
+      true: "",
+      false: ""
+    },
+    isOverlayOpen: {
+      true: "shadow-2xl",
+      false: ""
+    },
+    isHidden: {
+      true: "hidden",
+      false: "flex"
     }
   }
 });
 
 const chevronStyles = tv({
-  base: "h-4 w-4 transition-all duration-300",
+  base: "h-4 w-4",
   variants: {
     isCollapsed: {
       true: "rotate-180 transform ease-out",
       false: "rotate-0 transform ease-in"
-    }
-  }
-});
-
-const logoWrapStyles = tv({
-  base: "self-start transition-all duration-300",
-  variants: {
-    isCollapsed: {
-      true: "h-8 opacity-0 ease-out",
-      false: "h-8 opacity-100 ease-in"
-    }
-  }
-});
-
-const logoMarkStyles = tv({
-  base: "self-start transition-all duration-300",
-  variants: {
-    isCollapsed: {
-      true: "h-8 opacity-100 ease-in",
-      false: "h-8 opacity-0 ease-out"
     }
   }
 });
@@ -126,52 +145,205 @@ type SideMenuProps = {
 };
 
 export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
-  const [isCollapsed, setIsCollapsed] = useLocalStorage<boolean>(
-    !window.matchMedia("(min-width: 1024px)").matches,
-    "side-menu-collapsed"
-  );
+  const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
+  const sideMenuRef = useRef<HTMLDivElement>(null);
+  const [showControls, setShowControls] = useState(false);
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
-  const toggleCollapse = () => {
-    setIsCollapsed((v: boolean) => !v);
+  // Initialize collapsed state with synchronous check to prevent flicker
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === "undefined") {
+      return true;
+    }
+
+    // Force collapsed on medium screens
+    if (forceCollapsed) {
+      return true;
+    }
+
+    // Check localStorage for large screens
+    try {
+      return localStorage.getItem("side-menu-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  // Update collapsed state when screen size changes
+  useEffect(() => {
+    if (forceCollapsed) {
+      setIsCollapsed(true);
+    }
+  }, [forceCollapsed]);
+
+  // The actual visual collapsed state
+  const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
+
+  const toggleMenu = () => {
+    if (overlayMode) {
+      setIsOverlayOpen(!isOverlayOpen);
+      // Dispatch event for layout hook
+      window.dispatchEvent(
+        new CustomEvent("side-menu-overlay-toggle", {
+          detail: { isExpanded: !isOverlayOpen }
+        })
+      );
+    } else if (!forceCollapsed) {
+      const newCollapsed = !isCollapsed;
+      setIsCollapsed(newCollapsed);
+      try {
+        localStorage.setItem("side-menu-collapsed", newCollapsed.toString());
+      } catch {}
+      // Dispatch event for layout hook
+      window.dispatchEvent(
+        new CustomEvent("side-menu-toggle", {
+          detail: { isCollapsed: newCollapsed }
+        })
+      );
+    }
   };
+
+  const closeOverlay = useCallback(() => {
+    if (overlayMode && isOverlayOpen) {
+      setIsOverlayOpen(false);
+      window.dispatchEvent(
+        new CustomEvent("side-menu-overlay-toggle", {
+          detail: { isExpanded: false }
+        })
+      );
+    }
+  }, [overlayMode, isOverlayOpen]);
+
+  // Handle mouse enter/leave for controls visibility
+  const handleMouseEnter = () => {
+    setShowControls(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowControls(false);
+  };
+
+  // Handle click outside for overlay
+  useEffect(() => {
+    if (!overlayMode || !isOverlayOpen) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sideMenuRef.current && !sideMenuRef.current.contains(event.target as Node)) {
+        closeOverlay();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeOverlay();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [overlayMode, isOverlayOpen, closeOverlay]);
 
   return (
     <>
-      <collapsedContext.Provider value={isCollapsed}>
-        <div className={sideMenuStyles({ isCollapsed })}>
-          <div className="h-20">
-            <Button
-              variant="ghost"
-              size="sm"
-              onPress={toggleCollapse}
-              className="absolute top-3.5 right-0 rounded-r-none border-border border-r-2 hover:bg-transparent hover:text-muted-foreground"
-              aria-label={ariaLabel}
-            >
-              <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
-            </Button>
-            <div className="pr-8">
-              <img src={logoWrapUrl} alt="Logo Wrap" className={logoWrapStyles({ isCollapsed })} />
+      {/* Backdrop for overlay mode */}
+      {overlayMode && isOverlayOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 sm:block xl:hidden"
+          onClick={closeOverlay}
+          onKeyDown={(e) => e.key === "Enter" && closeOverlay()}
+          role="button"
+          tabIndex={0}
+          aria-label="Close menu"
+        />
+      )}
+
+      <collapsedContext.Provider value={actualIsCollapsed}>
+        <overlayContext.Provider value={{ isOpen: isOverlayOpen, close: closeOverlay }}>
+          <div
+            ref={sideMenuRef}
+            className={sideMenuStyles({
+              isCollapsed: actualIsCollapsed,
+              overlayMode,
+              isOverlayOpen,
+              isHidden: isHidden && !overlayMode,
+              className
+            })}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {/* Vertical divider line */}
+            <div
+              className={`absolute top-0 right-0 h-full border-r transition-opacity duration-200 ${
+                (showControls && actualIsCollapsed) || isOverlayOpen
+                  ? "border-border/50 opacity-100"
+                  : "border-transparent opacity-0 focus-within:opacity-100"
+              }`}
+            />
+
+            {/* Fixed header section with logo */}
+            <div className="relative flex h-[76px] w-full shrink-0 items-center">
+              {/* Logo container - fixed position */}
+              <div className={actualIsCollapsed ? "flex w-full justify-center" : "pl-4"}>
+                {actualIsCollapsed ? (
+                  <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
+                ) : (
+                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                )}
+              </div>
+
+              {/* Toggle button centered on divider, midway between logo and first menu item */}
+              <ToggleButton
+                aria-label={ariaLabel}
+                className={`toggle-button absolute top-[60px] right-0 z-10 flex h-6 w-6 translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity duration-200 focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                  (showControls && actualIsCollapsed) || isOverlayOpen
+                    ? "opacity-100"
+                    : "opacity-0 focus-visible:opacity-100"
+                }`}
+                isSelected={actualIsCollapsed}
+                onPress={toggleMenu}
+              >
+                <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
+              </ToggleButton>
             </div>
-            <div className="flex pt-4 pl-3">
-              <img src={logoMarkUrl} alt="Logo" className={logoMarkStyles({ isCollapsed })} />
+
+            {/* Scrollable menu content */}
+            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-4"} pt-1`}>
+              <div className="flex flex-col gap-2">{children}</div>
             </div>
           </div>
-          {children}
-        </div>
+        </overlayContext.Provider>
       </collapsedContext.Provider>
+
+      {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
         <div className="absolute right-2 bottom-2 z-50 sm:hidden">
           <DialogTrigger>
-            <Button aria-label="Help" variant="icon">
+            <Button
+              aria-label={ariaLabel}
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-accent hover:text-accent-foreground/90"
+            >
               <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
             </Button>
-            <Modal position="left" fullSize={true}>
-              <Dialog className="w-60">
-                <div className="pb-8">
-                  <img src={logoWrapUrl} alt="Logo Wrap" />
-                </div>
-                {children}
-              </Dialog>
+            <Modal isDismissable={true}>
+              <div className="fixed inset-0 z-[60] flex bg-black/50">
+                <Dialog className="relative h-full w-72 border-border border-r bg-background shadow-xl">
+                  <div className="flex h-full flex-col bg-background">
+                    <div className="flex h-20 items-center px-4">
+                      <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-4">
+                      <div className="flex flex-col gap-2">{children}</div>
+                    </div>
+                  </div>
+                </Dialog>
+              </div>
             </Modal>
           </DialogTrigger>
         </div>
@@ -181,11 +353,11 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
 }
 
 const sideMenuSeparatorStyles = tv({
-  base: "border-b-0 font-semibold text-muted-foreground uppercase leading-4 transition-all duration-300",
+  base: "border-b-0 font-semibold text-muted-foreground uppercase leading-4",
   variants: {
     isCollapsed: {
-      true: "h-0 w-6 self-center border-border/100 border-b-4 pt-0 text-[0px] text-muted-foreground/0 ease-out",
-      false: "h-8 w-full border-border/0 pt-4 text-xs ease-in"
+      true: "-mt-2 mb-2 flex h-8 w-full justify-center",
+      false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs ease-in"
     }
   }
 });
@@ -197,8 +369,8 @@ type SideMenuSeparatorProps = {
 export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>) {
   const isCollapsed = useContext(collapsedContext);
   return (
-    <div className="pl-4">
-      <div className={sideMenuSeparatorStyles({ isCollapsed })}>{children}</div>
+    <div className={sideMenuSeparatorStyles({ isCollapsed })}>
+      {isCollapsed ? <div className="w-6 border-border/100 border-b-4" /> : children}
     </div>
   );
 }
