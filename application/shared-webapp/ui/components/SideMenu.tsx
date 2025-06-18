@@ -1,6 +1,6 @@
 import type { Href } from "@react-types/shared";
 import { useRouter } from "@tanstack/react-router";
-import { ChevronsLeftIcon, type LucideIcon } from "lucide-react";
+import { ChevronsLeftIcon, type LucideIcon, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ToggleButton, composeRenderProps } from "react-aria-components";
@@ -8,6 +8,7 @@ import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
+import { MEDIA_QUERIES } from "../utils/responsive";
 import { Button } from "./Button";
 import { Dialog, DialogTrigger } from "./Dialog";
 import { Modal } from "./Modal";
@@ -19,7 +20,7 @@ const overlayContext = createContext<{ isOpen: boolean; close: () => void } | nu
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item flex h-11 w-full justify-start gap-0 rounded-md py-2 pr-4 pl-4 font-normal text-base text-foreground hover:bg-accent/50 hover:text-foreground/80",
+  base: "menu-item flex h-11 w-full justify-start gap-0 rounded-md py-2 pr-4 pl-4 font-normal text-base text-foreground transition-all duration-100 hover:bg-accent/50 hover:text-foreground/80",
   variants: {
     isCollapsed: {
       true: "ease-out",
@@ -29,11 +30,11 @@ const menuButtonStyles = tv({
 });
 
 const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start text-foreground",
+  base: "overflow-hidden whitespace-nowrap text-start text-foreground transition-all duration-100",
   variants: {
     isCollapsed: {
-      true: "w-0 text-xs opacity-0 ease-out",
-      false: "flex-1 text-base opacity-100 ease-in"
+      true: "max-w-0 opacity-0 ease-out",
+      false: "max-w-[200px] opacity-100 ease-in"
     }
   }
 });
@@ -108,7 +109,7 @@ export function MenuButton({
 }
 
 const sideMenuStyles = tv({
-  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background transition-all duration-200",
+  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background",
   variants: {
     isCollapsed: {
       true: "w-[72px] ease-out",
@@ -147,7 +148,6 @@ type SideMenuProps = {
 export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
-  const [showControls, setShowControls] = useState(false);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   // Initialize collapsed state with synchronous check to prevent flicker
@@ -169,12 +169,25 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
     }
   });
 
+  // Save the user's preference before being forced collapsed
+  const [userPreference, setUserPreference] = useState(() => {
+    try {
+      return localStorage.getItem("side-menu-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+
   // Update collapsed state when screen size changes
   useEffect(() => {
     if (forceCollapsed) {
+      // Going to medium screen - force collapse but remember user preference
       setIsCollapsed(true);
+    } else {
+      // Going back to large screen - restore user preference
+      setIsCollapsed(userPreference);
     }
-  }, [forceCollapsed]);
+  }, [forceCollapsed, userPreference]);
 
   // The actual visual collapsed state
   const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
@@ -191,6 +204,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
     } else if (!forceCollapsed) {
       const newCollapsed = !isCollapsed;
       setIsCollapsed(newCollapsed);
+      setUserPreference(newCollapsed);
       try {
         localStorage.setItem("side-menu-collapsed", newCollapsed.toString());
       } catch {}
@@ -213,15 +227,6 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
       );
     }
   }, [overlayMode, isOverlayOpen]);
-
-  // Handle mouse enter/leave for controls visibility
-  const handleMouseEnter = () => {
-    setShowControls(true);
-  };
-
-  const handleMouseLeave = () => {
-    setShowControls(false);
-  };
 
   // Handle click outside for overlay
   useEffect(() => {
@@ -250,12 +255,58 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
     };
   }, [overlayMode, isOverlayOpen, closeOverlay]);
 
+  // Close mobile menu on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const isNowMedium = window.matchMedia(MEDIA_QUERIES.sm).matches;
+      if (isNowMedium && isOverlayOpen) {
+        closeOverlay();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isOverlayOpen, closeOverlay]);
+
+  // Focus trap for overlay
+  useEffect(() => {
+    if (!isOverlayOpen || !overlayMode) {
+      return;
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        const focusableElements = sideMenuRef.current?.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (!focusableElements || focusableElements.length === 0) {
+          return;
+        }
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOverlayOpen, overlayMode]);
+
   return (
     <>
       {/* Backdrop for overlay mode */}
       {overlayMode && isOverlayOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 sm:block xl:hidden"
+          className="fixed top-0 right-0 bottom-0 left-[72px] z-40 bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
           onClick={closeOverlay}
           onKeyDown={(e) => e.key === "Enter" && closeOverlay()}
           role="button"
@@ -275,22 +326,14 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
               isHidden: isHidden && !overlayMode,
               className
             })}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
           >
             {/* Vertical divider line */}
-            <div
-              className={`absolute top-0 right-0 h-full border-r transition-opacity duration-200 ${
-                (showControls && actualIsCollapsed) || isOverlayOpen
-                  ? "border-border/50 opacity-100"
-                  : "border-transparent opacity-0 focus-within:opacity-100"
-              }`}
-            />
+            <div className="absolute top-0 right-0 h-full border-border/50 border-r opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100" />
 
             {/* Fixed header section with logo */}
-            <div className="relative flex h-[76px] w-full shrink-0 items-center">
+            <div className="relative flex h-20 w-full shrink-0 items-center">
               {/* Logo container - fixed position */}
-              <div className={actualIsCollapsed ? "flex w-full justify-center" : "pl-4"}>
+              <div className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1 pl-7"}>
                 {actualIsCollapsed ? (
                   <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
                 ) : (
@@ -301,10 +344,8 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
               {/* Toggle button centered on divider, midway between logo and first menu item */}
               <ToggleButton
                 aria-label={ariaLabel}
-                className={`toggle-button absolute top-[60px] right-0 z-10 flex h-6 w-6 translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity duration-200 focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                  (showControls && actualIsCollapsed) || isOverlayOpen
-                    ? "opacity-100"
-                    : "opacity-0 focus-visible:opacity-100"
+                className={`toggle-button absolute top-[64px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-all duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
+                  actualIsCollapsed ? "-right-3" : "right-0 translate-x-1/2"
                 }`}
                 isSelected={actualIsCollapsed}
                 onPress={toggleMenu}
@@ -314,8 +355,8 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
             </div>
 
             {/* Scrollable menu content */}
-            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-4"} pt-1`}>
-              <div className="flex flex-col gap-2">{children}</div>
+            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-4`}>
+              <div className="flex flex-col gap-2 pt-1">{children}</div>
             </div>
           </div>
         </overlayContext.Provider>
@@ -323,30 +364,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
 
       {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
-        <div className="absolute right-2 bottom-2 z-50 sm:hidden">
-          <DialogTrigger>
-            <Button
-              aria-label={ariaLabel}
-              className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-accent hover:text-accent-foreground/90"
-            >
-              <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
-            </Button>
-            <Modal isDismissable={true}>
-              <div className="fixed inset-0 z-[60] flex bg-black/50">
-                <Dialog className="relative h-full w-72 border-border border-r bg-background shadow-xl">
-                  <div className="flex h-full flex-col bg-background">
-                    <div className="flex h-20 items-center px-4">
-                      <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
-                    </div>
-                    <div className="flex-1 overflow-y-auto px-4">
-                      <div className="flex flex-col gap-2">{children}</div>
-                    </div>
-                  </div>
-                </Dialog>
-              </div>
-            </Modal>
-          </DialogTrigger>
-        </div>
+        <MobileMenu ariaLabel={ariaLabel}>{children}</MobileMenu>
       </collapsedContext.Provider>
     </>
   );
@@ -377,4 +395,102 @@ export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>
 
 export function SideMenuSpacer() {
   return <div className="grow" />;
+}
+
+// Mobile Menu Component
+function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLabel: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Close on resize
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleResize = () => {
+      const isNowMedium = window.matchMedia(MEDIA_QUERIES.sm).matches;
+      if (isNowMedium) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isOpen]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        const focusableElements = dialogRef.current?.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (!focusableElements || focusableElements.length === 0) {
+          return;
+        }
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  return (
+    <div className="absolute right-2 bottom-2 z-50 sm:hidden">
+      <DialogTrigger>
+        <Button
+          aria-label={ariaLabel}
+          className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-accent hover:text-accent-foreground/90"
+          onPress={() => setIsOpen(true)}
+        >
+          <img src={logoMarkUrl} alt="Logo" className="h-10 w-10" />
+        </Button>
+        <Modal
+          isDismissable={true}
+          isOpen={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            // Dispatch event for layout hook
+            window.dispatchEvent(
+              new CustomEvent("mobile-menu-toggle", {
+                detail: { isOpen: open }
+              })
+            );
+          }}
+          blur={false}
+        >
+          <Dialog className="fixed inset-0 z-[100] bg-background">
+            <div className="flex h-screen w-screen flex-col bg-background" ref={dialogRef}>
+              <div className="flex h-20 items-center justify-between px-4">
+                <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                <Button variant="ghost" size="icon" onPress={() => setIsOpen(false)} aria-label="Close menu">
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-4">
+                <div className="flex flex-col gap-2">{children}</div>
+              </div>
+            </div>
+          </Dialog>
+        </Modal>
+      </DialogTrigger>
+    </div>
+  );
 }
