@@ -52,6 +52,21 @@
     --chart-9: 211 100% 19%;
 
     --ring: 215 20.2% 65.1%;
+    --sidebar: 210 14% 98%; /* Same as background */
+    --hover-background: 207 35% 94%;
+    --active-background: 0 0% 100%; /* Same as input-background */
+    --selected-hover-background: 207 35% 94%; /* Same as hover-background */
+    --input-background: 0 0% 100%;
+
+    --danger: 2 66% 51%;
+    --danger-foreground: 210 40% 98%;
+    --success: 143 64% 24%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    --info: 226 71% 40%;
+    --info-foreground: 210 40% 98%;
+
     --panel-opacity: 0.5;
     --radius: 0.5rem;
 

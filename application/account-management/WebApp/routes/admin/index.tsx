@@ -31,7 +31,7 @@ export default function Home() {
         <div className="flex flex-row">
           <Link
             to="/admin/users"
-            className="w-1/3 rounded-xl bg-input-background p-6 transition-all hover:bg-hover-background"
+            className="w-1/3 rounded-xl bg-muted/50 p-6 hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View users`}
           >
             <div className="text-foreground text-sm">
@@ -51,7 +51,7 @@ export default function Home() {
               startDate: getDateDaysAgo(30),
               endDate: getTodayIsoDate()
             }}
-            className="mx-6 w-1/3 rounded-xl bg-input-background p-6 transition-all hover:bg-hover-background"
+            className="mx-6 w-1/3 rounded-xl bg-muted/50 p-6 hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View active users`}
           >
             <div className="text-foreground text-sm">
@@ -67,7 +67,7 @@ export default function Home() {
           <Link
             to="/admin/users"
             search={{ userStatus: UserStatus.Pending }}
-            className="w-1/3 rounded-xl bg-input-background p-6 transition-all hover:bg-hover-background"
+            className="w-1/3 rounded-xl bg-muted/50 p-6 hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View invited users`}
           >
             <div className="text-foreground text-sm">
