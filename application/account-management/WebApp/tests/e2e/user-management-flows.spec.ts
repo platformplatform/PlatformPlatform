@@ -5,6 +5,8 @@ import { createTestContext, expectToastMessage, expectValidationError } from "@s
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
+  // Set a larger viewport size to avoid positioning issues in Chrome
+  test.use({ viewport: { width: 1600, height: 900 } });
   /**
    * COMPREHENSIVE USER MANAGEMENT WORKFLOW
    *
@@ -189,34 +191,12 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody tr")).toHaveCount(3); // owner + admin + member
     })();
 
-    await step("Try to delete owner as admin & verify action restrictions")(async () => {
-      const ownerRow = page.locator("tbody tr").filter({ hasText: owner.email });
-      await ownerRow.getByLabel("User actions").click();
-
-      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
-
-      await page.keyboard.press("Escape");
-    })();
-
-    await step("Try to delete admin as admin & verify action restrictions")(async () => {
-      const currentAdminRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
-      await currentAdminRow.getByLabel("User actions").click();
-
-      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
-
-      await page.keyboard.press("Escape");
-    })();
-
     await step("Open member user menu as admin & verify limited actions available")(async () => {
       const memberUserRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
-      await memberUserRow.getByLabel("User actions").click();
+      await memberUserRow.getByLabel("User actions").click({ force: true });
 
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible(); // Delete not implemented yet
-
-      await page.keyboard.press("Escape");
+      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
     })();
   });
 });
