@@ -29,10 +29,10 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 100% 50%;
+    --destructive: 2 66% 51%;
     --destructive-foreground: 210 40% 98%;
 
-    --danger: 0 70% 35%;
+    --danger: 2 66% 51%;
     --danger-foreground: 210 40% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 210 40% 98%;
@@ -73,9 +73,9 @@
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217 19% 27%; /* #303644 - Secondary background elements */
     --secondary-foreground: 210 40% 98%;
-    --accent: 219 15% 34%; /* #404759 - Accent background elements */
+    --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 80% 58%; /* More vibrant red for destructive actions */
+    --destructive: 2 66% 51%;
     --destructive-foreground: 210 40% 98%;
     --ring: 0 0% 100%;
     --sidebar: 222 29% 12%; /* Same as background */
