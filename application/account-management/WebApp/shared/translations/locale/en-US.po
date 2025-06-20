@@ -73,6 +73,9 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Change language"
+msgstr "Change language"
+
 msgid "Change profile picture"
 msgstr "Change profile picture"
 
@@ -308,6 +311,9 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 
 msgid "Signup verification code"
 msgstr "Signup verification code"
+
+msgid "Support"
+msgstr "Support"
 
 msgid "Terms of use"
 msgstr "Terms of use"
