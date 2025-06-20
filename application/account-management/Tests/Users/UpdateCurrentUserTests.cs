@@ -15,7 +15,6 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
     {
         // Arrange
         var command = new UpdateCurrentUserCommand(
-            Faker.Internet.Email(),
             Faker.Name.FirstName(),
             Faker.Name.LastName(),
             Faker.Name.JobTitle()
@@ -34,7 +33,6 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         // Arrange
         var command = new UpdateCurrentUserCommand
         (
-            Faker.InvalidEmail(),
             Faker.Random.String(31),
             Faker.Random.String(31),
             Faker.Random.String(51)
@@ -46,7 +44,6 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters."),
             new ErrorDetail("firstName", "First name must be between 1 and 30 characters."),
             new ErrorDetail("lastName", "Last name must be between 1 and 30 characters."),
             new ErrorDetail("title", "Title must be no longer than 50 characters.")
