@@ -11,6 +11,14 @@ import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 const customBuildEnv: CustomBuildEnv = {};
 
 export default defineConfig({
+  tools: {
+    rspack: {
+      // Exclude tests/e2e directory from file watching to prevent hot reloading issues
+      watchOptions: {
+        ignored: ["**/tests/**", "**/playwright-report/**"]
+      }
+    }
+  },
   plugins: [
     pluginReact(),
     pluginTypeCheck(),
