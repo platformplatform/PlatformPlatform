@@ -116,8 +116,8 @@ msgstr "Slet bruger"
 msgid "Delete users"
 msgstr "Slet brugere"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"

@@ -116,8 +116,8 @@ msgstr "Gebruiker verwijderen"
 msgid "Delete users"
 msgstr "Gebruikers verwijderen"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Verwijder je account en alle gegevens. Deze actie is onomkeerbaar—ga zorgvuldig te werk."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Code niet ontvangen? Verstuur opnieuw"

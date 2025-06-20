@@ -116,8 +116,8 @@ msgstr "Delete user"
 msgid "Delete users"
 msgstr "Delete users"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"

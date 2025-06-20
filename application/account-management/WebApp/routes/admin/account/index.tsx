@@ -7,6 +7,7 @@ import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
+import { ContentLayout } from "@repo/ui/components/ContentLayout";
 import { Form } from "@repo/ui/components/Form";
 import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { TextField } from "@repo/ui/components/TextField";
@@ -45,7 +46,7 @@ export function AccountSettings() {
           </TopMenu>
         }
       >
-        <div className="flex w-full flex-col gap-4 px-4 py-3">
+        <ContentLayout variant="center">
           <div className="20 mb-4 flex w-full items-center justify-between space-x-2 sm:mt-4">
             <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
               <h1>
@@ -68,17 +69,15 @@ export function AccountSettings() {
             </Label>
             <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
 
-            <div className="w-full md:max-w-md">
-              <TextField
-                autoFocus={true}
-                isRequired={true}
-                name="name"
-                defaultValue={tenant?.name ?? ""}
-                isDisabled={updateCurrentTenantMutation.isPending}
-                label={t`Account name`}
-                validationBehavior="aria"
-              />
-            </div>
+            <TextField
+              autoFocus={true}
+              isRequired={true}
+              name="name"
+              defaultValue={tenant?.name ?? ""}
+              isDisabled={updateCurrentTenantMutation.isPending}
+              label={t`Account name`}
+              validationBehavior="aria"
+            />
 
             <FormErrorMessage error={updateCurrentTenantMutation.error} />
             <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
@@ -93,10 +92,7 @@ export function AccountSettings() {
             <Separator />
             <div className="flex flex-col gap-4">
               <p className="font-normal text-sm">
-                <Trans>
-                  Deleting the account and all associated data. This action cannot be undone, so please proceed with
-                  caution.
-                </Trans>
+                <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
               </p>
 
               <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
@@ -107,7 +103,7 @@ export function AccountSettings() {
           </div>
 
           <Separator className="my-8" />
-        </div>
+        </ContentLayout>
       </AppLayout>
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
