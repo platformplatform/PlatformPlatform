@@ -9,7 +9,7 @@ import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useMutation } from "@tanstack/react-query";
-import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
+import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
 
@@ -223,7 +223,12 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             className="sm:w-64"
           />
         </div>
-        <TextField name="email" label={t`Email`} value={user?.email} />
+        <TextField
+          label={t`Email`}
+          value={user?.email}
+          isDisabled={true}
+          startIcon={<MailIcon className="h-4 w-4" />}
+        />
         <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software engineer`} />
 
         <div className="mt-6 flex justify-end gap-4">
