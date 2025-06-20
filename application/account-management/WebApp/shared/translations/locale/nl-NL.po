@@ -73,6 +73,9 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
+msgid "Change language"
+msgstr "Taal wijzigen"
+
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
 
@@ -323,6 +326,9 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
+
+msgid "Support"
+msgstr "Ondersteuning"
 
 msgid "System"
 msgstr ""
