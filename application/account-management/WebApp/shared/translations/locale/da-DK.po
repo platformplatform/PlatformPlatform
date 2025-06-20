@@ -73,6 +73,9 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
+msgid "Change language"
+msgstr "Skift sprog"
+
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
 
@@ -323,6 +326,9 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
+
+msgid "Support"
+msgstr "Support"
 
 msgid "System"
 msgstr ""
