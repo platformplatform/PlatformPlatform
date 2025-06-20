@@ -38,7 +38,7 @@ const overlayStyles = tv({
 });
 
 const modalStyles = tv({
-  base: "w-full rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
+  base: "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
       true: "zoom-in-105 animate-in duration-200 ease-out"
