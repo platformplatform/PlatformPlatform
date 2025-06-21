@@ -4,13 +4,19 @@
  */
 export const BREAKPOINTS = {
   sm: "sm", // 640px
-  xl: "xl" // 1280px
+  md: "md", // 768px
+  lg: "lg", // 1024px
+  xl: "xl", // 1280px
+  "2xl": "2xl" // 1536px
 } as const;
 
 // Media query strings matching Tailwind breakpoints
 export const MEDIA_QUERIES = {
   sm: "(min-width: 640px)",
-  xl: "(min-width: 1280px)"
+  md: "(min-width: 768px)",
+  lg: "(min-width: 1024px)",
+  xl: "(min-width: 1280px)",
+  "2xl": "(min-width: 1536px)"
 } as const;
 
 // Side menu width constants
