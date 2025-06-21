@@ -426,6 +426,10 @@ msgstr "Gebruikers bekijken"
 msgid "Welcome home"
 msgstr "Welkom home"
 
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Welkom home, {0}"
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
