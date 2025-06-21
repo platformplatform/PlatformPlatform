@@ -131,6 +131,7 @@ export function UserQuerying() {
               });
             }}
             label={t`Modified date`}
+            placeholder={t`Select dates`}
           />
         </>
       )}
