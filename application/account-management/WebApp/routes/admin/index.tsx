@@ -14,15 +14,13 @@ export const Route = createFileRoute("/admin/")({
 
 export default function Home() {
   const { data: usersSummary } = api.useQuery("get", "/api/account-management/users/summary");
-  const _userInfo = useUserInfo();
+  const userInfo = useUserInfo();
 
   return (
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <AppLayout topMenu={<TopMenu />}>
-        <h1>
-          <Trans>Welcome home</Trans>
-        </h1>
+        <h1>{userInfo?.firstName ? <Trans>Welcome home, {userInfo.firstName}</Trans> : <Trans>Welcome home</Trans>}</h1>
         <p>
           <Trans>Here's your overview of what's happening.</Trans>
         </p>
