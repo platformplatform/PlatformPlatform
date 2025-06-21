@@ -309,6 +309,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Select dates"
+
 msgid "Select language"
 msgstr "Select language"
 
