@@ -88,6 +88,12 @@ msgstr "Change role"
 msgid "Change user role"
 msgstr "Change user role"
 
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Clear filters"
+msgstr "Clear filters"
+
 msgid "Continue"
 msgstr "Continue"
 
@@ -167,6 +173,9 @@ msgstr "Europe"
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "First name"
 msgstr "First name"
 
@@ -178,9 +187,6 @@ msgstr "Here's your overview of what's happening."
 
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
-
-msgid "Hide filters"
-msgstr "Hide filters"
 
 msgid "Home"
 msgstr "Home"
@@ -253,6 +259,9 @@ msgstr "No active login."
 
 msgid "No active signup session."
 msgstr "No active signup session."
+
+msgid "OK"
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organization"
