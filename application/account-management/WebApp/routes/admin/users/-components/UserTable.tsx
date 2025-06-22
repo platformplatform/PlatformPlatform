@@ -122,147 +122,146 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
         onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
       />
 
-      <div className="flex h-[calc(100vh-326px)] w-full flex-col gap-4">
-        <Table
-          key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
-          selectionMode="multiple"
-          selectionBehavior="toggle"
-          selectedKeys={selectedUsers.map((user) => user.id)}
-          onSelectionChange={handleSelectionChange}
-          sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
-          aria-label={t`Users`}
-        >
-          <TableHeader>
-            <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
-              <Trans>Name</Trans>
-            </Column>
-            <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
-              <Trans>Email</Trans>
-            </Column>
-            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
-              <Trans>Created</Trans>
-            </Column>
-            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
-              <Trans>Modified</Trans>
-            </Column>
-            <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
-              <Trans>Role</Trans>
-            </Column>
-            <Column width={114}>
-              <Trans>Actions</Trans>
-            </Column>
-          </TableHeader>
-          <TableBody>
-            {users?.users.map((user) => (
-              <Row key={user.id} id={user.id}>
-                <Cell>
-                  <div className="flex h-14 items-center gap-2">
-                    <Avatar
-                      initials={getInitials(user.firstName, user.lastName, user.email)}
-                      avatarUrl={user.avatarUrl}
-                      size="sm"
-                      isRound={true}
-                    />
-                    <div className="flex flex-col truncate">
-                      <div className="truncate text-foreground">
-                        {user.firstName} {user.lastName}
-                        {user.emailConfirmed ? (
-                          ""
-                        ) : (
-                          <Badge variant="outline">
-                            <Trans>Pending</Trans>
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="truncate">{user.title ?? ""}</div>
+      <Table
+        key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
+        selectionMode="multiple"
+        selectionBehavior="toggle"
+        selectedKeys={selectedUsers.map((user) => user.id)}
+        onSelectionChange={handleSelectionChange}
+        sortDescriptor={sortDescriptor}
+        onSortChange={handleSortChange}
+        aria-label={t`Users`}
+      >
+        <TableHeader>
+          <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
+            <Trans>Name</Trans>
+          </Column>
+          <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
+            <Trans>Email</Trans>
+          </Column>
+          <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
+            <Trans>Created</Trans>
+          </Column>
+          <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
+            <Trans>Modified</Trans>
+          </Column>
+          <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
+            <Trans>Role</Trans>
+          </Column>
+          <Column width={114}>
+            <Trans>Actions</Trans>
+          </Column>
+        </TableHeader>
+        <TableBody>
+          {users?.users.map((user) => (
+            <Row key={user.id} id={user.id}>
+              <Cell>
+                <div className="flex h-14 items-center gap-2">
+                  <Avatar
+                    initials={getInitials(user.firstName, user.lastName, user.email)}
+                    avatarUrl={user.avatarUrl}
+                    size="sm"
+                    isRound={true}
+                  />
+                  <div className="flex flex-col truncate">
+                    <div className="truncate text-foreground">
+                      {user.firstName} {user.lastName}
+                      {user.emailConfirmed ? (
+                        ""
+                      ) : (
+                        <Badge variant="outline">
+                          <Trans>Pending</Trans>
+                        </Badge>
+                      )}
                     </div>
+                    <div className="truncate">{user.title ?? ""}</div>
                   </div>
-                </Cell>
-                <Cell>{user.email}</Cell>
-                <Cell>{formatDate(user.createdAt)}</Cell>
-                <Cell>{formatDate(user.modifiedAt)}</Cell>
-                <Cell>
-                  <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                </Cell>
-                <Cell>
-                  <div className="group flex w-full gap-2">
-                    <Button
-                      variant="icon"
-                      className="opacity-0 transition-opacity duration-300 ease-in-out group-hover:opacity-100"
-                      onPress={() => {
+                </div>
+              </Cell>
+              <Cell>{user.email}</Cell>
+              <Cell>{formatDate(user.createdAt)}</Cell>
+              <Cell>{formatDate(user.modifiedAt)}</Cell>
+              <Cell>
+                <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+              </Cell>
+              <Cell>
+                <div className="flex w-full gap-2">
+                  <Button
+                    variant="icon"
+                    className="opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100 focus:opacity-100 [tr:focus-within_&]:opacity-100 [tr:hover_&]:opacity-100"
+                    onPress={() => {
+                      onSelectedUsersChange([user]);
+                      setUserToDelete(user);
+                    }}
+                    isDisabled={user.id === userInfo?.id}
+                  >
+                    <Trash2Icon className="h-5 w-5 text-muted-foreground" />
+                  </Button>
+                  <MenuTrigger
+                    onOpenChange={(isOpen) => {
+                      if (isOpen) {
                         onSelectedUsersChange([user]);
-                        setUserToDelete(user);
-                      }}
-                      isDisabled={user.id === userInfo?.id}
-                    >
-                      <Trash2Icon className="h-5 w-5 text-muted-foreground" />
+                      }
+                    }}
+                  >
+                    <Button variant="icon" aria-label={t`Menu`}>
+                      <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                     </Button>
-                    <MenuTrigger
-                      onOpenChange={(isOpen) => {
-                        if (isOpen) {
-                          onSelectedUsersChange([user]);
-                        }
-                      }}
-                    >
-                      <Button variant="icon" aria-label={t`Menu`}>
-                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                      </Button>
-                      <Menu>
-                        <MenuItem id="viewProfile">
-                          <UserIcon className="h-4 w-4" />
-                          <Trans>View profile</Trans>
-                        </MenuItem>
-                        <MenuItem
-                          id="changeRole"
-                          isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
-                          onAction={() => setUserToChangeRole(user)}
-                        >
-                          <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
-                          <span className="group-disabled:text-muted-foreground">
-                            <Trans>Change role</Trans>
-                          </span>
-                        </MenuItem>
-                        <MenuSeparator />
-                        <MenuItem
-                          id="deleteUser"
-                          isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
-                          onAction={() => setUserToDelete(user)}
-                        >
-                          <Trash2Icon className="h-4 w-4 text-destructive" />
-                          <span className="text-destructive">
-                            <Trans>Delete</Trans>
-                          </span>
-                        </MenuItem>
-                      </Menu>
-                    </MenuTrigger>
-                  </div>
-                </Cell>
-              </Row>
-            ))}
-          </TableBody>
-        </Table>
-        {users && (
-          <>
-            <Pagination
-              paginationSize={5}
-              currentPage={currentPage}
-              totalPages={users?.totalPages ?? 1}
-              onPageChange={handlePageChange}
-              className="w-full pr-12 sm:hidden"
-            />
-            <Pagination
-              paginationSize={9}
-              currentPage={currentPage}
-              totalPages={users?.totalPages ?? 1}
-              onPageChange={handlePageChange}
-              previousLabel={t`Previous`}
-              nextLabel={t`Next`}
-              className="hidden w-full sm:flex"
-            />
-          </>
-        )}
-      </div>
+                    <Menu>
+                      <MenuItem id="viewProfile">
+                        <UserIcon className="h-4 w-4" />
+                        <Trans>View profile</Trans>
+                      </MenuItem>
+                      <MenuItem
+                        id="changeRole"
+                        isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
+                        onAction={() => setUserToChangeRole(user)}
+                      >
+                        <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
+                        <span className="group-disabled:text-muted-foreground">
+                          <Trans>Change role</Trans>
+                        </span>
+                      </MenuItem>
+                      <MenuSeparator />
+                      <MenuItem
+                        id="deleteUser"
+                        isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
+                        onAction={() => setUserToDelete(user)}
+                      >
+                        <Trash2Icon className="h-4 w-4 text-destructive" />
+                        <span className="text-destructive">
+                          <Trans>Delete</Trans>
+                        </span>
+                      </MenuItem>
+                    </Menu>
+                  </MenuTrigger>
+                </div>
+              </Cell>
+            </Row>
+          ))}
+        </TableBody>
+      </Table>
+
+      {users && (
+        <div className="sticky bottom-0 z-20 bg-background py-4">
+          <Pagination
+            paginationSize={5}
+            currentPage={currentPage}
+            totalPages={users.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            className="w-full pr-12 sm:hidden"
+          />
+          <Pagination
+            paginationSize={9}
+            currentPage={currentPage}
+            totalPages={users.totalPages ?? 1}
+            onPageChange={handlePageChange}
+            previousLabel={t`Previous`}
+            nextLabel={t`Next`}
+            className="hidden w-full sm:flex"
+          />
+        </div>
+      )}
     </>
   );
 }
