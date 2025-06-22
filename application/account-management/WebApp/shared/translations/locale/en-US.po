@@ -140,14 +140,14 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., Alex"
-msgstr "E.g., Alex"
+msgid "E.g. Alex"
+msgstr "E.g. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "E.g., Software engineer"
+msgid "E.g. Software engineer"
+msgstr "E.g. Software engineer"
 
-msgid "E.g., Taylor"
-msgstr "E.g., Taylor"
+msgid "E.g. Taylor"
+msgstr "E.g. Taylor"
 
 msgid "Edit"
 msgstr "Edit"

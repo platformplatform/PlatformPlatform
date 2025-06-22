@@ -211,7 +211,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             name="firstName"
             label={t`First name`}
             defaultValue={user?.firstName}
-            placeholder={t`E.g., Alex`}
+            placeholder={t`E.g. Alex`}
             className="sm:w-64"
           />
           <TextField
@@ -219,7 +219,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             name="lastName"
             label={t`Last name`}
             defaultValue={user?.lastName}
-            placeholder={t`E.g., Taylor`}
+            placeholder={t`E.g. Taylor`}
             className="sm:w-64"
           />
         </div>
@@ -229,7 +229,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
           isDisabled={true}
           startIcon={<MailIcon className="h-4 w-4" />}
         />
-        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software engineer`} />
+        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g. Software engineer`} />
 
         <div className="mt-6 flex justify-end gap-4">
           <Button
