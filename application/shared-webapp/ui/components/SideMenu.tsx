@@ -1,5 +1,5 @@
 import type { Href } from "@react-types/shared";
-import { useRouter } from "@tanstack/react-router";
+import { type MakeRouteMatch, useRouter } from "@tanstack/react-router";
 import { ChevronsLeftIcon, type LucideIcon, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -17,6 +17,32 @@ import { focusRing } from "./focusRing";
 
 const collapsedContext = createContext(false);
 const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
+
+// Helper function to handle focus trap tab navigation
+const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLElement | null>) => {
+  if (e.key !== "Tab") {
+    return;
+  }
+
+  const focusableElements = containerRef.current?.querySelectorAll(
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  if (!focusableElements || focusableElements.length === 0) {
+    return;
+  }
+
+  const firstElement = focusableElements[0] as HTMLElement;
+  const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+  if (e.shiftKey && document.activeElement === firstElement) {
+    e.preventDefault();
+    lastElement.focus();
+  } else if (!e.shiftKey && document.activeElement === lastElement) {
+    e.preventDefault();
+    firstElement.focus();
+  }
+};
 
 const menuButtonStyles = tv({
   extend: focusRing,
@@ -78,7 +104,7 @@ export function MenuButton({
     targetPath = to;
   } else {
     try {
-      targetPath = router.buildLocation({ to: to as any }).pathname;
+      targetPath = router.buildLocation({ to: to as MakeRouteMatch }).pathname;
     } catch {
       // If buildLocation fails, fallback to string representation
       targetPath = String(to);
@@ -121,7 +147,7 @@ export function MenuButton({
           className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
             isMobileMenu ? "-left-4" : isCollapsed ? "-left-2" : "-left-6"
           }`}
-        />	
+        />
       )}
       <TooltipTrigger delay={0}>
         <ToggleButton
@@ -318,26 +344,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Tab") {
-        const focusableElements = sideMenuRef.current?.querySelectorAll(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-
-        if (!focusableElements || focusableElements.length === 0) {
-          return;
-        }
-
-        const firstElement = focusableElements[0] as HTMLElement;
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
+      _handleFocusTrap(e, sideMenuRef);
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -469,26 +476,7 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Tab") {
-        const focusableElements = dialogRef.current?.querySelectorAll(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        );
-
-        if (!focusableElements || focusableElements.length === 0) {
-          return;
-        }
-
-        const firstElement = focusableElements[0] as HTMLElement;
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
+      _handleFocusTrap(e, dialogRef);
     };
 
     document.addEventListener("keydown", handleKeyDown);
