@@ -140,14 +140,14 @@ msgstr "Heb je al een account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Heb je geen account? <0>Maak er één aan</0>"
 
-msgid "E.g., Alex"
-msgstr "Bijv., Alex"
+msgid "E.g. Alex"
+msgstr "Bijv. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "Bijv., Software engineer"
+msgid "E.g. Software engineer"
+msgstr "Bijv. Software engineer"
 
-msgid "E.g., Taylor"
-msgstr "Bijv., Taylor"
+msgid "E.g. Taylor"
+msgstr "Bijv. Taylor"
 
 msgid "Edit"
 msgstr "Bewerken"
