@@ -344,7 +344,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
               {/* Toggle button centered on divider, midway between logo and first menu item */}
               <ToggleButton
                 aria-label={ariaLabel}
-                className={`toggle-button absolute top-[64px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-all duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
+                className={`toggle-button absolute top-[62px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-all duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
                   actualIsCollapsed ? "-right-3" : "right-0 translate-x-1/2"
                 }`}
                 isSelected={actualIsCollapsed}
@@ -355,7 +355,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
             </div>
 
             {/* Scrollable menu content */}
-            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-4`}>
+            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-3`}>
               <div className="flex flex-col gap-2 pt-1">{children}</div>
             </div>
           </div>
