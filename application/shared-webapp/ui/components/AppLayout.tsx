@@ -95,7 +95,7 @@ export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 py-3 pr-4 pl-8 backdrop-blur-sm ${
+        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm ${
           isMobileMenuOpen ? "hidden" : ""
         }`}
         style={{ marginLeft: style.marginLeft }}
@@ -111,7 +111,7 @@ export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640
       />
 
       {/* Scrollable content area with bounce */}
-      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col pt-24 pr-4 pl-8">
+      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-24">
         {variant === "center" ? (
           <div className="flex w-full flex-col items-center">
             <div
