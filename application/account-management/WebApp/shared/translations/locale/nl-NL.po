@@ -88,6 +88,12 @@ msgstr "Rol wijzigen"
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
+msgid "Clear"
+msgstr "Wissen"
+
+msgid "Clear filters"
+msgstr ""
+
 msgid "Continue"
 msgstr "Verder"
 
@@ -167,6 +173,9 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "First name"
 msgstr "Voornaam"
 
@@ -178,9 +187,6 @@ msgstr "Hier is je overzicht van wat er gebeurt."
 
 msgid "Hi! Welcome back"
 msgstr "Hallo! Welkom terug"
-
-msgid "Hide filters"
-msgstr "Filters verbergen"
 
 msgid "Home"
 msgstr "Home"
@@ -253,6 +259,9 @@ msgstr "Geen actieve login."
 
 msgid "No active signup session."
 msgstr "Geen actieve registratiesessie."
+
+msgid "OK"
+msgstr ""
 
 msgid "Organization"
 msgstr "Organisatie"
