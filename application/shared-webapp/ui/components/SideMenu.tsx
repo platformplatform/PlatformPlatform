@@ -20,17 +20,21 @@ const overlayContext = createContext<{ isOpen: boolean; close: () => void } | nu
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item flex h-11 w-full justify-start gap-0 rounded-md py-2 pr-4 pl-4 font-normal text-base text-foreground transition-all duration-100 hover:bg-accent/50 hover:text-foreground/80",
+  base: "menu-item relative flex h-11 w-full justify-start gap-0 overflow-visible rounded-md py-2 pr-4 pl-4 font-normal text-base transition-all duration-100 hover:bg-accent/50 hover:text-foreground/80",
   variants: {
     isCollapsed: {
       true: "ease-out",
       false: "ease-in"
+    },
+    isActive: {
+      true: "text-foreground",
+      false: "text-muted-foreground hover:text-foreground"
     }
   }
 });
 
 const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start text-foreground transition-all duration-100",
+  base: "overflow-hidden whitespace-nowrap text-start transition-all duration-100",
   variants: {
     isCollapsed: {
       true: "max-w-0 opacity-0 ease-out",
@@ -63,7 +67,31 @@ export function MenuButton({
 }: Readonly<MenuButtonProps>) {
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
-  const { navigate } = useRouter();
+  const router = useRouter();
+  const { navigate } = router;
+
+  // Check if this menu item is active
+  const currentPath = router.state.location.pathname;
+  let targetPath: string;
+
+  if (typeof to === "string") {
+    targetPath = to;
+  } else {
+    try {
+      targetPath = router.buildLocation({ to: to as any }).pathname;
+    } catch {
+      // If buildLocation fails, fallback to string representation
+      targetPath = String(to);
+    }
+  }
+
+  // Normalize paths by removing trailing slashes
+  const normalizedCurrentPath = currentPath.replace(/\/$/, "") || "/";
+  const normalizedTargetPath = targetPath.replace(/\/$/, "") || "/";
+
+  // Check if current path matches the target path exactly
+  const isActive = normalizedCurrentPath === normalizedTargetPath;
+
   const onPress = () => {
     if (to == null) {
       return;
@@ -81,30 +109,45 @@ export function MenuButton({
     }
   };
 
+  // Check if we're in the mobile menu context
+  const isMobileMenu =
+    typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.sm).matches && !overlayCtx?.isOpen;
+
   return (
-    <TooltipTrigger delay={0}>
-      <ToggleButton
-        className={composeRenderProps("", (className, renderProps) =>
-          menuButtonStyles({
-            ...renderProps,
-            className,
-            isCollapsed
-          })
-        )}
-        onPress={onPress}
-        isDisabled={isDisabled}
-      >
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-          <Icon className="h-6 w-6 stroke-foreground" />
-        </div>
-        <div className={`${menuTextStyles({ isCollapsed })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
-      </ToggleButton>
-      {isCollapsed && (
-        <Tooltip placement="right" offset={4}>
-          {label}
-        </Tooltip>
+    <div className="relative">
+      {/* Active indicator bar - positioned outside button for proper visibility */}
+      {isActive && (
+        <div
+          className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary transition-all duration-100 ${
+            isMobileMenu ? "-left-4" : isCollapsed ? "-left-2" : "-left-6"
+          }`}
+        />
       )}
-    </TooltipTrigger>
+      <TooltipTrigger delay={0}>
+        <ToggleButton
+          className={composeRenderProps("", (className, renderProps) =>
+            menuButtonStyles({
+              ...renderProps,
+              className,
+              isCollapsed,
+              isActive
+            })
+          )}
+          onPress={onPress}
+          isDisabled={isDisabled}
+        >
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+            <Icon className={`h-6 w-6 ${isActive ? "stroke-foreground" : "stroke-current"}`} />
+          </div>
+          <div className={`${menuTextStyles({ isCollapsed })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
+        </ToggleButton>
+        {isCollapsed && (
+          <Tooltip placement="right" offset={4}>
+            {label}
+          </Tooltip>
+        )}
+      </TooltipTrigger>
+    </div>
   );
 }
 
