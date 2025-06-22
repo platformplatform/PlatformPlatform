@@ -34,7 +34,7 @@ const menuButtonStyles = tv({
 });
 
 const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start transition-all duration-100",
+  base: "overflow-hidden whitespace-nowrap text-start text-foreground transition-all duration-100",
   variants: {
     isCollapsed: {
       true: "max-w-0 opacity-0 ease-out",
@@ -117,11 +117,9 @@ export function MenuButton({
     <div className="relative">
       {/* Active indicator bar - positioned outside button for proper visibility */}
       {isActive && (
-        <div
-          className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary transition-all duration-100 ${
-            isMobileMenu ? "-left-4" : isCollapsed ? "-left-2" : "-left-6"
-          }`}
-        />
+        <div className={`absolute top-1/2 h-8 w-1 -translate-y-1/2 bg-primary transition-all duration-100 ${
+          isMobileMenu ? "-left-4" : isCollapsed ? "-left-2" : "-left-6"
+        }`} />
       )}
       <TooltipTrigger delay={0}>
         <ToggleButton
@@ -152,7 +150,7 @@ export function MenuButton({
 }
 
 const sideMenuStyles = tv({
-  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background",
+  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background transition-[width] duration-100",
   variants: {
     isCollapsed: {
       true: "w-[72px] ease-out",
@@ -174,7 +172,7 @@ const sideMenuStyles = tv({
 });
 
 const chevronStyles = tv({
-  base: "h-4 w-4",
+  base: "h-4 w-4 transition-transform duration-100",
   variants: {
     isCollapsed: {
       true: "rotate-180 transform ease-out",
