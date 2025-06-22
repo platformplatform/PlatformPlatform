@@ -18,17 +18,13 @@ export default function Home() {
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <AppLayout topMenu={<TopMenu />}>
-        <div className="flex w-full flex-col gap-4 px-4 py-3">
-          <div className="mb-4 flex h-20 w-full items-center justify-between space-x-2 sm:mt-4">
-            <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
-              <h1>
-                <Trans>Welcome home</Trans>
-              </h1>
-              <p className="font-normal text-muted-foreground text-sm">
-                <Trans>Here's your overview of what's happening.</Trans>
-              </p>
-            </div>
-          </div>
+        <h1>
+          <Trans>Welcome home</Trans>
+        </h1>
+        <p>
+          <Trans>Here's your overview of what's happening.</Trans>
+        </p>
+        <div className="flex w-full flex-col gap-4">
           <div className="flex flex-row">
             <Link
               to="/admin/users"

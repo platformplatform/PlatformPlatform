@@ -47,21 +47,15 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <div className="flex w-full flex-col gap-4 px-4 py-3">
-          <div className="20 mb-4 flex w-full items-center justify-between space-x-2 sm:mt-4">
-            <div className="mt-3 flex flex-col gap-2 font-semibold text-3xl text-foreground">
-              <h1>
-                <Trans>Users</Trans>
-              </h1>
-              <p className="font-normal text-muted-foreground text-sm">
-                <Trans>Manage your users and permissions here.</Trans>
-              </p>
-            </div>
-          </div>
+        <h1>
+          <Trans>Users</Trans>
+        </h1>
+        <p>
+          <Trans>Manage your users and permissions here.</Trans>
+        </p>
 
-          <UserToolbar selectedUsers={selectedUsers} />
-          <UserTable selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-        </div>
+        <UserToolbar selectedUsers={selectedUsers} />
+        <UserTable selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
       </AppLayout>
     </>
   );
