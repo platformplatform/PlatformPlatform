@@ -13,7 +13,7 @@ import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { FilterIcon, FilterXIcon, XIcon } from "lucide-react";
+import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 // SearchParams interface defines the structure of URL query parameters
@@ -217,9 +217,9 @@ export function UserQuerying() {
         }}
       >
         {showAllFilters ? (
-          <FilterXIcon size={16} aria-label={t`Clear filters`} />
+          <ListFilterPlus size={16} aria-label={t`Clear filters`} />
         ) : (
-          <FilterIcon size={16} aria-label={t`Show filters`} />
+          <ListFilter size={16} aria-label={t`Show filters`} />
         )}
         {activeFilterCount > 0 && (
           <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs lg:hidden">
