@@ -19,6 +19,6 @@ export const MEDIA_QUERIES = {
   "2xl": "(min-width: 1536px)"
 } as const;
 
-// Side menu width constants
-export const SIDE_MENU_COLLAPSED_WIDTH = "72px";
-export const SIDE_MENU_EXPANDED_WIDTH = "288px"; // w-72 in Tailwind
+// Side menu width constants (including 8px right margin)
+export const SIDE_MENU_COLLAPSED_WIDTH = "80px"; // 72px + 8px margin
+export const SIDE_MENU_EXPANDED_WIDTH = "296px"; // 288px + 8px margin
