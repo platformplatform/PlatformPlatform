@@ -46,7 +46,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item relative flex h-11 w-full justify-start gap-0 overflow-visible rounded-md py-2 pr-4 pl-4 font-normal text-base hover:bg-hover-background",
+  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-4 pl-4 font-normal text-base hover:bg-hover-background",
   variants: {
     isCollapsed: {
       true: "ease-out",
@@ -405,8 +405,8 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
             </div>
 
             {/* Scrollable menu content */}
-            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-3`}>
-              <div className="flex flex-col gap-2 pt-1">{children}</div>
+            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-2`}>
+              <div className="flex flex-col gap-2 pt-1.5">{children}</div>
             </div>
           </div>
         </overlayContext.Provider>
