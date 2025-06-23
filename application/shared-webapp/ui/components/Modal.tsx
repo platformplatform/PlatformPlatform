@@ -23,7 +23,7 @@ const overlayStyles = tv({
     },
     fullSize: {
       true: "",
-      false: "p-4"
+      false: "p-2 sm:p-4"
     },
     blur: {
       true: "backdrop-blur-lg",
