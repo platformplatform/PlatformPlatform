@@ -10,8 +10,6 @@ import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
 import { MEDIA_QUERIES } from "../utils/responsive";
 import { Button } from "./Button";
-import { Dialog, DialogTrigger } from "./Dialog";
-import { Modal } from "./Modal";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
 
@@ -49,8 +47,8 @@ const menuButtonStyles = tv({
   base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-4 pl-4 font-normal text-base hover:bg-hover-background",
   variants: {
     isCollapsed: {
-      true: "ease-out",
-      false: "ease-in"
+      true: "",
+      false: ""
     },
     isActive: {
       true: "text-foreground",
@@ -60,11 +58,11 @@ const menuButtonStyles = tv({
 });
 
 const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start text-foreground transition-all duration-100",
+  base: "overflow-hidden whitespace-nowrap text-start",
   variants: {
     isCollapsed: {
-      true: "max-w-0 opacity-0 ease-out",
-      false: "max-w-[200px] opacity-100 ease-in"
+      true: "max-w-0 opacity-0",
+      false: "max-w-[200px] opacity-100"
     }
   }
 });
@@ -123,9 +121,14 @@ export function MenuButton({
       return;
     }
 
-    // Auto-close overlay after navigation
+    // Auto-close overlay after navigation (including when clicking active menu item)
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
+    }
+
+    // If clicking on the current active page, still close menu but don't navigate
+    if (isActive) {
+      return;
     }
 
     if (forceReload) {
@@ -203,8 +206,8 @@ const chevronStyles = tv({
   base: "h-4 w-4 transition-transform duration-100",
   variants: {
     isCollapsed: {
-      true: "rotate-180 transform ease-out",
-      false: "rotate-0 transform ease-in"
+      true: "rotate-180 transform",
+      false: "rotate-0 transform"
     }
   }
 });
@@ -382,19 +385,26 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
 
             {/* Fixed header section with logo */}
             <div className="relative flex h-20 w-full shrink-0 items-center">
-              {/* Logo container - fixed position */}
+              {/* Logo container - fixed position, clickable to open mobile menu */}
               <div className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1 pl-7"}>
-                {actualIsCollapsed ? (
-                  <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
-                ) : (
-                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
-                )}
+                <button
+                  type="button"
+                  onClick={toggleMenu}
+                  className="cursor-pointer transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  aria-label="Toggle menu"
+                >
+                  {actualIsCollapsed ? (
+                    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
+                  ) : (
+                    <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                  )}
+                </button>
               </div>
 
               {/* Toggle button centered on divider, midway between logo and first menu item */}
               <ToggleButton
                 aria-label={ariaLabel}
-                className={`toggle-button absolute top-[62px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-all duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
+                className={`toggle-button absolute top-[62px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
                   actualIsCollapsed ? "-right-3" : "right-0 translate-x-1/2"
                 }`}
                 isSelected={actualIsCollapsed}
@@ -425,7 +435,7 @@ const sideMenuSeparatorStyles = tv({
   variants: {
     isCollapsed: {
       true: "-mt-2 mb-2 flex h-8 w-full justify-center",
-      false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs ease-in"
+      false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs"
     }
   }
 });
@@ -469,60 +479,72 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
     return () => window.removeEventListener("resize", handleResize);
   }, [isOpen]);
 
-  // Focus trap
+  // Focus trap and body scroll prevention
   useEffect(() => {
     if (!isOpen) {
       return;
     }
+
+    // Prevent body scroll
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
       _handleFocusTrap(e, dialogRef);
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      // Restore body scroll
+      document.body.style.overflow = originalStyle;
+    };
   }, [isOpen]);
 
   return (
-    <div className="absolute right-2 bottom-2 z-50 sm:hidden">
-      <DialogTrigger>
-        <Button
-          aria-label={ariaLabel}
-          className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-accent hover:text-accent-foreground/90"
-          onPress={() => setIsOpen(true)}
-        >
-          <img src={logoMarkUrl} alt="Logo" className="h-10 w-10" />
-        </Button>
-        <Modal
-          isDismissable={true}
-          isOpen={isOpen}
-          onOpenChange={(open) => {
-            setIsOpen(open);
-            // Dispatch event for layout hook
-            window.dispatchEvent(
-              new CustomEvent("mobile-menu-toggle", {
-                detail: { isOpen: open }
-              })
-            );
-          }}
-          blur={false}
-          fullSize={true}
-        >
-          <Dialog className="!h-screen !w-screen !max-h-none !rounded-none !border-0 !bg-background !p-0 !shadow-none dark:!backdrop-blur-0">
-            <div className="flex h-screen w-screen flex-col bg-background" ref={dialogRef}>
-              <div className="flex h-20 items-center justify-between px-4">
-                <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+    <>
+      {!isOpen && (
+        <div className="absolute right-2 bottom-2 z-50 sm:hidden">
+          <Button
+            aria-label={ariaLabel}
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-hover-background hover:text-accent-foreground/90"
+            onPress={() => setIsOpen(true)}
+          >
+            <img src={logoMarkUrl} alt="Logo" className="h-10 w-10" />
+          </Button>
+        </div>
+      )}
+      {isOpen && (
+        <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
+          <div
+            className="fixed inset-0 z-[200] h-[100vh] w-[100vw] overflow-hidden bg-background"
+            style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0 }}
+          >
+            <div
+              className="flex h-[100vh] w-[100vw] flex-col bg-background"
+              ref={dialogRef}
+              style={{ margin: 0, padding: 0 }}
+            >
+              <div className="flex h-16 shrink-0 items-center justify-between px-4">
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="cursor-pointer transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  aria-label="Close menu"
+                >
+                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                </button>
                 <Button variant="ghost" size="icon" onPress={() => setIsOpen(false)} aria-label="Close menu">
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <div className="flex-1 overflow-y-auto px-4">
-                <div className="flex flex-col gap-2">{children}</div>
+              <div className="flex-1 overflow-y-auto px-3" style={{ margin: 0, padding: "0 12px" }}>
+                <div className="flex flex-col gap-1 py-2">{children}</div>
               </div>
             </div>
-          </Dialog>
-        </Modal>
-      </DialogTrigger>
-    </div>
+          </div>
+        </overlayContext.Provider>
+      )}
+    </>
   );
 }
