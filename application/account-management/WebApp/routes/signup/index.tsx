@@ -16,7 +16,8 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { getLoginState } from "../login/-shared/loginState";
 import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
@@ -41,20 +42,16 @@ export const Route = createFileRoute("/signup/")({
 });
 
 export function StartSignupForm() {
-  // Get email from signup state if available (for prefill when returning from verify)
   const { email: savedEmail } = getSignupState();
-  const [email, setEmail] = useState(savedEmail || "");
+  const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
+  const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
-
-  // Clear any existing signup state when starting a new signup flow
-  useEffect(() => {
-    clearSignupState();
-  }, []);
 
   if (startSignupMutation.isSuccess) {
     const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
 
+    clearSignupState();
     setSignupState({
       emailConfirmationId,
       email,
