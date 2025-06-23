@@ -385,20 +385,13 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
 
             {/* Fixed header section with logo */}
             <div className="relative flex h-20 w-full shrink-0 items-center">
-              {/* Logo container - fixed position, clickable to open mobile menu */}
+              {/* Logo container - fixed position */}
               <div className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1 pl-7"}>
-                <button
-                  type="button"
-                  onClick={toggleMenu}
-                  className="cursor-pointer transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  aria-label="Toggle menu"
-                >
-                  {actualIsCollapsed ? (
-                    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
-                  ) : (
-                    <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
-                  )}
-                </button>
+                {actualIsCollapsed ? (
+                  <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
+                ) : (
+                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+                )}
               </div>
 
               {/* Toggle button centered on divider, midway between logo and first menu item */}
@@ -507,7 +500,7 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
         <div className="absolute right-2 bottom-2 z-50 sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="inline-flex h-12 w-12 shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-border/50 bg-background/90 text-accent-foreground text-sm shadow-lg ring-offset-background backdrop-blur hover:bg-hover-background hover:text-accent-foreground/90"
+            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-transparent p-0 hover:bg-transparent focus:bg-transparent"
             onPress={() => setIsOpen(true)}
           >
             <img src={logoMarkUrl} alt="Logo" className="h-10 w-10" />
