@@ -1,6 +1,6 @@
 import type { Href } from "@react-types/shared";
 import { type MakeRouteMatch, useRouter } from "@tanstack/react-router";
-import { ChevronsLeftIcon, type LucideIcon, X } from "lucide-react";
+import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ToggleButton, composeRenderProps } from "react-aria-components";
@@ -14,7 +14,7 @@ import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
 
 const collapsedContext = createContext(false);
-const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
+export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
 
 // Helper function to handle focus trap tab navigation
 const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLElement | null>) => {
@@ -140,7 +140,7 @@ export function MenuButton({
 
   // Check if we're in the mobile menu context
   const isMobileMenu =
-    typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.sm).matches && !overlayCtx?.isOpen;
+    typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.sm).matches && overlayCtx?.isOpen;
 
   return (
     <div className="relative">
@@ -148,7 +148,7 @@ export function MenuButton({
       {isActive && (
         <div
           className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
-            isMobileMenu ? "-left-4" : isCollapsed ? "-left-2" : "-left-6"
+            isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-6"
           }`}
         />
       )}
@@ -166,7 +166,7 @@ export function MenuButton({
           isDisabled={isDisabled}
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-            <Icon className={`h-6 w-6 ${isActive ? "stroke-foreground" : "stroke-current"}`} />
+            <Icon className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"}`} />
           </div>
           <div className={`${menuTextStyles({ isCollapsed })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
         </ToggleButton>
@@ -215,9 +215,10 @@ const chevronStyles = tv({
 type SideMenuProps = {
   children: React.ReactNode;
   ariaLabel: string;
+  topMenuContent?: React.ReactNode;
 };
 
-export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
+export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
@@ -417,7 +418,7 @@ export function SideMenu({ children, ariaLabel }: Readonly<SideMenuProps>) {
 
       {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
-        <MobileMenu ariaLabel={ariaLabel}>{children}</MobileMenu>
+        <MobileMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} />
       </collapsedContext.Provider>
     </>
   );
@@ -451,7 +452,7 @@ export function SideMenuSpacer() {
 }
 
 // Mobile Menu Component
-function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLabel: string }) {
+function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuContent?: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -471,6 +472,16 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [isOpen]);
+
+  // Listen for custom close event
+  useEffect(() => {
+    const handleCloseMobileMenu = () => {
+      setIsOpen(false);
+    };
+
+    window.addEventListener("close-mobile-menu", handleCloseMobileMenu);
+    return () => window.removeEventListener("close-mobile-menu", handleCloseMobileMenu);
+  }, []);
 
   // Focus trap and body scroll prevention
   useEffect(() => {
@@ -497,20 +508,20 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
   return (
     <>
       {!isOpen && (
-        <div className="absolute right-2 bottom-2 z-50 sm:hidden">
+        <div className="absolute right-2 bottom-3 z-30 sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-transparent p-0 hover:bg-transparent focus:bg-transparent"
+            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-background pressed:bg-muted p-0 hover:bg-hover-background focus:bg-hover-background"
             onPress={() => setIsOpen(true)}
           >
-            <img src={logoMarkUrl} alt="Logo" className="h-10 w-10" />
+            <Menu className="h-7 w-7 text-foreground" />
           </Button>
         </div>
       )}
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <div
-            className="fixed inset-0 z-[200] h-[100vh] w-[100vw] overflow-hidden bg-background"
+            className="fixed inset-0 z-[200] h-[100vh] w-[100vw] bg-background"
             style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <div
@@ -518,21 +529,24 @@ function MobileMenu({ children, ariaLabel }: { children: React.ReactNode; ariaLa
               ref={dialogRef}
               style={{ margin: 0, padding: 0 }}
             >
-              <div className="flex h-16 shrink-0 items-center justify-between px-4">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="cursor-pointer transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  aria-label="Close menu"
-                >
-                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
-                </button>
-                <Button variant="ghost" size="icon" onPress={() => setIsOpen(false)} aria-label="Close menu">
-                  <X className="h-5 w-5" />
-                </Button>
+              <div
+                className="flex-1 overflow-y-auto px-3"
+                style={{ margin: 0, padding: "0 12px", pointerEvents: "auto" }}
+              >
+                {topMenuContent && <div className="pt-5 pb-3">{topMenuContent}</div>}
               </div>
-              <div className="flex-1 overflow-y-auto px-3" style={{ margin: 0, padding: "0 12px" }}>
-                <div className="flex flex-col gap-1 py-2">{children}</div>
+
+              {/* Floating close button at bottom right - same position as hamburger */}
+              <div className="absolute right-2 bottom-3 z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onPress={() => setIsOpen(false)}
+                  aria-label="Close menu"
+                  className="h-12 w-12 rounded-full border border-border/50 bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                >
+                  <X className="h-7 w-7" />
+                </Button>
               </div>
             </div>
           </div>
