@@ -202,9 +202,6 @@ msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
 
-msgid "Invite users"
-msgstr "Gebruikers uitnodigen"
-
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
