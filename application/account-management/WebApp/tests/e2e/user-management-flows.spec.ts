@@ -39,7 +39,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Submit invalid email invitation & verify validation error")(async () => {
-      await page.getByRole("button", { name: "Invite users" }).click();
+      await page.getByRole("button", { name: "Invite user" }).click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await page.getByRole("button", { name: "Send invite" }).click();
@@ -59,7 +59,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Invite admin user & verify successful invitation")(async () => {
-      await page.getByRole("button", { name: "Invite users" }).click();
+      await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
@@ -91,7 +91,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Attempt to invite duplicate user email & verify error message appears")(async () => {
-      await page.getByRole("button", { name: "Invite users" }).click();
+      await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
@@ -233,7 +233,7 @@ test.describe("@comprehensive", () => {
       const usersToInvite = [user1, user2, user3];
 
       for (const user of usersToInvite) {
-        await page.getByRole("button", { name: "Invite users" }).click();
+        await page.getByRole("button", { name: "Invite user" }).click();
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Send invite" }).click();
 
