@@ -32,7 +32,7 @@ function FeatureBlock({ title, content, image, href, linkText, arrow }: Readonly
 // Component for the Community Section
 export function CommunitySection() {
   return (
-    <div className="flex flex-col items-center gap-8 bg-background py-48">
+    <div className="flex flex-col items-center gap-8 bg-input-background py-48">
       <div className="flex max-w-7xl flex-col items-center gap-8 px-8 text-center md:px-32 lg:px-64">
         <h1 className="font-semibold text-amber-600 text-base">COMMUNITY</h1>
         <h2 className="font-semibold text-4xl text-foreground md:text-6xl">Join builders on PlatformPlatform</h2>

@@ -5,7 +5,7 @@ import { createAccountUrl } from "./cdnImages";
 // FeatureSection3: A functional component that displays the third feature section
 export function FeatureSection3() {
   return (
-    <div className="flex w-full flex-col gap-8 bg-muted py-24">
+    <div className="flex w-full flex-col gap-8 bg-background py-24">
       <div className="flex w-full flex-col gap-8 px-8 pt-16 text-start md:px-32 lg:w-2/3">
         <FeatureTitle />
       </div>

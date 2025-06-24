@@ -1,7 +1,7 @@
 // FeatureSection4: A functional component that displays a section with features
 export function FeatureSection4() {
   return (
-    <div className="flex flex-col gap-16 bg-muted px-8 py-24 md:flex-row md:px-24">
+    <div className="flex flex-col gap-16 bg-background px-8 py-24 md:flex-row md:px-24">
       <div className="flex grow flex-col gap-4 text-start font-semibold text-4xl text-foreground md:w-1/4">
         <h1 className="text-start font-semibold text-amber-600 text-base">FEATURES</h1>
         Built by Founders, Engineers and Designers

@@ -6,7 +6,7 @@ import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo
 export function FooterSection() {
   return (
     <>
-      <div className="flex w-full items-center gap-8 bg-muted px-16 py-16 md:px-24">
+      <div className="flex w-full items-center gap-8 bg-input-background px-16 py-16 md:px-24">
         <div className="flex flex-grow flex-col gap-4">
           <div className="font-semibold text-foreground text-xl">Join our newsletter</div>
           <div className="font-normal text-base text-muted-foreground">Technology that has your back.</div>
@@ -17,7 +17,7 @@ export function FooterSection() {
           <Button variant="primary">Subscribe</Button>
         </div>
       </div>
-      <div className="flex w-full flex-col bg-background px-24 py-16">
+      <div className="flex w-full flex-col bg-input-background px-24 py-16">
         <div className="flex max-w-sm flex-grow flex-row items-center justify-between">
           <div className="flex flex-col gap-8">
             <img src={logoWrap} alt="Logo Wrap" loading="lazy" />

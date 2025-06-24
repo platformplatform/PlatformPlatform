@@ -16,7 +16,7 @@ import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
 // HeroSection: A functional component that displays the hero section
 export function HeroSection() {
   return (
-    <div className="flex flex-col items-center bg-muted">
+    <div className="flex flex-col items-center bg-background">
       <div className="flex w-fit flex-col-reverse items-center justify-between gap-4 px-2 pt-8 pb-24 md:w-full md:flex-row md:gap-2 xl:px-24">
         <div className="flex pt-4 md:pt-0">
           <img className="hidden lg:block" src={logoWrap} alt="logo" />

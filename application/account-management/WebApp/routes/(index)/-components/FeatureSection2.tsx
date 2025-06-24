@@ -1,7 +1,7 @@
 // FeatureSection2: Displays a section with features
 export function FeatureSection2() {
   return (
-    <div className="flex flex-col gap-8 bg-background px-8 py-24 md:flex-row md:px-32">
+    <div className="flex flex-col gap-8 bg-input-background px-8 py-24 md:flex-row md:px-32">
       <div className="flex grow flex-col gap-4 pr-8 text-start font-semibold text-4xl text-foreground md:w-1/3">
         <h1 className="text-start font-semibold text-amber-600 text-base">FEATURES</h1>
         All the features you need to build anything you want
