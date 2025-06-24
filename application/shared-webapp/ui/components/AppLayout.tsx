@@ -111,7 +111,7 @@ export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640
       />
 
       {/* Scrollable content area with bounce */}
-      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-24">
+      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 sm:pt-24">
         {variant === "center" ? (
           <div className="flex w-full flex-col items-center">
             <div

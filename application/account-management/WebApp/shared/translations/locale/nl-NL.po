@@ -106,6 +106,9 @@ msgstr "Aangemaakt"
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
+msgid "Dark"
+msgstr "Donker"
+
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -142,6 +145,9 @@ msgstr "Bijv., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
+
+msgid "Edit"
+msgstr "Bewerken"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -200,8 +206,14 @@ msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inl
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
+msgid "Language"
+msgstr "Taal"
+
 msgid "Last name"
 msgstr "Achternaam"
+
+msgid "Light"
+msgstr "Licht"
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -235,6 +247,9 @@ msgstr "Gewijzigde datum"
 
 msgid "Name"
 msgstr "Naam"
+
+msgid "Navigation"
+msgstr "Navigatie"
 
 msgid "Next"
 msgstr "Volgende"
@@ -330,6 +345,9 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Support"
 msgstr "Ondersteuning"
 
+msgid "System"
+msgstr "Systeem"
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
@@ -338,6 +356,9 @@ msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailb
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
+
+msgid "Theme"
+msgstr "Thema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
