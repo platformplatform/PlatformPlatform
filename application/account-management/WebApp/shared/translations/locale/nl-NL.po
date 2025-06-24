@@ -107,7 +107,7 @@ msgid "Danger zone"
 msgstr "Gevaarzone"
 
 msgid "Dark"
-msgstr ""
+msgstr "Donker"
 
 msgid "Delete"
 msgstr "Verwijderen"
@@ -147,7 +147,7 @@ msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
 
 msgid "Edit"
-msgstr ""
+msgstr "Bewerken"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -207,13 +207,13 @@ msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
 msgid "Language"
-msgstr ""
+msgstr "Taal"
 
 msgid "Last name"
 msgstr "Achternaam"
 
 msgid "Light"
-msgstr ""
+msgstr "Licht"
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -249,7 +249,7 @@ msgid "Name"
 msgstr "Naam"
 
 msgid "Navigation"
-msgstr ""
+msgstr "Navigatie"
 
 msgid "Next"
 msgstr "Volgende"
@@ -346,7 +346,7 @@ msgid "Support"
 msgstr "Ondersteuning"
 
 msgid "System"
-msgstr ""
+msgstr "Systeem"
 
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
@@ -358,7 +358,7 @@ msgid "The verification code you are trying to use has expired for Login ID: {lo
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
 
 msgid "Theme"
-msgstr ""
+msgstr "Thema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"

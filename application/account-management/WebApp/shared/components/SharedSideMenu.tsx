@@ -1,6 +1,7 @@
+import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { useLingui } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
@@ -8,7 +9,7 @@ import { type Locale, translationContext } from "@repo/infrastructure/translatio
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
+import { MenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { useThemeMode } from "@repo/ui/theme/mode/ThemeMode";
 import { SystemThemeMode, ThemeMode } from "@repo/ui/theme/mode/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,9 +26,9 @@ import {
   UserIcon,
   UsersIcon
 } from "lucide-react";
-import { use, useState } from "react";
+import { use, useContext, useState } from "react";
 import type React from "react";
-import { api } from "../lib/api/client";
+import UserProfileModal from "./userModals/UserProfileModal";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
@@ -38,11 +39,12 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
   const userInfo = useUserInfo();
   const { i18n } = useLingui();
   const { getLocaleInfo, locales, setLocale } = use(translationContext);
-  const [_isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { themeMode, resolvedThemeMode, setThemeMode } = useThemeMode();
 
-  // Note: overlayContext functionality not available in current codebase
+  // Access mobile menu overlay context to close menu when needed
+  const overlayCtx = useContext(overlayContext);
 
   const currentLocale = i18n.locale as Locale;
   const currentLocaleLabel = getLocaleInfo(currentLocale).label;
@@ -88,7 +90,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
     }
   });
 
-  const _topMenuContent = (
+  const topMenuContent = (
     <div className="flex h-full flex-col">
       {/* User Profile Section */}
       <div className="flex flex-col gap-3">
@@ -104,8 +106,13 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
               <button
                 type="button"
                 onClick={() => {
-                  // Dispatch custom event to close mobile menu
-                  window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+                  // Close mobile menu if it's open
+                  if (overlayCtx?.isOpen) {
+                    overlayCtx.close();
+                  } else {
+                    // Fallback: dispatch custom event to close mobile menu
+                    window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+                  }
 
                   // Small delay to ensure menu closes before modal opens
                   setTimeout(() => {
@@ -127,8 +134,10 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
           <Button
             variant="ghost"
             onPress={() => {
-              // Dispatch custom event to close mobile menu
-              window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+              // Close mobile menu if it's open
+              if (overlayCtx?.isOpen) {
+                overlayCtx.close();
+              }
               logoutMutation.mutate({});
             }}
             className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
@@ -148,8 +157,10 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
           <button
             type="button"
             onClick={() => {
-              // Dispatch custom event to close mobile menu
-              window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+              // Close mobile menu if it's open
+              if (overlayCtx?.isOpen) {
+                overlayCtx.close();
+              }
 
               // Cycle through themes: System -> Light -> Dark -> System
               const nextTheme =
@@ -234,14 +245,18 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
   );
 
   return (
-    <SideMenu ariaLabel={ariaLabel}>
-      <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
-      <SideMenuSeparator>
-        <Trans>Organization</Trans>
-      </SideMenuSeparator>
-      <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
-      <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
-      {children}
-    </SideMenu>
+    <>
+      <SideMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent}>
+        <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
+        <SideMenuSeparator>
+          <Trans>Organization</Trans>
+        </SideMenuSeparator>
+        <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
+        <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
+        {children}
+      </SideMenu>
+
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+    </>
   );
 }

@@ -107,7 +107,7 @@ msgid "Danger zone"
 msgstr "Farezone"
 
 msgid "Dark"
-msgstr ""
+msgstr "Mørk"
 
 msgid "Delete"
 msgstr "Slet"
@@ -147,7 +147,7 @@ msgid "E.g., Taylor"
 msgstr "F.eks. Taylor"
 
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -207,13 +207,13 @@ msgid "Invited users"
 msgstr "Inviterede brugere"
 
 msgid "Language"
-msgstr ""
+msgstr "Sprog"
 
 msgid "Last name"
 msgstr "Efternavn"
 
 msgid "Light"
-msgstr ""
+msgstr "Lys"
 
 msgid "Log in"
 msgstr "Log ind"
@@ -249,7 +249,7 @@ msgid "Name"
 msgstr "Navn"
 
 msgid "Navigation"
-msgstr ""
+msgstr "Navigation"
 
 msgid "Next"
 msgstr "Næste"
@@ -346,7 +346,7 @@ msgid "Support"
 msgstr "Support"
 
 msgid "System"
-msgstr ""
+msgstr "System"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"
@@ -358,7 +358,7 @@ msgid "The verification code you are trying to use has expired for Login ID: {lo
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
