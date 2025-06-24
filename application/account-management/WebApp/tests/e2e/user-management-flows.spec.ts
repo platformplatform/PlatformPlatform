@@ -263,22 +263,20 @@ test.describe("@comprehensive", () => {
     })();
 
     // === ADVANCED FILTERING SECTION ===
-    await step("Open filters & verify all filter options are available")(async () => {
-      // Click the filter button to expand filter options  
-      await page.locator("button:near(input[placeholder='Search'])").last().click();
-
-      // Wait for filters to appear and verify dropdowns are visible
+    await step("Verify all filter options are available")(async () => {
+      // Filters should already be visible due to URL filtering from previous step
       await expect(page.getByLabel("User role").first()).toBeVisible();
-      await expect(page.getByLabel("User status").first()).toBeVisible(); 
+      await expect(page.getByLabel("User status").first()).toBeVisible();
       await expect(page.getByLabel("Modified date").first()).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
-      // Reset status filter first
+      // First dismiss any open dropdown and clear status filter
+      await page.keyboard.press("Escape");
       await page.getByLabel("User status").first().click();
       await page.getByRole("option", { name: "Any status" }).click();
-      
-      // Filter by Owner role
+
+      // Now filter by Owner role
       await page.getByLabel("User role").first().click();
       await page.getByRole("option", { name: "Owner" }).click();
 
@@ -334,25 +332,36 @@ test.describe("@comprehensive", () => {
       await page.getByLabel("User status").first().click();
       await page.getByRole("option", { name: "Any status" }).click();
 
-      // Set date range using the DateRangePicker spinbutton segments
-      // Start date: 01/01/2020
-      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').type('01');
-      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').type('01');
-      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').type('2020');
-      
-      // End date: 12/31/2020
-      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').type('12');
-      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').type('31');
-      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').type('2020');
-      
-      // Verify no users are shown for the past date range (Playwright auto-waits for condition)
+      // Open date picker
+      await page.getByLabel("Modified date").first().click();
+
+      // Set start date to January 1, 2024
+      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').type("01");
+      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').type("01");
+      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').type("2024");
+
+      // Set end date to December 31, 2024
+      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').type("12");
+      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').type("31");
+      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').clear();
+      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').type("2024");
+
+      // Close the calendar
+      await page.keyboard.press("Escape");
+
+      // Verify no users are shown for the past date range (users were created in 2025)
       await expect(page.locator("tbody tr")).toHaveCount(0);
     })();
 
     // === CLEAR FILTERS FOR CLEAN DELETION TESTS ===
     await step("Clear all filters & verify all users shown again for clean deletion tests")(async () => {
       // Reset any remaining filters to show all users
-      await page.getByRole("button", { name: "Hide filters" }).click();
+      await page.getByRole("button", { name: "Clear filters" }).click();
 
       // Verify all users are shown again
       await expect(page.locator("tbody tr")).toHaveCount(4);
@@ -373,6 +382,7 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "Delete" }).click();
 
+      await expectToastMessage(context, `User deleted successfully: ${user1.email}`);
       await expect(page.getByRole("alertdialog")).not.toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(3); // owner + user2 + user3
       await expect(page.getByText(user1.email)).not.toBeVisible();
@@ -418,13 +428,14 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
       await page.getByRole("button", { name: "Delete" }).click();
 
+      await expectToastMessage(context, "2 users deleted successfully");
       await expect(page.getByRole("alertdialog")).not.toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(1); // Only owner left
       await expect(page.getByText(user2.email)).not.toBeVisible();
       await expect(page.getByText(user3.email)).not.toBeVisible();
       await expect(page.locator("tbody")).toContainText(owner.email);
       await expect(page.getByRole("button", { name: "Delete 2 users" })).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Invite users" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Invite user" })).toBeVisible();
     })();
 
     // === OWNER PROTECTION SECTION ===

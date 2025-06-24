@@ -70,13 +70,16 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByRole("button", { name: "Home" })).not.toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Users" })).not.toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Account" })).not.toBeVisible();
-      const floatingMenuButton = ownerPage.locator('button[aria-label="Help"]').last();
-      await expect(floatingMenuButton).toBeVisible();
+      const mobileMenuButton = ownerPage.getByRole("button", { name: "Toggle collapsed menu" });
+      await expect(mobileMenuButton).toBeVisible();
     })();
 
     await step("Toggle mobile theme button & verify theme changes")(async () => {
-      const mobileThemeButton = ownerPage.getByRole("button", { name: "Toggle theme" });
-      await mobileThemeButton.click();
+      // Open mobile menu first
+      await ownerPage.getByRole("button", { name: "Toggle collapsed menu" }).click();
+
+      // Find and click theme toggle button inside mobile menu
+      await ownerPage.getByRole("button", { name: "Theme" }).click();
 
       await expect(ownerPage.locator("html")).toHaveClass(secondTheme);
     })();

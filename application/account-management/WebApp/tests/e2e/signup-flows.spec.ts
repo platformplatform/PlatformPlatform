@@ -154,7 +154,7 @@ test.describe("@smoke", () => {
     // === ACCOUNT MANAGEMENT ===
     await step("Clear account name field & verify validation error appears")(async () => {
       await page.getByRole("button", { name: "Account" }).first().click();
-      await expect(page.getByRole("heading", { name: "Account" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
 
