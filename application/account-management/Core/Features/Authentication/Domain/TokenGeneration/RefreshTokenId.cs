@@ -1,6 +1,7 @@
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain.TokenGeneration;
 
 [PublicAPI]
 [IdPrefix("rt")]

@@ -1,5 +1,5 @@
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain.TokenGeneration;
 
 public sealed class AuthenticationTokenService(
     RefreshTokenGenerator refreshTokenGenerator,

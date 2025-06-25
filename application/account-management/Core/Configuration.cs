@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain.TokenGeneration;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Configuration;
@@ -30,6 +33,17 @@ public static class Configuration
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)
-            .AddScoped<AvatarUpdater>();
+            .AddScoped<AvatarUpdater>()
+            .AddAuthentication();
+    }
+
+
+    private static IServiceCollection AddAuthentication(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IPasswordHasher<object>, PasswordHasher<object>>()
+            .AddScoped<OneTimePasswordHelper>()
+            .AddScoped<RefreshTokenGenerator>()
+            .AddScoped<AuthenticationTokenService>();
     }
 }

@@ -2,9 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 
-public class OneTimePasswordHelper(IPasswordHasher<object> passwordHasher)
+public sealed class OneTimePasswordHelper(IPasswordHasher<object> passwordHasher)
 {
     public static string GenerateOneTimePassword(int length)
     {
