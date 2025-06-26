@@ -340,15 +340,17 @@ public class TranslateCommand : Command
 
             AnsiConsole.MarkupLine("OpenAI Key is missing.");
             apiKey = AnsiConsole.Prompt(
-                new TextPrompt<string>("[yellow]Enter your OpenAI Key. Use a standard OpenAI key (sk-...) or an Azure OpenAI key ([a-z0-9]{32})[/]")
-                    .Validate(key => key.Length >= 32 ? ValidationResult.Success() : ValidationResult.Error("Open AI Keys starts with 'sk-' and must be at least 51 characters long and Azure Open AI key must be 32 characters long.")));
+                new TextPrompt<string>("[yellow]Enter your OpenAI Key. Use a standard OpenAI key (sk-...) or an Azure OpenAI key[/]")
+                    .Validate(key => key.Length >= 32 ? ValidationResult.Success() : ValidationResult.Error("Open AI Keys starts with 'sk-' and must be at least 51 characters long and Azure Open AI key must be 32 characters long."))
+            );
 
             if (!apiKey.StartsWith("sk-"))
             {
                 AnsiConsole.MarkupLine("[green]API Key is not a standard OpenAI key. Azure OpenAI key detected.[/]");
                 endpoint = AnsiConsole.Prompt(
                     new TextPrompt<string>("[yellow]Please enter the Azure OpenAI endpoint URL (e.g. https://<your-resource-name>.openai.azure.com)[/]")
-                        .Validate(url => Uri.TryCreate(url, UriKind.Absolute, out _)));
+                        .Validate(url => Uri.TryCreate(url, UriKind.Absolute, out _))
+                );
                 SecretHelper.SetSecret(endpointSecretName, endpoint);
             }
 
