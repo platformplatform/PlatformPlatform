@@ -13,72 +13,74 @@ The product increment contains tasks with several subtasks that must be implemen
 
 Follow these steps which describe in detail how you must implement the tasks in the provided product increment.
 
-### Step 1: Review rules files
+1. Review rules files
 
-Before implementing each task, review the relevant rules thoroughly:
+  Before implementing each task, review the relevant rules thoroughly:
 
-- For **backend tasks**:
-  - Review all the [Backend](mdc:.cursor/rules/backend) rule files.
-- For **frontend tasks**:
-  - Review all the [Frontend](mdc:.cursor/rules/frontend) rule files.
+  - For **backend tasks**:
+    - Review all the [Backend](mdc:.cursor/rules/backend) rule files.
+  - For **frontend tasks**:
+    - Review all the [Frontend](mdc:.cursor/rules/frontend) rule files.
 
 These rules define the conventions and must be strictly adhered to during implementation.
 
-### Step 2: Research codebase
+2. Research codebase
 
-Research the existing codebase to fully understand:
+   Research the existing codebase to fully understand:
 
-- Where the new feature or changes should be implemented.
-- How similar features are typically structured and implemented.
+   - Where the new feature or changes should be implemented.
+   - How similar features are typically structured and implemented.
 
-**Important:**  
-- Rules defined in the rules files always trump existing code if there's any conflict.
-- Do not skip or shortcut this step—it ensures implementation consistency.
+   **Important:**  
+   - Rules defined in the rules files always trump existing code if there's any conflict.
+   - Do not skip or shortcut this step—it ensures implementation consistency.
 
-### Step 3: Implement tasks
+3. Implement tasks
 
-Implement each task in the product increment document **one by one**, strictly following the subtasks listed.
+   Implement each task in the product increment document **one by one**, strictly following the subtasks listed.
 
-For every task:
+   For every task:
 
-- Clearly mark each subtask as completed `[x]` after finishing it and **before** moving to the next subtask.
-- Write detailed, clean, production-quality code following conventions from rules and existing code patterns.
-- Regularly reference rules and previous implementation research.
-- Ensure each subtask is thoroughly completed and checked off before proceeding.
+   - Clearly mark each subtask as completed `[x]` after finishing it and **before** moving to the next subtask.
+   - Write detailed, clean, production-quality code following conventions from rules and existing code patterns.
+   - Regularly reference rules and previous implementation research.
+   - Ensure each subtask is thoroughly completed and checked off before proceeding.
 
-### Step 4: Validate implementation
+4. Validate implementation
 
-After completing **all subtasks** in a **backend** task:
+   After completing **all subtasks** in a **backend** task:
 
-- Build the code using Developer CLI (see [Tools](mdc:.cursor/rules/tools.mdc)).
-- Verify all existing tests pass.
-- Write new tests to ensure new code coverage, including all edge cases.
-- Run build and tests again until all tests pass.
-- Format the code (see [Tools](mdc:.cursor/rules/tools.mdc)).
+   - Build the code using Developer CLI (see [Tools](mdc:.cursor/rules/tools.mdc)).
+   - Verify all existing tests pass.
+   - Write new tests to ensure new code coverage, including all edge cases.
+   - Run build and tests again until all tests pass.
+   - Format the code (see [Tools](mdc:.cursor/rules/tools.mdc)).
 
-After completing **all subtasks** in a **frontend** task:
+   After completing **all subtasks** in a **frontend** task:
 
-- Build the code using Developer CLI (see [Tools](mdc:.cursor/rules/tools.mdc)).
-- Run code inspections and formatting (see [Tools](mdc:.cursor/rules/tools.mdc)).
+   - Build the code using Developer CLI (see [Tools](mdc:.cursor/rules/tools.mdc)).
+   - Run code inspections and formatting (see [Tools](mdc:.cursor/rules/tools.mdc)).
 
-**Do not skip or shortcut these validation steps.**
+   **Do not skip or shortcut these validation steps.**
 
-### Step 5: User confirmation and commit
+5. User confirmation and commit
 
-**Before moving to the next task**:
+   **Before moving to the next task**:
 
-- Ask the user for approval.
-- After user approval, commit the implemented code according to [Git Commits](mdc:.cursor/rules/workflows/git-commits.mdc).
+   - Ask the user for approval.
+   - After user approval, commit the implemented code according to [Git Commits](mdc:.cursor/rules/workflows/git-commits.mdc).
 
-**Important:**  
-- Do not proceed without user confirmation.
-- Do not forget to commit code after receiving user confirmation.
+   **Important:**  
+   - Do not proceed without user confirmation.
+   - Do not forget to commit code after receiving user confirmation.
 
-### Step 6: Repeat process for next task
+6. Repeat process for next task
 
-- Repeat Steps 1 to 5 for each subsequent task in the product increment.
+   - Repeat Steps 1 to 5 for each subsequent task in the product increment.
 
-## ✅ DO:
+## Example
+
+✅ DO:
 - Review all relevant rule files before each task.
 - Thoroughly research existing code implementations and structures before starting each task.
 - Implement subtasks sequentially, marking each as completed `[x]` immediately after implementation.
@@ -88,7 +90,7 @@ After completing **all subtasks** in a **frontend** task:
 - Ensure each commit is a deployable and tested unit of work.
 - Revisit rules files and research between each task implementation.
 
-## ❌ DON'T:
+ ❌ DON'T:
 - Skip reviewing the rules files before implementing tasks.
 - Forget to research existing codebase implementations.
 - Implement multiple tasks or subtasks simultaneously.

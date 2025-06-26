@@ -30,6 +30,10 @@ Please note that I often correct or even revert code you generated. If you notic
 
 Commit messages should be in imperative form, start with a capital letter, avoid ending punctuation, be a single line, and concisely describe changes and motivation.
 
+Be very careful with comments, and add them only very sparingly. Never add comments about changes made (these belong in pull requests).
+
+When making changes, always take speial care not to change parts of the code that are not in scope.
+
 ## Project Structure
 
 This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure.

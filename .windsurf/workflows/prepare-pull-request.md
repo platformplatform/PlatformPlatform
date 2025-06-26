@@ -2,17 +2,19 @@
 description: Workflow for writing pull request titles and descriptions
 ---
 
-# Pull Request Workflow
+# Prepare Pull Request Workflow
 
-Follow these steps to create pull request titles and descriptions:
+Use this workflow to create pull request titles and descriptions:
+
+## Workflow
 
 1. Before creating a pull request, gather context by inspecting the changes:
-   - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`
-   - View the full diff: `git --no-pager diff main`
+   - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`.
+   - View the full diff: `git --no-pager diff main`.
    - If needed, examine specific files for more context.
 
 2. Create a pull request title that is:
-   - In imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.)
+   - In imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.).
    - Written as a sentence (not in Title Case).
    - Without a period at the end.
 
@@ -37,7 +39,7 @@ Follow these steps to create pull request titles and descriptions:
      - Similar changes have been made to workflow files [account-management.yml](/.github/workflows/account-management.yml) and [back-office.yml](/.github/workflows/back-office.yml).
      - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that might require changes in downstream projects.
      - Updates to NuGet or npm packages required changes to [Account Management](/application/account-management) and [Back Office](/application/back-office) that also needed to be applied to other self-contained systems.
-   - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:"
+   - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:".
    - Avoid phrases like "Downstream projects should" or "Downstream projects must" - use more direct phrasing.
    - Use a numbered list for multiple changes, make it clear if multiple changes are required.
    - Be very specific about the changes needed.
@@ -58,26 +60,26 @@ Follow these steps to create pull request titles and descriptions:
       ```bash
       [CLI_ALIAS] check --frontend
       ```
-   - If there are errors, they must be fixed before the pull request can be submitted.
+   - If there are errors, they must be fixed before the pull request can be created.
 
 ## Examples
 
-### Example 1 - Pull Request Title
+### Example 1 - Pull request title
 
 ```
-# ✅ DO: Use imperative form, sentence case, no period
+# ✅ DO: Use imperative form, start with capital letter, no punctuation
 Add user profile image upload functionality
 Fix data protection key sharing between SCSs
 Update dependency versions to latest stable releases
 
-# ❌ DON'T: Use past tense, title case, periods, or be vague
+# ❌ DON'T: Use past tense, end with period, or use title case
 Added User Profile Image Upload Functionality.
 Fixed a bug
 Updating dependencies
 PR: Implement new feature
 ```
 
-### Example 2 - Pull Request Description
+### Example 2 - Pull request description
 
 ```markdown
 ### Summary & Motivation
@@ -94,7 +96,7 @@ Add data protection key sharing between self-contained systems to fix antiforger
 1. Update `your-self-contained-system/Api/Program.cs` to use the shared data protection keys. # ✅ DO: use `your-self-contained-system` to reference downstream system
 
 # ✅ DO: Use Git diff syntax to show what should be changed
-```diff
+   ```diff
 - // No shared data protection configuration
 + // Configure shared data protection keys
 + builder.Services
@@ -118,6 +120,10 @@ In this pull request we fixed a bug causing issues in our scs's.
 - Fixed a bug.
 
 These changes make the system more robust and maintainable. # ❌ DON'T: Create short summary statements to finish the description. Skip this line
+
+### Downstream projects # ❌ DON'T: Include steps for downstream projects when all changes are done in PlatformPlatform
+
+Update SharedKernel with new feature.
 
 ### Checklist  # ❌ DON'T: Use made up checklist
 
