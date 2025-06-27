@@ -50,7 +50,14 @@ export function useSideMenuLayout(): {
     const xlQuery = window.matchMedia(MEDIA_QUERIES.xl);
 
     const handleSmChange = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
-    const handleXlChange = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches);
+    const handleXlChange = (e: MediaQueryListEvent) => {
+      setIsLargeScreen(e.matches);
+      // When transitioning to XL screen, sync collapsed state from localStorage
+      if (e.matches) {
+        const stored = localStorage.getItem("side-menu-collapsed");
+        setIsCollapsed(stored === "true");
+      }
+    };
 
     smQuery.addEventListener("change", handleSmChange);
     xlQuery.addEventListener("change", handleXlChange);
@@ -85,6 +92,13 @@ export function useSideMenuLayout(): {
       window.removeEventListener("mobile-menu-toggle", handleMobileMenuToggle as EventListener);
     };
   }, []);
+
+  // Reset overlay expanded state when leaving overlay mode
+  useEffect(() => {
+    if (isLargeScreen) {
+      setIsOverlayExpanded(false);
+    }
+  }, [isLargeScreen]);
 
   // Calculate layout styles
   const className = "flex flex-col flex-1 min-h-0";
