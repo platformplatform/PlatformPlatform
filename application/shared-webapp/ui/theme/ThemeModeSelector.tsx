@@ -31,7 +31,7 @@ function getTooltipText(themeMode: ThemeMode, resolvedThemeMode: SystemThemeMode
 
 function ThemeModeIcon({ themeMode, resolvedThemeMode }: { themeMode: ThemeMode; resolvedThemeMode: SystemThemeMode }) {
   if (resolvedThemeMode === SystemThemeMode.Dark) {
-    return themeMode === ThemeMode.System ? <MoonStarIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />;
+    return themeMode === ThemeMode.System ? <MoonStarIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />;
   }
-  return themeMode === ThemeMode.System ? <SunMoonIcon className="h-4 w-4" /> : <SunIcon className="h-4 w-4" />;
+  return themeMode === ThemeMode.System ? <SunMoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />;
 }
