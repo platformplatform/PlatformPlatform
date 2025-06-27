@@ -191,7 +191,7 @@ export function CompleteLoginForm() {
         <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
-            <Link href="/">
+            <Link href="/" className="cursor-pointer">
               <img src={logoMarkUrl} alt={t`Logo`} className="h-12 w-12" />
             </Link>
           </div>
