@@ -1,6 +1,9 @@
-﻿using System.CommandLine;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Reflection;
 using PlatformPlatform.DeveloperCli.Installation;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");
@@ -16,6 +19,9 @@ if (args.Length == 0)
 {
     args = ["--help"];
 }
+
+// Preprocess arguments to handle @ symbols in search terms
+args = CommandLineArgumentsPreprocessor.PreprocessArguments(args);
 
 var solutionName = new DirectoryInfo(Configuration.SourceCodeFolder).Name;
 if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
@@ -45,4 +51,9 @@ if (!isDebugBuild)
 
 allCommands.ForEach(rootCommand.AddCommand);
 
-await rootCommand.InvokeAsync(args);
+// Create a CommandLineBuilder with the root command
+var builder = new CommandLineBuilder(rootCommand);
+
+builder.UseDefaults();
+
+await builder.Build().InvokeAsync(args);

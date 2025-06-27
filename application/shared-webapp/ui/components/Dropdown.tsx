@@ -14,14 +14,17 @@ import {
 import { tv } from "tailwind-variants";
 
 export const dropdownItemStyles = tv({
-  base: "group flex cursor-default select-none items-center gap-4 rounded-md py-2 pr-1 pl-3 text-sm outline outline-0 forced-color-adjust-none",
+  base: "group flex cursor-default select-none items-center gap-4 rounded-md bg-input-background py-2 pr-1 pl-3 text-sm outline outline-0 forced-color-adjust-none hover:bg-hover-background",
   variants: {
     isDisabled: {
       false: "text-foreground",
       true: "text-accent forced-colors:text-[GrayText]"
     },
     isFocused: {
-      true: "bg-accent text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+      true: "bg-hover-background text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
+    },
+    isSelected: {
+      true: "bg-active-background hover:bg-selected-hover-background"
     }
   },
   compoundVariants: [

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import type { SystemThemeMode } from "./utils";
+import { SystemThemeMode } from "./utils";
 
 const mq = window.matchMedia("(prefers-color-scheme: dark)");
 
 export function getSystemThemeMode(): SystemThemeMode {
-  return mq.matches ? "dark" : "light";
+  return mq.matches ? SystemThemeMode.Dark : SystemThemeMode.Light;
 }
 
 /**

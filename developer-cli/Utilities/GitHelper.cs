@@ -136,7 +136,9 @@ public static class GitHelper
             .Where(f => !f.EndsWith('/') && !f.EndsWith('\\'))
             .Select(line => line[3..].Trim());
 
-        return changedFiles.ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
+        return changedFiles
+            .Where(File.Exists)
+            .ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
 
         string GetFileHash(string file)
         {

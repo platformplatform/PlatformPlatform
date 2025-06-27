@@ -4,10 +4,10 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
 import { useEffect } from "react";
@@ -22,6 +22,12 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
 
   useEffect(() => {
     if (inviteUserMutation.isSuccess) {
+      toastQueue.add({
+        title: t`Success`,
+        description: t`User invited successfully`,
+        variant: "success",
+        duration: 3000
+      });
       onOpenChange(false);
     }
   }, [inviteUserMutation.isSuccess, onOpenChange]);
@@ -34,7 +40,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           <Trans>Invite user</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
-          <Trans>Invite users and assign them roles. They will appear once they log in.</Trans>
+          <Trans>An invitation email will be sent to the user with a link to log in.</Trans>
         </p>
 
         <Form
@@ -51,9 +57,13 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
             placeholder={t`user@email.com`}
             className="flex-grow"
           />
-          <FormErrorMessage error={inviteUserMutation.error} />
           <div className="mt-6 flex justify-end gap-4">
-            <Button type="reset" onPress={() => onOpenChange(false)} variant="secondary">
+            <Button
+              type="reset"
+              onPress={() => onOpenChange(false)}
+              variant="secondary"
+              isDisabled={inviteUserMutation.isPending}
+            >
               <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={inviteUserMutation.isPending}>

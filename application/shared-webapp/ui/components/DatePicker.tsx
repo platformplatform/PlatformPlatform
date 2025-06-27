@@ -35,7 +35,7 @@ export function DatePicker<T extends DateValue>({
   return (
     <AriaDatePicker {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
-      <FieldGroup className="w-auto min-w-[208px]">
+      <FieldGroup className="w-auto min-w-[208px] bg-input-background">
         <DateInput className="min-w-[150px] flex-1 px-2 py-1.5 text-sm" />
         <Button variant="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">
           <CalendarIcon aria-hidden={true} className="h-4 w-4" />
@@ -43,7 +43,7 @@ export function DatePicker<T extends DateValue>({
       </FieldGroup>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover>
+      <Popover className="bg-input-background">
         <Dialog>
           <Calendar />
         </Dialog>
