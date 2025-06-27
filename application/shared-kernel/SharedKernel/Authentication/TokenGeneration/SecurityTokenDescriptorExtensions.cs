@@ -3,9 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
-internal static class SecurityTokenDescriptorExtensions
+public static class SecurityTokenDescriptorExtensions
 {
-    internal static string GenerateToken(
+    public static string GenerateToken(
         this SecurityTokenDescriptor tokenDescriptor,
         DateTimeOffset expires,
         string issuer,

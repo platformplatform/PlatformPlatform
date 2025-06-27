@@ -4,11 +4,9 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 using PlatformPlatform.SharedKernel.DomainEvents;
@@ -73,11 +71,7 @@ public static class SharedDependencyConfiguration
     private static IServiceCollection AddAuthentication(this IServiceCollection services)
     {
         return services
-            .AddScoped<IPasswordHasher<object>, PasswordHasher<object>>()
-            .AddScoped<OneTimePasswordHelper>()
-            .AddScoped<RefreshTokenGenerator>()
-            .AddScoped<AccessTokenGenerator>()
-            .AddScoped<AuthenticationTokenService>();
+            .AddScoped<AccessTokenGenerator>();
     }
 
     private static IServiceCollection AddDefaultJsonSerializerOptions(this IServiceCollection services)

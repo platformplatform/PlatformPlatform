@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain.TokenGeneration;
 
 public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient)
 {
