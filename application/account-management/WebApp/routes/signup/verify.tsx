@@ -289,7 +289,9 @@ export function CompleteSignupForm() {
           <span className="text-muted-foreground text-xs">
             <Trans>Powered by</Trans>
           </span>
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+          <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
+            <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+          </Link>
         </div>
       </div>
     </div>
