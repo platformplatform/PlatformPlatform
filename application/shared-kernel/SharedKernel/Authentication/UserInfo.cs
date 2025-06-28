@@ -41,6 +41,8 @@ public class UserInfo
 
     public string? AvatarUrl { get; init; }
 
+    public string? TenantName { get; init; }
+
     public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale)
     {
         if (user?.Identity?.IsAuthenticated != true)
@@ -65,6 +67,7 @@ public class UserInfo
             LastName = user.FindFirstValue(ClaimTypes.Surname),
             Title = user.FindFirstValue("title"),
             AvatarUrl = user.FindFirstValue("avatar_url"),
+            TenantName = user.FindFirstValue("tenant_name"),
             Locale = GetValidLocale(user.FindFirstValue("locale"))
         };
     }

@@ -1,10 +1,9 @@
 using JetBrains.Annotations;
-using Mapster;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
@@ -20,6 +19,7 @@ public sealed record CompleteSignupCommand(string OneTimePassword, string Prefer
 
 public sealed class CompleteSignupHandler(
     IUserRepository userRepository,
+    UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
     IMediator mediator,
     ITelemetryEventsCollector events
@@ -42,7 +42,8 @@ public sealed class CompleteSignupHandler(
         if (!createTenantResult.IsSuccess) return Result.From(createTenantResult);
 
         var user = await userRepository.GetByIdAsync(createTenantResult.Value!.UserId, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(user!.Adapt<UserInfo>());
+        var userInfo = await userInfoFactory.CreateUserInfoAsync(user!, cancellationToken);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo);
 
         events.CollectEvent(
             new SignupCompleted(createTenantResult.Value.TenantId, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds)
