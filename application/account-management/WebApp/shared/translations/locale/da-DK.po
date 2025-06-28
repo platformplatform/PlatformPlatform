@@ -94,6 +94,9 @@ msgstr "Oprettet"
 msgid "Danger zone"
 msgstr "Farezone"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Delete"
 msgstr "Slet"
 
@@ -130,6 +133,9 @@ msgstr "F.eks., Softwareingeniør"
 
 msgid "E.g., Taylor"
 msgstr "F.eks. Taylor"
+
+msgid "Edit"
+msgstr ""
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -188,8 +194,14 @@ msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger 
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Language"
+msgstr ""
+
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Light"
+msgstr ""
 
 msgid "Log in"
 msgstr "Log ind"
@@ -223,6 +235,9 @@ msgstr "Ændret dato"
 
 msgid "Name"
 msgstr "Navn"
+
+msgid "Navigation"
+msgstr ""
 
 msgid "Next"
 msgstr "Næste"
@@ -309,6 +324,9 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "System"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
@@ -317,6 +335,9 @@ msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræf
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
+
+msgid "Theme"
+msgstr ""
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
