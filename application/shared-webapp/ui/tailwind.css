@@ -29,7 +29,7 @@
     --secondary-foreground: 219 42% 11%;
     --accent: 210 40% 90%;
     --accent-foreground: 219 42% 11%;
-    --destructive: 2 66% 51%;
+    --destructive: 1 75% 55.6%;
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --sidebar: 200 13% 95%; /* Same as background */
@@ -38,7 +38,7 @@
     --selected-hover-background: 210 10% 91%; /* Same as hover-background */
     --input-background: 0 0% 100%;
 
-    --danger: 2 66% 51%;
+    --danger: 1 75% 55.6%;
     --danger-foreground: 210 40% 98%;
     --success: 143 64% 24%;
     --success-foreground: 210 40% 98%;
@@ -68,7 +68,7 @@
     --secondary-foreground: 210 40% 98%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 2 66% 51%;
+    --destructive: 1 75% 55.6%;
     --destructive-foreground: 210 40% 98%;
     --ring: 0 0% 100%;
     --sidebar: 222 29% 12%; /* Same as background */
@@ -77,7 +77,7 @@
     --selected-hover-background: 219 31% 15%; /* Same as hover-background */
     --input-background: 222 45% 8%;
 
-    --danger: 2 66% 51%;
+    --danger: 1 75% 55.6%;
     --danger-foreground: 0 0% 100%;
     --success: 143 64% 24%;
     --success-foreground: 0 0% 100%;
