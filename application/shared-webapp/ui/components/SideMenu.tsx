@@ -139,8 +139,7 @@ export function MenuButton({
   };
 
   // Check if we're in the mobile menu context
-  const isMobileMenu =
-    typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.sm).matches && overlayCtx?.isOpen;
+  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && overlayCtx?.isOpen;
 
   return (
     <div className="relative">
@@ -225,10 +224,6 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
 
   // Initialize collapsed state with synchronous check to prevent flicker
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window === "undefined") {
-      return true;
-    }
-
     // Force collapsed on medium screens
     if (forceCollapsed) {
       return true;

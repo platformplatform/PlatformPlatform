@@ -15,19 +15,15 @@ export function useSideMenuLayout(): {
 } {
   // Track screen sizes
   const [isSmallScreen, setIsSmallScreen] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(MEDIA_QUERIES.sm).matches : false
+    window.matchMedia(MEDIA_QUERIES.sm).matches
   );
   const [isLargeScreen, setIsLargeScreen] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(MEDIA_QUERIES.xl).matches : false
+    window.matchMedia(MEDIA_QUERIES.xl).matches
   );
 
   // Track menu state
   const [isCollapsed, setIsCollapsed] = useState(() => {
     // Synchronous check to prevent flicker
-    if (typeof window === "undefined") {
-      return true;
-    }
-
     const isSmallScreenSync = window.matchMedia(MEDIA_QUERIES.sm).matches;
     const isLargeScreenSync = window.matchMedia(MEDIA_QUERIES.xl).matches;
 
