@@ -11,9 +11,21 @@ import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
 import { MenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { useThemeMode } from "@repo/ui/theme/mode/ThemeMode";
-import { ThemeMode } from "@repo/ui/theme/mode/utils";
+import { SystemThemeMode, ThemeMode } from "@repo/ui/theme/mode/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, CircleUserIcon, GlobeIcon, HomeIcon, LogOutIcon, SunIcon, UserIcon, UsersIcon } from "lucide-react";
+import {
+  CheckIcon,
+  CircleUserIcon,
+  GlobeIcon,
+  HomeIcon,
+  LogOutIcon,
+  MoonIcon,
+  MoonStarIcon,
+  SunIcon,
+  SunMoonIcon,
+  UserIcon,
+  UsersIcon
+} from "lucide-react";
 import type React from "react";
 import { use, useContext, useState } from "react";
 import UserProfileModal from "./userModals/UserProfileModal";
@@ -29,7 +41,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
   const { getLocaleInfo, locales, setLocale } = use(translationContext);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { themeMode, setThemeMode } = useThemeMode();
+  const { themeMode, resolvedThemeMode, setThemeMode } = useThemeMode();
 
   // Access mobile menu overlay context to close menu when needed
   const overlayCtx = useContext(overlayContext);
@@ -48,6 +60,21 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
       default:
         return t`System`;
     }
+  };
+
+  const getThemeIcon = (themeMode: ThemeMode, resolvedThemeMode: SystemThemeMode) => {
+    if (resolvedThemeMode === SystemThemeMode.Dark) {
+      return themeMode === ThemeMode.System ? (
+        <MoonStarIcon className="h-5 w-5 stroke-current" />
+      ) : (
+        <MoonIcon className="h-5 w-5 stroke-current" />
+      );
+    }
+    return themeMode === ThemeMode.System ? (
+      <SunMoonIcon className="h-5 w-5 stroke-current" />
+    ) : (
+      <SunIcon className="h-5 w-5 stroke-current" />
+    );
   };
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
@@ -125,7 +152,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
           </Button>
         </div>
 
-        {/* Theme Section - simple button that cycles themes */}
+        {/* Theme Section - button that cycles themes */}
         <div className="flex items-center justify-between">
           <button
             type="button"
@@ -148,7 +175,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
             style={{ pointerEvents: "auto" }}
           >
             <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <SunIcon className="h-5 w-5 stroke-current" />
+              {getThemeIcon(themeMode, resolvedThemeMode)}
             </div>
             <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
               <Trans>Theme</Trans>
