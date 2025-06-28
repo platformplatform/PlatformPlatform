@@ -5,8 +5,6 @@ import { createTestContext, expectToastMessage, expectValidationError } from "@s
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
-  // Set a larger viewport size to avoid positioning issues in Chrome
-  test.use({ viewport: { width: 1600, height: 900 } });
   /**
    * COMPREHENSIVE USER MANAGEMENT WORKFLOW
    *
