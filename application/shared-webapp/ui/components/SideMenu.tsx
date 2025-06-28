@@ -7,7 +7,6 @@ import { ToggleButton, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
-import logoWrapUrl from "../images/logo-wrap.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
@@ -199,7 +198,14 @@ const sideMenuStyles = tv({
       true: "hidden",
       false: "flex"
     }
-  }
+  },
+  compoundVariants: [
+    {
+      overlayMode: true,
+      isOverlayOpen: true,
+      class: "w-[320px]" // Wider overlay for longer tenant names
+    }
+  ]
 });
 
 const chevronStyles = tv({
@@ -216,9 +222,10 @@ type SideMenuProps = {
   children: React.ReactNode;
   ariaLabel: string;
   topMenuContent?: React.ReactNode;
+  tenantName?: string;
 };
 
-export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideMenuProps>) {
+export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
@@ -510,12 +517,31 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
 
             {/* Fixed header section with logo */}
             <div className="relative flex h-20 w-full shrink-0 items-center">
-              {/* Logo container - fixed position */}
-              <div className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1 pl-7"}>
-                {actualIsCollapsed ? (
-                  <img src={logoMarkUrl} alt="Logo" className="h-8 w-8" />
-                ) : (
-                  <img src={logoWrapUrl} alt="Logo" className="h-8 w-auto" />
+              {/* Logo and tenant name container */}
+              <div
+                className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1"}
+                style={
+                  actualIsCollapsed
+                    ? undefined
+                    : {
+                        display: "grid",
+                        gridTemplateColumns: "auto 1fr",
+                        gap: "12px",
+                        alignItems: "center",
+                        paddingLeft: "24px",
+                        paddingRight: "10px",
+                        width: "100%"
+                      }
+                }
+              >
+                <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
+                {!actualIsCollapsed && (
+                  <span
+                    className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
+                    style={{ minWidth: 0 }}
+                  >
+                    {tenantName || "PlatformPlatform"}
+                  </span>
                 )}
               </div>
 
