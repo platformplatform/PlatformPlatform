@@ -62,6 +62,10 @@ const menuTextStyles = tv({
     isCollapsed: {
       true: "max-w-0 opacity-0",
       false: "max-w-[200px] opacity-100"
+    },
+    isActive: {
+      true: "font-semibold",
+      false: "font-normal"
     }
   }
 });
@@ -167,7 +171,7 @@ export function MenuButton({
           <div className="flex h-6 w-6 shrink-0 items-center justify-center">
             <Icon className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"}`} />
           </div>
-          <div className={`${menuTextStyles({ isCollapsed })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
+          <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
         </ToggleButton>
         {isCollapsed && (
           <Tooltip placement="right" offset={4}>
