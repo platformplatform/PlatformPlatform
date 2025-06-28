@@ -1,11 +1,9 @@
 using JetBrains.Annotations;
-using Mapster;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
-using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
@@ -22,6 +20,7 @@ public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IR
 public sealed class CompleteLoginHandler(
     IUserRepository userRepository,
     ILoginRepository loginRepository,
+    UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
     IMediator mediator,
     AvatarUpdater avatarUpdater,
@@ -75,7 +74,8 @@ public sealed class CompleteLoginHandler(
         login.MarkAsCompleted();
         loginRepository.Update(login);
 
-        authenticationTokenService.CreateAndSetAuthenticationTokens(user.Adapt<UserInfo>());
+        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo);
 
         events.CollectEvent(new LoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));
 
