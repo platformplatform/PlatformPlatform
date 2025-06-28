@@ -94,6 +94,9 @@ msgstr "Aangemaakt"
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -130,6 +133,9 @@ msgstr "Bijv., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
+
+msgid "Edit"
+msgstr ""
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -188,8 +194,14 @@ msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inl
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
+msgid "Language"
+msgstr ""
+
 msgid "Last name"
 msgstr "Achternaam"
+
+msgid "Light"
+msgstr ""
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -223,6 +235,9 @@ msgstr "Gewijzigde datum"
 
 msgid "Name"
 msgstr "Naam"
+
+msgid "Navigation"
+msgstr ""
 
 msgid "Next"
 msgstr "Volgende"
@@ -309,6 +324,9 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "System"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
@@ -317,6 +335,9 @@ msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailb
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
+
+msgid "Theme"
+msgstr ""
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"

@@ -94,6 +94,9 @@ msgstr "Created"
 msgid "Danger zone"
 msgstr "Danger zone"
 
+msgid "Dark"
+msgstr "Dark"
+
 msgid "Delete"
 msgstr "Delete"
 
@@ -130,6 +133,9 @@ msgstr "E.g., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "E.g., Taylor"
+
+msgid "Edit"
+msgstr "Edit"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -188,8 +194,14 @@ msgstr "Invite users and assign them roles. They will appear once they log in."
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Language"
+msgstr "Language"
+
 msgid "Last name"
 msgstr "Last name"
+
+msgid "Light"
+msgstr "Light"
 
 msgid "Log in"
 msgstr "Log in"
@@ -223,6 +235,9 @@ msgstr "Modified date"
 
 msgid "Name"
 msgstr "Name"
+
+msgid "Navigation"
+msgstr "Navigation"
 
 msgid "Next"
 msgstr "Next"
@@ -309,6 +324,9 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "System"
+msgstr "System"
+
 msgid "Terms of use"
 msgstr "Terms of use"
 
@@ -317,6 +335,9 @@ msgstr "The verification code you are trying to use has expired for Email Confir
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
+
+msgid "Theme"
+msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
