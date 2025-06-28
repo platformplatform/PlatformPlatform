@@ -30,6 +30,7 @@ public static class Configuration
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)
-            .AddScoped<AvatarUpdater>();
+            .AddScoped<AvatarUpdater>()
+            .AddScoped<UserInfoFactory>();
     }
 }

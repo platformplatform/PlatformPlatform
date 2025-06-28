@@ -80,6 +80,10 @@ export declare global {
      * Avatar url
      **/
     avatarUrl?: string | null;
+    /**
+     * Tenant name
+     **/
+    tenantName?: string;
   }
 
   /**
