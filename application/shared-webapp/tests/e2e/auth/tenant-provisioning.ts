@@ -9,13 +9,16 @@ import type { Tenant, User } from "@shared/e2e/types/auth";
  */
 export function createTenantWithUsers(workerIndex: number, selfContainedSystemPrefix?: string): Tenant {
   const prefix = selfContainedSystemPrefix ? `${selfContainedSystemPrefix}-` : "";
-  const timestamp = Date.now();
+
+  // Compact timestamp (YY-MM-DDTHH-MM)
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+
   const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 
   // Generate unique emails for each role with timestamp to avoid conflicts across test runs
-  const ownerEmailAddress = `e2e-${prefix}-owner-${workerIndex}-${timestamp}@platformplatform.net`;
-  const adminEmailAddress = `e2e-${prefix}-admin-${workerIndex}-${timestamp}@platformplatform.net`;
-  const memberEmailAddress = `e2e-${prefix}-member-${workerIndex}-${timestamp}@platformplatform.net`;
+  const ownerEmailAddress = `e2e-${prefix}-owner@${workerIndex}.${timestamp}.local`;
+  const adminEmailAddress = `e2e-${prefix}-admin@${workerIndex}.${timestamp}.local`;
+  const memberEmailAddress = `e2e-${prefix}-member@${workerIndex}.${timestamp}.local`;
 
   // Create User objects for each role
   const owner: User = {

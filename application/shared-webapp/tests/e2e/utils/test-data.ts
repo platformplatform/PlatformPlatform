@@ -6,13 +6,14 @@ import { expectToastMessage } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
- * @param domain Optional domain, defaults to 'platformplatform.net'
  * @returns Unique email address
  */
-export function uniqueEmail(domain = "localhost.local"): string {
-  const timestamp = Date.now();
+export function uniqueEmail(): string {
+  // Compact timestamp (YY-MM-DDTHH-MM)
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+
   const username = faker.internet.userName().toLowerCase();
-  return `${username}.${timestamp}@${domain}`;
+  return `${username}@${timestamp}.local`;
 }
 
 
@@ -71,8 +72,9 @@ export function getVerificationCode(): string {
 export function testUser() {
   const first = firstName();
   const last = lastName();
-  const timestamp = Date.now();
-  const email = `${first.toLowerCase()}.${last.toLowerCase()}.${timestamp}@platformplatform.net`;
+  // Compact timestamp (YY-MM-DDTHH-MM)
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+  const email = `${first.toLowerCase()}.${last.toLowerCase()}@${timestamp}.local`;
 
   return {
     email,
