@@ -262,26 +262,39 @@ export async function normalizeError(errorOrResponse: unknown): Promise<Error | 
   return serverError;
 }
 
+// Track processed errors to prevent showing duplicate error toasts
+const processedErrors = new WeakSet<Error | Record<string, unknown>>();
+
 export function setupGlobalErrorHandlers() {
   // Handle uncaught promise rejections
   window.addEventListener("unhandledrejection", (event) => {
     event.preventDefault();
-    console.error("[Global error handler] Unhandled promise rejection:", event.reason);
 
-    if (event.reason) {
-      showErrorToast(event.reason);
+    if (!event.reason) {
+      return;
     }
+    if (processedErrors.has(event.reason)) {
+      return;
+    }
+
+    processedErrors.add(event.reason);
+    showErrorToast(event.reason);
   });
 
   // Handle uncaught exceptions
   window.addEventListener("error", (event) => {
     event.preventDefault();
-    console.error("[Global error handler] Uncaught exception:", event.error);
 
-    if (event.error) {
-      showErrorToast(event.error);
+    if (!event.error) {
+      return false;
+    }
+    if (processedErrors.has(event.error)) {
+      return false;
     }
 
-    return true; // Needed specifically for the error event, to stop propagation
+    processedErrors.add(event.error);
+    showErrorToast(event.error);
+
+    return true; // Stop error propagation
   });
 }
