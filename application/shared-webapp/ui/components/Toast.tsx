@@ -105,8 +105,8 @@ const toastStyle = tv({
 const closeButtonStyle = tv({
   extend: focusRing,
   base: [
-    "absolute top-2 right-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity",
-    "hover:text-foreground group-hover:opacity-100"
+    "absolute top-2 right-2 rounded-md p-1 text-white/50 opacity-0 transition-opacity",
+    "hover:text-white group-hover:opacity-100"
   ]
 });
 
