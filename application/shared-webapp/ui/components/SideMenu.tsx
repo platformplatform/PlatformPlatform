@@ -8,7 +8,7 @@ import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import logoWrapUrl from "../images/logo-wrap.svg";
-import { MEDIA_QUERIES } from "../utils/responsive";
+import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
@@ -44,7 +44,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-4 pl-4 font-normal text-base hover:bg-hover-background",
+  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background",
   variants: {
     isCollapsed: {
       true: "",
@@ -148,7 +148,7 @@ export function MenuButton({
       {isActive && (
         <div
           className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
-            isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-6"
+            isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
           }`}
         />
       )}
@@ -185,7 +185,7 @@ const sideMenuStyles = tv({
   variants: {
     isCollapsed: {
       true: "mr-2 w-[72px]",
-      false: "mr-2 w-72"
+      false: "mr-2" // Width will be set inline for resizable menu
     },
     overlayMode: {
       true: "",
@@ -221,7 +221,21 @@ type SideMenuProps = {
 export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [menuWidth, setMenuWidth] = useState(() => {
+    try {
+      const stored = localStorage.getItem("side-menu-size");
+      if (stored) {
+        const width = Number.parseInt(stored, 10);
+        if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH) {
+          return width;
+        }
+      }
+    } catch {}
+    return SIDE_MENU_DEFAULT_WIDTH;
+  });
 
   // Initialize collapsed state with synchronous check to prevent flicker
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -265,7 +279,10 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
   // The actual visual collapsed state
   const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
 
-  const toggleMenu = () => {
+  // Check if we're on XL screen (for resize functionality)
+  const isXlScreen = !overlayMode && !forceCollapsed;
+
+  const toggleMenu = useCallback(() => {
     if (overlayMode) {
       setIsOverlayOpen(!isOverlayOpen);
       // Dispatch event for layout hook
@@ -288,7 +305,19 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
         })
       );
     }
-  };
+    // Maintain focus on the toggle button after state change
+    setTimeout(() => {
+      if (toggleButtonRef.current) {
+        if (toggleButtonRef.current instanceof HTMLButtonElement) {
+          toggleButtonRef.current.focus();
+        } else {
+          // For ToggleButton wrapped in div, find the button inside
+          const button = toggleButtonRef.current.querySelector("button");
+          button?.focus();
+        }
+      }
+    }, 0);
+  }, [overlayMode, isOverlayOpen, forceCollapsed, isCollapsed]);
 
   const closeOverlay = useCallback(() => {
     if (overlayMode && isOverlayOpen) {
@@ -355,6 +384,92 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOverlayOpen, overlayMode]);
 
+  // Track mouse movement to detect dragging
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
+
+  // Handle resize drag
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) {
+      return;
+    }
+
+    // Add global cursor style
+    document.body.style.cursor = "col-resize";
+
+    let hasTriggeredCollapse = false;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const mouseX = e.clientX - 8;
+
+      // Check if mouse has moved more than 5px from start (indicates dragging)
+      if (dragStartPos.current && !hasDraggedRef.current) {
+        const distance = Math.abs(e.clientX - dragStartPos.current.x) + Math.abs(e.clientY - dragStartPos.current.y);
+        if (distance > 5) {
+          hasDraggedRef.current = true;
+        }
+      }
+
+      // If dragging from collapsed state and mouse is past collapsed width, expand
+      if (isCollapsed && mouseX > 100) {
+        toggleMenu();
+        setIsResizing(false);
+        document.body.style.cursor = "";
+        return;
+      }
+
+      // If dragging to edge from expanded state, collapse
+      if (!isCollapsed && mouseX < 20 && !hasTriggeredCollapse) {
+        hasTriggeredCollapse = true;
+        toggleMenu();
+        setIsResizing(false);
+        document.body.style.cursor = "";
+        return;
+      }
+
+      // Normal resize when expanded
+      if (!isCollapsed && !hasTriggeredCollapse) {
+        const newWidth = Math.min(Math.max(mouseX, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
+        setMenuWidth(newWidth);
+        // Dispatch event for layout hook during drag
+        window.dispatchEvent(
+          new CustomEvent("side-menu-resize", {
+            detail: { width: newWidth }
+          })
+        );
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "";
+      // Only save if we didn't trigger collapse
+      if (!hasTriggeredCollapse && !isCollapsed) {
+        try {
+          localStorage.setItem("side-menu-size", menuWidth.toString());
+        } catch {}
+      }
+      dragStartPos.current = null;
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+    };
+  }, [isResizing, menuWidth, isCollapsed, toggleMenu]);
+
   return (
     <>
       {/* Backdrop for overlay mode */}
@@ -373,16 +488,25 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
         <overlayContext.Provider value={{ isOpen: isOverlayOpen, close: closeOverlay }}>
           <div
             ref={sideMenuRef}
-            className={sideMenuStyles({
+            className={`${sideMenuStyles({
               isCollapsed: actualIsCollapsed,
               overlayMode,
               isOverlayOpen,
               isHidden: isHidden && !overlayMode,
               className
-            })}
+            })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
+            style={{
+              width: isXlScreen && !isCollapsed ? `${menuWidth + 8}px` : undefined,
+              transition: isResizing ? "none" : undefined
+            }}
           >
-            {/* Vertical divider line */}
-            <div className="absolute top-0 right-0 h-full border-border/50 border-r opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100" />
+            {/* Vertical divider line - draggable on XL screens */}
+            <div
+              className={`absolute top-0 right-0 h-full border-border/50 border-r opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100 ${
+                isXlScreen ? "-mr-1 w-2 cursor-col-resize" : ""
+              }`}
+              onMouseDown={isXlScreen ? handleResizeStart : undefined}
+            />
 
             {/* Fixed header section with logo */}
             <div className="relative flex h-20 w-full shrink-0 items-center">
@@ -396,20 +520,73 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
               </div>
 
               {/* Toggle button centered on divider, midway between logo and first menu item */}
-              <ToggleButton
-                aria-label={ariaLabel}
-                className={`toggle-button absolute top-[62px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 ${
-                  actualIsCollapsed ? "-right-3" : "right-0 translate-x-1/2"
+              <div
+                className={`absolute top-[62px] ${actualIsCollapsed ? "-right-4" : "-right-1 translate-x-1/2"} ${
+                  !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
                 }`}
-                isSelected={actualIsCollapsed}
-                onPress={toggleMenu}
               >
-                <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
-              </ToggleButton>
+                {isXlScreen ? (
+                  // Draggable button that acts as resize handle
+                  <button
+                    ref={toggleButtonRef as React.RefObject<HTMLButtonElement>}
+                    type="button"
+                    className="toggle-button flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+                    onMouseDown={handleResizeStart}
+                    onClick={(_e) => {
+                      // Only toggle if we didn't drag (moved less than 5px)
+                      if (!hasDraggedRef.current) {
+                        toggleMenu();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        toggleMenu();
+                      } else if (e.key === "ArrowLeft") {
+                        e.preventDefault();
+                        const newWidth = Math.max(menuWidth - 10, SIDE_MENU_MIN_WIDTH);
+                        setMenuWidth(newWidth);
+                        localStorage.setItem("side-menu-size", newWidth.toString());
+                        window.dispatchEvent(
+                          new CustomEvent("side-menu-resize", {
+                            detail: { width: newWidth }
+                          })
+                        );
+                      } else if (e.key === "ArrowRight") {
+                        e.preventDefault();
+                        const newWidth = Math.min(menuWidth + 10, SIDE_MENU_MAX_WIDTH);
+                        setMenuWidth(newWidth);
+                        localStorage.setItem("side-menu-size", newWidth.toString());
+                        window.dispatchEvent(
+                          new CustomEvent("side-menu-resize", {
+                            detail: { width: newWidth }
+                          })
+                        );
+                      }
+                    }}
+                    aria-label={ariaLabel}
+                  >
+                    <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
+                  </button>
+                ) : (
+                  <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
+                    <ToggleButton
+                      aria-label={ariaLabel}
+                      className={
+                        "toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+                      }
+                      isSelected={actualIsCollapsed}
+                      onPress={toggleMenu}
+                    >
+                      <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
+                    </ToggleButton>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Scrollable menu content */}
-            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-6"} mt-2`}>
+            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
               <div className="flex flex-col gap-2 pt-1.5">{children}</div>
             </div>
           </div>
