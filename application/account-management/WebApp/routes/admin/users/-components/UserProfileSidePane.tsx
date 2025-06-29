@@ -38,9 +38,9 @@ export function UserProfileSidePane({
   // Focus management and keyboard navigation - only focus close button on mobile/tablet
   useEffect(() => {
     if (isOpen && closeButtonRef.current) {
-      // Only auto-focus on mobile/tablet, not on 2xl desktop where it's part of the layout
-      const is2xlScreen = window.matchMedia("(min-width: 1536px)").matches;
-      if (!is2xlScreen) {
+      // Only auto-focus on mobile/tablet, not on xl desktop where it's part of the layout
+      const isXlScreen = window.matchMedia("(min-width: 1280px)").matches;
+      if (!isXlScreen) {
         closeButtonRef.current.focus();
       }
     }
@@ -64,15 +64,15 @@ export function UserProfileSidePane({
     };
   }, [isOpen, onClose]);
 
-  // Focus trapping - only on mobile/tablet, not on 2xl desktop
+  // Focus trapping - only on mobile/tablet, not on xl desktop
   useEffect(() => {
     if (!isOpen || !sidePaneRef.current) {
       return;
     }
 
-    // Don't trap focus on 2xl screens where side pane is part of main layout
-    const is2xlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    if (is2xlScreen) {
+    // Don't trap focus on xl screens where side pane is part of main layout
+    const isXlScreen = window.matchMedia("(min-width: 1280px)").matches;
+    if (isXlScreen) {
       return;
     }
 
@@ -123,7 +123,7 @@ export function UserProfileSidePane({
         aria-label={t`User profile details`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-border border-b bg-muted/30 p-4">
+        <div className="flex items-center justify-between border-border border-b bg-muted/30 px-4 py-2">
           <Heading level={2} className="font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>
@@ -132,7 +132,6 @@ export function UserProfileSidePane({
             variant="icon"
             onPress={onClose}
             aria-label={t`Close user profile`}
-            className="2xl:hidden"
           >
             <XIcon className="h-4 w-4" />
           </Button>
@@ -145,7 +144,7 @@ export function UserProfileSidePane({
             <Avatar
               initials={getInitials(user.firstName, user.lastName, user.email)}
               avatarUrl={user.avatarUrl}
-              size="md"
+              size="lg"
               isRound={true}
               className="mx-auto mb-3"
             />
@@ -199,13 +198,13 @@ export function UserProfileSidePane({
                 <Text className="text-sm">
                   <Trans>Created</Trans>
                 </Text>
-                <Text className="font-mono text-sm">{formatDate(user.createdAt, true)}</Text>
+                <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
               </div>
               <div className="flex justify-between">
                 <Text className="text-sm">
                   <Trans>Modified</Trans>
                 </Text>
-                <Text className="font-mono text-sm">{formatDate(user.modifiedAt, true)}</Text>
+                <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
               </div>
             </div>
           </div>
