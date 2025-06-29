@@ -119,8 +119,8 @@ export function AppLayout({
 
       {/* Scrollable content area with bounce */}
       <div
-        className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-transform duration-300 ease-in-out sm:pt-24 ${
-          sidePaneOpen ? "sm:-translate-x-96 sm:transform" : ""
+        className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-all duration-100 ease-in-out sm:pt-24 ${
+          sidePaneOpen ? "sm:mr-96" : ""
         }`}
       >
         {variant === "center" ? (
