@@ -60,9 +60,18 @@ export default function UsersPage() {
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <AppLayout
-        sidePaneOpen={profileUser !== null}
+        sidePane={
+          profileUser ? (
+            <UserProfileSidePane
+              user={profileUser}
+              isOpen={profileUser !== null}
+              onClose={handleCloseProfile}
+              onDeleteUser={handleDeleteUser}
+            />
+          ) : undefined
+        }
         topMenu={
-          <TopMenu sidePaneOpen={profileUser !== null}>
+          <TopMenu>
             <Breadcrumb href="/admin/users">
               <Trans>Users</Trans>
             </Breadcrumb>
@@ -72,39 +81,28 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <div className="flex h-full">
-          {/* Main content */}
-          <div className="flex min-w-0 flex-1 flex-col">
-            <h1>
-              <Trans>Users</Trans>
-            </h1>
-            <p>
-              <Trans>Manage your users and permissions here.</Trans>
-            </p>
+        <div className="flex h-full flex-col">
+          <h1>
+            <Trans>Users</Trans>
+          </h1>
+          <p>
+            <Trans>Manage your users and permissions here.</Trans>
+          </p>
 
-            <div className="mb-4">
-              <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-            </div>
-            <div className="min-h-0 flex-1">
-              <UserTable
-                selectedUsers={selectedUsers}
-                onSelectedUsersChange={setSelectedUsers}
-                onViewProfile={handleViewProfile}
-                onDeleteUser={handleDeleteUser}
-                onChangeRole={handleChangeRole}
-              />
-            </div>
+          <div className="mb-4">
+            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+          </div>
+          <div className="min-h-0 flex-1">
+            <UserTable
+              selectedUsers={selectedUsers}
+              onSelectedUsersChange={setSelectedUsers}
+              onViewProfile={handleViewProfile}
+              onDeleteUser={handleDeleteUser}
+              onChangeRole={handleChangeRole}
+            />
           </div>
         </div>
       </AppLayout>
-
-      {/* Single UserProfileSidePane for all screen sizes */}
-      <UserProfileSidePane
-        user={profileUser}
-        isOpen={profileUser !== null}
-        onClose={handleCloseProfile}
-        onDeleteUser={handleDeleteUser}
-      />
 
       <ChangeUserRoleDialog
         user={userToChangeRole}
