@@ -74,7 +74,9 @@ export default function UsersPage() {
         <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
           {/* Main content */}
           <div
-            className={`flex min-w-0 flex-1 flex-col ${profileUser ? "sm:overflow-x-auto 2xl:overflow-x-visible" : ""}`}
+            className={`flex min-w-0 flex-1 flex-col ${
+              profileUser ? "sm:overflow-x-auto xl:overflow-x-auto 2xl:overflow-x-visible" : ""
+            }`}
           >
             <h1>
               <Trans>Users</Trans>
@@ -84,7 +86,7 @@ export default function UsersPage() {
             </p>
 
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-            <div className={`min-h-0 flex-1 ${profileUser ? "sm:min-w-fit 2xl:min-w-full" : ""}`}>
+            <div className={`min-h-0 flex-1 ${profileUser ? "sm:min-w-fit xl:min-w-fit 2xl:min-w-0" : ""}`}>
               <UserTable
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
@@ -95,9 +97,9 @@ export default function UsersPage() {
             </div>
           </div>
 
-          {/* Side pane for 2xl screens */}
+          {/* Side pane for large screens */}
           {profileUser && (
-            <div className="hidden 2xl:block 2xl:w-80 2xl:flex-shrink-0">
+            <div className="hidden xl:block xl:w-80 xl:flex-shrink-0">
               <UserProfileSidePane
                 user={profileUser}
                 isOpen={profileUser !== null}
@@ -111,7 +113,7 @@ export default function UsersPage() {
       </AppLayout>
 
       {/* Side pane for mobile/tablet screens */}
-      <div className="2xl:hidden">
+      <div className="xl:hidden">
         <UserProfileSidePane
           user={profileUser}
           isOpen={profileUser !== null}
