@@ -104,7 +104,7 @@ export function AppLayout({
       <div
         className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm ${
           isMobileMenuOpen ? "hidden" : ""
-        } ${sidePane ? "left-0 sm:right-96" : "right-0 left-0"}`}
+        } ${sidePane ? "left-0 md:right-96" : "right-0 left-0"}`}
         style={{ marginLeft: style.marginLeft }}
       >
         {topMenu}
@@ -113,7 +113,7 @@ export function AppLayout({
       <div
         className={`pointer-events-none fixed top-[60px] z-30 h-4 bg-gradient-to-b from-background/30 to-transparent ${
           isMobileMenuOpen ? "hidden" : ""
-        } ${sidePane ? "left-0 sm:right-96" : "right-0 left-0"}`}
+        } ${sidePane ? "left-0 md:right-96" : "right-0 left-0"}`}
         style={{ marginLeft: style.marginLeft }}
       />
 
@@ -142,7 +142,7 @@ export function AppLayout({
 
       {/* Side pane area - responsive behavior */}
       {sidePane && (
-        <div className="fixed inset-0 z-40 sm:inset-auto sm:top-0 sm:right-0 sm:h-screen sm:w-96">{sidePane}</div>
+        <div className="fixed inset-0 z-40 md:inset-auto md:top-0 md:right-0 md:h-screen md:w-96">{sidePane}</div>
       )}
     </div>
   );
