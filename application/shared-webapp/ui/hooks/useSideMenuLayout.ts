@@ -18,6 +18,8 @@ export function useSideMenuLayout(): {
   style: React.CSSProperties;
   isOverlayOpen: boolean;
   isMobileMenuOpen: boolean;
+  isCollapsed: boolean;
+  isLargeScreen: boolean;
 } {
   // Track screen sizes
   const [isSmallScreen, setIsSmallScreen] = useState(() => window.matchMedia(MEDIA_QUERIES.sm).matches);
@@ -141,5 +143,12 @@ export function useSideMenuLayout(): {
   // Determine if in overlay mode
   const isOverlayMode = isSmallScreen && !isLargeScreen;
 
-  return { className, style, isOverlayOpen: isOverlayMode && isOverlayExpanded, isMobileMenuOpen };
+  return {
+    className,
+    style,
+    isOverlayOpen: isOverlayMode && isOverlayExpanded,
+    isMobileMenuOpen,
+    isCollapsed: isLargeScreen ? isCollapsed : true, // For XL screens, return actual state; for others, consider "collapsed" for space calculation
+    isLargeScreen
+  };
 }

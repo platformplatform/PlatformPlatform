@@ -12,7 +12,6 @@ import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -38,7 +37,7 @@ interface SearchParams {
 export function UserQuerying() {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
-  const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
+  const { isOverlayOpen, isMobileMenuOpen, isCollapsed, isLargeScreen } = useSideMenuLayout();
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
@@ -103,27 +102,19 @@ export function UserQuerying() {
 
   // Handle screen size and side menu changes to show/hide filters appropriately
   useEffect(() => {
-    const handleResize = () => {
-      const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
+    // Consider screen size AND side menu state for available space
+    // On XL screens: show inline filters only when side menu is collapsed
+    // On smaller screens: always use modal regardless of side menu state
+    const hasSpaceForInlineFilters = isLargeScreen && isCollapsed && !isOverlayOpen && !isMobileMenuOpen;
 
-      // Consider both screen size AND side menu state for available space
-      const hasSpaceForInlineFilters = isXlScreen && !isOverlayOpen && !isMobileMenuOpen;
-
-      if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
-        // Show inline filters if there's space and active filters exist
-        setShowAllFilters(true);
-      } else if (!hasSpaceForInlineFilters && showAllFilters) {
-        // Hide inline filters if there's insufficient space
-        setShowAllFilters(false);
-      }
-    };
-
-    // Check on mount and when dependencies change
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
+    if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
+      // Show inline filters if there's space and active filters exist
+      setShowAllFilters(true);
+    } else if (!hasSpaceForInlineFilters && showAllFilters) {
+      // Hide inline filters if there's insufficient space
+      setShowAllFilters(false);
+    }
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen, isCollapsed, isLargeScreen]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -208,8 +199,7 @@ export function UserQuerying() {
         data-testid="filter-button"
         onPress={() => {
           // Determine if we have space for inline filters
-          const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
-          const hasSpaceForInlineFilters = isXlScreen && !isOverlayOpen && !isMobileMenuOpen;
+          const hasSpaceForInlineFilters = isLargeScreen && isCollapsed && !isOverlayOpen && !isMobileMenuOpen;
 
           if (hasSpaceForInlineFilters && showAllFilters) {
             // If filters are showing and we have space, clear them
