@@ -13,7 +13,7 @@ import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
@@ -25,13 +25,15 @@ interface UserTableProps {
   onSelectedUsersChange: (users: UserDetails[]) => void;
   onViewProfile: (user: UserDetails | null) => void;
   onDeleteUser: (user: UserDetails) => void;
+  onChangeRole: (user: UserDetails) => void;
 }
 
 export function UserTable({
   selectedUsers,
   onSelectedUsersChange,
   onViewProfile,
-  onDeleteUser
+  onDeleteUser,
+  onChangeRole
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
@@ -215,6 +217,14 @@ export function UserTable({
                         <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
                           <UserIcon className="h-4 w-4" />
                           <Trans>View profile</Trans>
+                        </MenuItem>
+                        <MenuItem
+                          id="changeRole"
+                          isDisabled={user.id === userInfo?.id}
+                          onAction={() => onChangeRole(user)}
+                        >
+                          <SettingsIcon className="h-4 w-4" />
+                          <Trans>Change role</Trans>
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem
