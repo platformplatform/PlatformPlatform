@@ -141,7 +141,7 @@ export function AppLayout({
       </div>
 
       {/* Side pane area - only on desktop */}
-      {sidePane && <div className="hidden sm:block sm:w-96">{sidePane}</div>}
+      {sidePane && <div className="fixed top-0 right-0 z-40 hidden h-screen w-96 sm:block">{sidePane}</div>}
     </div>
   );
 }
