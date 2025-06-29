@@ -11,9 +11,10 @@ import AvatarButton from "../AvatarButton";
 
 interface TopMenuProps {
   children?: ReactNode;
+  sidePaneOpen?: boolean;
 }
 
-export function TopMenu({ children }: Readonly<TopMenuProps>) {
+export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProps>) {
   return (
     <nav className="hidden w-full items-center justify-between sm:flex">
       <Breadcrumbs>
@@ -22,7 +23,11 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
         </Breadcrumb>
         {children}
       </Breadcrumbs>
-      <div className="flex flex-row items-center gap-6">
+      <div
+        className={`flex flex-row items-center gap-6 transition-transform duration-300 ease-in-out ${
+          sidePaneOpen ? "sm:-translate-x-96 sm:transform" : ""
+        }`}
+      >
         <span className="flex gap-2">
           <ThemeModeSelector aria-label={t`Toggle theme`} />
           <TooltipTrigger delay={200}>
