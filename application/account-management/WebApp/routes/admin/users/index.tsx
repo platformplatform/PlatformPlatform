@@ -71,13 +71,9 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
+        <div className={`flex h-full ${profileUser ? "gap-0" : ""}`}>
           {/* Main content */}
-          <div
-            className={`flex min-w-0 flex-1 flex-col ${
-              profileUser ? "sm:overflow-x-auto xl:overflow-x-auto 2xl:overflow-x-visible" : ""
-            }`}
-          >
+          <div className={`flex min-w-0 flex-1 flex-col ${profileUser ? "overflow-x-auto" : ""}`}>
             <h1>
               <Trans>Users</Trans>
             </h1>
@@ -85,8 +81,10 @@ export default function UsersPage() {
               <Trans>Manage your users and permissions here.</Trans>
             </p>
 
-            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-            <div className={`min-h-0 flex-1 ${profileUser ? "sm:min-w-fit xl:min-w-fit 2xl:min-w-0" : ""}`}>
+            <div className={`${profileUser ? "pr-4 sm:pr-0" : ""}`}>
+              <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+            </div>
+            <div className={`min-h-0 flex-1 ${profileUser ? "min-w-fit pr-4 sm:min-w-0 sm:pr-0" : ""}`}>
               <UserTable
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
@@ -97,9 +95,9 @@ export default function UsersPage() {
             </div>
           </div>
 
-          {/* Side pane for large screens */}
+          {/* Side pane - always dock on sm+ */}
           {profileUser && (
-            <div className="hidden xl:block xl:w-80 xl:flex-shrink-0">
+            <div className="hidden sm:block sm:w-80 sm:flex-shrink-0">
               <UserProfileSidePane
                 user={profileUser}
                 isOpen={profileUser !== null}
@@ -112,8 +110,8 @@ export default function UsersPage() {
         </div>
       </AppLayout>
 
-      {/* Side pane for mobile/tablet screens */}
-      <div className="xl:hidden">
+      {/* Side pane for mobile screens - overlay on mobile only */}
+      <div className="sm:hidden">
         <UserProfileSidePane
           user={profileUser}
           isOpen={profileUser !== null}

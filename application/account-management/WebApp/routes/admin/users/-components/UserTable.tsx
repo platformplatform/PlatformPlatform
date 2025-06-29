@@ -117,6 +117,24 @@ export function UserTable({
     [users?.users, onSelectedUsersChange, onViewProfile]
   );
 
+  const handleRowClick = useCallback(
+    (user: UserDetails) => {
+      // When clicking on a row (not checkbox), toggle selection of this user
+      const isCurrentlySelected = selectedUsers.some((selectedUser) => selectedUser.id === user.id);
+
+      if (isCurrentlySelected && selectedUsers.length === 1) {
+        // If clicking on the only selected user, deselect it
+        onSelectedUsersChange([]);
+        onViewProfile(null);
+      } else {
+        // Otherwise, unselect all others and select only this user
+        onSelectedUsersChange([user]);
+        onViewProfile(user);
+      }
+    },
+    [selectedUsers, onSelectedUsersChange, onViewProfile]
+  );
+
   if (isLoading) {
     return null;
   }
@@ -158,17 +176,13 @@ export function UserTable({
           </TableHeader>
           <TableBody>
             {users?.users.map((user) => (
-              <Row
-                key={user.id}
-                id={user.id}
-                onAction={() => {
-                  // Switch to this user (unselect previous, select this one)
-                  onSelectedUsersChange([user]);
-                  onViewProfile(user);
-                }}
-              >
-                <Cell className="cursor-pointer">
-                  <div className="flex h-14 items-center gap-2">
+              <Row key={user.id} id={user.id}>
+                <Cell>
+                  <Button
+                    variant="ghost"
+                    className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal"
+                    onPress={() => handleRowClick(user)}
+                  >
                     <Avatar
                       initials={getInitials(user.firstName, user.lastName, user.email)}
                       avatarUrl={user.avatarUrl}
@@ -188,27 +202,46 @@ export function UserTable({
                       </div>
                       <div className="truncate">{user.title ?? ""}</div>
                     </div>
-                  </div>
-                </Cell>
-                <Cell className="cursor-pointer">{user.email}</Cell>
-                <Cell className="cursor-pointer">{formatDate(user.createdAt)}</Cell>
-                <Cell className="cursor-pointer">{formatDate(user.modifiedAt)}</Cell>
-                <Cell className="cursor-pointer">
-                  <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                  </Button>
                 </Cell>
                 <Cell>
-                  <div className="flex w-full gap-2">
-                    <Button
-                      variant="icon"
-                      className="opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100 focus:opacity-100 [tr:focus-within_&]:opacity-100 [tr:hover_&]:opacity-100"
-                      onPress={() => {
-                        onSelectedUsersChange([user]);
-                        onDeleteUser(user);
-                      }}
-                      isDisabled={user.id === userInfo?.id}
-                    >
-                      <Trash2Icon className="h-5 w-5 text-muted-foreground" />
-                    </Button>
+                  <Button
+                    variant="ghost"
+                    className="h-full w-full justify-start p-0 text-left font-normal"
+                    onPress={() => handleRowClick(user)}
+                  >
+                    {user.email}
+                  </Button>
+                </Cell>
+                <Cell>
+                  <Button
+                    variant="ghost"
+                    className="h-full w-full justify-start p-0 text-left font-normal"
+                    onPress={() => handleRowClick(user)}
+                  >
+                    {formatDate(user.createdAt)}
+                  </Button>
+                </Cell>
+                <Cell>
+                  <Button
+                    variant="ghost"
+                    className="h-full w-full justify-start p-0 text-left font-normal"
+                    onPress={() => handleRowClick(user)}
+                  >
+                    {formatDate(user.modifiedAt)}
+                  </Button>
+                </Cell>
+                <Cell>
+                  <Button
+                    variant="ghost"
+                    className="h-full w-full justify-start p-0 text-left font-normal"
+                    onPress={() => handleRowClick(user)}
+                  >
+                    <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                  </Button>
+                </Cell>
+                <Cell>
+                  <div className="flex w-full justify-end">
                     <MenuTrigger
                       onOpenChange={(isOpen) => {
                         if (isOpen) {

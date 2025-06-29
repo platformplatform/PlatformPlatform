@@ -35,12 +35,12 @@ export function UserProfileSidePane({
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Focus management and keyboard navigation - only focus close button on mobile/tablet
+  // Focus management and keyboard navigation - only focus close button on mobile
   useEffect(() => {
     if (isOpen && closeButtonRef.current) {
-      // Only auto-focus on mobile/tablet, not on xl desktop where it's part of the layout
-      const isXlScreen = window.matchMedia("(min-width: 1280px)").matches;
-      if (!isXlScreen) {
+      // Only auto-focus on mobile, not on larger screens where it's part of the layout
+      const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
+      if (isMobileScreen) {
         closeButtonRef.current.focus();
       }
     }
@@ -64,15 +64,15 @@ export function UserProfileSidePane({
     };
   }, [isOpen, onClose]);
 
-  // Focus trapping - only on mobile/tablet, not on xl desktop
+  // Focus trapping - only on mobile, not on larger screens where side pane is part of layout
   useEffect(() => {
     if (!isOpen || !sidePaneRef.current) {
       return;
     }
 
-    // Don't trap focus on xl screens where side pane is part of main layout
-    const isXlScreen = window.matchMedia("(min-width: 1280px)").matches;
-    if (isXlScreen) {
+    // Don't trap focus on larger screens where side pane is part of main layout
+    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
+    if (!isMobileScreen) {
       return;
     }
 
@@ -118,7 +118,7 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="fixed inset-y-0 top-16 right-0 z-50 flex w-full flex-col border-border border-t border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96 2xl:static 2xl:top-0 2xl:z-auto 2xl:h-full 2xl:w-full 2xl:border-t 2xl:border-l 2xl:shadow-none"
+        className="fixed inset-y-0 top-16 right-0 z-50 flex w-full flex-col border-border border-t border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:static sm:top-0 sm:z-auto sm:h-full sm:w-96 sm:border-t sm:border-l sm:shadow-none"
         role="complementary"
         aria-label={t`User profile details`}
       >
@@ -127,12 +127,7 @@ export function UserProfileSidePane({
           <Heading level={2} className="font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>
-          <Button
-            ref={closeButtonRef}
-            variant="icon"
-            onPress={onClose}
-            aria-label={t`Close user profile`}
-          >
+          <Button ref={closeButtonRef} variant="icon" onPress={onClose} aria-label={t`Close user profile`}>
             <XIcon className="h-4 w-4" />
           </Button>
         </div>
@@ -157,7 +152,7 @@ export function UserProfileSidePane({
           {/* Contact Information */}
           <div className="mb-4">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <Text className="text-sm">
                   <Trans>Email</Trans>
                 </Text>
@@ -193,7 +188,7 @@ export function UserProfileSidePane({
 
           {/* Account Details */}
           <div className="mb-4">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex justify-between">
                 <Text className="text-sm">
                   <Trans>Created</Trans>
