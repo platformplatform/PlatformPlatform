@@ -11,6 +11,7 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
+import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
@@ -37,6 +38,7 @@ interface SearchParams {
 export function UserQuerying() {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
+  const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
@@ -99,25 +101,29 @@ export function UserQuerying() {
 
   const activeFilterCount = getActiveFilterCount();
 
-  // Handle screen size changes to show/hide filters appropriately
+  // Handle screen size and side menu changes to show/hide filters appropriately
   useEffect(() => {
     const handleResize = () => {
       const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
-      if (isXlScreen && activeFilterCount > 0 && !showAllFilters) {
-        // On XL screens, show inline filters if there are active filters
+
+      // Consider both screen size AND side menu state for available space
+      const hasSpaceForInlineFilters = isXlScreen && !isOverlayOpen && !isMobileMenuOpen;
+
+      if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
+        // Show inline filters if there's space and active filters exist
         setShowAllFilters(true);
-      } else if (!isXlScreen && showAllFilters) {
-        // On smaller screens, hide inline filters
+      } else if (!hasSpaceForInlineFilters && showAllFilters) {
+        // Hide inline filters if there's insufficient space
         setShowAllFilters(false);
       }
     };
 
-    // Check on mount
+    // Check on mount and when dependencies change
     handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [activeFilterCount, showAllFilters]);
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -201,18 +207,21 @@ export function UserQuerying() {
         aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
         data-testid="filter-button"
         onPress={() => {
-          // On XL screens, if filters are showing, clear them instead of opening dialog
+          // Determine if we have space for inline filters
           const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
-          if (isXlScreen && showAllFilters) {
+          const hasSpaceForInlineFilters = isXlScreen && !isOverlayOpen && !isMobileMenuOpen;
+
+          if (hasSpaceForInlineFilters && showAllFilters) {
+            // If filters are showing and we have space, clear them
             clearAllFilters();
             return;
           }
-          // On XL screens, toggle inline filters
-          if (isXlScreen) {
+          if (hasSpaceForInlineFilters) {
+            // If we have space but filters aren't showing, toggle them
             setShowAllFilters(!showAllFilters);
             return;
           }
-          // On smaller screens, open dialog
+          // If we don't have space, open dialog
           setIsFilterPanelOpen(true);
         }}
       >
@@ -221,8 +230,8 @@ export function UserQuerying() {
         ) : (
           <ListFilter size={16} aria-label={t`Show filters`} />
         )}
-        {activeFilterCount > 0 && (
-          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs xl:hidden">
+        {activeFilterCount > 0 && !showAllFilters && (
+          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
             {activeFilterCount}
           </span>
         )}
