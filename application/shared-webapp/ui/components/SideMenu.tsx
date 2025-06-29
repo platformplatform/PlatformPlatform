@@ -360,7 +360,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent }: Readonly<SideM
       {/* Backdrop for overlay mode */}
       {overlayMode && isOverlayOpen && (
         <div
-          className="fixed top-0 right-0 bottom-0 left-[72px] z-40 bg-black/50 transition-opacity duration-100 md:z-[65] sm:block xl:hidden"
+          className="fixed top-0 right-0 bottom-0 left-[72px] z-40 bg-black/50 transition-opacity duration-100 sm:block md:z-[65] xl:hidden"
           onClick={closeOverlay}
           onKeyDown={(e) => e.key === "Enter" && closeOverlay()}
           role="button"
