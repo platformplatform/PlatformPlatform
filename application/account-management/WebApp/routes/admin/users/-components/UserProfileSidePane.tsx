@@ -118,7 +118,7 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="fixed inset-y-0 top-0 right-0 z-50 flex w-full flex-col border-border border-t border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:static sm:top-0 sm:z-auto sm:h-full sm:w-96 sm:border-t sm:border-l sm:shadow-none"
+        className="fixed inset-y-0 top-0 right-0 z-50 flex w-full flex-col border-border border-t border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:static sm:top-[60px] sm:z-50 sm:h-[calc(100vh-60px)] sm:w-96 sm:border-t sm:border-l sm:shadow-none"
         role="complementary"
         aria-label={t`User profile details`}
       >
