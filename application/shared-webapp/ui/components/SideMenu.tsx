@@ -169,7 +169,9 @@ export function MenuButton({
           isDisabled={isDisabled}
         >
           <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-            <Icon className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"}`} />
+            <Icon
+              className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
+            />
           </div>
           <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
         </ToggleButton>
