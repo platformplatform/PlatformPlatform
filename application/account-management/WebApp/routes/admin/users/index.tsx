@@ -60,6 +60,7 @@ export default function UsersPage() {
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <AppLayout
+        sidePaneOpen={profileUser !== null}
         topMenu={
           <TopMenu sidePaneOpen={profileUser !== null}>
             <Breadcrumb href="/admin/users">
