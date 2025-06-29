@@ -118,7 +118,6 @@ export function UserTable({
     [users?.users, onSelectedUsersChange, onViewProfile]
   );
 
-
   if (isLoading) {
     return null;
   }
@@ -185,9 +184,7 @@ export function UserTable({
                   </Text>
                 </Cell>
                 <Cell>
-                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                    {user.email}
-                  </Text>
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
                 </Cell>
                 <Cell>
                   <Text className="h-full w-full justify-start p-0 text-left font-normal">
