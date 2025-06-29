@@ -97,6 +97,8 @@ export function UserTable({
     (keys: Selection) => {
       if (keys === "all") {
         onSelectedUsersChange(users?.users ?? []);
+        // Close profile when selecting all users
+        onViewProfile(null);
       } else {
         const selectedKeys = typeof keys === "string" ? new Set([keys]) : keys;
         const selectedUsersList = users?.users.filter((user) => selectedKeys.has(user.id)) ?? [];
@@ -159,12 +161,12 @@ export function UserTable({
               key={user.id}
               id={user.id}
               onAction={() => {
+                // Switch to this user (unselect previous, select this one)
                 onSelectedUsersChange([user]);
                 onViewProfile(user);
               }}
-              className="cursor-pointer"
             >
-              <Cell>
+              <Cell className="cursor-pointer">
                 <div className="flex h-14 items-center gap-2">
                   <Avatar
                     initials={getInitials(user.firstName, user.lastName, user.email)}
@@ -187,10 +189,10 @@ export function UserTable({
                   </div>
                 </div>
               </Cell>
-              <Cell>{user.email}</Cell>
-              <Cell>{formatDate(user.createdAt)}</Cell>
-              <Cell>{formatDate(user.modifiedAt)}</Cell>
-              <Cell>
+              <Cell className="cursor-pointer">{user.email}</Cell>
+              <Cell className="cursor-pointer">{formatDate(user.createdAt)}</Cell>
+              <Cell className="cursor-pointer">{formatDate(user.modifiedAt)}</Cell>
+              <Cell className="cursor-pointer">
                 <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
               </Cell>
               <Cell>
@@ -252,7 +254,7 @@ export function UserTable({
       </Table>
 
       {users && (
-        <div className="sticky bottom-0 z-20 bg-background py-4">
+        <div className="bg-background py-4">
           <Pagination
             paginationSize={5}
             currentPage={currentPage}

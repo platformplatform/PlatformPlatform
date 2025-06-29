@@ -19,9 +19,6 @@ msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 msgid "Account"
 msgstr "Konto"
 
-msgid "Account details"
-msgstr ""
-
 msgid "Account information"
 msgstr "Kontoinformation"
 
@@ -115,9 +112,6 @@ msgid "Clear filters"
 msgstr "Ryd filtre"
 
 msgid "Close user profile"
-msgstr ""
-
-msgid "Contact"
 msgstr ""
 
 msgid "Continue"
@@ -303,9 +297,6 @@ msgstr "Profilbillede"
 
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
-
-msgid "Quick actions"
-msgstr ""
 
 msgid "Region"
 msgstr "Region"
