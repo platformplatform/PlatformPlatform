@@ -140,8 +140,10 @@ export function AppLayout({
         )}
       </div>
 
-      {/* Side pane area - only on desktop */}
-      {sidePane && <div className="fixed top-0 right-0 z-40 hidden h-screen w-96 sm:block">{sidePane}</div>}
+      {/* Side pane area - responsive behavior */}
+      {sidePane && (
+        <div className="fixed inset-0 z-40 sm:inset-auto sm:top-0 sm:right-0 sm:h-screen sm:w-96">{sidePane}</div>
+      )}
     </div>
   );
 }
