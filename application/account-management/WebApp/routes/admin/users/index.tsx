@@ -8,6 +8,9 @@ import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
+import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
+import { DeleteUserDialog } from "./-components/DeleteUserDialog";
+import { UserProfileSidePane } from "./-components/UserProfileSidePane";
 import { UserTable } from "./-components/UserTable";
 import { UserToolbar } from "./-components/UserToolbar";
 
@@ -31,6 +34,27 @@ export const Route = createFileRoute("/admin/users/")({
 
 export default function UsersPage() {
   const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
+  const [profileUser, setProfileUser] = useState<UserDetails | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
+  const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
+
+  const handleCloseProfile = () => {
+    setProfileUser(null);
+    // Also clear selection when closing profile
+    setSelectedUsers([]);
+  };
+
+  const handleViewProfile = (user: UserDetails | null) => {
+    setProfileUser(user);
+  };
+
+  const handleChangeRole = (user: UserDetails) => {
+    setUserToChangeRole(user);
+  };
+
+  const handleDeleteUser = (user: UserDetails) => {
+    setUserToDelete(user);
+  };
 
   return (
     <>
@@ -47,16 +71,67 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <h1>
-          <Trans>Users</Trans>
-        </h1>
-        <p>
-          <Trans>Manage your users and permissions here.</Trans>
-        </p>
+        <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
+          {/* Side pane for 2xl screens */}
+          {profileUser && (
+            <div className="hidden 2xl:block 2xl:w-80 2xl:flex-shrink-0">
+              <UserProfileSidePane
+                user={profileUser}
+                isOpen={profileUser !== null}
+                onClose={handleCloseProfile}
+                onChangeRole={handleChangeRole}
+                onDeleteUser={handleDeleteUser}
+              />
+            </div>
+          )}
 
-        <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-        <UserTable selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+          {/* Main content */}
+          <div className="min-w-0 flex-1">
+            <h1>
+              <Trans>Users</Trans>
+            </h1>
+            <p>
+              <Trans>Manage your users and permissions here.</Trans>
+            </p>
+
+            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+            <UserTable
+              selectedUsers={selectedUsers}
+              onSelectedUsersChange={setSelectedUsers}
+              onViewProfile={handleViewProfile}
+              onChangeRole={handleChangeRole}
+              onDeleteUser={handleDeleteUser}
+            />
+          </div>
+        </div>
       </AppLayout>
+
+      {/* Side pane for mobile/tablet screens */}
+      <div className="2xl:hidden">
+        <UserProfileSidePane
+          user={profileUser}
+          isOpen={profileUser !== null}
+          onClose={handleCloseProfile}
+          onChangeRole={handleChangeRole}
+          onDeleteUser={handleDeleteUser}
+        />
+      </div>
+
+      <ChangeUserRoleDialog
+        user={userToChangeRole}
+        isOpen={userToChangeRole !== null}
+        onOpenChange={(isOpen) => !isOpen && setUserToChangeRole(null)}
+      />
+
+      <DeleteUserDialog
+        users={userToDelete ? [userToDelete] : []}
+        isOpen={userToDelete !== null}
+        onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
+        onUsersDeleted={() => {
+          setSelectedUsers([]);
+          setProfileUser(null);
+        }}
+      />
     </>
   );
 }

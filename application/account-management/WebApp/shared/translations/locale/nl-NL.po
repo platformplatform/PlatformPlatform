@@ -19,6 +19,9 @@ msgstr "Een nieuwe verificatiecode is naar je e-mail verzonden."
 msgid "Account"
 msgstr "Account"
 
+msgid "Account details"
+msgstr ""
+
 msgid "Account information"
 msgstr "Accountinformatie"
 
@@ -110,6 +113,12 @@ msgstr "Wissen"
 
 msgid "Clear filters"
 msgstr "Filters wissen"
+
+msgid "Close user profile"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
 
 msgid "Continue"
 msgstr "Verder"
@@ -256,6 +265,15 @@ msgstr "Navigatie"
 msgid "Next"
 msgstr "Volgende"
 
+msgid "No recent activity"
+msgstr ""
+
+msgid "No team memberships"
+msgstr ""
+
+msgid "Not set"
+msgstr ""
+
 msgid "OK"
 msgstr "OK"
 
@@ -294,6 +312,12 @@ msgstr "Profielfoto"
 
 msgid "Profile updated successfully"
 msgstr "Profiel succesvol bijgewerkt"
+
+msgid "Quick actions"
+msgstr ""
+
+msgid "Recent login history"
+msgstr ""
 
 msgid "Region"
 msgstr "Regio"
@@ -359,6 +383,9 @@ msgstr "Ondersteuning"
 msgid "System"
 msgstr "Systeem"
 
+msgid "Team memberships"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
@@ -367,6 +394,9 @@ msgstr "Thema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
+
+msgid "Timezone"
+msgstr ""
 
 msgid "Title"
 msgstr "Titel"
@@ -398,6 +428,9 @@ msgstr "Gebruiker succesvol uitgenodigd"
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
+msgid "User profile details"
+msgstr ""
+
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"
 
@@ -421,6 +454,9 @@ msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
 msgid "Verification code sent"
 msgstr "Verificatiecode verzonden"
+
+msgid "Verified"
+msgstr ""
 
 msgid "Verify"
 msgstr "Verifiëren"

@@ -19,6 +19,9 @@ msgstr "A new verification code has been sent to your email."
 msgid "Account"
 msgstr "Account"
 
+msgid "Account details"
+msgstr "Account details"
+
 msgid "Account information"
 msgstr "Account information"
 
@@ -110,6 +113,12 @@ msgstr "Clear"
 
 msgid "Clear filters"
 msgstr "Clear filters"
+
+msgid "Close user profile"
+msgstr "Close user profile"
+
+msgid "Contact"
+msgstr "Contact"
 
 msgid "Continue"
 msgstr "Continue"
@@ -256,6 +265,15 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Next"
 
+msgid "No recent activity"
+msgstr "No recent activity"
+
+msgid "No team memberships"
+msgstr "No team memberships"
+
+msgid "Not set"
+msgstr "Not set"
+
 msgid "OK"
 msgstr "OK"
 
@@ -294,6 +312,12 @@ msgstr "Profile picture"
 
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
+
+msgid "Quick actions"
+msgstr "Quick actions"
+
+msgid "Recent login history"
+msgstr "Recent login history"
 
 msgid "Region"
 msgstr "Region"
@@ -359,6 +383,9 @@ msgstr "Support"
 msgid "System"
 msgstr "System"
 
+msgid "Team memberships"
+msgstr "Team memberships"
+
 msgid "Terms of use"
 msgstr "Terms of use"
 
@@ -367,6 +394,9 @@ msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
+
+msgid "Timezone"
+msgstr "Timezone"
 
 msgid "Title"
 msgstr "Title"
@@ -398,6 +428,9 @@ msgstr "User invited successfully"
 msgid "User profile"
 msgstr "User profile"
 
+msgid "User profile details"
+msgstr "User profile details"
+
 msgid "User profile menu"
 msgstr "User profile menu"
 
@@ -421,6 +454,9 @@ msgstr "Users who haven't confirmed their email"
 
 msgid "Verification code sent"
 msgstr "Verification code sent"
+
+msgid "Verified"
+msgstr "Verified"
 
 msgid "Verify"
 msgstr "Verify"

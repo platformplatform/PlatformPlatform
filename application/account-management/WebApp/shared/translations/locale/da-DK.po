@@ -19,6 +19,9 @@ msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account details"
+msgstr ""
+
 msgid "Account information"
 msgstr "Kontoinformation"
 
@@ -110,6 +113,12 @@ msgstr "Ryd"
 
 msgid "Clear filters"
 msgstr "Ryd filtre"
+
+msgid "Close user profile"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -256,6 +265,15 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Næste"
 
+msgid "No recent activity"
+msgstr ""
+
+msgid "No team memberships"
+msgstr ""
+
+msgid "Not set"
+msgstr ""
+
 msgid "OK"
 msgstr "OK"
 
@@ -294,6 +312,12 @@ msgstr "Profilbillede"
 
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
+
+msgid "Quick actions"
+msgstr ""
+
+msgid "Recent login history"
+msgstr ""
 
 msgid "Region"
 msgstr "Region"
@@ -359,6 +383,9 @@ msgstr "Support"
 msgid "System"
 msgstr "System"
 
+msgid "Team memberships"
+msgstr ""
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
@@ -367,6 +394,9 @@ msgstr "Tema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
+
+msgid "Timezone"
+msgstr ""
 
 msgid "Title"
 msgstr "Titel"
@@ -398,6 +428,9 @@ msgstr "Bruger inviteret succesfuldt"
 msgid "User profile"
 msgstr "Brugerprofil"
 
+msgid "User profile details"
+msgstr ""
+
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
 
@@ -421,6 +454,9 @@ msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
 msgid "Verification code sent"
 msgstr "Bekræftelseskode sendt"
+
+msgid "Verified"
+msgstr ""
 
 msgid "Verify"
 msgstr "Bekræft"
