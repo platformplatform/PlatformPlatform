@@ -16,17 +16,24 @@ import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-r
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
-import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
-import { DeleteUserDialog } from "./DeleteUserDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
 interface UserTableProps {
   selectedUsers: UserDetails[];
   onSelectedUsersChange: (users: UserDetails[]) => void;
+  onViewProfile: (user: UserDetails | null) => void;
+  onChangeRole: (user: UserDetails) => void;
+  onDeleteUser: (user: UserDetails) => void;
 }
 
-export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<UserTableProps>) {
+export function UserTable({
+  selectedUsers,
+  onSelectedUsersChange,
+  onViewProfile,
+  onChangeRole,
+  onDeleteUser
+}: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
     strict: false
@@ -52,9 +59,6 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
       }
     }
   });
-
-  const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
-  const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -97,9 +101,18 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
         const selectedKeys = typeof keys === "string" ? new Set([keys]) : keys;
         const selectedUsersList = users?.users.filter((user) => selectedKeys.has(user.id)) ?? [];
         onSelectedUsersChange(selectedUsersList);
+
+        // Handle profile viewing based on selection
+        if (selectedUsersList.length === 1) {
+          // Single user selected - show profile
+          onViewProfile(selectedUsersList[0]);
+        } else {
+          // Multiple users selected or no users selected - close profile
+          onViewProfile(null);
+        }
       }
     },
-    [users?.users, onSelectedUsersChange]
+    [users?.users, onSelectedUsersChange, onViewProfile]
   );
 
   if (isLoading) {
@@ -110,19 +123,6 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
 
   return (
     <>
-      <ChangeUserRoleDialog
-        user={userToChangeRole}
-        isOpen={userToChangeRole !== null}
-        onOpenChange={(isOpen) => !isOpen && setUserToChangeRole(null)}
-      />
-
-      <DeleteUserDialog
-        users={userToDelete ? [userToDelete] : []}
-        isOpen={userToDelete !== null}
-        onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
-        onUsersDeleted={() => onSelectedUsersChange([])}
-      />
-
       <Table
         key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
         selectionMode="multiple"
@@ -155,7 +155,15 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
         </TableHeader>
         <TableBody>
           {users?.users.map((user) => (
-            <Row key={user.id} id={user.id}>
+            <Row
+              key={user.id}
+              id={user.id}
+              onAction={() => {
+                onSelectedUsersChange([user]);
+                onViewProfile(user);
+              }}
+              className="cursor-pointer"
+            >
               <Cell>
                 <div className="flex h-14 items-center gap-2">
                   <Avatar
@@ -192,7 +200,7 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
                     className="opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100 focus:opacity-100 [tr:focus-within_&]:opacity-100 [tr:hover_&]:opacity-100"
                     onPress={() => {
                       onSelectedUsersChange([user]);
-                      setUserToDelete(user);
+                      onDeleteUser(user);
                     }}
                     isDisabled={user.id === userInfo?.id}
                   >
@@ -209,14 +217,14 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
                       <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <Menu>
-                      <MenuItem id="viewProfile">
+                      <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
                         <UserIcon className="h-4 w-4" />
                         <Trans>View profile</Trans>
                       </MenuItem>
                       <MenuItem
                         id="changeRole"
                         isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
-                        onAction={() => setUserToChangeRole(user)}
+                        onAction={() => onChangeRole(user)}
                       >
                         <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
                         <span className="group-disabled:text-muted-foreground">
@@ -227,7 +235,7 @@ export function UserTable({ selectedUsers, onSelectedUsersChange }: Readonly<Use
                       <MenuItem
                         id="deleteUser"
                         isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
-                        onAction={() => setUserToDelete(user)}
+                        onAction={() => onDeleteUser(user)}
                       >
                         <Trash2Icon className="h-4 w-4 text-destructive" />
                         <span className="text-destructive">
