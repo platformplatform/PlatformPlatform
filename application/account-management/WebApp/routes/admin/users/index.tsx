@@ -73,7 +73,7 @@ export default function UsersPage() {
       >
         <div className={`flex h-full ${profileUser ? "gap-0" : ""}`}>
           {/* Main content */}
-          <div className={`flex min-w-0 flex-1 flex-col ${profileUser ? "overflow-x-auto" : ""}`}>
+          <div className={`flex min-w-0 flex-1 flex-col ${profileUser ? "sm:max-w-[calc(100%-20rem)]" : ""}`}>
             <h1>
               <Trans>Users</Trans>
             </h1>
@@ -81,10 +81,10 @@ export default function UsersPage() {
               <Trans>Manage your users and permissions here.</Trans>
             </p>
 
-            <div className={`${profileUser ? "pr-4 sm:pr-0" : ""}`}>
+            <div className={`${profileUser ? "pr-4 sm:pr-6" : ""}`}>
               <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
             </div>
-            <div className={`min-h-0 flex-1 ${profileUser ? "min-w-fit pr-4 sm:min-w-0 sm:pr-0" : ""}`}>
+            <div className={`min-h-0 flex-1 ${profileUser ? "pr-4 sm:pr-6" : ""}`}>
               <UserTable
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
