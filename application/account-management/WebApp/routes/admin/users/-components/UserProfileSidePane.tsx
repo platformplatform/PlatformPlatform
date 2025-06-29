@@ -111,7 +111,7 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="flex h-full w-full flex-col border-border border-l bg-background"
+        className="flex h-screen w-full flex-col border-border border-l bg-background"
         role="complementary"
         aria-label={t`User profile details`}
       >
