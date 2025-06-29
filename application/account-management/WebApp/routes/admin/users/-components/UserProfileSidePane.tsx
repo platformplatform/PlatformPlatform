@@ -115,32 +115,16 @@ export function UserProfileSidePane({
 
   return (
     <>
-      {/* Backdrop for tablet/mobile - only show when not in 2xl layout */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 2xl:hidden"
-          onMouseDown={onClose}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              onClose();
-            }
-          }}
-          aria-label={t`Close user profile`}
-          role="button"
-          tabIndex={0}
-        />
-      )}
-
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="fixed inset-y-0 left-0 z-50 flex w-full flex-col border-border border-r bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96 2xl:static 2xl:z-auto 2xl:h-full 2xl:w-full 2xl:border-r 2xl:shadow-none"
+        className="fixed inset-y-0 top-16 right-0 z-50 flex w-full flex-col border-border border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96 2xl:static 2xl:top-0 2xl:z-auto 2xl:h-full 2xl:w-full 2xl:border-l 2xl:shadow-none"
         role="complementary"
         aria-label={t`User profile details`}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-border border-b p-4">
-          <Heading level={2} className="font-semibold text-lg">
+          <Heading level={2} className="font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>
           <Button
@@ -150,7 +134,7 @@ export function UserProfileSidePane({
             aria-label={t`Close user profile`}
             className="2xl:hidden"
           >
-            <XIcon className="h-5 w-5" />
+            <XIcon className="h-4 w-4" />
           </Button>
         </div>
 
@@ -161,28 +145,28 @@ export function UserProfileSidePane({
             <Avatar
               initials={getInitials(user.firstName, user.lastName, user.email)}
               avatarUrl={user.avatarUrl}
-              size="lg"
+              size="md"
               isRound={true}
-              className="mx-auto mb-4"
+              className="mx-auto mb-3"
             />
-            <Heading level={3} className="font-semibold text-xl">
+            <Heading level={3} className="font-semibold text-lg">
               {user.firstName} {user.lastName}
             </Heading>
-            {user.title && <Text className="text-muted-foreground">{user.title}</Text>}
+            {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
           </div>
 
           {/* Contact Information */}
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          <div className="mb-4">
+            <Heading level={4} className="mb-2 font-medium text-sm">
               <Trans>Contact</Trans>
             </Heading>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Text className="font-medium">
+                <Text className="text-sm">
                   <Trans>Email</Trans>
                 </Text>
                 <div className="flex items-center gap-2">
-                  <Text className="text-right">{user.email}</Text>
+                  <Text className="text-right text-sm">{user.email}</Text>
                   {user.emailConfirmed ? (
                     <Badge variant="success" className="text-xs">
                       <Trans>Verified</Trans>
@@ -197,86 +181,54 @@ export function UserProfileSidePane({
             </div>
           </div>
 
-          <Separator className="mb-6" />
+          <Separator className="mb-4" />
 
           {/* Role Information */}
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          <div className="mb-4 flex items-center justify-between">
+            <Heading level={4} className="font-medium text-sm">
               <Trans>Role</Trans>
             </Heading>
-            <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+            <Badge variant="outline" className="text-xs">
+              {getUserRoleLabel(user.role)}
+            </Badge>
           </div>
 
-          <Separator className="mb-6" />
+          <Separator className="mb-4" />
 
           {/* Account Details */}
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          <div className="mb-4">
+            <Heading level={4} className="mb-2 font-medium text-sm">
               <Trans>Account details</Trans>
             </Heading>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex justify-between">
-                <Text className="text-muted-foreground">
+                <Text className="text-sm">
                   <Trans>Created</Trans>
                 </Text>
-                <Text>{formatDate(user.createdAt)}</Text>
+                <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
               </div>
               <div className="flex justify-between">
-                <Text className="text-muted-foreground">
+                <Text className="text-sm">
                   <Trans>Modified</Trans>
                 </Text>
-                <Text>{formatDate(user.modifiedAt)}</Text>
+                <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
               </div>
             </div>
-          </div>
-
-          <Separator className="mb-6" />
-
-          {/* Future Extensions Placeholders */}
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
-              <Trans>Timezone</Trans>
-            </Heading>
-            <Text className="text-muted-foreground">
-              <Trans>Not set</Trans>
-            </Text>
-          </div>
-
-          <Separator className="mb-6" />
-
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
-              <Trans>Recent login history</Trans>
-            </Heading>
-            <Text className="text-muted-foreground">
-              <Trans>No recent activity</Trans>
-            </Text>
-          </div>
-
-          <Separator className="mb-6" />
-
-          <div className="mb-6">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
-              <Trans>Team memberships</Trans>
-            </Heading>
-            <Text className="text-muted-foreground">
-              <Trans>No team memberships</Trans>
-            </Text>
           </div>
         </div>
 
         {/* Quick Actions */}
         {canModifyUser && (
           <div className="border-border border-t p-4">
-            <Heading level={4} className="mb-3 font-medium text-muted-foreground text-sm uppercase tracking-wide">
+            <Heading level={4} className="mb-2 font-medium text-sm">
               <Trans>Quick actions</Trans>
             </Heading>
             <div className="space-y-2">
-              <Button variant="outline" onPress={() => onChangeRole(user)} className="w-full justify-start">
+              <Button variant="outline" onPress={() => onChangeRole(user)} className="w-full justify-start text-sm">
                 <PencilIcon className="h-4 w-4" />
                 <Trans>Change role</Trans>
               </Button>
-              <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-start">
+              <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-start text-sm">
                 <Trash2Icon className="h-4 w-4" />
                 <Trans>Delete user</Trans>
               </Button>

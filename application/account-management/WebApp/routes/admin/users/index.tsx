@@ -72,19 +72,6 @@ export default function UsersPage() {
         }
       >
         <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
-          {/* Side pane for 2xl screens */}
-          {profileUser && (
-            <div className="hidden 2xl:block 2xl:w-80 2xl:flex-shrink-0">
-              <UserProfileSidePane
-                user={profileUser}
-                isOpen={profileUser !== null}
-                onClose={handleCloseProfile}
-                onChangeRole={handleChangeRole}
-                onDeleteUser={handleDeleteUser}
-              />
-            </div>
-          )}
-
           {/* Main content */}
           <div className="min-w-0 flex-1">
             <h1>
@@ -103,6 +90,19 @@ export default function UsersPage() {
               onDeleteUser={handleDeleteUser}
             />
           </div>
+
+          {/* Side pane for 2xl screens */}
+          {profileUser && (
+            <div className="hidden 2xl:block 2xl:w-80 2xl:flex-shrink-0">
+              <UserProfileSidePane
+                user={profileUser}
+                isOpen={profileUser !== null}
+                onClose={handleCloseProfile}
+                onChangeRole={handleChangeRole}
+                onDeleteUser={handleDeleteUser}
+              />
+            </div>
+          )}
         </div>
       </AppLayout>
 

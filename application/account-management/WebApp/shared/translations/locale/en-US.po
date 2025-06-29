@@ -265,15 +265,6 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Next"
 
-msgid "No recent activity"
-msgstr "No recent activity"
-
-msgid "No team memberships"
-msgstr "No team memberships"
-
-msgid "Not set"
-msgstr "Not set"
-
 msgid "OK"
 msgstr "OK"
 
@@ -315,9 +306,6 @@ msgstr "Profile updated successfully"
 
 msgid "Quick actions"
 msgstr "Quick actions"
-
-msgid "Recent login history"
-msgstr "Recent login history"
 
 msgid "Region"
 msgstr "Region"
@@ -383,9 +371,6 @@ msgstr "Support"
 msgid "System"
 msgstr "System"
 
-msgid "Team memberships"
-msgstr "Team memberships"
-
 msgid "Terms of use"
 msgstr "Terms of use"
 
@@ -394,9 +379,6 @@ msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
-
-msgid "Timezone"
-msgstr "Timezone"
 
 msgid "Title"
 msgstr "Title"
