@@ -132,9 +132,9 @@ msgstr "Dark"
 msgid "Delete"
 msgstr "Delete"
 
-#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
-msgid "Delete {0}"
-msgstr "Delete {0}"
+#. placeholder {0}: selectedUsers.length
+msgid "Delete {0} users"
+msgstr "Delete {0} users"
 
 msgid "Delete account"
 msgstr "Delete account"
