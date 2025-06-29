@@ -73,7 +73,9 @@ export default function UsersPage() {
       >
         <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
           {/* Main content */}
-          <div className={`min-w-0 flex-1 ${profileUser ? "sm:overflow-x-auto 2xl:overflow-x-visible" : ""}`}>
+          <div
+            className={`flex min-w-0 flex-1 flex-col ${profileUser ? "sm:overflow-x-auto 2xl:overflow-x-visible" : ""}`}
+          >
             <h1>
               <Trans>Users</Trans>
             </h1>
@@ -82,7 +84,7 @@ export default function UsersPage() {
             </p>
 
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-            <div className={profileUser ? "sm:min-w-fit 2xl:min-w-full" : ""}>
+            <div className={`min-h-0 flex-1 ${profileUser ? "sm:min-w-fit 2xl:min-w-full" : ""}`}>
               <UserTable
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
