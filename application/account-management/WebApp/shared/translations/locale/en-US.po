@@ -19,9 +19,6 @@ msgstr "A new verification code has been sent to your email."
 msgid "Account"
 msgstr "Account"
 
-msgid "Account details"
-msgstr "Account details"
-
 msgid "Account information"
 msgstr "Account information"
 
@@ -116,9 +113,6 @@ msgstr "Clear filters"
 
 msgid "Close user profile"
 msgstr "Close user profile"
-
-msgid "Contact"
-msgstr "Contact"
 
 msgid "Continue"
 msgstr "Continue"
@@ -303,9 +297,6 @@ msgstr "Profile picture"
 
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
-
-msgid "Quick actions"
-msgstr "Quick actions"
 
 msgid "Region"
 msgstr "Region"

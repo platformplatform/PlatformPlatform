@@ -73,7 +73,7 @@ export default function UsersPage() {
       >
         <div className={`flex h-full ${profileUser ? "2xl:gap-0" : ""}`}>
           {/* Main content */}
-          <div className="min-w-0 flex-1">
+          <div className={`min-w-0 flex-1 ${profileUser ? "sm:overflow-x-auto 2xl:overflow-x-visible" : ""}`}>
             <h1>
               <Trans>Users</Trans>
             </h1>
@@ -82,13 +82,15 @@ export default function UsersPage() {
             </p>
 
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-            <UserTable
-              selectedUsers={selectedUsers}
-              onSelectedUsersChange={setSelectedUsers}
-              onViewProfile={handleViewProfile}
-              onChangeRole={handleChangeRole}
-              onDeleteUser={handleDeleteUser}
-            />
+            <div className={profileUser ? "sm:min-w-fit 2xl:min-w-full" : ""}>
+              <UserTable
+                selectedUsers={selectedUsers}
+                onSelectedUsersChange={setSelectedUsers}
+                onViewProfile={handleViewProfile}
+                onChangeRole={handleChangeRole}
+                onDeleteUser={handleDeleteUser}
+              />
+            </div>
           </div>
 
           {/* Side pane for 2xl screens */}

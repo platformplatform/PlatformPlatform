@@ -19,9 +19,6 @@ msgstr "Een nieuwe verificatiecode is naar je e-mail verzonden."
 msgid "Account"
 msgstr "Account"
 
-msgid "Account details"
-msgstr ""
-
 msgid "Account information"
 msgstr "Accountinformatie"
 
@@ -115,9 +112,6 @@ msgid "Clear filters"
 msgstr "Filters wissen"
 
 msgid "Close user profile"
-msgstr ""
-
-msgid "Contact"
 msgstr ""
 
 msgid "Continue"
@@ -303,9 +297,6 @@ msgstr "Profielfoto"
 
 msgid "Profile updated successfully"
 msgstr "Profiel succesvol bijgewerkt"
-
-msgid "Quick actions"
-msgstr ""
 
 msgid "Region"
 msgstr "Regio"

@@ -118,12 +118,12 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="fixed inset-y-0 top-16 right-0 z-50 flex w-full flex-col border-border border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96 2xl:static 2xl:top-0 2xl:z-auto 2xl:h-full 2xl:w-full 2xl:border-l 2xl:shadow-none"
+        className="fixed inset-y-0 top-16 right-0 z-50 flex w-full flex-col border-border border-t border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96 2xl:static 2xl:top-0 2xl:z-auto 2xl:h-full 2xl:w-full 2xl:border-t 2xl:border-l 2xl:shadow-none"
         role="complementary"
         aria-label={t`User profile details`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-border border-b p-4">
+        <div className="flex items-center justify-between border-border border-b bg-muted/30 p-4">
           <Heading level={2} className="font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>
@@ -157,15 +157,12 @@ export function UserProfileSidePane({
 
           {/* Contact Information */}
           <div className="mb-4">
-            <Heading level={4} className="mb-2 font-medium text-sm">
-              <Trans>Contact</Trans>
-            </Heading>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Text className="text-sm">
                   <Trans>Email</Trans>
                 </Text>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-end gap-1">
                   <Text className="text-right text-sm">{user.email}</Text>
                   {user.emailConfirmed ? (
                     <Badge variant="success" className="text-xs">
@@ -197,21 +194,18 @@ export function UserProfileSidePane({
 
           {/* Account Details */}
           <div className="mb-4">
-            <Heading level={4} className="mb-2 font-medium text-sm">
-              <Trans>Account details</Trans>
-            </Heading>
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Text className="text-sm">
                   <Trans>Created</Trans>
                 </Text>
-                <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
+                <Text className="font-mono text-sm">{formatDate(user.createdAt, true)}</Text>
               </div>
               <div className="flex justify-between">
                 <Text className="text-sm">
                   <Trans>Modified</Trans>
                 </Text>
-                <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
+                <Text className="font-mono text-sm">{formatDate(user.modifiedAt, true)}</Text>
               </div>
             </div>
           </div>
@@ -220,15 +214,16 @@ export function UserProfileSidePane({
         {/* Quick Actions */}
         {canModifyUser && (
           <div className="border-border border-t p-4">
-            <Heading level={4} className="mb-2 font-medium text-sm">
-              <Trans>Quick actions</Trans>
-            </Heading>
-            <div className="space-y-2">
-              <Button variant="outline" onPress={() => onChangeRole(user)} className="w-full justify-start text-sm">
+            <div className="flex gap-2">
+              <Button variant="outline" onPress={() => onChangeRole(user)} className="flex-1 justify-center text-sm">
                 <PencilIcon className="h-4 w-4" />
                 <Trans>Change role</Trans>
               </Button>
-              <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-start text-sm">
+              <Button
+                variant="destructive"
+                onPress={() => onDeleteUser(user)}
+                className="flex-1 justify-center text-sm"
+              >
                 <Trash2Icon className="h-4 w-4" />
                 <Trans>Delete user</Trans>
               </Button>
