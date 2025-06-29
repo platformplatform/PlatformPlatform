@@ -391,15 +391,20 @@ test.describe("@comprehensive", () => {
 
     // === BULK USER SELECTION SECTION ===
     await step("Select remaining two users by clicking rows & verify selection state")(async () => {
+      // Set viewport to 2xl to avoid side pane backdrop issues
+      await page.setViewportSize({ width: 1536, height: 1024 });
+
       const user2Row = page.locator("tbody tr").filter({ hasText: user2.email });
       const user3Row = page.locator("tbody tr").filter({ hasText: user3.email });
 
       // Select first user by clicking the row
       await user2Row.click();
       await expect(user2Row).toHaveAttribute("aria-selected", "true");
-      await expect(page.getByRole("button", { name: "Delete user" })).toBeVisible();
+      // Verify the toolbar delete button is visible (single user selection)
+      await expect(page.getByRole("button", { name: "Delete user" }).first()).toBeVisible();
 
-      // Select second user by clicking the row (should enable multi-selection)
+      // Select second user by clicking the row with Ctrl/Cmd modifier (should enable multi-selection)
+      // On 2xl viewport, there's no backdrop so this should work
       await user3Row.click({ modifiers: ["ControlOrMeta"] });
       await expect(user3Row).toHaveAttribute("aria-selected", "true");
       await expect(user2Row).toHaveAttribute("aria-selected", "true");
@@ -408,6 +413,9 @@ test.describe("@comprehensive", () => {
 
     // === BULK USER DELETION SECTION ===
     await step("Cancel bulk deletion & verify users remain selected")(async () => {
+      // Reset viewport to default for subsequent tests
+      await page.setViewportSize({ width: 1280, height: 720 });
+
       await page.getByRole("button", { name: "Delete 2 users" }).click();
 
       await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
