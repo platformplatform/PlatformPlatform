@@ -142,7 +142,7 @@ export function AppLayout({
 
       {/* Side pane area - responsive behavior */}
       {sidePane && (
-        <div className="fixed inset-0 z-40 md:inset-auto md:top-0 md:right-0 md:h-screen md:w-96">{sidePane}</div>
+        <div className="fixed inset-0 z-[60] md:inset-auto md:top-0 md:right-0 md:h-screen md:w-96">{sidePane}</div>
       )}
     </div>
   );
