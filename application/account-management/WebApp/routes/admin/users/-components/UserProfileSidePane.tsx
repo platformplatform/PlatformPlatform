@@ -11,7 +11,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { PencilIcon, Trash2Icon, XIcon } from "lucide-react";
+import { Trash2Icon, XIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -20,17 +20,10 @@ interface UserProfileSidePaneProps {
   user: UserDetails | null;
   isOpen: boolean;
   onClose: () => void;
-  onChangeRole: (user: UserDetails) => void;
   onDeleteUser: (user: UserDetails) => void;
 }
 
-export function UserProfileSidePane({
-  user,
-  isOpen,
-  onClose,
-  onChangeRole,
-  onDeleteUser
-}: Readonly<UserProfileSidePaneProps>) {
+export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -118,7 +111,7 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="fixed top-0 right-0 z-50 flex h-screen w-full flex-col border-border border-l bg-background shadow-xl transition-transform duration-300 ease-in-out sm:w-96"
+        className="fixed top-0 right-0 z-50 flex h-screen w-full flex-col border-border border-l bg-background shadow-xl transition-transform duration-100 ease-in-out sm:w-96"
         role="complementary"
         aria-label={t`User profile details`}
       >
@@ -208,20 +201,10 @@ export function UserProfileSidePane({
         {/* Quick Actions */}
         {canModifyUser && (
           <div className="p-4">
-            <div className="flex gap-2">
-              <Button variant="outline" onPress={() => onChangeRole(user)} className="flex-1 justify-center text-sm">
-                <PencilIcon className="h-4 w-4" />
-                <Trans>Change role</Trans>
-              </Button>
-              <Button
-                variant="destructive"
-                onPress={() => onDeleteUser(user)}
-                className="flex-1 justify-center text-sm"
-              >
-                <Trash2Icon className="h-4 w-4" />
-                <Trans>Delete user</Trans>
-              </Button>
-            </div>
+            <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-center text-sm">
+              <Trash2Icon className="h-4 w-4" />
+              <Trans>Delete user</Trans>
+            </Button>
           </div>
         )}
       </div>

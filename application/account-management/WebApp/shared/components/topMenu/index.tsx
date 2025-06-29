@@ -24,7 +24,7 @@ export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProp
         {children}
       </Breadcrumbs>
       <div
-        className={`flex flex-row items-center gap-6 transition-transform duration-300 ease-in-out ${
+        className={`flex flex-row items-center gap-6 transition-transform duration-100 ease-in-out ${
           sidePaneOpen ? "sm:-translate-x-96 sm:transform" : ""
         }`}
       >

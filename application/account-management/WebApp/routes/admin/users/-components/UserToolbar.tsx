@@ -30,14 +30,6 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
             </span>
           </Button>
         )}
-        {selectedUsers.length === 1 && (
-          <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
-            <Trash2Icon className="h-5 w-5" />
-            <span className="hidden sm:inline">
-              <Trans>Delete user</Trans>
-            </span>
-          </Button>
-        )}
         {selectedUsers.length > 1 && (
           <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
             <Trash2Icon className="h-5 w-5" />

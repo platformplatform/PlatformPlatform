@@ -13,7 +13,7 @@ import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, PencilIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
@@ -24,7 +24,6 @@ interface UserTableProps {
   selectedUsers: UserDetails[];
   onSelectedUsersChange: (users: UserDetails[]) => void;
   onViewProfile: (user: UserDetails | null) => void;
-  onChangeRole: (user: UserDetails) => void;
   onDeleteUser: (user: UserDetails) => void;
 }
 
@@ -32,7 +31,6 @@ export function UserTable({
   selectedUsers,
   onSelectedUsersChange,
   onViewProfile,
-  onChangeRole,
   onDeleteUser
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
@@ -217,16 +215,6 @@ export function UserTable({
                         <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
                           <UserIcon className="h-4 w-4" />
                           <Trans>View profile</Trans>
-                        </MenuItem>
-                        <MenuItem
-                          id="changeRole"
-                          isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
-                          onAction={() => onChangeRole(user)}
-                        >
-                          <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
-                          <span className="group-disabled:text-muted-foreground">
-                            <Trans>Change role</Trans>
-                          </span>
                         </MenuItem>
                         <MenuSeparator />
                         <MenuItem
