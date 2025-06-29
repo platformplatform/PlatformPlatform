@@ -26,7 +26,7 @@ interface UserProfileSidePaneProps {
 export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<SVGSVGElement>(null);
 
   // Focus management and keyboard navigation - only focus close button on mobile
   useEffect(() => {
@@ -111,18 +111,30 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
       {/* Side pane */}
       <div
         ref={sidePaneRef}
-        className="flex h-screen w-full flex-col border-border border-l bg-background"
+        className="relative flex h-screen w-full flex-col border-border border-l bg-background"
         role="complementary"
         aria-label={t`User profile details`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-border border-b bg-muted/30 px-4 py-2">
-          <Heading level={2} className="font-semibold text-base">
+        {/* Close button - positioned like modal dialogs */}
+        <XIcon
+          ref={closeButtonRef}
+          onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onClose();
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={t`Close user profile`}
+        />
+
+        <div className="h-16 border-border border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
+          <Heading level={2} className="flex h-full items-center font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>
-          <Button ref={closeButtonRef} variant="icon" onPress={onClose} aria-label={t`Close user profile`}>
-            <XIcon className="h-4 w-4" />
-          </Button>
         </div>
 
         {/* Content */}
