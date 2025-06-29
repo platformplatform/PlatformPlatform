@@ -1,12 +1,28 @@
 /**
  * Format a date string to a consistent format across the application.
  * Format: "day month, year" (e.g., "15 Jan, 2024")
+ * Or with time: "day month, year at time" (e.g., "15 Jan, 2024 at 14:30")
  */
-export function formatDate(input: string | undefined | null): string {
+export function formatDate(input: string | undefined | null, includeTime = false): string {
   if (!input) {
     return "";
   }
   const date = new Date(input);
+
+  if (includeTime) {
+    const dateStr = date.toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+    const timeStr = date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+    return `${dateStr} at ${timeStr}`;
+  }
+
   return date.toLocaleDateString(undefined, {
     day: "numeric",
     month: "short",
