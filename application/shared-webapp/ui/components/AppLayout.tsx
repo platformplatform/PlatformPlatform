@@ -10,6 +10,7 @@ type AppLayoutProps = {
   topMenu: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
+  sidePaneOpen?: boolean;
 };
 
 /**
@@ -22,7 +23,13 @@ type AppLayoutProps = {
  * - full: Content takes full width with standard padding
  * - center: Content is always centered with configurable max width (default: 640px). When SideMenu is expanded on large screens, content is shifted 50px left for better visual balance.
  */
-export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640px" }: Readonly<AppLayoutProps>) {
+export function AppLayout({
+  children,
+  topMenu,
+  variant = "full",
+  maxWidth = "640px",
+  sidePaneOpen = false
+}: Readonly<AppLayoutProps>) {
   const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
 
   const [isLargeScreen, setIsLargeScreen] = useState(() =>
@@ -111,7 +118,11 @@ export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640
       />
 
       {/* Scrollable content area with bounce */}
-      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 sm:pt-24">
+      <div
+        className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-transform duration-300 ease-in-out sm:pt-24 ${
+          sidePaneOpen ? "sm:-translate-x-96 sm:transform" : ""
+        }`}
+      >
         {variant === "center" ? (
           <div className="flex w-full flex-col items-center">
             <div
