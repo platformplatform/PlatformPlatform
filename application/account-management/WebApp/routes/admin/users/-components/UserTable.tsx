@@ -124,134 +124,136 @@ export function UserTable({
   const currentPage = (users?.currentPageOffset ?? 0) + 1;
 
   return (
-    <>
-      <Table
-        key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
-        selectionMode="multiple"
-        selectionBehavior="toggle"
-        selectedKeys={selectedUsers.map((user) => user.id)}
-        onSelectionChange={handleSelectionChange}
-        sortDescriptor={sortDescriptor}
-        onSortChange={handleSortChange}
-        aria-label={t`Users`}
-      >
-        <TableHeader>
-          <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
-            <Trans>Name</Trans>
-          </Column>
-          <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
-            <Trans>Email</Trans>
-          </Column>
-          <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
-            <Trans>Created</Trans>
-          </Column>
-          <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
-            <Trans>Modified</Trans>
-          </Column>
-          <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
-            <Trans>Role</Trans>
-          </Column>
-          <Column width={114}>
-            <Trans>Actions</Trans>
-          </Column>
-        </TableHeader>
-        <TableBody>
-          {users?.users.map((user) => (
-            <Row
-              key={user.id}
-              id={user.id}
-              onAction={() => {
-                // Switch to this user (unselect previous, select this one)
-                onSelectedUsersChange([user]);
-                onViewProfile(user);
-              }}
-            >
-              <Cell className="cursor-pointer">
-                <div className="flex h-14 items-center gap-2">
-                  <Avatar
-                    initials={getInitials(user.firstName, user.lastName, user.email)}
-                    avatarUrl={user.avatarUrl}
-                    size="sm"
-                    isRound={true}
-                  />
-                  <div className="flex flex-col truncate">
-                    <div className="truncate text-foreground">
-                      {user.firstName} {user.lastName}
-                      {user.emailConfirmed ? (
-                        ""
-                      ) : (
-                        <Badge variant="outline">
-                          <Trans>Pending</Trans>
-                        </Badge>
-                      )}
+    <div className="flex h-full flex-col">
+      <div className="min-h-0 flex-1">
+        <Table
+          key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
+          selectionMode="multiple"
+          selectionBehavior="toggle"
+          selectedKeys={selectedUsers.map((user) => user.id)}
+          onSelectionChange={handleSelectionChange}
+          sortDescriptor={sortDescriptor}
+          onSortChange={handleSortChange}
+          aria-label={t`Users`}
+        >
+          <TableHeader>
+            <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
+              <Trans>Name</Trans>
+            </Column>
+            <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
+              <Trans>Email</Trans>
+            </Column>
+            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
+              <Trans>Created</Trans>
+            </Column>
+            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
+              <Trans>Modified</Trans>
+            </Column>
+            <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
+              <Trans>Role</Trans>
+            </Column>
+            <Column width={114}>
+              <Trans>Actions</Trans>
+            </Column>
+          </TableHeader>
+          <TableBody>
+            {users?.users.map((user) => (
+              <Row
+                key={user.id}
+                id={user.id}
+                onAction={() => {
+                  // Switch to this user (unselect previous, select this one)
+                  onSelectedUsersChange([user]);
+                  onViewProfile(user);
+                }}
+              >
+                <Cell className="cursor-pointer">
+                  <div className="flex h-14 items-center gap-2">
+                    <Avatar
+                      initials={getInitials(user.firstName, user.lastName, user.email)}
+                      avatarUrl={user.avatarUrl}
+                      size="sm"
+                      isRound={true}
+                    />
+                    <div className="flex flex-col truncate">
+                      <div className="truncate text-foreground">
+                        {user.firstName} {user.lastName}
+                        {user.emailConfirmed ? (
+                          ""
+                        ) : (
+                          <Badge variant="outline">
+                            <Trans>Pending</Trans>
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="truncate">{user.title ?? ""}</div>
                     </div>
-                    <div className="truncate">{user.title ?? ""}</div>
                   </div>
-                </div>
-              </Cell>
-              <Cell className="cursor-pointer">{user.email}</Cell>
-              <Cell className="cursor-pointer">{formatDate(user.createdAt)}</Cell>
-              <Cell className="cursor-pointer">{formatDate(user.modifiedAt)}</Cell>
-              <Cell className="cursor-pointer">
-                <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-              </Cell>
-              <Cell>
-                <div className="flex w-full gap-2">
-                  <Button
-                    variant="icon"
-                    className="opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100 focus:opacity-100 [tr:focus-within_&]:opacity-100 [tr:hover_&]:opacity-100"
-                    onPress={() => {
-                      onSelectedUsersChange([user]);
-                      onDeleteUser(user);
-                    }}
-                    isDisabled={user.id === userInfo?.id}
-                  >
-                    <Trash2Icon className="h-5 w-5 text-muted-foreground" />
-                  </Button>
-                  <MenuTrigger
-                    onOpenChange={(isOpen) => {
-                      if (isOpen) {
+                </Cell>
+                <Cell className="cursor-pointer">{user.email}</Cell>
+                <Cell className="cursor-pointer">{formatDate(user.createdAt)}</Cell>
+                <Cell className="cursor-pointer">{formatDate(user.modifiedAt)}</Cell>
+                <Cell className="cursor-pointer">
+                  <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                </Cell>
+                <Cell>
+                  <div className="flex w-full gap-2">
+                    <Button
+                      variant="icon"
+                      className="opacity-0 transition-opacity duration-300 ease-in-out hover:opacity-100 focus:opacity-100 [tr:focus-within_&]:opacity-100 [tr:hover_&]:opacity-100"
+                      onPress={() => {
                         onSelectedUsersChange([user]);
-                      }
-                    }}
-                  >
-                    <Button variant="icon" aria-label={t`User actions`}>
-                      <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                        onDeleteUser(user);
+                      }}
+                      isDisabled={user.id === userInfo?.id}
+                    >
+                      <Trash2Icon className="h-5 w-5 text-muted-foreground" />
                     </Button>
-                    <Menu>
-                      <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
-                        <UserIcon className="h-4 w-4" />
-                        <Trans>View profile</Trans>
-                      </MenuItem>
-                      <MenuItem
-                        id="changeRole"
-                        isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
-                        onAction={() => onChangeRole(user)}
-                      >
-                        <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
-                        <span className="group-disabled:text-muted-foreground">
-                          <Trans>Change role</Trans>
-                        </span>
-                      </MenuItem>
-                      <MenuSeparator />
-                      <MenuItem
-                        id="deleteUser"
-                        isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
-                        onAction={() => onDeleteUser(user)}
-                      >
-                        <Trash2Icon className="h-4 w-4 text-destructive" />
-                        <span className="text-destructive">
-                          <Trans>Delete</Trans>
-                        </span>
-                      </MenuItem>
-                    </Menu>
-                  </MenuTrigger>
-                </div>
-              </Cell>
-            </Row>
-          ))}
-        </TableBody>
-      </Table>
+                    <MenuTrigger
+                      onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                          onSelectedUsersChange([user]);
+                        }
+                      }}
+                    >
+                      <Button variant="icon" aria-label={t`User actions`}>
+                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                      </Button>
+                      <Menu>
+                        <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
+                          <UserIcon className="h-4 w-4" />
+                          <Trans>View profile</Trans>
+                        </MenuItem>
+                        <MenuItem
+                          id="changeRole"
+                          isDisabled={userInfo?.role !== "Owner" || userInfo?.id === user.id}
+                          onAction={() => onChangeRole(user)}
+                        >
+                          <PencilIcon className="h-4 w-4 group-disabled:text-muted-foreground" />
+                          <span className="group-disabled:text-muted-foreground">
+                            <Trans>Change role</Trans>
+                          </span>
+                        </MenuItem>
+                        <MenuSeparator />
+                        <MenuItem
+                          id="deleteUser"
+                          isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
+                          onAction={() => onDeleteUser(user)}
+                        >
+                          <Trash2Icon className="h-4 w-4 text-destructive" />
+                          <span className="text-destructive">
+                            <Trans>Delete</Trans>
+                          </span>
+                        </MenuItem>
+                      </Menu>
+                    </MenuTrigger>
+                  </div>
+                </Cell>
+              </Row>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {users && (
         <div className="bg-background py-4">
@@ -273,6 +275,6 @@ export function UserTable({
           />
         </div>
       )}
-    </>
+    </div>
   );
 }
