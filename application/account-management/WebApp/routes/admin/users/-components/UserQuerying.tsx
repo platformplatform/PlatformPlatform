@@ -12,9 +12,10 @@ import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
+import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
@@ -37,13 +38,15 @@ interface SearchParams {
 export function UserQuerying() {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
-  const { isOverlayOpen, isMobileMenuOpen, isCollapsed, isLargeScreen } = useSideMenuLayout();
+  const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
   const [searchTimeoutId, setSearchTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [, forceUpdate] = useState({});
 
   // Convert URL date strings to DateRange if they exist
   const dateRange =
@@ -100,21 +103,73 @@ export function UserQuerying() {
 
   const activeFilterCount = getActiveFilterCount();
 
-  // Handle screen size and side menu changes to show/hide filters appropriately
+  // Handle screen size and container space changes to show/hide filters appropriately
   useEffect(() => {
-    // Consider screen size AND side menu state for available space
-    // On XL screens: show inline filters only when side menu is collapsed
-    // On smaller screens: always use modal regardless of side menu state
-    const hasSpaceForInlineFilters = isLargeScreen && isCollapsed && !isOverlayOpen && !isMobileMenuOpen;
+    const checkFilterSpace = () => {
+      // Double-check screen size with direct media query for cross-browser consistency
+      const isXlScreenDirect = window.matchMedia(MEDIA_QUERIES.xl).matches;
 
-    if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
-      // Show inline filters if there's space and active filters exist
-      setShowAllFilters(true);
-    } else if (!hasSpaceForInlineFilters && showAllFilters) {
-      // Hide inline filters if there's insufficient space
-      setShowAllFilters(false);
-    }
-  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen, isCollapsed, isLargeScreen]);
+      if (!isXlScreenDirect || isOverlayOpen || isMobileMenuOpen) {
+        // On smaller screens or when overlays are open, always use modal
+        if (showAllFilters) {
+          setShowAllFilters(false);
+        }
+        return;
+      }
+
+      if (!containerRef.current) return;
+
+      // Measure the actual available space by finding the parent toolbar container
+      const toolbarContainer = containerRef.current.closest('.flex.items-center.justify-between') as HTMLElement;
+      if (!toolbarContainer) return;
+      
+      const toolbarWidth = toolbarContainer.offsetWidth;
+      const rightSideButtons = toolbarContainer.querySelector('.flex.items-center.gap-2:last-child') as HTMLElement;
+      const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
+      const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
+      
+      // Calculate space used by existing elements
+      const searchWidth = searchField?.offsetWidth || 300;
+      const filterButtonWidth = filterButton?.offsetWidth || 50;
+      const rightSideWidth = rightSideButtons?.offsetWidth || 200;
+      const gaps = 16; // gap-2 between main sections
+      const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+      
+      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+      const availableSpace = toolbarWidth - usedSpace;
+      
+      const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+
+      if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
+        // Show inline filters if there's space and active filters exist
+        setShowAllFilters(true);
+      } else if (!hasSpaceForInlineFilters && showAllFilters) {
+        // Hide inline filters if there's insufficient space
+        setShowAllFilters(false);
+      }
+    };
+
+    // Run check immediately
+    checkFilterSpace();
+
+    // Also listen for resize events to handle browser-specific timing issues
+    const handleResize = () => {
+      // Small delay to ensure all hooks have updated
+      setTimeout(checkFilterSpace, 50);
+    };
+
+    // Force a recheck after mount to ensure correct initial state across browsers
+    const timeoutId = setTimeout(() => {
+      forceUpdate({});
+      checkFilterSpace();
+    }, 100);
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -123,7 +178,7 @@ export function UserQuerying() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div ref={containerRef} className="flex items-center gap-2">
       <SearchField
         placeholder={t`Search`}
         value={search}
@@ -198,8 +253,43 @@ export function UserQuerying() {
         aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
         data-testid="filter-button"
         onPress={() => {
-          // Determine if we have space for inline filters
-          const hasSpaceForInlineFilters = isLargeScreen && isCollapsed && !isOverlayOpen && !isMobileMenuOpen;
+          // Determine if we have space for inline filters with cross-browser check
+          const isXlScreenDirect = window.matchMedia(MEDIA_QUERIES.xl).matches;
+          
+          if (!isXlScreenDirect || isOverlayOpen || isMobileMenuOpen) {
+            // On smaller screens or when overlays are open, always use modal
+            setIsFilterPanelOpen(true);
+            return;
+          }
+
+          if (!containerRef.current) {
+            setIsFilterPanelOpen(true);
+            return;
+          }
+
+          // Measure the actual available space by finding the parent toolbar container
+          const toolbarContainer = containerRef.current.closest('.flex.items-center.justify-between') as HTMLElement;
+          if (!toolbarContainer) {
+            setIsFilterPanelOpen(true);
+            return;
+          }
+          
+          const toolbarWidth = toolbarContainer.offsetWidth;
+          const rightSideButtons = toolbarContainer.querySelector('.flex.items-center.gap-2:last-child') as HTMLElement;
+          const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
+          const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
+          
+          // Calculate space used by existing elements
+          const searchWidth = searchField?.offsetWidth || 300;
+          const filterButtonWidth = filterButton?.offsetWidth || 50;
+          const rightSideWidth = rightSideButtons?.offsetWidth || 200;
+          const gaps = 16; // gap-2 between main sections
+          const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+          
+          const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+          const availableSpace = toolbarWidth - usedSpace;
+          
+          const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
           if (hasSpaceForInlineFilters && showAllFilters) {
             // If filters are showing and we have space, clear them
