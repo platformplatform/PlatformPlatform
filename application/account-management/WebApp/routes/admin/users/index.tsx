@@ -48,10 +48,6 @@ export default function UsersPage() {
     setProfileUser(user);
   };
 
-  const handleChangeRole = (user: UserDetails) => {
-    setUserToChangeRole(user);
-  };
-
   const handleDeleteUser = (user: UserDetails) => {
     setUserToDelete(user);
   };
@@ -90,7 +86,6 @@ export default function UsersPage() {
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
                 onViewProfile={handleViewProfile}
-                onChangeRole={handleChangeRole}
                 onDeleteUser={handleDeleteUser}
               />
             </div>
@@ -103,7 +98,6 @@ export default function UsersPage() {
         user={profileUser}
         isOpen={profileUser !== null}
         onClose={handleCloseProfile}
-        onChangeRole={handleChangeRole}
         onDeleteUser={handleDeleteUser}
       />
 
