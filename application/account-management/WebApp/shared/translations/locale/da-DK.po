@@ -96,6 +96,9 @@ msgstr "Skift sprog"
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
 
+msgid "Change role"
+msgstr ""
+
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 

@@ -52,6 +52,10 @@ export default function UsersPage() {
     setUserToDelete(user);
   };
 
+  const handleChangeRole = (user: UserDetails) => {
+    setUserToChangeRole(user);
+  };
+
   return (
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
@@ -87,6 +91,7 @@ export default function UsersPage() {
                 onSelectedUsersChange={setSelectedUsers}
                 onViewProfile={handleViewProfile}
                 onDeleteUser={handleDeleteUser}
+                onChangeRole={handleChangeRole}
               />
             </div>
           </div>
