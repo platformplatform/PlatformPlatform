@@ -9,6 +9,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -117,23 +118,6 @@ export function UserTable({
     [users?.users, onSelectedUsersChange, onViewProfile]
   );
 
-  const handleRowClick = useCallback(
-    (user: UserDetails) => {
-      // When clicking on a row (not checkbox), toggle selection of this user
-      const isCurrentlySelected = selectedUsers.some((selectedUser) => selectedUser.id === user.id);
-
-      if (isCurrentlySelected && selectedUsers.length === 1) {
-        // If clicking on the only selected user, deselect it
-        onSelectedUsersChange([]);
-        onViewProfile(null);
-      } else {
-        // Otherwise, unselect all others and select only this user
-        onSelectedUsersChange([user]);
-        onViewProfile(user);
-      }
-    },
-    [selectedUsers, onSelectedUsersChange, onViewProfile]
-  );
 
   if (isLoading) {
     return null;
@@ -178,19 +162,15 @@ export function UserTable({
             {users?.users.map((user) => (
               <Row key={user.id} id={user.id}>
                 <Cell>
-                  <Button
-                    variant="ghost"
-                    className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal"
-                    onPress={() => handleRowClick(user)}
-                  >
+                  <Text className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal">
                     <Avatar
                       initials={getInitials(user.firstName, user.lastName, user.email)}
                       avatarUrl={user.avatarUrl}
                       size="sm"
                       isRound={true}
                     />
-                    <div className="flex flex-col truncate">
-                      <div className="truncate text-foreground">
+                    <Text className="flex flex-col truncate">
+                      <Text className="truncate text-foreground">
                         {user.firstName} {user.lastName}
                         {user.emailConfirmed ? (
                           ""
@@ -199,49 +179,33 @@ export function UserTable({
                             <Trans>Pending</Trans>
                           </Badge>
                         )}
-                      </div>
-                      <div className="truncate">{user.title ?? ""}</div>
-                    </div>
-                  </Button>
+                      </Text>
+                      <Text className="truncate">{user.title ?? ""}</Text>
+                    </Text>
+                  </Text>
                 </Cell>
                 <Cell>
-                  <Button
-                    variant="ghost"
-                    className="h-full w-full justify-start p-0 text-left font-normal"
-                    onPress={() => handleRowClick(user)}
-                  >
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
                     {user.email}
-                  </Button>
+                  </Text>
                 </Cell>
                 <Cell>
-                  <Button
-                    variant="ghost"
-                    className="h-full w-full justify-start p-0 text-left font-normal"
-                    onPress={() => handleRowClick(user)}
-                  >
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
                     {formatDate(user.createdAt)}
-                  </Button>
+                  </Text>
                 </Cell>
                 <Cell>
-                  <Button
-                    variant="ghost"
-                    className="h-full w-full justify-start p-0 text-left font-normal"
-                    onPress={() => handleRowClick(user)}
-                  >
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
                     {formatDate(user.modifiedAt)}
-                  </Button>
+                  </Text>
                 </Cell>
                 <Cell>
-                  <Button
-                    variant="ghost"
-                    className="h-full w-full justify-start p-0 text-left font-normal"
-                    onPress={() => handleRowClick(user)}
-                  >
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
                     <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                  </Button>
+                  </Text>
                 </Cell>
                 <Cell>
-                  <div className="flex w-full justify-end">
+                  <Text className="flex w-full justify-end">
                     <MenuTrigger
                       onOpenChange={(isOpen) => {
                         if (isOpen) {
@@ -280,7 +244,7 @@ export function UserTable({
                         </MenuItem>
                       </Menu>
                     </MenuTrigger>
-                  </div>
+                  </Text>
                 </Cell>
               </Row>
             ))}
