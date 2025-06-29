@@ -102,12 +102,12 @@ export function UserQuerying() {
   // Handle screen size changes to show/hide filters appropriately
   useEffect(() => {
     const handleResize = () => {
-      const isLargeScreen = window.matchMedia(MEDIA_QUERIES.lg).matches;
-      if (isLargeScreen && activeFilterCount > 0 && !showAllFilters) {
-        // On large screens, show inline filters if there are active filters
+      const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
+      if (isXlScreen && activeFilterCount > 0 && !showAllFilters) {
+        // On XL screens, show inline filters if there are active filters
         setShowAllFilters(true);
-      } else if (!isLargeScreen && showAllFilters) {
-        // On small/medium screens, hide inline filters
+      } else if (!isXlScreen && showAllFilters) {
+        // On smaller screens, hide inline filters
         setShowAllFilters(false);
       }
     };
@@ -201,18 +201,18 @@ export function UserQuerying() {
         aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
         data-testid="filter-button"
         onPress={() => {
-          // On large screens, if filters are showing, clear them instead of opening dialog
-          const isLargeScreen = window.matchMedia(MEDIA_QUERIES.lg).matches;
-          if (isLargeScreen && showAllFilters) {
+          // On XL screens, if filters are showing, clear them instead of opening dialog
+          const isXlScreen = window.matchMedia(MEDIA_QUERIES.xl).matches;
+          if (isXlScreen && showAllFilters) {
             clearAllFilters();
             return;
           }
-          // On large screens, toggle inline filters
-          if (isLargeScreen) {
+          // On XL screens, toggle inline filters
+          if (isXlScreen) {
             setShowAllFilters(!showAllFilters);
             return;
           }
-          // On small/medium screens, open dialog
+          // On smaller screens, open dialog
           setIsFilterPanelOpen(true);
         }}
       >
@@ -222,7 +222,7 @@ export function UserQuerying() {
           <ListFilter size={16} aria-label={t`Show filters`} />
         )}
         {activeFilterCount > 0 && (
-          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs lg:hidden">
+          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs xl:hidden">
             {activeFilterCount}
           </span>
         )}
