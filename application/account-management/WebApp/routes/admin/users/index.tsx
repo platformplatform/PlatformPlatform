@@ -61,7 +61,7 @@ export default function UsersPage() {
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
       <AppLayout
         topMenu={
-          <TopMenu>
+          <TopMenu sidePaneOpen={profileUser !== null}>
             <Breadcrumb href="/admin/users">
               <Trans>Users</Trans>
             </Breadcrumb>
@@ -71,9 +71,9 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <div className={`flex h-full ${profileUser ? "gap-0" : ""}`}>
+        <div className="flex h-full">
           {/* Main content */}
-          <div className={`flex min-w-0 flex-1 flex-col ${profileUser ? "sm:max-w-[calc(100%-21rem)]" : ""}`}>
+          <div className="flex min-w-0 flex-1 flex-col">
             <h1>
               <Trans>Users</Trans>
             </h1>
@@ -81,10 +81,10 @@ export default function UsersPage() {
               <Trans>Manage your users and permissions here.</Trans>
             </p>
 
-            <div className={`${profileUser ? "pr-4" : ""}`}>
+            <div className="mb-4">
               <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
             </div>
-            <div className={`min-h-0 flex-1 ${profileUser ? "pr-4" : ""}`}>
+            <div className="min-h-0 flex-1">
               <UserTable
                 selectedUsers={selectedUsers}
                 onSelectedUsersChange={setSelectedUsers}
@@ -94,32 +94,17 @@ export default function UsersPage() {
               />
             </div>
           </div>
-
-          {/* Side pane - always dock on sm+ */}
-          {profileUser && (
-            <div className="hidden sm:block sm:w-80 sm:flex-shrink-0">
-              <UserProfileSidePane
-                user={profileUser}
-                isOpen={profileUser !== null}
-                onClose={handleCloseProfile}
-                onChangeRole={handleChangeRole}
-                onDeleteUser={handleDeleteUser}
-              />
-            </div>
-          )}
         </div>
       </AppLayout>
 
-      {/* Side pane for mobile screens - overlay on mobile only */}
-      <div className="sm:hidden">
-        <UserProfileSidePane
-          user={profileUser}
-          isOpen={profileUser !== null}
-          onClose={handleCloseProfile}
-          onChangeRole={handleChangeRole}
-          onDeleteUser={handleDeleteUser}
-        />
-      </div>
+      {/* Single UserProfileSidePane for all screen sizes */}
+      <UserProfileSidePane
+        user={profileUser}
+        isOpen={profileUser !== null}
+        onClose={handleCloseProfile}
+        onChangeRole={handleChangeRole}
+        onDeleteUser={handleDeleteUser}
+      />
 
       <ChangeUserRoleDialog
         user={userToChangeRole}
