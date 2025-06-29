@@ -96,6 +96,9 @@ msgstr "Change language"
 msgid "Change profile picture"
 msgstr "Change profile picture"
 
+msgid "Change role"
+msgstr "Change role"
+
 msgid "Change user role"
 msgstr "Change user role"
 

@@ -96,6 +96,9 @@ msgstr "Taal wijzigen"
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
 
+msgid "Change role"
+msgstr ""
+
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
