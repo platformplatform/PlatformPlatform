@@ -1,8 +1,8 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { step } from "@shared/e2e/utils/step-decorator";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
 import {} from "@shared/e2e/utils/test-data";
+import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 test.describe("@smoke", () => {
   test("Navigate to back-office & verify homepage loads correctly", async ({ ownerPage }) => {

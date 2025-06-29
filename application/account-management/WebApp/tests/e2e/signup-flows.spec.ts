@@ -1,6 +1,5 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { step } from "@shared/e2e/utils/step-decorator";
 import {
   blurActiveElement,
   createTestContext,
@@ -8,6 +7,7 @@ import {
   expectValidationError
 } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser, uniqueEmail } from "@shared/e2e/utils/test-data";
+import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 test.describe("@smoke", () => {
   test("should handle signup flow with validation, profile setup, and account management", async ({ browser }) => {
