@@ -22,11 +22,19 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
     <div className="mt-4 mb-4 flex items-center justify-between gap-2">
       <UserQuerying />
       <div className="mt-6 flex items-center gap-2">
-        {selectedUsers.length === 0 && (
+        {selectedUsers.length < 2 && (
           <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="h-5 w-5" />
             <span className="hidden sm:inline">
               <Trans>Invite user</Trans>
+            </span>
+          </Button>
+        )}
+        {selectedUsers.length === 1 && (
+          <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
+            <Trash2Icon className="h-5 w-5" />
+            <span className="hidden sm:inline">
+              <Trans>Delete user</Trans>
             </span>
           </Button>
         )}
