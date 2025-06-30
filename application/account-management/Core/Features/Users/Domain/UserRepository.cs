@@ -158,8 +158,16 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
                 ? users.OrderBy(u => u.ModifiedAt)
                 : users.OrderByDescending(u => u.ModifiedAt),
             SortableUserProperties.Name => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
-                : users.OrderByDescending(u => u.FirstName).ThenByDescending(u => u.LastName),
+                ? users.OrderBy(u => u.FirstName == null ? 1 : 0)
+                    .ThenBy(u => u.FirstName)
+                    .ThenBy(u => u.LastName == null ? 1 : 0)
+                    .ThenBy(u => u.LastName)
+                    .ThenBy(u => u.Email)
+                : users.OrderBy(u => u.FirstName == null ? 0 : 1)
+                    .ThenByDescending(u => u.FirstName)
+                    .ThenBy(u => u.LastName == null ? 0 : 1)
+                    .ThenByDescending(u => u.LastName)
+                    .ThenBy(u => u.Email),
             SortableUserProperties.Email => sortOrder == SortOrder.Ascending
                 ? users.OrderBy(u => u.Email)
                 : users.OrderByDescending(u => u.Email),
@@ -167,6 +175,11 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
                 ? users.OrderBy(u => u.Role)
                 : users.OrderByDescending(u => u.Role),
             _ => users
+                .OrderBy(u => u.FirstName == null ? 1 : 0)
+                .ThenBy(u => u.FirstName)
+                .ThenBy(u => u.LastName == null ? 1 : 0)
+                .ThenBy(u => u.LastName)
+                .ThenBy(u => u.Email)
         };
 
         pageSize ??= 50;
