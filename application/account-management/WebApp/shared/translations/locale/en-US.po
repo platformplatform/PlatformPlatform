@@ -262,6 +262,9 @@ msgstr "Next"
 msgid "OK"
 msgstr "OK"
 
+msgid "Only account owners can modify the account name"
+msgstr "Only account owners can modify the account name"
+
 msgid "Organization"
 msgstr "Organization"
 
