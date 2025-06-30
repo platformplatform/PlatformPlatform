@@ -29,13 +29,17 @@ interface SearchParams {
   pageOffset: number | undefined;
 }
 
+interface UserQueryingProps {
+  onFilterStateChange?: (hasActiveFilters: boolean) => void;
+}
+
 /**
  * UserQuerying component handles the user list filtering.
  * Uses URL parameters as the single source of truth for all filters.
  * The only local state is for the search input, which is debounced
  * to prevent too many URL updates while typing.
  */
-export function UserQuerying() {
+export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
@@ -222,6 +226,11 @@ export function UserQuerying() {
       }
     };
   }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isSidePaneOpen]);
+
+  // Notify parent component when active filter count changes
+  useEffect(() => {
+    onFilterStateChange?.(activeFilterCount > 0);
+  }, [activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
