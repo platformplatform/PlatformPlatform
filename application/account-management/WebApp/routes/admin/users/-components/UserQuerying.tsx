@@ -30,7 +30,7 @@ interface SearchParams {
 }
 
 interface UserQueryingProps {
-  onFilterStateChange?: (hasActiveFilters: boolean) => void;
+  onFilterStateChange?: (isFilterBarExpanded: boolean, hasActiveFilters: boolean) => void;
 }
 
 /**
@@ -164,9 +164,13 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
       // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
       const searchWidth = searchField?.offsetWidth || 300;
       const filterButtonWidth = filterButton?.offsetWidth || 50;
-      const rightSideWidth = 130; // Fixed width for action buttons (not affected by filter state)
+      
+      // For space calculation, assume buttons will be compact (130px) when filters are shown
+      // This accounts for the fact that showing filters makes buttons compact, freeing up space
+      const rightSideWidth = 130;
+      
       const gaps = 16; // gap-2 between main sections
-      const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+      const minimumFilterSpace = 300; // Minimum space needed for all three filter controls
       
       const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
       const availableSpace = toolbarWidth - usedSpace;
@@ -227,10 +231,10 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
     };
   }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isSidePaneOpen]);
 
-  // Notify parent component when active filter count changes
+  // Notify parent component when filter state changes
   useEffect(() => {
-    onFilterStateChange?.(activeFilterCount > 0);
-  }, [activeFilterCount, onFilterStateChange]);
+    onFilterStateChange?.(showAllFilters, activeFilterCount > 0);
+  }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -339,7 +343,11 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
           // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
           const searchWidth = searchField?.offsetWidth || 300;
           const filterButtonWidth = filterButton?.offsetWidth || 50;
-          const rightSideWidth = 130; // Fixed width for action buttons (not affected by filter state)
+          
+          // For space calculation, assume buttons will be compact (130px) when filters are shown
+          // This accounts for the fact that showing filters makes buttons compact, freeing up space
+          const rightSideWidth = 130;
+          
           const gaps = 16; // gap-2 between main sections
           const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
           
