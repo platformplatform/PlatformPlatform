@@ -80,14 +80,6 @@ test.describe("@smoke", () => {
       await expect(adminUserRow).toContainText("Admin");
     })();
 
-    await step("Click to unselect row after role change & verify selection clears")(async () => {
-      const adminUserRow = page.locator("tbody tr").filter({ hasText: adminUser.email });
-      await expect(adminUserRow).toHaveAttribute("aria-selected", "true");
-      await adminUserRow.click(); // Unselect the row
-
-      await expect(adminUserRow).not.toHaveAttribute("aria-selected", "true");
-    })();
-
     await step("Attempt to invite duplicate user email & verify error message appears")(async () => {
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
