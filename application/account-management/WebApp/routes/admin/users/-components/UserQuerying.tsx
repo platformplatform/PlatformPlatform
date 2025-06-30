@@ -103,6 +103,28 @@ export function UserQuerying() {
 
   const activeFilterCount = getActiveFilterCount();
 
+  // Detect if side pane is open by checking DOM
+  const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
+  
+  useEffect(() => {
+    const checkSidePaneState = () => {
+      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-[60]"]');
+      const isOpen = !!sidePane;
+      if (isOpen !== isSidePaneOpen) {
+        setIsSidePaneOpen(isOpen);
+      }
+    };
+
+    // Check immediately
+    checkSidePaneState();
+    
+    // Use MutationObserver to detect when side pane is added/removed
+    const observer = new MutationObserver(checkSidePaneState);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => observer.disconnect();
+  }, [isSidePaneOpen]);
+
   // Handle screen size and container space changes to show/hide filters appropriately
   useEffect(() => {
     let debounceTimeout: NodeJS.Timeout | null = null;
@@ -202,7 +224,7 @@ export function UserQuerying() {
         clearTimeout(debounceTimeout);
       }
     };
-  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen, isSidePaneOpen]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
