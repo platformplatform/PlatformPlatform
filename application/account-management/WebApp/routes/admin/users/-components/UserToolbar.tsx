@@ -17,16 +17,22 @@ interface UserToolbarProps {
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
+
+  const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean) => {
+    setIsFilterBarExpanded(isExpanded);
+    setHasActiveFilters(hasFilters);
+  };
 
   return (
     <div className="mt-4 mb-4 flex items-center justify-between gap-2">
-      <UserQuerying onFilterStateChange={setHasActiveFilters} />
+      <UserQuerying onFilterStateChange={handleFilterStateChange} />
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && (
           <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="h-5 w-5" />
-            <span className={hasActiveFilters ? "hidden" : "hidden sm:inline"}>
+            <span className={isFilterBarExpanded || hasActiveFilters ? "hidden" : "hidden sm:inline"}>
               <Trans>Invite user</Trans>
             </span>
           </Button>
@@ -34,7 +40,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
         {selectedUsers.length > 1 && (
           <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
             <Trash2Icon className="h-5 w-5" />
-            <span className={hasActiveFilters ? "hidden" : "hidden sm:inline"}>
+            <span className={isFilterBarExpanded || hasActiveFilters ? "hidden" : "hidden sm:inline"}>
               <Trans>Delete {selectedUsers.length} users</Trans>
             </span>
           </Button>
