@@ -1,6 +1,7 @@
 import type { components } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { DeleteUserDialog } from "./DeleteUserDialog";
@@ -17,8 +18,8 @@ interface UserToolbarProps {
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
-  const [hasActiveFilters, setHasActiveFilters] = useState(false);
+  const [_isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
+  const [_hasActiveFilters, setHasActiveFilters] = useState(false);
   const [shouldUseCompactButtons, setShouldUseCompactButtons] = useState(false);
 
   const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean, useCompact: boolean) => {
@@ -32,20 +33,34 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       <UserQuerying onFilterStateChange={handleFilterStateChange} />
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && (
-          <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
-            <PlusIcon className="h-5 w-5" />
-            <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
-              <Trans>Invite user</Trans>
-            </span>
-          </Button>
+          <TooltipTrigger delay={200}>
+            <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
+              <PlusIcon className="h-5 w-5" />
+              <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
+                <Trans>Invite user</Trans>
+              </span>
+            </Button>
+            {shouldUseCompactButtons && (
+              <Tooltip>
+                <Trans>Invite user</Trans>
+              </Tooltip>
+            )}
+          </TooltipTrigger>
         )}
         {selectedUsers.length > 1 && (
-          <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
-            <Trash2Icon className="h-5 w-5" />
-            <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
-              <Trans>Delete {selectedUsers.length} users</Trans>
-            </span>
-          </Button>
+          <TooltipTrigger delay={200}>
+            <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
+              <Trash2Icon className="h-5 w-5" />
+              <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
+                <Trans>Delete {selectedUsers.length} users</Trans>
+              </span>
+            </Button>
+            {shouldUseCompactButtons && (
+              <Tooltip>
+                <Trans>Delete {selectedUsers.length} users</Trans>
+              </Tooltip>
+            )}
+          </TooltipTrigger>
         )}
       </div>
       <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />

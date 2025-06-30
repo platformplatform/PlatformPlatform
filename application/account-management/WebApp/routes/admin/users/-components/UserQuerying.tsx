@@ -11,8 +11,8 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -30,7 +30,11 @@ interface SearchParams {
 }
 
 interface UserQueryingProps {
-  onFilterStateChange?: (isFilterBarExpanded: boolean, hasActiveFilters: boolean, shouldUseCompactButtons: boolean) => void;
+  onFilterStateChange?: (
+    isFilterBarExpanded: boolean,
+    hasActiveFilters: boolean,
+    shouldUseCompactButtons: boolean
+  ) => void;
 }
 
 /**
@@ -109,7 +113,7 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
 
   // Detect if side pane is open by checking DOM
   const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
-  
+
   useEffect(() => {
     const checkSidePaneState = () => {
       const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-[60]"]');
@@ -121,11 +125,11 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
 
     // Check immediately
     checkSidePaneState();
-    
+
     // Use MutationObserver to detect when side pane is added/removed
     const observer = new MutationObserver(checkSidePaneState);
     observer.observe(document.body, { childList: true, subtree: true });
-    
+
     return () => observer.disconnect();
   }, [isSidePaneOpen]);
 
@@ -133,17 +137,54 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
   useEffect(() => {
     let debounceTimeout: NodeJS.Timeout | null = null;
     let lastStateChange = 0;
-    
+
+    const shouldSkipSpaceCheck = (now: number) => {
+      return now - lastStateChange < 200;
+    };
+
+    const shouldHideFiltersForOverlays = () => {
+      return isOverlayOpen || isMobileMenuOpen;
+    };
+
+    const getToolbarContainer = () => {
+      if (!containerRef.current) {
+        return null;
+      }
+      return containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
+    };
+
+    const calculateAvailableSpace = (toolbarContainer: HTMLElement) => {
+      const toolbarWidth = toolbarContainer.offsetWidth;
+      const searchField = containerRef.current?.querySelector('input[type="text"]') as HTMLElement;
+      const filterButton = containerRef.current?.querySelector('[data-testid="filter-button"]') as HTMLElement;
+
+      const searchWidth = searchField?.offsetWidth || 300;
+      const filterButtonWidth = filterButton?.offsetWidth || 50;
+      const rightSideWidth = 130;
+      const gaps = 16;
+
+      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+      return toolbarWidth - usedSpace;
+    };
+
+    const updateFiltersVisibility = (hasSpace: boolean, now: number) => {
+      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
+        lastStateChange = now;
+        setShowAllFilters(true);
+      } else if (!hasSpace && showAllFilters) {
+        lastStateChange = now;
+        setShowAllFilters(false);
+      }
+    };
+
     const checkFilterSpace = () => {
       const now = Date.now();
-      
-      // Circuit breaker: prevent rapid state changes
-      if (now - lastStateChange < 200) {
+
+      if (shouldSkipSpaceCheck(now)) {
         return;
       }
-      
-      // Only force modal when overlays are open (blocks interaction)
-      if (isOverlayOpen || isMobileMenuOpen) {
+
+      if (shouldHideFiltersForOverlays()) {
         if (showAllFilters) {
           lastStateChange = now;
           setShowAllFilters(false);
@@ -151,39 +192,16 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
         return;
       }
 
-      if (!containerRef.current) return;
+      const toolbarContainer = getToolbarContainer();
+      if (!toolbarContainer) {
+        return;
+      }
 
-      // Measure the actual available space by finding the parent toolbar container
-      const toolbarContainer = containerRef.current.closest('.flex.items-center.justify-between') as HTMLElement;
-      if (!toolbarContainer) return;
-      
-      const toolbarWidth = toolbarContainer.offsetWidth;
-      const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
-      const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
-      
-      // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
-      const searchWidth = searchField?.offsetWidth || 300;
-      const filterButtonWidth = filterButton?.offsetWidth || 50;
-      
-      // For space calculation, assume buttons will be compact (130px) when filters are shown
-      // This accounts for the fact that showing filters makes buttons compact, freeing up space
-      const rightSideWidth = 130;
-      
-      const gaps = 16; // gap-2 between main sections
-      const minimumFilterSpace = 300; // Minimum space needed for all three filter controls
-      
-      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-      const availableSpace = toolbarWidth - usedSpace;
-      
+      const availableSpace = calculateAvailableSpace(toolbarContainer);
+      const minimumFilterSpace = 300;
       const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
-      if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(true);
-      } else if (!hasSpaceForInlineFilters && showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(false);
-      }
+      updateFiltersVisibility(hasSpaceForInlineFilters, now);
     };
 
     const debouncedCheckFilterSpace = () => {
@@ -219,7 +237,7 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
     window.addEventListener("resize", handleResize);
     window.addEventListener("side-menu-toggle", handleSideMenuToggle);
     window.addEventListener("side-menu-resize", handleSideMenuResize);
-    
+
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("side-menu-toggle", handleSideMenuToggle);
@@ -229,14 +247,14 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
         clearTimeout(debounceTimeout);
       }
     };
-  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isSidePaneOpen]);
+  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen]);
 
   // Notify parent component when filter state changes
   useEffect(() => {
     // On 2XL+ screens, keep full buttons even with filters
-    const is2XlScreen = window.matchMedia('(min-width: 1536px)').matches;
+    const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
     const shouldUseCompactButtons = !is2XlScreen && (showAllFilters || activeFilterCount > 0);
-    
+
     onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
@@ -316,75 +334,80 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
       )}
 
       {/* Filter button with responsive behavior */}
-      <Button
-        variant="secondary"
-        className="relative mt-6"
-        aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
-        data-testid="filter-button"
-        onPress={() => {
-          // Force modal when overlays are open (blocks interaction)
-          if (isOverlayOpen || isMobileMenuOpen) {
-            setIsFilterPanelOpen(true);
-            return;
-          }
+      <TooltipTrigger delay={0}>
+        <Button
+          variant="secondary"
+          className="relative mt-6"
+          aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
+          data-testid="filter-button"
+          onPress={() => {
+            // If filters are currently showing and user clicks, always clear filters
+            // This ensures consistent behavior regardless of space calculations
+            if (showAllFilters) {
+              clearAllFilters();
+              return;
+            }
 
-          if (!containerRef.current) {
-            setIsFilterPanelOpen(true);
-            return;
-          }
+            // Force modal when overlays are open (blocks interaction)
+            if (isOverlayOpen || isMobileMenuOpen) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
 
-          // Measure the actual available space by finding the parent toolbar container
-          const toolbarContainer = containerRef.current.closest('.flex.items-center.justify-between') as HTMLElement;
-          if (!toolbarContainer) {
-            setIsFilterPanelOpen(true);
-            return;
-          }
-          
-          const toolbarWidth = toolbarContainer.offsetWidth;
-          const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
-          const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
-          
-          // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
-          const searchWidth = searchField?.offsetWidth || 300;
-          const filterButtonWidth = filterButton?.offsetWidth || 50;
-          
-          // For space calculation, assume buttons will be compact (130px) when filters are shown
-          // This accounts for the fact that showing filters makes buttons compact, freeing up space
-          const rightSideWidth = 130;
-          
-          const gaps = 16; // gap-2 between main sections
-          const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
-          
-          const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-          const availableSpace = toolbarWidth - usedSpace;
-          
-          const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+            if (!containerRef.current) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
 
-          if (hasSpaceForInlineFilters && showAllFilters) {
-            // If filters are showing and we have space, clear them
-            clearAllFilters();
-            return;
-          }
-          if (hasSpaceForInlineFilters) {
-            // If we have space but filters aren't showing, toggle them
-            setShowAllFilters(!showAllFilters);
-            return;
-          }
-          // If we don't have space, open dialog
-          setIsFilterPanelOpen(true);
-        }}
-      >
-        {showAllFilters ? (
-          <ListFilterPlus size={16} aria-label={t`Clear filters`} />
-        ) : (
-          <ListFilter size={16} aria-label={t`Show filters`} />
-        )}
-        {activeFilterCount > 0 && !showAllFilters && (
-          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
-            {activeFilterCount}
-          </span>
-        )}
-      </Button>
+            // Measure the actual available space by finding the parent toolbar container
+            const toolbarContainer = containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
+            if (!toolbarContainer) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
+
+            const toolbarWidth = toolbarContainer.offsetWidth;
+            const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
+            const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
+
+            // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
+            const searchWidth = searchField?.offsetWidth || 300;
+            const filterButtonWidth = filterButton?.offsetWidth || 50;
+
+            // For space calculation, assume buttons will be compact (130px) when filters are shown
+            // This accounts for the fact that showing filters makes buttons compact, freeing up space
+            const rightSideWidth = 130;
+
+            const gaps = 16; // gap-2 between main sections
+            const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+
+            const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+            const availableSpace = toolbarWidth - usedSpace;
+
+            const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+
+            if (hasSpaceForInlineFilters) {
+              // If we have space but filters aren't showing, toggle them
+              setShowAllFilters(!showAllFilters);
+              return;
+            }
+            // If we don't have space, open dialog
+            setIsFilterPanelOpen(true);
+          }}
+        >
+          {showAllFilters ? (
+            <ListFilterPlus size={16} aria-label={t`Clear filters`} />
+          ) : (
+            <ListFilter size={16} aria-label={t`Show filters`} />
+          )}
+          {activeFilterCount > 0 && !showAllFilters && (
+            <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
+        <Tooltip>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</Tooltip>
+      </TooltipTrigger>
 
       {/* Filter dialog for small/medium screens */}
       <Modal isOpen={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen} isDismissable={true}>
