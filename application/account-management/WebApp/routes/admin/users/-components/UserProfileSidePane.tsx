@@ -12,7 +12,8 @@ import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { Trash2Icon, XIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
@@ -27,6 +28,7 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
+  const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
 
   // Focus management and keyboard navigation - only focus close button on mobile
   useEffect(() => {
@@ -184,9 +186,25 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
             <Heading level={4} className="font-medium text-sm">
               <Trans>Role</Trans>
             </Heading>
-            <Badge variant="outline" className="text-xs">
-              {getUserRoleLabel(user.role)}
-            </Badge>
+            {canModifyUser ? (
+              <Button
+                variant="ghost"
+                className="h-auto p-0 text-xs"
+                onPress={() => setIsChangeRoleDialogOpen(true)}
+                aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
+              >
+                <Badge
+                  variant="outline"
+                  className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
+                >
+                  {getUserRoleLabel(user.role)}
+                </Badge>
+              </Button>
+            ) : (
+              <Badge variant="outline" className="text-xs">
+                {getUserRoleLabel(user.role)}
+              </Badge>
+            )}
           </div>
 
           <Separator className="mb-4" />
@@ -220,6 +238,9 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
           </div>
         )}
       </div>
+
+      {/* Change User Role Dialog */}
+      <ChangeUserRoleDialog user={user} isOpen={isChangeRoleDialogOpen} onOpenChange={setIsChangeRoleDialogOpen} />
     </>
   );
 }
