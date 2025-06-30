@@ -97,7 +97,7 @@ msgid "Change profile picture"
 msgstr "Skift profilbillede"
 
 msgid "Change role"
-msgstr ""
+msgstr "Skift rolle"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
@@ -112,7 +112,7 @@ msgid "Clear filters"
 msgstr "Ryd filtre"
 
 msgid "Close user profile"
-msgstr ""
+msgstr "Luk brugerprofil"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -134,7 +134,7 @@ msgstr "Slet"
 
 #. placeholder {0}: selectedUsers.length
 msgid "Delete {0} users"
-msgstr ""
+msgstr "Slet {0} brugere"
 
 msgid "Delete account"
 msgstr "Slet konto"
@@ -402,7 +402,7 @@ msgid "User profile"
 msgstr "Brugerprofil"
 
 msgid "User profile details"
-msgstr ""
+msgstr "Brugerprofiloplysninger"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
@@ -429,7 +429,7 @@ msgid "Verification code sent"
 msgstr "Bekræftelseskode sendt"
 
 msgid "Verified"
-msgstr ""
+msgstr "Bekræftet"
 
 msgid "Verify"
 msgstr "Bekræft"

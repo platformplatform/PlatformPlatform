@@ -97,7 +97,7 @@ msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
 
 msgid "Change role"
-msgstr ""
+msgstr "Rol wijzigen"
 
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
@@ -112,7 +112,7 @@ msgid "Clear filters"
 msgstr "Filters wissen"
 
 msgid "Close user profile"
-msgstr ""
+msgstr "Gebruikersprofiel sluiten"
 
 msgid "Continue"
 msgstr "Verder"
@@ -134,7 +134,7 @@ msgstr "Verwijderen"
 
 #. placeholder {0}: selectedUsers.length
 msgid "Delete {0} users"
-msgstr ""
+msgstr "Verwijder {0} gebruikers"
 
 msgid "Delete account"
 msgstr "Account verwijderen"
@@ -402,7 +402,7 @@ msgid "User profile"
 msgstr "Gebruikersprofiel"
 
 msgid "User profile details"
-msgstr ""
+msgstr "Details van gebruikersprofiel"
 
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"
@@ -429,7 +429,7 @@ msgid "Verification code sent"
 msgstr "Verificatiecode verzonden"
 
 msgid "Verified"
-msgstr ""
+msgstr "Geverifieerd"
 
 msgid "Verify"
 msgstr "Verifiëren"
