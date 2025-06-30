@@ -30,7 +30,7 @@ interface SearchParams {
 }
 
 interface UserQueryingProps {
-  onFilterStateChange?: (isFilterBarExpanded: boolean, hasActiveFilters: boolean) => void;
+  onFilterStateChange?: (isFilterBarExpanded: boolean, hasActiveFilters: boolean, shouldUseCompactButtons: boolean) => void;
 }
 
 /**
@@ -233,7 +233,11 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
 
   // Notify parent component when filter state changes
   useEffect(() => {
-    onFilterStateChange?.(showAllFilters, activeFilterCount > 0);
+    // On 2XL+ screens, keep full buttons even with filters
+    const is2XlScreen = window.matchMedia('(min-width: 1536px)').matches;
+    const shouldUseCompactButtons = !is2XlScreen && (showAllFilters || activeFilterCount > 0);
+    
+    onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
