@@ -102,6 +102,11 @@ msgstr "Change role"
 msgid "Change user role"
 msgstr "Change user role"
 
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Change user role for {0} {1}"
+msgstr "Change user role for {0} {1}"
+
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 

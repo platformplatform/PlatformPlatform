@@ -102,6 +102,11 @@ msgstr "Rol wijzigen"
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Change user role for {0} {1}"
+msgstr "Gebruikersrol wijzigen voor {0} {1}"
+
 msgid "Check your spam folder."
 msgstr "Controleer je spammap."
 
@@ -263,7 +268,7 @@ msgid "OK"
 msgstr "OK"
 
 msgid "Only account owners can modify the account name"
-msgstr ""
+msgstr "Alleen accounteigenaren kunnen de accountnaam wijzigen"
 
 msgid "Organization"
 msgstr "Organisatie"
