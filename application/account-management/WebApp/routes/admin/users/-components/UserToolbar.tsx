@@ -51,7 +51,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
             )}
           </TooltipTrigger>
         )}
-        {selectedUsers.length > 1 && (
+        {selectedUsers.length > 1 && isOwner && (
           <TooltipTrigger delay={200}>
             <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
               <Trash2Icon className="h-5 w-5" />
