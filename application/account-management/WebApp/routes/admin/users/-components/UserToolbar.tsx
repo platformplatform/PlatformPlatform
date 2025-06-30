@@ -1,4 +1,5 @@
 import type { components } from "@/shared/lib/api/client";
+import { UserRole, api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
@@ -16,11 +17,14 @@ interface UserToolbarProps {
 }
 
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
+  const { data: currentUser } = api.useQuery("get", "/api/account-management/users/me");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [_isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
   const [_hasActiveFilters, setHasActiveFilters] = useState(false);
   const [shouldUseCompactButtons, setShouldUseCompactButtons] = useState(false);
+
+  const isOwner = currentUser?.role === UserRole.Owner;
 
   const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean, useCompact: boolean) => {
     setIsFilterBarExpanded(isExpanded);
@@ -32,7 +36,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
     <div className="mt-4 mb-4 flex items-center justify-between gap-2">
       <UserQuerying onFilterStateChange={handleFilterStateChange} />
       <div className="mt-6 flex items-center gap-2">
-        {selectedUsers.length < 2 && (
+        {selectedUsers.length < 2 && isOwner && (
           <TooltipTrigger delay={200}>
             <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
               <PlusIcon className="h-5 w-5" />
@@ -63,7 +67,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
           </TooltipTrigger>
         )}
       </div>
-      <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />
+      {isOwner && <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />}
       <DeleteUserDialog
         users={selectedUsers}
         isOpen={isDeleteModalOpen}
