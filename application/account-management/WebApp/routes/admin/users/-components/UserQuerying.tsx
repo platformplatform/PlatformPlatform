@@ -105,13 +105,24 @@ export function UserQuerying() {
 
   // Handle screen size and container space changes to show/hide filters appropriately
   useEffect(() => {
+    let debounceTimeout: NodeJS.Timeout | null = null;
+    let lastStateChange = 0;
+    
     const checkFilterSpace = () => {
+      const now = Date.now();
+      
+      // Circuit breaker: prevent rapid state changes
+      if (now - lastStateChange < 200) {
+        return;
+      }
+      
       // Double-check screen size with direct media query for cross-browser consistency
       const isXlScreenDirect = window.matchMedia(MEDIA_QUERIES.xl).matches;
 
       if (!isXlScreenDirect || isOverlayOpen || isMobileMenuOpen) {
         // On smaller screens or when overlays are open, always use modal
         if (showAllFilters) {
+          lastStateChange = now;
           setShowAllFilters(false);
         }
         return;
@@ -124,14 +135,13 @@ export function UserQuerying() {
       if (!toolbarContainer) return;
       
       const toolbarWidth = toolbarContainer.offsetWidth;
-      const rightSideButtons = toolbarContainer.querySelector('.flex.items-center.gap-2:last-child') as HTMLElement;
       const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
       const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
       
-      // Calculate space used by existing elements
+      // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
       const searchWidth = searchField?.offsetWidth || 300;
       const filterButtonWidth = filterButton?.offsetWidth || 50;
-      const rightSideWidth = rightSideButtons?.offsetWidth || 200;
+      const rightSideWidth = 130; // Fixed width for action buttons (not affected by filter state)
       const gaps = 16; // gap-2 between main sections
       const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
       
@@ -141,12 +151,19 @@ export function UserQuerying() {
       const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
       if (hasSpaceForInlineFilters && activeFilterCount > 0 && !showAllFilters) {
-        // Show inline filters if there's space and active filters exist
+        lastStateChange = now;
         setShowAllFilters(true);
       } else if (!hasSpaceForInlineFilters && showAllFilters) {
-        // Hide inline filters if there's insufficient space
+        lastStateChange = now;
         setShowAllFilters(false);
       }
+    };
+
+    const debouncedCheckFilterSpace = () => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+      debounceTimeout = setTimeout(checkFilterSpace, 100);
     };
 
     // Run check immediately
@@ -154,8 +171,16 @@ export function UserQuerying() {
 
     // Also listen for resize events to handle browser-specific timing issues
     const handleResize = () => {
-      // Small delay to ensure all hooks have updated
-      setTimeout(checkFilterSpace, 50);
+      debouncedCheckFilterSpace();
+    };
+
+    // Listen for side menu events that affect layout
+    const handleSideMenuToggle = () => {
+      debouncedCheckFilterSpace();
+    };
+
+    const handleSideMenuResize = () => {
+      debouncedCheckFilterSpace();
     };
 
     // Force a recheck after mount to ensure correct initial state across browsers
@@ -165,9 +190,17 @@ export function UserQuerying() {
     }, 100);
 
     window.addEventListener("resize", handleResize);
+    window.addEventListener("side-menu-toggle", handleSideMenuToggle);
+    window.addEventListener("side-menu-resize", handleSideMenuResize);
+    
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("side-menu-toggle", handleSideMenuToggle);
+      window.removeEventListener("side-menu-resize", handleSideMenuResize);
       clearTimeout(timeoutId);
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
     };
   }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
 
