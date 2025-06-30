@@ -98,22 +98,24 @@ export function AccountSettings() {
           )}
         </Form>
 
-        <div className="mt-6 flex flex-col gap-4">
-          <h2>
-            <Trans>Danger zone</Trans>
-          </h2>
-          <Separator />
-          <div className="flex flex-col gap-4">
-            <p>
-              <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
-            </p>
+        {isOwner && (
+          <div className="mt-6 flex flex-col gap-4">
+            <h2>
+              <Trans>Danger zone</Trans>
+            </h2>
+            <Separator />
+            <div className="flex flex-col gap-4">
+              <p>
+                <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
+              </p>
 
-            <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
-              <Trash2 />
-              <Trans>Delete account</Trans>
-            </Button>
+              <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
+                <Trash2 />
+                <Trans>Delete account</Trans>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </AppLayout>
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
