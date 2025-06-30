@@ -138,11 +138,8 @@ export function UserQuerying() {
         return;
       }
       
-      // Double-check screen size with direct media query for cross-browser consistency
-      const isXlScreenDirect = window.matchMedia(MEDIA_QUERIES.xl).matches;
-
-      if (!isXlScreenDirect || isOverlayOpen || isMobileMenuOpen) {
-        // On smaller screens or when overlays are open, always use modal
+      // Only force modal when overlays are open (blocks interaction)
+      if (isOverlayOpen || isMobileMenuOpen) {
         if (showAllFilters) {
           lastStateChange = now;
           setShowAllFilters(false);
@@ -224,7 +221,7 @@ export function UserQuerying() {
         clearTimeout(debounceTimeout);
       }
     };
-  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen, isSidePaneOpen]);
+  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isSidePaneOpen]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -308,11 +305,8 @@ export function UserQuerying() {
         aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
         data-testid="filter-button"
         onPress={() => {
-          // Determine if we have space for inline filters with cross-browser check
-          const isXlScreenDirect = window.matchMedia(MEDIA_QUERIES.xl).matches;
-          
-          if (!isXlScreenDirect || isOverlayOpen || isMobileMenuOpen) {
-            // On smaller screens or when overlays are open, always use modal
+          // Force modal when overlays are open (blocks interaction)
+          if (isOverlayOpen || isMobileMenuOpen) {
             setIsFilterPanelOpen(true);
             return;
           }
@@ -330,14 +324,13 @@ export function UserQuerying() {
           }
           
           const toolbarWidth = toolbarContainer.offsetWidth;
-          const rightSideButtons = toolbarContainer.querySelector('.flex.items-center.gap-2:last-child') as HTMLElement;
           const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
           const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
           
-          // Calculate space used by existing elements
+          // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
           const searchWidth = searchField?.offsetWidth || 300;
           const filterButtonWidth = filterButton?.offsetWidth || 50;
-          const rightSideWidth = rightSideButtons?.offsetWidth || 200;
+          const rightSideWidth = 130; // Fixed width for action buttons (not affected by filter state)
           const gaps = 16; // gap-2 between main sections
           const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
           
