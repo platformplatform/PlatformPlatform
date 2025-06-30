@@ -94,6 +94,9 @@ export function UserTable({
     onSelectedUsersChange([]);
   }, [onSelectedUsersChange]);
 
+  // Track the currently focused user for keyboard navigation
+  const [focusedUserId, setFocusedUserId] = useState<string | null>(null);
+
   const handleSelectionChange = useCallback(
     (keys: Selection) => {
       if (keys === "all") {
@@ -118,6 +121,16 @@ export function UserTable({
     [users?.users, onSelectedUsersChange, onViewProfile]
   );
 
+  // Handle keyboard focus changes to set active user
+  useEffect(() => {
+    if (focusedUserId) {
+      const focusedUser = users?.users.find(user => user.id === focusedUserId);
+      if (focusedUser) {
+        onViewProfile(focusedUser);
+      }
+    }
+  }, [focusedUserId, users?.users, onViewProfile]);
+
   if (isLoading) {
     return null;
   }
@@ -130,7 +143,7 @@ export function UserTable({
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
           selectionMode="multiple"
-          selectionBehavior="toggle"
+          selectionBehavior="replace"
           selectedKeys={selectedUsers.map((user) => user.id)}
           onSelectionChange={handleSelectionChange}
           sortDescriptor={sortDescriptor}
@@ -159,7 +172,12 @@ export function UserTable({
           </TableHeader>
           <TableBody>
             {users?.users.map((user) => (
-              <Row key={user.id} id={user.id}>
+              <Row 
+                key={user.id} 
+                id={user.id}
+                onFocus={() => setFocusedUserId(user.id)}
+                onBlur={() => setFocusedUserId(null)}
+              >
                 <Cell>
                   <Text className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal">
                     <Avatar
