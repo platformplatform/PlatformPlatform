@@ -395,9 +395,6 @@ msgstr "Profielfoto uploaden"
 msgid "User invited successfully"
 msgstr "Gebruiker succesvol uitgenodigd"
 
-msgid "User invited successfully"
-msgstr "Gebruiker succesvol uitgenodigd"
-
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
