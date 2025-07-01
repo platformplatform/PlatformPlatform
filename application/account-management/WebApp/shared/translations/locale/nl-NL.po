@@ -202,9 +202,6 @@ msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
 
-msgid "Invite users"
-msgstr "Gebruikers uitnodigen"
-
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
@@ -393,7 +390,7 @@ msgid "User actions"
 msgstr "Gebruikersacties"
 
 msgid "User invited successfully"
-msgstr ""
+msgstr "Gebruiker succesvol uitgenodigd"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
@@ -448,10 +445,10 @@ msgid "You are about to permanently delete the account and the entire data envir
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
 msgid "Your verification code has expired"
-msgstr ""
+msgstr "Je verificatiecode is verlopen"
 
 msgid "Your verification code is valid for {expiresInString}"
-msgstr ""
+msgstr "Je verificatiecode is geldig voor {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "jouwnaam@voorbeeld.com"

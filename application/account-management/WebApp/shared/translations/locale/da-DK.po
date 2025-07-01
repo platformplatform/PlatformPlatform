@@ -202,9 +202,6 @@ msgstr "Billedet skal være mindre end 1 MB."
 msgid "Invite user"
 msgstr "Inviter bruger"
 
-msgid "Invite users"
-msgstr "Inviter brugere"
-
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
@@ -393,7 +390,7 @@ msgid "User actions"
 msgstr "Brugerhandlinger"
 
 msgid "User invited successfully"
-msgstr ""
+msgstr "Bruger inviteret succesfuldt"
 
 msgid "User profile"
 msgstr "Brugerprofil"
@@ -448,10 +445,10 @@ msgid "You are about to permanently delete the account and the entire data envir
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
 
 msgid "Your verification code has expired"
-msgstr ""
+msgstr "Din bekræftelseskode er udløbet"
 
 msgid "Your verification code is valid for {expiresInString}"
-msgstr ""
+msgstr "Din bekræftelseskode er gyldig i {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"
