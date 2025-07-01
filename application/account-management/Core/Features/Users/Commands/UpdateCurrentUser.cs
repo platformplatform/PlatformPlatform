@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Commands;
 
@@ -34,7 +33,7 @@ public sealed class UpdateCurrentUserHandler(IUserRepository userRepository, ITe
     public async Task<Result> Handle(UpdateCurrentUserCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
-        
+
         user.Update(command.FirstName, command.LastName, command.Title);
         userRepository.Update(user);
 
