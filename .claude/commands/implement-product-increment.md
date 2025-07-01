@@ -61,6 +61,6 @@ Go through each product increment task by task using this workflow:
 
 Rinse and repeat these steps until all tasks in `$ARGUMENTS[1]` are completed.
 
-Once all increments are complete, assign a subagent to follow `.windsurf/workflows/prepare-pull-request.md` to prepare the pull request title and description.
+Once a increments are complete, assign a subagent to follow `.windsurf/workflows/prepare-pull-request.md` to prepare the pull request title and description.
 
 When the full product increment is complete, return to me for final verification.
