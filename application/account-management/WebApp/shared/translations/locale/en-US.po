@@ -395,9 +395,6 @@ msgstr "Upload profile picture"
 msgid "User invited successfully"
 msgstr "User invited successfully"
 
-msgid "User invited successfully"
-msgstr "User invited successfully"
-
 msgid "User profile"
 msgstr "User profile"
 
