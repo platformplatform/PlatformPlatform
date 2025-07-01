@@ -208,9 +208,6 @@ msgstr "Billedet skal være mindre end 1 MB."
 msgid "Invite user"
 msgstr "Inviter bruger"
 
-msgid "Invite users"
-msgstr "Inviter brugere"
-
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
@@ -396,7 +393,7 @@ msgid "User actions"
 msgstr "Brugerhandlinger"
 
 msgid "User invited successfully"
-msgstr ""
+msgstr "Bruger inviteret succesfuldt"
 
 msgid "User profile"
 msgstr "Brugerprofil"

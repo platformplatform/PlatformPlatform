@@ -208,9 +208,6 @@ msgstr "Image must be smaller than 1 MB."
 msgid "Invite user"
 msgstr "Invite user"
 
-msgid "Invite users"
-msgstr "Invite users"
-
 msgid "Invited users"
 msgstr "Invited users"
 

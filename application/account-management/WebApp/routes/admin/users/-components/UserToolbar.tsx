@@ -26,7 +26,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
           <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
             <PlusIcon className="h-5 w-5" />
             <span className="hidden sm:inline">
-              <Trans>Invite users</Trans>
+              <Trans>Invite user</Trans>
             </span>
           </Button>
         )}
