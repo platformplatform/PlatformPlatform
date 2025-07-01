@@ -92,7 +92,7 @@ msgid "Clear"
 msgstr "Wissen"
 
 msgid "Clear filters"
-msgstr ""
+msgstr "Filters wissen"
 
 msgid "Continue"
 msgstr "Verder"
@@ -261,7 +261,7 @@ msgid "No active signup session."
 msgstr "Geen actieve registratiesessie."
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organisatie"

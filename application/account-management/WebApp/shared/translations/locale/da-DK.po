@@ -92,7 +92,7 @@ msgid "Clear"
 msgstr "Ryd"
 
 msgid "Clear filters"
-msgstr ""
+msgstr "Ryd filtre"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -261,7 +261,7 @@ msgid "No active signup session."
 msgstr "Ingen aktiv tilmeldingssession."
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organisation"
