@@ -188,6 +188,9 @@ msgstr "Her er din oversigt over, hvad der sker."
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
 
+msgid "Hide filters"
+msgstr ""
+
 msgid "Home"
 msgstr "Hjem"
 
