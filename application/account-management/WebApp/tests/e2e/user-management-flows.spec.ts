@@ -1,6 +1,5 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { step } from "@shared/e2e/utils/step-decorator";
 import { assertToastMessage, assertValidationError, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
@@ -178,7 +177,6 @@ test.describe("User Management Flow", () => {
       await page.keyboard.press("Escape");
     });
   });
-});
 
   test.describe("@comprehensive", () => {
     /**
