@@ -1,19 +1,20 @@
 param diagnosticStorageAccountName string
 param microsoftSqlServerName string
-param principalId string
 param dianosticStorageAccountSubscriptionId string
 param dianosticStorageAccountBlobEndpoint string
 
-module diagnosticStorageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-data-contributor.bicep' = if (principalId != '') {
+resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
+  name: microsoftSqlServerName
+}
+
+var contributorPrincipalId = existingMicrosoftSqlServer.identity.principalId
+
+module diagnosticStorageBlobDataContributorRoleAssignment './role-assignments-storage-blob-data-contributor.bicep' = {
   name: '${microsoftSqlServerName}-microsoft-sql-server-blob-contributer'
   params: {
     storageAccountName: diagnosticStorageAccountName
-    principalId: principalId
+    principalId: contributorPrincipalId
   }
-}
-
-resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
-  name: microsoftSqlServerName
 }
 
 resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2023-05-01-preview' = {
