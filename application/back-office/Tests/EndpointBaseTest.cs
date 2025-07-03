@@ -49,6 +49,27 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         // Create connection and add DbContext to the service collection
         Connection = new SqliteConnection("DataSource=:memory:");
         Connection.Open();
+
+        // Configure SQLite to behave more like SQL Server
+        using (var command = Connection.CreateCommand())
+        {
+            // Enable foreign key constraints (SQL Server has this by default)
+            command.CommandText = "PRAGMA foreign_keys = ON;";
+            command.ExecuteNonQuery();
+
+            // Enable recursive triggers (SQL Server supports nested triggers)
+            command.CommandText = "PRAGMA recursive_triggers = ON;";
+            command.ExecuteNonQuery();
+
+            // Enforce CHECK constraints (SQL Server enforces these by default)
+            command.CommandText = "PRAGMA ignore_check_constraints = OFF;";
+            command.ExecuteNonQuery();
+
+            // Use more strict query parsing
+            command.CommandText = "PRAGMA trusted_schema = OFF;";
+            command.ExecuteNonQuery();
+        }
+
         Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
         Services.AddBackOfficeServices();
