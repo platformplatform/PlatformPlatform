@@ -10,6 +10,7 @@ fi
 
 if [[ "$*" == *"--plan"* ]]
 then
+    echo "Test"
     echo "$(date +"%Y-%m-%dT%H:%M:%S") Preparing plan..."
     echo -e "$CYAN$DEPLOYMENT_COMMAND -w $DEPLOYMENT_PARAMETERS$RESET"
     $DEPLOYMENT_COMMAND -w $DEPLOYMENT_PARAMETERS
