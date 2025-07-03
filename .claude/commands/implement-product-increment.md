@@ -4,63 +4,89 @@ description: Coordinates full implementation of a product increment via delegate
 
 ## Inputs
 
-- `$ARGUMENTS` must contain two space-separated markdown file paths or identifiers:
-  1. The PRD markdown
-  2. The Product Increment markdown
+- `$ARGUMENTS[0]`: Path to the Product Requirements Document (PRD) markdown file
 
-Example usage:
-
-```
-/project:implement-product-increment prd.md increment.md
-```
----
+## Context
+- **PRD**: Product Requirements Document containing multiple product increments to implement
+- **Product Increment**: A discrete, deliverable piece of functionality (e.g., "backend for user management")
+- **Product Increment Plan**: Detailed implementation plan file for each increment (located in same directory as PRD)
+- **CLI Tool**: The project uses `pp` (PlatformPlatform CLI) for all build/test/format operations
 
 ## Workflow
-Your job is to coordinate the implementation of a product increment. You have a very senior development team, and you're the architect and tech lead.  
-You must **not** make any code changes yourself. Stay at a high level and ensure the PRD is implemented as discussed.
+Your role: Architect and tech lead coordinating a senior development team.  
+**Important**: You must **not** make any code changes yourself. Only coordinate and review.
 
-Go through each product increment task by task using this workflow:
+### Phase 1: Discovery
+1. **Find all product increments in the PRD** by reading `$ARGUMENTS[0]`.
+2. **For each product increment found**, locate the corresponding product increment plan file in the same directory as `$ARGUMENTS[0]`.
 
-1. **Delegate development of the task** to a senior developer subagent.
-   * Ask the subagent to read `$ARGUMENTS[0]` (PRD) and `$ARGUMENTS[1]` (increment) and prepare a plan for the specific task.
-   * Be very clear: they must only implement what's in the task, and not do the entire product increment in one go.
-   * Ask the subagent to get an overview of all the rules in `.windsurf/rules` and ask them to read all the relevant rules related to the task. They must always read `.windsurf/rules/main.md`.
-   * Ask the developer to read `.windsurf/rules/tools.md` and use the tools while developing:
-     - Run `[CLI_ALIAS] build --backend` or `[CLI_ALIAS] build --frontend` (or `[CLI_ALIAS] build` if both are changed) constantly while developing.
-     - Run `[CLI_ALIAS] format --backend` or `[CLI_ALIAS] format --frontend` (or `[CLI_ALIAS] format` if both are changed) to clean up code.
-     - Run `[CLI_ALIAS] test` to run backend tests and `[CLI_ALIAS] e2e --quiet` to run frontend tests.
-   * When feature complete and all tests are passing, run `[CLI_ALIAS] check --backend` (very slow) and `[CLI_ALIAS] check --frontend` to ensure code quality. Fix any issues that are found (re-run the checks).
-   * If the developer finds that something in the task needs to be done differently, they should update the current task in `$ARGUMENTS[1]` and prefix with `UPDATED:`, `DELETED:`, `ADDED:`, or `MOVED TO TASK #: `. If they find that something belongs to a different product increment, they should find that product increment in the same folder and update it if it exists. Also, the `$ARGUMENTS[0]` should be updated to reflect the findings.
+### Phase 2: Implementation
+For each product increment, execute these steps:
 
-2. **Stage all changes done by the developer subagent in Git** yourself
+1. **Create a branch**:
+   * Name format: `<increment-name>` (e.g., `backend-for-user-management`)
+   * First increment: branch from `main`
+   * Subsequent increments: branch from the previous increment's last commit (sequential stacking)
 
-3. **Delegate review of the task to another senior developer subagent**
-   * Ask the reviewer to read `$ARGUMENTS[0]` (PRD) and `$ARGUMENTS[1]` (increment) and prepare a review for the specific task.
-   * This reviewer must:
+2. **Delegate development to a subagent**:
+   * Provide the subagent with:
+     - PRD path (`$ARGUMENTS[0]`)
+     - Path to current product increment plan file
+     - Clear scope: implement only the current task, not the entire increment
+   * Instruct them to:
+     - Read `.windsurf/rules/main.md` (mandatory) and relevant rule files
+     - Research existing codebase to understand patterns and conventions
+     - Implement the task
+     - Use `pp` commands during development:
+       - `pp build --backend` or `pp build --frontend` (depending on what changed) or `pp build` (both)
+       - `pp test` (backend) or `pp e2e --quiet` (frontend)
+     - Write new tests for backend features ensuring edge case coverage
+   * After feature is complete run these slow commands:
+     - `pp format --backend` or `pp format --frontend` or `pp format` (both)
+     - `pp check --backend` or `pp check --frontend` or `pp check` (both)
+   * If changes to plans are needed, update files with prefixes:
+     - `UPDATED:` - Modified requirement
+     - `DELETED:` - Removed requirement
+     - `ADDED:` - New requirement discovered
+     - `MOVED TO TASK #:` - Requirement belongs elsewhere
+
+3. **Stage all changes** in Git before review.
+
+4. **Delegate code review to another subagent**:
+   * Provide reviewer with:
+     - PRD path (`$ARGUMENTS[0]`)
+     - Path to current product increment plan file
+   * Reviewer must:
      - Review uncommitted changes file by file
-     - For each file they should find relevant rules in `.windsurf/rules` and make sure the code aligns with the rules.
-     - For each file they should also find relevant patterns in the codebase and make sure the code aligns with existing patterns.
-     - Return with a detailed list of changes that need to be made, or approval if no changes are needed.
-   * Be very clear that the reviewer MUST NOT make any changes to the codebase.
-   * If and only if the reviewer approves the implementation, ask them to follow this workflow `.windsurf/workflows/commit-changes.md` and commit the changes. It's important that they do not add any description or co-authors to the commit.
+     - Verify alignment with `.windsurf/rules` 
+     - Check consistency with existing codebase patterns
+     - Return detailed feedback or approval
+     - **NOT make any code changes**
+   * If approved: Ask reviewer to commit using `.windsurf/workflows/commit-changes.md`
 
-4. **Review checkpoint**  
-   * If the changes were NOT approved:
-     - Start the process from step 1, but adjust the instructions to address the findings from the review, and provide the findings to the senior developer subagent.
-     - Continue the process until the reviewer approves the implementation.
-   * If the changes were approved, you must triple check that all tests are passing and code is committed:   
-     - Run `[CLI_ALIAS] check` and `[CLI_ALIAS] e2e --quiet`.
-     - Confirm that **all application code changes are committed**.
-     - IMPORTANT: If any checks fail, start the process from step 1 again. Do NOT proceed to the next task until all checks are passing.
+5. **Handle review outcome**:
+   * **If rejected**: Return to step 2 with review feedback
+   * **If approved**: Verify all checks pass:
+     - Run `pp check` and appropriate tests
+     - Confirm all code changes are committed
+     - If checks fail: Return to step 2
 
-5. **Update PRD and product increment plans**
-   * Mark the task as completed in `$ARGUMENTS[1]` using `[x]` (product increment plan)
-   * Commit the changes to `$ARGUMENTS[1]` and potentially `$ARGUMENTS[0]` (PRD)
-     - These files are in the `/task-manager` directory (a nested git repository, but it's not a submodule)
-     - Commit changes inside the submodule using a one line commit message in imperative form
+6. **Update tracking documents**:
+   * Mark task as complete `[x]` in product increment plan
+   * Note: PRD and increment plans are in `/task-manager` directory (separate git repository)
+   * Commit updates with single-line imperative message
 
-Rinse and repeat these steps until all tasks in `$ARGUMENTS[1]` are completed.
+7. **Repeat for all tasks** in current product increment.
 
-Once a increments are complete, assign a subagent to follow `.windsurf/workflows/prepare-pull-request.md` to prepare the pull request title and description.
+### Phase 3: Product Increment Completion
+After completing all tasks in an increment:
+1. **Evaluate plan adherence**:
+   * If implementation closely followed the plan → Continue to next increment
+   * If significant deviations occurred → **STOP and consult user**
+2. **Proceed to next increment** (repeat Phase 2)
 
-When the full product increment is complete, return to me for final verification.
+### Phase 4: Final Summary
+When all increments are complete:
+1. **List all completed increments** and their branches
+2. **Confirm PRD requirements are fully implemented**
+3. **Report completion status to user**
