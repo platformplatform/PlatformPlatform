@@ -18,6 +18,10 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<UsersResponse>();
 
+        group.MapGet("/{id}", async Task<ApiResult<UserDetails>> (UserId id, IMediator mediator)
+            => await mediator.Send(new GetUserByIdQuery(id))
+        ).Produces<UserDetails>();
+
         group.MapGet("/summary", async Task<ApiResult<UserSummaryResponse>> (IMediator mediator)
             => await mediator.Send(new GetUserSummaryQuery())
         ).Produces<UserSummaryResponse>();
