@@ -26,6 +26,7 @@ interface UserTableProps {
   onViewProfile: (user: UserDetails | null) => void;
   onDeleteUser: (user: UserDetails) => void;
   onChangeRole: (user: UserDetails) => void;
+  onUsersLoaded?: (users: UserDetails[]) => void;
 }
 
 export function UserTable({
@@ -33,7 +34,8 @@ export function UserTable({
   onSelectedUsersChange,
   onViewProfile,
   onDeleteUser,
-  onChangeRole
+  onChangeRole,
+  onUsersLoaded
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
@@ -93,6 +95,12 @@ export function UserTable({
   useEffect(() => {
     onSelectedUsersChange([]);
   }, [onSelectedUsersChange]);
+
+  useEffect(() => {
+    if (users?.users) {
+      onUsersLoaded?.(users.users);
+    }
+  }, [users?.users, onUsersLoaded]);
 
   const handleSelectionChange = useCallback(
     (keys: Selection) => {

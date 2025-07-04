@@ -406,6 +406,9 @@ msgstr "User actions"
 msgid "User invited successfully"
 msgstr "User invited successfully"
 
+msgid "User not in current view"
+msgstr "User not in current view"
+
 msgid "User profile"
 msgstr "User profile"
 

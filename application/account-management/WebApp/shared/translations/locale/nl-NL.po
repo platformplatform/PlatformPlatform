@@ -406,6 +406,9 @@ msgstr "Gebruikersacties"
 msgid "User invited successfully"
 msgstr "Gebruiker succesvol uitgenodigd"
 
+msgid "User not in current view"
+msgstr "Gebruiker niet in huidige weergave"
+
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
