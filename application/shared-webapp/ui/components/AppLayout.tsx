@@ -53,7 +53,7 @@ export function AppLayout({
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border/50 sm:border-b ${
+        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
           isMobileMenuOpen ? "hidden" : ""
         }`}
       >
@@ -79,7 +79,9 @@ export function AppLayout({
 
       {/* Side pane area - responsive behavior */}
       {sidePane && (
-        <div className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:h-[calc(100vh-72px)] md:w-96">{sidePane}</div>
+        <div className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:h-[calc(100vh-72px)] md:w-96">
+          {sidePane}
+        </div>
       )}
     </div>
   );

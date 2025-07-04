@@ -223,7 +223,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
       </div>
 
       {/* Divider */}
-      <div className="mx-3 my-5 border-border/50 border-b" />
+      <div className="mx-3 my-5 border-border border-b" />
 
       {/* Navigation Section for Mobile */}
       <div className="flex flex-col gap-3">
