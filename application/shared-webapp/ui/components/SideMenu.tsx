@@ -546,11 +546,11 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
                 )}
               </div>
 
-              {/* Toggle button centered on divider, midway between logo and first menu item */}
+              {/* Toggle button centered on divider, at intersection with topbar border */}
               <div
-                className={`absolute top-[62px] ${
-                  isXlScreen ? "-right-1 translate-x-1/2" : "right-0 translate-x-1/2"
-                } ${!overlayMode && !forceCollapsed ? "cursor-col-resize" : ""}`}
+                className={`-translate-y-1/2 absolute top-[72px] right-0 translate-x-1/2 ${
+                  !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
+                }`}
               >
                 {isXlScreen ? (
                   // Draggable button that acts as resize handle
