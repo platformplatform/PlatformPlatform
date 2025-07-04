@@ -16,10 +16,14 @@ Follow these steps which describe in detail how you must implement the tasks in 
 
   Before implementing each task, review the relevant rules thoroughly:
 
-  - For **backend tasks**:
-    - Review all the [Backend](/.windsurf/rules/backend) rule files.
-  - For **frontend tasks**:
-    - Review all the [Frontend](/.windsurf/rules/frontend) rule files.
+- For **backend tasks**:
+  - Review all the [Backend](/.windsurf/rules/backend) rule files.
+- For **frontend tasks**:
+  - Review all the [Frontend](/.windsurf/rules/frontend) rule files.
+- For **end-to-end tests**:
+  - Review the [E2E Testing Workflow](/.windsurf/workflows/create-e2e-tests.md) and all the [End-to-End Tests](/.windsurf/rules/end-to-end-tests) rule files.
+- For **Developer CLI commands**:
+  - Review all the [Developer CLI](/.windsurf/rules/developer-cli) rule files.
 
 These rules define the conventions and must be strictly adhered to during implementation.
 

@@ -29,71 +29,81 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
    - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
 
-3. Organize tests in a consistent file structure:
-   - For smoke tests: One `smoke.spec.ts` file per self-contained system that tests the entire system comprehensively.
-   - For comprehensive tests: Separate files by feature area (e.g., `user-management.spec.ts`, `authentication.spec.ts`, `tenant-settings.spec.ts`).
-   - Group tests using nested `test.describe` blocks with these 3 tags:
-     ```typescript
-     test.describe("Feature Name", () => {
-       test.describe("@smoke", () => {});
-       
-       test.describe("@comprehensive", () => {});
-       
-       test.describe("@slow", () => {
-         test.describe.configure({ timeout: 360000 });
-       });
-     });
-     ```
-  - `@smoke` tests:
-    - Critical tests run on deployment of any self-contained system.
-    - Should be comprehensive, long-running scenarios that test entire user journeys.
-    - Each smoke test should cover multiple features in a single flow (e.g., signup → invite user → change role → login → logout → update tenant).
-    - Focus on must-work functionality with extensive validation steps.
-    - Include boundary cases and error handling within the same test scenario.
-    - Aim for fewer, more elaborate tests rather than many isolated tests.
+4. Organize tests in a consistent file structure:
+   - All e2e test files must be located in `[self-contained-system]/WebApp/tests/e2e/` folder (e.g., `application/account-management/WebApp/tests/e2e/`).
+   - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`).
+   - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`.
+   - `@smoke` tests:
+     - Critical tests run on deployment of any self-contained system.
+     - Should be comprehensive scenarios that test core user journeys.
+     - Keep tests focused on specific flows to reduce fragility while maintaining coverage.
+     - Focus on must-work functionality with extensive validation steps.
+     - Include boundary cases and error handling within the same test scenario.
+     - Avoid testing the same functionality multiple times across different tests.
 
-  - `@comprehensive` tests:
-    - Thorough tests run when a specific self-contained system is deployed.
-    - Focus on edge cases, error conditions, and less common scenarios.
-    - Test specific features in depth with various input combinations.
-    - Include tests for concurrency, validation rules, accessibility, localization, etc.
-    - Group related edge cases together to reduce test count while maintaining coverage.
+   - `@comprehensive` tests:
+     - Thorough tests run when a specific self-contained system is deployed.
+     - Focus on edge cases, error conditions, and less common scenarios.
+     - Test specific features in depth with various input combinations.
+     - Include tests for concurrency, validation rules, accessibility, etc.
+     - Group related edge cases together to reduce test count while maintaining coverage.
 
-  - `@slow` tests:
-    - Optional and run only ad-hoc using `--include-slow` flag.
-    - Any tests that require waiting like `waitForTimeout` (e.g., for OTP timeouts) must be marked as `@slow`.
-    - Include tests for rate limiting with actual wait times, session timeouts, etc.
+   - `@slow` tests:
+     - Optional and run only ad-hoc using `--include-slow` flag.
+     - Any tests that require waiting like `waitForTimeout` (e.g., for OTP timeouts) must be marked as `@slow`.
+     - Include tests for rate limiting with actual wait times, session timeouts, etc.
+     - Use `test.setTimeout()` at the individual test level based on actual wait times needed.
 
-4. Structure each test with clear *steps*, assertions, and proper monitoring:
-   - All tests must start with `const context = createTestContext(page);` and end with `assertNoUnexpectedErrors(context);`
-   - Create multiple *steps* that all include arrange, act, and assert steps.
-   - Use clear, concise *step* comments explaining what (arrange and act) *and* expected result (assert).
-   - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`
-   - Assert side effects immediately after an action using `assertToastMessage`, `assertValidationError`, `assertNetworkErrors`.
-   - Avoid verbose explanatory comments *within* a step; if needed, add comments inline after statement.
+5. Write clear test descriptions and documentation:
+   - Test descriptions must accurately reflect what the test covers and be kept in sync with test implementation.
+   - Use descriptive test names that clearly indicate the functionality being tested (e.g., "should handle single and bulk user deletion workflows with dashboard integration").
+   - Include JSDoc comments above complex tests listing all major features/scenarios covered.
+   - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes.
 
-5. Write deterministic tests - This is critical for reliable testing:
+6. Structure each test with step decorators and proper monitoring:
+   - All tests must start with `const context = createTestContext(page);` for proper error monitoring.
+   - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
+   - Step naming conventions:
+     - Always follow "[Business action + details] & [expected outcome]" pattern.
+     - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit".
+     - Never use test/assertion prefixes like "Test", "Verify", "Check", "Validate", "Ensure"; use descriptive business actions instead.
+     - Every step must include an action (arrange/act) followed by assertions, not pure assertion steps.
+   - Step structure:
+     - Use blank lines to separate arrange/act/assert sections within steps.
+     - Keep shared variable declarations outside steps when used across multiple steps.
+     - Use section headers with `// === SECTION NAME ===` to group related steps.
+     - Add JSDoc comments for complex test workflows.
+   - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`.
+   - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`.
+   - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation.
+
+7. Timeout Configuration:
+   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
+   - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
+   - Global timeout configuration is handled in the shared Playwright. Don't change this.
+
+8. Write deterministic tests - This is critical for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions.
    - Never use if statements, custom error handling, or try/catch blocks in tests.
    - Never use regular expressions in tests; use simple string matching instead.
 
-6. What to test:
-- Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
+9. What to test:
+   - Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
-8. Test Fixtures and Page Management:
+10. Test Fixtures and Page Management:
    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests.
    - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
    - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests.
    - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests.
 
-9. Test Data and Constants:
+11. Test Data and Constants:
    - Use underscore separators: `const timeout = 30_000; // 30 seconds`
    - Generate unique data: `const email = uniqueEmail();`
    - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
    - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
 
-10. Memory Management in E2E Tests:
+12. Memory Management in E2E Tests:
     - Playwright automatically handles browser context cleanup after tests
     - Manual cleanup steps are unnecessary - focus on test clarity over micro-optimizations
     - E2E test suites have minimal memory leak concerns due to their limited scope and duration
@@ -150,33 +160,61 @@ await step("Ensure user is deleted")(async () => { // "Ensure" is assertion pref
 ### ✅ Complete Test Example
 ```typescript
 import { step } from "@shared/e2e/utils/step-decorator";
-import { assertValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
+import { expectValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { testUser } from "@shared/e2e/utils/test-data";
 
 test.describe("@smoke", () => {
-    test("should complete full signup flow from homepage to admin dashboard", async ({ page }) => {
-    const context = createTestContext(page); // ✅ DO: Always start with this
+  test("should complete signup with validation", async ({ page }) => {
+    const context = createTestContext(page);
+    const user = testUser();
 
-    // Step 1: Navigate from homepage to signup page and verify
-    await page.goto("/");
-    await page.getByRole("button", { name: "Signup" }).first().click();
-    await expect(page).toHaveURL("/signup"); // ✅ DO: Wait for navigation before proceeding
+    await step("Submit invalid email & verify validation error")(async () => {
+      await page.goto("/signup");
+      await page.getByLabel("Email").fill("invalid-email");
+      await blurActiveElement(page); // ✅ DO: Trigger validation when updating textbox second time
 
-    // Step 2: Enter credentials and verify validation
-    await page.getByLabel("Email").fill("test@example.com");
-    await page.keyboard.press("Tab"); // Move to region selector // ✅ DO: Add comments inline when something is unclear
-    await page.getByRole("button", { name: "Continue" }).click();
-    await assertToastMessage(context, "Success", "Check your email."); // ✅ DO: Wait for side effects before proceeding
+      await expectValidationError(context, "Invalid email.");
+    })();
 
-    // Step 3: Enter verification code and verify successful login
-    await page.keyboard.type(getVerificationCode());
-    await page.getByRole("button", { name: "Verify" }).click();
-    await expect(page).toHaveURL("/admin"); // ✅ DO: Wait for navigation before final assertions
-    await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible(); // ✅ DO: Wait for content before final assertions
+    await step("Sign up with valid email & verify verification redirect")(async () => {
+      await page.getByLabel("Email").fill(user.email);
+      await page.getByRole("button", { name: "Continue" }).click();
 
-    // Step 4: Assert no unexpected errors occurred // ✅ DO: Always use this exact comment
-    assertNoUnexpectedErrors(context);
-    });
+      await expect(page).toHaveURL("/verify");
+    })();
+  });
+});
+
+test.describe("@comprehensive", () => {
+  test("should handle user management with pre-logged owner", async ({ ownerPage }) => {
+    createTestContext(ownerPage); // ✅ DO: Create context for pre-logged users
+
+    await step("Access user management & verify owner permissions")(async () => {
+      await ownerPage.getByRole("button", { name: "Users" }).click();
+
+      await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
+    })();
+  });
+});
+
+test.describe("@slow", () => {
+  const requestNewCodeTimeout = 30_000; // 30 seconds
+  const codeValidationTimeout = 60_000; // 5 minutes
+  const sessionTimeout = codeValidationTimeout + 60_000; // 6 minutes
+
+  test("should handle user logout after to many login attempts", async ({ page }) => { // ✅ DO: use new page, when testing e.g. account lockout
+    test.setTimeout(sessionTimeout); // ✅ DO: Set timeout based on actual wait times
+    const context = createTestContext(page);
+
+    // ...
+
+    await step("Wait for code expiration & verify timeout behavior")(async () => {
+      await page.goto("/login/verify");
+      await page.waitForTimeout(codeValidationTimeout); // ✅ DO: Use actual waits in @slow tests
+
+      await expect(page.getByText("Your verification code has expired")).toBeVisible();
+    })();
+  });
 });
 ```
 
@@ -184,11 +222,25 @@ test.describe("@smoke", () => {
 test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @smoke, @comprehensive, @slow only
   test("should handle login", async ({ page }) => {
     // ❌ DON'T: Skip createTestContext(page); step
+    page.setDefaultTimeout(5000); // ❌ DON'T: Set timeouts manually - use global config
+    
+    // ❌ DON'T: Use test/assertion prefixes in step descriptions
+    await step("Test login functionality")(async () => { // ❌ Should be "Submit login form & verify authentication"
+    await step("Verify button is visible")(async () => { // ❌ Should be "Navigate to page & verify button is visible"
+    await step("Check user permissions")(async () => { // ❌ Should be "Click user menu & verify permissions"
+      if (page.url().includes("/login/verify")) { // ❌ DON'T: Add conditional logic - tests should be linear
+        await page.waitForTimeout(2000); // ❌ DON'T: Add manual timeouts
+        // Continue with verification... // ❌ DON'T: Write verbose explanatory comments
+      }
+      
+      await page.click("#submit-btn"); // ❌ DON'T: Use CSS selectors - use semantic selectors
+      
+      // ❌ DON'T: Skip assertions for side effects
+    })();
 
-    // Navigate to login page  // ❌ DON'T: Don't add step comments without "Step #" prefix and expected result   
-    if (currentUrl.includes("/login/verify")) { // ❌ DON'T: Add conditional logic in tests
-      // Continue with verification... // ❌ DON'T: Don't write verbose explanatory comments
-    }
+    // ❌ DON'T: Use regular expressions - use simple string matching instead
+    await expect(page.getByText(/welcome.*home/i)).toBeVisible(); // ❌ Should be: page.getByText("Welcome home")
+    await expect(page.locator('input[name*="email"]')).toBeFocused(); // ❌ Should be: page.getByLabel("Email")
   });
 
   // ❌ DON'T: Place assertions outside test functions
@@ -204,6 +256,8 @@ test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @sm
   }
 });
 
-// Step 4: Verify no unexpected errors occurred // ❌ DON'T: Change the default closing comment
-assertNoUnexpectedErrors(context);
+// ❌ DON'T: Create tests without proper organization
+test("isolated test without describe block", async ({ page }) => {
+  // ❌ DON'T: Violates organization rules
+});
 ```

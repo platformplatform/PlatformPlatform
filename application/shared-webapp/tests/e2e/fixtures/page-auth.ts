@@ -1,8 +1,10 @@
 import { type Browser, type BrowserContext, type Page, test as base, expect } from "@playwright/test";
-import { createAuthStateManager } from "../auth/auth-state-manager";
-import type { Tenant, User, UserRole } from "../types/auth";
-import { completeSignupFlow } from "../utils/test-data";
-import { getSelfContainedSystemPrefix, getWorkerTenant } from "./worker-auth";
+import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
+import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
+import type { Tenant, User, UserRole } from "@shared/e2e/types/auth";
+import { completeSignupFlow } from "@shared/e2e/utils/test-data";
+import { createTestContext, assertNoUnexpectedErrors, type TestContext } from "@shared/e2e/utils/test-assertions";
+
 
 // Extend the global interface to include testTenant
 declare global {
@@ -29,13 +31,19 @@ export interface PageAuthFixtures {
    * Authenticated page instance as tenant member
    */
   memberPage: Page;
+
+  /**
+   * Anonymous (unauthenticated) page with tenant provisioned
+   * Useful for testing login/signup flows from a clean state while ensuring users exist
+   */
+  anonymousPage: { page: Page; tenant: Tenant };
 }
 
 /**
  * Perform fresh authentication by going through signup/login flow
  */
 async function performFreshAuthentication(
-  context: BrowserContext,
+  browserContext: BrowserContext,
   role: UserRole,
   tenant: Tenant | undefined,
   authManager: ReturnType<typeof createAuthStateManager>
@@ -45,13 +53,14 @@ async function performFreshAuthentication(
   }
 
   // Create a new page for authentication
-  const page = await context.newPage();
+  const page = await browserContext.newPage();
 
   // Get the user for this role
   const user = getUserForRole(tenant, role);
 
   // Use the centralized signup flow utility
-  await completeSignupFlow(page, expect, user);
+  const testContext = createTestContext(page);
+  await completeSignupFlow(page, expect, user, testContext);
 
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {
@@ -195,5 +204,37 @@ export const test = base.extend<PageAuthFixtures>({
 
     // Cleanup - close the context and page
     await context.close();
+  },
+
+  anonymousPage: async ({ browser }, use, testInfo) => {
+    const workerIndex = testInfo.parallelIndex;
+    const systemPrefix = getSelfContainedSystemPrefix();
+
+    // Get tenant for this worker - ensure users exist for testing existing user flows
+    const tenant = await getWorkerTenant(workerIndex, systemPrefix, {
+      workerIndex,
+      selfContainedSystemPrefix: systemPrefix,
+      ensureUsersExist: true
+    });
+
+    // Create a fresh, unauthenticated context and page
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    await use({ page, tenant });
+
+    // Cleanup - close the context and page
+    await context.close();
+  }
+});
+
+// Global afterEach hook to automatically run error checking for ALL tests
+base.afterEach(({ page }) => {
+  if (page) {
+    // Retrieve the existing context that was created during the test
+    const existingContext = (page as Page & { __testContext?: TestContext }).__testContext;
+    if (existingContext) {
+      assertNoUnexpectedErrors(existingContext);
+    }
   }
 });

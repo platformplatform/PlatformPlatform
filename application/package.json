@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@faker-js/faker": "8.4.1",
     "@lingui/cli": "5.1.0",
     "@lingui/format-po": "5.1.0",
     "@lingui/swc-plugin": "5.0.1",

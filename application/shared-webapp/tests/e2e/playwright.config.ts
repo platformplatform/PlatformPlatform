@@ -29,7 +29,7 @@ export default defineConfig({
   workers: workers,
 
   // Reporter to use. See https://playwright.dev/docs/test-reporters
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never", outputFolder: "test-results/playwright-report" }]],
 
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
@@ -65,21 +65,21 @@ export default defineConfig({
     timeout: 10000
   },
 
-  // Output directories
-  outputDir: "test-results/",
+  // Output directories - centralized test artifacts
+  outputDir: "test-results/test-artifacts/",
 
   // Configure projects for major browsers
   projects: [
-    // Smoke tests run first (all browsers)
+    // Smoke tests run first (all browsers) - matches @smoke tag in any file
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
     {
       name: "webkit",
@@ -89,23 +89,29 @@ export default defineConfig({
         // biome-ignore lint/style/useNamingConvention: <explanation>
         ignoreHTTPSErrors: isWindows
       },
-      testMatch: '**/smoke.spec.ts'
+      grep: /@smoke/
     },
 
-    // All other tests (excluding smoke)
+    // Comprehensive tests run second (all browsers) - matches @comprehensive tag in any file
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: '**/smoke.spec.ts'
+      grepInvert: /@smoke/
     },
     {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
-      testIgnore: '**/smoke.spec.ts'
+      grepInvert: /@smoke/
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] }
-    }
+      use: {
+        ...devices["Desktop Safari"],
+        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
+        // biome-ignore lint/style/useNamingConvention: <explanation>
+        ignoreHTTPSErrors: isWindows
+      },
+      grepInvert: /@smoke/
+    },
   ]
 });

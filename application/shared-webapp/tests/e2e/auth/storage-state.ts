@@ -1,7 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { BrowserContext, Page } from "@playwright/test";
-import type { StorageStateInfo } from "../types/auth";
 
 /**
  * Save authentication state from a page's context to a file
@@ -31,7 +30,7 @@ export async function loadAuthenticationState(_context: BrowserContext, filePath
  * Get the storage state file path for a specific worker, role, and system
  */
 export function getStorageStatePath(workerIndex: number, userRole: string, selfContainedSystemPrefix?: string): string {
-  const baseDir = path.join(process.cwd(), ".auth");
+  const baseDir = path.join(process.cwd(), "tests/test-results/auth-state");
   const systemPrefix = selfContainedSystemPrefix ?? "default";
   return path.join(baseDir, systemPrefix, `worker-${workerIndex}-${userRole.toLowerCase()}.json`);
 }
@@ -57,11 +56,7 @@ export async function isAuthenticationStateValid(filePath: string): Promise<bool
   }
 }
 
-
-
-
 // Helper functions
-
 async function ensureDirectoryExists(dirPath: string): Promise<void> {
   try {
     await fs.mkdir(dirPath, { recursive: true });

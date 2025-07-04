@@ -3,7 +3,7 @@
   "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**", "End2EndTests/playwright-report/**"],
+      "outputs": ["dist/**", "tests/test-results/**"],
       "dependsOn": ["^build"]
     },
     "check": {
