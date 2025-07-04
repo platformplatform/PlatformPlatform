@@ -130,13 +130,13 @@ export function useSideMenuLayout(): {
     // Medium screens (overlay mode): always use collapsed width
     if (isSmallScreen && !isLargeScreen) {
       return {
-        marginLeft: SIDE_MENU_COLLAPSED_WIDTH
+        marginLeft: `${SIDE_MENU_COLLAPSED_WIDTH}px`
       };
     }
 
     // Large screens: adjust based on menu state
     return {
-      marginLeft: isCollapsed ? SIDE_MENU_COLLAPSED_WIDTH : `${customMenuWidth + 8}px`
+      marginLeft: isCollapsed ? `${SIDE_MENU_COLLAPSED_WIDTH}px` : `${customMenuWidth}px`
     };
   }, [isSmallScreen, isLargeScreen, isCollapsed, customMenuWidth]);
 

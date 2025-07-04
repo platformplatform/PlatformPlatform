@@ -19,11 +19,8 @@ export const MEDIA_QUERIES = {
   "2xl": "(min-width: 1536px)"
 } as const;
 
-// Side menu width constants (including 8px right margin)
-export const SIDE_MENU_COLLAPSED_WIDTH = "80px"; // 72px + 8px margin
-export const SIDE_MENU_EXPANDED_WIDTH = "296px"; // 288px + 8px margin
-
-// Resizable menu constraints
+// Side menu width constants
+export const SIDE_MENU_COLLAPSED_WIDTH = 72;
 export const SIDE_MENU_MIN_WIDTH = 150;
 export const SIDE_MENU_MAX_WIDTH = 300;
 export const SIDE_MENU_DEFAULT_WIDTH = 288;
