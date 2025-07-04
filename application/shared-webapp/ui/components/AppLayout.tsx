@@ -102,12 +102,13 @@ export function AppLayout({
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm border-b border-border/50 ${
+        className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm left-0 right-0 sm:border-b sm:border-border/50 ${
           isMobileMenuOpen ? "hidden" : ""
-        } left-0 right-0`}
-        style={{ marginLeft: style.marginLeft }}
+        }`}
       >
-        {topMenu}
+        <div style={{ marginLeft: style.marginLeft }}>
+          {topMenu}
+        </div>
       </div>
 
       {/* Main content area */}
