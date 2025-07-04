@@ -120,7 +120,6 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
   params: {
     diagnosticStorageAccountName: diagnosticStorageAccountName
     microsoftSqlServerName: resourceGroupName
-    principalId: microsoftSqlServer.outputs.principalId
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
     dianosticStorageAccountSubscriptionId: subscription().subscriptionId
   }
