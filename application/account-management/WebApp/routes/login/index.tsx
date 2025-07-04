@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -9,14 +9,14 @@ import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { setLoginState } from "./-shared/loginState";
+import { getSignupState } from "../signup/-shared/signupState";
+import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -47,7 +47,9 @@ export const Route = createFileRoute("/login/")({
 });
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
+  const { email: savedEmail } = getLoginState();
+  const { email: signupEmail } = getSignupState(); // Prefill from signup page if user navigated here
+  const [email, setEmail] = useState(savedEmail || signupEmail || "");
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
@@ -55,6 +57,7 @@ export function LoginForm() {
   if (startLoginMutation.isSuccess) {
     const { loginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
 
+    clearLoginState();
     setLoginState({
       loginId,
       emailConfirmationId,
@@ -93,16 +96,20 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <FormErrorMessage error={startLoginMutation.error} />
       <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>
-      <div className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground text-sm">
         <Trans>
           Don't have an account? <Link href={signUpPath}>Create one</Link>
         </Trans>
+      </p>
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-muted-foreground text-xs">
+          <Trans>Powered by</Trans>
+        </span>
+        <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
       </div>
-      <img src={poweredByUrl} alt={t`Powered by`} />
     </Form>
   );
 }

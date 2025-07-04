@@ -4,13 +4,13 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useMutation } from "@tanstack/react-query";
-import { CameraIcon, Trash2Icon, XIcon } from "lucide-react";
+import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
 
@@ -91,10 +91,20 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
       if (updatedUser) {
         updateUserInfo(updatedUser);
       }
-
-      closeDialog();
     }
   });
+
+  useEffect(() => {
+    if (saveMutation.isSuccess) {
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Profile updated successfully`,
+        variant: "success",
+        duration: 3000
+      });
+      closeDialog();
+    }
+  }, [saveMutation.isSuccess, closeDialog]);
 
   // Handle file selection
   const onFileSelect = (files: FileList | null) => {
@@ -212,7 +222,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             name="firstName"
             label={t`First name`}
             defaultValue={user?.firstName}
-            placeholder={t`E.g., Alex`}
+            placeholder={t`E.g. Alex`}
             className="sm:w-64"
           />
           <TextField
@@ -220,17 +230,25 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
             name="lastName"
             label={t`Last name`}
             defaultValue={user?.lastName}
-            placeholder={t`E.g., Taylor`}
+            placeholder={t`E.g. Taylor`}
             className="sm:w-64"
           />
         </div>
-        <TextField name="email" label={t`Email`} value={user?.email} />
-        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g., Software engineer`} />
-
-        <FormErrorMessage error={saveMutation.error} />
+        <TextField
+          label={t`Email`}
+          value={user?.email}
+          isDisabled={true}
+          startIcon={<MailIcon className="h-4 w-4" />}
+        />
+        <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g. Software engineer`} />
 
         <div className="mt-6 flex justify-end gap-4">
-          <Button type="reset" onPress={closeDialog} variant="secondary">
+          <Button
+            type="reset"
+            onPress={closeDialog}
+            variant="secondary"
+            isDisabled={isLoading || saveMutation.isPending}
+          >
             <Trans>Cancel</Trans>
           </Button>
           <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>

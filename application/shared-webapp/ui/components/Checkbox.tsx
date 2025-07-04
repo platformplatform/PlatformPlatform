@@ -52,7 +52,7 @@ const boxStyles = tv({
   base: "flex h-full w-full flex-shrink-0 items-center justify-center rounded border transition",
   variants: {
     isSelected: {
-      false: "border-[--color] bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      false: "border-[--color] bg-input-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
       true: "border-[--color] bg-[--color] text-primary-foreground [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {

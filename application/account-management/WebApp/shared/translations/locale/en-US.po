@@ -13,14 +13,23 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "A new verification code has been sent to your email."
+msgstr "A new verification code has been sent to your email."
+
 msgid "Account"
 msgstr "Account"
+
+msgid "Account information"
+msgstr "Account information"
 
 msgid "Account name"
 msgstr "Account name"
 
 msgid "Account settings"
 msgstr "Account settings"
+
+msgid "Account updated successfully"
+msgstr "Account updated successfully"
 
 msgid "Actions"
 msgstr "Actions"
@@ -50,6 +59,9 @@ msgstr "All users"
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
+msgid "An invitation email will be sent to the user with a link to log in."
+msgstr "An invitation email will be sent to the user with a link to log in."
+
 msgid "Any role"
 msgstr "Any role"
 
@@ -60,18 +72,26 @@ msgstr "Any status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Are you sure you want to delete <0>{0}?</0>"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
+
+msgid "Back to login"
+msgstr "Back to login"
+
+msgid "Back to signup"
+msgstr "Back to signup"
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
 
-msgid "Can't find your code? Check your spam folder."
-msgstr "Can't find your code? Check your spam folder."
+msgid "Can't find your code?"
+msgstr "Can't find your code?"
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Change language"
+msgstr "Change language"
 
 msgid "Change profile picture"
 msgstr "Change profile picture"
@@ -81,6 +101,15 @@ msgstr "Change role"
 
 msgid "Change user role"
 msgstr "Change user role"
+
+msgid "Check your spam folder."
+msgstr "Check your spam folder."
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Clear filters"
+msgstr "Clear filters"
 
 msgid "Continue"
 msgstr "Continue"
@@ -93,6 +122,9 @@ msgstr "Created"
 
 msgid "Danger zone"
 msgstr "Danger zone"
+
+msgid "Dark"
+msgstr "Dark"
 
 msgid "Delete"
 msgstr "Delete"
@@ -110,11 +142,8 @@ msgstr "Delete user"
 msgid "Delete users"
 msgstr "Delete users"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-
-msgid "Didn't receive the code? Resend"
-msgstr "Didn't receive the code? Resend"
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
@@ -122,14 +151,17 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., Alex"
-msgstr "E.g., Alex"
+msgid "E.g. Alex"
+msgstr "E.g. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "E.g., Software engineer"
+msgid "E.g. Software engineer"
+msgstr "E.g. Software engineer"
 
-msgid "E.g., Taylor"
-msgstr "E.g., Taylor"
+msgid "E.g. Taylor"
+msgstr "E.g. Taylor"
+
+msgid "Edit"
+msgstr "Edit"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -146,14 +178,14 @@ msgstr "Enter your verification code"
 msgid "Error: Something went wrong!"
 msgstr "Error: Something went wrong!"
 
-msgid "Error: Verification code has expired"
-msgstr "Error: Verification code has expired"
-
 msgid "Europe"
 msgstr "Europe"
 
 msgid "Fetching data..."
 msgstr "Fetching data..."
+
+msgid "Filters"
+msgstr "Filters"
 
 msgid "First name"
 msgstr "First name"
@@ -167,9 +199,6 @@ msgstr "Here's your overview of what's happening."
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
 
-msgid "Hide filters"
-msgstr "Hide filters"
-
 msgid "Home"
 msgstr "Home"
 
@@ -179,17 +208,17 @@ msgstr "Image must be smaller than 1 MB."
 msgid "Invite user"
 msgstr "Invite user"
 
-msgid "Invite users"
-msgstr "Invite users"
-
-msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr "Invite users and assign them roles. They will appear once they log in."
-
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Language"
+msgstr "Language"
+
 msgid "Last name"
 msgstr "Last name"
+
+msgid "Light"
+msgstr "Light"
 
 msgid "Log in"
 msgstr "Log in"
@@ -212,9 +241,6 @@ msgstr "Manage your users and permissions here."
 msgid "Member"
 msgstr "Member"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Modified"
 
@@ -224,14 +250,14 @@ msgstr "Modified date"
 msgid "Name"
 msgstr "Name"
 
+msgid "Navigation"
+msgstr "Navigation"
+
 msgid "Next"
 msgstr "Next"
 
-msgid "No active login."
-msgstr "No active login."
-
-msgid "No active signup session."
-msgstr "No active signup session."
+msgid "OK"
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organization"
@@ -241,6 +267,9 @@ msgstr "Owner"
 
 msgid "Pending"
 msgstr "Pending"
+
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
@@ -263,11 +292,17 @@ msgstr "Privacy policies"
 msgid "Profile picture"
 msgstr "Profile picture"
 
+msgid "Profile updated successfully"
+msgstr "Profile updated successfully"
+
 msgid "Region"
 msgstr "Region"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
+
+msgid "Request a new code"
+msgstr "Request a new code"
 
 msgid "Role"
 msgstr "Role"
@@ -291,6 +326,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Select dates"
+
 msgid "Select language"
 msgstr "Select language"
 
@@ -309,14 +347,20 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Success"
+msgstr "Success"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "System"
+msgstr "System"
+
 msgid "Terms of use"
 msgstr "Terms of use"
 
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-
-msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
+msgid "Theme"
+msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
@@ -342,6 +386,12 @@ msgstr "Update your profile picture and personal details here."
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
 
+msgid "User actions"
+msgstr "User actions"
+
+msgid "User invited successfully"
+msgstr "User invited successfully"
+
 msgid "User profile"
 msgstr "User profile"
 
@@ -350,6 +400,9 @@ msgstr "User profile menu"
 
 msgid "User role"
 msgstr "User role"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "User role updated successfully for {userDisplayName}"
 
 msgid "User status"
 msgstr "User status"
@@ -362,6 +415,9 @@ msgstr "Users"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
+
+msgid "Verification code sent"
+msgstr "Verification code sent"
 
 msgid "Verify"
 msgstr "Verify"
@@ -384,8 +440,18 @@ msgstr "View users"
 msgid "Welcome home"
 msgstr "Welcome home"
 
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Welcome home, {0}"
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+
+msgid "Your verification code has expired"
+msgstr "Your verification code has expired"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Your verification code is valid for {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "yourname@example.com"

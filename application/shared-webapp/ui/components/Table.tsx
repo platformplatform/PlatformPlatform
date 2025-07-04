@@ -130,11 +130,11 @@ const rowStyles = tv({
   base: "group/row -outline-offset-2 relative cursor-default select-none font-normal text-sm transition-colors [&>td:first-child]:pl-4 [&>td:last-child]:pr-4",
   variants: {
     isDisabled: {
-      false: "text-muted-foreground hover:bg-muted/80",
+      false: "text-muted-foreground hover:bg-hover-background",
       true: "text-muted-foreground/90"
     },
     isSelected: {
-      true: "bg-muted"
+      true: "bg-active-background hover:bg-selected-hover-background"
     }
   }
 });
@@ -161,7 +161,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-ring [:has(+[data-selected])_&]:border-ring"
+  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-accent [:has(+[data-selected])_&]:border-accent"
 });
 
 type CellProps = {

@@ -400,3 +400,10 @@ dist/
 
 # Git submodules
 .gitmodules
+
+# Playwright E2E testing artifacts
+test-results/
+playwright-report/
+**/playwright/.cache/
+**/.auth/
+
