@@ -11,7 +11,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { Trash2Icon, XIcon } from "lucide-react";
+import { InfoIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
@@ -22,9 +22,16 @@ interface UserProfileSidePaneProps {
   isOpen: boolean;
   onClose: () => void;
   onDeleteUser: (user: UserDetails) => void;
+  isUserInCurrentView?: boolean;
 }
 
-export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Readonly<UserProfileSidePaneProps>) {
+export function UserProfileSidePane({
+  user,
+  isOpen,
+  onClose,
+  onDeleteUser,
+  isUserInCurrentView = true
+}: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
@@ -101,11 +108,11 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
     };
   }, [isOpen]);
 
-  if (!isOpen || !user) {
+  if (!isOpen) {
     return null;
   }
 
-  const isCurrentUser = user.id === userInfo?.id;
+  const isCurrentUser = user?.id === userInfo?.id;
   const canModifyUser = userInfo?.role === "Owner" && !isCurrentUser;
 
   return (
@@ -139,97 +146,115 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
           </Heading>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {/* User Avatar and Basic Info */}
-          <div className="mb-6 text-center">
-            <Avatar
-              initials={getInitials(user.firstName, user.lastName, user.email)}
-              avatarUrl={user.avatarUrl}
-              size="lg"
-              isRound={true}
-              className="mx-auto mb-3"
-            />
-            <Heading level={3} className="font-semibold text-lg">
-              {user.firstName} {user.lastName}
-            </Heading>
-            {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
+        {/* Notice when user is not in current filtered view */}
+        {!isUserInCurrentView && (
+          <div className="border-border border-b bg-muted px-4 py-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <InfoIcon className="h-4 w-4 flex-shrink-0" />
+              <Text className="font-medium text-sm">
+                <Trans>User not in current view</Trans>
+              </Text>
+            </div>
           </div>
+        )}
 
-          {/* Contact Information */}
-          <div className="mb-4">
-            <div className="space-y-2">
-              <div className="flex items-start justify-between">
-                <Text className="text-sm">
-                  <Trans>Email</Trans>
-                </Text>
-                <div className="flex flex-col items-end gap-1">
-                  <Text className="text-right text-sm">{user.email}</Text>
-                  {user.emailConfirmed ? (
-                    <Badge variant="success" className="text-xs">
-                      <Trans>Verified</Trans>
-                    </Badge>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {user && (
+            <div className="p-4">
+              <>
+                {/* User Avatar and Basic Info */}
+                <div className="mb-6 text-center">
+                  <Avatar
+                    initials={getInitials(user.firstName, user.lastName, user.email)}
+                    avatarUrl={user.avatarUrl}
+                    size="lg"
+                    isRound={true}
+                    className="mx-auto mb-3"
+                  />
+                  <Heading level={3} className="font-semibold text-lg">
+                    {user.firstName} {user.lastName}
+                  </Heading>
+                  {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
+                </div>
+
+                {/* Contact Information */}
+                <div className="mb-4">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between">
+                      <Text className="text-sm">
+                        <Trans>Email</Trans>
+                      </Text>
+                      <div className="flex flex-col items-end gap-1">
+                        <Text className="text-right text-sm">{user.email}</Text>
+                        {user.emailConfirmed ? (
+                          <Badge variant="success" className="text-xs">
+                            <Trans>Verified</Trans>
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            <Trans>Pending</Trans>
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator className="mb-4" />
+
+                {/* Role Information */}
+                <div className="mb-4 flex items-center justify-between">
+                  <Heading level={4} className="font-medium text-sm">
+                    <Trans>Role</Trans>
+                  </Heading>
+                  {canModifyUser ? (
+                    <Button
+                      variant="ghost"
+                      className="h-auto p-0 text-xs"
+                      onPress={() => setIsChangeRoleDialogOpen(true)}
+                      aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
+                    >
+                      <Badge
+                        variant="outline"
+                        className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
+                      >
+                        {getUserRoleLabel(user.role)}
+                      </Badge>
+                    </Button>
                   ) : (
                     <Badge variant="outline" className="text-xs">
-                      <Trans>Pending</Trans>
+                      {getUserRoleLabel(user.role)}
                     </Badge>
                   )}
                 </div>
-              </div>
+
+                <Separator className="mb-4" />
+
+                {/* Account Details */}
+                <div className="mb-4">
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <Text className="text-sm">
+                        <Trans>Created</Trans>
+                      </Text>
+                      <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
+                    </div>
+                    <div className="flex justify-between">
+                      <Text className="text-sm">
+                        <Trans>Modified</Trans>
+                      </Text>
+                      <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
+                    </div>
+                  </div>
+                </div>
+              </>
             </div>
-          </div>
-
-          <Separator className="mb-4" />
-
-          {/* Role Information */}
-          <div className="mb-4 flex items-center justify-between">
-            <Heading level={4} className="font-medium text-sm">
-              <Trans>Role</Trans>
-            </Heading>
-            {canModifyUser ? (
-              <Button
-                variant="ghost"
-                className="h-auto p-0 text-xs"
-                onPress={() => setIsChangeRoleDialogOpen(true)}
-                aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
-              >
-                <Badge
-                  variant="outline"
-                  className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
-                >
-                  {getUserRoleLabel(user.role)}
-                </Badge>
-              </Button>
-            ) : (
-              <Badge variant="outline" className="text-xs">
-                {getUserRoleLabel(user.role)}
-              </Badge>
-            )}
-          </div>
-
-          <Separator className="mb-4" />
-
-          {/* Account Details */}
-          <div className="mb-4">
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <Text className="text-sm">
-                  <Trans>Created</Trans>
-                </Text>
-                <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
-              </div>
-              <div className="flex justify-between">
-                <Text className="text-sm">
-                  <Trans>Modified</Trans>
-                </Text>
-                <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Quick Actions */}
-        {canModifyUser && (
+        {canModifyUser && user && (
           <div className="p-4">
             <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-center text-sm">
               <Trash2Icon className="h-4 w-4" />
@@ -240,7 +265,9 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
       </div>
 
       {/* Change User Role Dialog */}
-      <ChangeUserRoleDialog user={user} isOpen={isChangeRoleDialogOpen} onOpenChange={setIsChangeRoleDialogOpen} />
+      {user && (
+        <ChangeUserRoleDialog user={user} isOpen={isChangeRoleDialogOpen} onOpenChange={setIsChangeRoleDialogOpen} />
+      )}
     </>
   );
 }

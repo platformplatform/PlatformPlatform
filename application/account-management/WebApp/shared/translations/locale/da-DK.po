@@ -403,6 +403,9 @@ msgstr "Brugerhandlinger"
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"
 
+msgid "User not in current view"
+msgstr "Bruger ikke i nuværende visning"
+
 msgid "User profile"
 msgstr "Brugerprofil"
 

@@ -39,6 +39,7 @@ export default function UsersPage() {
   const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
   const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [tableUsers, setTableUsers] = useState<UserDetails[]>([]);
   const navigate = useNavigate({ from: Route.fullPath });
   const { userId } = Route.useSearch();
 
@@ -57,27 +58,24 @@ export default function UsersPage() {
     }
   };
 
-  const { data: usersData } = api.useQuery("get", "/api/account-management/users", {
+  const { data: userData } = api.useQuery("get", "/api/account-management/users/{id}", {
     params: {
-      query: {
-        PageSize: 1000
+      path: {
+        id: userId || ""
       }
     },
     enabled: !!userId && isInitialLoad
   });
 
   useEffect(() => {
-    if (userId && usersData?.users && isInitialLoad) {
-      const userToOpen = usersData.users.find((u) => u.id === userId);
-      if (userToOpen) {
-        setProfileUser(userToOpen);
-        setSelectedUsers([userToOpen]);
-      }
+    if (userId && userData && isInitialLoad) {
+      setProfileUser(userData);
+      setSelectedUsers([userData]);
       setIsInitialLoad(false);
     } else if (!userId && isInitialLoad) {
       setIsInitialLoad(false);
     }
-  }, [userId, usersData?.users, isInitialLoad]);
+  }, [userId, userData, isInitialLoad]);
 
   const handleDeleteUser = (user: UserDetails) => {
     setUserToDelete(user);
@@ -87,6 +85,12 @@ export default function UsersPage() {
     setUserToChangeRole(user);
   };
 
+  const handleUsersLoaded = (users: UserDetails[]) => {
+    setTableUsers(users);
+  };
+
+  const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
+
   return (
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
@@ -95,9 +99,10 @@ export default function UsersPage() {
           profileUser ? (
             <UserProfileSidePane
               user={profileUser}
-              isOpen={profileUser !== null}
+              isOpen={!!profileUser}
               onClose={handleCloseProfile}
               onDeleteUser={handleDeleteUser}
+              isUserInCurrentView={isUserInCurrentView}
             />
           ) : undefined
         }
@@ -130,6 +135,7 @@ export default function UsersPage() {
               onViewProfile={handleViewProfile}
               onDeleteUser={handleDeleteUser}
               onChangeRole={handleChangeRole}
+              onUsersLoaded={handleUsersLoaded}
             />
           </div>
         </div>
