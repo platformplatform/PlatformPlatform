@@ -510,7 +510,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
           >
             {/* Vertical divider line - draggable on XL screens */}
             <div
-              className={`absolute top-0 right-0 h-full border-border/50 border-r ${
+              className={`absolute top-0 right-0 h-full border-border border-r ${
                 isXlScreen ? "w-2 cursor-col-resize" : ""
               }`}
               onMouseDown={isXlScreen ? handleResizeStart : undefined}
@@ -646,7 +646,7 @@ export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>
   const isCollapsed = useContext(collapsedContext);
   return (
     <div className={sideMenuSeparatorStyles({ isCollapsed })}>
-      {isCollapsed ? <div className="w-6 border-border/100 border-b-4" /> : children}
+      {isCollapsed ? <div className="w-6 border-border border-b-4" /> : children}
     </div>
   );
 }
@@ -747,7 +747,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   size="icon"
                   onPress={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="h-12 w-12 rounded-full border border-border/50 bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="h-12 w-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >
                   <X className="h-7 w-7" />
                 </Button>

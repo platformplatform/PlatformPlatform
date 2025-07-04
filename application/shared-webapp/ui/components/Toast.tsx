@@ -253,7 +253,7 @@ function isReactNode(toast: ToastContents): toast is React.ReactNode {
 const toastActionStyles = tv({
   extend: focusRing,
   base: [
-    "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-border/50 px-3 font-medium text-sm transition-colors"
+    "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-border px-3 font-medium text-sm transition-colors"
   ],
   variants: {
     variant: {
