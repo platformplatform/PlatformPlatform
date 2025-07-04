@@ -133,7 +133,7 @@ export function UserProfileSidePane({ user, isOpen, onClose, onDeleteUser }: Rea
           aria-label={t`Close user profile`}
         />
 
-        <div className="h-16 border-border border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
+        <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
           <Heading level={2} className="flex h-full items-center font-semibold text-base">
             <Trans>User profile</Trans>
           </Heading>

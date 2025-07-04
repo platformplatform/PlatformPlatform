@@ -517,10 +517,10 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
             />
 
             {/* Fixed header section with logo */}
-            <div className="relative flex h-20 w-full shrink-0 items-center">
+            <div className="relative flex h-[72px] w-full shrink-0 items-center">
               {/* Logo and tenant name container */}
               <div
-                className={actualIsCollapsed ? "-mt-5 flex w-full justify-center pt-1" : "-mt-5 pt-1"}
+                className={actualIsCollapsed ? "flex w-full justify-center" : ""}
                 style={
                   actualIsCollapsed
                     ? undefined

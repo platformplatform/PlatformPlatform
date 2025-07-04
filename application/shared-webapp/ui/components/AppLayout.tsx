@@ -102,7 +102,7 @@ export function AppLayout({
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm left-0 right-0 sm:border-b sm:border-border/50 ${
+        className={`fixed top-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm left-0 right-0 sm:border-b sm:border-border/50 ${
           isMobileMenuOpen ? "hidden" : ""
         }`}
       >
@@ -113,7 +113,7 @@ export function AppLayout({
 
       {/* Main content area */}
       <div
-        className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-all duration-100 ease-in-out sm:pt-24 ${
+        className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-all duration-100 ease-in-out sm:pt-28 ${
           sidePane ? "overflow-x-auto" : ""
         }`}
       >
@@ -136,7 +136,7 @@ export function AppLayout({
 
       {/* Side pane area - responsive behavior */}
       {sidePane && (
-        <div className="fixed inset-0 z-[60] md:inset-auto md:top-[65px] md:right-0 md:h-[calc(100vh-65px)] md:w-96">{sidePane}</div>
+        <div className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:h-[calc(100vh-72px)] md:w-96">{sidePane}</div>
       )}
     </div>
   );
