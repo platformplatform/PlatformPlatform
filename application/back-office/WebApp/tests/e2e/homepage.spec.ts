@@ -1,8 +1,20 @@
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
+import { test } from "@shared/e2e/fixtures/page-auth";
+import { createTestContext } from "@shared/e2e/utils/test-assertions";
+import {} from "@shared/e2e/utils/test-data";
+import { step } from "@shared/e2e/utils/test-step-wrapper";
 
-test("@smoke back-office homepage", async ({ page }) => {
-  await page.goto("/back-office");
+test.describe("@smoke", () => {
+  test("Navigate to back-office & verify homepage loads correctly", async ({ ownerPage }) => {
+    createTestContext(ownerPage);
 
-  // Verify page loads successfully and has correct title
-  await expect(page.locator("body")).toBeVisible();
+    await step("Navigate to back-office & verify homepage loads correctly")(async () => {
+      await ownerPage.goto("/");
+      await ownerPage.goto("/back-office");
+
+      await expect(ownerPage).toHaveURL("/back-office");
+      await expect(ownerPage.getByRole("heading", { name: "Welcome to the Back Office" })).toBeVisible();
+      await expect(ownerPage.getByText("Manage tenants, view system data")).toBeVisible();
+    })();
+  });
 });

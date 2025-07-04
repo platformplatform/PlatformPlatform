@@ -9,9 +9,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@repo/shared-webapp/tests/e2e/utils/*": ["./utils/*"]
+      "@shared/e2e/fixtures/*": ["./fixtures/*"],
+      "@shared/e2e/utils/*": ["./utils/*"],
+      "@shared/e2e/auth/*": ["./auth/*"],
+      "@shared/e2e/types/*": ["./types/*"]
     }
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "test-results", "playwright-report"]
+  "exclude": ["node_modules", "test-results/**"]
 }

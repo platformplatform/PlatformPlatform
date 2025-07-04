@@ -1,24 +1,21 @@
 import { faker } from "@faker-js/faker";
 import type { Page} from "@playwright/test";
 import { isLocalhost } from "./constants";
+import type { TestContext } from "./test-assertions";
+import { expectToastMessage } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
  * @returns Unique email address
  */
-export function uniqueEmail(domain = "localhost.local"): string {
-  const timestamp = Date.now();
+export function uniqueEmail(): string {
+  // Compact timestamp (YY-MM-DDTHH-MM)
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+
   const username = faker.internet.userName().toLowerCase();
   return `${username}@${timestamp}.local`;
 }
 
-/**
- * Generate a random email using Faker
- * @returns Random email address
- */
-export function randomEmail(): string {
-  return faker.internet.email();
-}
 
 /**
  * Generate a random first name
@@ -36,13 +33,6 @@ export function lastName(): string {
   return faker.person.lastName();
 }
 
-/**
- * Generate a random full name
- * @returns Random full name
- */
-export function fullName(): string {
-  return faker.person.fullName();
-}
 
 /**
  * Generate a random job title
@@ -102,12 +92,14 @@ export function testUser() {
  * @param expect Playwright expect function
  * @param user User data object with email, firstName, lastName
  * @param keepUserLoggedIn Whether to keep the user logged in after signup (default: true)
+ * @param context Test context for asserting toasts
  * @returns Promise that resolves when signup is complete
  */
 export async function completeSignupFlow(
   page: Page,
   expect: typeof import("@playwright/test").expect,
   user: { email: string; firstName: string; lastName: string },
+  context: TestContext,
   keepUserLoggedIn = true
 ): Promise<void> {
   // Step 1: Navigate directly to signup page
@@ -122,10 +114,11 @@ export async function completeSignupFlow(
   // Step 3: Enter verification code
   await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
-  // Step 4: Complete profile setup
+  // Step 4: Complete profile setup and verify successful save
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
+  await expectToastMessage(context, "Success", "Profile updated successfully");
 
   // Step 5: Wait for successful completion
   await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();

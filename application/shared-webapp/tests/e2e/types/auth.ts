@@ -4,7 +4,7 @@
  */
 
 /**
- * User roles available in the system - matching UserInfoEnv from environment.d.ts
+ * User roles available in the system - must match UserInfoEnv.role from environment.d.ts
  */
 export type UserRole = "Owner" | "Admin" | "Member";
 
@@ -37,6 +37,7 @@ export interface TenantProvisioningOptions {
   workerIndex: number;
   selfContainedSystemPrefix?: string;
   isolated?: boolean;
+  ensureUsersExist?: boolean;
 }
 
 

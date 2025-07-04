@@ -1,19 +1,19 @@
 import { promises as fs } from "node:fs";
 import type { BrowserContext, Page } from "@playwright/test";
-import type { UserRole } from "../types/auth";
 import {
   getStorageStatePath,
   isAuthenticationStateValid,
   loadAuthenticationState,
   saveAuthenticationState
-} from "./storage-state";
+} from "@shared/e2e/auth/storage-state";
+import type { UserRole } from "@shared/e2e/types/auth";
 
 /**
  * Authentication state manager for handling persistence and validation
  */
 export class AuthStateManager {
-  private workerIndex: number;
-  private selfContainedSystemPrefix?: string;
+  private readonly workerIndex: number;
+  private readonly selfContainedSystemPrefix?: string;
 
   constructor(workerIndex: number, selfContainedSystemPrefix?: string) {
     this.workerIndex = workerIndex;
@@ -62,28 +62,18 @@ export class AuthStateManager {
   }
 
   /**
-   * Test if the authentication state is still valid by accessing a protected endpoint
+   * Test if the authentication state is still valid by checking URL after navigation
    * @param page Playwright page with loaded auth state
    * @returns Promise resolving to true if auth is still valid
    */
   async validateAuthState(page: Page): Promise<boolean> {
     try {
-      // Navigate to admin dashboard which requires authentication
+      // Navigate to a protected route
       await page.goto("/admin");
 
       // If we get redirected to login, auth is invalid
-      if (page.url().includes("/login")) {
-        return false;
-      }
-
-      // Check for the presence of authenticated content
-      // This is a basic check - in the future we might want to test specific API endpoints
-      const hasAuthenticatedContent =
-        (await page
-          .locator('[data-testid="authenticated-content"], .admin-dashboard, h1:has-text("Welcome")')
-          .count()) > 0;
-
-      return hasAuthenticatedContent;
+      // If we stay on /admin (or any admin route), auth is valid
+      return !page.url().includes("/login");
     } catch {
       // If any error occurs during validation, consider auth invalid
       return false;

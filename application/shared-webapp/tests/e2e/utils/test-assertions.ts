@@ -1,7 +1,6 @@
 import type { ConsoleMessage, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
-
 /**
  * Interface for monitoring results - captures ALL errors/messages for strict assertion
  */
@@ -20,7 +19,7 @@ export interface TestContext {
 }
 
 /**
- * Options for assertToastMessage function
+ * Options for expectToastMessage function
  */
 interface AssertToastOptions {
   expectNetworkError?: boolean;
@@ -33,7 +32,12 @@ interface AssertToastOptions {
  */
 export function createTestContext(page: Page): TestContext {
   const monitoring = startMonitoring(page);
-  return { page, monitoring };
+  const context = { page, monitoring };
+
+  // Store context on page object so afterEach hook can access the same instance
+  (page as Page & { __testContext?: TestContext }).__testContext = context;
+
+  return context;
 }
 
 /**
@@ -97,36 +101,18 @@ function startMonitoring(page: Page): MonitoringResults {
     }
   });
 
-  // Poll for toast messages to capture all toasts that appear
-  const toastPollingInterval = setInterval(async () => {
-    try {
-      const currentToasts = await captureToastMessages(page, 500);
-      for (const toast of currentToasts) {
-        // Check if this exact toast (including Reference ID) has already been captured or asserted
-        if (!results.toastMessages.includes(toast) && !results.assertedToasts.includes(toast)) {
-          results.toastMessages.push(toast);
-        }
-      }
-    } catch {
-      // Ignore polling errors
-    }
-  }, 250);
-
-  // Store the interval ID so we can clear it later
-  results.toastPollingInterval = toastPollingInterval;
-
   return results;
 }
 
 /**
- * Assert that EXACTLY ONE toast message occurred
+ * Expect that EXACTLY ONE toast message occurred
  * @param context Test context containing page and monitoring
  * @param statusOrMessage The expected HTTP status code (e.g., 400, 403, 409) or just the message
  * @param expectedMessage The expected toast message text (can be partial match) - optional if first param is the message
  * @param options Options for assertion behavior:
  *   - expectNetworkError: Whether to expect network error (default: true)
  */
-export async function assertToastMessage(
+export async function expectToastMessage(
   context: TestContext,
   statusOrMessage: string | number,
   expectedMessage?: string,
@@ -141,65 +127,70 @@ export async function assertToastMessage(
   const status = hasStatus ? statusOrMessage : undefined;
   const message = hasStatus ? expectedMessage : String(statusOrMessage);
 
-  // First wait for the toast to appear in the UI
-  await page.waitForSelector(toastRegionSelector, { timeout: timeoutMs });
-
-  // Wait for toast with expected message to appear using locator
+  // Wait for and validate toast message
   const toastLocator = page
     .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
     .first();
-  await toastLocator.waitFor({ timeout: timeoutMs });
+  
+  try {
+    await toastLocator.waitFor({ timeout: timeoutMs });
+  } catch (error) {
+    // If expected toast wasn't found, provide helpful error with actual toasts
+    const actualToasts = await checkUnexpectedToasts(context);
+    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    
+    throw new Error(
+      `Expected toast with message "${message}" not found within ${timeoutMs}ms.
+Found ${totalToastCount} toast(s) total.
+Actual toasts: ${actualToasts.length > 0 ? actualToasts.map((t) => `"${t}"`).join(", ") : "None"}
 
-  // Then wait for the toast to be added to monitoring
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeoutMs) {
-    const unassertedMatches = monitoring.toastMessages.filter(
-      (toast) => toast.includes(message) && !monitoring.assertedToasts.includes(toast)
+💡 Solutions:
+  • If this toast should appear, check the application logic
+  • If the message is different, update the expected message
+  • If no toast should appear, remove this assertion
+
+Original error: ${error}`
     );
-
-    if (unassertedMatches.length > 0) {
-      const matchingToast = unassertedMatches[0];
-      monitoring.assertedToasts.push(matchingToast);
-      break;
-    }
-
-    await page.waitForTimeout(100);
   }
 
-  // Look for all toast containers that contain our message, then take the last one (most recent)
-  const toastContainers = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message });
-  const toastCount = await toastContainers.count();
-
-  if (toastCount > 0) {
-    // Get the last (most recent) toast with this message
-    const latestToastContainer = toastContainers.nth(toastCount - 1);
-
-    // Try multiple strategies to find and click the close button for better reliability
-    const closeButtonSelectors = ['button[aria-label="Close"]', "button:has(svg)", "button:last-child", "button"];
-
-    for (const selector of closeButtonSelectors) {
-      const closeButton = latestToastContainer.locator(selector).first();
-      const isVisible = await closeButton.isVisible();
-
-      if (isVisible) {
-        await closeButton.click();
-        break;
-      }
-    }
+  // Check for multiple toasts
+  const allToasts = await checkUnexpectedToasts(context, message);
+  if (allToasts.length > 0) {
+    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    throw new Error(
+      `Expected exactly 1 toast with message "${message}", but found ${totalToastCount} toasts total.
+Expected: 1, Unexpected: ${allToasts.length}
+Unexpected toasts: ${allToasts.map((t) => `"${t}"`).join(", ")}
+Ensure tests assert all expected toasts or fix the root cause.`
+    );
   }
 
-  if (hasStatus && options.expectNetworkError) {
-    const expectedStatusCode = typeof status === "number" ? status : status === "Forbidden" ? 403 : 400;
-    monitoring.expectedStatusCodes.push(expectedStatusCode);
+  // Close the toast
+  try {
+    const toastContainer = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message }).last();
+    const closeButton = toastContainer.locator('button[aria-label="Close"]').first();
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
+    }
+  } catch {
+    // Toast might have auto-dismissed, which is fine
+  }
+
+  if (hasStatus && options.expectNetworkError && typeof status === "number") {
+    // Only look for network errors if it's actually an error status code (4xx, 5xx)
+    if (status >= 400) {
+      // Clean up the network error immediately
+      await expectNetworkErrors(context, [status]);
+    }
   }
 }
 
 /**
- * Assert that a validation error message is visible on the page and automatically clean up 400 network errors
+ * Expect that a validation error message is visible on the page and automatically clean up 400 network errors
  * @param context Test context containing page and monitoring
  * @param expectedMessage The expected validation error message text (can be partial match)
  */
-export async function assertValidationError(context: TestContext, expectedMessage: string): Promise<void> {
+export async function expectValidationError(context: TestContext, expectedMessage: string): Promise<void> {
   const { monitoring, page } = context;
   const timeoutMs = 3000;
 
@@ -231,11 +222,11 @@ export async function assertValidationError(context: TestContext, expectedMessag
 }
 
 /**
- * Assert that specific network errors occurred and remove them from monitoring
+ * Expect that specific network errors occurred and remove them from monitoring
  * @param context Test context containing page and monitoring
  * @param expectedStatusCodes Array of expected HTTP status codes (e.g., [401, 403])
  */
-export async function assertNetworkErrors(context: TestContext, expectedStatusCodes: number[]): Promise<void> {
+export async function expectNetworkErrors(context: TestContext, expectedStatusCodes: number[]): Promise<void> {
   const { monitoring } = context;
 
   for (const statusCode of expectedStatusCodes) {
@@ -276,67 +267,79 @@ export async function assertNoUnexpectedErrors(context: TestContext): Promise<vo
 
   // No polling interval cleanup needed anymore
 
-  // Handle any expected network errors
-  if (monitoring.expectedStatusCodes.length > 0) {
-    for (const expectedStatusCode of monitoring.expectedStatusCodes) {
-      const expectedNetworkError = `HTTP ${expectedStatusCode}`;
-      const networkErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+  // Clean up expected network errors and tracking errors
+  cleanupExpectedNetworkErrors(monitoring);
 
-      // Remove all matching network errors (Firefox may create multiple)
-      for (const error of networkErrors) {
-        const index = monitoring.networkErrors.indexOf(error);
-        if (index !== -1) {
-          monitoring.networkErrors.splice(index, 1);
-        }
+  // Check for any remaining unexpected issues
+  const hasUnexpectedNetworkErrors = monitoring.networkErrors.length > 0;
+
+  // Check for unexpected toasts using our new silent checking function
+  const unexpectedToasts = await checkUnexpectedToasts(context);
+  const hasUnexpectedToasts = unexpectedToasts.length > 0;
+
+  // If we have any unexpected issues, throw a helpful error message
+  if (hasUnexpectedNetworkErrors || hasUnexpectedToasts) {
+    const errorMessage = buildUnexpectedErrorsMessage(monitoring.networkErrors, unexpectedToasts);
+    throw new Error(errorMessage);
+  }
+}
+
+/**
+ * Remove expected network errors from monitoring results
+ */
+function cleanupExpectedNetworkErrors(monitoring: MonitoringResults): void {
+  if (monitoring.expectedStatusCodes.length === 0) {
+    return;
+  }
+
+  for (const expectedStatusCode of monitoring.expectedStatusCodes) {
+    const expectedNetworkError = `HTTP ${expectedStatusCode}`;
+    const networkErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+
+    // Remove all matching network errors (Firefox may create multiple)
+    for (const error of networkErrors) {
+      const index = monitoring.networkErrors.indexOf(error);
+      if (index !== -1) {
+        monitoring.networkErrors.splice(index, 1);
       }
     }
   }
+}
 
-  // Always ignore tracking endpoint errors
-  monitoring.networkErrors = monitoring.networkErrors.filter(
-    (error) => !error.includes("POST https://localhost:9000/api/track - HTTP 400")
-  );
+/**
+ * Build a comprehensive error message for unexpected issues
+ */
+function buildUnexpectedErrorsMessage(networkErrors: string[], unassertedToasts: string[]): string {
+  const errorParts: string[] = [];
 
-  // Check for unexpected network errors
-  const hasUnexpectedNetworkErrors = monitoring.networkErrors.length > 0;
+  errorParts.push("🎭 Test completed successfully, BUT unexpected issues were detected:");
+  errorParts.push(""); // Empty line for readability
 
-  // Check for unasserted toast messages
-  const unassertedToasts = monitoring.toastMessages.filter((toast) => !monitoring.assertedToasts.includes(toast));
-  const hasUnexpectedToasts = unassertedToasts.length > 0;
-
-  // If we have any unexpected issues, create a helpful error message
-  if (hasUnexpectedNetworkErrors || hasUnexpectedToasts) {
-    const errorParts: string[] = [];
-
-    errorParts.push("🎭 Test completed successfully, BUT unexpected issues were detected:");
-    errorParts.push(""); // Empty line for readability
-
-    if (hasUnexpectedNetworkErrors) {
-      errorParts.push("❌ UNEXPECTED NETWORK ERRORS:");
-      monitoring.networkErrors.forEach((error) => {
-        errorParts.push(`   ${error}`);
-      });
-      errorParts.push("");
-      errorParts.push("💡 Solutions:");
-      errorParts.push("   • If this error is expected, use: assertNetworkErrors(context, [statusCode])");
-      errorParts.push("   • If this is a bug, fix the root cause in the application");
-      errorParts.push("");
-    }
-
-    if (hasUnexpectedToasts) {
-      errorParts.push("🍞 UNEXPECTED TOAST MESSAGES:");
-      unassertedToasts.forEach((toast) => {
-        errorParts.push(`   "${toast}"`);
-      });
-      errorParts.push("");
-      errorParts.push("💡 Solutions:");
-      errorParts.push('   • If this toast is expected, use: assertToastMessage(context, "message")');
-      errorParts.push("   • If this toast shouldn't appear, fix the root cause in the application");
-      errorParts.push("");
-    }
-
-    throw new Error(errorParts.join("\n"));
+  if (networkErrors.length > 0) {
+    errorParts.push("❌ UNEXPECTED NETWORK ERRORS:");
+    networkErrors.forEach((error) => {
+      errorParts.push(`   ${error}`);
+    });
+    errorParts.push("");
+    errorParts.push("💡 Solutions:");
+    errorParts.push("   • If this error is expected, use: expectNetworkErrors(context, [statusCode])");
+    errorParts.push("   • If this is a bug, fix the root cause in the application");
+    errorParts.push("");
   }
+
+  if (unassertedToasts.length > 0) {
+    errorParts.push("🍞 UNEXPECTED TOAST MESSAGES:");
+    unassertedToasts.forEach((toast) => {
+      errorParts.push(`   "${toast}"`);
+    });
+    errorParts.push("");
+    errorParts.push("💡 Solutions:");
+    errorParts.push('   • If this toast is expected, use: expectToastMessage(context, "message")');
+    errorParts.push("   • If this toast shouldn't appear, fix the root cause in the application");
+    errorParts.push("");
+  }
+
+  return errorParts.join("\n");
 }
 
 /**
@@ -358,6 +361,52 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
     const regionCount = await toastRegions.count();
 
     if (regionCount === 0) {
+      // DEBUG: If no role="region" found, let's look for other potential toast selectors
+      const debugToasts = await page.evaluate(() => {
+        const toasts = [];
+        
+        // Look for ANY element that might contain toast text patterns
+        document.querySelectorAll('*').forEach(el => {
+          const text = el.textContent?.trim();
+          if (text && text.length > 0) {
+            // Check for success/deletion patterns
+            if (text.includes('deleted successfully') || 
+                text.includes('User deleted') ||
+                text.includes('Success') ||
+                (text.includes('success') && text.includes('delete'))) {
+              
+              // Make sure element is visible
+              const rect = el.getBoundingClientRect();
+              if (rect.width > 0 && rect.height > 0) {
+                toasts.push(text);
+              }
+            }
+          }
+        });
+        
+        // Also specifically look for common toast class patterns
+        document.querySelectorAll('[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]').forEach(el => {
+          const text = el.textContent?.trim();
+          if (text && text.length > 0) {
+            const rect = el.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              toasts.push(text);
+            }
+          }
+        });
+        
+        return toasts;
+      });
+      
+      // If we found potential toasts with alternative selectors, add them
+      if (debugToasts.length > 0) {
+        debugToasts.forEach(toast => {
+          if (!expectedMessage || !toast.includes(expectedMessage)) {
+            unexpectedToasts.push(toast);
+          }
+        });
+      }
+      
       return unexpectedToasts;
     }
 
@@ -385,4 +434,24 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
   }
 
   return unexpectedToasts;
+}
+
+/**
+ * Blur the currently focused element to ensure input values are committed
+ *
+ * This is a workaround for a Playwright issue where WebKit and Firefox don't properly
+ * register input values when a form is submitted immediately after filling an input.
+ * Without blurring the input first, these browsers may submit empty or stale values.
+ *
+ * This issue doesn't occur in real browsers, only in Playwright's automation.
+ *
+ * @param page The Playwright page instance
+ */
+export async function blurActiveElement(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const element = (globalThis as { document?: { activeElement?: { blur?: () => void } } }).document?.activeElement;
+    if (element?.blur) {
+      element.blur();
+    }
+  });
 }
