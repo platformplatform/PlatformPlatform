@@ -188,8 +188,8 @@ const sideMenuStyles = tv({
   base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background transition-[width] duration-100 md:z-[70]",
   variants: {
     isCollapsed: {
-      true: "mr-2 w-[72px]",
-      false: "mr-2" // Width will be set inline for resizable menu
+      true: "w-[72px]",
+      false: "" // Width will be set inline for resizable menu
     },
     overlayMode: {
       true: "",
@@ -504,14 +504,14 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
               className
             })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
             style={{
-              width: isXlScreen && !isCollapsed ? `${menuWidth + 8}px` : undefined,
+              width: isXlScreen && !isCollapsed ? `${menuWidth}px` : undefined,
               transition: isResizing ? "none" : undefined
             }}
           >
             {/* Vertical divider line - draggable on XL screens */}
             <div
               className={`absolute top-0 right-0 h-full border-border/50 border-r ${
-                isXlScreen ? "-mr-1 w-2 cursor-col-resize" : ""
+                isXlScreen ? "w-2 cursor-col-resize" : ""
               }`}
               onMouseDown={isXlScreen ? handleResizeStart : undefined}
             />
