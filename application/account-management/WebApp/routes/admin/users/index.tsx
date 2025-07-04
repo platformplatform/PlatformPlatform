@@ -91,6 +91,16 @@ export default function UsersPage() {
 
   const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
 
+  // Check if the side pane data is different from table data
+  const tableUser = profileUser ? tableUsers.find((u) => u.id === profileUser.id) : null;
+  const isDataNewer = !!(
+    userData &&
+    tableUser &&
+    userData.modifiedAt &&
+    tableUser.modifiedAt &&
+    new Date(userData.modifiedAt).getTime() !== new Date(tableUser.modifiedAt).getTime()
+  );
+
   return (
     <>
       <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
@@ -103,6 +113,7 @@ export default function UsersPage() {
               onClose={handleCloseProfile}
               onDeleteUser={handleDeleteUser}
               isUserInCurrentView={isUserInCurrentView}
+              isDataNewer={isDataNewer}
             />
           ) : undefined
         }

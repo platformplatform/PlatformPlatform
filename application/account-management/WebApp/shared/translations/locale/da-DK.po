@@ -400,6 +400,9 @@ msgstr "Upload profilbillede"
 msgid "User actions"
 msgstr "Brugerhandlinger"
 
+msgid "User data updated"
+msgstr "Brugerdata opdateret"
+
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"
 
