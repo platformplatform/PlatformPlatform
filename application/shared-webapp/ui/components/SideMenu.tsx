@@ -510,7 +510,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
           >
             {/* Vertical divider line - draggable on XL screens */}
             <div
-              className={`absolute top-0 right-0 h-full border-border/50 border-r opacity-0 transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100 ${
+              className={`absolute top-0 right-0 h-full border-border/50 border-r ${
                 isXlScreen ? "-mr-1 w-2 cursor-col-resize" : ""
               }`}
               onMouseDown={isXlScreen ? handleResizeStart : undefined}
