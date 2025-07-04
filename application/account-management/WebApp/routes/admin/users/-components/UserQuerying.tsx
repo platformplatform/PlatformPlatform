@@ -35,6 +35,7 @@ interface UserQueryingProps {
     hasActiveFilters: boolean,
     shouldUseCompactButtons: boolean
   ) => void;
+  onFiltersUpdated?: () => void;
 }
 
 /**
@@ -43,7 +44,7 @@ interface UserQueryingProps {
  * The only local state is for the search input, which is debounced
  * to prevent too many URL updates while typing.
  */
-export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
+export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
@@ -67,32 +68,40 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
 
   // Updates URL parameters while preserving existing ones
   const updateFilter = useCallback(
-    (params: Partial<SearchParams>) => {
+    (params: Partial<SearchParams>, isSearchUpdate = false) => {
       navigate({
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
           ...params,
-          pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset
+          pageOffset: undefined,
+          userId: undefined
         })
       });
+      // Only call onFiltersUpdated for actual filter changes, not search updates
+      if (!isSearchUpdate) {
+        onFiltersUpdated?.();
+      }
     },
-    [navigate]
+    [navigate, onFiltersUpdated]
   );
 
   // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      updateFilter({ search: (search as string) || undefined });
-      setSearchTimeoutId(null);
-    }, 500);
-    setSearchTimeoutId(timeoutId);
+    // Only update if search value actually changed from URL params
+    if (search !== searchParams.search) {
+      const timeoutId = setTimeout(() => {
+        updateFilter({ search: (search as string) || undefined }, true);
+        setSearchTimeoutId(null);
+      }, 500);
+      setSearchTimeoutId(timeoutId);
 
-    return () => {
-      clearTimeout(timeoutId);
-      setSearchTimeoutId(null);
-    };
-  }, [search, updateFilter]);
+      return () => {
+        clearTimeout(timeoutId);
+        setSearchTimeoutId(null);
+      };
+    }
+  }, [search, searchParams.search, updateFilter]);
 
   // Count active filters for badge
   const getActiveFilterCount = () => {
@@ -275,7 +284,7 @@ export function UserQuerying({ onFilterStateChange }: UserQueryingProps = {}) {
             clearTimeout(searchTimeoutId);
             setSearchTimeoutId(null);
           }
-          updateFilter({ search: (search as string) || undefined });
+          updateFilter({ search: (search as string) || undefined }, true);
         }}
         label={t`Search`}
         autoFocus={true}
