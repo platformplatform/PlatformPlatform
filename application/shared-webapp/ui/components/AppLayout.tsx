@@ -1,7 +1,6 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
-import { MEDIA_QUERIES } from "../utils/responsive";
 
 type AppLayoutVariant = "full" | "center";
 
@@ -21,7 +20,7 @@ type AppLayoutProps = {
  *
  * Variants:
  * - full: Content takes full width with standard padding
- * - center: Content is always centered with configurable max width (default: 640px). When SideMenu is expanded on large screens, content is shifted 50px left for better visual balance.
+ * - center: Content is always centered with configurable max width (default: 640px)
  */
 export function AppLayout({
   children,
@@ -31,54 +30,6 @@ export function AppLayout({
   sidePane
 }: Readonly<AppLayoutProps>) {
   const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
-
-  const [isLargeScreen, setIsLargeScreen] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(MEDIA_QUERIES.xl).matches : false
-  );
-  const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(() => {
-    if (typeof window === "undefined") {
-      return true;
-    }
-    // Check if we're on large screen
-    const isLarge = window.matchMedia(MEDIA_QUERIES.xl).matches;
-    if (!isLarge) {
-      return true; // Always collapsed on smaller screens
-    }
-
-    const stored = localStorage.getItem("side-menu-collapsed");
-    return stored === "true";
-  });
-
-  // Listen for screen size changes
-  useEffect(() => {
-    const xlQuery = window.matchMedia(MEDIA_QUERIES.xl);
-    const handleXlChange = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches);
-
-    xlQuery.addEventListener("change", handleXlChange);
-    return () => xlQuery.removeEventListener("change", handleXlChange);
-  }, []);
-
-  // Listen for side menu toggle events
-  useEffect(() => {
-    const handleMenuToggle = (event: CustomEvent) => {
-      if (isLargeScreen) {
-        setIsSideMenuCollapsed(event.detail.isCollapsed);
-      }
-    };
-
-    window.addEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-    return () => window.removeEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-  }, [isLargeScreen]);
-
-  // Update side menu state when screen size changes
-  useEffect(() => {
-    if (!isLargeScreen) {
-      setIsSideMenuCollapsed(true);
-    } else {
-      const stored = localStorage.getItem("side-menu-collapsed");
-      setIsSideMenuCollapsed(stored === "true");
-    }
-  }, [isLargeScreen]);
 
   // Prevent body scroll when overlay is open
   useEffect(() => {
@@ -102,13 +53,11 @@ export function AppLayout({
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm left-0 right-0 sm:border-b sm:border-border/50 ${
+        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border/50 sm:border-b ${
           isMobileMenuOpen ? "hidden" : ""
         }`}
       >
-        <div style={{ marginLeft: style.marginLeft }}>
-          {topMenu}
-        </div>
+        <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
       </div>
 
       {/* Main content area */}
@@ -119,13 +68,7 @@ export function AppLayout({
       >
         {variant === "center" ? (
           <div className="flex w-full flex-col items-center">
-            <div
-              className="w-full"
-              style={{
-                maxWidth,
-                transform: isLargeScreen && !isSideMenuCollapsed ? "translateX(-50px)" : "translateX(0)"
-              }}
-            >
+            <div className="w-full" style={{ maxWidth }}>
               {children}
             </div>
           </div>
