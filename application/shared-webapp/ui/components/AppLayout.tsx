@@ -102,20 +102,13 @@ export function AppLayout({
     >
       {/* Fixed TopMenu with blur effect */}
       <div
-        className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm ${
+        className={`fixed top-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm border-b border-border/50 ${
           isMobileMenuOpen ? "hidden" : ""
         } left-0 right-0`}
         style={{ marginLeft: style.marginLeft }}
       >
         {topMenu}
       </div>
-      {/* Soft gradient fade below TopMenu */}
-      <div
-        className={`pointer-events-none fixed top-[60px] z-30 h-4 bg-gradient-to-b from-background/30 to-transparent ${
-          isMobileMenuOpen ? "hidden" : ""
-        } left-0 right-0`}
-        style={{ marginLeft: style.marginLeft }}
-      />
 
       {/* Main content area */}
       <div
