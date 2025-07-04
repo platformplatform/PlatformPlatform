@@ -23,6 +23,7 @@ interface UserProfileSidePaneProps {
   onClose: () => void;
   onDeleteUser: (user: UserDetails) => void;
   isUserInCurrentView?: boolean;
+  isDataNewer?: boolean;
 }
 
 export function UserProfileSidePane({
@@ -30,7 +31,8 @@ export function UserProfileSidePane({
   isOpen,
   onClose,
   onDeleteUser,
-  isUserInCurrentView = true
+  isUserInCurrentView = true,
+  isDataNewer = false
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
@@ -153,6 +155,18 @@ export function UserProfileSidePane({
               <InfoIcon className="h-4 w-4 flex-shrink-0" />
               <Text className="font-medium text-sm">
                 <Trans>User not in current view</Trans>
+              </Text>
+            </div>
+          </div>
+        )}
+
+        {/* Notice when data is different from table */}
+        {isDataNewer && (
+          <div className="border-border border-b bg-muted px-4 py-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <InfoIcon className="h-4 w-4 flex-shrink-0" />
+              <Text className="font-medium text-sm">
+                <Trans>User data updated</Trans>
               </Text>
             </div>
           </div>

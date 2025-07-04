@@ -403,6 +403,9 @@ msgstr "Upload profile picture"
 msgid "User actions"
 msgstr "User actions"
 
+msgid "User data updated"
+msgstr "User data updated"
+
 msgid "User invited successfully"
 msgstr "User invited successfully"
 
