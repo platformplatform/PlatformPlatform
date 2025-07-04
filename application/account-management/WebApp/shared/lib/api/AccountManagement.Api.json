@@ -491,12 +491,23 @@
         }
       }
     },
-    "/api/account-management/users/summary": {
+    "/api/account-management/users/{id}": {
       "get": {
         "tags": [
           "Users"
         ],
-        "operationId": "GetApiAccountManagementUsersSummary",
+        "operationId": "GetApiAccountManagementUsers2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "400": {
             "description": "",
@@ -513,15 +524,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserSummaryResponse"
+                  "$ref": "#/components/schemas/UserDetails"
                 }
               }
             }
           }
         }
-      }
-    },
-    "/api/account-management/users/{id}": {
+      },
       "delete": {
         "tags": [
           "Users"
@@ -545,6 +554,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/users/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountManagementUsersSummary",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSummaryResponse"
                 }
               }
             }
