@@ -24,6 +24,7 @@ interface UserProfileSidePaneProps {
   onDeleteUser: (user: UserDetails) => void;
   isUserInCurrentView?: boolean;
   isDataNewer?: boolean;
+  isLoading?: boolean;
 }
 
 export function UserProfileSidePane({
@@ -32,7 +33,8 @@ export function UserProfileSidePane({
   onClose,
   onDeleteUser,
   isUserInCurrentView = true,
-  isDataNewer = false
+  isDataNewer = false,
+  isLoading = false
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
@@ -174,7 +176,19 @@ export function UserProfileSidePane({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          {user && (
+          {isLoading ? (
+            <div className="p-4">
+              {/* Avatar skeleton matching exact position */}
+              <div className="mb-6 text-center">
+                <div className="mx-auto mb-3 h-20 w-20 animate-pulse rounded-full bg-muted" />
+                <div className="mx-auto mb-2 h-6 w-32 animate-pulse rounded bg-muted" />
+                <div className="mx-auto h-4 w-24 animate-pulse rounded bg-muted" />
+              </div>
+
+              {/* Single block for all other content */}
+              <div className="h-64 w-full animate-pulse rounded-lg bg-muted" />
+            </div>
+          ) : user ? (
             <div className="p-4">
               <>
                 {/* User Avatar and Basic Info */}
@@ -264,7 +278,7 @@ export function UserProfileSidePane({
                 </div>
               </>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Quick Actions */}

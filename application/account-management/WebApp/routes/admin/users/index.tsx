@@ -58,20 +58,22 @@ export default function UsersPage() {
     }
   };
 
-  const { data: userData } = api.useQuery("get", "/api/account-management/users/{id}", {
+  const { data: userData, isLoading: isLoadingUser } = api.useQuery("get", "/api/account-management/users/{id}", {
     params: {
       path: {
         id: userId || ""
       }
     },
-    enabled: !!userId && isInitialLoad
+    enabled: !!userId
   });
 
   useEffect(() => {
-    if (userId && userData && isInitialLoad) {
+    if (userId && userData) {
       setProfileUser(userData);
-      setSelectedUsers([userData]);
-      setIsInitialLoad(false);
+      if (isInitialLoad) {
+        setSelectedUsers([userData]);
+        setIsInitialLoad(false);
+      }
     } else if (!userId && isInitialLoad) {
       setIsInitialLoad(false);
     }
@@ -114,6 +116,7 @@ export default function UsersPage() {
               onDeleteUser={handleDeleteUser}
               isUserInCurrentView={isUserInCurrentView}
               isDataNewer={isDataNewer}
+              isLoading={isLoadingUser || !!(userId && profileUser.id !== userId)}
             />
           ) : undefined
         }
