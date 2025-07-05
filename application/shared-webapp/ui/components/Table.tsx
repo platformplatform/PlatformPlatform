@@ -134,7 +134,7 @@ const rowStyles = tv({
       true: "text-muted-foreground/90"
     },
     isSelected: {
-      true: "bg-active-background hover:bg-selected-hover-background"
+      true: "rounded-md bg-active-background hover:bg-active-background"
     }
   }
 });
