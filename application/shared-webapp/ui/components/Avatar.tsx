@@ -33,7 +33,7 @@ export type AvatarProps = {
 } & HTMLAttributes<HTMLImageElement>;
 
 const backgroundStyles = tv({
-  base: "inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
+  base: "relative inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
   variants: {
     isRound: {
       true: "rounded-full",
@@ -65,13 +65,26 @@ const backgroundStyles = tv({
 export function Avatar({ initials, avatarUrl, size, variant, isRound, className, ...props }: AvatarProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleError = useCallback(() => setImageFailed(true), []);
+  const handleLoad = useCallback(() => setImageLoaded(true), []);
 
   return (
     <div {...props} className={backgroundStyles({ isRound, size, variant, className })}>
       {avatarUrl && !imageFailed ? (
-        <img ref={imgRef} className="" src={avatarUrl} alt="User avatar" onError={handleError} />
+        <>
+          <img
+            ref={imgRef}
+            className={`h-full w-full object-cover ${imageLoaded ? "" : "invisible"}`}
+            src={avatarUrl}
+            alt="User avatar"
+            onError={handleError}
+            onLoad={handleLoad}
+            style={{ position: "absolute", inset: 0 }}
+          />
+          {!imageLoaded && initials?.slice(0, 2)}
+        </>
       ) : (
         initials?.slice(0, 2)
       )}
