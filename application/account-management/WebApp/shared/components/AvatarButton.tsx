@@ -10,6 +10,7 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import "@repo/ui/tailwind.css";
 
 export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
