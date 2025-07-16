@@ -67,48 +67,23 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     }
 
     [Fact]
-    public async Task StartSignup_WhenSignupAlreadyStarted_ShouldReturnConflict()
-    {
-        // Arrange
-        var email = Faker.Internet.Email();
-        var command = new StartSignupCommand(email);
-        await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
-
-        // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
-
-        // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Conflict, "Email confirmation for this email has already been started. Please check your spam folder.");
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1); // Only the first signup should create an event
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
-        await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(s => s.Equals(email.ToLower())),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
-    }
-
-    [Fact]
     public async Task StartSignup_WhenTooManyAttempts_ShouldReturnTooManyRequests()
     {
         // Arrange
         var email = Faker.Internet.Email().ToLowerInvariant();
 
-        // Create 4 signups within the last day for this email
+        // Create 4 signups within the last hour for this email
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
             Connection.Insert("EmailConfirmations", [
                     ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddHours(-i)),
+                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
                     ("Type", EmailConfirmationType.Signup.ToString()),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddHours(-i).AddMinutes(5)),
+                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)

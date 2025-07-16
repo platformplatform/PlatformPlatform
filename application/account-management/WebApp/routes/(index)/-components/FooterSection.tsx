@@ -6,7 +6,7 @@ import { githubLogo, linkedinLogo, logoWrap, slackLogo, twitterLogo, youtubeLogo
 export function FooterSection() {
   return (
     <>
-      <div className="flex w-full items-center gap-8 bg-muted px-16 py-16 md:px-24">
+      <div className="flex w-full items-center gap-8 bg-background px-16 py-16 md:px-24">
         <div className="flex flex-grow flex-col gap-4">
           <div className="font-semibold text-foreground text-xl">Join our newsletter</div>
           <div className="font-normal text-base text-muted-foreground">Technology that has your back.</div>

@@ -13,14 +13,23 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "A new verification code has been sent to your email."
+msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
+
 msgid "Account"
 msgstr "Konto"
+
+msgid "Account information"
+msgstr "Kontoinformation"
 
 msgid "Account name"
 msgstr "Kontonavn"
 
 msgid "Account settings"
 msgstr "Kontoindstillinger"
+
+msgid "Account updated successfully"
+msgstr "Konto opdateret succesfuldt"
 
 msgid "Actions"
 msgstr "Handlinger"
@@ -50,6 +59,9 @@ msgstr "Alle brugere"
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "An invitation email will be sent to the user with a link to log in."
+msgstr "En invitations-e-mail vil blive sendt til brugeren med et link til login."
+
 msgid "Any role"
 msgstr "Enhver rolle"
 
@@ -60,18 +72,26 @@ msgstr "Enhver status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
+
+msgid "Back to login"
+msgstr "Tilbage til login"
+
+msgid "Back to signup"
+msgstr "Tilbage til tilmelding"
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 
-msgid "Can't find your code? Check your spam folder."
-msgstr "Kan du ikke finde din kode? Tjek din spammappe."
+msgid "Can't find your code?"
+msgstr "Kan du ikke finde din kode?"
 
 msgid "Cancel"
 msgstr "Annuller"
+
+msgid "Change language"
+msgstr "Skift sprog"
 
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
@@ -81,6 +101,23 @@ msgstr "Skift rolle"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
+
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Change user role for {0} {1}"
+msgstr "Skift brugerrolle for {0} {1}"
+
+msgid "Check your spam folder."
+msgstr "Tjek din spammappe."
+
+msgid "Clear"
+msgstr "Ryd"
+
+msgid "Clear filters"
+msgstr "Ryd filtre"
+
+msgid "Close user profile"
+msgstr "Luk brugerprofil"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -94,12 +131,15 @@ msgstr "Oprettet"
 msgid "Danger zone"
 msgstr "Farezone"
 
+msgid "Dark"
+msgstr "Mørk"
+
 msgid "Delete"
 msgstr "Slet"
 
-#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
-msgid "Delete {0}"
-msgstr "Slet {0}"
+#. placeholder {0}: selectedUsers.length
+msgid "Delete {0} users"
+msgstr "Slet {0} brugere"
 
 msgid "Delete account"
 msgstr "Slet konto"
@@ -110,11 +150,8 @@ msgstr "Slet bruger"
 msgid "Delete users"
 msgstr "Slet brugere"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
-
-msgid "Didn't receive the code? Resend"
-msgstr "Modtog du ikke koden? Send igen"
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
@@ -122,14 +159,17 @@ msgstr "Har du allerede en konto?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
-msgid "E.g., Alex"
+msgid "E.g. Alex"
 msgstr "F.eks. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "F.eks., Softwareingeniør"
+msgid "E.g. Software engineer"
+msgstr "F.eks. Softwareingeniør"
 
-msgid "E.g., Taylor"
+msgid "E.g. Taylor"
 msgstr "F.eks. Taylor"
+
+msgid "Edit"
+msgstr "Rediger"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -146,14 +186,14 @@ msgstr "Indtast din bekræftelseskode"
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
 
-msgid "Error: Verification code has expired"
-msgstr "Fejl: Bekræftelseskoden er udløbet"
-
 msgid "Europe"
 msgstr "Europa"
 
 msgid "Fetching data..."
 msgstr "Henter data..."
+
+msgid "Filters"
+msgstr "Filtre"
 
 msgid "First name"
 msgstr "Fornavn"
@@ -167,9 +207,6 @@ msgstr "Her er din oversigt over, hvad der sker."
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
 
-msgid "Hide filters"
-msgstr "Skjul filtre"
-
 msgid "Home"
 msgstr "Hjem"
 
@@ -179,17 +216,17 @@ msgstr "Billedet skal være mindre end 1 MB."
 msgid "Invite user"
 msgstr "Inviter bruger"
 
-msgid "Invite users"
-msgstr "Inviter brugere"
-
-msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger ind."
-
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Language"
+msgstr "Sprog"
+
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Light"
+msgstr "Lys"
 
 msgid "Log in"
 msgstr "Log ind"
@@ -212,9 +249,6 @@ msgstr "Administrer dine brugere og tilladelser her."
 msgid "Member"
 msgstr "Medlem"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Ændret"
 
@@ -224,14 +258,17 @@ msgstr "Ændret dato"
 msgid "Name"
 msgstr "Navn"
 
+msgid "Navigation"
+msgstr "Navigation"
+
 msgid "Next"
 msgstr "Næste"
 
-msgid "No active login."
-msgstr "Ingen aktiv login."
+msgid "OK"
+msgstr "OK"
 
-msgid "No active signup session."
-msgstr "Ingen aktiv tilmeldingssession."
+msgid "Only account owners can modify the account name"
+msgstr "Kun kontoejere kan ændre kontonavnet"
 
 msgid "Organization"
 msgstr "Organisation"
@@ -242,6 +279,9 @@ msgstr "Ejer"
 msgid "Pending"
 msgstr "Afventer"
 
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -249,7 +289,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Powered by"
-msgstr "Drevet af"
+msgstr "Powered by"
 
 msgid "Preview avatar"
 msgstr "Forhåndsvisning af avatar"
@@ -263,11 +303,17 @@ msgstr "Fortrolighedspolitikker"
 msgid "Profile picture"
 msgstr "Profilbillede"
 
+msgid "Profile updated successfully"
+msgstr "Profil opdateret succesfuldt"
+
 msgid "Region"
 msgstr "Region"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
+
+msgid "Request a new code"
+msgstr "Anmod om en ny kode"
 
 msgid "Role"
 msgstr "Rolle"
@@ -291,6 +337,9 @@ msgstr "Søg"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Vælg datoer"
+
 msgid "Select language"
 msgstr "Vælg sprog"
 
@@ -304,19 +353,25 @@ msgid "Show filters"
 msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Success"
+msgstr "Succes"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "System"
+msgstr "System"
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræftelses-ID: {emailConfirmationId}"
-
-msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
+msgid "Theme"
+msgstr "Tema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -342,14 +397,26 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
+msgid "User actions"
+msgstr "Brugerhandlinger"
+
+msgid "User invited successfully"
+msgstr "Bruger inviteret succesfuldt"
+
 msgid "User profile"
 msgstr "Brugerprofil"
+
+msgid "User profile details"
+msgstr "Brugerprofiloplysninger"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
 
 msgid "User role"
 msgstr "Brugerrolle"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 
 msgid "User status"
 msgstr "Brugerstatus"
@@ -362,6 +429,12 @@ msgstr "Brugere"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
+
+msgid "Verification code sent"
+msgstr "Bekræftelseskode sendt"
+
+msgid "Verified"
+msgstr "Bekræftet"
 
 msgid "Verify"
 msgstr "Bekræft"
@@ -384,8 +457,18 @@ msgstr "Se brugere"
 msgid "Welcome home"
 msgstr "Velkommen hjem"
 
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Velkommen hjem, {0}"
+
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
+
+msgid "Your verification code has expired"
+msgstr "Din bekræftelseskode er udløbet"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Din bekræftelseskode er gyldig i {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"

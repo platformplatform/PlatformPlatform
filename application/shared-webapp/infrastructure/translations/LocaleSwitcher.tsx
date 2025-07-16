@@ -4,7 +4,7 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { CheckIcon, LanguagesIcon } from "lucide-react";
+import { CheckIcon, GlobeIcon } from "lucide-react";
 import { use, useContext, useMemo } from "react";
 import { type Locale, translationContext } from "./TranslationContext";
 import { preferredLocaleKey } from "./constants";
@@ -48,7 +48,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
   return (
     <MenuTrigger>
       <Button variant="icon" aria-label={ariaLabel}>
-        <LanguagesIcon className="h-5 w-5" />
+        <GlobeIcon className="h-5 w-5" />
       </Button>
       <Menu onAction={handleLocaleChange} aria-label={ariaLabel}>
         {items.map((item) => (

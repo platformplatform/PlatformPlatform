@@ -9,6 +9,7 @@ export default {
     path.join(path.dirname(require.resolve("@repo/ui")), "components", "*.js"),
     path.join(path.dirname(require.resolve("@repo/ui")), "components", "**/*.js")
   ],
+  safelist: [".dark", ".light"],
   darkMode: ["class"],
   theme: {
     container: {
@@ -72,7 +73,13 @@ export default {
         info: {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))"
-        }
+        },
+        // Dark theme specific colors
+        sidebar: "hsl(var(--sidebar))",
+        "hover-background": "hsl(var(--hover-background))",
+        "active-background": "hsl(var(--active-background))",
+        "selected-hover-background": "hsl(var(--selected-hover-background))",
+        "input-background": "hsl(var(--input-background))"
       },
       borderRadius: {
         lg: "var(--radius)",

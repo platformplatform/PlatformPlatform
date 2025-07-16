@@ -31,16 +31,37 @@ export interface TextFieldProps
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  isDisabled?: boolean;
+  isReadOnly?: boolean;
+  inputClassName?: string;
+  startIcon?: React.ReactNode;
 }
 
-export function TextField({ label, description, errorMessage, className, ...props }: Readonly<TextFieldProps>) {
+export function TextField({
+  label,
+  description,
+  errorMessage,
+  className,
+  isDisabled,
+  isReadOnly,
+  inputClassName,
+  startIcon,
+  ...props
+}: Readonly<TextFieldProps>) {
   if (props.children) {
     return <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")} />;
   }
+
   return (
     <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
       {label && <Label>{label}</Label>}
-      <Input name={props.name} className={inputStyles} />
+      <Input
+        name={props.name}
+        className={`${inputStyles} ${inputClassName || ""}`}
+        isDisabled={isDisabled}
+        isReadOnly={isReadOnly}
+        startIcon={startIcon}
+      />
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
     </AriaTextField>

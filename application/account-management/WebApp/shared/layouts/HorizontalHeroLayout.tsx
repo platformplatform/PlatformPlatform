@@ -21,8 +21,8 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
         <LocaleSwitcher aria-label={t`Select language`} />
       </div>
       <div className="flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col items-center justify-center gap-6 p-6 md:w-1/2">{children}</div>
-        <div className="flex items-center justify-center bg-gray-50 p-6 md:w-1/2 md:px-28 md:py-12 dark:bg-gray-900">
+        <div className="flex flex-col items-center justify-center gap-6 bg-background p-6 md:w-1/2">{children}</div>
+        <div className="flex items-center justify-center bg-input-background p-6 md:w-1/2 md:px-28 md:py-12">
           <HeroImage />
         </div>
       </div>

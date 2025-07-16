@@ -47,4 +47,19 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountManagemen
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task UpdateCurrentTenant_WhenNonOwner_ShouldReturnForbidden()
+    {
+        // Arrange
+        var command = new UpdateCurrentTenantCommand { Name = Faker.TenantName() };
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account-management/tenants/current", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners are allowed to update tenant information.");
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+    }
 }

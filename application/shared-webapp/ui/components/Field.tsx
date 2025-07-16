@@ -22,7 +22,7 @@ export const fieldBorderStyles = tv({
 
 export const fieldGroupStyles = tv({
   extend: focusRing,
-  base: "group flex h-10 items-center overflow-hidden rounded-md border bg-background forced-colors:bg-[Field]",
+  base: "group flex h-10 items-center overflow-hidden rounded-md border bg-input-background forced-colors:bg-[Field]",
   variants: fieldBorderStyles.variants
 });
 
