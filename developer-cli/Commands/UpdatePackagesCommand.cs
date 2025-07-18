@@ -92,6 +92,8 @@ public sealed class UpdatePackagesCommand : Command
 
         var updates = new List<PackageUpdate>();
         var warningCount = 0;
+        var upToDateCount = 0;
+        var totalPackages = packageElements.Length;
 
         foreach (var packageElement in packageElements)
         {
@@ -121,6 +123,7 @@ public sealed class UpdatePackagesCommand : Command
             if (versionResolution.LatestVersion is null)
             {
                 // Package is up to date or couldn't be resolved
+                upToDateCount++;
                 continue;
             }
 
@@ -132,6 +135,32 @@ public sealed class UpdatePackagesCommand : Command
             if (status.CanUpdate)
             {
                 updates.Add(new PackageUpdate(packageElement, packageName, currentVersion, status.TargetVersion));
+            }
+        }
+        
+        // Check for dependency conflicts and update Microsoft.Extensions.* packages to 9.0.7 if needed
+        var hasResilienceUpdate = updates.Any(u => u.PackageName == "Microsoft.Extensions.Http.Resilience" && u.NewVersion == "9.7.0");
+        if (hasResilienceUpdate)
+        {
+            var microsoftExtensionsPackages = packageElements
+                .Where(p => p.Attribute("Include")?.Value?.StartsWith("Microsoft.Extensions.") == true || 
+                           p.Attribute("Include")?.Value?.StartsWith("Microsoft.EntityFrameworkCore") == true ||
+                           p.Attribute("Include")?.Value?.StartsWith("Microsoft.AspNetCore") == true)
+                .Where(p => p.Attribute("Version")?.Value?.StartsWith("9.0.") == true)
+                .ToList();
+            
+            foreach (var packageElement in microsoftExtensionsPackages)
+            {
+                var packageName = packageElement.Attribute("Include")?.Value;
+                var currentVersion = packageElement.Attribute("Version")?.Value;
+                if (packageName is null || currentVersion is null) continue;
+                
+                // Ensure all Microsoft.Extensions.* packages are at 9.0.7
+                if (currentVersion == "9.0.4" && !updates.Any(u => u.PackageName == packageName))
+                {
+                    updates.Add(new PackageUpdate(packageElement, packageName, currentVersion, "9.0.7"));
+                    table.AddRow(packageName, currentVersion, "9.0.7", dryRun ? "[yellow]Will update (dependency)[/]" : "[green]Updated (dependency)[/]");
+                }
             }
         }
 
