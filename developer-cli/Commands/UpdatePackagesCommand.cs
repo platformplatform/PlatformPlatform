@@ -45,6 +45,7 @@ public sealed class UpdatePackagesCommand : Command
         if (updateBackend)
         {
             await UpdateNuGetPackagesAsync(dryRun, excludedPackages);
+            UpdateAspireSdkVersion(dryRun);
 
             if (build && !dryRun)
             {
@@ -639,4 +640,70 @@ public sealed class UpdatePackagesCommand : Command
     private sealed record UpdateStatus(bool CanUpdate, bool IsRestricted, string TargetVersion);
 
     private sealed record VersionResolution(string? LatestVersion, bool HasWarning = false, string? WarningMessage = null);
+    
+    private static void UpdateAspireSdkVersion(bool dryRun)
+    {
+        var appHostPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
+        if (!File.Exists(appHostPath))
+        {
+            return;
+        }
+
+        try
+        {
+            var appHostXml = XDocument.Load(appHostPath);
+            var sdkElement = appHostXml.Descendants("Sdk")
+                .FirstOrDefault(e => e.Attribute("Name")?.Value == "Aspire.AppHost.Sdk");
+
+            if (sdkElement is null)
+            {
+                return;
+            }
+
+            var currentSdkVersion = sdkElement.Attribute("Version")?.Value;
+            if (currentSdkVersion is null)
+            {
+                return;
+            }
+
+            // Get the Aspire.Hosting.AppHost version from Directory.Packages.props
+            var directoryPackagesPath = Path.Combine(Configuration.ApplicationFolder, "Directory.Packages.props");
+            var packagesXml = XDocument.Load(directoryPackagesPath);
+            var appHostPackageElement = packagesXml.Descendants("PackageVersion")
+                .FirstOrDefault(e => e.Attribute("Include")?.Value == "Aspire.Hosting.AppHost");
+
+            var targetSdkVersion = appHostPackageElement?.Attribute("Version")?.Value;
+            if (targetSdkVersion is null || targetSdkVersion == currentSdkVersion)
+            {
+                return;
+            }
+
+            // Display SDK update information
+            AnsiConsole.MarkupLine("\nAnalyzing Aspire SDK version...");
+            var table = new Table();
+            table.AddColumn("SDK");
+            table.AddColumn("Current Version");
+            table.AddColumn("Target Version");
+            table.AddColumn("Status");
+
+            var statusColor = dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
+            table.AddRow("Aspire.AppHost.Sdk", currentSdkVersion, targetSdkVersion, statusColor);
+            AnsiConsole.Write(table);
+
+            if (!dryRun)
+            {
+                sdkElement.SetAttributeValue("Version", targetSdkVersion);
+                appHostXml.Save(appHostPath);
+                AnsiConsole.MarkupLine($"[green]Updated Aspire.AppHost.Sdk from {currentSdkVersion} to {targetSdkVersion}[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[blue]Would update Aspire SDK version (dry-run mode)[/]");
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[yellow]Warning: Could not update Aspire SDK version: {ex.Message}[/]");
+        }
+    }
 }
