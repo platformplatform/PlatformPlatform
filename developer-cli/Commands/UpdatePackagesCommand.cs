@@ -11,7 +11,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public sealed class UpdatePackagesCommand : Command
 {
-    private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions"];
+    private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions", "Microsoft.OpenApi", "Microsoft.OpenApi.Readers"];
 
     public UpdatePackagesCommand() : base("update-packages", "Updates packages to their latest versions while preserving major versions for restricted packages")
     {
@@ -26,9 +26,6 @@ public sealed class UpdatePackagesCommand : Command
     private static async Task Execute(bool backend, bool frontend, bool dryRun, bool build, string? exclude)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
-
-        // Always update unless --dry-run is specified
-        var performUpdate = !dryRun;
 
         var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)).ToArray() ?? [];
         if (excludedPackages.Length > 0)
@@ -46,9 +43,9 @@ public sealed class UpdatePackagesCommand : Command
 
         if (updateBackend)
         {
-            await UpdateNuGetPackagesAsync(performUpdate, excludedPackages);
+            await UpdateNuGetPackagesAsync(dryRun, excludedPackages);
 
-            if (build && performUpdate)
+            if (build && !dryRun)
             {
                 await RunBuildCommand(true, false);
             }
@@ -56,16 +53,16 @@ public sealed class UpdatePackagesCommand : Command
 
         if (updateFrontend)
         {
-            UpdateNpmPackages(performUpdate, excludedPackages);
+            UpdateNpmPackages(dryRun, excludedPackages);
 
-            if (build && performUpdate)
+            if (build && !dryRun)
             {
                 await RunBuildCommand(false, true);
             }
         }
     }
 
-    private static async Task UpdateNuGetPackagesAsync(bool performUpdate, string[] excludedPackages)
+    private static async Task UpdateNuGetPackagesAsync(bool dryRun, string[] excludedPackages)
     {
         var directoryPackagesPath = Path.Combine(Configuration.ApplicationFolder, "Directory.Packages.props");
         if (!File.Exists(directoryPackagesPath))
@@ -112,14 +109,14 @@ public sealed class UpdatePackagesCommand : Command
             }
 
             var versionResolution = await ResolvePackageVersionAsync(outdatedPackagesJson, packageName, currentVersion);
-            
+
             if (versionResolution.HasWarning)
             {
                 warningCount++;
                 table.AddRow(packageName, currentVersion, "[yellow]Unknown[/]", $"[yellow]{versionResolution.WarningMessage}[/]");
                 continue;
             }
-            
+
             if (versionResolution.LatestVersion is null)
             {
                 // Package is up to date or couldn't be resolved
@@ -127,7 +124,7 @@ public sealed class UpdatePackagesCommand : Command
             }
 
             var status = GetNuGetUpdateStatus(packageName, currentVersion, versionResolution.LatestVersion);
-            var statusColor = status.IsRestricted ? "[red]Restricted[/]" : performUpdate ? "[green]Updated[/]" : "[yellow]Will update[/]";
+            var statusColor = status.IsRestricted ? "[red]Restricted[/]" : dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
 
             table.AddRow(packageName, currentVersion, versionResolution.LatestVersion, statusColor);
 
@@ -151,7 +148,7 @@ public sealed class UpdatePackagesCommand : Command
             AnsiConsole.MarkupLine("[green]All NuGet packages are up to date![/]");
         }
 
-        if (updates.Count > 0 && performUpdate)
+        if (updates.Count > 0 && !dryRun)
         {
             foreach (var update in updates)
             {
@@ -161,9 +158,6 @@ public sealed class UpdatePackagesCommand : Command
 
             xDocument.Save(directoryPackagesPath);
             AnsiConsole.MarkupLine("[green]Directory.Packages.props updated successfully![/]");
-            
-            // Check for package downgrades and resolve them
-            await FixPackageDowngradesAsync(directoryPackagesPath);
         }
         else if (updates.Count > 0)
         {
@@ -171,127 +165,43 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static async Task FixPackageDowngradesAsync(string directoryPackagesPath)
-    {
-        AnsiConsole.MarkupLine("[blue]Checking for package downgrades...[/]");
-        
-        // Run a build to see if there are any package downgrade errors
-        var output = await Task.Run(() => ProcessHelper.StartProcess(
-            "dotnet build /Users/thomasjespersen/Developer/PlatformPlatform/application/AppHost/AppHost.csproj -c Release -v q",
-            Configuration.ApplicationFolder,
-            exitOnError: false,
-            redirectOutput: true,
-            throwOnError: false
-        ));
-        
-        var downgradePattern = new Regex(@"Detected package downgrade: (.*?) from ([\d\.]+) to centrally defined ([\d\.]+)");
-        var matches = downgradePattern.Matches(output);
-        
-        if (matches.Count == 0)
-        {
-            AnsiConsole.MarkupLine("[green]No package downgrades detected.[/]");
-            return;
-        }
-        
-        AnsiConsole.MarkupLine($"[yellow]Found {matches.Count} package downgrade issues. Attempting to fix...[/]");
-        
-        var xDocument = XDocument.Load(directoryPackagesPath);
-        var packageElements = xDocument.Descendants("PackageVersion").ToDictionary(
-            x => x.Attribute("Include")?.Value ?? string.Empty, 
-            x => x
-        );
-        
-        var fixedCount = 0;
-        foreach (Match match in matches)
-        {
-            var packageName = match.Groups[1].Value;
-            var requiredVersion = match.Groups[2].Value;
-            var currentVersion = match.Groups[3].Value;
-            
-            if (packageElements.TryGetValue(packageName, out var element))
-            {
-                element.SetAttributeValue("Version", requiredVersion);
-                AnsiConsole.MarkupLine($"[green]Fixed downgrade: {packageName} from {currentVersion} to {requiredVersion}[/]");
-                fixedCount++;
-            }
-        }
-        
-        if (fixedCount > 0)
-        {
-            xDocument.Save(directoryPackagesPath);
-            AnsiConsole.MarkupLine($"[green]Fixed {fixedCount} package downgrade issues.[/]");
-        }
-    }
-
     private static async Task<VersionResolution> ResolvePackageVersionAsync(JsonDocument outdatedPackagesJson, string packageName, string currentVersion)
     {
-        // First try to get the latest version from the outdated packages JSON
-        var latestVersion = GetLatestVersionFromJson(outdatedPackagesJson, packageName);
-        var isCurrentPrerelease = IsPreReleaseVersion(currentVersion);
-        
-        // Check if it's a "Not found at the sources" case
-        if (latestVersion == "Not found at the sources")
+        var latestFromOutdated = GetLatestVersionFromJson(outdatedPackagesJson, packageName);
+
+        if (latestFromOutdated is null)
         {
-            if (isCurrentPrerelease)
-            {
-                var prereleaseVersion = await GetLatestPreReleaseVersionAsync(packageName, currentVersion);
-                if (prereleaseVersion is null || IsIncompatiblePrerelease(prereleaseVersion))
-                {
-                    return new VersionResolution(null, true, $"Could not resolve compatible prerelease version for '{packageName}'");
-                }
-                
-                // Check if the prerelease version is different from current
-                if (prereleaseVersion != currentVersion)
-                {
-                    return new VersionResolution(prereleaseVersion);
-                }
-                
-                return new VersionResolution(null);
-            }
-            
+            // Package not found in outdated JSON means it's up-to-date
+            return new VersionResolution(null);
+        }
+
+        // Handle "Not found at the sources" case from outdated JSON
+        if (latestFromOutdated == "Not found at the sources")
+        {
             return new VersionResolution(null, true, $"Package '{packageName}' reported as not found at the sources");
         }
-        
-        // Filter out incompatible prerelease versions (e.g., .NET 10 previews when using .NET 9)
-        if (latestVersion is not null && IsIncompatiblePrerelease(latestVersion))
+
+        // Filter out incompatible prerelease versions
+        if (IsPreReleaseVersion(latestFromOutdated))
         {
             // Try to find a compatible stable version instead
-            latestVersion = null;
-        }
-        
-        // If no latest version was found, check if it's a prerelease package
-        if (latestVersion is null && isCurrentPrerelease)
-        {
-            var prereleaseVersion = await GetLatestPreReleaseVersionAsync(packageName, currentVersion);
-            if (prereleaseVersion is null || IsIncompatiblePrerelease(prereleaseVersion))
+            var stableVersion = await GetLatestStableVersionAsync(packageName);
+            if (stableVersion is not null && stableVersion != currentVersion)
             {
-                return new VersionResolution(null, true, $"Could not resolve compatible prerelease version for '{packageName}'");
+                return new VersionResolution(stableVersion);
             }
-            
-            // Compare versions to determine if we should update
-            if (prereleaseVersion == currentVersion)
-            {
-                // Up to date
-                return new VersionResolution(null);
-            }
-            
-            return new VersionResolution(prereleaseVersion);
-        }
-        
-        // If we have a prerelease but a stable version is available, use the stable version
-        if (isCurrentPrerelease && latestVersion is not null && !IsPreReleaseVersion(latestVersion))
-        {
-            return new VersionResolution(latestVersion);
-        }
-        
-        return new VersionResolution(latestVersion);
-    }
 
-    private static bool IsIncompatiblePrerelease(string version)
-    {
-        // Filter out .NET 10 preview versions when using .NET 9
-        // These typically contain "10.0.0-preview" in the version string
-        return version.Contains("10.0.0-preview") || version.Contains("11.0.0-preview");
+            // If current version is also prerelease, allow the prerelease update
+            if (IsPreReleaseVersion(currentVersion))
+            {
+                return new VersionResolution(latestFromOutdated);
+            }
+
+            // Otherwise, no update (don't upgrade stable to prerelease)
+            return new VersionResolution(null);
+        }
+
+        return new VersionResolution(latestFromOutdated);
     }
 
     private static async Task<JsonDocument?> GetOutdatedPackagesJsonAsync()
@@ -299,12 +209,7 @@ public sealed class UpdatePackagesCommand : Command
         var output = "";
         for (var attempt = 1; attempt <= 2; attempt++)
         {
-            output = ProcessHelper.StartProcess(
-                "dotnet list package --outdated --include-prerelease --format json",
-                Configuration.ApplicationFolder,
-                exitOnError: false,
-                redirectOutput: true
-            );
+            output = ProcessHelper.StartProcess("dotnet list package --outdated --include-prerelease --format json", Configuration.ApplicationFolder, true, exitOnError: false, throwOnError: false);
 
             if (!string.IsNullOrEmpty(output)) break;
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -346,31 +251,32 @@ public sealed class UpdatePackagesCommand : Command
         return null;
     }
 
-    private static async Task<string?> GetLatestPreReleaseVersionAsync(string packageName, string currentVersion)
+    private static async Task<string?> GetLatestPreReleaseVersionAsync(string packageName)
     {
-        try
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetStringAsync($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/index.json");
-            var json = JsonDocument.Parse(response);
-            var versions = json.RootElement.GetProperty("versions");
+        var outdatedJson = await GetOutdatedPackagesJsonAsync();
+        if (outdatedJson is null) return null;
 
-            var matchingVersions = new List<string>();
-            foreach (var version in versions.EnumerateArray())
-            {
-                var versionString = version.GetString();
-                if (versionString is not null && IsPreReleaseVersion(versionString))
-                {
-                    matchingVersions.Add(versionString);
-                }
-            }
-
-            return matchingVersions.LastOrDefault();
-        }
-        catch
+        var latestFromOutdated = GetLatestVersionFromJson(outdatedJson, packageName);
+        if (latestFromOutdated is not null && IsPreReleaseVersion(latestFromOutdated))
         {
-            return null;
+            return latestFromOutdated;
         }
+
+        return null;
+    }
+
+    private static async Task<string?> GetLatestStableVersionAsync(string packageName)
+    {
+        var outdatedJson = await GetOutdatedPackagesJsonAsync();
+        if (outdatedJson is null) return null;
+
+        var latestFromOutdated = GetLatestVersionFromJson(outdatedJson, packageName);
+        if (latestFromOutdated is not null && !IsPreReleaseVersion(latestFromOutdated))
+        {
+            return latestFromOutdated;
+        }
+
+        return null;
     }
 
     private static bool IsPreReleaseVersion(string version)
@@ -378,7 +284,7 @@ public sealed class UpdatePackagesCommand : Command
         return version.Contains("-") || version.Contains("alpha") || version.Contains("beta") || version.Contains("rc");
     }
 
-    private static void UpdateNpmPackages(bool performUpdate, string[] excludedPackages)
+    private static void UpdateNpmPackages(bool dryRun, string[] excludedPackages)
     {
         var packageJsonPath = Path.Combine(Configuration.ApplicationFolder, "package.json");
 
@@ -410,7 +316,7 @@ public sealed class UpdatePackagesCommand : Command
         foreach (var package in outdatedPackages.RootElement.EnumerateObject())
         {
             var packageName = package.Name;
-            
+
             // Skip excluded packages
             if (excludedPackages.Contains(packageName))
             {
@@ -419,9 +325,10 @@ public sealed class UpdatePackagesCommand : Command
                     var packageCurrentVersion = packageCurrentElement.GetString() ?? "unknown";
                     table.AddRow(packageName, packageCurrentVersion, "-", "[blue]Excluded[/]");
                 }
+
                 continue;
             }
-            
+
             var packageInfo = package.Value;
 
             if (!packageInfo.TryGetProperty("current", out var currentElement) ||
@@ -438,7 +345,7 @@ public sealed class UpdatePackagesCommand : Command
                 continue;
             }
 
-            var statusColor = performUpdate ? "[green]Updated[/]" : "[yellow]Will update[/]";
+            var statusColor = dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
             table.AddRow(packageName, currentVersion, latestVersion, statusColor);
             updates.Add($"{packageName}@{latestVersion}");
         }
@@ -453,7 +360,7 @@ public sealed class UpdatePackagesCommand : Command
             return;
         }
 
-        if (updates.Count > 0 && performUpdate)
+        if (updates.Count > 0 && !dryRun)
         {
             var updateCommand = $"npm install {string.Join(" ", updates)}";
             ProcessHelper.StartProcess(updateCommand, Configuration.ApplicationFolder);
@@ -554,6 +461,6 @@ public sealed class UpdatePackagesCommand : Command
     private sealed record PackageUpdate(XElement Element, string PackageName, string CurrentVersion, string NewVersion);
 
     private sealed record UpdateStatus(bool CanUpdate, bool IsRestricted, string TargetVersion);
-    
+
     private sealed record VersionResolution(string? LatestVersion, bool HasWarning = false, string? WarningMessage = null);
 }
