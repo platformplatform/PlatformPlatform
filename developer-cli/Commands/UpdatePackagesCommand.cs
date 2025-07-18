@@ -113,7 +113,10 @@ public sealed class UpdatePackagesCommand : Command
         table.AddColumn("Update Type");
 
         var updates = new List<PackageUpdate>();
-
+        
+        // First pass: collect all updates
+        var allPotentialUpdates = new Dictionary<string, PackageUpdate>();
+        
         foreach (var packageElement in packageElements)
         {
             var packageName = packageElement.Attribute("Include")?.Value;
@@ -121,7 +124,7 @@ public sealed class UpdatePackagesCommand : Command
             if (packageName is null || currentVersion is null) continue;
 
             // Skip excluded packages
-            if (excludedPackages.Contains(packageName))
+            if (IsPackageExcluded(packageName, excludedPackages))
             {
                 table.AddRow(packageName, currentVersion, "-", "[blue]Excluded[/]");
                 BackendSummary.Excluded++;
@@ -136,31 +139,37 @@ public sealed class UpdatePackagesCommand : Command
                 continue;
             }
 
-            var status = GetNuGetUpdateStatus(packageName, currentVersion, versionResolution.LatestVersion);
+            var status = GetNuGetUpdateStatus(packageName, currentVersion, versionResolution.LatestVersion!);
             
-            // Only show packages that can actually be updated
+            // Collect all potential updates
             if (status.CanUpdate)
             {
-                var updateType = GetUpdateType(currentVersion, status.TargetVersion);
-                BackendSummary.IncrementUpdateType(updateType);
-                
-                var statusColor = updateType switch
-                {
-                    UpdateType.Major => "[yellow]Major[/]",
-                    UpdateType.Minor => "[green]Minor[/]",
-                    UpdateType.Patch => "Patch",
-                    _ => "[green]Minor[/]"
-                };
-                
-                table.AddRow(packageName, currentVersion, status.TargetVersion, statusColor);
-                updates.Add(new PackageUpdate(packageElement, packageName, currentVersion, status.TargetVersion));
+                allPotentialUpdates[packageName] = new PackageUpdate(packageElement, packageName, currentVersion, status.TargetVersion);
             }
             else if (status.IsRestricted)
             {
                 // Show restricted packages in the table but don't count them as updates
-                table.AddRow(packageName, currentVersion, versionResolution.LatestVersion, "[red]Excluded[/]");
+                table.AddRow(packageName, currentVersion, versionResolution.LatestVersion!, "[red]Excluded[/]");
                 BackendSummary.Excluded++;
             }
+        }
+        
+        // Add all updates to the table and updates list
+        foreach (var update in allPotentialUpdates.Values.OrderBy(u => u.PackageName))
+        {
+            var updateType = GetUpdateType(update.CurrentVersion, update.NewVersion);
+            BackendSummary.IncrementUpdateType(updateType);
+            
+            var statusColor = updateType switch
+            {
+                UpdateType.Major => "[yellow]Major[/]",
+                UpdateType.Minor => "[green]Minor[/]",
+                UpdateType.Patch => "Patch",
+                _ => "[green]Minor[/]"
+            };
+            
+            table.AddRow(update.PackageName, update.CurrentVersion, update.NewVersion, statusColor);
+            updates.Add(update);
         }
 
         if (table.Rows.Count > 0)
@@ -411,7 +420,7 @@ public sealed class UpdatePackagesCommand : Command
             var packageName = package.Name;
 
             // Skip excluded packages
-            if (excludedPackages.Contains(packageName))
+            if (IsPackageExcluded(packageName, excludedPackages))
             {
                 if (package.Value.TryGetProperty("current", out var packageCurrentElement))
                 {
@@ -973,6 +982,23 @@ public sealed class UpdatePackagesCommand : Command
         Patch,
         Minor,
         Major
+    }
+    
+    private static bool IsPackageExcluded(string packageName, string[] excludePatterns)
+    {
+        foreach (var pattern in excludePatterns)
+        {
+            // Check for exact match
+            if (pattern == packageName) return true;
+            
+            // Check for wildcard patterns
+            if (pattern.Contains('*'))
+            {
+                var regexPattern = "^" + Regex.Escape(pattern).Replace("\\*", ".*") + "$";
+                if (Regex.IsMatch(packageName, regexPattern)) return true;
+            }
+        }
+        return false;
     }
     
     private static UpdateType GetUpdateType(string currentVersion, string newVersion)
