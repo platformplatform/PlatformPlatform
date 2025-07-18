@@ -12,6 +12,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 public sealed class UpdatePackagesCommand : Command
 {
     private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions", "Microsoft.OpenApi", "Microsoft.OpenApi.Readers"];
+    private static readonly Dictionary<string, string?> NuGetApiCache = new();
 
     public UpdatePackagesCommand() : base("update-packages", "Updates packages to their latest versions while preserving major versions for restricted packages")
     {
@@ -171,7 +172,30 @@ public sealed class UpdatePackagesCommand : Command
 
         if (latestFromOutdated is null)
         {
-            // Package not found in outdated JSON means it's up-to-date
+            // Package not found in outdated JSON - check NuGet API directly
+            var latestFromApi = await GetLatestVersionFromNuGetApi(packageName);
+            if (latestFromApi is null)
+            {
+                return new VersionResolution(null, true, $"Failed to retrieve version information for '{packageName}'");
+            }
+
+            // Compare versions to see if an update is available
+            if (latestFromApi != currentVersion && IsNewerVersion(latestFromApi, currentVersion))
+            {
+                // Filter out incompatible prerelease versions
+                if (IsPreReleaseVersion(latestFromApi) && !IsPreReleaseVersion(currentVersion))
+                {
+                    // Try to find a stable version instead
+                    var stableVersion = await GetLatestStableVersionFromNuGetApi(packageName);
+                    if (stableVersion is not null && stableVersion != currentVersion && IsNewerVersion(stableVersion, currentVersion))
+                    {
+                        return new VersionResolution(stableVersion);
+                    }
+                    return new VersionResolution(null);
+                }
+                return new VersionResolution(latestFromApi);
+            }
+
             return new VersionResolution(null);
         }
 
@@ -282,6 +306,129 @@ public sealed class UpdatePackagesCommand : Command
     private static bool IsPreReleaseVersion(string version)
     {
         return version.Contains("-") || version.Contains("alpha") || version.Contains("beta") || version.Contains("rc");
+    }
+
+    private static async Task<string?> GetLatestVersionFromNuGetApi(string packageName)
+    {
+        // Check cache first
+        var cacheKey = $"{packageName}_latest";
+        if (NuGetApiCache.TryGetValue(cacheKey, out var cachedVersion))
+        {
+            return cachedVersion;
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/index.json");
+            var json = JsonDocument.Parse(response);
+            var versions = json.RootElement.GetProperty("versions");
+
+            // Get all versions including pre-release
+            var allVersions = new List<string>();
+            foreach (var version in versions.EnumerateArray())
+            {
+                var versionString = version.GetString();
+                if (versionString is not null)
+                {
+                    allVersions.Add(versionString);
+                }
+            }
+
+            // Return the latest version (last in the array as they're sorted)
+            var latestVersion = allVersions.LastOrDefault();
+            NuGetApiCache[cacheKey] = latestVersion;
+            return latestVersion;
+        }
+        catch
+        {
+            NuGetApiCache[cacheKey] = null;
+            return null;
+        }
+    }
+
+    private static async Task<string?> GetLatestStableVersionFromNuGetApi(string packageName)
+    {
+        // Check cache first
+        var cacheKey = $"{packageName}_stable";
+        if (NuGetApiCache.TryGetValue(cacheKey, out var cachedVersion))
+        {
+            return cachedVersion;
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync($"https://api.nuget.org/v3-flatcontainer/{packageName.ToLower()}/index.json");
+            var json = JsonDocument.Parse(response);
+            var versions = json.RootElement.GetProperty("versions");
+
+            // Get only stable versions (no pre-release)
+            var stableVersions = new List<string>();
+            foreach (var version in versions.EnumerateArray())
+            {
+                var versionString = version.GetString();
+                if (versionString is not null && !IsPreReleaseVersion(versionString))
+                {
+                    stableVersions.Add(versionString);
+                }
+            }
+
+            // Return the latest stable version
+            var latestStable = stableVersions.LastOrDefault();
+            NuGetApiCache[cacheKey] = latestStable;
+            return latestStable;
+        }
+        catch
+        {
+            NuGetApiCache[cacheKey] = null;
+            return null;
+        }
+    }
+
+    private static bool IsNewerVersion(string version1, string version2)
+    {
+        try
+        {
+            // Parse versions for comparison
+            var v1Parts = version1.Split('-')[0].Split('.').Select(int.Parse).ToArray();
+            var v2Parts = version2.Split('-')[0].Split('.').Select(int.Parse).ToArray();
+
+            // Compare major, minor, patch
+            for (var i = 0; i < Math.Max(v1Parts.Length, v2Parts.Length); i++)
+            {
+                var v1Part = i < v1Parts.Length ? v1Parts[i] : 0;
+                var v2Part = i < v2Parts.Length ? v2Parts[i] : 0;
+
+                if (v1Part > v2Part) return true;
+                if (v1Part < v2Part) return false;
+            }
+
+            // If base versions are equal, check pre-release
+            if (version1.Contains('-') && !version2.Contains('-'))
+            {
+                // v1 is pre-release, v2 is stable - v2 is considered newer
+                return false;
+            }
+            if (!version1.Contains('-') && version2.Contains('-'))
+            {
+                // v1 is stable, v2 is pre-release - v1 is considered newer
+                return true;
+            }
+
+            // Both have same base version, compare pre-release parts if any
+            if (version1.Contains('-') && version2.Contains('-'))
+            {
+                return string.Compare(version1, version2, StringComparison.Ordinal) > 0;
+            }
+
+            return false;
+        }
+        catch
+        {
+            // Fallback to string comparison if parsing fails
+            return string.Compare(version1, version2, StringComparison.Ordinal) > 0;
+        }
     }
 
     private static void UpdateNpmPackages(bool dryRun, string[] excludedPackages)
