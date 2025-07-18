@@ -22,13 +22,13 @@ public sealed class UpdatePackagesCommand : Command
         AddOption(new Option<bool>(["--backend", "-b"], "Update only backend packages (NuGet)"));
         AddOption(new Option<bool>(["--frontend", "-f"], "Update only frontend packages (npm)"));
         AddOption(new Option<bool>(["--dry-run", "-d"], "Show what would be updated without making changes"));
-        AddOption(new Option<bool>(["--build"], "Run build command after successful package updates"));
+        AddOption(new Option<bool>(["--validate"], "Run validation commands after successful package updates"));
         AddOption(new Option<string?>(["--exclude", "-e"], "Comma-separated list of packages to exclude from updates"));
         AddOption(new Option<bool>(["--skip-update-dotnet"], "Skip updating .NET SDK version in global.json"));
         Handler = CommandHandler.Create<bool, bool, bool, bool, string?, bool>(Execute);
     }
 
-    private static async Task Execute(bool backend, bool frontend, bool dryRun, bool build, string? exclude, bool skipUpdateDotnet)
+    private static async Task Execute(bool backend, bool frontend, bool dryRun, bool validate, string? exclude, bool skipUpdateDotnet)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
@@ -63,9 +63,9 @@ public sealed class UpdatePackagesCommand : Command
             UpdateAspireSdkVersion(dryRun);
             await UpdateDotnetToolsAsync(dryRun);
 
-            if (build && !dryRun)
+            if (validate && !dryRun)
             {
-                await RunBuildCommand(true, false);
+                await RunValidationCommands(true, false);
             }
         }
 
@@ -73,9 +73,9 @@ public sealed class UpdatePackagesCommand : Command
         {
             UpdateNpmPackages(dryRun, excludedPackages);
 
-            if (build && !dryRun)
+            if (validate && !dryRun)
             {
-                await RunBuildCommand(false, true);
+                await RunValidationCommands(false, true);
             }
         }
         
@@ -529,26 +529,43 @@ public sealed class UpdatePackagesCommand : Command
         return match.Success ? int.Parse(match.Groups[1].Value) : 0;
     }
 
-    private static async Task RunBuildCommand(bool backend, bool frontend)
+    private static Task RunValidationCommands(bool backend, bool frontend)
     {
-        if (!backend && !frontend) return;
+        if (!backend && !frontend) return Task.CompletedTask;
 
-        AnsiConsole.MarkupLine("[blue]Running build command...[/]");
-
-        var buildCommand = new BuildCommand();
-        var args = new List<string>();
-
-        if (backend && !frontend)
+        if (backend)
         {
-            args.Add("--backend");
-        }
-        else if (frontend && !backend)
-        {
-            args.Add("--frontend");
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[blue]Running backend validation...[/]");
+            
+            // Run pp build --backend
+            AnsiConsole.MarkupLine("[dim]Running: pp build --backend[/]");
+            ProcessHelper.StartProcess("pp build --backend", Configuration.SourceCodeFolder);
+            
+            // Run pp test
+            AnsiConsole.MarkupLine("[dim]Running: pp test[/]");
+            ProcessHelper.StartProcess("pp test", Configuration.SourceCodeFolder);
+            
+            AnsiConsole.MarkupLine("[green]✓ Backend validation completed successfully![/]");
         }
 
-        await buildCommand.InvokeAsync(args.ToArray());
-        AnsiConsole.MarkupLine("[green]Build completed successfully![/]");
+        if (frontend)
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("[blue]Running frontend validation...[/]");
+            
+            // Run pp build --frontend
+            AnsiConsole.MarkupLine("[dim]Running: pp build --frontend[/]");
+            ProcessHelper.StartProcess("pp build --frontend", Configuration.SourceCodeFolder);
+            
+            // Run pp e2e
+            AnsiConsole.MarkupLine("[dim]Running: pp e2e[/]");
+            ProcessHelper.StartProcess("pp e2e", Configuration.SourceCodeFolder);
+            
+            AnsiConsole.MarkupLine("[green]✓ Frontend validation completed successfully![/]");
+        }
+        
+        return Task.CompletedTask;
     }
 
     private static void UpdateAspireSdkVersion(bool dryRun)
