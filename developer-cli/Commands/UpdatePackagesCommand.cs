@@ -759,6 +759,7 @@ public sealed class UpdatePackagesCommand : Command
         table.AddColumn("Update Type");
 
         var npmPackageUpdatesToApply = new List<string>();
+        string? newBiomeVersion = null;
 
         foreach (var package in outdatedPackages.RootElement.EnumerateObject())
         {
@@ -811,6 +812,12 @@ public sealed class UpdatePackagesCommand : Command
             // Show wanted version (from package.json) in the table
             table.AddRow(packageName, wantedVersion, latestVersion, statusColor);
             npmPackageUpdatesToApply.Add($"{packageName}@{latestVersion}");
+
+            // Track Biome version for schema update
+            if (packageName == "@biomejs/biome")
+            {
+                newBiomeVersion = latestVersion;
+            }
         }
 
         if (table.Rows.Count > 0)
@@ -832,10 +839,16 @@ public sealed class UpdatePackagesCommand : Command
             var updateCommand = $"npm install --save-exact {string.Join(" ", npmPackageUpdatesToApply)}";
             ProcessHelper.StartProcess(updateCommand, Configuration.ApplicationFolder);
             AnsiConsole.MarkupLine("[green]npm packages updated successfully![/]");
+
+            // Update Biome schema version if Biome was updated
+            UpdateBiomeSchemaVersion(dryRun, newBiomeVersion);
         }
         else if (npmPackageUpdatesToApply.Count > 0)
         {
             AnsiConsole.MarkupLine($"[blue]Would update {npmPackageUpdatesToApply.Count} npm package(s) (dry-run mode)[/]");
+
+            // Check if Biome schema would be updated
+            UpdateBiomeSchemaVersion(dryRun, newBiomeVersion);
         }
     }
 
@@ -968,6 +981,53 @@ public sealed class UpdatePackagesCommand : Command
         else
         {
             AnsiConsole.MarkupLine("[blue]Would update Aspire SDK version (dry-run mode)[/]");
+        }
+    }
+
+    private static void UpdateBiomeSchemaVersion(bool dryRun, string? newBiomeVersion)
+    {
+        if (newBiomeVersion is null) return;
+
+        var biomeJsonPath = Path.Combine(Configuration.ApplicationFolder, "biome.json");
+        if (!File.Exists(biomeJsonPath)) return;
+
+        // Read file content to check for schema
+        var fileContent = File.ReadAllText(biomeJsonPath);
+
+        // Use regex to find the Biome schema version
+        var schemaVersionMatch = Regex.Match(fileContent, @"""?\$schema""?\s*:\s*""https://biomejs\.dev/schemas/([^/]+)/schema\.json""");
+        if (!schemaVersionMatch.Success) return;
+
+        var currentSchemaVersion = schemaVersionMatch.Groups[1].Value;
+
+        // Check if the schema version needs updating
+        if (currentSchemaVersion == newBiomeVersion) return;
+
+        var table = new Table();
+        table.AddColumn("Schema");
+        table.AddColumn("Current Version");
+        table.AddColumn("Target Version");
+        table.AddColumn("Status");
+
+        var statusColor = dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
+        table.AddRow("biome.json $schema", currentSchemaVersion, newBiomeVersion, statusColor);
+        AnsiConsole.Write(table);
+
+        if (dryRun)
+        {
+            AnsiConsole.MarkupLine("[blue]Would update Biome schema version (dry-run mode)[/]");
+        }
+        else
+        {
+            // Replace only the version string in the schema URL, preserving formatting
+            var updatedContent = fileContent.Replace(
+                $"https://biomejs.dev/schemas/{currentSchemaVersion}/schema.json",
+                $"https://biomejs.dev/schemas/{newBiomeVersion}/schema.json"
+            );
+
+            // Write back preserving original formatting
+            File.WriteAllText(biomeJsonPath, updatedContent);
+            AnsiConsole.MarkupLine($"[green]Updated Biome schema version from {currentSchemaVersion} to {newBiomeVersion}[/]");
         }
     }
 
