@@ -332,12 +332,13 @@ public sealed class UpdatePackagesCommand : Command
                 OmitXmlDeclaration = true,
                 Indent = true,
                 IndentChars = "  ",
-                Encoding = new UTF8Encoding(false) // No BOM
+                Encoding = new UTF8Encoding(false), // No BOM
+                Async = true
             };
 
             await using (var writer = XmlWriter.Create(directoryPackagesPath, settings))
             {
-                xDocument.Save(writer);
+                await xDocument.SaveAsync(writer, CancellationToken.None);
             }
 
             AnsiConsole.MarkupLine("[green]Directory.Packages.props updated successfully![/]");
