@@ -410,7 +410,14 @@ public sealed class UpdatePackagesCommand : Command
             Environment.Exit(1);
         }
 
-        return Task.FromResult(JsonDocument.Parse(output));
+        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(output));
+        if (!JsonDocument.TryParseValue(ref reader, out var jsonDocument))
+        {
+            AnsiConsole.MarkupLine($"[red]Invalid JSON output from dotnet list package command: {output}[/]");
+            Environment.Exit(1);
+        }
+
+        return Task.FromResult(jsonDocument);
     }
 
     private static string? GetLatestVersionFromJson(JsonDocument jsonDocument, string packageName)
