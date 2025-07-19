@@ -33,7 +33,7 @@ public sealed class UpdatePackagesCommand : Command
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
-        var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)).ToArray() ?? [];
+        var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => p != "").ToArray() ?? [];
         if (excludedPackages.Length > 0)
         {
             AnsiConsole.MarkupLine($"[yellow]Excluding packages: {string.Join(", ", excludedPackages)}[/]");
@@ -60,7 +60,7 @@ public sealed class UpdatePackagesCommand : Command
         // Check .NET SDK version early if updating dotnet (default behavior)
         if (updateDotnet && !dryRun)
         {
-            await CheckDotnetSdkVersionAsync(dryRun, earlyCheck: true);
+            await CheckDotnetSdkVersionAsync(dryRun, true);
         }
 
         if (updateBackend)
@@ -94,7 +94,7 @@ public sealed class UpdatePackagesCommand : Command
         if (updateDotnet)
         {
             AnsiConsole.WriteLine();
-            await CheckDotnetSdkVersionAsync(dryRun, earlyCheck: false);
+            await CheckDotnetSdkVersionAsync(dryRun, false);
         }
     }
 
@@ -165,11 +165,13 @@ public sealed class UpdatePackagesCommand : Command
         // Group packages that share the same current version - these likely belong to the same family
         // and should be updated together to maintain compatibility
         var packageFamiliesByVersion = packageElements
-            .Select(p => new {
-                Name = p.Attribute("Include")?.Value,
-                Version = p.Attribute("Version")?.Value,
-                Element = p
-            })
+            .Select(p => new
+                {
+                    Name = p.Attribute("Include")?.Value,
+                    Version = p.Attribute("Version")?.Value,
+                    Element = p
+                }
+            )
             .Where(p => !string.IsNullOrEmpty(p.Name) && !string.IsNullOrEmpty(p.Version))
             .GroupBy(p => p.Version)
             .Where(g => g.Count() > 1) // Only consider groups with 2 or more packages
@@ -187,7 +189,9 @@ public sealed class UpdatePackagesCommand : Command
                 .ToList();
 
             if (!updatesInFamily.Any())
+            {
                 continue;
+            }
 
             // Find the most common target version for this family
             var targetVersionForFamily = updatesInFamily
@@ -203,18 +207,23 @@ public sealed class UpdatePackagesCommand : Command
 
                 if (candidatePackageUpdates.ContainsKey(packageName) ||
                     IsPackageExcluded(packageName, excludedPackages))
+                {
                     continue;
+                }
 
                 // Check if this version exists in NuGet
                 var versionExists = await CheckIfVersionExistsAsync(packageName, targetVersionForFamily);
                 if (!versionExists || targetVersionForFamily == packageInfo.Version)
+                {
                     continue;
+                }
 
                 candidatePackageUpdates[packageName] = new PackageUpdate(
                     packageInfo.Element,
                     packageName,
                     packageInfo.Version!,
-                    targetVersionForFamily);
+                    targetVersionForFamily
+                );
             }
         }
 
@@ -238,7 +247,8 @@ public sealed class UpdatePackagesCommand : Command
             {
                 // Check if this dependency is in our project
                 var dependencyElement = packageElements.FirstOrDefault(p =>
-                    p.Attribute("Include")?.Value == dependency.PackageName);
+                    p.Attribute("Include")?.Value == dependency.PackageName
+                );
 
                 if (dependencyElement is null) continue;
 
@@ -247,26 +257,35 @@ public sealed class UpdatePackagesCommand : Command
 
                 // Skip if already being updated or excluded
                 if (candidatePackageUpdates.ContainsKey(dependency.PackageName) ||
-                    IsPackageExcluded(dependency.PackageName, excludedPackages)) continue;
+                    IsPackageExcluded(dependency.PackageName, excludedPackages))
+                {
+                    continue;
+                }
 
                 // Check if the dependency needs to be updated to satisfy the version requirement
                 if (SatisfiesVersionRequirement(currentDependencyVersion, dependency.VersionRange))
+                {
                     continue;
+                }
 
                 // Find the appropriate version to update to
                 var targetVersion = await FindBestVersionForDependencyAsync(
                     dependency.PackageName,
                     dependency.VersionRange,
-                    currentDependencyVersion);
+                    currentDependencyVersion
+                );
 
                 if (targetVersion is null || targetVersion == currentDependencyVersion)
+                {
                     continue;
+                }
 
                 candidatePackageUpdates[dependency.PackageName] = new PackageUpdate(
                     dependencyElement,
                     dependency.PackageName,
                     currentDependencyVersion,
-                    targetVersion);
+                    targetVersion
+                );
 
                 // Add this package to check its dependencies too
                 packagesToCheckDependencies.Enqueue(dependency.PackageName);
@@ -340,7 +359,9 @@ public sealed class UpdatePackagesCommand : Command
             {
                 // If current version is also prerelease, allow the prerelease update
                 if (IsPreReleaseVersion(currentVersion))
+                {
                     return new VersionResolution(latestFromOutdated);
+                }
 
                 // Otherwise, no update (don't upgrade stable to prerelease)
                 return new VersionResolution(null);
@@ -352,20 +373,28 @@ public sealed class UpdatePackagesCommand : Command
         // Package not found in outdated JSON - check NuGet API directly
         var latestFromApi = await GetLatestVersionFromNuGetApi(packageName);
         if (latestFromApi is null)
+        {
             return new VersionResolution(null);
+        }
 
         // Compare versions to see if an update is available
         if (latestFromApi == currentVersion || !IsNewerVersion(latestFromApi, currentVersion))
+        {
             return new VersionResolution(null);
+        }
 
         // Filter out incompatible prerelease versions
         if (!IsPreReleaseVersion(latestFromApi) || IsPreReleaseVersion(currentVersion))
+        {
             return new VersionResolution(latestFromApi);
+        }
 
         // Try to find a stable version instead
         var stableVersion = await GetLatestStableVersionFromNuGetApi(packageName);
         if (stableVersion is not null && stableVersion != currentVersion && IsNewerVersion(stableVersion, currentVersion))
+        {
             return new VersionResolution(stableVersion);
+        }
 
         return new VersionResolution(null);
     }
@@ -486,6 +515,7 @@ public sealed class UpdatePackagesCommand : Command
             // v1 is pre-release, v2 is stable - v2 is considered newer
             return false;
         }
+
         if (!version1.Contains('-') && version2.Contains('-'))
         {
             // v1 is stable, v2 is pre-release - v1 is considered newer
@@ -520,28 +550,29 @@ public sealed class UpdatePackagesCommand : Command
             // Prioritize modern .NET dependencies
             var relevantGroup = dependencyGroups
                 .OrderByDescending(g =>
-                {
-                    var framework = g.Attribute("targetFramework")?.Value ?? "";
-
-                    // No target framework means it applies to all - highest priority
-                    if (string.IsNullOrEmpty(framework)) return 10000;
-
-                    // Parse .NET version (net9.0, net10.0, net11.0, etc.)
-                    var netMatch = Regex.Match(framework, @"^net(\d+)\.?(\d*)");
-                    if (netMatch.Success && int.TryParse(netMatch.Groups[1].Value, out var majorVersion))
                     {
-                        // Prefer newer .NET versions (we only support .NET 9+)
-                        return 1000 + majorVersion;
+                        var framework = g.Attribute("targetFramework")?.Value ?? "";
+
+                        // No target framework means it applies to all - highest priority
+                        if (string.IsNullOrEmpty(framework)) return 10000;
+
+                        // Parse .NET version (net9.0, net10.0, net11.0, etc.)
+                        var netMatch = Regex.Match(framework, @"^net(\d+)\.?(\d*)");
+                        if (netMatch.Success && int.TryParse(netMatch.Groups[1].Value, out var majorVersion))
+                        {
+                            // Prefer newer .NET versions (we only support .NET 9+)
+                            return 1000 + majorVersion;
+                        }
+
+                        // .NET Standard versions
+                        if (framework == ".NETStandard2.1") return 21;
+                        if (framework == ".NETStandard2.0") return 20;
+                        if (framework.StartsWith(".NETStandard")) return 10;
+
+                        // Unknown frameworks
+                        return 0;
                     }
-
-                    // .NET Standard versions
-                    if (framework == ".NETStandard2.1") return 21;
-                    if (framework == ".NETStandard2.0") return 20;
-                    if (framework.StartsWith(".NETStandard")) return 10;
-
-                    // Unknown frameworks
-                    return 0;
-                })
+                )
                 .FirstOrDefault();
 
             if (relevantGroup is not null)
@@ -592,7 +623,9 @@ public sealed class UpdatePackagesCommand : Command
         {
             var parts = versionRange.Trim('[', ')').Split(',');
             if (parts.Length < 1)
+            {
                 return true;
+            }
 
             var minVersion = parts[0].Trim();
             return !IsNewerVersion(minVersion, currentVersion);
@@ -647,7 +680,9 @@ public sealed class UpdatePackagesCommand : Command
             }
 
             if (minRequiredVersion is null)
+            {
                 return null;
+            }
 
             // Find versions that satisfy the requirement AND are newer than current version
             // We never want to downgrade packages
@@ -677,25 +712,6 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private class VersionComparer : IComparer<int[]>
-    {
-        public int Compare(int[]? x, int[]? y)
-        {
-            if (x is null || y is null) return 0;
-
-            for (var i = 0; i < Math.Max(x.Length, y.Length); i++)
-            {
-                var xPart = i < x.Length ? x[i] : 0;
-                var yPart = i < y.Length ? y[i] : 0;
-
-                if (xPart < yPart) return -1;
-                if (xPart > yPart) return 1;
-            }
-
-            return 0;
-        }
-    }
-
     private static async Task<bool> CheckIfVersionExistsAsync(string packageName, string targetVersion)
     {
         try
@@ -713,8 +729,6 @@ public sealed class UpdatePackagesCommand : Command
             return false;
         }
     }
-
-    private record PackageDependency(string PackageName, string VersionRange);
 
     private static void UpdateNpmPackages(bool dryRun, string[] excludedPackages)
     {
@@ -759,6 +773,7 @@ public sealed class UpdatePackagesCommand : Command
                     table.AddRow(packageName, packageWantedVersion, "-", "[blue]Excluded[/]");
                     FrontendSummary.Excluded++;
                 }
+
                 continue;
             }
 
@@ -846,6 +861,7 @@ public sealed class UpdatePackagesCommand : Command
         {
             return new UpdateStatus(false, true, currentVersion);
         }
+
         return new UpdateStatus(targetVersion is not null, true, targetVersion ?? currentVersion);
     }
 
@@ -859,8 +875,8 @@ public sealed class UpdatePackagesCommand : Command
         var matchingVersions = new List<string>();
         foreach (var version in versions.EnumerateArray())
         {
-            var versionString = version.GetString();
-            if (versionString is not null && !versionString.Contains("-") && GetMajorVersion(versionString) == majorVersion)
+            var versionString = version.GetString()!;
+            if (!versionString.Contains("-") && GetMajorVersion(versionString) == majorVersion)
             {
                 matchingVersions.Add(versionString);
             }
@@ -871,8 +887,7 @@ public sealed class UpdatePackagesCommand : Command
 
     private static int GetMajorVersion(string version)
     {
-        var match = Regex.Match(version, @"^(\d+)");
-        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+        return new Version(version).Major;
     }
 
     private static void ValidateBackend()
@@ -947,7 +962,8 @@ public sealed class UpdatePackagesCommand : Command
             // Replace only the version string, preserving formatting
             var updatedContent = fileContent.Replace(
                 $@"<Sdk Name=""Aspire.AppHost.Sdk"" Version=""{currentSdkVersion}"" />",
-                $@"<Sdk Name=""Aspire.AppHost.Sdk"" Version=""{targetSdkVersion}"" />");
+                $@"<Sdk Name=""Aspire.AppHost.Sdk"" Version=""{targetSdkVersion}"" />"
+            );
 
             // Write back preserving original formatting
             File.WriteAllText(appHostPath, updatedContent);
@@ -979,24 +995,32 @@ public sealed class UpdatePackagesCommand : Command
         var dotnetToolUpdatesToApply = new List<(string toolName, string currentVersion, string latestVersion)>();
 
         if (!toolsDocument.RootElement.TryGetProperty("tools", out var tools))
+        {
             return;
+        }
 
         foreach (var tool in tools.EnumerateObject())
         {
             var toolName = tool.Name;
 
             if (!tool.Value.TryGetProperty("version", out var versionElement))
+            {
                 continue;
+            }
 
             var currentVersion = versionElement.GetString();
             if (currentVersion is null)
+            {
                 continue;
+            }
 
             // Get latest version from NuGet API
             var latestVersion = await GetLatestVersionFromNuGetApi(toolName);
 
             if (latestVersion is null || latestVersion == currentVersion || !IsNewerVersion(latestVersion, currentVersion))
+            {
                 continue;
+            }
 
             // Handle prerelease versions
             if (IsPreReleaseVersion(latestVersion) && !IsPreReleaseVersion(currentVersion))
@@ -1004,7 +1028,9 @@ public sealed class UpdatePackagesCommand : Command
                 // Try to find a stable version
                 var stableVersion = await GetLatestStableVersionFromNuGetApi(toolName);
                 if (stableVersion is null || stableVersion == currentVersion || !IsNewerVersion(stableVersion, currentVersion))
+                {
                     continue; // Skip if no stable update available
+                }
 
                 latestVersion = stableVersion;
             }
@@ -1094,52 +1120,29 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static async Task CheckDotnetSdkVersionAsync(bool dryRun, bool earlyCheck = false)
+    private static async Task CheckDotnetSdkVersionAsync(bool dryRun, bool earlyCheck)
     {
         var globalJsonPath = Path.Combine(Configuration.ApplicationFolder, "global.json");
-        if (!File.Exists(globalJsonPath))
-        {
-            AnsiConsole.MarkupLine("[red]global.json not found![/]");
-            Environment.Exit(1);
-        }
-
         var globalJson = await File.ReadAllTextAsync(globalJsonPath);
         var globalJsonDoc = JsonDocument.Parse(globalJson);
-
-        if (!globalJsonDoc.RootElement.TryGetProperty("sdk", out var sdk))
-        {
-            AnsiConsole.MarkupLine("[red]global.json is missing SDK property![/]");
-            Environment.Exit(1);
-        }
-
-        if (!sdk.TryGetProperty("version", out var versionElement))
-        {
-            AnsiConsole.MarkupLine("[red]global.json SDK is missing version property![/]");
-            Environment.Exit(1);
-        }
-
-        var currentVersion = versionElement.GetString();
-        if (currentVersion is null)
-        {
-            AnsiConsole.MarkupLine("[red]SDK version in global.json is null![/]");
-            Environment.Exit(1);
-        }
+        var currentVersion = globalJsonDoc.RootElement.GetProperty("sdk").GetProperty("version").GetString()!;
 
         // Get latest .NET SDK version from the official releases
         var currentMajor = GetMajorVersion(currentVersion);
         var latestInMajor = await GetLatestDotnetSdkVersion(currentMajor);
 
-        if (latestInMajor == currentVersion || !IsNewerVersion(latestInMajor, currentVersion))
+        if (latestInMajor == currentVersion)
         {
             if (!earlyCheck)
             {
                 AnsiConsole.MarkupLine("[green]✓ .NET SDK version is already up to date[/]");
             }
+
             return;
         }
 
         // Check if the latest version is installed locally
-        var isInstalledLocally = await IsDotnetSdkInstalledLocally(latestInMajor);
+        var isInstalledLocally = IsDotnetSdkInstalledLocally(latestInMajor);
 
         // Early check - only care about blocking if SDK not installed
         if (earlyCheck)
@@ -1147,34 +1150,29 @@ public sealed class UpdatePackagesCommand : Command
             if (isInstalledLocally) return; // If installed, we'll update it after other updates
 
             AnsiConsole.MarkupLine($"""
-                [red]❌ Cannot update .NET SDK: version {latestInMajor} is not installed locally![/]
-                [yellow]   Install it first: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
-                """);
+                                    [red]❌ Cannot update .NET SDK: version {latestInMajor} is not installed locally![/]
+                                    [yellow]   Install it first: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
+                                    """
+            );
             Environment.Exit(1);
         }
+
+        AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestInMajor} (current: {currentVersion})[/]");
 
         // Late check - show status information
         if (!isInstalledLocally)
         {
-            AnsiConsole.MarkupLine($"[yellow]⚠️  A newer .NET SDK version is available: {latestInMajor} (current: {currentVersion})[/]");
-            AnsiConsole.MarkupLine($"""
-                [red]   ⚠️  .NET SDK {latestInMajor} is NOT installed on your machine![/]
-                [yellow]   Update .NET: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
-                """);
-        }
-        else if (dryRun)
-        {
-            AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestInMajor} (current: {currentVersion})[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"[yellow]⚠️  A newer .NET SDK version is available: {latestInMajor} (current: {currentVersion})[/]");
+            AnsiConsole.MarkupLine(
+                $"""
+                 [red]   ⚠️  .NET SDK {latestInMajor} is NOT installed on your machine![/]
+                 [yellow]   Update .NET: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
+                 """
+            );
         }
 
         // Actually update .NET SDK if not in dry-run mode and SDK is installed
         if (!dryRun && isInstalledLocally)
         {
-
             // Update global.json
             using var stream = new MemoryStream();
             await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
@@ -1219,20 +1217,20 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static Task<bool> IsDotnetSdkInstalledLocally(string version)
+    private static bool IsDotnetSdkInstalledLocally(string version)
     {
-        var output = ProcessHelper.StartProcess("dotnet --list-sdks", Configuration.ApplicationFolder, true, exitOnError: false, throwOnError: false);
+        var output = ProcessHelper.StartProcess("dotnet --list-sdks", redirectOutput: true);
 
         foreach (var line in output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
             var match = Regex.Match(line, @"^(\d+\.\d+\.\d+)");
             if (match.Success && match.Groups[1].Value == version)
             {
-                return Task.FromResult(true);
+                return true;
             }
         }
 
-        return Task.FromResult(false);
+        return false;
     }
 
     private static async Task<string> GetLatestDotnetSdkVersion(int majorVersion)
@@ -1290,13 +1288,6 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private enum UpdateType
-    {
-        Patch,
-        Minor,
-        Major
-    }
-
     private static bool IsPackageExcluded(string packageName, string[] excludePatterns)
     {
         foreach (var pattern in excludePatterns)
@@ -1311,6 +1302,7 @@ public sealed class UpdatePackagesCommand : Command
                 if (Regex.IsMatch(packageName, regexPattern)) return true;
             }
         }
+
         return false;
     }
 
@@ -1333,33 +1325,6 @@ public sealed class UpdatePackagesCommand : Command
 
         // Only patch version changed
         return UpdateType.Patch;
-    }
-
-    private sealed class UpdateSummary
-    {
-        public int Patch { get; set; }
-        public int Minor { get; set; }
-        public int Major { get; set; }
-        public int Excluded { get; set; }
-        public int UpToDate { get; set; }
-
-        public void IncrementUpdateType(UpdateType type)
-        {
-            switch (type)
-            {
-                case UpdateType.Patch:
-                    Patch++;
-                    break;
-                case UpdateType.Minor:
-                    Minor++;
-                    break;
-                case UpdateType.Major:
-                    Major++;
-                    break;
-            }
-        }
-
-        public int TotalUpdates => Patch + Minor + Major;
     }
 
     private static void DisplayUpdateSummary(bool showBackend, bool showFrontend)
@@ -1398,8 +1363,8 @@ public sealed class UpdatePackagesCommand : Command
         // Major upgrades
         table.AddRow(
             "[yellow]⚠️  Major[/]",
-            showBackend ? (BackendSummary.Major > 0 ? $"[yellow]{BackendSummary.Major}[/]" : "0") : "-",
-            showFrontend ? (FrontendSummary.Major > 0 ? $"[yellow]{FrontendSummary.Major}[/]" : "0") : "-"
+            showBackend ? BackendSummary.Major > 0 ? $"[yellow]{BackendSummary.Major}[/]" : "0" : "-",
+            showFrontend ? FrontendSummary.Major > 0 ? $"[yellow]{FrontendSummary.Major}[/]" : "0" : "-"
         );
 
         // Excluded
@@ -1407,8 +1372,8 @@ public sealed class UpdatePackagesCommand : Command
         {
             table.AddRow(
                 "[red]🚫 Excluded[/]",
-                showBackend ? (BackendSummary.Excluded > 0 ? $"[red]{BackendSummary.Excluded}[/]" : "0") : "-",
-                showFrontend ? (FrontendSummary.Excluded > 0 ? $"[red]{FrontendSummary.Excluded}[/]" : "0") : "-"
+                showBackend ? BackendSummary.Excluded > 0 ? $"[red]{BackendSummary.Excluded}[/]" : "0" : "-",
+                showFrontend ? FrontendSummary.Excluded > 0 ? $"[red]{FrontendSummary.Excluded}[/]" : "0" : "-"
             );
         }
 
@@ -1425,7 +1390,68 @@ public sealed class UpdatePackagesCommand : Command
         AnsiConsole.Write(table);
     }
 
+    private class VersionComparer : IComparer<int[]>
+    {
+        public int Compare(int[]? x, int[]? y)
+        {
+            if (x is null || y is null) return 0;
+
+            for (var i = 0; i < Math.Max(x.Length, y.Length); i++)
+            {
+                var xPart = i < x.Length ? x[i] : 0;
+                var yPart = i < y.Length ? y[i] : 0;
+
+                if (xPart < yPart) return -1;
+                if (xPart > yPart) return 1;
+            }
+
+            return 0;
+        }
+    }
+
+    private record PackageDependency(string PackageName, string VersionRange);
+
+    private enum UpdateType
+    {
+        Patch,
+        Minor,
+        Major
+    }
+
+    private sealed class UpdateSummary
+    {
+        public int Patch { get; set; }
+
+        public int Minor { get; set; }
+
+        public int Major { get; set; }
+
+        public int Excluded { get; set; }
+
+        public int UpToDate { get; set; }
+
+        public int TotalUpdates => Patch + Minor + Major;
+
+        public void IncrementUpdateType(UpdateType type)
+        {
+            switch (type)
+            {
+                case UpdateType.Patch:
+                    Patch++;
+                    break;
+                case UpdateType.Minor:
+                    Minor++;
+                    break;
+                case UpdateType.Major:
+                    Major++;
+                    break;
+            }
+        }
+    }
+
     private sealed record PackageUpdate(XElement Element, string PackageName, string CurrentVersion, string NewVersion);
+
     private sealed record UpdateStatus(bool CanUpdate, bool IsRestricted, string TargetVersion);
+
     private sealed record VersionResolution(string? LatestVersion);
 }
