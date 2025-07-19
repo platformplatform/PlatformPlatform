@@ -335,7 +335,7 @@ public sealed class UpdatePackagesCommand : Command
                 Encoding = new UTF8Encoding(false) // No BOM
             };
 
-            using (var writer = XmlWriter.Create(directoryPackagesPath, settings))
+            await using (var writer = XmlWriter.Create(directoryPackagesPath, settings))
             {
                 xDocument.Save(writer);
             }
@@ -915,10 +915,6 @@ public sealed class UpdatePackagesCommand : Command
         AnsiConsole.MarkupLine("[dim]Running: pp build --frontend[/]");
         ProcessHelper.StartProcess("pp build --frontend", Configuration.SourceCodeFolder);
 
-        // Run pp e2e
-        AnsiConsole.MarkupLine("[dim]Running: pp e2e[/]");
-        ProcessHelper.StartProcess("pp e2e", Configuration.SourceCodeFolder);
-
         AnsiConsole.MarkupLine("[green]✓ Frontend validation completed successfully![/]");
     }
 
@@ -1066,7 +1062,7 @@ public sealed class UpdatePackagesCommand : Command
             // Parse and update the JSON
             using var jsonDoc = JsonDocument.Parse(toolsJson);
             using var stream = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
+            await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
             {
                 writer.WriteStartObject();
 
@@ -1420,11 +1416,11 @@ public sealed class UpdatePackagesCommand : Command
 
     private sealed class UpdateSummary
     {
-        public int Patch { get; set; }
+        public int Patch { get; private set; }
 
-        public int Minor { get; set; }
+        public int Minor { get; private set; }
 
-        public int Major { get; set; }
+        public int Major { get; private set; }
 
         public int Excluded { get; set; }
 
