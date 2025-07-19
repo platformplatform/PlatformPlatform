@@ -43,7 +43,10 @@ public class BuildCommand : Command
 
             if (buildFrontend)
             {
-                AnsiConsole.MarkupLine("[blue]Running frontend build...[/]");
+                AnsiConsole.MarkupLine("[blue]Ensure npm packages are up to date...[/]");
+                ProcessHelper.StartProcess("npm install", Configuration.ApplicationFolder);
+
+                AnsiConsole.MarkupLine("\n[blue]Running frontend build...[/]");
                 ProcessHelper.StartProcess("npm run build", Configuration.ApplicationFolder);
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }

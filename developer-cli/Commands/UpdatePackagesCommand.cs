@@ -43,6 +43,12 @@ public sealed class UpdatePackagesCommand : Command
         if (dryRun)
         {
             AnsiConsole.MarkupLine("[blue]Running in dry-run mode - no changes will be made[/]");
+
+            if (validate)
+            {
+                AnsiConsole.MarkupLine("[yellow]Warning: Validation will not be performed in dry-run mode[/]");
+            }
+
             AnsiConsole.WriteLine();
         }
 
@@ -52,7 +58,7 @@ public sealed class UpdatePackagesCommand : Command
         var updateDotnet = !skipUpdateDotnet && updateBackend;
 
         // Check .NET SDK version early if updating dotnet (default behavior)
-        if (updateBackend && updateDotnet && !dryRun)
+        if (updateDotnet && !dryRun)
         {
             await CheckDotnetSdkVersionAsync(dryRun, earlyCheck: true);
         }
@@ -85,7 +91,7 @@ public sealed class UpdatePackagesCommand : Command
         DisplayUpdateSummary(updateBackend, updateFrontend);
 
         // Show .NET SDK info at the end for backend updates (unless explicitly skipped)
-        if (updateBackend && updateDotnet)
+        if (updateDotnet)
         {
             AnsiConsole.WriteLine();
             await CheckDotnetSdkVersionAsync(dryRun, earlyCheck: false);
@@ -309,12 +315,12 @@ public sealed class UpdatePackagesCommand : Command
                 IndentChars = "  ",
                 Encoding = new UTF8Encoding(false) // No BOM
             };
-            
+
             using (var writer = XmlWriter.Create(directoryPackagesPath, settings))
             {
                 xDocument.Save(writer);
             }
-            
+
             AnsiConsole.MarkupLine("[green]Directory.Packages.props updated successfully![/]");
         }
         else if (packageUpdatesToApply.Count > 0)
@@ -806,7 +812,7 @@ public sealed class UpdatePackagesCommand : Command
         {
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[blue]Updating packages...[/]");
-            
+
             // Use --save-exact to install exact versions without ^ prefix
             var updateCommand = $"npm install --save-exact {string.Join(" ", npmPackageUpdatesToApply)}";
             ProcessHelper.StartProcess(updateCommand, Configuration.ApplicationFolder);
@@ -1171,7 +1177,7 @@ public sealed class UpdatePackagesCommand : Command
 
             // Update global.json
             using var stream = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
+            await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
             {
                 writer.WriteStartObject();
 
