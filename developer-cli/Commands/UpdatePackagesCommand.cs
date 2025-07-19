@@ -1129,7 +1129,7 @@ public sealed class UpdatePackagesCommand : Command
         var currentMajor = GetMajorVersion(currentVersion);
         var latestInMajor = await GetLatestDotnetSdkVersion(currentMajor);
 
-        if (latestInMajor is null || latestInMajor == currentVersion || !IsNewerVersion(latestInMajor, currentVersion))
+        if (latestInMajor == currentVersion || !IsNewerVersion(latestInMajor, currentVersion))
         {
             if (!earlyCheck)
             {
@@ -1235,50 +1235,31 @@ public sealed class UpdatePackagesCommand : Command
         return Task.FromResult(false);
     }
 
-    private static async Task<string?> GetLatestDotnetSdkVersion(int majorVersion)
+    private static async Task<string> GetLatestDotnetSdkVersion(int majorVersion)
     {
         using var httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("PlatformPlatform-CLI/1.0");
 
         // Get the releases index
-        var response = await httpClient.GetStringAsync("https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json");
+        const string dotnetReleaseBaseUrl = "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata";
+        var response = await httpClient.GetStringAsync($"{dotnetReleaseBaseUrl}/releases-index.json");
         var releasesIndex = JsonDocument.Parse(response);
 
         // Find the channel for the major version
-        string? channelVersion = null;
-        foreach (var release in releasesIndex.RootElement.GetProperty("releases-index").EnumerateArray())
-        {
-            if (release.TryGetProperty("channel-version", out var channelVersionElement))
-            {
-                var version = channelVersionElement.GetString();
-                if (version?.StartsWith($"{majorVersion}.") == true)
-                {
-                    channelVersion = version;
-                    break;
-                }
-            }
-        }
-
-        if (channelVersion is null) return null;
+        var channelVersion = releasesIndex.RootElement
+            .GetProperty("releases-index")
+            .EnumerateArray()
+            .Select(release => release.GetProperty("channel-version").GetString()!)
+            .First(version => version.StartsWith($"{majorVersion}."));
 
         // Get the channel releases
-        var channelUrl = $"https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/{channelVersion}/releases.json";
+        var channelUrl = $"{dotnetReleaseBaseUrl}/{channelVersion}/releases.json";
         var channelResponse = await httpClient.GetStringAsync(channelUrl);
         var channelData = JsonDocument.Parse(channelResponse);
 
-        // Find the latest SDK version
-        if (channelData.RootElement.TryGetProperty("releases", out var releases))
-        {
-            foreach (var release in releases.EnumerateArray())
-            {
-                if (release.TryGetProperty("sdk", out var sdk) && sdk.TryGetProperty("version", out var sdkVersion))
-                {
-                    return sdkVersion.GetString();
-                }
-            }
-        }
-
-        return null;
+        // Find the latest SDK version - the first release is always the latest
+        var latestRelease = channelData.RootElement.GetProperty("releases").EnumerateArray().First();
+        return latestRelease.GetProperty("sdk").GetProperty("version").GetString()!;
     }
 
     private static async Task UpdatePrerequisiteDotnetVersion(string newVersion)
