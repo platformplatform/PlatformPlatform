@@ -50,7 +50,7 @@ export function Input({
   ...props
 }: Readonly<InputProps>) {
   return (
-    <div className="relative">
+    <div className={isEmbedded ? "relative flex-1" : "relative"}>
       {startIcon && (
         <div className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 flex items-center">
           {startIcon}
