@@ -326,9 +326,6 @@ msgstr "Opslaan..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versies"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
-
 msgid "Search"
 msgstr "Zoeken"
 

@@ -326,9 +326,6 @@ msgstr "Saving..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Screenshots of the dashboard project with mobile versions"
-
 msgid "Search"
 msgstr "Search"
 

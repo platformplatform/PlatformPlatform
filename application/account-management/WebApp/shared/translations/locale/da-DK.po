@@ -326,9 +326,6 @@ msgstr "Gemmer..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
-
 msgid "Search"
 msgstr "Søg"
 
