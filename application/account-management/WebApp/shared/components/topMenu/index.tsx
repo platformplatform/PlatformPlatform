@@ -16,7 +16,7 @@ interface TopMenuProps {
 
 export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProps>) {
   return (
-    <nav className="hidden w-full items-center justify-between sm:flex">
+    <nav className="flex w-full items-center justify-between">
       <Breadcrumbs>
         <Breadcrumb href="/admin">
           <Trans>Home</Trans>
