@@ -25,6 +25,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
   const [shouldUseCompactButtons, setShouldUseCompactButtons] = useState(false);
 
   const isOwner = currentUser?.role === UserRole.Owner;
+  const hasSelectedSelf = selectedUsers.some((user) => user.id === currentUser?.id);
 
   const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean, useCompact: boolean) => {
     setIsFilterBarExpanded(isExpanded);
@@ -53,7 +54,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
         )}
         {selectedUsers.length > 1 && isOwner && (
           <TooltipTrigger delay={200}>
-            <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)}>
+            <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} isDisabled={hasSelectedSelf}>
               <Trash2Icon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
                 <Trans>Delete {selectedUsers.length} users</Trans>
