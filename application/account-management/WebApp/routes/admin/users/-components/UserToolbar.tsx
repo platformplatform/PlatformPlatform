@@ -1,5 +1,6 @@
 import type { components } from "@/shared/lib/api/client";
 import { UserRole, api } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
@@ -39,7 +40,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (
           <TooltipTrigger delay={200}>
-            <Button variant="primary" onPress={() => setIsInviteModalOpen(true)}>
+            <Button variant="primary" onPress={() => setIsInviteModalOpen(true)} aria-label={t`Invite user`}>
               <PlusIcon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
                 <Trans>Invite user</Trans>
@@ -54,7 +55,12 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
         )}
         {selectedUsers.length > 1 && isOwner && (
           <TooltipTrigger delay={200}>
-            <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} isDisabled={hasSelectedSelf}>
+            <Button
+              variant="destructive"
+              onPress={() => setIsDeleteModalOpen(true)}
+              isDisabled={hasSelectedSelf}
+              aria-label={t`Delete ${selectedUsers.length} users`}
+            >
               <Trash2Icon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
                 <Trans>Delete {selectedUsers.length} users</Trans>
