@@ -9,9 +9,11 @@ import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
+import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { InfoIcon, Trash2Icon, XIcon } from "lucide-react";
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
@@ -27,32 +29,119 @@ interface UserProfileSidePaneProps {
   isLoading?: boolean;
 }
 
-export function UserProfileSidePane({
+function UserProfileContent({
   user,
-  isOpen,
-  onClose,
-  onDeleteUser,
-  isUserInCurrentView = true,
-  isDataNewer = false,
-  isLoading = false
-}: Readonly<UserProfileSidePaneProps>) {
-  const userInfo = useUserInfo();
-  const sidePaneRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<SVGSVGElement>(null);
-  const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
+  canModifyUser,
+  onChangeRole
+}: Readonly<{
+  user: UserDetails;
+  canModifyUser: boolean;
+  onChangeRole: () => void;
+}>) {
+  return (
+    <>
+      {/* User Avatar and Basic Info */}
+      <div className="mb-6 text-center">
+        <Avatar
+          initials={getInitials(user.firstName, user.lastName, user.email)}
+          avatarUrl={user.avatarUrl}
+          size="lg"
+          isRound={true}
+          className="mx-auto mb-3"
+        />
+        <Heading level={3} className="font-semibold text-lg">
+          {user.firstName} {user.lastName}
+        </Heading>
+        {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
+      </div>
 
-  // Focus management and keyboard navigation - only focus close button on mobile
+      {/* Contact Information */}
+      <div className="mb-4">
+        <div className="space-y-2">
+          <div className="flex items-start justify-between">
+            <Text className="text-sm">
+              <Trans>Email</Trans>
+            </Text>
+            <div className="flex flex-col items-end gap-1">
+              <Text className="text-right text-sm">{user.email}</Text>
+              {user.emailConfirmed ? (
+                <Badge variant="success" className="text-xs">
+                  <Trans>Verified</Trans>
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs">
+                  <Trans>Pending</Trans>
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Separator className="mb-4" />
+
+      {/* Role Information */}
+      <div className="mb-4 flex items-center justify-between">
+        <Heading level={4} className="font-medium text-sm">
+          <Trans>Role</Trans>
+        </Heading>
+        {canModifyUser ? (
+          <Button
+            variant="ghost"
+            className="h-auto p-0 text-xs"
+            onPress={onChangeRole}
+            aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
+          >
+            <Badge
+              variant="outline"
+              className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
+            >
+              {getUserRoleLabel(user.role)}
+            </Badge>
+          </Button>
+        ) : (
+          <Badge variant="outline" className="text-xs">
+            {getUserRoleLabel(user.role)}
+          </Badge>
+        )}
+      </div>
+
+      <Separator className="mb-4" />
+
+      {/* Account Details */}
+      <div className="mb-4">
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <Text className="text-sm">
+              <Trans>Created</Trans>
+            </Text>
+            <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
+          </div>
+          <div className="flex justify-between">
+            <Text className="text-sm">
+              <Trans>Modified</Trans>
+            </Text>
+            <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function useSidePaneAccessibility(
+  isOpen: boolean,
+  onClose: () => void,
+  sidePaneRef: React.RefObject<HTMLDivElement | null>,
+  closeButtonRef: React.RefObject<SVGSVGElement | null>
+) {
   useEffect(() => {
-    if (isOpen && closeButtonRef.current) {
-      // Only auto-focus on mobile, not on larger screens where it's part of the layout
-      const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
-      if (isMobileScreen) {
-        closeButtonRef.current.focus();
-      }
+    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
+    if (isOpen && closeButtonRef.current && isMobileScreen) {
+      closeButtonRef.current.focus();
     }
-  }, [isOpen]);
+  }, [isOpen, closeButtonRef]);
 
-  // Escape key handler
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
@@ -70,15 +159,9 @@ export function UserProfileSidePane({
     };
   }, [isOpen, onClose]);
 
-  // Focus trapping - only on mobile, not on larger screens where side pane is part of layout
   useEffect(() => {
-    if (!isOpen || !sidePaneRef.current) {
-      return;
-    }
-
-    // Don't trap focus on larger screens where side pane is part of main layout
-    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
-    if (!isMobileScreen) {
+    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
+    if (!isOpen || !sidePaneRef.current || !isMobileScreen) {
       return;
     }
 
@@ -106,11 +189,25 @@ export function UserProfileSidePane({
     };
 
     document.addEventListener("keydown", handleTabKey);
+    return () => document.removeEventListener("keydown", handleTabKey);
+  }, [isOpen, sidePaneRef]);
+}
 
-    return () => {
-      document.removeEventListener("keydown", handleTabKey);
-    };
-  }, [isOpen]);
+export function UserProfileSidePane({
+  user,
+  isOpen,
+  onClose,
+  onDeleteUser,
+  isUserInCurrentView = true,
+  isDataNewer = false,
+  isLoading = false
+}: Readonly<UserProfileSidePaneProps>) {
+  const userInfo = useUserInfo();
+  const sidePaneRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<SVGSVGElement>(null);
+  const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
+
+  useSidePaneAccessibility(isOpen, onClose, sidePaneRef, closeButtonRef);
 
   if (!isOpen) {
     return null;
@@ -122,26 +219,24 @@ export function UserProfileSidePane({
   return (
     <>
       {/* Side pane */}
-      <div
+      <aside
         ref={sidePaneRef}
         className="relative flex h-full w-full flex-col border-border border-l bg-background"
-        role="complementary"
         aria-label={t`User profile details`}
       >
         {/* Close button - positioned like modal dialogs */}
         <XIcon
           ref={closeButtonRef}
           onClick={onClose}
+          className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={t`Close user profile`}
+          tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               onClose();
             }
           }}
-          tabIndex={0}
-          role="button"
-          className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={t`Close user profile`}
         />
 
         <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
@@ -188,97 +283,17 @@ export function UserProfileSidePane({
               {/* Single block for all other content */}
               <div className="h-64 w-full animate-pulse rounded-lg bg-muted" />
             </div>
-          ) : user ? (
-            <div className="p-4">
-              <>
-                {/* User Avatar and Basic Info */}
-                <div className="mb-6 text-center">
-                  <Avatar
-                    initials={getInitials(user.firstName, user.lastName, user.email)}
-                    avatarUrl={user.avatarUrl}
-                    size="lg"
-                    isRound={true}
-                    className="mx-auto mb-3"
-                  />
-                  <Heading level={3} className="font-semibold text-lg">
-                    {user.firstName} {user.lastName}
-                  </Heading>
-                  {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
-                </div>
-
-                {/* Contact Information */}
-                <div className="mb-4">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between">
-                      <Text className="text-sm">
-                        <Trans>Email</Trans>
-                      </Text>
-                      <div className="flex flex-col items-end gap-1">
-                        <Text className="text-right text-sm">{user.email}</Text>
-                        {user.emailConfirmed ? (
-                          <Badge variant="success" className="text-xs">
-                            <Trans>Verified</Trans>
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-xs">
-                            <Trans>Pending</Trans>
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator className="mb-4" />
-
-                {/* Role Information */}
-                <div className="mb-4 flex items-center justify-between">
-                  <Heading level={4} className="font-medium text-sm">
-                    <Trans>Role</Trans>
-                  </Heading>
-                  {canModifyUser ? (
-                    <Button
-                      variant="ghost"
-                      className="h-auto p-0 text-xs"
-                      onPress={() => setIsChangeRoleDialogOpen(true)}
-                      aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
-                    >
-                      <Badge
-                        variant="outline"
-                        className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
-                      >
-                        {getUserRoleLabel(user.role)}
-                      </Badge>
-                    </Button>
-                  ) : (
-                    <Badge variant="outline" className="text-xs">
-                      {getUserRoleLabel(user.role)}
-                    </Badge>
-                  )}
-                </div>
-
-                <Separator className="mb-4" />
-
-                {/* Account Details */}
-                <div className="mb-4">
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <Text className="text-sm">
-                        <Trans>Created</Trans>
-                      </Text>
-                      <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
-                    </div>
-                    <div className="flex justify-between">
-                      <Text className="text-sm">
-                        <Trans>Modified</Trans>
-                      </Text>
-                      <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
-                    </div>
-                  </div>
-                </div>
-              </>
-            </div>
-          ) : null}
+          ) : (
+            user && (
+              <div className="p-4">
+                <UserProfileContent
+                  user={user}
+                  canModifyUser={canModifyUser}
+                  onChangeRole={() => setIsChangeRoleDialogOpen(true)}
+                />
+              </div>
+            )
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -290,7 +305,7 @@ export function UserProfileSidePane({
             </Button>
           </div>
         )}
-      </div>
+      </aside>
 
       {/* Change User Role Dialog */}
       {user && (
