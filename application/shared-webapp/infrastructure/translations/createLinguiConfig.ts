@@ -9,7 +9,7 @@ export function createLinguiConfig(): LinguiConfig {
     catalogs: [
       {
         path: "<rootDir>/shared/translations/locale/{locale}",
-        include: ["<rootDir>"],
+        include: ["<rootDir>/**/*.{ts,tsx}"],
         exclude: ["**/node_modules/**", "**/dist", "**/*.d.ts", "**/*.test.*", "**/.*"]
       }
     ],
