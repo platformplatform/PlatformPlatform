@@ -341,6 +341,9 @@ msgstr "Select language"
 msgid "Send invite"
 msgstr "Send invite"
 
+msgid "Sending verification code..."
+msgstr "Sending verification code..."
+
 msgid "Settings"
 msgstr "Settings"
 

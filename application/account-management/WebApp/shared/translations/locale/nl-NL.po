@@ -341,6 +341,9 @@ msgstr "Selecteer taal"
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
 
+msgid "Sending verification code..."
+msgstr "Verificatiecode verzenden..."
+
 msgid "Settings"
 msgstr "Instellingen"
 

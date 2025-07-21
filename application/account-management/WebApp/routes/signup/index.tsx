@@ -102,7 +102,11 @@ export function StartSignupForm() {
         </SelectItem>
       </Select>
       <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
-        <Trans>Create your account</Trans>
+        {startSignupMutation.isPending ? (
+          <Trans>Sending verification code...</Trans>
+        ) : (
+          <Trans>Create your account</Trans>
+        )}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}

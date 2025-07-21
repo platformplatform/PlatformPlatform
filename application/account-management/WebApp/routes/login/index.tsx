@@ -97,7 +97,7 @@ export function LoginForm() {
         className="flex w-full flex-col"
       />
       <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
-        <Trans>Continue</Trans>
+        {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Continue</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>
