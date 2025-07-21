@@ -102,10 +102,9 @@ msgstr "Skift rolle"
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
-#. placeholder {0}: user.firstName
-#. placeholder {1}: user.lastName
-msgid "Change user role for {0} {1}"
-msgstr "Skift brugerrolle for {0} {1}"
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
+msgid "Change user role for {0}"
+msgstr "Skift brugerrolle for {0}"
 
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."

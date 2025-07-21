@@ -90,7 +90,7 @@ function UserProfileContent({
             variant="ghost"
             className="h-auto p-0 text-xs"
             onPress={onChangeRole}
-            aria-label={t`Change user role for ${user.firstName} ${user.lastName}`}
+            aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
             <Badge
               variant="outline"
