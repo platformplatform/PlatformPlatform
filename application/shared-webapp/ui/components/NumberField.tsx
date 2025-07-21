@@ -54,7 +54,7 @@ const stepperButtonStyles = tv({
   base: "cursor-default text-accent-foreground/90",
   variants: {
     isDisabled: {
-      true: "cursor-not-allowed text-muted group-disabled:text-muted forced-colors:group-disabled:text-[GrayText]"
+      true: "cursor-not-allowed text-accent-foreground/35 forced-colors:text-[GrayText]"
     },
     isHovered: {
       true: "bg-accent text-accent-foreground"
