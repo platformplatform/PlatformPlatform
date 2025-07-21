@@ -32,8 +32,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
           toastQueue.add({
             title: t`Success`,
             description: t`User role updated successfully for ${userDisplayName}`,
-            variant: "success",
-            duration: 3000
+            variant: "success"
           });
 
           onOpenChange(false);

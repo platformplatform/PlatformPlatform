@@ -31,8 +31,7 @@ export function AccountSettings() {
       toastQueue.add({
         title: t`Success`,
         description: t`Account updated successfully`,
-        variant: "success",
-        duration: 3000
+        variant: "success"
       });
     }
   }, [updateCurrentTenantMutation.isSuccess]);

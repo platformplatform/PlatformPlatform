@@ -29,8 +29,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
         toastQueue.add({
           title: t`Success`,
           description: `User deleted successfully: ${userDisplayName}`,
-          variant: "success",
-          duration: 3000
+          variant: "success"
         });
 
         onUsersDeleted?.();
@@ -42,8 +41,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
         toastQueue.add({
           title: t`Success`,
           description: `${users.length} users deleted successfully`,
-          variant: "success",
-          duration: 3000
+          variant: "success"
         });
 
         onUsersDeleted?.();

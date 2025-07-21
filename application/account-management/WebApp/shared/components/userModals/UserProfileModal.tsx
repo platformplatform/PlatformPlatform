@@ -99,8 +99,7 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
       toastQueue.add({
         title: t`Success`,
         description: t`Profile updated successfully`,
-        variant: "success",
-        duration: 3000
+        variant: "success"
       });
       closeDialog();
     }

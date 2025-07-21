@@ -77,31 +77,28 @@ const getServerErrorMessage = (status: number): ErrorMessage => {
   };
 };
 
-// Defines toast notification styling and duration options
-type ToastVariant = { variant: "info" | "warning" | "danger"; duration?: number };
-
-// Determines toast styling and duration based on HTTP status code
-function getToastVariant(status: number): ToastVariant {
-  // Success codes are information
+// Determines toast styling based on HTTP status code
+function getToastVariant(status: number): "info" | "warning" | "error" {
+  // Success codes are success
   if (status >= 200 && status < 300) {
-    return { variant: "info", duration: 3000 }; // 3 seconds for information
+    return "info";
   }
 
   // Critical errors that block user flow
   const criticalErrors = [401, 403, 407, 423, 426, 451, ...Array.from({ length: 100 }, (_, i) => i + 500)];
   if (criticalErrors.includes(status)) {
-    return { variant: "danger" }; // No auto-dismiss for critical
+    return "error";
   }
 
   // All other 4xx errors are warning
-  return { variant: "warning", duration: 5000 }; // 5 seconds for warning
+  return "warning";
 }
 
 function showTimeoutToast(): void {
   toastQueue.add({
     title: "Network Error",
     description: "The server is taking too long to respond. Please try again.",
-    variant: "danger"
+    variant: "error"
   });
 }
 
@@ -109,7 +106,7 @@ function showUnknownErrorToast(error: Error) {
   toastQueue.add({
     title: "Unknown Error",
     description: `An unknown error occured (${error})`,
-    variant: "danger"
+    variant: "error"
   });
 }
 
@@ -131,13 +128,13 @@ function showServerErrorToast(error: ServerError) {
     message = getServerErrorMessage(error.status);
   }
 
-  const toastVariant = getToastVariant(error.status);
+  const variant = getToastVariant(error.status);
 
   toastQueue.add({
-    variant: toastVariant.variant,
+    variant,
     title: message.title,
-    description: message.detail ?? "",
-    duration: toastVariant.duration
+    description: message.detail ?? ""
+    // Duration will be set based on variant in the Toast component
   });
 }
 

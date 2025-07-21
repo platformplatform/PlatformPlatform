@@ -25,8 +25,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
       toastQueue.add({
         title: t`Success`,
         description: t`User invited successfully`,
-        variant: "success",
-        duration: 3000
+        variant: "success"
       });
       onOpenChange(false);
     }
