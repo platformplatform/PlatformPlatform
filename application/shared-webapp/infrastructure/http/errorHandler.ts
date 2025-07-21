@@ -78,12 +78,7 @@ const getServerErrorMessage = (status: number): ErrorMessage => {
 };
 
 // Determines toast styling based on HTTP status code
-function getToastVariant(status: number): "info" | "warning" | "error" {
-  // Success codes are success
-  if (status >= 200 && status < 300) {
-    return "info";
-  }
-
+function getToastVariant(status: number): "warning" | "error" {
   // Critical errors that block user flow
   const criticalErrors = [401, 403, 407, 423, 426, 451, ...Array.from({ length: 100 }, (_, i) => i + 500)];
   if (criticalErrors.includes(status)) {
