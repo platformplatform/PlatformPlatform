@@ -18,7 +18,7 @@ export const dropdownItemStyles = tv({
   variants: {
     isDisabled: {
       false: "text-foreground",
-      true: "text-accent forced-colors:text-[GrayText]"
+      true: "cursor-not-allowed text-muted-foreground opacity-50 hover:bg-input-background forced-colors:text-[GrayText]"
     },
     isFocused: {
       true: "bg-hover-background text-accent-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
