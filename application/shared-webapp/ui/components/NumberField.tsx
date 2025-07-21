@@ -27,7 +27,7 @@ export interface NumberFieldProps extends AriaNumberFieldProps {
 export function NumberField({ label, description, errorMessage, ...props }: Readonly<NumberFieldProps>) {
   return (
     <AriaNumberField {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <FieldGroup>
         {(renderProps) => (
           <>
