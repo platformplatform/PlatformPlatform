@@ -226,25 +226,29 @@ export function UserTable({
                           <UserIcon className="h-4 w-4" />
                           <Trans>View profile</Trans>
                         </MenuItem>
-                        <MenuItem
-                          id="changeRole"
-                          isDisabled={user.id === userInfo?.id}
-                          onAction={() => onChangeRole(user)}
-                        >
-                          <SettingsIcon className="h-4 w-4" />
-                          <Trans>Change role</Trans>
-                        </MenuItem>
-                        <MenuSeparator />
-                        <MenuItem
-                          id="deleteUser"
-                          isDisabled={userInfo?.role !== "Owner" || user.id === userInfo?.id}
-                          onAction={() => onDeleteUser(user)}
-                        >
-                          <Trash2Icon className="h-4 w-4 text-destructive" />
-                          <span className="text-destructive">
-                            <Trans>Delete</Trans>
-                          </span>
-                        </MenuItem>
+                        {userInfo?.role === "Owner" && (
+                          <>
+                            <MenuItem
+                              id="changeRole"
+                              isDisabled={user.id === userInfo?.id}
+                              onAction={() => onChangeRole(user)}
+                            >
+                              <SettingsIcon className="h-4 w-4" />
+                              <Trans>Change role</Trans>
+                            </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem
+                              id="deleteUser"
+                              isDisabled={user.id === userInfo?.id}
+                              onAction={() => onDeleteUser(user)}
+                            >
+                              <Trash2Icon className="h-4 w-4 text-destructive" />
+                              <span className="text-destructive">
+                                <Trans>Delete</Trans>
+                              </span>
+                            </MenuItem>
+                          </>
+                        )}
                       </Menu>
                     </MenuTrigger>
                   </Text>
