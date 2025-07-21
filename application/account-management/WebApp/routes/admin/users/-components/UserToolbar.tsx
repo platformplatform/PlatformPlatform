@@ -39,7 +39,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       <UserQuerying onFilterStateChange={handleFilterStateChange} onFiltersUpdated={() => onSelectedUsersChange([])} />
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <Button variant="primary" onPress={() => setIsInviteModalOpen(true)} aria-label={t`Invite user`}>
               <PlusIcon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
@@ -54,7 +54,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
           </TooltipTrigger>
         )}
         {selectedUsers.length > 1 && isOwner && (
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <Button
               variant="destructive"
               onPress={() => setIsDeleteModalOpen(true)}

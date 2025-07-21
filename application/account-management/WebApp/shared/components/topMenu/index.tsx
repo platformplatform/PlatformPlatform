@@ -30,13 +30,13 @@ export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProp
       >
         <span className="flex gap-2">
           <ThemeModeSelector aria-label={t`Toggle theme`} />
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <Button variant="icon" aria-label={t`Help`}>
               <LifeBuoyIcon size={20} />
             </Button>
             <Tooltip>{t`Support`}</Tooltip>
           </TooltipTrigger>
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <LocaleSwitcher aria-label={t`Select language`} />
             <Tooltip>{t`Change language`}</Tooltip>
           </TooltipTrigger>

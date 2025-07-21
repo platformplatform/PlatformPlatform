@@ -13,7 +13,7 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: { "aria-label": s
   const tooltipText = getTooltipText(themeMode, resolvedThemeMode);
 
   return (
-    <TooltipTrigger delay={200}>
+    <TooltipTrigger>
       <Button variant="icon" onPress={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
         <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
       </Button>

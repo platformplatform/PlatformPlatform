@@ -6,12 +6,14 @@ import type React from "react";
 import {
   Tooltip as AriaTooltip,
   type TooltipProps as AriaTooltipProps,
+  TooltipTrigger as AriaTooltipTrigger,
   OverlayArrow,
   composeRenderProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
-export { TooltipTrigger } from "react-aria-components";
+// Default delay for tooltips across the application (in milliseconds)
+export const DEFAULT_TOOLTIP_DELAY = 200;
 
 export interface TooltipProps extends Omit<AriaTooltipProps, "children"> {
   children: React.ReactNode;
@@ -50,4 +52,14 @@ export function Tooltip({ children, ...props }: Readonly<TooltipProps>) {
       {children}
     </AriaTooltip>
   );
+}
+
+export interface TooltipTriggerProps extends React.ComponentProps<typeof AriaTooltipTrigger> {}
+
+/**
+ * Custom TooltipTrigger wrapper that provides a default delay.
+ * Individual components can override by passing their own delay prop.
+ */
+export function TooltipTrigger({ delay = DEFAULT_TOOLTIP_DELAY, ...props }: Readonly<TooltipTriggerProps>) {
+  return <AriaTooltipTrigger delay={delay} {...props} />;
 }

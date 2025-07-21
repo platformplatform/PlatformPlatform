@@ -343,7 +343,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
       )}
 
       {/* Filter button with responsive behavior */}
-      <TooltipTrigger delay={0}>
+      <TooltipTrigger>
         <Button
           variant="secondary"
           className="relative mt-6"

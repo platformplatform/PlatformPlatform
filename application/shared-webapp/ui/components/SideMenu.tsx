@@ -152,7 +152,7 @@ export function MenuButton({
           }`}
         />
       )}
-      <TooltipTrigger delay={0}>
+      <TooltipTrigger>
         <ToggleButton
           className={composeRenderProps("", (className, renderProps) =>
             menuButtonStyles({
