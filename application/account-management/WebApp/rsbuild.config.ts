@@ -22,7 +22,10 @@ export default defineConfig({
     ModuleFederationPlugin({
       exposes: {
         "./AvatarButton": "./shared/components/AvatarButton.tsx",
-        "./SupportButton": "./shared/components/support/SupportButton.tsx"
+        "./SupportButton": "./shared/components/support/SupportButton.tsx",
+        "./translations/en-US": "./shared/translations/locale/en-US.ts",
+        "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
+        "./translations/nl-NL": "./shared/translations/locale/nl-NL.ts"
       }
     })
   ]

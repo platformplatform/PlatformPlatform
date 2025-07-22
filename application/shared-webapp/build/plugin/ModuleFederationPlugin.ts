@@ -18,7 +18,7 @@ const { dependencies } = require(applicationPackageJson);
 const SYSTEM_ID = getSystemId();
 
 type ModuleFederationPluginOptions = {
-  exposes?: Record<`./${string}`, `./${string}.tsx` | `./${string}.ts`>;
+  exposes?: Record<`./${string}`, `./${string}.tsx` | `./${string}.ts` | `./${string}`>;
   remotes?: Record<string, { port: number }>;
 };
 
@@ -109,6 +109,15 @@ function generateModuleFederationTypesFolder(system: string, exposes: Record<str
   const indexContent = Object.entries(exposes)
     .map(([exportPath, importPath]) => {
       logger.info(`[Module Federation] Expose: ${exportPath} => ${importPath}`);
+
+      // Pattern matching for different module types
+      // Translation files follow the pattern: ./translations/xx-XX (e.g., ./translations/en-US)
+      const translationPattern = /^\.\/translations\/[a-z]{2}-[A-Z]{2}$/;
+      if (translationPattern.test(exportPath)) {
+        return `declare module "${exportPath.replace(/^\./, system)}" {\n  import type { Messages } from "@lingui/core";\n  export const messages: Messages;\n}`;
+      }
+
+      // Default to ReactNode export for components
       return `declare module "${exportPath.replace(/^\./, system)}" {\n  export default ReactNode;\n}`;
     })
     .join("\n");

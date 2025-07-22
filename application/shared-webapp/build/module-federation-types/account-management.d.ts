@@ -6,3 +6,15 @@ declare module "account-management/AvatarButton" {
 declare module "account-management/SupportButton" {
   export default ReactNode;
 }
+declare module "account-management/translations/en-US" {
+  import type { Messages } from "@lingui/core";
+  export const messages: Messages;
+}
+declare module "account-management/translations/da-DK" {
+  import type { Messages } from "@lingui/core";
+  export const messages: Messages;
+}
+declare module "account-management/translations/nl-NL" {
+  import type { Messages } from "@lingui/core";
+  export const messages: Messages;
+}
