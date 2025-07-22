@@ -18,7 +18,7 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
         <Button variant="icon" aria-label={t`Help`}>
           <LifeBuoyIcon size={20} />
         </Button>
-        <LocaleSwitcher aria-label={t`Select language`} />
+        <LocaleSwitcher aria-label={t`Change language`} tooltip={t`Change language`} />
       </div>
       <div className="flex grow flex-col gap-4 md:flex-row">
         <div className="flex w-full flex-col items-center justify-center gap-6 bg-background p-6 md:w-1/2">
@@ -29,7 +29,7 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
             <Button variant="icon" aria-label={t`Help`}>
               <LifeBuoyIcon size={20} />
             </Button>
-            <LocaleSwitcher aria-label={t`Select language`} />
+            <LocaleSwitcher aria-label={t`Change language`} tooltip={t`Change language`} />
           </div>
         </div>
         <div className="hidden items-center justify-center bg-input-background p-6 md:flex md:w-1/2 md:px-28 md:py-12">

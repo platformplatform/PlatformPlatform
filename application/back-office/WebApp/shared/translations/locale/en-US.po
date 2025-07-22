@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account management"
 msgstr "Account management"
 
+msgid "Change language"
+msgstr "Change language"
+
 msgid "Help"
 msgstr "Help"
 
@@ -24,9 +27,6 @@ msgstr "Home"
 
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
-
-msgid "Select language"
-msgstr "Select language"
 
 msgid "Toggle collapsed menu"
 msgstr "Toggle collapsed menu"

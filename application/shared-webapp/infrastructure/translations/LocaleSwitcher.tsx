@@ -4,12 +4,13 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { use, useContext, useMemo } from "react";
 import { type Locale, translationContext } from "./TranslationContext";
 import { preferredLocaleKey } from "./constants";
 
-export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": string }) {
+export function LocaleSwitcher({ "aria-label": ariaLabel, tooltip }: { "aria-label": string; tooltip?: string }) {
   const { setLocale, getLocaleInfo, locales } = use(translationContext);
   const { i18n } = useLingui();
   const { userInfo } = useContext(AuthenticationContext);
@@ -45,7 +46,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
 
   const currentLocale = i18n.locale as Locale;
 
-  return (
+  const menuContent = (
     <MenuTrigger>
       <Button variant="icon" aria-label={ariaLabel}>
         <GlobeIcon className="h-5 w-5" />
@@ -62,4 +63,15 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: { "aria-label": stri
       </Menu>
     </MenuTrigger>
   );
+
+  if (tooltip) {
+    return (
+      <TooltipTrigger>
+        {menuContent}
+        <Tooltip>{tooltip}</Tooltip>
+      </TooltipTrigger>
+    );
+  }
+
+  return menuContent;
 }

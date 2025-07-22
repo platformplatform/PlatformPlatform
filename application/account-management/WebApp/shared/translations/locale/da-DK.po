@@ -336,9 +336,6 @@ msgstr "Vælg en ny rolle for <0>{0}</0>"
 msgid "Select dates"
 msgstr "Vælg datoer"
 
-msgid "Select language"
-msgstr "Vælg sprog"
-
 msgid "Send invite"
 msgstr "Send invitation"
 

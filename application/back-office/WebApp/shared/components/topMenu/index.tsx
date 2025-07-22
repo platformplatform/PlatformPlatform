@@ -29,7 +29,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
           <Button variant="icon" aria-label={t`Help`}>
             <LifeBuoyIcon size={20} />
           </Button>
-          <LocaleSwitcher aria-label={t`Select language`} />
+          <LocaleSwitcher aria-label={t`Change language`} tooltip={t`Change language`} />
         </span>
         <Suspense fallback={<div className="h-10 w-10 rounded-full bg-secondary" />}>
           <AvatarButton aria-label={t`User profile menu`} />

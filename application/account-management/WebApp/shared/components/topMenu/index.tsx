@@ -36,10 +36,7 @@ export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProp
             </Button>
             <Tooltip>{t`Support`}</Tooltip>
           </TooltipTrigger>
-          <TooltipTrigger>
-            <LocaleSwitcher aria-label={t`Select language`} />
-            <Tooltip>{t`Change language`}</Tooltip>
-          </TooltipTrigger>
+          <LocaleSwitcher aria-label={t`Change language`} tooltip={t`Change language`} />
         </span>
         <AvatarButton aria-label={t`User profile menu`} />
       </div>
