@@ -22,8 +22,8 @@ msgstr "Taal wijzigen"
 msgid "Change theme"
 msgstr "Thema wijzigen"
 
-msgid "Help"
-msgstr "Help"
+msgid "Contact support"
+msgstr "Ondersteuning contacteren"
 
 msgid "Home"
 msgstr "Home"

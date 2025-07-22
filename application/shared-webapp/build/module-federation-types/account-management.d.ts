@@ -3,3 +3,6 @@
 declare module "account-management/AvatarButton" {
   export default ReactNode;
 }
+declare module "account-management/SupportButton" {
+  export default ReactNode;
+}

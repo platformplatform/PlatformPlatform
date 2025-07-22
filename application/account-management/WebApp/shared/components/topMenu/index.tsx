@@ -2,12 +2,10 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
-import { Button } from "@repo/ui/components/Button";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
-import { LifeBuoyIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import AvatarButton from "../AvatarButton";
+import SupportButton from "../support/SupportButton";
 
 interface TopMenuProps {
   children?: ReactNode;
@@ -30,12 +28,7 @@ export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProp
       >
         <span className="flex gap-2">
           <ThemeModeSelector aria-label={t`Change theme`} tooltip={t`Change theme`} />
-          <TooltipTrigger>
-            <Button variant="icon" aria-label={t`Help`}>
-              <LifeBuoyIcon size={20} />
-            </Button>
-            <Tooltip>{t`Support`}</Tooltip>
-          </TooltipTrigger>
+          <SupportButton aria-label={t`Contact support`} />
           <LocaleSwitcher aria-label={t`Change language`} tooltip={t`Change language`} />
         </span>
         <AvatarButton aria-label={t`User profile menu`} />

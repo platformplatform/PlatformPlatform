@@ -118,8 +118,14 @@ msgstr "Clear"
 msgid "Clear filters"
 msgstr "Clear filters"
 
+msgid "Close"
+msgstr "Close"
+
 msgid "Close user profile"
 msgstr "Close user profile"
+
+msgid "Contact support"
+msgstr "Contact support"
 
 msgid "Continue"
 msgstr "Continue"
@@ -188,6 +194,9 @@ msgstr "Error: Something went wrong!"
 msgid "Europe"
 msgstr "Europe"
 
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Feel free to reach out with any questions or issues you may have."
+
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
@@ -196,9 +205,6 @@ msgstr "Filters"
 
 msgid "First name"
 msgstr "First name"
-
-msgid "Help"
-msgstr "Help"
 
 msgid "Here's your overview of what's happening."
 msgstr "Here's your overview of what's happening."
@@ -256,6 +262,9 @@ msgstr "Name"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Need help? Our support team is here to assist you."
+msgstr "Need help? Our support team is here to assist you."
 
 msgid "Next"
 msgstr "Next"
@@ -353,9 +362,6 @@ msgstr "Signup verification code"
 
 msgid "Success"
 msgstr "Success"
-
-msgid "Support"
-msgstr "Support"
 
 msgid "Terms of use"
 msgstr "Terms of use"

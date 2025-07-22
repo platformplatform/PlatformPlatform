@@ -118,8 +118,14 @@ msgstr "Ryd"
 msgid "Clear filters"
 msgstr "Ryd filtre"
 
+msgid "Close"
+msgstr "Luk"
+
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
+
+msgid "Contact support"
+msgstr "Kontakt support"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -188,6 +194,9 @@ msgstr "Fejl: Noget gik galt!"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
+
 msgid "Fetching data..."
 msgstr "Henter data..."
 
@@ -196,9 +205,6 @@ msgstr "Filtre"
 
 msgid "First name"
 msgstr "Fornavn"
-
-msgid "Help"
-msgstr "Hjælp"
 
 msgid "Here's your overview of what's happening."
 msgstr "Her er din oversigt over, hvad der sker."
@@ -256,6 +262,9 @@ msgstr "Navn"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Need help? Our support team is here to assist you."
+msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 
 msgid "Next"
 msgstr "Næste"
@@ -353,9 +362,6 @@ msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "Success"
 msgstr "Succes"
-
-msgid "Support"
-msgstr "Support"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"

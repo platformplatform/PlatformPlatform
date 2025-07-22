@@ -22,8 +22,8 @@ msgstr "Skift sprog"
 msgid "Change theme"
 msgstr "Skift tema"
 
-msgid "Help"
-msgstr "Hjælp"
+msgid "Contact support"
+msgstr "Kontakt support"
 
 msgid "Home"
 msgstr "Hjem"

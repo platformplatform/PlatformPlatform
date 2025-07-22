@@ -22,8 +22,8 @@ msgstr "Change language"
 msgid "Change theme"
 msgstr "Change theme"
 
-msgid "Help"
-msgstr "Help"
+msgid "Contact support"
+msgstr "Contact support"
 
 msgid "Home"
 msgstr "Home"
