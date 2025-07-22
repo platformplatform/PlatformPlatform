@@ -161,7 +161,7 @@ export function UserTable({
             <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
               <Trans>Role</Trans>
             </Column>
-            <Column width={114}>
+            <Column width={80}>
               <Trans>Actions</Trans>
             </Column>
           </TableHeader>
