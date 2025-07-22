@@ -92,9 +92,10 @@ export function UserTable({
     [navigate]
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Clear selected users when page changes - pageOffset is needed to trigger the effect
   useEffect(() => {
     onSelectedUsersChange([]);
-  }, [onSelectedUsersChange]);
+  }, [onSelectedUsersChange, pageOffset]);
 
   useEffect(() => {
     if (users?.users) {
