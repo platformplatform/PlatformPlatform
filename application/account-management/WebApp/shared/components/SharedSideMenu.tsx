@@ -12,9 +12,19 @@ import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
 import { MenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, CircleUserIcon, GlobeIcon, HomeIcon, LogOutIcon, UserIcon, UsersIcon } from "lucide-react";
+import {
+  CheckIcon,
+  CircleUserIcon,
+  GlobeIcon,
+  HomeIcon,
+  LogOutIcon,
+  MailQuestion,
+  UserIcon,
+  UsersIcon
+} from "lucide-react";
 import type React from "react";
 import { use, useContext, useState } from "react";
+import { SupportDialog } from "./support/SupportDialog";
 import UserProfileModal from "./userModals/UserProfileModal";
 
 type SharedSideMenuProps = {
@@ -159,6 +169,24 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
               ))}
             </Menu>
           </MenuTrigger>
+        </div>
+
+        {/* Support Section - styled like menu item */}
+        <div className="flex items-center justify-between">
+          <SupportDialog>
+            <Button
+              variant="ghost"
+              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+              style={{ pointerEvents: "auto" }}
+            >
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+                <MailQuestion className="h-5 w-5 stroke-current" />
+              </div>
+              <div className="overflow-hidden whitespace-nowrap text-start">
+                <Trans>Contact support</Trans>
+              </div>
+            </Button>
+          </SupportDialog>
         </div>
       </div>
 
