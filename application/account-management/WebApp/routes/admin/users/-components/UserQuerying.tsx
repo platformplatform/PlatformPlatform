@@ -88,10 +88,14 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
+    // Normalize empty string and undefined to prevent unnecessary updates
+    const normalizedSearch = search || undefined;
+    const normalizedParamSearch = searchParams.search || undefined;
+
     // Only update if search value actually changed from URL params
-    if (search !== searchParams.search) {
+    if (normalizedSearch !== normalizedParamSearch) {
       const timeoutId = setTimeout(() => {
-        updateFilter({ search: (search as string) || undefined }, true);
+        updateFilter({ search: normalizedSearch }, true);
         setSearchTimeoutId(null);
       }, 500);
       setSearchTimeoutId(timeoutId);
@@ -269,7 +273,18 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
-    updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
+    // Set search to empty string first to ensure UI updates immediately
+    setSearch("");
+
+    // Then update the filter which will set search to undefined in URL
+    updateFilter({
+      search: undefined,
+      userRole: undefined,
+      userStatus: undefined,
+      startDate: undefined,
+      endDate: undefined
+    });
+
     setShowAllFilters(false);
     setIsFilterPanelOpen(false);
   };
@@ -432,6 +447,21 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           </Heading>
 
           <div className="mt-4 flex flex-col gap-4">
+            <SearchField
+              placeholder={t`Search`}
+              value={search}
+              onChange={setSearch}
+              onSubmit={() => {
+                if (searchTimeoutId) {
+                  clearTimeout(searchTimeoutId);
+                  setSearchTimeoutId(null);
+                }
+                updateFilter({ search: (search as string) || undefined }, true);
+              }}
+              label={t`Search`}
+              className="w-full"
+            />
+
             <Select
               selectedKey={searchParams.userRole}
               onSelectionChange={(userRole) => {
@@ -485,7 +515,11 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           </div>
 
           <div className="mt-6 flex justify-end gap-4">
-            <Button variant="secondary" onPress={clearAllFilters} isDisabled={activeFilterCount === 0}>
+            <Button
+              variant="secondary"
+              onPress={clearAllFilters}
+              isDisabled={activeFilterCount === 0 && !searchParams.search}
+            >
               <Trans>Clear</Trans>
             </Button>
             <Button variant="primary" onPress={() => setIsFilterPanelOpen(false)}>
