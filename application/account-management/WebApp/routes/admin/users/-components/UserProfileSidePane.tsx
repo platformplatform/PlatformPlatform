@@ -135,17 +135,40 @@ function useSidePaneAccessibility(
   sidePaneRef: React.RefObject<HTMLDivElement | null>,
   closeButtonRef: React.RefObject<SVGSVGElement | null>
 ) {
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
-    if (isOpen && closeButtonRef.current && isMobileScreen) {
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (isOpen && closeButtonRef.current && isSmallScreen) {
+      // Store the currently focused element before moving focus
+      previouslyFocusedElement.current = document.activeElement as HTMLElement;
       closeButtonRef.current.focus();
     }
   }, [isOpen, closeButtonRef]);
+
+  // Prevent body scroll on small screens when side pane is open
+  useEffect(() => {
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (isOpen && isSmallScreen) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
         event.preventDefault();
+        const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+
+        // Restore focus on small screens before closing
+        if (isSmallScreen && previouslyFocusedElement.current) {
+          previouslyFocusedElement.current.focus();
+        }
+
         onClose();
       }
     };
@@ -160,8 +183,8 @@ function useSidePaneAccessibility(
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
-    if (!isOpen || !sidePaneRef.current || !isMobileScreen) {
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (!isOpen || !sidePaneRef.current || !isSmallScreen) {
       return;
     }
 
@@ -206,6 +229,18 @@ export function UserProfileSidePane({
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  // Check screen size for backdrop rendering
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(!window.matchMedia(MEDIA_QUERIES.md).matches);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   useSidePaneAccessibility(isOpen, onClose, sidePaneRef, closeButtonRef);
 
@@ -218,10 +253,13 @@ export function UserProfileSidePane({
 
   return (
     <>
+      {/* Backdrop for small screens */}
+      {isSmallScreen && <div className="fixed inset-0 z-[59] bg-black/50" aria-hidden="true" />}
+
       {/* Side pane */}
       <aside
         ref={sidePaneRef}
-        className="relative flex h-full w-full flex-col border-border border-l bg-background"
+        className="relative z-[60] flex h-full w-full flex-col border-border border-l bg-background"
         aria-label={t`User profile details`}
       >
         {/* Close button - positioned like modal dialogs */}

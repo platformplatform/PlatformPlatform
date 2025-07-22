@@ -10,6 +10,7 @@ import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
+import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -47,6 +48,7 @@ export function UserTable({
     column: orderBy ?? "email",
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
+  const [isKeyboardNavigation, setIsKeyboardNavigation] = useState(false);
 
   const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
@@ -103,29 +105,86 @@ export function UserTable({
     }
   }, [users?.users, onUsersLoaded]);
 
+  // Track keyboard vs mouse interaction
+  useEffect(() => {
+    const handleKeyDown = () => {
+      setIsKeyboardNavigation(true);
+    };
+
+    const handleMouseDown = () => {
+      setIsKeyboardNavigation(false);
+    };
+
+    const handlePointerDown = () => {
+      setIsKeyboardNavigation(false);
+    };
+
+    // Use capture phase to ensure we set the flag before any click handlers
+    document.addEventListener("keydown", handleKeyDown, true);
+    document.addEventListener("mousedown", handleMouseDown, true);
+    document.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, true);
+      document.removeEventListener("mousedown", handleMouseDown, true);
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, []);
+
   const handleSelectionChange = useCallback(
     (keys: Selection) => {
       if (keys === "all") {
         onSelectedUsersChange(users?.users ?? []);
-        // Close profile when selecting all users
         onViewProfile(null);
-      } else {
-        const selectedKeys = typeof keys === "string" ? new Set([keys]) : keys;
-        const selectedUsersList = users?.users.filter((user) => selectedKeys.has(user.id)) ?? [];
-        onSelectedUsersChange(selectedUsersList);
+        return;
+      }
 
-        // Handle profile viewing based on selection
-        if (selectedUsersList.length === 1) {
-          // Single user selected - show profile
-          onViewProfile(selectedUsersList[0]);
-        } else {
-          // Multiple users selected or no users selected - close profile
-          onViewProfile(null);
-        }
+      const selectedUsersList = users?.users.filter((user) => keys.has(user.id)) ?? [];
+      onSelectedUsersChange(selectedUsersList);
+
+      // Handle profile viewing
+      if (selectedUsersList.length !== 1) {
+        onViewProfile(null);
+        return;
+      }
+
+      // Single user selected - check if we should auto-open profile
+      const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+      const shouldAutoOpen = !isSmallScreen || !isKeyboardNavigation;
+
+      if (shouldAutoOpen) {
+        onViewProfile(selectedUsersList[0]);
       }
     },
-    [users?.users, onSelectedUsersChange, onViewProfile]
+    [users?.users, onSelectedUsersChange, onViewProfile, isKeyboardNavigation]
   );
+
+  // Handle Enter key to open profile
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if focus is within the table area
+      const activeElement = document.activeElement;
+      const tableContainer = document.querySelector(".min-h-0.flex-1");
+
+      if (tableContainer?.contains(activeElement)) {
+        if (e.key === "Enter" && selectedUsers.length === 1) {
+          const target = e.target as HTMLElement;
+          // Don't interfere with menu triggers or buttons
+          if (target.tagName !== "BUTTON" && !target.closest("button")) {
+            e.preventDefault();
+            e.stopPropagation();
+            onViewProfile(selectedUsers[0]);
+          }
+        }
+      }
+    };
+
+    // Add the handler for all screen sizes
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [selectedUsers, onViewProfile]);
 
   if (isLoading) {
     return null;
