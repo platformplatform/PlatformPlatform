@@ -278,6 +278,9 @@ msgstr "Alleen accounteigenaren kunnen de accountnaam wijzigen"
 msgid "Organization"
 msgstr "Organisatie"
 
+msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+msgstr "Ons ondersteuningsteam helpt je met het verwijderen van je account en al je gegevens."
+
 msgid "Owner"
 msgstr "Eigenaar"
 
@@ -372,6 +375,9 @@ msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 msgid "Title"
 msgstr "Titel"
 
+msgid "To delete your account, please contact our support team."
+msgstr "Neem contact op met ons ondersteuningsteam om je account te verwijderen."
+
 msgid "Toggle collapsed menu"
 msgstr "Ingeklapt menu wisselen"
 
@@ -459,9 +465,6 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
-
-msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
 msgid "Your verification code has expired"
 msgstr "Je verificatiecode is verlopen"

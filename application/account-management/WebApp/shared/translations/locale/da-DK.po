@@ -278,6 +278,9 @@ msgstr "Kun kontoejere kan ændre kontonavnet"
 msgid "Organization"
 msgstr "Organisation"
 
+msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at alle dine data bliver fjernet."
+
 msgid "Owner"
 msgstr "Ejer"
 
@@ -372,6 +375,9 @@ msgstr "Dette er den region, hvor dine data er lagret"
 msgid "Title"
 msgstr "Titel"
 
+msgid "To delete your account, please contact our support team."
+msgstr "For at slette din konto bedes du kontakte vores supportteam."
+
 msgid "Toggle collapsed menu"
 msgstr "Skift kollapset menu"
 
@@ -459,9 +465,6 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
-
-msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
 
 msgid "Your verification code has expired"
 msgstr "Din bekræftelseskode er udløbet"
