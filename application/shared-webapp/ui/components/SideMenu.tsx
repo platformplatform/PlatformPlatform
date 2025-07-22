@@ -1,14 +1,15 @@
 import type { Href } from "@react-types/shared";
-import { type MakeRouteMatch, useRouter } from "@tanstack/react-router";
+import { type MakeRouteMatch, Link as RouterLink, useRouter } from "@tanstack/react-router";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { ToggleButton, composeRenderProps } from "react-aria-components";
+import { ToggleButton } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
+import { Link } from "./Link";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
 
@@ -43,7 +44,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background",
+  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
   variants: {
     isCollapsed: {
       true: "",
@@ -52,6 +53,10 @@ const menuButtonStyles = tv({
     isActive: {
       true: "text-foreground",
       false: "text-muted-foreground hover:text-foreground"
+    },
+    isDisabled: {
+      true: "cursor-not-allowed opacity-50 hover:bg-background",
+      false: ""
     }
   }
 });
@@ -100,6 +105,53 @@ const getTargetPath = (to: Href | string, router: ReturnType<typeof useRouter>):
 // Helper function to normalize path
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
+// Helper component for the menu link content
+function MenuLinkContent({
+  icon: Icon,
+  label,
+  isActive,
+  isCollapsed
+}: {
+  icon: LucideIcon;
+  label: string;
+  isActive: boolean;
+  isCollapsed: boolean;
+}) {
+  return (
+    <>
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+        <Icon
+          className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
+        />
+      </div>
+      <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
+    </>
+  );
+}
+
+// Helper component for active indicator
+function ActiveIndicator({
+  isActive,
+  isMobileMenu,
+  isCollapsed
+}: {
+  isActive: boolean;
+  isMobileMenu: boolean;
+  isCollapsed: boolean;
+}) {
+  if (!isActive) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
+        isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
+      }`}
+    />
+  );
+}
+
 export function MenuButton({
   icon: Icon,
   label,
@@ -110,74 +162,89 @@ export function MenuButton({
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const router = useRouter();
-  const { navigate } = router;
 
   // Check if this menu item is active
   const currentPath = router.state.location.pathname;
   const targetPath = getTargetPath(to, router);
   const isActive = normalizePath(currentPath) === normalizePath(targetPath);
 
-  const onPress = () => {
-    if (to == null) {
+  // Check if we're in the mobile menu context
+  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
+
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isDisabled) {
+      e.preventDefault();
       return;
     }
 
-    // Auto-close overlay after navigation (including when clicking active menu item)
+    // Auto-close overlay after navigation
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
 
-    // If clicking on the current active page, still close menu but don't navigate
-    if (isActive) {
-      return;
-    }
-
+    // Handle force reload
     if (forceReload) {
+      e.preventDefault();
       window.location.href = to;
-    } else {
-      navigate({ to });
     }
   };
 
-  // Check if we're in the mobile menu context
-  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && overlayCtx?.isOpen;
+  const handlePress = () => {
+    if (isDisabled) {
+      return;
+    }
 
-  return (
-    <div className="relative">
-      {/* Active indicator bar - positioned outside button for proper visibility */}
-      {isActive && (
-        <div
-          className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
-            isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
-          }`}
-        />
-      )}
-      <TooltipTrigger>
-        <ToggleButton
-          className={composeRenderProps("", (className, renderProps) =>
-            menuButtonStyles({
-              ...renderProps,
-              className,
-              isCollapsed,
-              isActive
-            })
-          )}
-          onPress={onPress}
-          isDisabled={isDisabled}
-        >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-            <Icon
-              className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
-            />
-          </div>
-          <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
-        </ToggleButton>
-        {isCollapsed && (
+    // Auto-close overlay after navigation
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+
+    // Handle navigation for React Aria Link
+    if (forceReload) {
+      window.location.href = to;
+    }
+  };
+
+  // For collapsed menu, wrap in TooltipTrigger
+  if (isCollapsed) {
+    return (
+      <div className="relative">
+        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <TooltipTrigger>
+          <Link
+            href={forceReload ? undefined : to}
+            className={linkClassName}
+            variant="ghost"
+            underline={false}
+            isDisabled={isDisabled}
+            aria-current={isActive ? "page" : undefined}
+            onPress={handlePress}
+          >
+            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+          </Link>
           <Tooltip placement="right" offset={4}>
             {label}
           </Tooltip>
-        )}
-      </TooltipTrigger>
+        </TooltipTrigger>
+      </div>
+    );
+  }
+
+  // For expanded menu, use TanStack Router Link
+  return (
+    <div className="relative">
+      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <RouterLink
+        to={to}
+        className={linkClassName}
+        onClick={handleClick}
+        disabled={isDisabled}
+        aria-current={isActive ? "page" : undefined}
+      >
+        <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+      </RouterLink>
     </div>
   );
 }
@@ -593,7 +660,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
 
       <collapsedContext.Provider value={actualIsCollapsed}>
         <overlayContext.Provider value={{ isOpen: isOverlayOpen, close: closeOverlay }}>
-          <div
+          <nav
             ref={sideMenuRef}
             className={`${sideMenuStyles({
               isCollapsed: actualIsCollapsed,
@@ -606,6 +673,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
               width: isXlScreen && !isCollapsed ? `${menuWidth}px` : undefined,
               transition: isResizing ? "none" : undefined
             }}
+            aria-label="Main navigation"
           >
             {/* Vertical divider line - draggable on XL screens */}
             <div
@@ -657,7 +725,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
             <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
               <div className="flex flex-col gap-2 pt-1.5">{children}</div>
             </div>
-          </div>
+          </nav>
         </overlayContext.Provider>
       </collapsedContext.Provider>
 
@@ -765,14 +833,17 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       )}
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
-          <div
+          <dialog
             className="fixed inset-0 z-[200] h-[100vh] w-[100vw] bg-background"
             style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0 }}
+            aria-label="Mobile navigation menu"
+            open={true}
           >
-            <div
+            <nav
               className="flex h-[100vh] w-[100vw] flex-col bg-background"
               ref={dialogRef}
               style={{ margin: 0, padding: 0 }}
+              aria-label="Mobile navigation"
             >
               <div
                 className="flex-1 overflow-y-auto px-3"
@@ -793,8 +864,8 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   <X className="h-7 w-7" />
                 </Button>
               </div>
-            </div>
-          </div>
+            </nav>
+          </dialog>
         </overlayContext.Provider>
       )}
     </>
