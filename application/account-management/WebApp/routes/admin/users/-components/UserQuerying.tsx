@@ -262,7 +262,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   useEffect(() => {
     // On 2XL+ screens, keep full buttons even with filters
     const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    const shouldUseCompactButtons = !is2XlScreen && (showAllFilters || activeFilterCount > 0);
+    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches; // sm breakpoint
+    const shouldUseCompactButtons = (!is2XlScreen && (showAllFilters || activeFilterCount > 0)) || isMobileScreen;
 
     onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
