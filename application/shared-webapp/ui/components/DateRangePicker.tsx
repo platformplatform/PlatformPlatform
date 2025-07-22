@@ -8,6 +8,7 @@ import {
   DateRangePicker as AriaDateRangePicker,
   type DateRangePickerProps as AriaDateRangePickerProps,
   type DateValue,
+  I18nProvider,
   type ValidationResult
 } from "react-aria-components";
 import { Button } from "./Button";
@@ -70,64 +71,68 @@ export function DateRangePicker<T extends DateValue>({
   };
 
   return (
-    <AriaDateRangePicker
-      {...props}
-      value={value}
-      onChange={(newValue) => {
-        onChange?.(newValue);
-        // Keep expanded if a value is selected
-        if (!newValue) {
-          setIsExpanded(false);
-        }
-      }}
-      className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
-    >
-      {label && <Label>{label}</Label>}
+    // Using Canadian locale to force YYYY-MM-DD format which is unambiguous internationally
+    // This avoids confusion between MM/DD/YYYY (US) and DD/MM/YYYY (EU) formats
+    <I18nProvider locale="en-CA">
+      <AriaDateRangePicker
+        {...props}
+        value={value}
+        onChange={(newValue) => {
+          onChange?.(newValue);
+          // Keep expanded if a value is selected
+          if (!newValue) {
+            setIsExpanded(false);
+          }
+        }}
+        className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
+      >
+        {label && <Label>{label}</Label>}
 
-      {isExpanded ? (
-        // Expanded view - standard date range picker
-        <FieldGroup className="w-auto min-w-[208px]">
-          <DateInput slot="start" className="px-2 py-1.5 text-sm" />
-          <span
-            aria-hidden="true"
-            className="text-foreground group-disabled:text-muted forced-colors:text-[ButtonText] group-disabled:forced-colors:text-[GrayText]"
-          >
-            –
-          </span>
-          <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
-          {value && (
-            <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
-              <XIcon aria-hidden={true} className="h-4 w-4" />
+        {isExpanded ? (
+          // Expanded view - standard date range picker
+          <FieldGroup className="w-auto min-w-[265px]">
+            <DateInput slot="start" className="px-2 py-1.5 text-sm" />
+            <span
+              aria-hidden="true"
+              className="text-foreground group-disabled:text-muted forced-colors:text-[ButtonText] group-disabled:forced-colors:text-[GrayText]"
+            >
+              –
+            </span>
+            <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
+            {value && (
+              <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
+                <XIcon aria-hidden={true} className="h-4 w-4" />
+              </Button>
+            )}
+            <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
+              <CalendarIcon aria-hidden={true} className="h-4 w-4" />
             </Button>
-          )}
-          <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
-            <CalendarIcon aria-hidden={true} className="h-4 w-4" />
+          </FieldGroup>
+        ) : (
+          // Compact view - just a button with calendar icon
+          <Button
+            variant="outline"
+            className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
+              hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
+            }`}
+            onPress={() => setIsExpanded(true)}
+          >
+            <div className="flex items-center gap-2 truncate">
+              <CalendarIcon className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate text-sm">{hasValue ? formatDateRange() : placeholder}</span>
+            </div>
+            {hasValue && <XIcon className="h-5 w-5 flex-shrink-0 cursor-pointer" onClick={clearDateRange} />}
           </Button>
-        </FieldGroup>
-      ) : (
-        // Compact view - just a button with calendar icon
-        <Button
-          variant="outline"
-          className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
-            hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
-          }`}
-          onPress={() => setIsExpanded(true)}
-        >
-          <div className="flex items-center gap-2 truncate">
-            <CalendarIcon className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate text-sm">{hasValue ? formatDateRange() : placeholder}</span>
-          </div>
-          {hasValue && <XIcon className="h-5 w-5 flex-shrink-0 cursor-pointer" onClick={clearDateRange} />}
-        </Button>
-      )}
+        )}
 
-      {description && <Description>{description}</Description>}
-      <FieldError>{errorMessage}</FieldError>
-      <Popover>
-        <Dialog>
-          <RangeCalendar />
-        </Dialog>
-      </Popover>
-    </AriaDateRangePicker>
+        {description && <Description>{description}</Description>}
+        <FieldError>{errorMessage}</FieldError>
+        <Popover>
+          <Dialog>
+            <RangeCalendar />
+          </Dialog>
+        </Popover>
+      </AriaDateRangePicker>
+    </I18nProvider>
   );
 }
