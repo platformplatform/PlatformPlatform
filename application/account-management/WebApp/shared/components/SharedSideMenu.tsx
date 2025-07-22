@@ -10,22 +10,9 @@ import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
 import { MenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
-import { useThemeMode } from "@repo/ui/theme/mode/ThemeMode";
-import { SystemThemeMode, ThemeMode } from "@repo/ui/theme/mode/utils";
+import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  CheckIcon,
-  CircleUserIcon,
-  GlobeIcon,
-  HomeIcon,
-  LogOutIcon,
-  MoonIcon,
-  MoonStarIcon,
-  SunIcon,
-  SunMoonIcon,
-  UserIcon,
-  UsersIcon
-} from "lucide-react";
+import { CheckIcon, CircleUserIcon, GlobeIcon, HomeIcon, LogOutIcon, UserIcon, UsersIcon } from "lucide-react";
 import type React from "react";
 import { use, useContext, useState } from "react";
 import UserProfileModal from "./userModals/UserProfileModal";
@@ -41,41 +28,12 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
   const { getLocaleInfo, locales, setLocale } = use(translationContext);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { themeMode, resolvedThemeMode, setThemeMode } = useThemeMode();
 
   // Access mobile menu overlay context to close menu when needed
   const overlayCtx = useContext(overlayContext);
 
   const currentLocale = i18n.locale as Locale;
   const currentLocaleLabel = getLocaleInfo(currentLocale).label;
-
-  const getThemeName = (mode: ThemeMode) => {
-    switch (mode) {
-      case ThemeMode.System:
-        return t`System`;
-      case ThemeMode.Light:
-        return t`Light`;
-      case ThemeMode.Dark:
-        return t`Dark`;
-      default:
-        return t`System`;
-    }
-  };
-
-  const getThemeIcon = (themeMode: ThemeMode, resolvedThemeMode: SystemThemeMode) => {
-    if (resolvedThemeMode === SystemThemeMode.Dark) {
-      return themeMode === ThemeMode.System ? (
-        <MoonStarIcon className="h-5 w-5 stroke-current" />
-      ) : (
-        <MoonIcon className="h-5 w-5 stroke-current" />
-      );
-    }
-    return themeMode === ThemeMode.System ? (
-      <SunMoonIcon className="h-5 w-5 stroke-current" />
-    ) : (
-      <SunIcon className="h-5 w-5 stroke-current" />
-    );
-  };
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -152,36 +110,18 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
           </Button>
         </div>
 
-        {/* Theme Section - button that cycles themes */}
+        {/* Theme Section - using ThemeModeSelector with mobile menu variant */}
         <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
+          <ThemeModeSelector
+            aria-label={t`Change theme`}
+            variant="mobile-menu"
+            onAction={() => {
               // Close mobile menu if it's open
               if (overlayCtx?.isOpen) {
                 overlayCtx.close();
               }
-
-              // Cycle through themes: System -> Light -> Dark -> System
-              const nextTheme =
-                themeMode === ThemeMode.System
-                  ? ThemeMode.Light
-                  : themeMode === ThemeMode.Light
-                    ? ThemeMode.Dark
-                    : ThemeMode.System;
-              setThemeMode(nextTheme);
             }}
-            className="flex h-11 w-full items-center justify-start gap-4 rounded px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto" }}
-          >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              {getThemeIcon(themeMode, resolvedThemeMode)}
-            </div>
-            <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-              <Trans>Theme</Trans>
-            </div>
-            <div className="shrink-0 text-base text-muted-foreground">{getThemeName(themeMode)}</div>
-          </button>
+          />
         </div>
 
         {/* Language Section - styled like menu item */}

@@ -99,6 +99,9 @@ msgstr "Change profile picture"
 msgid "Change role"
 msgstr "Change role"
 
+msgid "Change theme"
+msgstr "Change theme"
+
 msgid "Change user role"
 msgstr "Change user role"
 
@@ -129,9 +132,6 @@ msgstr "Created"
 
 msgid "Danger zone"
 msgstr "Danger zone"
-
-msgid "Dark"
-msgstr "Dark"
 
 msgid "Delete"
 msgstr "Delete"
@@ -223,9 +223,6 @@ msgstr "Language"
 
 msgid "Last name"
 msgstr "Last name"
-
-msgid "Light"
-msgstr "Light"
 
 msgid "Log in"
 msgstr "Log in"
@@ -360,14 +357,8 @@ msgstr "Success"
 msgid "Support"
 msgstr "Support"
 
-msgid "System"
-msgstr "System"
-
 msgid "Terms of use"
 msgstr "Terms of use"
-
-msgid "Theme"
-msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"

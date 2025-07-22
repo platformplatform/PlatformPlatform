@@ -25,7 +25,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
       </Breadcrumbs>
       <div className="flex flex-row items-center gap-6">
         <span className="flex gap-2">
-          <ThemeModeSelector aria-label={t`Toggle theme`} />
+          <ThemeModeSelector aria-label={t`Change theme`} tooltip={t`Change theme`} />
           <Button variant="icon" aria-label={t`Help`}>
             <LifeBuoyIcon size={20} />
           </Button>

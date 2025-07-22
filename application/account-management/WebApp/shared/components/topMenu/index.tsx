@@ -29,7 +29,7 @@ export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProp
         }`}
       >
         <span className="flex gap-2">
-          <ThemeModeSelector aria-label={t`Toggle theme`} />
+          <ThemeModeSelector aria-label={t`Change theme`} tooltip={t`Change theme`} />
           <TooltipTrigger>
             <Button variant="icon" aria-label={t`Help`}>
               <LifeBuoyIcon size={20} />

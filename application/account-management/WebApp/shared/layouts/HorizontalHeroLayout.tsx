@@ -14,7 +14,7 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
   return (
     <main className="relative flex min-h-screen flex-col">
       <div className="absolute top-4 right-4 hidden gap-4 rounded-md bg-white p-2 shadow-md sm:flex dark:bg-gray-800">
-        <ThemeModeSelector aria-label={t`Toggle theme`} />
+        <ThemeModeSelector aria-label={t`Change theme`} tooltip={t`Change theme`} />
         <Button variant="icon" aria-label={t`Help`}>
           <LifeBuoyIcon size={20} />
         </Button>
@@ -25,7 +25,7 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
           {children}
           {/* Mobile-only icon controls at bottom of form */}
           <div className="flex gap-4 rounded-md bg-white p-2 shadow-md sm:hidden dark:bg-gray-800">
-            <ThemeModeSelector aria-label={t`Toggle theme`} />
+            <ThemeModeSelector aria-label={t`Change theme`} tooltip={t`Change theme`} />
             <Button variant="icon" aria-label={t`Help`}>
               <LifeBuoyIcon size={20} />
             </Button>

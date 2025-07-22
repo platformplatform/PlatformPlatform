@@ -99,6 +99,9 @@ msgstr "Profielfoto wijzigen"
 msgid "Change role"
 msgstr "Rol wijzigen"
 
+msgid "Change theme"
+msgstr "Thema wijzigen"
+
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
@@ -129,9 +132,6 @@ msgstr "Aangemaakt"
 
 msgid "Danger zone"
 msgstr "Gevaarzone"
-
-msgid "Dark"
-msgstr "Donker"
 
 msgid "Delete"
 msgstr "Verwijderen"
@@ -223,9 +223,6 @@ msgstr "Taal"
 
 msgid "Last name"
 msgstr "Achternaam"
-
-msgid "Light"
-msgstr "Licht"
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -360,14 +357,8 @@ msgstr "Succes"
 msgid "Support"
 msgstr "Ondersteuning"
 
-msgid "System"
-msgstr "Systeem"
-
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
-
-msgid "Theme"
-msgstr "Thema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"

@@ -19,6 +19,9 @@ msgstr "Kontoadministration"
 msgid "Change language"
 msgstr "Skift sprog"
 
+msgid "Change theme"
+msgstr "Skift tema"
+
 msgid "Help"
 msgstr "Hjælp"
 
@@ -30,9 +33,6 @@ msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige 
 
 msgid "Toggle collapsed menu"
 msgstr "Skift kollapset menu"
-
-msgid "Toggle theme"
-msgstr "Skift tema"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
