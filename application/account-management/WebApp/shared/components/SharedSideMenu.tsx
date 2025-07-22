@@ -1,18 +1,17 @@
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
+import { MenuButton, SideMenu, SideMenuSeparator, SideMenuSpacer, overlayContext } from "@repo/ui/components/SideMenu";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  BoxIcon,
   CheckIcon,
   CircleUserIcon,
   GlobeIcon,
@@ -23,27 +22,34 @@ import {
   UsersIcon
 } from "lucide-react";
 import type React from "react";
-import { use, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { SupportDialog } from "./support/SupportDialog";
 import UserProfileModal from "./userModals/UserProfileModal";
+import "@repo/ui/tailwind.css";
 
 type SharedSideMenuProps = {
   children?: React.ReactNode;
   ariaLabel: string;
+  currentLocale?: string;
+  currentLocaleLabel?: string;
+  locales?: Array<{ value: string; label: string }>;
+  onLocaleChange?: (locale: string) => void;
 };
 
-export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuProps>) {
+export default function SharedSideMenu({
+  children,
+  ariaLabel,
+  currentLocale,
+  currentLocaleLabel,
+  locales,
+  onLocaleChange
+}: Readonly<SharedSideMenuProps>) {
   const userInfo = useUserInfo();
-  const { i18n } = useLingui();
-  const { getLocaleInfo, locales, setLocale } = use(translationContext);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Access mobile menu overlay context to close menu when needed
   const overlayCtx = useContext(overlayContext);
-
-  const currentLocale = i18n.locale as Locale;
-  const currentLocaleLabel = getLocaleInfo(currentLocale).label;
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -135,41 +141,43 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
         </div>
 
         {/* Language Section - styled like menu item */}
-        <div className="flex items-center justify-between">
-          <MenuTrigger>
-            <Button
-              variant="ghost"
-              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-              style={{ pointerEvents: "auto" }}
-            >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <GlobeIcon className="h-5 w-5 stroke-current" />
-              </div>
-              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-                <Trans>Language</Trans>
-              </div>
-              <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
-            </Button>
-            <Menu
-              onAction={(key) => {
-                const locale = key.toString() as Locale;
-                if (locale !== currentLocale) {
-                  setLocale(locale);
-                }
-              }}
-              placement="bottom end"
-            >
-              {locales.map((locale) => (
-                <MenuItem key={locale} id={locale} textValue={getLocaleInfo(locale).label}>
-                  <div className="flex items-center gap-2">
-                    <span>{getLocaleInfo(locale).label}</span>
-                    {locale === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
-                  </div>
-                </MenuItem>
-              ))}
-            </Menu>
-          </MenuTrigger>
-        </div>
+        {currentLocale && currentLocaleLabel && locales && onLocaleChange && (
+          <div className="flex items-center justify-between">
+            <MenuTrigger>
+              <Button
+                variant="ghost"
+                className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+                style={{ pointerEvents: "auto" }}
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  <GlobeIcon className="h-5 w-5 stroke-current" />
+                </div>
+                <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
+                  <Trans>Language</Trans>
+                </div>
+                <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
+              </Button>
+              <Menu
+                onAction={(key) => {
+                  const locale = key.toString();
+                  if (locale !== currentLocale) {
+                    onLocaleChange(locale);
+                  }
+                }}
+                placement="bottom end"
+              >
+                {locales.map((locale) => (
+                  <MenuItem key={locale.value} id={locale.value} textValue={locale.label}>
+                    <div className="flex items-center gap-2">
+                      <span>{locale.label}</span>
+                      {locale.value === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+                    </div>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </MenuTrigger>
+          </div>
+        )}
 
         {/* Support Section - styled like menu item */}
         <div className="flex items-center justify-between">
@@ -204,6 +212,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
         </SideMenuSeparator>
         <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
         <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
+        <MenuButton icon={BoxIcon} label={t`Back Office`} href="/back-office" forceReload={true} />
         {children}
       </div>
 
@@ -221,6 +230,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
         </SideMenuSeparator>
         <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
         <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
+        <MenuButton icon={BoxIcon} label={t`Back Office`} href="/back-office" forceReload={true} />
         {children}
       </SideMenu>
 

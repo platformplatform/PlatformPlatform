@@ -13,9 +13,6 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
-msgid "Account management"
-msgstr "Kontoadministration"
-
 msgid "Change language"
 msgstr "Skift sprog"
 

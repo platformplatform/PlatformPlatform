@@ -1,12 +1,14 @@
-import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import SharedSideMenu from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
+import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { z } from "zod";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
@@ -42,6 +44,11 @@ export default function UsersPage() {
   const [tableUsers, setTableUsers] = useState<UserDetails[]>([]);
   const navigate = useNavigate({ from: Route.fullPath });
   const { userId } = Route.useSearch();
+  const { i18n } = useLingui();
+  const { getLocaleInfo, locales, setLocale } = use(translationContext);
+
+  const currentLocale = i18n.locale as Locale;
+  const currentLocaleLabel = getLocaleInfo(currentLocale).label;
 
   const handleCloseProfile = () => {
     setProfileUser(null);
@@ -105,7 +112,16 @@ export default function UsersPage() {
 
   return (
     <>
-      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
+      <SharedSideMenu
+        ariaLabel={t`Toggle collapsed menu`}
+        currentLocale={currentLocale}
+        currentLocaleLabel={currentLocaleLabel}
+        locales={locales.map((locale) => ({
+          value: locale,
+          label: getLocaleInfo(locale).label
+        }))}
+        onLocaleChange={(locale) => setLocale(locale as Locale)}
+      />
       <AppLayout
         sidePane={
           profileUser ? (

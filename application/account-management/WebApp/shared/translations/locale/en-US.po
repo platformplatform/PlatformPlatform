@@ -75,6 +75,9 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Back Office"
+msgstr "Back Office"
+
 msgid "Back to login"
 msgstr "Back to login"
 

@@ -13,9 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "Account management"
-msgstr "Account management"
-
 msgid "Change language"
 msgstr "Change language"
 

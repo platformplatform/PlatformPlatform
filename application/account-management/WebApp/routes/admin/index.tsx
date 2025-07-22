@@ -1,12 +1,15 @@
-import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import SharedSideMenu from "@/shared/components/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { use } from "react";
 
 export const Route = createFileRoute("/admin/")({
   component: Home
@@ -15,10 +18,24 @@ export const Route = createFileRoute("/admin/")({
 export default function Home() {
   const { data: usersSummary } = api.useQuery("get", "/api/account-management/users/summary");
   const userInfo = useUserInfo();
+  const { i18n } = useLingui();
+  const { getLocaleInfo, locales, setLocale } = use(translationContext);
+
+  const currentLocale = i18n.locale as Locale;
+  const currentLocaleLabel = getLocaleInfo(currentLocale).label;
 
   return (
     <>
-      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
+      <SharedSideMenu
+        ariaLabel={t`Toggle collapsed menu`}
+        currentLocale={currentLocale}
+        currentLocaleLabel={currentLocaleLabel}
+        locales={locales.map((locale) => ({
+          value: locale,
+          label: getLocaleInfo(locale).label
+        }))}
+        onLocaleChange={(locale) => setLocale(locale as Locale)}
+      />
       <AppLayout topMenu={<TopMenu />}>
         <h1>{userInfo?.firstName ? <Trans>Welcome home, {userInfo.firstName}</Trans> : <Trans>Welcome home</Trans>}</h1>
         <p>
