@@ -40,12 +40,62 @@ type ToastContext = {
 
 const toastContext = createContext<ToastContext>({});
 
-export const toastQueue = new ToastQueue<ToastContents>({
+// Create a unique identifier for this instance
+const instanceId = Math.random().toString(36).substring(7);
+
+// Create a custom ToastQueue that dispatches events for federation
+class FederatedToastQueue<T> extends ToastQueue<T> {
+  private isFederatedAdd = false;
+
+  add(content: T, options?: { timeout?: number; priority?: number }) {
+    // First add to the local queue
+    const result = super.add(content, options);
+
+    // Only dispatch event if this isn't already a federated add
+    if (!this.isFederatedAdd) {
+      const event = new CustomEvent("federated-toast", {
+        detail: { content, options, sourceInstanceId: instanceId },
+        bubbles: true,
+        composed: true
+      });
+      window.dispatchEvent(event);
+    }
+
+    return result;
+  }
+
+  federatedAdd(content: T, options?: { timeout?: number; priority?: number }) {
+    this.isFederatedAdd = true;
+    const result = this.add(content, options);
+    this.isFederatedAdd = false;
+    return result;
+  }
+}
+
+export const toastQueue = new FederatedToastQueue<ToastContents>({
   maxVisibleToasts: 5
 });
 
 export function GlobalToastRegion(props: AriaToastRegionProps) {
   const state = useToastQueue(toastQueue);
+
+  // Listen for federated toast events from other modules
+  useEffect(() => {
+    const handleFederatedToast = (event: CustomEvent) => {
+      const { content, options, sourceInstanceId } = event.detail;
+      // Only process events from other instances
+      if (sourceInstanceId !== instanceId) {
+        // Use the federatedAdd method to add without re-dispatching the event
+        (toastQueue as FederatedToastQueue<ToastContents>).federatedAdd(content, options);
+      }
+    };
+
+    window.addEventListener("federated-toast", handleFederatedToast as EventListener);
+    return () => {
+      window.removeEventListener("federated-toast", handleFederatedToast as EventListener);
+    };
+  }, []);
+
   return state.visibleToasts.length > 0 ? createPortal(<ToastRegion {...props} state={state} />, document.body) : null;
 }
 
