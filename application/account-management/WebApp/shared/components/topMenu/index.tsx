@@ -1,11 +1,11 @@
+import AvatarButton from "@/federated-modules/AvatarButton";
+import SupportButton from "@/federated-modules/support/SupportButton";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import type { ReactNode } from "react";
-import AvatarButton from "../AvatarButton";
-import SupportButton from "../support/SupportButton";
 
 interface TopMenuProps {
   children?: ReactNode;

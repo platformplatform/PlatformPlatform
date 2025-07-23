@@ -1,4 +1,4 @@
-import SharedSideMenu from "@/shared/components/sideMenu/SharedSideMenu";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <>
-      <SharedSideMenu currentSystem="account-management" />
+      <FederatedSideMenu currentSystem="account-management" />
       <AppLayout topMenu={<TopMenu />}>
         <h1>{userInfo?.firstName ? <Trans>Welcome home, {userInfo.firstName}</Trans> : <Trans>Welcome home</Trans>}</h1>
         <p>

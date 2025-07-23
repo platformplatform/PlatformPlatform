@@ -6,7 +6,7 @@ declare module "account-management/AvatarButton" {
 declare module "account-management/SupportButton" {
   export default ReactNode;
 }
-declare module "account-management/SharedSideMenu" {
+declare module "account-management/FederatedSideMenu" {
   export default ReactNode;
 }
 declare module "account-management/translations/en-US" {

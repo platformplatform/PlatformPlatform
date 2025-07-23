@@ -2,12 +2,12 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { FederatedMenuButton, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { BoxIcon, CircleUserIcon, HomeIcon, UsersIcon } from "lucide-react";
-import type { SharedSideMenuProps } from "./SharedSideMenu";
+import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 
 // Navigation items shared between mobile and desktop menus
 export function NavigationMenuItems({
   currentSystem
-}: Readonly<{ currentSystem: SharedSideMenuProps["currentSystem"] }>) {
+}: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"] }>) {
   return (
     <>
       <FederatedMenuButton

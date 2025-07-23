@@ -1,4 +1,4 @@
-import SharedSideMenu from "@/shared/components/sideMenu/SharedSideMenu";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
@@ -104,7 +104,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <SharedSideMenu currentSystem="account-management" />
+      <FederatedSideMenu currentSystem="account-management" />
       <AppLayout
         sidePane={
           profileUser ? (

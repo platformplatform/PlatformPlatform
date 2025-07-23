@@ -17,8 +17,8 @@ import { CheckIcon, GlobeIcon, LogOutIcon, MailQuestion, UserIcon } from "lucide
 import { useContext, useState } from "react";
 import { SupportDialog } from "../support/SupportDialog";
 import UserProfileModal from "../userModals/UserProfileModal";
+import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
-import type { SharedSideMenuProps } from "./SharedSideMenu";
 
 // Mobile menu header section with user profile and settings
 function MobileMenuHeader() {
@@ -186,7 +186,7 @@ function MobileMenuHeader() {
 }
 
 // Complete mobile menu including header and navigation
-export function MobileMenu({ currentSystem }: Readonly<{ currentSystem: SharedSideMenuProps["currentSystem"] }>) {
+export function MobileMenu({ currentSystem }: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"] }>) {
   return (
     <div className="flex h-full flex-col">
       <MobileMenuHeader />

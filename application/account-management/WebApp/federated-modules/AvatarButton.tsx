@@ -1,4 +1,4 @@
-import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
+import UserProfileModal from "@/federated-modules/userModals/UserProfileModal";
 import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";

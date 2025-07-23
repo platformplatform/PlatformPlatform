@@ -1,5 +1,5 @@
+import SupportButton from "@/federated-modules/support/SupportButton";
 import { HeroImage } from "@/shared/components/HeroImage";
-import SupportButton from "@/shared/components/support/SupportButton";
 import { t } from "@lingui/core/macro";
 import { LocaleSwitcher } from "@repo/infrastructure/translations/LocaleSwitcher";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";

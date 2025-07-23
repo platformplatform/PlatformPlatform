@@ -5,11 +5,11 @@ import { MobileMenu } from "./MobileMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
 import "@repo/ui/tailwind.css";
 
-export type SharedSideMenuProps = {
+export type FederatedSideMenuProps = {
   currentSystem: "account-management" | "back-office"; // Add your self-contained system here
 };
 
-export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMenuProps>) {
+export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedSideMenuProps>) {
   const userInfo = useUserInfo();
 
   return (
