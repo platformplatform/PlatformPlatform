@@ -142,6 +142,9 @@ msgstr "Created"
 msgid "Danger zone"
 msgstr "Danger zone"
 
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Delete"
 msgstr "Delete"
 

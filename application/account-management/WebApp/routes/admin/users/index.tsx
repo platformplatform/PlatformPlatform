@@ -114,6 +114,7 @@ export default function UsersPage() {
     <>
       <SharedSideMenu
         ariaLabel={t`Toggle collapsed menu`}
+        currentSystem="account-management"
         currentLocale={currentLocale}
         currentLocaleLabel={currentLocaleLabel}
         locales={locales.map((locale) => ({

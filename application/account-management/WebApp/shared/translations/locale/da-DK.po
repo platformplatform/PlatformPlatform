@@ -142,6 +142,9 @@ msgstr "Oprettet"
 msgid "Danger zone"
 msgstr "Farezone"
 
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Delete"
 msgstr "Slet"
 

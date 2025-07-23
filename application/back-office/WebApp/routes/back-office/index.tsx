@@ -23,6 +23,7 @@ export default function Home() {
     <>
       <SharedSideMenu
         ariaLabel={t`Toggle collapsed menu`}
+        currentSystem="back-office"
         currentLocale={currentLocale}
         currentLocaleLabel={currentLocaleLabel}
         locales={locales.map((locale) => ({

@@ -142,6 +142,9 @@ msgstr "Aangemaakt"
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Delete"
 msgstr "Verwijderen"
 

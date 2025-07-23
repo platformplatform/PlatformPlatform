@@ -7,7 +7,7 @@ import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton, SideMenu, SideMenuSeparator, SideMenuSpacer, overlayContext } from "@repo/ui/components/SideMenu";
+import { FederatedMenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -21,15 +21,14 @@ import {
   UserIcon,
   UsersIcon
 } from "lucide-react";
-import type React from "react";
 import { useContext, useState } from "react";
 import { SupportDialog } from "./support/SupportDialog";
 import UserProfileModal from "./userModals/UserProfileModal";
 import "@repo/ui/tailwind.css";
 
 type SharedSideMenuProps = {
-  children?: React.ReactNode;
   ariaLabel: string;
+  currentSystem: "account-management" | "back-office";
   currentLocale?: string;
   currentLocaleLabel?: string;
   locales?: Array<{ value: string; label: string }>;
@@ -37,8 +36,8 @@ type SharedSideMenuProps = {
 };
 
 export default function SharedSideMenu({
-  children,
   ariaLabel,
+  currentSystem,
   currentLocale,
   currentLocaleLabel,
   locales,
@@ -74,7 +73,7 @@ export default function SharedSideMenu({
             <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="md" />
             <div className="min-w-0 flex-1">
               <div className="truncate font-medium text-foreground text-sm">{userInfo.fullName}</div>
-              <div className="truncate text-muted-foreground text-xs">{userInfo.title || userInfo.email}</div>
+              <div className="truncate text-muted-foreground text-xs">{userInfo.title ?? userInfo.email}</div>
             </div>
             <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
               <button
@@ -206,14 +205,38 @@ export default function SharedSideMenu({
         <SideMenuSeparator>
           <Trans>Navigation</Trans>
         </SideMenuSeparator>
-        <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
+        <FederatedMenuButton
+          icon={HomeIcon}
+          label={t`Home`}
+          href="/admin"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+
         <SideMenuSeparator>
           <Trans>Organization</Trans>
         </SideMenuSeparator>
-        <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
-        <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
-        <MenuButton icon={BoxIcon} label={t`Back Office`} href="/back-office" forceReload={true} />
-        {children}
+        <FederatedMenuButton
+          icon={CircleUserIcon}
+          label={t`Account`}
+          href="/admin/account"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+        <FederatedMenuButton
+          icon={UsersIcon}
+          label={t`Users`}
+          href="/admin/users"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+
+        <SideMenuSeparator>
+          <Trans>Back Office</Trans>
+        </SideMenuSeparator>
+        <FederatedMenuButton
+          icon={BoxIcon}
+          label={t`Dashboard`}
+          href="/back-office"
+          isCurrentSystem={currentSystem === "back-office"}
+        />
       </div>
 
       {/* Spacer to push content up */}
@@ -224,14 +247,38 @@ export default function SharedSideMenu({
   return (
     <>
       <SideMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} tenantName={userInfo?.tenantName}>
-        <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
+        <FederatedMenuButton
+          icon={HomeIcon}
+          label={t`Home`}
+          href="/admin"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+
         <SideMenuSeparator>
           <Trans>Organization</Trans>
         </SideMenuSeparator>
-        <MenuButton icon={CircleUserIcon} label={t`Account`} href="/admin/account" />
-        <MenuButton icon={UsersIcon} label={t`Users`} href="/admin/users" />
-        <MenuButton icon={BoxIcon} label={t`Back Office`} href="/back-office" forceReload={true} />
-        {children}
+        <FederatedMenuButton
+          icon={CircleUserIcon}
+          label={t`Account`}
+          href="/admin/account"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+        <FederatedMenuButton
+          icon={UsersIcon}
+          label={t`Users`}
+          href="/admin/users"
+          isCurrentSystem={currentSystem === "account-management"}
+        />
+
+        <SideMenuSeparator>
+          <Trans>Back Office</Trans>
+        </SideMenuSeparator>
+        <FederatedMenuButton
+          icon={BoxIcon}
+          label={t`Dashboard`}
+          href="/back-office"
+          isCurrentSystem={currentSystem === "back-office"}
+        />
       </SideMenu>
 
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
