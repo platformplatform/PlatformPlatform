@@ -1,12 +1,9 @@
-import { Button } from "@repo/ui/components/Button";
 import type { ReactNode } from "react";
-import { Suspense, lazy } from "react";
 import LocaleSwitcher from "../common/LocaleSwitcher";
+import SupportButton from "../common/SupportButton";
 import ThemeModeSelector from "../common/ThemeModeSelector";
 import AvatarButton from "./AvatarButton";
 import "@repo/ui/tailwind.css";
-
-const SupportButton = lazy(() => import("../common/SupportButton"));
 
 interface FederatedTopMenuProps {
   children?: ReactNode;
@@ -19,9 +16,7 @@ export default function FederatedTopMenu({ children }: Readonly<FederatedTopMenu
       <div className="flex flex-row items-center gap-6">
         <span className="flex gap-2">
           <ThemeModeSelector />
-          <Suspense fallback={<Button variant="icon" isDisabled={true} />}>
-            <SupportButton />
-          </Suspense>
+          <SupportButton />
           <LocaleSwitcher />
         </span>
         <AvatarButton />
