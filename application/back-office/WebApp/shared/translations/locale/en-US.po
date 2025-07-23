@@ -28,8 +28,5 @@ msgstr "Home"
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 
-msgid "User profile menu"
-msgstr "User profile menu"
-
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"

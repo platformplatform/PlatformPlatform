@@ -1,4 +1,4 @@
-import AvatarButton from "@/federated-modules/AvatarButton";
+import { AvatarButton } from "@/federated-modules/topMenu/FederatedTopMenu";
 import SupportButton from "@/federated-modules/support/SupportButton";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
