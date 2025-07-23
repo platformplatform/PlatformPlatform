@@ -21,7 +21,7 @@ export default defineConfig({
     DevelopmentServerPlugin({ port: 9101 }),
     ModuleFederationPlugin({
       exposes: {
-        "./SupportButton": "./federated-modules/support/SupportButton.tsx",
+        "./SupportButton": "./federated-modules/common/SupportButton.tsx",
         "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
         "./FederatedTopMenu": "./federated-modules/topMenu/FederatedTopMenu.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",

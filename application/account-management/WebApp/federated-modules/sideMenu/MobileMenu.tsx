@@ -1,22 +1,18 @@
 import { api } from "@/shared/lib/api/client";
-import { t } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
-import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
 import { SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, GlobeIcon, LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
+import { LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
 import { useContext, useState } from "react";
-import { SupportDialog } from "../support/SupportDialog";
-import UserProfileModal from "../userModals/UserProfileModal";
+import LocaleSwitcher from "../common/LocaleSwitcher";
+import { SupportDialog } from "../common/SupportDialog";
+import ThemeModeSelector from "../common/ThemeModeSelector";
+import UserProfileModal from "../common/UserProfileModal";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
 
@@ -25,12 +21,7 @@ function MobileMenuHeader() {
   const userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { i18n } = useLingui();
   const overlayCtx = useContext(overlayContext);
-
-  const currentLocale = i18n.locale as Locale;
-  const locales = Object.keys(localeMap) as Locale[];
-  const currentLocaleLabel = localeMap[currentLocale].label;
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -110,7 +101,6 @@ function MobileMenuHeader() {
         {/* Theme Section - using ThemeModeSelector with mobile menu variant */}
         <div className="flex items-center justify-between">
           <ThemeModeSelector
-            aria-label={t`Change theme`}
             variant="mobile-menu"
             onAction={() => {
               // Close mobile menu if it's open
@@ -121,44 +111,17 @@ function MobileMenuHeader() {
           />
         </div>
 
-        {/* Language Section - styled like menu item */}
+        {/* Language Section - using LocaleSwitcher with mobile menu variant */}
         <div className="flex items-center justify-between">
-          <MenuTrigger>
-            <Button
-              variant="ghost"
-              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-              style={{ pointerEvents: "auto" }}
-            >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <GlobeIcon className="h-5 w-5 stroke-current" />
-              </div>
-              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-                <Trans>Language</Trans>
-              </div>
-              <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
-            </Button>
-            <Menu
-              onAction={async (key) => {
-                const locale = key.toString() as Locale;
-                if (locale !== currentLocale) {
-                  // Dynamically load and activate the locale
-                  const localeModule = await import(`@/shared/translations/locale/${locale}.ts`);
-                  i18n.loadAndActivate({ locale, messages: localeModule.messages });
-                  document.documentElement.lang = locale;
-                }
-              }}
-              placement="bottom end"
-            >
-              {locales.map((locale) => (
-                <MenuItem key={locale} id={locale} textValue={localeMap[locale].label}>
-                  <div className="flex items-center gap-2">
-                    <span>{localeMap[locale].label}</span>
-                    {locale === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
-                  </div>
-                </MenuItem>
-              ))}
-            </Menu>
-          </MenuTrigger>
+          <LocaleSwitcher
+            variant="mobile-menu"
+            onAction={() => {
+              // Close mobile menu if it's open
+              if (overlayCtx?.isOpen) {
+                overlayCtx.close();
+              }
+            }}
+          />
         </div>
 
         {/* Support Section - styled like menu item */}

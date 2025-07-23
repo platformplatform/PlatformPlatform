@@ -1,5 +1,5 @@
+import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
 import logoMark from "@/shared/images/logo-mark.svg";
-import { t } from "@lingui/core/macro";
 import { LoginButton } from "@repo/infrastructure/auth/LoginButton";
 import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
 import { Badge } from "@repo/ui/components/Badge";
@@ -7,7 +7,6 @@ import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { Link } from "@repo/ui/components/Link";
 import { Popover } from "@repo/ui/components/Popover";
-import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
 import type React from "react";
 import { DialogTrigger } from "react-aria-components";
@@ -32,7 +31,7 @@ export function HeroSection() {
             <GithubIcon className="wmax-5 h-5" />
             <span className="md:hidden lg:inline">Github</span>
           </Link>
-          <ThemeModeSelector aria-label={t`Toggle theme`} />
+          <ThemeModeSelector />
           <LoginButton variant="ghost">Log in</LoginButton>
           <SignUpButton variant="primary">Get started today</SignUpButton>
         </div>

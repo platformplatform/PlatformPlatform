@@ -7,7 +7,7 @@ import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const THEME_MODE_KEY = "theme-mode";
+const THEME_MODE_KEY = "preferred-theme";
 
 enum ThemeMode {
   System = "system",
@@ -15,7 +15,13 @@ enum ThemeMode {
   Dark = "dark"
 }
 
-export default function ThemeModeSelector() {
+export default function ThemeModeSelector({
+  variant = "icon",
+  onAction
+}: {
+  variant?: "icon" | "mobile-menu";
+  onAction?: () => void;
+} = {}) {
   const [themeMode, setThemeModeState] = useState<ThemeMode>(ThemeMode.System);
 
   useEffect(() => {
@@ -23,11 +29,11 @@ export default function ThemeModeSelector() {
     const savedMode = localStorage.getItem(THEME_MODE_KEY) as ThemeMode;
     const initialMode = savedMode && Object.values(ThemeMode).includes(savedMode) ? savedMode : ThemeMode.System;
     setThemeModeState(initialMode);
-    
+
     // Apply initial theme
     const root = document.documentElement;
     root.classList.remove("light", "dark");
-    
+
     if (initialMode === ThemeMode.Dark) {
       root.classList.add("dark");
       root.style.colorScheme = "dark";
@@ -45,19 +51,46 @@ export default function ThemeModeSelector() {
         root.style.colorScheme = "light";
       }
     }
+
+    // Listen for storage changes from other tabs/components
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === THEME_MODE_KEY && e.newValue) {
+        const newMode = e.newValue as ThemeMode;
+        if (Object.values(ThemeMode).includes(newMode)) {
+          setThemeModeState(newMode);
+        }
+      }
+    };
+
+    // Listen for theme changes from the same tab (e.g., mobile menu)
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const newMode = customEvent.detail as ThemeMode;
+      if (Object.values(ThemeMode).includes(newMode)) {
+        setThemeModeState(newMode);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("theme-mode-changed", handleThemeChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("theme-mode-changed", handleThemeChange);
+    };
   }, []);
 
   const handleThemeChange = (key: Key) => {
     const newMode = key as ThemeMode;
     setThemeModeState(newMode);
     localStorage.setItem(THEME_MODE_KEY, newMode);
-    
+
     // Apply theme to DOM - matching the original implementation
     const root = document.documentElement;
-    
+
     // Remove both light and dark classes first
     root.classList.remove("light", "dark");
-    
+
     if (newMode === ThemeMode.Dark) {
       root.classList.add("dark");
       root.style.colorScheme = "dark";
@@ -75,9 +108,12 @@ export default function ThemeModeSelector() {
         root.style.colorScheme = "light";
       }
     }
-    
+
     // Dispatch event to notify other components
     window.dispatchEvent(new CustomEvent("theme-mode-changed", { detail: newMode }));
+
+    // Call onAction callback if provided (for mobile menu)
+    onAction?.();
   };
 
   const getThemeIcon = () => {
@@ -86,18 +122,41 @@ export default function ThemeModeSelector() {
         return <MoonIcon className="h-5 w-5" />;
       case ThemeMode.Light:
         return <SunIcon className="h-5 w-5" />;
-      default:
+      default: {
         // For system mode, show icon based on actual system preference
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         return prefersDark ? <MoonStarIcon className="h-5 w-5" /> : <SunMoonIcon className="h-5 w-5" />;
+      }
     }
   };
 
   const menuContent = (
     <MenuTrigger>
-      <Button variant="icon" aria-label={t`Change theme`}>
-        {getThemeIcon()}
-      </Button>
+      {variant === "icon" ? (
+        <Button variant="icon" aria-label={t`Change theme`}>
+          {getThemeIcon()}
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+          style={{ pointerEvents: "auto" }}
+        >
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center">{getThemeIcon()}</div>
+          <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
+            <Trans>Theme</Trans>
+          </div>
+          <div className="shrink-0 text-base text-muted-foreground">
+            {themeMode === ThemeMode.System ? (
+              <Trans>System</Trans>
+            ) : themeMode === ThemeMode.Light ? (
+              <Trans>Light</Trans>
+            ) : (
+              <Trans>Dark</Trans>
+            )}
+          </div>
+        </Button>
+      )}
       <Menu onAction={handleThemeChange} aria-label={t`Change theme`} placement="bottom end">
         <MenuItem id={ThemeMode.System} textValue="System">
           <div className="flex items-center gap-2">
@@ -128,10 +187,14 @@ export default function ThemeModeSelector() {
     </MenuTrigger>
   );
 
-  return (
-    <TooltipTrigger>
-      {menuContent}
-      <Tooltip>{t`Change theme`}</Tooltip>
-    </TooltipTrigger>
-  );
+  if (variant === "icon") {
+    return (
+      <TooltipTrigger>
+        {menuContent}
+        <Tooltip>{t`Change theme`}</Tooltip>
+      </TooltipTrigger>
+    );
+  }
+
+  return menuContent;
 }

@@ -384,6 +384,9 @@ msgstr "Systeem"
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
+msgid "Theme"
+msgstr ""
+
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 
@@ -395,9 +398,6 @@ msgstr "Neem contact op met ons ondersteuningsteam om je account te verwijderen.
 
 msgid "Toggle collapsed menu"
 msgstr "Ingeklapt menu wisselen"
-
-msgid "Toggle theme"
-msgstr "Thema wisselen"
 
 msgid "Total users"
 msgstr "Totale gebruikers"

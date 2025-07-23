@@ -2,12 +2,12 @@ import { t } from "@lingui/core/macro";
 import { Button } from "@repo/ui/components/Button";
 import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
+import LocaleSwitcher from "../common/LocaleSwitcher";
+import ThemeModeSelector from "../common/ThemeModeSelector";
 import AvatarButton from "./AvatarButton";
-import LocaleSwitcher from "./LocaleSwitcher";
-import ThemeModeSelector from "./ThemeModeSelector";
 import "@repo/ui/tailwind.css";
 
-const SupportButton = lazy(() => import("../support/SupportButton"));
+const SupportButton = lazy(() => import("../common/SupportButton"));
 
 interface FederatedTopMenuProps {
   children?: ReactNode;

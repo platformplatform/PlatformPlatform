@@ -384,6 +384,9 @@ msgstr "System"
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
+msgid "Theme"
+msgstr ""
+
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
 
@@ -395,9 +398,6 @@ msgstr "For at slette din konto bedes du kontakte vores supportteam."
 
 msgid "Toggle collapsed menu"
 msgstr "Skift kollapset menu"
-
-msgid "Toggle theme"
-msgstr "Skift tema"
 
 msgid "Total users"
 msgstr "Totalt antal brugere"

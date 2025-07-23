@@ -384,6 +384,9 @@ msgstr "System"
 msgid "Terms of use"
 msgstr "Terms of use"
 
+msgid "Theme"
+msgstr "Theme"
+
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
 
@@ -395,9 +398,6 @@ msgstr "To delete your account, please contact our support team."
 
 msgid "Toggle collapsed menu"
 msgstr "Toggle collapsed menu"
-
-msgid "Toggle theme"
-msgstr "Toggle theme"
 
 msgid "Total users"
 msgstr "Total users"
