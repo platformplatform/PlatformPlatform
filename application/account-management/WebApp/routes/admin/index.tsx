@@ -1,4 +1,4 @@
-import SharedSideMenu from "@/shared/components/SharedSideMenu";
+import SharedSideMenu from "@/shared/components/sideMenu/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";

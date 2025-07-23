@@ -23,7 +23,7 @@ export default defineConfig({
       exposes: {
         "./AvatarButton": "./shared/components/AvatarButton.tsx",
         "./SupportButton": "./shared/components/support/SupportButton.tsx",
-        "./SharedSideMenu": "./shared/components/SharedSideMenu.tsx",
+        "./SharedSideMenu": "./shared/components/sideMenu/SharedSideMenu.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",
         "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
         "./translations/nl-NL": "./shared/translations/locale/nl-NL.ts"

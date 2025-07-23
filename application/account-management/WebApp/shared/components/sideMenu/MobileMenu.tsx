@@ -10,41 +10,27 @@ import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { FederatedMenuButton, SideMenu, SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
+import { SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { ThemeModeSelector } from "@repo/ui/theme/ThemeModeSelector";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  BoxIcon,
-  CheckIcon,
-  CircleUserIcon,
-  GlobeIcon,
-  HomeIcon,
-  LogOutIcon,
-  MailQuestion,
-  UserIcon,
-  UsersIcon
-} from "lucide-react";
+import { CheckIcon, GlobeIcon, LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
 import { useContext, useState } from "react";
-import { SupportDialog } from "./support/SupportDialog";
-import UserProfileModal from "./userModals/UserProfileModal";
-import "@repo/ui/tailwind.css";
+import { SupportDialog } from "../support/SupportDialog";
+import UserProfileModal from "../userModals/UserProfileModal";
+import { NavigationMenuItems } from "./NavigationMenuItems";
+import type { SharedSideMenuProps } from "./SharedSideMenu";
 
-type SharedSideMenuProps = {
-  currentSystem: "account-management" | "back-office"; // Add your self-contained system here
-};
-
-export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMenuProps>) {
+// Mobile menu header section with user profile and settings
+function MobileMenuHeader() {
   const userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const { i18n } = useLingui();
+  const overlayCtx = useContext(overlayContext);
 
   const currentLocale = i18n.locale as Locale;
   const locales = Object.keys(localeMap) as Locale[];
   const currentLocaleLabel = localeMap[currentLocale].label;
-
-  // Access mobile menu overlay context to close menu when needed
-  const overlayCtx = useContext(overlayContext);
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -59,8 +45,8 @@ export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMen
     }
   });
 
-  const topMenuContent = (
-    <div className="flex h-full flex-col">
+  return (
+    <div>
       {/* User Profile Section */}
       <div className="flex flex-col gap-3">
         {/* User Profile */}
@@ -194,6 +180,17 @@ export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMen
         </div>
       </div>
 
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+    </div>
+  );
+}
+
+// Complete mobile menu including header and navigation
+export function MobileMenu({ currentSystem }: Readonly<{ currentSystem: SharedSideMenuProps["currentSystem"] }>) {
+  return (
+    <div className="flex h-full flex-col">
+      <MobileMenuHeader />
+
       {/* Divider */}
       <div className="mx-3 my-5 border-border border-b" />
 
@@ -202,85 +199,11 @@ export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMen
         <SideMenuSeparator>
           <Trans>Navigation</Trans>
         </SideMenuSeparator>
-        <FederatedMenuButton
-          icon={HomeIcon}
-          label={t`Home`}
-          href="/admin"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-
-        <SideMenuSeparator>
-          <Trans>Organization</Trans>
-        </SideMenuSeparator>
-        <FederatedMenuButton
-          icon={CircleUserIcon}
-          label={t`Account`}
-          href="/admin/account"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-        <FederatedMenuButton
-          icon={UsersIcon}
-          label={t`Users`}
-          href="/admin/users"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-
-        <SideMenuSeparator>
-          <Trans>Back Office</Trans>
-        </SideMenuSeparator>
-        <FederatedMenuButton
-          icon={BoxIcon}
-          label={t`Dashboard`}
-          href="/back-office"
-          isCurrentSystem={currentSystem === "back-office"}
-        />
+        <NavigationMenuItems currentSystem={currentSystem} />
       </div>
 
       {/* Spacer to push content up */}
       <div className="flex-1" />
     </div>
-  );
-
-  return (
-    <>
-      <SideMenu ariaLabel={t`Toggle collapsed menu`} topMenuContent={topMenuContent} tenantName={userInfo?.tenantName}>
-        <FederatedMenuButton
-          icon={HomeIcon}
-          label={t`Home`}
-          href="/admin"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-
-        <SideMenuSeparator>
-          <Trans>Organization</Trans>
-        </SideMenuSeparator>
-
-        <FederatedMenuButton
-          icon={CircleUserIcon}
-          label={t`Account`}
-          href="/admin/account"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-        <FederatedMenuButton
-          icon={UsersIcon}
-          label={t`Users`}
-          href="/admin/users"
-          isCurrentSystem={currentSystem === "account-management"}
-        />
-
-        <SideMenuSeparator>
-          <Trans>Back Office</Trans>
-        </SideMenuSeparator>
-
-        <FederatedMenuButton
-          icon={BoxIcon}
-          label={t`Dashboard`}
-          href="/back-office"
-          isCurrentSystem={currentSystem === "back-office"}
-        />
-      </SideMenu>
-
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
-    </>
   );
 }

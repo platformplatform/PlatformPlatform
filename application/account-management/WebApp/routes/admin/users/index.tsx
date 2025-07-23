@@ -1,4 +1,4 @@
-import SharedSideMenu from "@/shared/components/SharedSideMenu";
+import SharedSideMenu from "@/shared/components/sideMenu/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";

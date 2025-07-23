@@ -1,4 +1,4 @@
-import SharedSideMenu from "@/shared/components/SharedSideMenu";
+import SharedSideMenu from "@/shared/components/sideMenu/SharedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 import { UserRole, api } from "@/shared/lib/api/client";
