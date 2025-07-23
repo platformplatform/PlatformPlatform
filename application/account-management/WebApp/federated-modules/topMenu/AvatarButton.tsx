@@ -1,4 +1,3 @@
-import UserProfileModal from "@/federated-modules/common/UserProfileModal";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -11,6 +10,7 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import UserProfileModal from "../common/UserProfileModal";
 import "@repo/ui/tailwind.css";
 
 export default function AvatarButton() {
@@ -31,11 +31,6 @@ export default function AvatarButton() {
       setHasAutoOpenedModal(true);
     }
   }, [userInfo, hasAutoOpenedModal, isProfileModalOpen]);
-
-  const handleProfileModalClose = (isOpen: boolean) => {
-    setIsProfileModalOpen(isOpen);
-    // No need to check userInfo state here - once modal is closed by user, don't auto-open again
-  };
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -84,7 +79,7 @@ export default function AvatarButton() {
         </Menu>
       </MenuTrigger>
 
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={handleProfileModalClose} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
     </>
   );
 }

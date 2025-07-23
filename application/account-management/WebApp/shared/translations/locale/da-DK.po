@@ -287,6 +287,9 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
 
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
 msgid "Organization"
 msgstr "Organisation"
 
@@ -385,7 +388,7 @@ msgid "Terms of use"
 msgstr "Brugsvilkår"
 
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -396,8 +399,8 @@ msgstr "Titel"
 msgid "To delete your account, please contact our support team."
 msgstr "For at slette din konto bedes du kontakte vores supportteam."
 
-msgid "Toggle collapsed menu"
-msgstr "Skift kollapset menu"
+msgid "Toggle sidebar"
+msgstr "Skift sidepanel"
 
 msgid "Total users"
 msgstr "Totalt antal brugere"

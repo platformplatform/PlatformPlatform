@@ -8,18 +8,16 @@ import { Button } from "@repo/ui/components/Button";
 import { SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import { SupportDialog } from "../common/SupportDialog";
 import ThemeModeSelector from "../common/ThemeModeSelector";
-import UserProfileModal from "../common/UserProfileModal";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
 
 // Mobile menu header section with user profile and settings
-function MobileMenuHeader() {
+function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
   const userInfo = useUserInfo();
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const overlayCtx = useContext(overlayContext);
 
@@ -52,18 +50,10 @@ function MobileMenuHeader() {
               <button
                 type="button"
                 onClick={() => {
-                  // Close mobile menu if it's open
+                  onEditProfile();
                   if (overlayCtx?.isOpen) {
                     overlayCtx.close();
-                  } else {
-                    // Fallback: dispatch custom event to close mobile menu
-                    window.dispatchEvent(new CustomEvent("close-mobile-menu"));
                   }
-
-                  // Small delay to ensure menu closes before modal opens
-                  setTimeout(() => {
-                    setIsProfileModalOpen(true);
-                  }, 50);
                 }}
                 className="rounded border border-border bg-background px-2 py-1 text-sm hover:bg-hover-background"
                 style={{ pointerEvents: "auto", position: "relative" }}
@@ -142,17 +132,18 @@ function MobileMenuHeader() {
           </SupportDialog>
         </div>
       </div>
-
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
     </div>
   );
 }
 
 // Complete mobile menu including header and navigation
-export function MobileMenu({ currentSystem }: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"] }>) {
+export function MobileMenu({
+  currentSystem,
+  onEditProfile
+}: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"]; onEditProfile: () => void }>) {
   return (
     <div className="flex h-full flex-col">
-      <MobileMenuHeader />
+      <MobileMenuHeader onEditProfile={onEditProfile} />
 
       {/* Divider */}
       <div className="mx-3 my-5 border-border border-b" />

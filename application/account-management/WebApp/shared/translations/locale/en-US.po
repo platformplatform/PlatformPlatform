@@ -287,6 +287,9 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
 
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
 msgid "Organization"
 msgstr "Organization"
 
@@ -396,8 +399,8 @@ msgstr "Title"
 msgid "To delete your account, please contact our support team."
 msgstr "To delete your account, please contact our support team."
 
-msgid "Toggle collapsed menu"
-msgstr "Toggle collapsed menu"
+msgid "Toggle sidebar"
+msgstr "Toggle sidebar"
 
 msgid "Total users"
 msgstr "Total users"

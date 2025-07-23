@@ -13,6 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Heading, Label } from "react-aria-components";
+import { createPortal } from "react-dom";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend
@@ -33,10 +34,12 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     return null;
   }
 
-  return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading}>
+  // Use a portal to render the modal at the document body level to avoid overlay conflicts
+  return createPortal(
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading} zIndex="high">
       <UserProfileDialog isOpen={isOpen} onOpenChange={onOpenChange} onIsLoadingChange={setIsLoading} />
-    </Modal>
+    </Modal>,
+    document.body
   );
 }
 

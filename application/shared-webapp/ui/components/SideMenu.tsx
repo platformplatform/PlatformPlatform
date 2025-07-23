@@ -444,7 +444,8 @@ const chevronStyles = tv({
 
 type SideMenuProps = {
   children: React.ReactNode;
-  ariaLabel: string;
+  sidebarToggleAriaLabel: string;
+  mobileMenuAriaLabel: string;
   topMenuContent?: React.ReactNode;
   tenantName?: string;
 };
@@ -633,7 +634,13 @@ const ResizableToggleButton = ({
   </button>
 );
 
-export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Readonly<SideMenuProps>) {
+export function SideMenu({
+  children,
+  sidebarToggleAriaLabel,
+  mobileMenuAriaLabel,
+  topMenuContent,
+  tenantName
+}: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
@@ -855,13 +862,13 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
                     toggleMenu={toggleMenu}
                     menuWidth={menuWidth}
                     setMenuWidth={setMenuWidth}
-                    ariaLabel={ariaLabel}
+                    ariaLabel={sidebarToggleAriaLabel}
                     actualIsCollapsed={actualIsCollapsed}
                   />
                 ) : (
                   <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
                     <ToggleButton
-                      aria-label={ariaLabel}
+                      aria-label={sidebarToggleAriaLabel}
                       className={
                         "toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
                       }
@@ -885,7 +892,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
 
       {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
-        <MobileMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} />
+        <MobileMenu ariaLabel={mobileMenuAriaLabel} topMenuContent={topMenuContent} />
       </collapsedContext.Provider>
     </>
   );
