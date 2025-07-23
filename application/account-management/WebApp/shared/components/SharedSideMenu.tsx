@@ -1,9 +1,12 @@
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
+import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
@@ -27,25 +30,18 @@ import UserProfileModal from "./userModals/UserProfileModal";
 import "@repo/ui/tailwind.css";
 
 type SharedSideMenuProps = {
-  ariaLabel: string;
-  currentSystem: "account-management" | "back-office";
-  currentLocale?: string;
-  currentLocaleLabel?: string;
-  locales?: Array<{ value: string; label: string }>;
-  onLocaleChange?: (locale: string) => void;
+  currentSystem: "account-management" | "back-office"; // Add your self-contained system here
 };
 
-export default function SharedSideMenu({
-  ariaLabel,
-  currentSystem,
-  currentLocale,
-  currentLocaleLabel,
-  locales,
-  onLocaleChange
-}: Readonly<SharedSideMenuProps>) {
+export default function SharedSideMenu({ currentSystem }: Readonly<SharedSideMenuProps>) {
   const userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { i18n } = useLingui();
+
+  const currentLocale = i18n.locale as Locale;
+  const locales = Object.keys(localeMap) as Locale[];
+  const currentLocaleLabel = localeMap[currentLocale].label;
 
   // Access mobile menu overlay context to close menu when needed
   const overlayCtx = useContext(overlayContext);
@@ -140,43 +136,44 @@ export default function SharedSideMenu({
         </div>
 
         {/* Language Section - styled like menu item */}
-        {currentLocale && currentLocaleLabel && locales && onLocaleChange && (
-          <div className="flex items-center justify-between">
-            <MenuTrigger>
-              <Button
-                variant="ghost"
-                className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-                style={{ pointerEvents: "auto" }}
-              >
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                  <GlobeIcon className="h-5 w-5 stroke-current" />
-                </div>
-                <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-                  <Trans>Language</Trans>
-                </div>
-                <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
-              </Button>
-              <Menu
-                onAction={(key) => {
-                  const locale = key.toString();
-                  if (locale !== currentLocale) {
-                    onLocaleChange(locale);
-                  }
-                }}
-                placement="bottom end"
-              >
-                {locales.map((locale) => (
-                  <MenuItem key={locale.value} id={locale.value} textValue={locale.label}>
-                    <div className="flex items-center gap-2">
-                      <span>{locale.label}</span>
-                      {locale.value === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
-                    </div>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </MenuTrigger>
-          </div>
-        )}
+        <div className="flex items-center justify-between">
+          <MenuTrigger>
+            <Button
+              variant="ghost"
+              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+              style={{ pointerEvents: "auto" }}
+            >
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+                <GlobeIcon className="h-5 w-5 stroke-current" />
+              </div>
+              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
+                <Trans>Language</Trans>
+              </div>
+              <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
+            </Button>
+            <Menu
+              onAction={async (key) => {
+                const locale = key.toString() as Locale;
+                if (locale !== currentLocale) {
+                  // Dynamically load and activate the locale
+                  const localeModule = await import(`@/shared/translations/locale/${locale}.ts`);
+                  i18n.loadAndActivate({ locale, messages: localeModule.messages });
+                  document.documentElement.lang = locale;
+                }
+              }}
+              placement="bottom end"
+            >
+              {locales.map((locale) => (
+                <MenuItem key={locale} id={locale} textValue={localeMap[locale].label}>
+                  <div className="flex items-center gap-2">
+                    <span>{localeMap[locale].label}</span>
+                    {locale === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+                  </div>
+                </MenuItem>
+              ))}
+            </Menu>
+          </MenuTrigger>
+        </div>
 
         {/* Support Section - styled like menu item */}
         <div className="flex items-center justify-between">
@@ -246,7 +243,7 @@ export default function SharedSideMenu({
 
   return (
     <>
-      <SideMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} tenantName={userInfo?.tenantName}>
+      <SideMenu ariaLabel={t`Toggle collapsed menu`} topMenuContent={topMenuContent} tenantName={userInfo?.tenantName}>
         <FederatedMenuButton
           icon={HomeIcon}
           label={t`Home`}
@@ -257,6 +254,7 @@ export default function SharedSideMenu({
         <SideMenuSeparator>
           <Trans>Organization</Trans>
         </SideMenuSeparator>
+
         <FederatedMenuButton
           icon={CircleUserIcon}
           label={t`Account`}
@@ -273,6 +271,7 @@ export default function SharedSideMenu({
         <SideMenuSeparator>
           <Trans>Back Office</Trans>
         </SideMenuSeparator>
+
         <FederatedMenuButton
           icon={BoxIcon}
           label={t`Dashboard`}

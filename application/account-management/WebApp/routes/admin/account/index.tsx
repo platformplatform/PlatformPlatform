@@ -3,9 +3,7 @@ import { TopMenu } from "@/shared/components/topMenu";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 import { UserRole, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
@@ -15,7 +13,7 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "react-aria-components";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
@@ -28,11 +26,6 @@ export function AccountSettings() {
   const { data: tenant, isLoading: tenantLoading } = api.useQuery("get", "/api/account-management/tenants/current");
   const { data: currentUser, isLoading: userLoading } = api.useQuery("get", "/api/account-management/users/me");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
-  const { i18n } = useLingui();
-  const { getLocaleInfo, locales, setLocale } = use(translationContext);
-
-  const currentLocale = i18n.locale as Locale;
-  const currentLocaleLabel = getLocaleInfo(currentLocale).label;
 
   const isOwner = currentUser?.role === UserRole.Owner;
 
@@ -52,17 +45,7 @@ export function AccountSettings() {
 
   return (
     <>
-      <SharedSideMenu
-        ariaLabel={t`Toggle collapsed menu`}
-        currentSystem="account-management"
-        currentLocale={currentLocale}
-        currentLocaleLabel={currentLocaleLabel}
-        locales={locales.map((locale) => ({
-          value: locale,
-          label: getLocaleInfo(locale).label
-        }))}
-        onLocaleChange={(locale) => setLocale(locale as Locale)}
-      />
+      <SharedSideMenu currentSystem="account-management" />
       <AppLayout
         variant="center"
         topMenu={
