@@ -1,5 +1,6 @@
 import UserProfileModal from "@/federated-modules/common/UserProfileModal";
 import { api } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -12,7 +13,7 @@ import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import "@repo/ui/tailwind.css";
 
-export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
+export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [hasAutoOpenedModal, setHasAutoOpenedModal] = useState(false);
   const userInfo = useUserInfo();
@@ -58,7 +59,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
   return (
     <>
       <MenuTrigger>
-        <Button aria-label={ariaLabel} variant="icon" className="rounded-full">
+        <Button aria-label={t`User profile menu`} variant="icon" className="rounded-full">
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
         </Button>
         <Menu placement="bottom end">

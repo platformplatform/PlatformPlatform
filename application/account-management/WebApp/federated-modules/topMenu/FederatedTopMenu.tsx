@@ -1,4 +1,3 @@
-import { t } from "@lingui/core/macro";
 import { Button } from "@repo/ui/components/Button";
 import type { ReactNode } from "react";
 import { Suspense, lazy } from "react";
@@ -21,11 +20,11 @@ export default function FederatedTopMenu({ children }: Readonly<FederatedTopMenu
         <span className="flex gap-2">
           <ThemeModeSelector />
           <Suspense fallback={<Button variant="icon" isDisabled={true} />}>
-            <SupportButton aria-label={t`Contact support`} />
+            <SupportButton />
           </Suspense>
           <LocaleSwitcher />
         </span>
-        <AvatarButton aria-label={t`User profile menu`} />
+        <AvatarButton />
       </div>
     </nav>
   );

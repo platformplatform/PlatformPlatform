@@ -5,11 +5,11 @@ import { MailQuestion } from "lucide-react";
 import { SupportDialog } from "./SupportDialog";
 import "@repo/ui/tailwind.css";
 
-export default function SupportButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
+export default function SupportButton() {
   return (
     <SupportDialog>
       <TooltipTrigger>
-        <Button variant="icon" aria-label={ariaLabel}>
+        <Button variant="icon" aria-label={t`Contact support`}>
           <MailQuestion size={20} />
         </Button>
         <Tooltip>{t`Contact support`}</Tooltip>
