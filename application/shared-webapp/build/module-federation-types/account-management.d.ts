@@ -9,6 +9,9 @@ declare module "account-management/SupportButton" {
 declare module "account-management/FederatedSideMenu" {
   export default ReactNode;
 }
+declare module "account-management/FederatedTopMenu" {
+  export default ReactNode;
+}
 declare module "account-management/translations/en-US" {
   import type { Messages } from "@lingui/core";
   export const messages: Messages;
