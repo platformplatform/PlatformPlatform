@@ -13,15 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "Change language"
-msgstr "Change language"
-
-msgid "Change theme"
-msgstr "Change theme"
-
-msgid "Contact support"
-msgstr "Contact support"
-
 msgid "Home"
 msgstr "Home"
 

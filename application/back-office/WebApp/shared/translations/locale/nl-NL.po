@@ -13,15 +13,6 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
-msgid "Change language"
-msgstr "Taal wijzigen"
-
-msgid "Change theme"
-msgstr "Thema wijzigen"
-
-msgid "Contact support"
-msgstr "Ondersteuning contacteren"
-
 msgid "Home"
 msgstr "Home"
 

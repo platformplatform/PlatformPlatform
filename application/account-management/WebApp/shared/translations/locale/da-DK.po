@@ -142,6 +142,9 @@ msgstr "Oprettet"
 msgid "Danger zone"
 msgstr "Farezone"
 
+msgid "Dark"
+msgstr "Mørk"
+
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -235,6 +238,9 @@ msgstr "Sprog"
 
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Light"
+msgstr "Lys"
 
 msgid "Log in"
 msgstr "Log ind"
@@ -371,6 +377,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "Success"
 msgstr "Succes"
+
+msgid "System"
+msgstr "System"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"

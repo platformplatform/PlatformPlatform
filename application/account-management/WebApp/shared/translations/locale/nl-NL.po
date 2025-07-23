@@ -142,6 +142,9 @@ msgstr "Aangemaakt"
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
+msgid "Dark"
+msgstr "Donker"
+
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -235,6 +238,9 @@ msgstr "Taal"
 
 msgid "Last name"
 msgstr "Achternaam"
+
+msgid "Light"
+msgstr "Licht"
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -371,6 +377,9 @@ msgstr "Verificatiecode voor aanmelding"
 
 msgid "Success"
 msgstr "Succes"
+
+msgid "System"
+msgstr "Systeem"
 
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
