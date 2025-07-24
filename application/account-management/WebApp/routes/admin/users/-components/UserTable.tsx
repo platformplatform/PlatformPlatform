@@ -24,7 +24,7 @@ type UserDetails = components["schemas"]["UserDetails"];
 interface UserTableProps {
   selectedUsers: UserDetails[];
   onSelectedUsersChange: (users: UserDetails[]) => void;
-  onViewProfile: (user: UserDetails | null) => void;
+  onViewProfile: (user: UserDetails | null, isKeyboardOpen?: boolean) => void;
   onDeleteUser: (user: UserDetails) => void;
   onChangeRole: (user: UserDetails) => void;
   onUsersLoaded?: (users: UserDetails[]) => void;
@@ -153,7 +153,7 @@ export function UserTable({
       const shouldAutoOpen = !isSmallScreen || !isKeyboardNavigation;
 
       if (shouldAutoOpen) {
-        onViewProfile(selectedUsersList[0]);
+        onViewProfile(selectedUsersList[0], isKeyboardNavigation);
       }
     },
     [users?.users, onSelectedUsersChange, onViewProfile, isKeyboardNavigation]
@@ -173,7 +173,7 @@ export function UserTable({
           if (target.tagName !== "BUTTON" && !target.closest("button")) {
             e.preventDefault();
             e.stopPropagation();
-            onViewProfile(selectedUsers[0]);
+            onViewProfile(selectedUsers[0], true);
           }
         }
       }
@@ -191,15 +191,16 @@ export function UserTable({
   }
 
   const currentPage = (users?.currentPageOffset ?? 0) + 1;
+  const isSmallScreen = typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.md).matches;
 
   return (
     <div className="flex h-full flex-col">
       <div className="min-h-0 flex-1">
         <Table
           key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
-          selectionMode="multiple"
+          selectionMode={isSmallScreen ? "single" : "multiple"}
           selectionBehavior="replace"
-          selectedKeys={selectedUsers.map((user) => user.id)}
+          selectedKeys={new Set(selectedUsers.map((user) => user.id))}
           onSelectionChange={handleSelectionChange}
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
@@ -282,7 +283,7 @@ export function UserTable({
                         <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
                       </Button>
                       <Menu>
-                        <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
+                        <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
                           <UserIcon className="h-4 w-4" />
                           <Trans>View profile</Trans>
                         </MenuItem>

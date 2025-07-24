@@ -133,18 +133,17 @@ function useSidePaneAccessibility(
   isOpen: boolean,
   onClose: () => void,
   sidePaneRef: React.RefObject<HTMLDivElement | null>,
-  closeButtonRef: React.RefObject<SVGSVGElement | null>
+  _closeButtonRef: React.RefObject<SVGSVGElement | null>
 ) {
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-    if (isOpen && closeButtonRef.current && isSmallScreen) {
+    if (isOpen && isSmallScreen) {
       // Store the currently focused element before moving focus
       previouslyFocusedElement.current = document.activeElement as HTMLElement;
-      closeButtonRef.current.focus();
     }
-  }, [isOpen, closeButtonRef]);
+  }, [isOpen]);
 
   // Prevent body scroll on small screens when side pane is open
   useEffect(() => {
@@ -162,12 +161,9 @@ function useSidePaneAccessibility(
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
         event.preventDefault();
-        const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+        const _isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
 
-        // Restore focus on small screens before closing
-        if (isSmallScreen && previouslyFocusedElement.current) {
-          previouslyFocusedElement.current.focus();
-        }
+        // Don't restore focus - let the parent handle it
 
         onClose();
       }
@@ -265,16 +261,10 @@ export function UserProfileSidePane({
         {/* Close button - positioned like modal dialogs */}
         <XIcon
           ref={closeButtonRef}
-          onClick={onClose}
+          onClick={() => onClose()}
           className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={t`Close user profile`}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onClose();
-            }
-          }}
+          tabIndex={-1}
         />
 
         <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">

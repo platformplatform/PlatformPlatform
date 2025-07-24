@@ -4,7 +4,6 @@ import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type comp
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -47,10 +46,10 @@ export default function UsersPage() {
     setProfileUser(null);
     navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
 
-    // Restore focus to the selected row on small screens
-    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-    if (isSmallScreen && selectedUsers.length === 1) {
-      // Use setTimeout to ensure DOM has updated
+    // On both mobile and desktop, maintain selection when closing side pane
+    // This allows for continuous keyboard navigation
+    // Also restore focus to the selected row to enable keyboard navigation
+    if (selectedUsers.length === 1) {
       setTimeout(() => {
         const selectedRow = document.querySelector(`[data-key="${selectedUsers[0].id}"]`);
         if (selectedRow) {
