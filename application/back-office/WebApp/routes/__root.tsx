@@ -1,4 +1,5 @@
 import { queryClient } from "@/shared/lib/api/client";
+import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
@@ -23,6 +24,7 @@ function Root() {
       <ThemeModeProvider>
         <ReactAriaRouterProvider>
           <AuthenticationProvider navigate={(options) => navigate(options)}>
+            <PageTracker />
             <Outlet />
           </AuthenticationProvider>
         </ReactAriaRouterProvider>
