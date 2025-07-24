@@ -297,9 +297,14 @@ export function UserProfileSidePane({
         </div>
 
         {/* Quick Actions */}
-        {canModifyUser && user && (
+        {userInfo?.role === "Owner" && user && (
           <div className="p-4">
-            <Button variant="destructive" onPress={() => onDeleteUser(user)} className="w-full justify-center text-sm">
+            <Button
+              variant="destructive"
+              onPress={() => onDeleteUser(user)}
+              className="w-full justify-center text-sm"
+              isDisabled={isCurrentUser}
+            >
               <Trash2Icon className="h-4 w-4" />
               <Trans>Delete user</Trans>
             </Button>
