@@ -62,3 +62,6 @@ const applicationInsights = new ApplicationInsights({
 applicationInsights.loadAppInsights();
 // Track the initial page view
 applicationInsights.trackPageView();
+
+// Export for error tracking
+export { applicationInsights };
