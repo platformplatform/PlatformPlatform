@@ -5,6 +5,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "target": "ES2022",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
