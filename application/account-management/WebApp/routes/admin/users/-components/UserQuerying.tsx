@@ -7,6 +7,7 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { Dialog } from "@repo/ui/components/Dialog";
+import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
@@ -442,11 +443,13 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             onClick={() => setIsFilterPanelOpen(false)}
             className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted"
           />
-          <Heading slot="title" className="text-2xl">
-            <Trans>Filters</Trans>
-          </Heading>
+          <DialogHeader>
+            <Heading slot="title" className="text-2xl">
+              <Trans>Filters</Trans>
+            </Heading>
+          </DialogHeader>
 
-          <div className="mt-4 flex flex-col gap-4">
+          <DialogContent className="flex flex-col gap-4">
             <SearchField
               placeholder={t`Search`}
               value={search}
@@ -512,9 +515,9 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               placeholder={t`Select dates`}
               className="w-full"
             />
-          </div>
+          </DialogContent>
 
-          <div className="mt-6 flex justify-end gap-4">
+          <DialogFooter>
             <Button
               variant="secondary"
               onPress={clearAllFilters}
@@ -525,7 +528,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             <Button variant="primary" onPress={() => setIsFilterPanelOpen(false)}>
               <Trans>OK</Trans>
             </Button>
-          </div>
+          </DialogFooter>
         </Dialog>
       </Modal>
     </div>
