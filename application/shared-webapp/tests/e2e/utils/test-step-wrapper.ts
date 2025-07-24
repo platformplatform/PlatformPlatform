@@ -5,9 +5,6 @@ interface StepOptions {
   timeout?: number;
 }
 
-/** Threshold for slow step detection (3.5s) - should align with toast duration to catch missing toast assertions before auto-dismiss */
-const SLOW_STEP_THRESHOLD = 3500;
-
 /**
  * Decorator function that wraps methods in Playwright test steps.
  *
@@ -50,22 +47,7 @@ export function step(description: string, options: StepOptions = {}): any {
           const endTime = performance.now();
           const duration = endTime - startTime;
 
-          // Show warning for slow steps on less powerful computers
-          // Skip slow step detection during debug mode or slow-mo to prevent false warnings
-          const isDebugMode = Boolean(process.env.PLAYWRIGHT_SLOW_MO) ||
-                            process.env.PLAYWRIGHT_DEBUG === '1' ||
-                            process.env.PWDEBUG === '1';
-
-          const slowThreshold = SLOW_STEP_THRESHOLD;
-
-          if (!isDebugMode && duration >= slowThreshold && !options.timeout) {
-            const durationSeconds = (duration / 1000).toFixed(1);
-            const yellowColor = '\x1b[33m';
-            const resetColor = '\x1b[0m';
-            console.warn(
-              `${yellowColor}⚠️  Warning: Step "${description}" took ${durationSeconds}s - may indicate missing toast assertion or slower hardware${resetColor}`
-            );
-          } else if (options.timeout && duration > options.timeout) {
+          if (options.timeout && duration > options.timeout) {
             const durationSeconds = (duration / 1000).toFixed(1);
             const timeoutSeconds = (options.timeout / 1000).toFixed(1);
             throw new Error(
@@ -127,22 +109,7 @@ export function step(description: string, options: StepOptions = {}): any {
         const endTime = performance.now();
         const duration = endTime - startTime;
 
-        // Show warning for slow steps on less powerful computers
-        // Skip slow step detection during debug mode or slow-mo to prevent false warnings
-        const isDebugMode = Boolean(process.env.PLAYWRIGHT_SLOW_MO) ||
-                          process.env.PLAYWRIGHT_DEBUG === '1' ||
-                          process.env.PWDEBUG === '1';
-
-        const slowThreshold = SLOW_STEP_THRESHOLD;
-
-        if (!isDebugMode && duration >= slowThreshold && !options.timeout) {
-          const durationSeconds = (duration / 1000).toFixed(1);
-          const yellowColor = '\x1b[33m';
-          const resetColor = '\x1b[0m';
-          console.warn(
-            `${yellowColor}⚠️  Warning: Step "${description}" took ${durationSeconds}s - may indicate missing toast assertions or slower hardware${resetColor}`
-          );
-        } else if (options.timeout && duration > options.timeout) {
+        if (options.timeout && duration > options.timeout) {
           const durationSeconds = (duration / 1000).toFixed(1);
           const timeoutSeconds = (options.timeout / 1000).toFixed(1);
           throw new Error(

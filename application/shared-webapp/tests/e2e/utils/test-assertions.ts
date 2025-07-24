@@ -351,8 +351,8 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
 
     if (regionCount === 0) {
       // DEBUG: If no role="region" found, let's look for other potential toast selectors
-      const debugToasts = await page.evaluate(() => {
-        const toasts = [];
+      const debugToasts: string[] = await page.evaluate(() => {
+        const toasts: string[] = [];
 
         // Look for ANY element that might contain toast text patterns
         document.querySelectorAll('*').forEach(el => {
