@@ -119,7 +119,7 @@ export function DateRangePicker<T extends DateValue>({
           >
             <div className="flex items-center gap-2 truncate">
               <CalendarIcon className="h-5 w-5 flex-shrink-0" />
-              <span className="truncate text-sm">{hasValue ? formatDateRange() : placeholder}</span>
+              <span className="truncate font-normal text-sm">{hasValue ? formatDateRange() : placeholder}</span>
             </div>
             {hasValue && <XIcon className="h-5 w-5 flex-shrink-0 cursor-pointer" onClick={clearDateRange} />}
           </Button>
