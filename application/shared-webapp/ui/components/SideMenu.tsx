@@ -328,25 +328,14 @@ export function FederatedMenuButton({
       overlayCtx.close();
     }
 
-    // For string hrefs in federated modules, let browser handle the navigation
-    // The browser will either do SPA navigation (if same origin) or full reload
-  };
-
-  const handlePress = () => {
-    if (isDisabled) {
-      return;
-    }
-
-    // Auto-close overlay after navigation
-    if (overlayCtx?.isOpen) {
-      overlayCtx.close();
-    }
+    // Always prevent default to handle navigation ourselves
+    e.preventDefault();
 
     if (isCurrentSystem) {
-      // Same system - use pushState for SPA navigation
+      // Same system - use programmatic navigation
       window.history.pushState({}, "", to);
-      // Trigger a popstate event to let the router handle the navigation
-      window.dispatchEvent(new PopStateEvent("popstate"));
+      // Dispatch a popstate event using the standard Event constructor
+      window.dispatchEvent(new Event("popstate"));
     } else {
       // Different system - force reload
       window.location.href = to;
@@ -366,7 +355,26 @@ export function FederatedMenuButton({
             underline={false}
             isDisabled={isDisabled}
             aria-current={isActive ? "page" : undefined}
-            onPress={handlePress}
+            onPress={() => {
+              if (isDisabled) {
+                return;
+              }
+
+              // Auto-close overlay after navigation
+              if (overlayCtx?.isOpen) {
+                overlayCtx.close();
+              }
+
+              if (isCurrentSystem) {
+                // Same system - use programmatic navigation
+                window.history.pushState({}, "", to);
+                // Dispatch a popstate event using the standard Event constructor
+                window.dispatchEvent(new Event("popstate"));
+              } else {
+                // Different system - force reload
+                window.location.href = to;
+              }
+            }}
           >
             <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
           </Link>
