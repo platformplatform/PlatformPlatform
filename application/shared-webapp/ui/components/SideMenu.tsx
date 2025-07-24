@@ -996,21 +996,21 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
             className="fixed inset-0 z-[200] h-[100vh] w-[100vw] bg-background"
-            style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0 }}
+            style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0, display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
           >
             <nav
-              className="flex h-[100vh] w-[100vw] flex-col bg-background"
+              className="flex h-full w-full flex-col bg-background"
               ref={dialogRef}
               style={{ margin: 0, padding: 0 }}
               aria-label="Mobile navigation"
             >
               <div
-                className="flex-1 overflow-y-auto px-3"
-                style={{ margin: 0, padding: "0 12px", pointerEvents: "auto" }}
+                className="flex-1 overflow-y-auto overflow-x-hidden px-3"
+                style={{ margin: 0, padding: "0 12px", pointerEvents: "auto", WebkitOverflowScrolling: "touch" }}
               >
-                {topMenuContent && <div className="pt-5 pb-3">{topMenuContent}</div>}
+                {topMenuContent && <div className="pt-5 pb-20">{topMenuContent}</div>}
               </div>
 
               {/* Floating close button at bottom right - same position as hamburger */}

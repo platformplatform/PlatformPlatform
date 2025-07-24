@@ -142,22 +142,21 @@ export function MobileMenu({
   onEditProfile
 }: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"]; onEditProfile: () => void }>) {
   return (
-    <div className="flex h-full flex-col">
-      <MobileMenuHeader onEditProfile={onEditProfile} />
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <MobileMenuHeader onEditProfile={onEditProfile} />
 
-      {/* Divider */}
-      <div className="mx-3 my-5 border-border border-b" />
+        {/* Divider */}
+        <div className="mx-3 my-5 border-border border-b" />
 
-      {/* Navigation Section for Mobile */}
-      <div className="flex flex-col gap-3">
-        <SideMenuSeparator>
-          <Trans>Navigation</Trans>
-        </SideMenuSeparator>
-        <NavigationMenuItems currentSystem={currentSystem} />
+        {/* Navigation Section for Mobile */}
+        <div className="flex flex-col gap-3 pb-20">
+          <SideMenuSeparator>
+            <Trans>Navigation</Trans>
+          </SideMenuSeparator>
+          <NavigationMenuItems currentSystem={currentSystem} />
+        </div>
       </div>
-
-      {/* Spacer to push content up */}
-      <div className="flex-1" />
     </div>
   );
 }
