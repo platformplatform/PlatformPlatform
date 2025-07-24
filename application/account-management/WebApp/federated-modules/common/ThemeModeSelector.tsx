@@ -157,7 +157,7 @@ export default function ThemeModeSelector({
           </div>
         </Button>
       )}
-      <Menu onAction={handleThemeChange} aria-label={t`Change theme`} placement="bottom end">
+      <Menu onAction={handleThemeChange} aria-label={t`Change theme`} placement="bottom">
         <MenuItem id={ThemeMode.System} textValue="System">
           <div className="flex items-center gap-2">
             {window.matchMedia("(prefers-color-scheme: dark)").matches ? (
