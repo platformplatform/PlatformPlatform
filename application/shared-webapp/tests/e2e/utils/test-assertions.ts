@@ -86,18 +86,7 @@ function startMonitoring(page: Page): MonitoringResults {
   // Monitor network errors with filtering for expected errors
   page.on("response", (response) => {
     if (response.status() >= 400) {
-      const url = response.url();
-
-      // Filter out expected network errors in test environment
-      const expectedNetworkErrors = [
-        "/apple-touch-icon.png", // Common 404 in browsers
-        "/favicon.ico" // Common 404 in browsers
-      ];
-
-      const isExpected = expectedNetworkErrors.some((expected) => url.includes(expected));
-      if (!isExpected) {
-        results.networkErrors.push(`${response.request().method()} ${response.url()} - HTTP ${response.status()}`);
-      }
+      results.networkErrors.push(`${response.request().method()} ${response.url()} - HTTP ${response.status()}`);
     }
   });
 
@@ -131,14 +120,14 @@ export async function expectToastMessage(
   const toastLocator = page
     .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
     .first();
-  
+
   try {
     await toastLocator.waitFor({ timeout: timeoutMs });
   } catch (error) {
     // If expected toast wasn't found, provide helpful error with actual toasts
     const actualToasts = await checkUnexpectedToasts(context);
     const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
-    
+
     throw new Error(
       `Expected toast with message "${message}" not found within ${timeoutMs}ms.
 Found ${totalToastCount} toast(s) total.
@@ -364,17 +353,17 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
       // DEBUG: If no role="region" found, let's look for other potential toast selectors
       const debugToasts = await page.evaluate(() => {
         const toasts = [];
-        
+
         // Look for ANY element that might contain toast text patterns
         document.querySelectorAll('*').forEach(el => {
           const text = el.textContent?.trim();
           if (text && text.length > 0) {
             // Check for success/deletion patterns
-            if (text.includes('deleted successfully') || 
+            if (text.includes('deleted successfully') ||
                 text.includes('User deleted') ||
                 text.includes('Success') ||
                 (text.includes('success') && text.includes('delete'))) {
-              
+
               // Make sure element is visible
               const rect = el.getBoundingClientRect();
               if (rect.width > 0 && rect.height > 0) {
@@ -383,7 +372,7 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
             }
           }
         });
-        
+
         // Also specifically look for common toast class patterns
         document.querySelectorAll('[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]').forEach(el => {
           const text = el.textContent?.trim();
@@ -394,10 +383,10 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
             }
           }
         });
-        
+
         return toasts;
       });
-      
+
       // If we found potential toasts with alternative selectors, add them
       if (debugToasts.length > 0) {
         debugToasts.forEach(toast => {
@@ -406,7 +395,7 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
           }
         });
       }
-      
+
       return unexpectedToasts;
     }
 
