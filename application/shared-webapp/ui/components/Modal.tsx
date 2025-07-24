@@ -23,7 +23,7 @@ const overlayStyles = tv({
     },
     fullSize: {
       true: "",
-      false: "p-2 sm:p-4"
+      false: "p-2 max-sm:p-0 sm:p-4"
     },
     blur: {
       true: "backdrop-blur-lg",
@@ -43,14 +43,21 @@ const overlayStyles = tv({
 });
 
 const modalStyles = tv({
-  base: "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
+  base: "flex w-full flex-col overflow-hidden bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
       true: "zoom-in-105 animate-in duration-200 ease-out"
     },
     isExiting: {
       true: "zoom-out-95 animate-out duration-200 ease-in"
+    },
+    isFullScreenMobile: {
+      true: "max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 sm:max-h-[calc(100vh-2rem)] sm:w-fit sm:rounded-lg sm:border sm:border-border",
+      false: "max-h-[calc(100vh-2rem)] rounded-lg border border-border sm:w-fit"
     }
+  },
+  defaultVariants: {
+    isFullScreenMobile: true
   }
 });
 

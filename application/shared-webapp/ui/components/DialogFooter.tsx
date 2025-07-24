@@ -1,0 +1,56 @@
+import type { ReactNode } from "react";
+import { twMerge } from "tailwind-merge";
+
+interface DialogFooterProps {
+  children: ReactNode;
+  className?: string;
+}
+
+interface DialogHeaderProps {
+  children: ReactNode;
+  className?: string;
+  description?: ReactNode;
+}
+
+export function DialogFooter({ children, className }: Readonly<DialogFooterProps>) {
+  return (
+    <div
+      className={twMerge(
+        "mt-8 flex justify-end gap-4",
+        "max-sm:fixed max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:mt-0 max-sm:border-border max-sm:border-t max-sm:bg-background max-sm:p-4 max-sm:shadow-lg",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function DialogHeader({ children, className, description }: Readonly<DialogHeaderProps>) {
+  return (
+    <div className={twMerge("mb-6", className)}>
+      {children}
+      {description && <p className="mt-2 text-muted-foreground text-sm">{description}</p>}
+    </div>
+  );
+}
+
+export function DialogContent({ children, className }: Readonly<{ children: ReactNode; className?: string }>) {
+  return (
+    <div
+      className={twMerge(
+        "min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
+        "max-sm:pb-20", // Add padding to account for fixed footer on mobile
+        "-webkit-overflow-scrolling-touch",
+        "max-sm:-mx-6 max-sm:px-6", // Extend scrollbar to edge while maintaining content padding
+        className
+      )}
+      style={{
+        WebkitOverflowScrolling: "touch",
+        scrollbarGutter: "stable"
+      }}
+    >
+      {children}
+    </div>
+  );
+}

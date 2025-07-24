@@ -8,7 +8,11 @@ export function Dialog(props: Readonly<DialogProps>) {
     <AriaDialog
       {...props}
       className={twMerge(
-        "relative max-h-full min-h-0 overflow-y-auto overscroll-contain p-4 outline outline-0 sm:p-11 [[data-placement]>&]:p-4",
+        "relative max-h-full min-h-0 outline outline-0",
+        "max-sm:flex max-sm:h-full max-sm:w-full max-sm:max-w-full max-sm:flex-col",
+        "sm:overflow-y-auto sm:overscroll-contain",
+        "p-6 sm:p-8",
+        "[[data-placement]>&]:p-4",
         props.className
       )}
     />
