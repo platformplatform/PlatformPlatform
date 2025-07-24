@@ -27,7 +27,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to users page & verify owner is listed")(async () => {
-      await page.getByRole("button", { name: "Users" }).click();
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.locator("tbody").locator("tr")).toHaveCount(1);
@@ -74,6 +74,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("button", { name: "Member User role" }).click();
       await page.getByRole("option", { name: "Admin" }).click();
+      await page.getByRole("button", { name: "OK" }).click();
 
       await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
       await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
@@ -104,7 +105,7 @@ test.describe("@smoke", () => {
       const ownerRowSelf = page.locator("tbody tr").filter({ hasText: owner.email });
       await ownerRowSelf.getByLabel("User actions").click();
 
-      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
 
       await page.keyboard.press("Escape");
@@ -145,8 +146,10 @@ test.describe("@smoke", () => {
     })();
 
     await step("Logout from owner account to test admin permissions")(async () => {
-      await page.getByRole("button", { name: "Home" }).click();
+      // Navigate to home first
+      await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
 
@@ -175,7 +178,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to users page as admin & verify admin can see all users")(async () => {
-      await page.getByRole("button", { name: "Users" }).click();
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.locator("tbody tr")).toHaveCount(3); // owner + admin + member
@@ -185,8 +188,10 @@ test.describe("@smoke", () => {
       const memberUserRow = page.locator("tbody tr").filter({ hasText: memberUser.email });
       await memberUserRow.getByLabel("User actions").click({ force: true });
 
-      await expect(page.getByRole("menuitem", { name: "Change role" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Delete user" })).not.toBeVisible();
+      // Admin users don't see Change role or Delete options - only View profile
+      await expect(page.getByRole("menuitem", { name: "View profile" })).toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Change role" })).not.toBeVisible();
+      await expect(page.getByRole("menuitem", { name: "Delete" })).not.toBeVisible();
     })();
   });
 });

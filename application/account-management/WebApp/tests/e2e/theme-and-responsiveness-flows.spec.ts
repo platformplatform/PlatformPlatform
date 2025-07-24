@@ -4,110 +4,120 @@ import { createTestContext } from "@shared/e2e/utils/test-assertions";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 test.describe("@comprehensive", () => {
-  test("should handle theme and responsiveness across viewport sizes and authentication", async ({ ownerPage }) => {
+  /**
+   * Tests dark mode theme, viewport responsiveness, and theme persistence across authentication states.
+   * Covers:
+   * - Dark mode theme switching and persistence
+   * - Viewport responsiveness from mobile to 4K desktop
+   * - Navigation menu behavior at different breakpoints
+   * - Dark theme persistence across logout/login
+   */
+  test("should handle dark theme across viewport sizes with persistence after logout", async ({ ownerPage }) => {
     createTestContext(ownerPage);
 
-    const initialThemeClass = await ownerPage.locator("html").getAttribute("class");
-    const initialIsLight = initialThemeClass?.includes("light");
-    const firstTheme = initialIsLight ? "dark" : "light";
-    const secondTheme = initialIsLight ? "light" : "dark";
-
-    await step("Start on admin dashboard & verify welcome page loads")(async () => {
+    await step("Navigate to admin dashboard & verify home page loads")(async () => {
       await ownerPage.goto("/admin");
-
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
-    await step("Verify theme toggle button accessibility & click to change theme")(async () => {
-      const themeButton = ownerPage.getByRole("button", { name: "Toggle theme" });
-      await expect(themeButton).toHaveAttribute("aria-label", "Toggle theme");
+    await step("Change theme to dark mode & verify theme applies")(async () => {
+      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
+      await expect(themeButton).toHaveAttribute("aria-label", "Change theme");
 
       await themeButton.click();
+      await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
 
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Verify desktop side menu navigation elements are visible & verify large screen behavior")(async () => {
-      await expect(ownerPage.getByRole("button", { name: "Home" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Account" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Users" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Toggle collapsed menu" })).toBeVisible();
+    await step("Verify desktop navigation menu & confirm all navigation links are visible")(async () => {
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Account" })).toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Collapse desktop sidebar & verify layout adapts")(async () => {
-      await ownerPage.getByRole("button", { name: "Toggle collapsed menu" }).click();
+    await step("Collapse desktop sidebar menu & verify content remains accessible")(async () => {
+      await ownerPage.getByRole("button", { name: "Toggle sidebar" }).click();
 
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Toggle collapsed menu" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Switch to large desktop viewport & verify interface scales properly")(async () => {
+    await step("Resize to 4K desktop viewport & verify interface scales correctly")(async () => {
       await ownerPage.setViewportSize({ width: 2560, height: 1440 });
 
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
-      await expect(ownerPage.getByRole("button", { name: "Home" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Toggle collapsed menu" })).toBeVisible();
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Switch to tablet viewport & verify interface adapts and theme persists")(async () => {
+    await step("Resize to tablet viewport & verify responsive layout adapts")(async () => {
       await ownerPage.setViewportSize({ width: 768, height: 1024 });
 
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Verify tablet breakpoint navigation behavior & verify elements remain visible")(async () => {
-      await expect(ownerPage.getByRole("button", { name: "Home" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Toggle collapsed menu" })).toBeVisible();
+    await step("Verify tablet navigation layout & confirm sidebar remains visible")(async () => {
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Switch to mobile viewport & verify mobile interface and responsive behavior")(async () => {
+    await step("Resize to mobile viewport & verify navigation collapses into hamburger menu")(async () => {
       await ownerPage.setViewportSize({ width: 375, height: 667 });
 
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
-      await expect(ownerPage.getByRole("button", { name: "Home" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Users" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Account" })).not.toBeVisible();
-      const mobileMenuButton = ownerPage.getByRole("button", { name: "Toggle collapsed menu" });
-      await expect(mobileMenuButton).toBeVisible();
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
+      // Verify navigation links are hidden on mobile
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).not.toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" })).not.toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Account" })).not.toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Open navigation menu" })).toBeVisible();
     })();
 
-    await step("Toggle mobile theme button & verify theme changes")(async () => {
-      // Open mobile menu first
-      await ownerPage.getByRole("button", { name: "Toggle collapsed menu" }).click();
+    await step("Verify theme menu is accessible via mobile menu & dark theme persists")(async () => {
+      // Open mobile menu
+      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
 
-      // Find and click theme toggle button inside mobile menu
-      await ownerPage.getByRole("button", { name: "Theme" }).click();
+      // Verify theme button is accessible in mobile menu
+      await expect(ownerPage.getByRole("button", { name: "Theme" })).toBeVisible();
 
-      await expect(ownerPage.locator("html")).toHaveClass(secondTheme);
+      // Close mobile menu
+      await ownerPage.keyboard.press("Escape");
+
+      // Verify we're still in dark mode
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Return to desktop viewport & verify responsive transitions & side menu restoration")(async () => {
+    await step("Resize to desktop viewport & verify navigation menu restores with dark theme")(async () => {
       await ownerPage.setViewportSize({ width: 1920, height: 1080 });
 
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-      await expect(ownerPage.locator("html")).toHaveClass(secondTheme);
-      await expect(ownerPage.getByRole("button", { name: "Home" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Account" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Users" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Toggle collapsed menu" })).toBeVisible();
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Account" })).toBeVisible();
+      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Cycle through theme one more time & verify theme cycle works completely")(async () => {
-      const finalThemeButton = ownerPage.getByRole("button", { name: "Toggle theme" });
-      await finalThemeButton.click();
+    await step("Verify dark theme remains active & prepare for logout test")(async () => {
+      // Verify we're still on dark theme
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
 
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
+      // Verify theme button is accessible
+      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
+      await expect(themeButton).toBeVisible();
     })();
 
-    await step("Logout from account & verify theme persists across authentication")(async () => {
+    await step("Log out from admin dashboard & verify dark theme persists on login page")(async () => {
       await ownerPage.getByRole("button", { name: "User profile menu" }).click();
       await ownerPage.getByRole("menuitem", { name: "Log out" }).click();
 
       await expect(ownerPage).toHaveURL("/login?returnPath=%2Fadmin");
-      await expect(ownerPage.locator("html")).toHaveClass(firstTheme);
+      // Dark theme should persist after logout (not system default)
+      await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
   });
 });

@@ -153,7 +153,7 @@ test.describe("@smoke", () => {
 
     // === ACCOUNT MANAGEMENT ===
     await step("Clear account name field & verify validation error appears")(async () => {
-      await page.getByRole("button", { name: "Account" }).first().click();
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -182,7 +182,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Access protected account route & verify session maintains authentication")(async () => {
-      await page.getByRole("button", { name: "Account" }).first().click();
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
 
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
     })();

@@ -16,7 +16,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Change language to Danish on signup page & verify interface updates")(async () => {
-      await page.getByRole("button", { name: "Select language" }).click();
+      await page.getByRole("button", { name: "Change language" }).click();
       await page.getByRole("menuitem", { name: "Dansk" }).click();
 
       await expect(page.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
@@ -59,7 +59,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Change login page language to English & verify interface updates")(async () => {
-      await page.getByRole("button", { name: "Vælg sprog" }).click();
+      await page.getByRole("button", { name: "Skift sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
 
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -83,7 +83,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Reset to English for cleanup & verify language change works")(async () => {
-      await page.getByRole("button", { name: "Vælg sprog" }).click();
+      await page.getByRole("button", { name: "Skift sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
 
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -105,7 +105,7 @@ test.describe("@comprehensive", () => {
 
     await step("Complete signup for first user with Danish & verify preference saved")(async () => {
       await page1.goto("/signup");
-      await page1.getByRole("button", { name: "Select language" }).click();
+      await page1.getByRole("button", { name: "Change language" }).click();
       await page1.getByRole("menuitem", { name: "Dansk" }).click();
       await expect(page1.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
       await page1.getByRole("textbox", { name: "E-mail" }).fill(user1.email);
