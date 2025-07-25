@@ -119,8 +119,7 @@
     -webkit-font-smoothing: antialiased;
     font-synthesis: none;
     height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     scroll-behavior: smooth;
     touch-action: manipulation;
   }
@@ -155,6 +154,13 @@ html {
   width: 100%;
   padding: 0;
   margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {
@@ -163,8 +169,11 @@ body {
   padding: 0;
   margin: 0;
   overflow: hidden;
-  /* Prevent bounce scrolling on iOS */
   position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
