@@ -158,8 +158,34 @@ body,
   padding: 0;
   margin: 0;
   overflow: hidden;
+  /* Prevent bounce scrolling on iOS */
+  position: fixed;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   overflow: auto;
+  /* Ensure full height on iOS */
+  height: 100vh;
+  height: -webkit-fill-available;
+}
+
+/* Prevent text selection on UI elements for app-like feel */
+@media (max-width: 640px) {
+  button,
+  [role="button"],
+  .menu-item,
+  label {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Improve tap responsiveness */
+  a,
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
