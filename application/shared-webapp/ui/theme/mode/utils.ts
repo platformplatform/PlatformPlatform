@@ -31,8 +31,24 @@ export const setClassNameThemeMode = (mode: ThemeMode) => {
   if (mode === ThemeMode.Dark || mode === ThemeMode.Light) {
     document.documentElement.classList.add(mode);
     document.documentElement.style.colorScheme = mode;
+
+    // Update theme-color meta tag for Dynamic Island
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])') as HTMLMetaElement;
+    if (themeColorMeta) {
+      themeColorMeta.content = mode === ThemeMode.Dark ? "#151b23" : "#eef0f2";
+    } else {
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = mode === ThemeMode.Dark ? "#151b23" : "#eef0f2";
+      document.head.appendChild(meta);
+    }
   } else {
     document.documentElement.style.removeProperty("color-scheme");
+    // Remove non-media theme-color when in system mode
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])') as HTMLMetaElement;
+    if (themeColorMeta) {
+      themeColorMeta.remove();
+    }
   }
 };
 
