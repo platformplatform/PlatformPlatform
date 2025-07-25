@@ -982,10 +982,10 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
   return (
     <>
       {!isOpen && (
-        <div className="absolute right-2 bottom-3 z-30 sm:hidden">
+        <div className="fixed right-2 bottom-3 z-30 sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-background pressed:bg-muted p-0 hover:bg-hover-background focus:bg-hover-background"
+            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
             onPress={() => setIsOpen(true)}
           >
             <Menu className="h-7 w-7 text-foreground" />
