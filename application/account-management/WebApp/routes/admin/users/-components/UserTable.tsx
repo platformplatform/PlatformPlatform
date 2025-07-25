@@ -186,6 +186,20 @@ export function UserTable({
     };
   }, [selectedUsers, onViewProfile]);
 
+  // Media queries for responsive columns - must be before early returns
+  const [isMinSm, setIsMinSm] = useState(window.matchMedia(MEDIA_QUERIES.sm).matches);
+  const [isMinMd, setIsMinMd] = useState(window.matchMedia(MEDIA_QUERIES.md).matches);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMinSm(window.matchMedia(MEDIA_QUERIES.sm).matches);
+      setIsMinMd(window.matchMedia(MEDIA_QUERIES.md).matches);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   if (isLoading) {
     return null;
   }
@@ -207,113 +221,129 @@ export function UserTable({
         aria-label={t`Users`}
       >
         <TableHeader>
-          <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
+          <Column
+            allowsSorting={true}
+            id={SortableUserProperties.Name}
+            isRowHeader={true}
+            minWidth={isMinSm ? 250 : undefined}
+          >
             <Trans>Name</Trans>
           </Column>
-          <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
-            <Trans>Email</Trans>
-          </Column>
-          <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
-            <Trans>Created</Trans>
-          </Column>
-          <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
-            <Trans>Modified</Trans>
-          </Column>
-          <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
-            <Trans>Role</Trans>
-          </Column>
-          <Column width={100}>
-            <Trans>Actions</Trans>
-          </Column>
+          {isMinSm && (
+            <Column minWidth={160} allowsSorting={true} id={SortableUserProperties.Email}>
+              <Trans>Email</Trans>
+            </Column>
+          )}
+          {isMinMd && (
+            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
+              <Trans>Created</Trans>
+            </Column>
+          )}
+          {isMinMd && (
+            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
+              <Trans>Modified</Trans>
+            </Column>
+          )}
+          {isMinSm && (
+            <Column width={135} allowsSorting={true} id={SortableUserProperties.Role}>
+              <Trans>Role</Trans>
+            </Column>
+          )}
         </TableHeader>
         <TableBody>
           {users?.users.map((user) => (
             <Row key={user.id} id={user.id}>
               <Cell>
-                <Text className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal">
-                  <Avatar
-                    initials={getInitials(user.firstName, user.lastName, user.email)}
-                    avatarUrl={user.avatarUrl}
-                    size="sm"
-                    isRound={true}
-                  />
-                  <Text className="flex flex-col truncate">
-                    <Text className="truncate text-foreground">
-                      {user.firstName} {user.lastName}
-                      {user.emailConfirmed ? (
-                        ""
-                      ) : (
-                        <Badge variant="outline">
-                          <Trans>Pending</Trans>
-                        </Badge>
-                      )}
-                    </Text>
-                    <Text className="truncate">{user.title ?? ""}</Text>
+                <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
+                  <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
+                    <Avatar
+                      initials={getInitials(user.firstName, user.lastName, user.email)}
+                      avatarUrl={user.avatarUrl}
+                      size="sm"
+                      isRound={true}
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-center gap-2 truncate text-foreground">
+                        <span className="truncate">
+                          {user.firstName} {user.lastName}
+                        </span>
+                        {user.emailConfirmed ? null : (
+                          <Badge variant="outline" className="shrink-0">
+                            <Trans>Pending</Trans>
+                          </Badge>
+                        )}
+                      </div>
+                      <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
+                    </div>
+                  </div>
+                </div>
+              </Cell>
+              {isMinSm && (
+                <Cell>
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                </Cell>
+              )}
+              {isMinMd && (
+                <Cell>
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
+                    {formatDate(user.createdAt)}
                   </Text>
-                </Text>
-              </Cell>
-              <Cell>
-                <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
-              </Cell>
-              <Cell>
-                <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                  {formatDate(user.createdAt)}
-                </Text>
-              </Cell>
-              <Cell>
-                <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                  {formatDate(user.modifiedAt)}
-                </Text>
-              </Cell>
-              <Cell>
-                <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                  <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                </Text>
-              </Cell>
-              <Cell>
-                <Text className="flex w-full justify-end">
-                  <MenuTrigger
-                    onOpenChange={(isOpen) => {
-                      if (isOpen) {
-                        onSelectedUsersChange([user]);
-                      }
-                    }}
-                  >
-                    <Button variant="icon" aria-label={t`User actions`}>
-                      <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                    <Menu>
-                      <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
-                        <UserIcon className="h-4 w-4" />
-                        <Trans>View profile</Trans>
-                      </MenuItem>
-                      {userInfo?.role === "Owner" && (
-                        <>
-                          <MenuItem
-                            id="changeRole"
-                            isDisabled={user.id === userInfo?.id}
-                            onAction={() => onChangeRole(user)}
-                          >
-                            <SettingsIcon className="h-4 w-4" />
-                            <Trans>Change role</Trans>
-                          </MenuItem>
-                          <MenuSeparator />
-                          <MenuItem
-                            id="deleteUser"
-                            isDisabled={user.id === userInfo?.id}
-                            onAction={() => onDeleteUser(user)}
-                          >
-                            <Trash2Icon className="h-4 w-4 text-destructive" />
-                            <span className="text-destructive">
-                              <Trans>Delete</Trans>
-                            </span>
-                          </MenuItem>
-                        </>
-                      )}
-                    </Menu>
-                  </MenuTrigger>
-                </Text>
-              </Cell>
+                </Cell>
+              )}
+              {isMinMd && (
+                <Cell>
+                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
+                    {formatDate(user.modifiedAt)}
+                  </Text>
+                </Cell>
+              )}
+              {isMinSm && (
+                <Cell>
+                  <div className="flex h-full w-full items-center justify-between p-0">
+                    <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                    <MenuTrigger
+                      onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                          onSelectedUsersChange([user]);
+                        }
+                      }}
+                    >
+                      <Button variant="icon" aria-label={t`User actions`}>
+                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                      </Button>
+                      <Menu>
+                        <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
+                          <UserIcon className="h-4 w-4" />
+                          <Trans>View profile</Trans>
+                        </MenuItem>
+                        {userInfo?.role === "Owner" && (
+                          <>
+                            <MenuItem
+                              id="changeRole"
+                              isDisabled={user.id === userInfo?.id}
+                              onAction={() => onChangeRole(user)}
+                            >
+                              <SettingsIcon className="h-4 w-4" />
+                              <Trans>Change role</Trans>
+                            </MenuItem>
+                            <MenuSeparator />
+                            <MenuItem
+                              id="deleteUser"
+                              isDisabled={user.id === userInfo?.id}
+                              onAction={() => onDeleteUser(user)}
+                            >
+                              <Trash2Icon className="h-4 w-4 text-destructive" />
+                              <span className="text-destructive">
+                                <Trans>Delete</Trans>
+                              </span>
+                            </MenuItem>
+                          </>
+                        )}
+                      </Menu>
+                    </MenuTrigger>
+                  </div>
+                </Cell>
+              )}
             </Row>
           ))}
         </TableBody>

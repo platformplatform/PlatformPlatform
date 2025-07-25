@@ -31,9 +31,6 @@ msgstr "Kontoindstillinger"
 msgid "Account updated successfully"
 msgstr "Konto opdateret succesfuldt"
 
-msgid "Actions"
-msgstr "Handlinger"
-
 msgid "Active"
 msgstr "Aktiv"
 

@@ -31,9 +31,6 @@ msgstr "Account settings"
 msgid "Account updated successfully"
 msgstr "Account updated successfully"
 
-msgid "Actions"
-msgstr "Actions"
-
 msgid "Active"
 msgstr "Active"
 

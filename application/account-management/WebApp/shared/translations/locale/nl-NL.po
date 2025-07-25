@@ -31,9 +31,6 @@ msgstr "Accountinstellingen"
 msgid "Account updated successfully"
 msgstr "Account succesvol bijgewerkt"
 
-msgid "Actions"
-msgstr "Acties"
-
 msgid "Active"
 msgstr "Actief"
 
