@@ -208,7 +208,6 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
 
               <div className="flex flex-col gap-4 sm:flex-row">
                 <TextField
-                  autoFocus={true}
                   isRequired={true}
                   name="firstName"
                   label={t`First name`}

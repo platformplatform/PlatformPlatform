@@ -304,7 +304,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           updateFilter({ search: (search as string) || undefined }, true);
         }}
         label={t`Search`}
-        autoFocus={true}
         className="min-w-32"
       />
 

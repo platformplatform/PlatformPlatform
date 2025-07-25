@@ -81,7 +81,6 @@ export function AccountSettings() {
 
           <img src={logoWrap} alt={t`Logo`} className="max-h-16 max-w-64" />
           <TextField
-            autoFocus={true}
             isRequired={true}
             name="name"
             defaultValue={tenant?.name ?? ""}
