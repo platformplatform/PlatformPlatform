@@ -321,7 +321,7 @@ export function UserTable({
       </div>
 
       {users && (
-        <div className="bg-background py-4">
+        <div className="bg-background py-4 max-sm:sticky max-sm:bottom-0 max-sm:border-border max-sm:border-t">
           <Pagination
             paginationSize={5}
             currentPage={currentPage}
