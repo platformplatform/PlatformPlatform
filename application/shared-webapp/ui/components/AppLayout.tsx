@@ -10,6 +10,7 @@ type AppLayoutProps = {
   variant?: AppLayoutVariant;
   maxWidth?: string;
   sidePane?: React.ReactNode;
+  paddingBottom?: string;
 };
 
 /**
@@ -52,7 +53,7 @@ export function AppLayout({
   }, [isOverlayOpen]);
 
   return (
-    <>
+    <div className="flex h-full flex-col">
       {/* Skip navigation link for keyboard users */}
       <a
         href="#main-content"
@@ -61,7 +62,7 @@ export function AppLayout({
         Skip to main content
       </a>
       <div
-        className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-screen`}
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
       >
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
@@ -77,9 +78,13 @@ export function AppLayout({
 
         {/* Main content area */}
         <main
-          className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-all duration-100 ease-in-out sm:pt-28 ${
-            sidePane ? "overflow-x-auto" : ""
-          }`}
+          className={
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto p-4 pb-4 transition-all duration-100 ease-in-out sm:pt-28"
+          }
+          style={{
+            WebkitOverflowScrolling: "touch",
+            overscrollBehavior: "none"
+          }}
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
@@ -105,6 +110,6 @@ export function AppLayout({
           </aside>
         )}
       </div>
-    </>
+    </div>
   );
 }

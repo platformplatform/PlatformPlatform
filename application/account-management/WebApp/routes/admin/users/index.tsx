@@ -141,7 +141,7 @@ export default function UsersPage() {
           </TopMenu>
         }
       >
-        <div className="flex h-full flex-col">
+        <div className="flex h-full min-h-[500px] flex-col">
           <h1>
             <Trans>Users</Trans>
           </h1>
@@ -152,16 +152,14 @@ export default function UsersPage() {
           <div className="mb-4">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
-          <div className="min-h-0 flex-1">
-            <UserTable
-              selectedUsers={selectedUsers}
-              onSelectedUsersChange={setSelectedUsers}
-              onViewProfile={handleViewProfile}
-              onDeleteUser={handleDeleteUser}
-              onChangeRole={handleChangeRole}
-              onUsersLoaded={handleUsersLoaded}
-            />
-          </div>
+          <UserTable
+            selectedUsers={selectedUsers}
+            onSelectedUsersChange={setSelectedUsers}
+            onViewProfile={handleViewProfile}
+            onDeleteUser={handleDeleteUser}
+            onChangeRole={handleChangeRole}
+            onUsersLoaded={handleUsersLoaded}
+          />
         </div>
       </AppLayout>
 
