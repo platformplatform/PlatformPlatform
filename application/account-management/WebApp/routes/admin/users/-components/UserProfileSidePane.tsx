@@ -326,7 +326,7 @@ export function UserProfileSidePane({
 
         {/* Quick Actions */}
         {userInfo?.role === "Owner" && user && (
-          <div className="p-4">
+          <div className="relative mt-auto border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button
               variant="destructive"
               onPress={() => onDeleteUser(user)}

@@ -103,7 +103,7 @@ export function AppLayout({
         {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:h-[calc(100vh-72px)] md:w-96"
+            className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}
