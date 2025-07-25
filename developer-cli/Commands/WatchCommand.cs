@@ -77,7 +77,7 @@ public class WatchCommand : Command
         {
             return true;
         }
-        
+
         // Also check if there are any dotnet watch processes running AppHost
         if (Configuration.IsWindows)
         {
@@ -102,14 +102,14 @@ public class WatchCommand : Command
         {
             // Use taskkill with filters to kill processes
             // This approach is simpler and more reliable than WMIC
-            
+
             // Kill all dotnet.exe processes that have AppHost in their command line
             ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *AppHost*\"", redirectOutput: true, exitOnError: false);
-            
+
             // Kill all processes that contain our application folder in the command line
             // Note: Windows doesn't have a direct equivalent to pkill -f, so we use WMIC for this specific case
             ProcessHelper.StartProcess($"wmic process where \"commandline like '%{applicationFolder}%'\" delete", redirectOutput: true, exitOnError: false);
-            
+
             // Kill specific Aspire and watch processes
             ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *watch*\"", redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *Aspire*\"", redirectOutput: true, exitOnError: false);
@@ -122,15 +122,15 @@ public class WatchCommand : Command
             // Kill all dotnet watch processes that are running AppHost
             // This handles both absolute and relative paths
             ProcessHelper.StartProcess("pkill -9 -f dotnet.*watch.*AppHost", redirectOutput: true, exitOnError: false);
-            
+
             // Kill all processes that contain our application folder path
             // This catches any process started from our directory
             ProcessHelper.StartProcess($"pkill -9 -f {applicationFolder}", redirectOutput: true, exitOnError: false);
-            
+
             // Kill Aspire-specific processes (Dashboard, DCP, etc.)
             ProcessHelper.StartProcess("pkill -9 -if aspire", redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess("pkill -9 -f dcp", redirectOutput: true, exitOnError: false);
-            
+
             // Kill processes by project names in case they're running from different locations
             ProcessHelper.StartProcess("pkill -9 -f AppHost", redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess("pkill -9 -f AccountManagement", redirectOutput: true, exitOnError: false);
@@ -164,17 +164,23 @@ public class WatchCommand : Command
 
     private static void StartAspireAppHost(bool attach, string? publicUrl)
     {
-
         AnsiConsole.MarkupLine($"[blue]Starting Aspire AppHost in {(attach ? "attached" : "detached")} mode...[/]");
-        
+
         if (publicUrl is not null)
         {
             AnsiConsole.MarkupLine($"[blue]Using PUBLIC_URL: {publicUrl}[/]");
+
+            // Check if this is an ngrok URL and start ngrok if needed
+            if (publicUrl.Contains(".ngrok-free.app", StringComparison.OrdinalIgnoreCase) ||
+                publicUrl.Contains(".ngrok.io", StringComparison.OrdinalIgnoreCase))
+            {
+                StartNgrokIfNeeded(publicUrl);
+            }
         }
 
         var appHostProjectPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
         var command = $"dotnet watch --non-interactive --project {appHostProjectPath}";
-        
+
         if (publicUrl is not null)
         {
             ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach, environmentVariables: ("PUBLIC_URL", publicUrl));
@@ -183,5 +189,58 @@ public class WatchCommand : Command
         {
             ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach);
         }
+    }
+
+    private static void StartNgrokIfNeeded(string publicUrl)
+    {
+        // First check if ngrok is installed
+        var ngrokVersion = ProcessHelper.StartProcess("ngrok version", redirectOutput: true, exitOnError: false);
+        if (!ngrokVersion.Contains("ngrok version", StringComparison.OrdinalIgnoreCase))
+        {
+            AnsiConsole.MarkupLine("[yellow]Ngrok is not installed. Please install ngrok from https://ngrok.com/download[/]");
+            AnsiConsole.MarkupLine("[yellow]Continuing without ngrok tunnel...[/]");
+            return;
+        }
+
+        // Extract the subdomain from the URL
+        var uri = new Uri(publicUrl);
+        var subdomain = uri.Host.Split('.')[0];
+
+        // Check if ngrok is already running
+        var isNgrokRunning = false;
+
+        if (Configuration.IsWindows)
+        {
+            var ngrokProcesses = ProcessHelper.StartProcess("tasklist /FI \"IMAGENAME eq ngrok.exe\"", redirectOutput: true, exitOnError: false);
+            isNgrokRunning = ngrokProcesses.Contains("ngrok.exe");
+        }
+        else
+        {
+            var ngrokProcesses = ProcessHelper.StartProcess("pgrep -f ngrok", redirectOutput: true, exitOnError: false);
+            isNgrokRunning = !string.IsNullOrEmpty(ngrokProcesses);
+        }
+
+        if (isNgrokRunning)
+        {
+            AnsiConsole.MarkupLine("[yellow]Ngrok is already running.[/]");
+            return;
+        }
+
+        AnsiConsole.MarkupLine("[blue]Starting ngrok tunnel...[/]");
+
+        // Start ngrok in detached mode
+        var ngrokCommand = $"ngrok http --url={subdomain}.ngrok-free.app https://localhost:9000";
+
+        if (Configuration.IsWindows)
+        {
+            ProcessHelper.StartProcess($"start /B {ngrokCommand}", waitForExit: false);
+        }
+        else
+        {
+            // Use shell to handle backgrounding properly
+            ProcessHelper.StartProcess($"sh -c \"{ngrokCommand} > /dev/null 2>&1 &\"", waitForExit: false);
+        }
+
+        AnsiConsole.MarkupLine("[green]Ngrok tunnel started successfully.[/]");
     }
 }
