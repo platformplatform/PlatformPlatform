@@ -15,6 +15,20 @@ enum ThemeMode {
   Dark = "dark"
 }
 
+function updateThemeColorMeta() {
+  requestAnimationFrame(() => {
+    const root = document.documentElement;
+    const computedStyle = window.getComputedStyle(root);
+    const backgroundHsl = computedStyle.getPropertyValue("--background").trim();
+    const backgroundColor = backgroundHsl ? `hsl(${backgroundHsl.replace(/\s+/g, ", ")})` : "#000000";
+
+    const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+    themeColorMetas.forEach((meta) => {
+      meta.setAttribute("content", backgroundColor);
+    });
+  });
+}
+
 export default function ThemeModeSelector({
   variant = "icon",
   onAction
@@ -51,6 +65,8 @@ export default function ThemeModeSelector({
         root.style.colorScheme = "light";
       }
     }
+
+    updateThemeColorMeta();
 
     // Listen for storage changes from other tabs/components
     const handleStorageChange = (e: StorageEvent) => {
@@ -108,6 +124,8 @@ export default function ThemeModeSelector({
         root.style.colorScheme = "light";
       }
     }
+
+    updateThemeColorMeta();
 
     // Dispatch event to notify other components
     window.dispatchEvent(new CustomEvent("theme-mode-changed", { detail: newMode }));
