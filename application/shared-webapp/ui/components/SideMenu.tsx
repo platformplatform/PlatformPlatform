@@ -317,31 +317,6 @@ export function FederatedMenuButton({
 
   const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isDisabled) {
-      e.preventDefault();
-      return;
-    }
-
-    // Auto-close overlay after navigation
-    if (overlayCtx?.isOpen) {
-      overlayCtx.close();
-    }
-
-    // Always prevent default to handle navigation ourselves
-    e.preventDefault();
-
-    if (isCurrentSystem) {
-      // Same system - use programmatic navigation
-      window.history.pushState({}, "", to);
-      // Dispatch a popstate event using the standard Event constructor
-      window.dispatchEvent(new Event("popstate"));
-    } else {
-      // Different system - force reload
-      window.location.href = to;
-    }
-  };
-
   // For collapsed menu, wrap in TooltipTrigger
   if (isCollapsed) {
     return (
@@ -386,19 +361,40 @@ export function FederatedMenuButton({
     );
   }
 
-  // For expanded menu, use a regular anchor tag with onClick handler
+  // For expanded menu, use React Aria Link for consistent touch handling
   return (
     <div className="relative">
       <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
-      <a
-        href={to}
+      <Link
+        href={undefined}
         className={linkClassName}
-        onClick={handleClick}
-        aria-disabled={isDisabled}
+        variant="ghost"
+        underline={false}
+        isDisabled={isDisabled}
         aria-current={isActive ? "page" : undefined}
+        onPress={() => {
+          if (isDisabled) {
+            return;
+          }
+
+          // Auto-close overlay after navigation
+          if (overlayCtx?.isOpen) {
+            overlayCtx.close();
+          }
+
+          if (isCurrentSystem) {
+            // Same system - use programmatic navigation
+            window.history.pushState({}, "", to);
+            // Dispatch a popstate event using the standard Event constructor
+            window.dispatchEvent(new Event("popstate"));
+          } else {
+            // Different system - force reload
+            window.location.href = to;
+          }
+        }}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-      </a>
+      </Link>
     </div>
   );
 }
