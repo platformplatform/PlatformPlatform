@@ -69,10 +69,17 @@ public static class ProcessHelper
         bool redirectOutput = false,
         bool waitForExit = true,
         bool exitOnError = true,
-        bool throwOnError = false
+        bool throwOnError = false,
+        params (string Name, string Value)[] environmentVariables
     )
     {
         var processStartInfo = CreateProcessStartInfo(command, solutionFolder, redirectOutput);
+        
+        foreach (var environmentVariable in environmentVariables)
+        {
+            processStartInfo.Environment[environmentVariable.Name] = environmentVariable.Value;
+        }
+        
         return StartProcess(processStartInfo, waitForExit: waitForExit, exitOnError: exitOnError, throwOnError: throwOnError);
     }
 

@@ -21,11 +21,12 @@ public class WatchCommand : Command
         AddOption(new Option<bool>(["--stop"], "Stop any running Aspire AppHost instance without starting a new one"));
         AddOption(new Option<bool>(["--attach", "-a"], "Keep the CLI process attached to the Aspire process"));
         AddOption(new Option<bool>(["--detach", "-d"], "Run the Aspire process in detached mode (background)"));
+        AddOption(new Option<string?>(["--public-url"], "Set the PUBLIC_URL environment variable for the app (e.g., https://example.ngrok-free.app)"));
 
-        Handler = CommandHandler.Create<bool, bool, bool, bool>(Execute);
+        Handler = CommandHandler.Create<bool, bool, bool, bool, string?>(Execute);
     }
 
-    private static void Execute(bool force, bool stop, bool attach, bool detach)
+    private static void Execute(bool force, bool stop, bool attach, bool detach, string? publicUrl)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.Docker);
 
@@ -61,7 +62,7 @@ public class WatchCommand : Command
             StopAspire();
         }
 
-        StartAspireAppHost(attach);
+        StartAspireAppHost(attach, publicUrl);
     }
 
     private static bool IsAspireRunning()
@@ -161,13 +162,26 @@ public class WatchCommand : Command
         }
     }
 
-    private static void StartAspireAppHost(bool attach)
+    private static void StartAspireAppHost(bool attach, string? publicUrl)
     {
 
         AnsiConsole.MarkupLine($"[blue]Starting Aspire AppHost in {(attach ? "attached" : "detached")} mode...[/]");
+        
+        if (publicUrl is not null)
+        {
+            AnsiConsole.MarkupLine($"[blue]Using PUBLIC_URL: {publicUrl}[/]");
+        }
 
         var appHostProjectPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
         var command = $"dotnet watch --non-interactive --project {appHostProjectPath}";
-        ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach);
+        
+        if (publicUrl is not null)
+        {
+            ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach, environmentVariables: ("PUBLIC_URL", publicUrl));
+        }
+        else
+        {
+            ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach);
+        }
     }
 }
