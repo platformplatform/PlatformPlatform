@@ -982,10 +982,10 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
   return (
     <>
       {!isOpen && (
-        <div className="fixed right-2 bottom-3 z-30 sm:hidden">
+        <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center border-0 bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
+            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
             onPress={() => setIsOpen(true)}
           >
             <Menu className="h-7 w-7 text-foreground" />
@@ -995,8 +995,8 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-[200] h-[100vh] w-[100vw] bg-background"
-            style={{ margin: 0, padding: 0, border: "none", top: 0, left: 0, right: 0, bottom: 0, display: "flex" }}
+            className="fixed inset-0 z-[200] h-full w-full bg-background"
+            style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
           >
@@ -1007,14 +1007,20 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
               aria-label="Mobile navigation"
             >
               <div
-                className="flex-1 overflow-y-auto overflow-x-hidden px-3"
-                style={{ margin: 0, padding: "0 12px", pointerEvents: "auto", WebkitOverflowScrolling: "touch" }}
+                className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-20 supports-[padding:max(0px)]:pb-[max(5rem,env(safe-area-inset-bottom))]"
+                style={{
+                  margin: 0,
+                  paddingLeft: "12px",
+                  paddingRight: "12px",
+                  pointerEvents: "auto",
+                  WebkitOverflowScrolling: "touch"
+                }}
               >
-                {topMenuContent && <div className="pt-5 pb-20">{topMenuContent}</div>}
+                {topMenuContent && <div className="pt-5">{topMenuContent}</div>}
               </div>
 
               {/* Floating close button at bottom right - same position as hamburger */}
-              <div className="absolute right-2 bottom-3 z-10">
+              <div className="absolute right-4 bottom-4 z-10 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))]">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -1022,7 +1028,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   aria-label="Close menu"
                   className="h-12 w-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >
-                  <X className="h-7 w-7" />
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             </nav>

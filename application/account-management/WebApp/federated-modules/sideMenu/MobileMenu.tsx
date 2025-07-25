@@ -150,7 +150,7 @@ export function MobileMenu({
         <div className="mx-3 my-5 border-border border-b" />
 
         {/* Navigation Section for Mobile */}
-        <div className="flex flex-col gap-3 pb-20">
+        <div className="flex flex-col gap-3">
           <SideMenuSeparator>
             <Trans>Navigation</Trans>
           </SideMenuSeparator>

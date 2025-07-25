@@ -79,7 +79,7 @@ export function AppLayout({
         {/* Main content area */}
         <main
           className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto p-4 pb-4 transition-all duration-100 ease-in-out sm:pt-28"
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto p-4 pb-4 transition-all duration-100 ease-in-out supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
           }
           style={{
             WebkitOverflowScrolling: "touch",
