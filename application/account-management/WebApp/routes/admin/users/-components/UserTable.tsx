@@ -10,7 +10,7 @@ import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
+import { MEDIA_QUERIES, isTouchDevice } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -149,7 +149,7 @@ export function UserTable({
       }
 
       // Single user selected - check if we should auto-open profile
-      const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+      const isSmallScreen = isTouchDevice() || !window.matchMedia(MEDIA_QUERIES.md).matches;
       const shouldAutoOpen = !isSmallScreen || !isKeyboardNavigation;
 
       if (shouldAutoOpen) {
@@ -191,7 +191,8 @@ export function UserTable({
   }
 
   const currentPage = (users?.currentPageOffset ?? 0) + 1;
-  const isSmallScreen = typeof window !== "undefined" && !window.matchMedia(MEDIA_QUERIES.md).matches;
+  // Use single selection on touch devices regardless of screen size
+  const isSmallScreen = isTouchDevice() || !window.matchMedia(MEDIA_QUERIES.md).matches;
 
   return (
     <>

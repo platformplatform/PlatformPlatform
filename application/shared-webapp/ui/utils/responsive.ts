@@ -24,3 +24,8 @@ export const SIDE_MENU_COLLAPSED_WIDTH = 72;
 export const SIDE_MENU_MIN_WIDTH = 150;
 export const SIDE_MENU_MAX_WIDTH = 300;
 export const SIDE_MENU_DEFAULT_WIDTH = 288;
+
+// Helper function to detect touch devices (including iPads)
+export function isTouchDevice(): boolean {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+}
