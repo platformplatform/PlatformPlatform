@@ -471,34 +471,6 @@ const _getUserPreference = (): boolean => {
   return localStorage.getItem("side-menu-collapsed") === "true";
 };
 
-// Helper function to check if drag movement has started
-const _checkDragStarted = (
-  e: MouseEvent,
-  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>,
-  hasDraggedRef: React.MutableRefObject<boolean>
-): void => {
-  if (dragStartPos.current && !hasDraggedRef.current) {
-    const distance = Math.abs(e.clientX - dragStartPos.current.x) + Math.abs(e.clientY - dragStartPos.current.y);
-    if (distance > 5) {
-      hasDraggedRef.current = true;
-    }
-  }
-};
-
-// Helper function to handle resize actions
-const _handleResizeAction = (
-  mouseX: number,
-  isCollapsed: boolean,
-  hasTriggeredCollapse: boolean,
-  setMenuWidth: (width: number) => void
-): void => {
-  if (!isCollapsed && !hasTriggeredCollapse) {
-    const newWidth = Math.min(Math.max(mouseX, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
-    setMenuWidth(newWidth);
-    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: newWidth } }));
-  }
-};
-
 // Helper function to dispatch menu toggle event
 const _dispatchMenuToggleEvent = (overlayMode: boolean, isExpanded: boolean): void => {
   if (overlayMode) {
@@ -507,6 +479,214 @@ const _dispatchMenuToggleEvent = (overlayMode: boolean, isExpanded: boolean): vo
     window.dispatchEvent(new CustomEvent("side-menu-toggle", { detail: { isCollapsed: !isExpanded } }));
   }
 };
+
+// Custom hook for overlay behavior
+function useOverlayHandlers({
+  overlayMode,
+  isOverlayOpen,
+  closeOverlay,
+  sideMenuRef
+}: {
+  overlayMode: boolean;
+  isOverlayOpen: boolean;
+  closeOverlay: () => void;
+  sideMenuRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  // Handle click outside for overlay
+  useEffect(() => {
+    if (!overlayMode || !isOverlayOpen) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sideMenuRef.current && !sideMenuRef.current.contains(event.target as Node)) {
+        closeOverlay();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeOverlay();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [overlayMode, isOverlayOpen, closeOverlay, sideMenuRef]);
+
+  // Close mobile menu on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const isNowMedium = window.matchMedia(MEDIA_QUERIES.sm).matches;
+      if (isNowMedium && isOverlayOpen) {
+        closeOverlay();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isOverlayOpen, closeOverlay]);
+
+  // Focus trap for overlay
+  useEffect(() => {
+    if (!isOverlayOpen || !overlayMode) {
+      return;
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      _handleFocusTrap(e, sideMenuRef);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOverlayOpen, overlayMode, sideMenuRef]);
+}
+
+// Helper to handle resize movement
+function createResizeHandler(params: {
+  isCollapsed: boolean;
+  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.MutableRefObject<boolean>;
+  initialMenuWidth: React.MutableRefObject<number>;
+  toggleMenu: () => void;
+  setIsResizing: (value: boolean) => void;
+  setMenuWidth: (value: number) => void;
+}) {
+  let hasTriggeredCollapse = false;
+
+  const checkDragStarted = (clientX: number, clientY: number) => {
+    if (!params.dragStartPos.current) {
+      return false;
+    }
+    const distance =
+      Math.abs(clientX - params.dragStartPos.current.x) + Math.abs(clientY - params.dragStartPos.current.y);
+    return distance > 5;
+  };
+
+  const handleResize = (newWidth: number) => {
+    const clampedWidth = Math.min(Math.max(newWidth, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
+    params.setMenuWidth(clampedWidth);
+    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: clampedWidth } }));
+  };
+
+  const handleToggle = () => {
+    if (!params.isCollapsed) {
+      hasTriggeredCollapse = true;
+    }
+    params.toggleMenu();
+    params.setIsResizing(false);
+    document.body.style.cursor = "";
+  };
+
+  return (e: MouseEvent | TouchEvent) => {
+    const { x: clientX, y: clientY } = _getClientCoordinates(e);
+
+    // Check if drag has started
+    if (!params.hasDraggedRef.current) {
+      params.hasDraggedRef.current = checkDragStarted(clientX, clientY);
+    }
+
+    if (!params.hasDraggedRef.current || !params.dragStartPos.current) {
+      return;
+    }
+
+    const deltaX = clientX - params.dragStartPos.current.x;
+    const newWidth = params.initialMenuWidth.current + deltaX;
+
+    // Handle edge cases
+    const shouldToggle = params.isCollapsed ? newWidth > 100 : newWidth < 20 && !hasTriggeredCollapse;
+
+    if (shouldToggle) {
+      handleToggle();
+      return;
+    }
+
+    // Normal resize
+    if (!params.isCollapsed && !hasTriggeredCollapse) {
+      handleResize(newWidth);
+    }
+  };
+}
+
+// Custom hook for resize handling
+function useResizeHandler({
+  isResizing,
+  setIsResizing,
+  menuWidth,
+  setMenuWidth,
+  isCollapsed,
+  toggleMenu,
+  dragStartPos,
+  hasDraggedRef,
+  initialMenuWidth
+}: {
+  isResizing: boolean;
+  setIsResizing: (value: boolean) => void;
+  menuWidth: number;
+  setMenuWidth: (value: number) => void;
+  isCollapsed: boolean;
+  toggleMenu: () => void;
+  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.MutableRefObject<boolean>;
+  initialMenuWidth: React.MutableRefObject<number>;
+}) {
+  useEffect(() => {
+    if (!isResizing) {
+      return;
+    }
+
+    document.body.style.cursor = "col-resize";
+
+    const handleMove = createResizeHandler({
+      isCollapsed,
+      dragStartPos,
+      hasDraggedRef,
+      initialMenuWidth,
+      toggleMenu,
+      setIsResizing,
+      setMenuWidth
+    });
+
+    const handleEnd = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "";
+      if (!isCollapsed) {
+        localStorage.setItem("side-menu-size", menuWidth.toString());
+      }
+      dragStartPos.current = null;
+    };
+
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleMove);
+    document.addEventListener("touchend", handleEnd);
+    document.addEventListener("touchcancel", handleEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleMove);
+      document.removeEventListener("touchend", handleEnd);
+      document.removeEventListener("touchcancel", handleEnd);
+      document.body.style.cursor = "";
+    };
+  }, [
+    isResizing,
+    menuWidth,
+    isCollapsed,
+    toggleMenu,
+    dragStartPos,
+    hasDraggedRef,
+    initialMenuWidth,
+    setMenuWidth,
+    setIsResizing
+  ]);
+}
 
 // Helper function to save menu preference
 const _saveMenuPreference = (isCollapsed: boolean): void => {
@@ -540,6 +720,16 @@ const _handleArrowKeyResize = (
   setMenuWidth(newWidth);
   localStorage.setItem("side-menu-size", newWidth.toString());
   window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: newWidth } }));
+};
+
+// Helper function to get client coordinates from mouse or touch event
+const _getClientCoordinates = (
+  e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent
+): { x: number; y: number } => {
+  if ("touches" in e) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  return { x: e.clientX, y: e.clientY };
 };
 
 // Backdrop component for overlay mode
@@ -596,73 +786,210 @@ const ResizableToggleButton = ({
   actualIsCollapsed
 }: {
   toggleButtonRef: React.RefObject<HTMLButtonElement>;
-  handleResizeStart: (e: React.MouseEvent) => void;
+  handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   hasDraggedRef: React.MutableRefObject<boolean>;
   toggleMenu: () => void;
   menuWidth: number;
   setMenuWidth: (width: number) => void;
   ariaLabel: string;
   actualIsCollapsed: boolean;
-}) => (
-  <button
-    ref={toggleButtonRef}
-    type="button"
-    className="toggle-button flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
-    onMouseDown={handleResizeStart}
-    onClick={() => {
-      if (!hasDraggedRef.current) {
-        toggleMenu();
-      }
-    }}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
+}) => {
+  const handleClick = () => {
+    if (!hasDraggedRef.current) {
+      toggleMenu();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ": {
         e.preventDefault();
         toggleMenu();
-      } else if (e.key === "ArrowLeft") {
-        _handleArrowKeyResize(e, "left", menuWidth, setMenuWidth);
-      } else if (e.key === "ArrowRight") {
-        _handleArrowKeyResize(e, "right", menuWidth, setMenuWidth);
+        break;
       }
-    }}
-    aria-label={ariaLabel}
-  >
-    <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
-  </button>
+      case "ArrowLeft":
+        _handleArrowKeyResize(e, "left", menuWidth, setMenuWidth);
+        break;
+      case "ArrowRight":
+        _handleArrowKeyResize(e, "right", menuWidth, setMenuWidth);
+        break;
+      default:
+        break;
+    }
+  };
+
+  return (
+    <button
+      ref={toggleButtonRef}
+      type="button"
+      className="toggle-button flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+      onMouseDown={handleResizeStart}
+      onTouchStart={handleResizeStart}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      aria-label={ariaLabel}
+    >
+      <ToggleButtonContent isCollapsed={actualIsCollapsed} />
+    </button>
+  );
+};
+
+// Helper to create toggle button content
+const ToggleButtonContent = ({ isCollapsed }: { isCollapsed: boolean }) => (
+  <ChevronsLeftIcon className={chevronStyles({ isCollapsed })} />
 );
 
-export function SideMenu({
-  children,
+// Menu navigation component
+const MenuNav = ({
+  sideMenuRef,
+  actualIsCollapsed,
+  overlayMode,
+  isOverlayOpen,
+  isHidden,
+  className,
+  isResizing,
+  canResize,
+  menuWidth,
+  shouldShowResizeHandle,
+  handleResizeStart,
+  tenantName,
+  toggleButtonRef,
+  toggleMenu,
+  hasDraggedRef,
+  setMenuWidth,
   sidebarToggleAriaLabel,
-  mobileMenuAriaLabel,
-  topMenuContent,
-  tenantName
-}: Readonly<SideMenuProps>) {
-  const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
-  const sideMenuRef = useRef<HTMLDivElement>(null);
-  const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
+  forceCollapsed,
+  children
+}: {
+  sideMenuRef: React.RefObject<HTMLDivElement | null>;
+  actualIsCollapsed: boolean;
+  overlayMode: boolean;
+  isOverlayOpen: boolean;
+  isHidden: boolean;
+  className: string;
+  isResizing: boolean;
+  canResize: boolean;
+  menuWidth: number;
+  shouldShowResizeHandle: boolean;
+  handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
+  tenantName?: string;
+  toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
+  toggleMenu: () => void;
+  hasDraggedRef: React.RefObject<boolean>;
+  setMenuWidth: (width: number) => void;
+  sidebarToggleAriaLabel?: string;
+  forceCollapsed: boolean;
+  children: React.ReactNode;
+}) => (
+  <nav
+    ref={sideMenuRef}
+    className={`${sideMenuStyles({
+      isCollapsed: actualIsCollapsed,
+      overlayMode,
+      isOverlayOpen,
+      isHidden: isHidden && !overlayMode,
+      className
+    })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
+    style={canResize ? { width: `${menuWidth}px`, transition: isResizing ? "none" : undefined } : undefined}
+    aria-label="Main navigation"
+  >
+    {/* Vertical divider line - draggable on XL screens */}
+    <div
+      className={`absolute top-0 right-0 h-full border-border border-r ${
+        shouldShowResizeHandle ? "w-2 cursor-col-resize" : ""
+      }`}
+      onMouseDown={shouldShowResizeHandle ? handleResizeStart : undefined}
+      onTouchStart={shouldShowResizeHandle ? handleResizeStart : undefined}
+    />
+
+    {/* Fixed header section with logo */}
+    <div className="relative flex h-[72px] w-full shrink-0 items-center">
+      <LogoSection actualIsCollapsed={actualIsCollapsed} tenantName={tenantName} />
+
+      {/* Toggle button centered on divider, at intersection with topbar border */}
+      <div
+        className={`-translate-y-1/2 absolute top-[72px] right-0 translate-x-1/2 ${
+          !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
+        }`}
+      >
+        {shouldShowResizeHandle ? (
+          <ResizableToggleButton
+            toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
+            handleResizeStart={handleResizeStart}
+            hasDraggedRef={hasDraggedRef}
+            toggleMenu={toggleMenu}
+            menuWidth={menuWidth}
+            setMenuWidth={setMenuWidth}
+            ariaLabel={sidebarToggleAriaLabel || ""}
+            actualIsCollapsed={actualIsCollapsed}
+          />
+        ) : (
+          <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
+            <ToggleButton
+              aria-label={sidebarToggleAriaLabel}
+              className="toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+              isSelected={actualIsCollapsed}
+              onPress={toggleMenu}
+            >
+              <ToggleButtonContent isCollapsed={actualIsCollapsed} />
+            </ToggleButton>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Scrollable menu content */}
+    <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
+      <div className="flex flex-col gap-2 pt-1.5">{children}</div>
+    </div>
+  </nav>
+);
+
+// Custom hook to manage menu state
+function useMenuState(forceCollapsed: boolean) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
   const [menuWidth, setMenuWidth] = useState(_getInitialMenuWidth);
   const [isCollapsed, setIsCollapsed] = useState(() => _getInitialCollapsedState(forceCollapsed));
   const [userPreference, setUserPreference] = useState(_getUserPreference);
 
   // Update collapsed state when screen size changes
   useEffect(() => {
-    if (forceCollapsed) {
-      // Going to medium screen - force collapse but remember user preference
-      setIsCollapsed(true);
-    } else {
-      // Going back to large screen - restore user preference
-      setIsCollapsed(userPreference);
-    }
+    setIsCollapsed(forceCollapsed || userPreference);
   }, [forceCollapsed, userPreference]);
 
-  // The actual visual collapsed state
-  const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
+  return {
+    isOverlayOpen,
+    setIsOverlayOpen,
+    menuWidth,
+    setMenuWidth,
+    isCollapsed,
+    setIsCollapsed,
+    userPreference,
+    setUserPreference
+  };
+}
 
-  // Check if we're on XL screen (for resize functionality)
-  const isXlScreen = !overlayMode && !forceCollapsed;
-
+// Custom hook for toggle menu logic
+function useToggleMenu({
+  overlayMode,
+  isOverlayOpen,
+  setIsOverlayOpen,
+  forceCollapsed,
+  isCollapsed,
+  setIsCollapsed,
+  setUserPreference,
+  toggleButtonRef
+}: {
+  overlayMode: boolean;
+  isOverlayOpen: boolean;
+  setIsOverlayOpen: (value: boolean) => void;
+  forceCollapsed: boolean;
+  isCollapsed: boolean;
+  setIsCollapsed: (value: boolean) => void;
+  setUserPreference: (value: boolean) => void;
+  toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
+}) {
   const toggleMenu = useCallback(() => {
     if (overlayMode) {
       const newIsOpen = !isOverlayOpen;
@@ -675,217 +1002,137 @@ export function SideMenu({
       _saveMenuPreference(newCollapsed);
       _dispatchMenuToggleEvent(false, !newCollapsed);
     }
-    // Maintain focus on the toggle button after state change
     setTimeout(() => _focusToggleButton(toggleButtonRef), 0);
-  }, [overlayMode, isOverlayOpen, forceCollapsed, isCollapsed]);
+  }, [
+    overlayMode,
+    isOverlayOpen,
+    forceCollapsed,
+    isCollapsed,
+    setIsOverlayOpen,
+    setIsCollapsed,
+    setUserPreference,
+    toggleButtonRef
+  ]);
 
   const closeOverlay = useCallback(() => {
-    if (overlayMode && isOverlayOpen) {
-      setIsOverlayOpen(false);
-      _dispatchMenuToggleEvent(true, false);
-    }
-  }, [overlayMode, isOverlayOpen]);
-
-  // Handle click outside for overlay
-  useEffect(() => {
     if (!overlayMode || !isOverlayOpen) {
       return;
     }
+    setIsOverlayOpen(false);
+    _dispatchMenuToggleEvent(true, false);
+  }, [overlayMode, isOverlayOpen, setIsOverlayOpen]);
 
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sideMenuRef.current && !sideMenuRef.current.contains(event.target as Node)) {
-        closeOverlay();
-      }
-    };
+  return { toggleMenu, closeOverlay };
+}
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeOverlay();
-      }
-    };
+export function SideMenu({
+  children,
+  sidebarToggleAriaLabel,
+  mobileMenuAriaLabel,
+  topMenuContent,
+  tenantName
+}: Readonly<SideMenuProps>) {
+  const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
+  const sideMenuRef = useRef<HTMLDivElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
+  const [isResizing, setIsResizing] = useState(false);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
+  // Use the custom hook for menu state management
+  const { isOverlayOpen, setIsOverlayOpen, menuWidth, setMenuWidth, isCollapsed, setIsCollapsed, setUserPreference } =
+    useMenuState(forceCollapsed);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [overlayMode, isOverlayOpen, closeOverlay]);
+  // Compute derived states
+  const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
+  const shouldShowResizeHandle = !overlayMode && !forceCollapsed;
+  const canResize = shouldShowResizeHandle && !isCollapsed;
 
-  // Close mobile menu on resize
-  useEffect(() => {
-    const handleResize = () => {
-      const isNowMedium = window.matchMedia(MEDIA_QUERIES.sm).matches;
-      if (isNowMedium && isOverlayOpen) {
-        closeOverlay();
-      }
-    };
+  // Use the toggle menu hook
+  const { toggleMenu, closeOverlay } = useToggleMenu({
+    overlayMode,
+    isOverlayOpen,
+    setIsOverlayOpen,
+    forceCollapsed,
+    isCollapsed,
+    setIsCollapsed,
+    setUserPreference,
+    toggleButtonRef
+  });
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isOverlayOpen, closeOverlay]);
-
-  // Focus trap for overlay
-  useEffect(() => {
-    if (!isOverlayOpen || !overlayMode) {
-      return;
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      _handleFocusTrap(e, sideMenuRef);
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOverlayOpen, overlayMode]);
+  // Use custom hooks for overlay behavior
+  useOverlayHandlers({
+    overlayMode,
+    isOverlayOpen,
+    closeOverlay,
+    sideMenuRef
+  });
 
   // Track mouse movement to detect dragging
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const hasDraggedRef = useRef(false);
+  const initialMenuWidth = useRef<number>(0);
 
-  // Handle resize drag
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    dragStartPos.current = { x: e.clientX, y: e.clientY };
-    hasDraggedRef.current = false;
-  }, []);
+  // Handle resize drag for both mouse and touch
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsResizing(true);
 
-  useEffect(() => {
-    if (!isResizing) {
-      return;
-    }
+      // Handle both mouse and touch events
+      const coords = _getClientCoordinates(e);
+      dragStartPos.current = coords;
+      hasDraggedRef.current = false;
+      initialMenuWidth.current = menuWidth;
+    },
+    [menuWidth]
+  );
 
-    // Add global cursor style
-    document.body.style.cursor = "col-resize";
+  // Extract resize handling into a custom hook to reduce complexity
+  useResizeHandler({
+    isResizing,
+    setIsResizing,
+    menuWidth,
+    setMenuWidth,
+    isCollapsed,
+    toggleMenu,
+    dragStartPos,
+    hasDraggedRef,
+    initialMenuWidth
+  });
 
-    let hasTriggeredCollapse = false;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const mouseX = e.clientX - 8;
-
-      // Check if mouse has moved more than 5px from start (indicates dragging)
-      _checkDragStarted(e, dragStartPos, hasDraggedRef);
-
-      // If dragging from collapsed state and mouse is past collapsed width, expand
-      if (isCollapsed && mouseX > 100) {
-        toggleMenu();
-        setIsResizing(false);
-        document.body.style.cursor = "";
-        return;
-      }
-
-      // If dragging to edge from expanded state, collapse
-      if (!isCollapsed && mouseX < 20 && !hasTriggeredCollapse) {
-        hasTriggeredCollapse = true;
-        toggleMenu();
-        setIsResizing(false);
-        document.body.style.cursor = "";
-        return;
-      }
-
-      // Normal resize when expanded
-      _handleResizeAction(mouseX, isCollapsed, hasTriggeredCollapse, setMenuWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = "";
-      // Only save if we didn't trigger collapse
-      if (!hasTriggeredCollapse && !isCollapsed) {
-        localStorage.setItem("side-menu-size", menuWidth.toString());
-      }
-      dragStartPos.current = null;
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-    };
-  }, [isResizing, menuWidth, isCollapsed, toggleMenu]);
+  const menuContent = (
+    <collapsedContext.Provider value={actualIsCollapsed}>
+      <overlayContext.Provider value={{ isOpen: isOverlayOpen, close: closeOverlay }}>
+        <MenuNav
+          sideMenuRef={sideMenuRef}
+          actualIsCollapsed={actualIsCollapsed}
+          overlayMode={overlayMode}
+          isOverlayOpen={isOverlayOpen}
+          isHidden={isHidden}
+          className={className}
+          isResizing={isResizing}
+          canResize={canResize}
+          menuWidth={menuWidth}
+          shouldShowResizeHandle={shouldShowResizeHandle}
+          handleResizeStart={handleResizeStart}
+          tenantName={tenantName}
+          toggleButtonRef={toggleButtonRef}
+          toggleMenu={toggleMenu}
+          hasDraggedRef={hasDraggedRef}
+          setMenuWidth={setMenuWidth}
+          sidebarToggleAriaLabel={sidebarToggleAriaLabel}
+          forceCollapsed={forceCollapsed}
+        >
+          {children}
+        </MenuNav>
+      </overlayContext.Provider>
+    </collapsedContext.Provider>
+  );
 
   return (
     <>
-      {/* Backdrop for overlay mode */}
       {overlayMode && isOverlayOpen && <OverlayBackdrop closeOverlay={closeOverlay} />}
-
-      <collapsedContext.Provider value={actualIsCollapsed}>
-        <overlayContext.Provider value={{ isOpen: isOverlayOpen, close: closeOverlay }}>
-          <nav
-            ref={sideMenuRef}
-            className={`${sideMenuStyles({
-              isCollapsed: actualIsCollapsed,
-              overlayMode,
-              isOverlayOpen,
-              isHidden: isHidden && !overlayMode,
-              className
-            })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
-            style={{
-              width: isXlScreen && !isCollapsed ? `${menuWidth}px` : undefined,
-              transition: isResizing ? "none" : undefined
-            }}
-            aria-label="Main navigation"
-          >
-            {/* Vertical divider line - draggable on XL screens */}
-            <div
-              className={`absolute top-0 right-0 h-full border-border border-r ${
-                isXlScreen ? "w-2 cursor-col-resize" : ""
-              }`}
-              onMouseDown={isXlScreen ? handleResizeStart : undefined}
-            />
-
-            {/* Fixed header section with logo */}
-            <div className="relative flex h-[72px] w-full shrink-0 items-center">
-              <LogoSection actualIsCollapsed={actualIsCollapsed} tenantName={tenantName} />
-
-              {/* Toggle button centered on divider, at intersection with topbar border */}
-              <div
-                className={`-translate-y-1/2 absolute top-[72px] right-0 translate-x-1/2 ${
-                  !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
-                }`}
-              >
-                {isXlScreen ? (
-                  <ResizableToggleButton
-                    toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
-                    handleResizeStart={handleResizeStart}
-                    hasDraggedRef={hasDraggedRef}
-                    toggleMenu={toggleMenu}
-                    menuWidth={menuWidth}
-                    setMenuWidth={setMenuWidth}
-                    ariaLabel={sidebarToggleAriaLabel}
-                    actualIsCollapsed={actualIsCollapsed}
-                  />
-                ) : (
-                  <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
-                    <ToggleButton
-                      aria-label={sidebarToggleAriaLabel}
-                      className={
-                        "toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
-                      }
-                      isSelected={actualIsCollapsed}
-                      onPress={toggleMenu}
-                    >
-                      <ChevronsLeftIcon className={chevronStyles({ isCollapsed: actualIsCollapsed })} />
-                    </ToggleButton>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Scrollable menu content */}
-            <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
-              <div className="flex flex-col gap-2 pt-1.5">{children}</div>
-            </div>
-          </nav>
-        </overlayContext.Provider>
-      </collapsedContext.Provider>
-
+      {menuContent}
       {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
         <MobileMenu ariaLabel={mobileMenuAriaLabel} topMenuContent={topMenuContent} />
