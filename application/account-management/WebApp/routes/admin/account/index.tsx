@@ -58,14 +58,9 @@ export function AccountSettings() {
             </Breadcrumb>
           </TopMenu>
         }
+        title={t`Account settings`}
+        subtitle={t`Manage your account here.`}
       >
-        <h1>
-          <Trans>Account settings</Trans>
-        </h1>
-        <p>
-          <Trans>Manage your account here.</Trans>
-        </p>
-
         <Form
           onSubmit={isOwner ? mutationSubmitter(updateCurrentTenantMutation) : undefined}
           validationErrors={isOwner ? updateCurrentTenantMutation.error?.errors : undefined}

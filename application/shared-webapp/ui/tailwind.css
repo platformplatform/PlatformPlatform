@@ -206,4 +206,20 @@ body {
   [role="button"] {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Override table height for scroll-away header on mobile */
+  .scroll-away-header ~ * [aria-hidden="true"].relative.h-full.w-full {
+    height: auto !important;
+  }
+
+  .scroll-away-header ~ * [aria-hidden="true"] .absolute.top-0.right-0.bottom-0.left-0 {
+    position: relative !important;
+    inset: auto !important;
+    height: auto !important;
+  }
+
+  .scroll-away-header ~ * [aria-hidden="true"] .relative.h-full.w-full.scroll-pt-\[2\.281rem\].overflow-auto {
+    height: auto !important;
+    overflow: visible !important;
+  }
 }

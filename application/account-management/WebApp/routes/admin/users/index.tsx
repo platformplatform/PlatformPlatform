@@ -1,6 +1,7 @@
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
@@ -140,18 +141,14 @@ export default function UsersPage() {
             </Breadcrumb>
           </TopMenu>
         }
+        title={t`Users`}
+        subtitle={t`Manage your users and permissions here.`}
+        scrollAwayHeader={true}
       >
-        <div className="flex h-full min-h-[500px] flex-col">
-          <h1>
-            <Trans>Users</Trans>
-          </h1>
-          <p>
-            <Trans>Manage your users and permissions here.</Trans>
-          </p>
-
-          <div className="mb-4">
-            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-          </div>
+        <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
+          <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col">
           <UserTable
             selectedUsers={selectedUsers}
             onSelectedUsersChange={setSelectedUsers}
