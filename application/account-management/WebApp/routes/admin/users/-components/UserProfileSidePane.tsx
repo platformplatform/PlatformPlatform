@@ -161,10 +161,6 @@ function useSidePaneAccessibility(
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && isOpen) {
         event.preventDefault();
-        const _isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-
-        // Don't restore focus - let the parent handle it
-
         onClose();
       }
     };
@@ -273,8 +269,8 @@ export function UserProfileSidePane({
           </Heading>
         </div>
 
-        {/* Notice when user is not in current filtered view */}
-        {!isUserInCurrentView && (
+        {/* Notice when user is not in current filtered view - only show on desktop with pagination */}
+        {!isUserInCurrentView && !isSmallScreen && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <InfoIcon className="h-4 w-4 flex-shrink-0" />

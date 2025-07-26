@@ -15,9 +15,10 @@ import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
+import { useInfiniteUsers } from "../-hooks/useInfiniteUsers";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
@@ -49,8 +50,10 @@ export function UserTable({
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
   const [isKeyboardNavigation, setIsKeyboardNavigation] = useState(false);
+  const [isMobile, setIsMobile] = useState(!window.matchMedia(MEDIA_QUERIES.sm).matches);
 
-  const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
+  // Use regular query for desktop
+  const { data: desktopUsers, isLoading: isDesktopLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
       query: {
         Search: search,
@@ -62,8 +65,31 @@ export function UserTable({
         SortOrder: sortOrder,
         PageOffset: pageOffset
       }
-    }
+    },
+    enabled: !isMobile
   });
+
+  // Use infinite scroll for mobile
+  const {
+    users: mobileUsers,
+    isLoading: isMobileLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore
+  } = useInfiniteUsers({
+    search,
+    userRole,
+    userStatus,
+    startDate,
+    endDate,
+    orderBy,
+    sortOrder,
+    enabled: isMobile
+  });
+
+  // Select data based on device
+  const users = isMobile ? { users: mobileUsers, totalPages: 1, currentPageOffset: 0 } : desktopUsers;
+  const isLoading = isMobile ? isMobileLoading : isDesktopLoading;
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -194,11 +220,32 @@ export function UserTable({
     const handleResize = () => {
       setIsMinSm(window.matchMedia(MEDIA_QUERIES.sm).matches);
       setIsMinMd(window.matchMedia(MEDIA_QUERIES.md).matches);
+      setIsMobile(!window.matchMedia(MEDIA_QUERIES.sm).matches);
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // IntersectionObserver for infinite scroll on mobile
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isMobile || !loadMoreRef.current) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [isMobile, hasMore, isLoadingMore, loadMore]);
 
   if (isLoading) {
     return null;
@@ -219,6 +266,7 @@ export function UserTable({
         sortDescriptor={sortDescriptor}
         onSortChange={handleSortChange}
         aria-label={t`Users`}
+        className={isMobile ? "[&>div]:h-[calc(100vh-14rem)]" : ""}
       >
         <TableHeader>
           <Column
@@ -349,15 +397,12 @@ export function UserTable({
         </TableBody>
       </Table>
 
-      {users && (
-        <div className="bg-background pt-4 max-sm:sticky max-sm:bottom-0 max-sm:border-border max-sm:border-t">
-          <Pagination
-            paginationSize={5}
-            currentPage={currentPage}
-            totalPages={users.totalPages ?? 1}
-            onPageChange={handlePageChange}
-            className="w-full pr-20 sm:hidden"
-          />
+      {/* Mobile: Loading indicator for infinite scroll */}
+      {isMobile && <div ref={loadMoreRef} className="h-1" />}
+
+      {/* Desktop: Regular pagination */}
+      {!isMobile && users && (
+        <div className="bg-background pt-4">
           <Pagination
             paginationSize={9}
             currentPage={currentPage}
@@ -365,7 +410,7 @@ export function UserTable({
             onPageChange={handlePageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}
-            className="hidden w-full sm:flex"
+            className="w-full"
           />
         </div>
       )}
