@@ -213,7 +213,7 @@ export function UserTable({
 
   return (
     <>
-      <div className={isMobile ? "" : "min-h-0 flex-1"}>
+      <div className={isMobile ? "flex-1" : "min-h-0 flex-1"}>
         <Table
           key={pageOffset}
           selectionMode={isTouchDevice() || !isMediumViewportOrLarger() ? "single" : "multiple"}
@@ -223,7 +223,7 @@ export function UserTable({
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
           aria-label={t`Users`}
-          className={isMobile ? "[&>div]:h-[calc(100vh-14rem)]" : ""}
+          className={isMobile ? "[&>div>div>div]:-webkit-overflow-scrolling-touch" : ""}
         >
           <TableHeader>
             <Column

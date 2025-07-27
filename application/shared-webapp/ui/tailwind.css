@@ -160,7 +160,6 @@ html {
   right: 0;
   bottom: 0;
   overflow: hidden;
-  overscroll-behavior: none;
 }
 
 body {
@@ -174,7 +173,6 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
 
