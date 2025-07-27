@@ -426,9 +426,6 @@ msgstr "Bruger ikke i nuværende visning"
 msgid "User profile"
 msgstr "Brugerprofil"
 
-msgid "User profile details"
-msgstr "Brugerprofiloplysninger"
-
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
 

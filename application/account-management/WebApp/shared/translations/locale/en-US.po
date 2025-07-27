@@ -426,9 +426,6 @@ msgstr "User not in current view"
 msgid "User profile"
 msgstr "User profile"
 
-msgid "User profile details"
-msgstr "User profile details"
-
 msgid "User profile menu"
 msgstr "User profile menu"
 

@@ -249,10 +249,10 @@ export function UserProfileSidePane({
       {isSmallScreen && <div className="fixed inset-0 z-[59] bg-black/50" aria-hidden="true" />}
 
       {/* Side pane */}
-      <aside
+      <div
         ref={sidePaneRef}
         className="relative z-[60] flex h-full w-full flex-col border-border border-l bg-background"
-        aria-label={t`User profile details`}
+        aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
         <XIcon
@@ -334,7 +334,7 @@ export function UserProfileSidePane({
             </Button>
           </div>
         )}
-      </aside>
+      </div>
 
       {/* Change User Role Dialog */}
       {user && (

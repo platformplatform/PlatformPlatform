@@ -426,9 +426,6 @@ msgstr "Gebruiker niet in huidige weergave"
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
-msgid "User profile details"
-msgstr "Details van gebruikersprofiel"
-
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"
 
