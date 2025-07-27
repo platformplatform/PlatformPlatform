@@ -191,11 +191,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     }
   };
 
-  const handlePress = () => {
-    if (isDisabled) {
-      return;
-    }
-
+  const navigateWithDelay = useCallback(() => {
     // Auto-close overlay after navigation
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
@@ -222,6 +218,15 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     else if (forceReload) {
       window.location.href = to;
     }
+  }, [overlayCtx, federatedNavigation, forceReload, router, to]);
+
+  const handlePress = () => {
+    if (isDisabled) {
+      return;
+    }
+
+    // Small delay to ensure touch events are fully processed
+    setTimeout(navigateWithDelay, 10);
   };
 
   // For collapsed menu, wrap in TooltipTrigger
@@ -335,20 +340,23 @@ export function FederatedMenuButton({
                 return;
               }
 
-              // Auto-close overlay after navigation
-              if (overlayCtx?.isOpen) {
-                overlayCtx.close();
-              }
+              // Small delay to ensure touch events are fully processed
+              setTimeout(() => {
+                // Auto-close overlay after navigation
+                if (overlayCtx?.isOpen) {
+                  overlayCtx.close();
+                }
 
-              if (isCurrentSystem) {
-                // Same system - use programmatic navigation
-                window.history.pushState({}, "", to);
-                // Dispatch a popstate event using the standard Event constructor
-                window.dispatchEvent(new Event("popstate"));
-              } else {
-                // Different system - force reload
-                window.location.href = to;
-              }
+                if (isCurrentSystem) {
+                  // Same system - use programmatic navigation
+                  window.history.pushState({}, "", to);
+                  // Dispatch a popstate event using the standard Event constructor
+                  window.dispatchEvent(new Event("popstate"));
+                } else {
+                  // Different system - force reload
+                  window.location.href = to;
+                }
+              }, 10);
             }}
           >
             <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
@@ -377,20 +385,23 @@ export function FederatedMenuButton({
             return;
           }
 
-          // Auto-close overlay after navigation
-          if (overlayCtx?.isOpen) {
-            overlayCtx.close();
-          }
+          // Small delay to ensure touch events are fully processed
+          setTimeout(() => {
+            // Auto-close overlay after navigation
+            if (overlayCtx?.isOpen) {
+              overlayCtx.close();
+            }
 
-          if (isCurrentSystem) {
-            // Same system - use programmatic navigation
-            window.history.pushState({}, "", to);
-            // Dispatch a popstate event using the standard Event constructor
-            window.dispatchEvent(new Event("popstate"));
-          } else {
-            // Different system - force reload
-            window.location.href = to;
-          }
+            if (isCurrentSystem) {
+              // Same system - use programmatic navigation
+              window.history.pushState({}, "", to);
+              // Dispatch a popstate event using the standard Event constructor
+              window.dispatchEvent(new Event("popstate"));
+            } else {
+              // Different system - force reload
+              window.location.href = to;
+            }
+          }, 10);
         }}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
@@ -1242,6 +1253,15 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setIsOpen(false);
+              }
+            }}
           >
             <nav
               className="flex h-full w-full flex-col bg-background"
@@ -1256,8 +1276,10 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   paddingLeft: "12px",
                   paddingRight: "12px",
                   pointerEvents: "auto",
-                  WebkitOverflowScrolling: "touch"
+                  WebkitOverflowScrolling: "touch",
+                  touchAction: "pan-y"
                 }}
+                onTouchStart={(e) => e.stopPropagation()}
               >
                 {topMenuContent && <div className="pt-5">{topMenuContent}</div>}
               </div>
