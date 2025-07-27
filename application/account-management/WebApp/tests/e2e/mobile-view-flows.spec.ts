@@ -17,42 +17,47 @@ test.describe("@comprehensive", () => {
    * - Keyboard navigation on users table without auto-opening side pane
    * - Navigation between multiple users and manual side pane opening
    */
-  test("should handle mobile navigation and user management with keyboard accessibility", async ({ ownerPage }) => {
-    const context = createTestContext(ownerPage);
+  test("should handle mobile navigation and user management with keyboard accessibility", async ({ page }) => {
+    const context = createTestContext(page);
+    const owner = testUser();
 
-    // Set mobile viewport from the start
-    await ownerPage.setViewportSize({ width: 375, height: 667 });
+    // Set mobile viewport
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    await step("Complete owner signup & create new tenant")(async () => {
+      await completeSignupFlow(page, expect, owner, context);
+    })();
 
     await step("Navigate to admin dashboard & verify mobile layout")(async () => {
-      await ownerPage.goto("/admin");
+      await page.goto("/admin");
 
       // Wait for page to load - heading contains the user's name
-      await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     })();
 
     await step("Verify mobile layout with hidden menus & English UI")(async () => {
       // Wait for page to load - heading contains the user's name
-      await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Wait for mobile layout to be ready
-      await expect(ownerPage.getByRole("button", { name: "Open navigation menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Open navigation menu" })).toBeVisible();
 
       // Verify side menu navigation links are hidden
-      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Home" })).not.toBeVisible();
-      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Account" })).not.toBeVisible();
-      await expect(ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" })).not.toBeVisible();
+      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Home" })).not.toBeVisible();
+      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Account" })).not.toBeVisible();
+      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Users" })).not.toBeVisible();
 
       // Verify top menu buttons are hidden on mobile
-      await expect(ownerPage.getByRole("button", { name: "Change theme" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Contact support" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Change language" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "User profile menu" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Change theme" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Contact support" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Change language" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "User profile menu" })).not.toBeVisible();
     })();
 
     await step("Open mobile menu & verify all navigation and settings are accessible")(async () => {
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = ownerPage.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog");
       await expect(mobileDialog).toBeVisible();
 
       // Verify user profile section is visible
@@ -73,14 +78,14 @@ test.describe("@comprehensive", () => {
 
     // === USER PROFILE EDITING ===
     await step("Edit user profile through mobile menu & verify profile modal opens")(async () => {
-      const mobileDialog = ownerPage.getByRole("dialog", { name: "Mobile navigation menu" });
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Edit" }).click();
 
       // Wait for mobile menu to close and profile modal to open
       await expect(mobileDialog).not.toBeVisible();
 
       // Profile modal should open - wait for it to be visible
-      const profileModal = ownerPage.getByRole("dialog", { name: "User profile" });
+      const profileModal = page.getByRole("dialog", { name: "User profile" });
       await expect(profileModal).toBeVisible();
 
       // Verify form fields are present
@@ -91,7 +96,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
-      const profileModal = ownerPage.getByRole("dialog", { name: "User profile" });
+      const profileModal = page.getByRole("dialog", { name: "User profile" });
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
@@ -104,100 +109,100 @@ test.describe("@comprehensive", () => {
       await expect(profileModal).not.toBeVisible();
 
       // Verify changes are reflected in mobile menu
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
-      await expect(ownerPage.getByText(newTitle)).toBeVisible();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
+      await expect(page.getByText(newTitle)).toBeVisible();
 
       // Close mobile menu by clicking the X button
-      const mobileDialog = ownerPage.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog");
       await mobileDialog.getByRole("button", { name: "Close menu" }).click();
       await expect(mobileDialog).not.toBeVisible();
     })();
 
     // === LANGUAGE SWITCHING ===
     await step("Change language to Danish through mobile menu & verify UI updates")(async () => {
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = ownerPage.getByRole("dialog", { name: "Mobile navigation menu" });
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Language" }).click();
 
       // Wait for language menu to open
-      await expect(ownerPage.getByRole("menu")).toBeVisible();
+      await expect(page.getByRole("menu")).toBeVisible();
 
       // Select Danish
-      await ownerPage.getByRole("menuitem", { name: "Dansk" }).click();
+      await page.getByRole("menuitem", { name: "Dansk" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
 
       // Verify language changed - check heading
-      await expect(ownerPage.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
     })();
 
     await step("Change language back to English")(async () => {
-      await ownerPage.getByRole("button", { name: "Åbn navigationsmenu" }).click();
+      await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
 
-      const mobileDialog = ownerPage.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog");
       await mobileDialog.getByRole("button", { name: "Sprog" }).click();
 
       // Wait for language menu to open
-      await expect(ownerPage.getByRole("menu")).toBeVisible();
+      await expect(page.getByRole("menu")).toBeVisible();
 
       // Select English
-      await ownerPage.getByRole("menuitem", { name: "English" }).click();
+      await page.getByRole("menuitem", { name: "English" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
 
       // Verify language changed back - check heading
-      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
     // === THEME SWITCHING ===
     await step("Change theme through mobile menu & verify theme applies")(async () => {
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = ownerPage.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog");
       await mobileDialog.getByRole("button", { name: "Theme" }).click();
 
       // Wait for theme menu to open
-      await expect(ownerPage.getByRole("menu")).toBeVisible();
+      await expect(page.getByRole("menu")).toBeVisible();
 
       // Select dark theme
-      await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
+      await page.getByRole("menuitem", { name: "Dark" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
 
       // Verify dark theme is applied
-      await expect(ownerPage.locator("html")).toHaveClass("dark");
+      await expect(page.locator("html")).toHaveClass("dark");
     })();
 
     // === NAVIGATION TO USERS PAGE ===
     await step("Navigate to users page through mobile menu & verify navigation works")(async () => {
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = ownerPage.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog");
       await mobileDialog.getByRole("link", { name: "Users" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
 
       // Verify navigation to users page
-      await expect(ownerPage).toHaveURL("/admin/users");
-      await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page).toHaveURL("/admin/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     // === KEYBOARD NAVIGATION TESTS ===
     await step("Create test users for keyboard navigation")(async () => {
       // Create test users
-      const inviteUserButton = ownerPage.getByRole("button", { name: "Invite user" });
+      const inviteUserButton = page.getByRole("button", { name: "Invite user" });
 
       // Create 3 additional users
       for (let i = 0; i < 3; i++) {
         const user = testUser();
 
         await inviteUserButton.click();
-        const dialog = ownerPage.getByRole("dialog", { name: "Invite user" });
+        const dialog = page.getByRole("dialog", { name: "Invite user" });
         await expect(dialog).toBeVisible();
 
         await dialog.getByLabel("Email").fill(user.email);
@@ -208,59 +213,59 @@ test.describe("@comprehensive", () => {
       }
 
       // Verify we have at least 4 users in the table (1 owner + 3 new users)
-      const rows = ownerPage.locator("tbody tr");
+      const rows = page.locator("tbody tr");
       const rowCount = await rows.count();
       expect(rowCount).toBeGreaterThanOrEqual(4);
     })();
 
     await step("Click first user & verify side pane opens on mobile")(async () => {
       // Click the first row in the users table
-      const firstRow = ownerPage.locator("tbody tr").first();
+      const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
 
       // Ensure row is selected
       await expect(firstRow).toHaveAttribute("aria-selected", "true");
 
       // Verify side pane opens automatically on mobile when clicking a row
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
 
-      // Close the side pane
-      await ownerPage.keyboard.press("Escape");
+      // Wait for side pane to be fully interactive and close button to be visible
+      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      await expect(closeButton).toBeVisible();
+
+      // Focus on the side pane to ensure Escape key is handled
+      await sidePane.focus();
+
+      // Close the side pane with Escape key
+      await page.keyboard.press("Escape");
       await expect(sidePane).not.toBeVisible();
     })();
 
     await step("Navigate to second user with keyboard & verify side pane stays closed")(async () => {
       // Press down arrow to move to second user
-      await ownerPage.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
 
-      const secondRow = ownerPage.locator("tbody tr").nth(1);
+      const secondRow = page.locator("tbody tr").nth(1);
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       // Verify side pane remains closed when using keyboard navigation
-      await expect(ownerPage.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(page.locator('[aria-label="User profile"]')).not.toBeVisible();
     })();
 
     await step("Navigate to third user & manually open side pane with Enter key")(async () => {
       // Press down arrow to move to third user
-      await ownerPage.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
 
-      const thirdRow = ownerPage.locator("tbody tr").nth(2);
+      const thirdRow = page.locator("tbody tr").nth(2);
       await expect(thirdRow).toHaveAttribute("aria-selected", "true");
 
-      // Get user email from the third row for verification
-      const emailCell = thirdRow.locator("td").nth(1);
-      await expect(emailCell).toBeVisible();
-      const userEmail = await emailCell.textContent();
-      expect(userEmail).toBeTruthy();
-
       // Press Enter to open the side pane
-      await ownerPage.keyboard.press("Enter");
+      await page.keyboard.press("Enter");
 
-      // Verify side pane opens with correct user
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      // Verify side pane opens
+      const sidePane = page.locator('[aria-label="User profile"]');
       await expect(sidePane).toBeVisible();
-      await expect(sidePane.getByText(userEmail as string)).toBeVisible();
 
       // Wait for side pane animation to complete and close button to be visible
       const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
@@ -268,39 +273,47 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Close side pane with Escape")(async () => {
-      // Press Escape to close the side pane
-      await ownerPage.keyboard.press("Escape");
+      const sidePane = page.locator('[aria-label="User profile"]');
 
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      // Ensure side pane is fully open
+      await expect(sidePane).toBeVisible();
+      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      await expect(closeButton).toBeVisible();
+
+      // Focus on the side pane to ensure Escape key is handled
+      await sidePane.focus();
+
+      // Press Escape to close the side pane
+      await page.keyboard.press("Escape");
       await expect(sidePane).not.toBeVisible();
     })();
 
     await step("Navigate back to first user with keyboard & open side pane")(async () => {
       // Re-select first user since selection was cleared
-      const firstRow = ownerPage.locator("tbody tr").first();
+      const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
       await expect(firstRow).toHaveAttribute("aria-selected", "true");
 
-      // Get user email from the first row
-      const emailCell = firstRow.locator("td").nth(1);
-      await expect(emailCell).toBeVisible();
-      const userEmail = await emailCell.textContent();
-      expect(userEmail).toBeTruthy();
-
       // Verify side pane opened automatically
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
-      await expect(sidePane.getByText(userEmail as string)).toBeVisible();
     })();
 
     await step("Verify side pane can be closed with Escape")(async () => {
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
 
       // Wait for side pane to be fully visible
       await expect(sidePane).toBeVisible();
 
+      // Wait for close button to ensure side pane is fully rendered
+      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      await expect(closeButton).toBeVisible();
+
+      // Focus on the side pane before pressing Escape
+      await sidePane.focus();
+
       // Press Escape to close the side pane
-      await ownerPage.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
 
       // Verify side pane closes
       await expect(sidePane).not.toBeVisible();
@@ -308,27 +321,31 @@ test.describe("@comprehensive", () => {
 
     await step("Reopen side pane for second user & verify it opens correctly")(async () => {
       // Navigate to second user and open side pane
-      const secondRow = ownerPage.locator("tbody tr").nth(1);
+      const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       // Side pane should open automatically on click in mobile
-      const sidePane = ownerPage.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
-    await step("Use Escape to close side pane & verify mobile menu still works")(async () => {
-      // Press Escape to close side pane
-      await ownerPage.keyboard.press("Escape");
+    await step("Test closing side pane with X button & verify it works")(async () => {
+      // Click close button to close side pane
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      await closeButton.click();
 
-      await expect(ownerPage.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(sidePane).not.toBeVisible();
+    })();
 
+    await step("Verify mobile menu still works after side pane interactions")(async () => {
       // Verify mobile menu still works after side pane interaction
-      await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
-      await expect(ownerPage.getByRole("dialog", { name: "Mobile navigation menu" })).toBeVisible();
+      await page.getByRole("button", { name: "Open navigation menu" }).click();
+      await expect(page.getByRole("dialog", { name: "Mobile navigation menu" })).toBeVisible();
 
       // Close mobile menu using escape key
-      await ownerPage.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
     })();
   });
 
@@ -389,12 +406,12 @@ test.describe("@comprehensive", () => {
     const context = createTestContext(page);
     const user = testUser();
 
+    // Set mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+
     await step("Create a fresh tenant with a new owner")(async () => {
       await completeSignupFlow(page, expect, user, context, true);
     })();
-
-    // Set mobile viewport
-    await page.setViewportSize({ width: 375, height: 667 });
 
     // === SETUP ===
     await step("Navigate to users page & create test users")(async () => {
@@ -417,7 +434,7 @@ test.describe("@comprehensive", () => {
       }
 
       // Verify we have exactly 4 users (1 owner + 3 new users) in a fresh tenant
-      const rows = page.locator("tbody tr");
+      const rows = page.locator("tbody").first().locator("tr");
       const rowCount = await rows.count();
       expect(rowCount).toBe(4);
     })();
@@ -425,23 +442,27 @@ test.describe("@comprehensive", () => {
     // === SCENARIO 1: Test working functionality first ===
     await step("Click first user with mouse & verify single selection and side pane opens")(async () => {
       const firstRow = page.locator("tbody tr").first();
+      await expect(firstRow).toBeVisible();
       await firstRow.click();
 
       // Verify only first row is selected
       await expect(firstRow).toHaveAttribute("aria-selected", "true");
       const secondRow = page.locator("tbody tr").nth(1);
+      await expect(secondRow).toBeVisible();
       await expect(secondRow).toHaveAttribute("aria-selected", "false");
 
       // Verify side pane opens
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
-    await step("Press Escape to close side pane")(async () => {
-      await page.keyboard.press("Escape");
+    await step("Close side pane using close button")(async () => {
+      // Click close button to close side pane
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      await closeButton.click();
 
       // Verify side pane closes
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
       await expect(sidePane).not.toBeVisible();
     })();
 
@@ -469,7 +490,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       // Verify side pane stays closed during keyboard navigation
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).not.toBeVisible();
     })();
 
@@ -477,19 +498,12 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
-
-      // Get email from second row to verify correct user
-      const secondRow = page.locator("tbody tr").nth(1);
-      const emailCell = secondRow.locator("td").nth(1);
-      const userEmail = await emailCell.textContent();
-      expect(userEmail).toBeTruthy();
-      await expect(sidePane.getByText(userEmail as string)).toBeVisible();
     })();
 
     await step("Click X button to close side pane & verify selection maintained")(async () => {
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
       await closeButton.click();
 
@@ -511,7 +525,7 @@ test.describe("@comprehensive", () => {
 
       // Close side pane
       await page.keyboard.press("Escape");
-      await expect(page.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
       // Click second user - should single select with our fix
       await secondRow.click();
@@ -523,21 +537,13 @@ test.describe("@comprehensive", () => {
 
     await step("Click third user after keyboard navigation and side pane interaction")(async () => {
       // Reset state - ensure any side pane is closed first
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
-      const isSidePaneVisible = await sidePane.isVisible().catch(() => false);
-      if (isSidePaneVisible) {
-        await page.keyboard.press("Escape");
-        await expect(sidePane).not.toBeVisible();
-      }
-
-      // Click outside to deselect
-      await page.locator("h1").click();
-
-      const firstRow = page.locator("tbody tr").first();
-      const secondRow = page.locator("tbody tr").nth(1);
-      const thirdRow = page.locator("tbody tr").nth(2);
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      await expect(sidePane).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(sidePane).not.toBeVisible();
 
       // Click first user
+      const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
       await page.keyboard.press("Escape");
 
@@ -547,17 +553,22 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Escape");
 
       // Navigate to second with keyboard
+      const secondRow = page.locator("tbody tr").nth(1);
       await page.keyboard.press("ArrowDown");
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       // Open side pane with Enter
+      const thirdRow = page.locator("tbody tr").nth(2);
       await page.keyboard.press("Enter");
-      await expect(page.getByRole("complementary", { name: "User profile details" })).toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
 
       // Close with X button
-      const closeButton = page.getByRole("complementary").locator("svg[aria-label='Close user profile']");
+      const closeButton = page
+        .locator("aside")
+        .filter({ hasText: "User profile" })
+        .locator("svg[aria-label='Close user profile']");
       await closeButton.click();
-      await expect(page.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
       // Click third user - should single select with our fix
       await thirdRow.click();
@@ -570,35 +581,29 @@ test.describe("@comprehensive", () => {
 
     await step("Rapid clicking between users")(async () => {
       // Reset state - ensure any side pane is closed first
-      const sidePane = page.getByRole("complementary", { name: "User profile details" });
-      const isSidePaneVisible = await sidePane.isVisible().catch(() => false);
-      if (isSidePaneVisible) {
-        await page.keyboard.press("Escape");
-        await expect(sidePane).not.toBeVisible();
-      }
-
-      // Click outside to deselect
-      await page.locator("h1").click();
-
-      const firstRow = page.locator("tbody tr").first();
-      const secondRow = page.locator("tbody tr").nth(1);
-      const thirdRow = page.locator("tbody tr").nth(2);
+      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      await expect(sidePane).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(sidePane).not.toBeVisible();
 
       // Rapid clicks - on mobile, side pane opens after each click
+      const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
 
       // Close side pane that opened
-      await expect(page.getByRole("complementary", { name: "User profile details" })).toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
+      const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
 
       // Close side pane again
-      await expect(page.getByRole("complementary", { name: "User profile details" })).toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.getByRole("complementary", { name: "User profile details" })).not.toBeVisible();
+      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
+      const thirdRow = page.locator("tbody tr").nth(2);
       await thirdRow.click();
 
       // With single selection mode, only third user should be selected

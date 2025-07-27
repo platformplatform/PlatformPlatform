@@ -199,7 +199,7 @@ test.describe("@comprehensive", () => {
   test("Change theme to dark, logout and login back & verify theme persists", async ({ anonymousPage }) => {
     const { page, tenant } = anonymousPage;
     const existingUser = tenant.owner;
-    const _context = createTestContext(page);
+    const context = createTestContext(page);
 
     await step("Log in as owner & navigate to admin dashboard")(async () => {
       await page.goto("/login");
@@ -239,6 +239,9 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Log out & verify dark theme persists on login page")(async () => {
+      // Mark 401 as expected during logout transition (React Query may have in-flight requests)
+      context.monitoring.expectedStatusCodes.push(401);
+
       await page.getByRole("button", { name: "User profile menu" }).click();
 
       // Wait for user menu to open

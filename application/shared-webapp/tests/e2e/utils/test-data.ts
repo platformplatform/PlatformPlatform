@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import type { Page} from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { expectToastMessage } from "./test-assertions";
+import { expectToastMessage, expectNetworkErrors } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
@@ -104,6 +104,10 @@ export async function completeSignupFlow(
 ): Promise<void> {
   // Step 1: Navigate directly to signup page
   await page.goto("/signup");
+  
+  // Wait for the page to be fully loaded
+  await page.waitForLoadState("domcontentloaded");
+  
   await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
   // Step 2: Enter email and submit
@@ -114,11 +118,14 @@ export async function completeSignupFlow(
   // Step 3: Enter verification code
   await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
+  // Wait for profile dialog to appear
+  await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+
   // Step 4: Complete profile setup and verify successful save
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
-  await expectToastMessage(context, "Success", "Profile updated successfully");
+  await expectToastMessage(context, "Profile updated successfully");
 
   // Step 5: Wait for successful completion
   await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();

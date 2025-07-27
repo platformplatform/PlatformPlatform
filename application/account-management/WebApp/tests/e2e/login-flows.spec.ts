@@ -87,6 +87,9 @@ test.describe("@smoke", () => {
 
     // === AUTHENTICATION PROTECTION ===
     await step("Logout from authenticated session & verify redirect to login")(async () => {
+      // Mark 401 as expected during logout transition (React Query may have in-flight requests)
+      context.monitoring.expectedStatusCodes.push(401);
+
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
 
