@@ -273,7 +273,11 @@ export function UserTable({
                       <div className="flex min-w-0 flex-1 flex-col">
                         <div className="flex items-center gap-2 truncate text-foreground">
                           <span className="truncate">
-                            {user.firstName} {user.lastName}
+                            {user.firstName || user.lastName
+                              ? `${user.firstName} ${user.lastName}`.trim()
+                              : !isSmallViewportOrLarger()
+                                ? user.email
+                                : ""}
                           </span>
                           {user.emailConfirmed ? null : (
                             <Badge variant="outline" className="shrink-0">
