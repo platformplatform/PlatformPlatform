@@ -32,6 +32,7 @@ interface UserTableProps {
   onDeleteUser: (user: UserDetails) => void;
   onChangeRole: (user: UserDetails) => void;
   onUsersLoaded?: (users: UserDetails[]) => void;
+  isProfileOpen?: boolean;
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component handles complex table interactions including sorting, selection, pagination and infinite scroll
@@ -41,7 +42,8 @@ export function UserTable({
   onViewProfile,
   onDeleteUser,
   onChangeRole,
-  onUsersLoaded
+  onUsersLoaded,
+  isProfileOpen
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
@@ -224,6 +226,7 @@ export function UserTable({
           onSortChange={handleSortChange}
           aria-label={t`Users`}
           className={isMobile ? "[&>div>div>div]:-webkit-overflow-scrolling-touch" : ""}
+          disableHorizontalScroll={isProfileOpen}
         >
           <TableHeader>
             <Column

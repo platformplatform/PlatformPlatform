@@ -3,7 +3,6 @@
  * ref: https://ui.shadcn.com/docs/components/table
  */
 import { ArrowUp } from "lucide-react";
-import { useEffect, useRef } from "react";
 import {
   Cell as AriaCell,
   type CellProps as AriaCellProps,
@@ -24,6 +23,7 @@ import {
   useTableOptions
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
+import { useAxisLock } from "../hooks/useAxisLock";
 import { isTouchDevice } from "../utils/responsive";
 import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
@@ -31,90 +31,22 @@ import { composeTailwindRenderProps } from "./utils";
 
 export { TableBody, useContextProps } from "react-aria-components";
 
-export function Table(props: Readonly<TableProps>) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+interface ExtendedTableProps extends TableProps {
+  disableHorizontalScroll?: boolean;
+}
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) {
-      return;
-    }
-
-    let scrollDirection: "horizontal" | "vertical" | null = null;
-    let startX = 0;
-    let startY = 0;
-    let startScrollLeft = 0;
-    let startScrollTop = 0;
-    let _touchStartTime = 0;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
-      startScrollLeft = container.scrollLeft;
-      startScrollTop = container.scrollTop;
-      _touchStartTime = Date.now();
-      scrollDirection = null;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!e.touches[0]) {
-        return;
-      }
-
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - startX;
-      const deltaY = touch.clientY - startY;
-      const absDeltaX = Math.abs(deltaX);
-      const absDeltaY = Math.abs(deltaY);
-
-      // Determine scroll direction on first significant movement
-      if (!scrollDirection && (absDeltaX > 5 || absDeltaY > 5)) {
-        scrollDirection = absDeltaX > absDeltaY ? "horizontal" : "vertical";
-      }
-
-      // Lock scrolling to the determined direction
-      if (scrollDirection === "horizontal") {
-        e.preventDefault();
-        container.scrollLeft = startScrollLeft - deltaX;
-      } else if (scrollDirection === "vertical") {
-        // Check if we can scroll vertically
-        const canScrollUp = container.scrollTop > 0;
-        const canScrollDown = container.scrollTop < container.scrollHeight - container.clientHeight;
-
-        if ((deltaY > 0 && canScrollUp) || (deltaY < 0 && canScrollDown)) {
-          e.preventDefault();
-          container.scrollTop = startScrollTop - deltaY;
-        }
-      }
-    };
-
-    const handleTouchEnd = () => {
-      scrollDirection = null;
-    };
-
-    // Only add touch event listeners on touch devices
-    if (isTouchDevice()) {
-      container.addEventListener("touchstart", handleTouchStart, { passive: false });
-      container.addEventListener("touchmove", handleTouchMove, { passive: false });
-      container.addEventListener("touchend", handleTouchEnd);
-    }
-
-    return () => {
-      if (isTouchDevice()) {
-        container.removeEventListener("touchstart", handleTouchStart);
-        container.removeEventListener("touchmove", handleTouchMove);
-        container.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-  }, []);
+export function Table({ disableHorizontalScroll, ...props }: Readonly<ExtendedTableProps>) {
+  const scrollRef = useAxisLock<HTMLDivElement>();
+  const isMobile = isTouchDevice();
 
   return (
     <div className="relative h-full w-full" aria-hidden={true}>
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden={true}>
         <ResizableTableContainer
-          ref={scrollContainerRef}
-          className="relative h-full w-full touch-pan-x touch-pan-y scroll-pt-[2.281rem] overflow-auto rounded-md"
+          ref={scrollRef}
+          className={`relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md ${
+            disableHorizontalScroll && isMobile ? "overflow-x-hidden" : ""
+          }`}
           aria-hidden={true}
         >
           <AriaTable {...props} className="border-separate border-spacing-0" />
