@@ -193,7 +193,7 @@ test.describe("@comprehensive", () => {
     })();
 
     // === KEYBOARD NAVIGATION TESTS ===
-    await step("Create test users for keyboard navigation")(async () => {
+    await step("Invite 3 test users & verify they appear in the table")(async () => {
       // Create test users
       const inviteUserButton = page.getByRole("button", { name: "Invite user" });
 
@@ -288,7 +288,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).not.toBeVisible();
     })();
 
-    await step("Navigate back to first user with keyboard & open side pane")(async () => {
+    await step("Click first user row & verify side pane opens automatically")(async () => {
       // Re-select first user since selection was cleared
       const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
@@ -299,7 +299,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
     })();
 
-    await step("Verify side pane can be closed with Escape")(async () => {
+    await step("Press Escape key & verify side pane closes")(async () => {
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
 
       // Wait for side pane to be fully visible
@@ -319,7 +319,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).not.toBeVisible();
     })();
 
-    await step("Reopen side pane for second user & verify it opens correctly")(async () => {
+    await step("Click second user row & verify side pane opens automatically")(async () => {
       // Navigate to second user and open side pane
       const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
@@ -363,7 +363,7 @@ test.describe("@comprehensive", () => {
     // Set mobile viewport
     await ownerPage.setViewportSize({ width: 375, height: 667 });
 
-    await step("Navigate to users page & create user with validation errors on mobile")(async () => {
+    await step("Navigate to users page & open invite user dialog")(async () => {
       await ownerPage.goto("/admin/users");
       // Check for either English or Danish heading
       await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
@@ -411,7 +411,7 @@ test.describe("@comprehensive", () => {
     })();
 
     // === SETUP ===
-    await step("Navigate to users page & create test users")(async () => {
+    await step("Navigate to users page & invite 3 test users")(async () => {
       await page.goto("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
