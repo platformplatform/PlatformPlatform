@@ -16,7 +16,7 @@ export function DialogFooter({ children, className }: Readonly<DialogFooterProps
   return (
     <div
       className={twMerge(
-        "mt-8 flex justify-end gap-4",
+        "mt-8 flex justify-end gap-4 px-1", // Added px-1 to align with DialogContent padding
         "max-sm:fixed max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:mt-0 max-sm:border-border max-sm:border-t max-sm:bg-background max-sm:p-4 max-sm:shadow-lg",
         "max-sm:supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
         className
@@ -41,6 +41,7 @@ export function DialogContent({ children, className }: Readonly<{ children: Reac
     <div
       className={twMerge(
         "min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
+        "p-1", // Add padding to prevent focus ring clipping
         "max-sm:pb-20", // Add padding to account for fixed footer on mobile
         "max-sm:supports-[padding:max(0px)]:pb-[calc(5rem+env(safe-area-inset-bottom))]", // Adjust for safe area
         "-webkit-overflow-scrolling-touch",
