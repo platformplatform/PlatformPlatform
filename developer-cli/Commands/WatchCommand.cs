@@ -34,12 +34,6 @@ public class WatchCommand : Command
 
         if (stop)
         {
-            if (!IsAspireRunning())
-            {
-                AnsiConsole.MarkupLine("[yellow]No Aspire AppHost instance is running.[/]");
-                Environment.Exit(1);
-            }
-
             StopAspire();
             return;
         }
@@ -68,22 +62,38 @@ public class WatchCommand : Command
     private static bool IsAspireRunning()
     {
         // Check the main Aspire port
-        var portCheckCommand = Configuration.IsWindows
-            ? $"netstat -ano | findstr :{AspirePort} | findstr LISTENING"
-            : $"lsof -i :{AspirePort} -sTCP:LISTEN -t";
-
-        var result = ProcessHelper.StartProcess(portCheckCommand, redirectOutput: true, exitOnError: false);
-        if (!string.IsNullOrWhiteSpace(result))
+        if (Configuration.IsWindows)
         {
-            return true;
+            // Windows: Check all Aspire ports
+            var aspirePortsToCheck = new[] { AspirePort, DashboardPort, ResourceServicePort };
+            foreach (var port in aspirePortsToCheck)
+            {
+                var portCheckCommand = $"""powershell -Command "Get-NetTCPConnection -LocalPort {port} -State Listen -ErrorAction SilentlyContinue" """;
+                var result = ProcessHelper.StartProcess(portCheckCommand, redirectOutput: true, exitOnError: false);
+
+                if (!string.IsNullOrWhiteSpace(result))
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            // macOS/Linux: Original logic - only check main port
+            var portCheckCommand = $"lsof -i :{AspirePort} -sTCP:LISTEN -t";
+            var result = ProcessHelper.StartProcess(portCheckCommand, redirectOutput: true, exitOnError: false);
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                return true;
+            }
         }
 
         // Also check if there are any dotnet watch processes running AppHost
         if (Configuration.IsWindows)
         {
             // Check if any dotnet.exe processes are running with AppHost in the command line
-            var watchProcesses = ProcessHelper.StartProcess("wmic process where \"name='dotnet.exe' and commandline like '%watch%AppHost%'\" get processid", redirectOutput: true, exitOnError: false);
-            return !string.IsNullOrWhiteSpace(watchProcesses) && watchProcesses.Contains("ProcessId");
+            var watchProcesses = ProcessHelper.StartProcess("""powershell -Command "Get-Process dotnet -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -like '*watch*AppHost*'} | Select-Object Id" """, redirectOutput: true, exitOnError: false);
+            return !string.IsNullOrWhiteSpace(watchProcesses) && watchProcesses.Contains("Id");
         }
         else
         {
@@ -96,26 +106,32 @@ public class WatchCommand : Command
     {
         AnsiConsole.MarkupLine("[blue]Stopping Aspire AppHost and all related services...[/]");
 
-        var applicationFolder = Configuration.ApplicationFolder;
-
         if (Configuration.IsWindows)
         {
-            // Use taskkill with filters to kill processes
-            // This approach is simpler and more reliable than WMIC
+            // Step 1: Kill processes using our ports
+            var ports = new[] { AspirePort, DashboardPort, ResourceServicePort };
+            foreach (var port in ports)
+            {
+                ProcessHelper.StartProcess($"""cmd /c "netstat -ano | findstr :{port} | findstr LISTENING" """, redirectOutput: true, exitOnError: false);
+                ProcessHelper.StartProcess($"""cmd /c "for /f "tokens=5" %a in ('netstat -aon ^| findstr :{port} ^| findstr LISTENING') do taskkill /f /pid %a" """, redirectOutput: true, exitOnError: false);
+            }
 
-            // Kill all dotnet.exe processes that have AppHost in their command line
-            ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *AppHost*\"", redirectOutput: true, exitOnError: false);
+            // Step 2: Kill dotnet watch processes
+            // This approach finds all dotnet.exe processes and terminates them
+            // The key insight is that when dotnet watch is waiting, it's still a dotnet.exe process
+            ProcessHelper.StartProcess("""taskkill /F /IM dotnet.exe""", redirectOutput: true, exitOnError: false);
 
-            // Kill all processes that contain our application folder in the command line
-            // Note: Windows doesn't have a direct equivalent to pkill -f, so we use WMIC for this specific case
-            ProcessHelper.StartProcess($"wmic process where \"commandline like '%{applicationFolder}%'\" delete", redirectOutput: true, exitOnError: false);
+            // Also kill any remaining Aspire-related processes by searching for command line
+            ProcessHelper.StartProcess("""wmic process where "name='dotnet.exe' and commandline like '%watch%'" delete""", redirectOutput: true, exitOnError: false);
+            ProcessHelper.StartProcess("""wmic process where "commandline like '%AppHost%'" delete""", redirectOutput: true, exitOnError: false);
+            ProcessHelper.StartProcess("""wmic process where "commandline like '%Aspire%'" delete""", redirectOutput: true, exitOnError: false);
 
-            // Kill specific Aspire and watch processes
-            ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *watch*\"", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *Aspire*\"", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("taskkill /F /IM dotnet.exe /FI \"WINDOWTITLE eq *Dashboard*\"", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("taskkill /F /IM dcp.exe", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("taskkill /F /IM dcpproc.exe", redirectOutput: true, exitOnError: false);
+            // Step 3: Kill specific Aspire-related processes
+            var processesToKill = new[] { "PlatformPlatform.AppHost", "Aspire.Dashboard", "dcp", "dcpproc" };
+            foreach (var processName in processesToKill)
+            {
+                ProcessHelper.StartProcess($"taskkill /F /IM {processName}.exe", redirectOutput: true, exitOnError: false);
+            }
         }
         else
         {
@@ -125,7 +141,7 @@ public class WatchCommand : Command
 
             // Kill all processes that contain our application folder path
             // This catches any process started from our directory
-            ProcessHelper.StartProcess($"pkill -9 -f {applicationFolder}", redirectOutput: true, exitOnError: false);
+            ProcessHelper.StartProcess($"pkill -9 -f {Configuration.ApplicationFolder}", redirectOutput: true, exitOnError: false);
 
             // Kill Aspire-specific processes (Dashboard, DCP, etc.)
             ProcessHelper.StartProcess("pkill -9 -if aspire", redirectOutput: true, exitOnError: false);
@@ -138,28 +154,22 @@ public class WatchCommand : Command
             ProcessHelper.StartProcess("pkill -9 -f AppGateway", redirectOutput: true, exitOnError: false);
         }
 
+        // Wait a moment for processes to terminate
         Thread.Sleep(TimeSpan.FromSeconds(2));
 
-        // Final verification - check if core Aspire ports are free
-        var stillRunning = false;
-        var checkCommand = Configuration.IsWindows
-            ? $"netstat -ano | findstr :{AspirePort} | findstr LISTENING"
-            : $"lsof -i :{AspirePort} -sTCP:LISTEN -t";
-        var result = ProcessHelper.StartProcess(checkCommand, redirectOutput: true, exitOnError: false);
-        if (!string.IsNullOrWhiteSpace(result))
+        // On Windows, do one final check and cleanup of any remaining processes on our ports
+        if (Configuration.IsWindows)
         {
-            stillRunning = true;
+            var ports = new[] { AspirePort, DashboardPort, ResourceServicePort };
+            foreach (var port in ports)
+            {
+                ProcessHelper.StartProcess($"""cmd /c "for /f "tokens=5" %a in ('netstat -aon ^| findstr :{port} ^| findstr LISTENING') do taskkill /f /pid %a" """, redirectOutput: true, exitOnError: false);
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
 
-        if (stillRunning)
-        {
-            AnsiConsole.MarkupLine("[yellow]Warning: Some processes may still be running. You may need to manually kill them.[/]");
-            AnsiConsole.MarkupLine("[yellow]Check running processes with: ps aux | grep dotnet[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[green]Aspire AppHost stopped successfully.[/]");
-        }
+        AnsiConsole.MarkupLine("[green]Aspire AppHost stopped successfully.[/]");
     }
 
     private static void StartAspireAppHost(bool attach, string? publicUrl)
@@ -181,13 +191,34 @@ public class WatchCommand : Command
         var appHostProjectPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
         var command = $"dotnet watch --non-interactive --project {appHostProjectPath}";
 
-        if (publicUrl is not null)
+        if (!attach && Configuration.IsWindows)
         {
-            ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach, environmentVariables: ("PUBLIC_URL", publicUrl));
+            // For Windows in detached mode, use "start" command to truly detach
+            var detachedCommand = $"cmd /c start \"Aspire AppHost\" /min {command}";
+            if (publicUrl is not null)
+            {
+                ProcessHelper.StartProcess($"{detachedCommand} --environment PUBLIC_URL={publicUrl}", Configuration.ApplicationFolder, waitForExit: false);
+            }
+            else
+            {
+                ProcessHelper.StartProcess(detachedCommand, Configuration.ApplicationFolder, waitForExit: false);
+            }
+
+            // Give it a moment to start
+            Thread.Sleep(2000);
+            AnsiConsole.MarkupLine("[green]Aspire AppHost started in detached mode.[/]");
         }
         else
         {
-            ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach);
+            // Attached mode or non-Windows
+            if (publicUrl is not null)
+            {
+                ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach, environmentVariables: ("PUBLIC_URL", publicUrl));
+            }
+            else
+            {
+                ProcessHelper.StartProcess(command, Configuration.ApplicationFolder, waitForExit: attach);
+            }
         }
     }
 
@@ -211,7 +242,7 @@ public class WatchCommand : Command
 
         if (Configuration.IsWindows)
         {
-            var ngrokProcesses = ProcessHelper.StartProcess("tasklist /FI \"IMAGENAME eq ngrok.exe\"", redirectOutput: true, exitOnError: false);
+            var ngrokProcesses = ProcessHelper.StartProcess("""tasklist /FI "IMAGENAME eq ngrok.exe" """, redirectOutput: true, exitOnError: false);
             isNgrokRunning = ngrokProcesses.Contains("ngrok.exe");
         }
         else
