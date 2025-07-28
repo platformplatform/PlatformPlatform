@@ -41,7 +41,7 @@ public class TrackEndpoints : IEndpoints
                     var telemetry = new PageViewTelemetry
                     {
                         Name = trackRequest.Data.BaseData.Name,
-                        Url = new Uri(trackRequest.Data.BaseData.Url),
+                        Url = Uri.TryCreate(trackRequest.Data.BaseData.Url, UriKind.Absolute, out var pageViewUri) ? pageViewUri : null,
                         Duration = trackRequest.Data.BaseData.Duration,
                         Timestamp = trackRequest.Time,
                         Id = trackRequest.Data.BaseData.Id
@@ -59,7 +59,7 @@ public class TrackEndpoints : IEndpoints
                     var telemetry = new PageViewPerformanceTelemetry
                     {
                         Name = trackRequest.Data.BaseData.Name,
-                        Url = new Uri(trackRequest.Data.BaseData.Url),
+                        Url = Uri.TryCreate(trackRequest.Data.BaseData.Url, UriKind.Absolute, out var perfUri) ? perfUri : null,
                         Duration = trackRequest.Data.BaseData.Duration,
                         Timestamp = trackRequest.Time,
                         Id = trackRequest.Data.BaseData.Id,
