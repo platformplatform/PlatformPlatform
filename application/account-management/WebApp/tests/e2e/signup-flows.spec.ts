@@ -62,18 +62,16 @@ test.describe("@smoke", () => {
     })();
 
     // === SUCCESSFUL SIGNUP FLOW ===
-    await step("Complete signup with valid email & verify navigation to verification page with initial state")(
-      async () => {
-        await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-        await blurActiveElement(page);
-        await expect(page.getByText("Europe")).toBeVisible();
-        await page.getByRole("button", { name: "Create your account" }).click();
+    await step("Complete signup with valid email & verify navigation to verification page")(async () => {
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await blurActiveElement(page);
+      await expect(page.getByText("Europe")).toBeVisible();
+      await page.getByRole("button", { name: "Create your account" }).click();
 
-        await expect(page).toHaveURL("/signup/verify");
-        await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-        await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
-      }
-    )();
+      await expect(page).toHaveURL("/signup/verify");
+      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
+    })();
 
     // === VERIFICATION CODE VALIDATION ===
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
@@ -89,15 +87,15 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
     })();
 
-    await step("Click verify button & verify navigation to admin")(async () => {
+    await step("Click verify button & verify navigation to admin with profile dialog")(async () => {
       await page.getByRole("button", { name: "Verify" }).click();
 
       await expect(page).toHaveURL("/admin");
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
     })();
 
     // === PROFILE FORM VALIDATION & COMPLETION ===
     await step("Submit profile form with empty fields & verify validation errors appear")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectValidationError(testContext, "First name must be between 1 and 30 characters.");
@@ -187,9 +185,8 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
     })();
 
-    await step("Cleanup browser context & verify no errors")(async () => {
-      await context.close();
-    })();
+    // Cleanup explicitly created browser context
+    await context.close();
   });
 });
 
@@ -200,20 +197,22 @@ test.describe("@comprehensive", () => {
     const context = createTestContext(page);
     const testEmail = uniqueEmail();
 
-    await step("First 3 signup attempts & verify navigation to verify page")(async () => {
+    await step("Make 3 signup attempts & verify each navigates to verify page")(async () => {
       for (let attempt = 1; attempt <= 3; attempt++) {
         await page.goto("/signup");
         await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
         await page.getByRole("textbox", { name: "Email" }).fill(testEmail);
         await page.getByRole("button", { name: "Create your account" }).click();
+
         await expect(page).toHaveURL("/signup/verify");
       }
     })();
 
-    await step("4th attempt triggers rate limiting & verify error message")(async () => {
+    await step("Make 4th signup attempt & verify rate limiting triggers")(async () => {
       await page.goto("/signup");
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+
       await page.getByRole("textbox", { name: "Email" }).fill(testEmail);
       await page.getByRole("button", { name: "Create your account" }).click();
 
@@ -247,9 +246,7 @@ test.describe("@slow", () => {
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
     })();
 
-    await step(
-      "Wait 30 seconds before & verify Check your spam folder is not visible and that 'Request a new code' IS available"
-    )(async () => {
+    await step("Wait 30 seconds & verify request code button appears")(async () => {
       await page.waitForTimeout(requestNewCodeTimeout);
 
       await expect(
@@ -258,9 +255,7 @@ test.describe("@slow", () => {
       await expect(page.getByText("Request a new code")).toBeVisible();
     })();
 
-    await step(
-      "Click Request a new code & verify success toast message and that 'Request a new code' is NOT available"
-    )(async () => {
+    await step("Click request new code & verify success message and button hides")(async () => {
       await page.getByRole("button", { name: "Request a new code" }).click();
 
       await expectToastMessage(context, "A new verification code has been sent to your email.");
@@ -268,16 +263,14 @@ test.describe("@slow", () => {
       await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
     })();
 
-    await step("Wait for expiration & verify inline expiration message and that 'Request a new code' is NOT available")(
-      async () => {
-        await page.waitForTimeout(codeValidationTimeout);
+    await step("Wait for code expiration & verify expiration message displays")(async () => {
+      await page.waitForTimeout(codeValidationTimeout);
 
-        await expect(page).toHaveURL("/signup/verify");
-        await expect(page.getByText("Your verification code has expired")).toBeVisible();
-        await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
-        await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-      }
-    )();
+      await expect(page).toHaveURL("/signup/verify");
+      await expect(page.getByText("Your verification code has expired")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
+      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
+    })();
   });
 
   // 5-minute request new code test is already covered in login-flows.spec.ts
