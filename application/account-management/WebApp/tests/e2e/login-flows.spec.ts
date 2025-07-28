@@ -19,13 +19,14 @@ test.describe("@smoke", () => {
 
     // === EMAIL VALIDATION EDGE CASES ===
     // Email validation is comprehensively tested in signup-flows.spec.ts
-    await step("Navigate to login page")(async () => {
+    await step("Navigate to login page & verify heading displays")(async () => {
       await page.goto("/login");
+
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
     })();
 
     // === SUCCESSFUL LOGIN FLOW ===
-    await step("Enter valid code & verify navigation")(async () => {
+    await step("Enter valid email & verify navigation to verification page")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
@@ -44,7 +45,7 @@ test.describe("@smoke", () => {
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
-    await step("Complete successful login & verify navigation")(async () => {
+    await step("Complete successful login & verify navigation to admin")(async () => {
       await page.locator('input[autocomplete="one-time-code"]').first().focus();
       await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
       await page.getByRole("button", { name: "Verify" }).click();
@@ -54,7 +55,7 @@ test.describe("@smoke", () => {
     })();
 
     // === AUTHENTICATION PROTECTION ===
-    await step("Logout from authenticated session & verify redirect to login")(async () => {
+    await step("Click logout from user menu & verify redirect to login")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
@@ -66,8 +67,8 @@ test.describe("@smoke", () => {
 
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
       await page.goto("/admin/users");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
 
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
       await expectNetworkErrors(context, [401]);
 
       await page.goto("/admin");
@@ -83,11 +84,13 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/login");
     })();
 
-    await step("Complete login after back navigation & verify authentication works")(async () => {
+    await step("Complete login after security check & verify authentication works")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
+
       await expect(page).toHaveURL("/login/verify");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+
       await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
       await expect(page).toHaveURL("/admin");
@@ -104,15 +107,12 @@ test.describe("@comprehensive", () => {
       await completeSignupFlow(page, expect, user, context, false);
     })();
 
-    await step("Navigate to login and submit email & verify navigation")(async () => {
+    await step("Navigate to login and submit email & verify navigation to verification page")(async () => {
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login/verify");
-    })();
-
-    await step("Check verification page state & verify initial help text displays")(async () => {
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
       await expect(page.getByText("Request a new code")).not.toBeVisible();
     })();
@@ -161,20 +161,22 @@ test.describe("@comprehensive", () => {
       await completeSignupFlow(page, expect, user, context, false);
     })();
 
-    await step("First 3 login attempts & verify navigation to verify page")(async () => {
+    await step("Make 3 login attempts & verify each navigates to verify page")(async () => {
       for (let attempt = 1; attempt <= 3; attempt++) {
         await page.goto("/login");
         await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Continue" }).click();
+
         await expect(page).toHaveURL("/login/verify");
       }
     })();
 
-    await step("4th attempt triggers rate limiting & verify error message")(async () => {
+    await step("Make 4th login attempt & verify rate limiting triggers")(async () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
@@ -198,7 +200,7 @@ test.describe("@slow", () => {
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Create test user and navigate to verify & verify initial state")(async () => {
+    await step("Create test user and navigate to verify page & verify initial state")(async () => {
       await completeSignupFlow(page, expect, user, context, false);
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
