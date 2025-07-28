@@ -63,7 +63,7 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
     })();
 
-    await step("Select Admin role from dropdown & verify role change completes")(async () => {
+    await step("Open actions menu for admin user and change role to Admin & verify role updates")(async () => {
       const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
       const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
       await actionsButton.evaluate((el: HTMLElement) => el.click());
@@ -108,7 +108,7 @@ test.describe("@smoke", () => {
       await expect(userTable).toContainText(owner.email);
     })();
 
-    await step("Try to delete owner account & verify action restrictions")(async () => {
+    await step("Open owner's actions menu & verify self-deletion and role change are disabled")(async () => {
       const ownerRowSelf = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
       const ownerActionsButton = ownerRowSelf.locator("button[aria-label='User actions']").first();
       await ownerActionsButton.evaluate((el: HTMLElement) => el.click());
@@ -437,9 +437,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
     })();
 
-    await step(
-      "Select owner users together with with the two users by clicking rows & verify that delete button is disabled"
-    )(async () => {
+    await step("Select owner with Ctrl/Cmd modifier & verify delete button becomes disabled")(async () => {
       const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
 
       // Select owner by clicking the row with Ctrl/Cmd modifier
@@ -452,7 +450,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("button", { name: "Delete 3 users" })).toBeDisabled();
     })();
 
-    await step("Unselect owner users & verify that delete button is enabled")(async () => {
+    await step("Deselect owner with Ctrl/Cmd modifier & verify delete button becomes enabled")(async () => {
       const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
       await page.keyboard.down("ControlOrMeta");
       await ownerRow.evaluate((el: HTMLElement) => el.click());
