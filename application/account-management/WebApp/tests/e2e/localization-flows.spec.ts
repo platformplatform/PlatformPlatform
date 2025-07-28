@@ -15,7 +15,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
     })();
 
-    await step("Change language to Danish on signup page & verify interface updates")(async () => {
+    await step("Click language button and select Danish & verify interface updates")(async () => {
       await page.getByRole("button", { name: "Change language" }).click();
       await page.getByRole("menuitem", { name: "Dansk" }).click();
 
@@ -49,7 +49,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
     })();
 
-    await step("Logout from Danish interface & verify language persists after logout")(async () => {
+    await step("Click logout from Danish interface & verify language persists after logout")(async () => {
       await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
       await page.getByRole("menuitem", { name: "Log ud" }).click();
 
@@ -82,7 +82,7 @@ test.describe("@comprehensive", () => {
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
 
-    await step("Reset to English for cleanup & verify language change works")(async () => {
+    await step("Click language button and reset to English & verify language change works")(async () => {
       await page.getByRole("button", { name: "Skift sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
 
