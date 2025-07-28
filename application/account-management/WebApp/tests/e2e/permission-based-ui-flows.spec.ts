@@ -50,7 +50,7 @@ test.describe("@smoke", () => {
       ).toBeVisible();
     })();
 
-    await step("Verify self-action restrictions work for Owner (cannot delete self or change own role)")(async () => {
+    await step("Open owner's actions menu & verify self-action restrictions")(async () => {
       await page.goto("/admin/users");
 
       // Wait for page to load
@@ -68,7 +68,6 @@ test.describe("@smoke", () => {
 
       // Verify delete menu item is disabled (self-protection)
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
-
       // Verify change role menu item is disabled (self-protection)
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
 
@@ -164,7 +163,7 @@ test.describe("@smoke", () => {
       ).not.toBeVisible();
     })();
 
-    await step("Verify self-action restrictions work for Member (cannot delete self or change own role)")(async () => {
+    await step("Open member's actions menu & verify self-action restrictions")(async () => {
       await page.goto("/admin/users");
 
       // Wait for page to load
@@ -197,42 +196,45 @@ test.describe("@smoke", () => {
     const owner = testUser();
     const member = testUser();
 
-    await step("Create owner account and multiple test users")(async () => {
+    const user1 = testUser();
+    const user2 = testUser();
+
+    await step("Create owner account & navigate to users page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await page.goto("/admin/users");
 
-      const user1 = testUser();
-      const user2 = testUser();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+    })();
 
-      // Invite first user
+    await step("Invite first test user & verify user appears in table")(async () => {
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
       await page.getByRole("button", { name: "Send invite" }).click();
+
       await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
-      // Ensure user1 is visible in the table before proceeding
       await expect(page.locator("tbody").first()).toContainText(user1.email);
+    })();
 
-      // Invite second user
+    await step("Invite second test user & verify user appears in table")(async () => {
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
       await page.getByRole("button", { name: "Send invite" }).click();
+
       await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
-      // Ensure user2 is visible in the table before proceeding
       await expect(page.locator("tbody").first()).toContainText(user2.email);
+    })();
 
-      // Invite member user for role testing
+    await step("Invite member user & verify all users are in table")(async () => {
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
       await page.getByRole("button", { name: "Send invite" }).click();
+
       await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
-      // Ensure member is visible in the table before proceeding
       await expect(page.locator("tbody").first()).toContainText(member.email);
-
       // Should now have owner + 3 invited users = 4 total
-      // Use first tbody due to mobile rendering creating duplicate tables
       await expect(page.locator("tbody").first().locator("tr")).toHaveCount(4);
     })();
 
