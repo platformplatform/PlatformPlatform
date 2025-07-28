@@ -8,8 +8,7 @@ test.describe("@smoke", () => {
   test("Navigate to back-office & verify homepage loads correctly", async ({ ownerPage }) => {
     createTestContext(ownerPage);
 
-    await step("Navigate to back-office & verify homepage loads correctly")(async () => {
-      await ownerPage.goto("/");
+    await step("Navigate to back-office & verify homepage displays welcome message")(async () => {
       await ownerPage.goto("/back-office");
 
       await expect(ownerPage).toHaveURL("/back-office");
