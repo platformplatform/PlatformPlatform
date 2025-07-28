@@ -19,16 +19,13 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to admin dashboard & verify default light theme")(async () => {
       await ownerPage.goto("/admin");
-      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
+      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
 
-    await step("Change theme to dark mode & verify dark theme applies")(async () => {
+    await step("Click theme button and select dark mode & verify dark theme applies")(async () => {
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await expect(themeButton).toBeVisible();
-      await expect(themeButton).toHaveAttribute("aria-label", "Change theme");
-
       await themeButton.click();
 
       // Wait for menu to open
@@ -37,8 +34,8 @@ test.describe("@comprehensive", () => {
 
       // Click dark theme option and wait for menu to close
       await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
-      await expect(themeMenu).not.toBeVisible();
 
+      await expect(themeMenu).not.toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -49,14 +46,14 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Navigate to different page & verify dark theme remains active")(async () => {
+    await step("Navigate to users page & verify dark theme remains active")(async () => {
       await ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
 
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Change theme to system mode & verify theme follows system preference")(async () => {
+    await step("Click theme button and select system mode & verify theme follows system preference")(async () => {
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
       await themeButton.click();
 
@@ -65,8 +62,8 @@ test.describe("@comprehensive", () => {
       await expect(systemMenu).toBeVisible();
 
       await ownerPage.getByRole("menuitem", { name: "System" }).click();
-      await expect(systemMenu).not.toBeVisible();
 
+      await expect(systemMenu).not.toBeVisible();
       // System theme will be light in test environment
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
@@ -77,13 +74,11 @@ test.describe("@comprehensive", () => {
       // Wait for 4K layout - theme button should be visible
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
       await expect(themeButton).toBeVisible();
-
-      // Verify page state
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
 
-    await step("Switch to dark theme at 4K resolution & verify theme applies")(async () => {
+    await step("Click theme button and select dark at 4K & verify theme applies")(async () => {
       await ownerPage.getByRole("button", { name: "Change theme" }).click();
 
       // Wait for menu to open before clicking
@@ -223,10 +218,8 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
-    await step("Change theme to dark mode & verify it applies")(async () => {
+    await step("Click theme button and select dark mode & verify it applies")(async () => {
       const themeButton = page.getByRole("button", { name: "Change theme" });
-      await expect(themeButton).toBeVisible();
-
       await themeButton.click();
 
       // Wait for menu to open
