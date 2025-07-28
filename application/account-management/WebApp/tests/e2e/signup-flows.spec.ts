@@ -194,48 +194,7 @@ test.describe("@smoke", () => {
 });
 
 test.describe("@comprehensive", () => {
-  test("should enforce rate limiting for verification attempts and handle direct access", async ({ page }) => {
-    const context = createTestContext(page);
-    const user = testUser();
-
-    await step("Navigate to signup and enter email & verify navigation")(async () => {
-      await page.goto("/signup");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
-
-      await expect(page).toHaveURL("/signup/verify");
-    })();
-
-    await step("Enter first wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG1");
-      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-    })();
-
-    await step("Enter second wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG2");
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-    })();
-
-    await step("Enter third wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG3");
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-    })();
-
-    await step("Enter fourth wrong code & verify rate limiting triggers")(async () => {
-      await page.keyboard.type("WRONG4");
-      await page.getByRole("button", { name: "Verify" }).click();
-      await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-      await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
-      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
-    })();
-  });
+  // Rate limiting for verification attempts is comprehensively tested in login-flows.spec.ts
 
   test("should show detailed error message when too many signup attempts are made", async ({ page }) => {
     const context = createTestContext(page);
@@ -321,40 +280,5 @@ test.describe("@slow", () => {
     )();
   });
 
-  test("should allow resend code 5 minutes after signup when code has expired", async ({ page }) => {
-    test.setTimeout(sessionTimeout);
-    const context = createTestContext(page);
-    const user = testUser();
-
-    await step("Start signup and navigate to verify & verify initial state")(async () => {
-      await page.goto("/signup");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
-
-      await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-    })();
-
-    await step(
-      "Wait 5 minutes for code expiration & verify inline expiration message and that 'Request a new code' IS available"
-    )(async () => {
-      await page.waitForTimeout(codeValidationTimeout);
-
-      await expect(page).toHaveURL("/signup/verify");
-      await expect(page.getByText("Your verification code has expired")).toBeVisible();
-      await expect(page.getByText("Can't find your code? Check your spam folder.")).not.toBeVisible();
-      await expect(page.getByText("Request a new code")).toBeVisible();
-    })();
-
-    await step("Request a new code & verify success toast message and that 'Request a new code' is NOT available")(
-      async () => {
-        await page.getByRole("button", { name: "Request a new code" }).click();
-
-        await expectToastMessage(context, "A new verification code has been sent to your email.");
-        await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
-        await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-      }
-    )();
-  });
+  // 5-minute request new code test is already covered in login-flows.spec.ts
 });

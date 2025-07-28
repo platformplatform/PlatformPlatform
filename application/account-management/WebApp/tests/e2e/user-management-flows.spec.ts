@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage, expectValidationError } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -35,17 +35,11 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first().first()).toContainText("Owner");
     })();
 
-    await step("Submit invalid email invitation & verify validation error")(async () => {
-      await page.getByRole("button", { name: "Invite user" }).click();
-      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
-      await page.getByRole("button", { name: "Send invite" }).click();
-
-      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-      await expect(page.getByRole("dialog")).toBeVisible();
-    })();
+    // Email validation is comprehensively tested in signup-flows.spec.ts
 
     await step("Invite member user & verify successful invitation")(async () => {
+      await page.getByRole("button", { name: "Invite user" }).click();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 

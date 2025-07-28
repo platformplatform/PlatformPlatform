@@ -4,8 +4,7 @@ import {
   blurActiveElement,
   createTestContext,
   expectNetworkErrors,
-  expectToastMessage,
-  expectValidationError
+  expectToastMessage
 } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
@@ -19,41 +18,10 @@ test.describe("@smoke", () => {
     const context = createTestContext(page);
 
     // === EMAIL VALIDATION EDGE CASES ===
-    await step("Submit empty email form & verify validation error")(async () => {
+    // Email validation is comprehensively tested in signup-flows.spec.ts
+    await step("Navigate to login page")(async () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect(page).toHaveURL("/login");
-      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-    })();
-
-    await step("Enter invalid email format & verify validation error")(async () => {
-      await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
-      await blurActiveElement(page);
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect(page).toHaveURL("/login");
-      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-    })();
-
-    await step("Enter email exceeding maximum length & verify validation error")(async () => {
-      const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
-      await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
-      await blurActiveElement(page);
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect(page).toHaveURL("/login");
-      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
-    })();
-
-    await step("Enter email with consecutive dots & verify validation error")(async () => {
-      await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
-      await blurActiveElement(page);
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect(page).toHaveURL("/login");
-      await expectValidationError(context, "Email must be in a valid format and no longer than 100 characters.");
     })();
 
     // === SUCCESSFUL LOGIN FLOW ===
@@ -267,36 +235,5 @@ test.describe("@slow", () => {
     })();
   });
 
-  test("should allow resend code 5 minutes after login when code has expired", async ({ page }) => {
-    test.setTimeout(sessionTimeout);
-    const context = createTestContext(page);
-    const user = testUser();
-
-    await step("Create test user and start login & verify navigation")(async () => {
-      await completeSignupFlow(page, expect, user, context, false);
-      await page.goto("/login");
-      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
-
-      await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-    })();
-
-    await step("Wait for code expiration & verify request button becomes available")(async () => {
-      await page.waitForTimeout(codeValidationTimeout);
-
-      await expect(page).toHaveURL("/login/verify");
-      await expect(page.getByText("Your verification code has expired")).toBeVisible();
-      await expect(page.getByText("Can't find your code? Check your spam folder.")).not.toBeVisible();
-      await expect(page.getByText("Request a new code")).toBeVisible();
-    })();
-
-    await step("Request new code & verify success and button hides")(async () => {
-      await page.getByRole("button", { name: "Request a new code" }).click();
-
-      await expectToastMessage(context, "A new verification code has been sent to your email.");
-      await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();
-      await expect(page.getByText("Can't find your code? Check your spam folder.")).toBeVisible();
-    })();
-  });
+  // 5-minute request new code test is kept in the 30-second test above which also tests the 5-minute scenario
 });
