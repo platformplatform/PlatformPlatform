@@ -12,7 +12,52 @@ public static class ChangeDetection
         {
             // In Windows, the process is renamed to .previous.exe when updating to unblock publishing of new executable
             // We delete the previous executable the next time the process is started
-            File.Delete(Environment.ProcessPath!.Replace(".exe", ".previous.exe"));
+            var previousExePath = Environment.ProcessPath!.Replace(".exe", ".previous.exe");
+            if (File.Exists(previousExePath))
+            {
+                try
+                {
+                    // First try simple deletion
+                    File.Delete(previousExePath);
+                }
+                catch (IOException)
+                {
+                    // If file is locked, throw to handle below with admin privileges
+                    throw;
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Check command line args to determine behavior
+                    var args = Environment.GetCommandLineArgs();
+                    var isForceCommand = args.Any(arg => arg.Equals("--force", StringComparison.OrdinalIgnoreCase));
+                    var isWatchCommand = args.Any(arg => arg.Equals("watch", StringComparison.OrdinalIgnoreCase));
+                    var isStopCommand = args.Any(arg => arg.Equals("--stop", StringComparison.OrdinalIgnoreCase));
+                    
+                    // For watch command without force, or with stop, skip cleanup (watch command will handle it)
+                    if (isWatchCommand && (!isForceCommand || isStopCommand))
+                    {
+                        return;
+                    }
+                    
+                    // In non-interactive mode or with --force, automatically clean up
+                    if (!AnsiConsole.Profile.Capabilities.Interactive || isForceCommand)
+                    {
+                        TryDeletePreviousExe(previousExePath);
+                        return;
+                    }
+                    
+                    // In interactive mode, ask the user
+                    AnsiConsole.MarkupLine("[yellow]The previous CLI executable is still running.[/]");
+                    if (AnsiConsole.Confirm("Do you want to kill the running process and continue?"))
+                    {
+                        TryDeletePreviousExe(previousExePath);
+                    }
+                    else
+                    {
+                        Environment.Exit(0);
+                    }
+                }
+            }
         }
 
         var currentHash = CalculateMd5HashForSolution();
@@ -27,6 +72,43 @@ public static class ChangeDetection
         AnsiConsole.MarkupLine("[green]The CLI was successfully updated. Please rerun the command.[/]");
         AnsiConsole.WriteLine();
         Environment.Exit(0);
+    }
+
+    private static void TryDeletePreviousExe(string previousExePath)
+    {
+        try
+        {
+            // Kill processes that have the file locked
+            ProcessHelper.StartProcess("""powershell -Command "Get-Process pp.previous -ErrorAction SilentlyContinue | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
+            ProcessHelper.StartProcess($$"""powershell -Command "Get-Process | Where-Object {$_.Path -eq '{{previousExePath}}'} | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
+            
+            Thread.Sleep(1000);
+            
+            // Try to delete with retries
+            for (int i = 0; i < 3; i++)
+            {
+                try
+                {
+                    if (File.Exists(previousExePath))
+                    {
+                        File.SetAttributes(previousExePath, FileAttributes.Normal);
+                        File.Delete(previousExePath);
+                    }
+                    return;
+                }
+                catch
+                {
+                    if (i < 2)
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Ignore - file will be cleaned up next time
+        }
     }
 
     private static string CalculateMd5HashForSolution()
