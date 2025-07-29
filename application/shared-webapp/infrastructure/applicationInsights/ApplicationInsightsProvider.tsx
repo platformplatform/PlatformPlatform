@@ -34,8 +34,8 @@ const applicationInsights = new ApplicationInsights({
     disableInstrumentationKeyValidation: true,
     // Set the endpoint URL to our custom endpoint
     endpointUrl: "/api/track",
-    // Enable auto route tracking for React Router
-    enableAutoRouteTracking: true,
+    // Disable auto route tracking (not compatible with TanStack Router)
+    enableAutoRouteTracking: false,
     // Instrument error tracking
     autoExceptionInstrumented: true,
     autoUnhandledPromiseInstrumented: true,
@@ -60,5 +60,6 @@ const applicationInsights = new ApplicationInsights({
 
 // Load the Application Insights script
 applicationInsights.loadAppInsights();
-// Track the initial page view
-applicationInsights.trackPageView();
+
+// Export for error tracking
+export { applicationInsights };

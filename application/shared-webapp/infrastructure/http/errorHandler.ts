@@ -8,6 +8,7 @@
  * 4. Used by both httpClient.ts and queryClient.ts to ensure consistent error handling
  * 5. Shows toast notifications to the user for unhandled errors
  */
+import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { toastQueue } from "@repo/ui/components/Toast";
 
 // RFC 7807 Problem Details format
@@ -98,6 +99,9 @@ function showTimeoutToast(): void {
 }
 
 function showUnknownErrorToast(error: Error) {
+  // Track the error in Application Insights
+  applicationInsights.trackException({ exception: error });
+
   toastQueue.add({
     title: "Unknown Error",
     description: `An unknown error occured (${error})`,
@@ -270,7 +274,15 @@ export function setupGlobalErrorHandlers() {
     }
 
     processedErrors.add(event.reason);
-    showErrorToast(event.reason);
+
+    // Check if it's an HttpError or regular Error
+    if (event.reason instanceof Error && !("kind" in event.reason)) {
+      // Regular JavaScript error - track it and show toast
+      showUnknownErrorToast(event.reason);
+    } else {
+      // HttpError - use existing error handling
+      showErrorToast(event.reason);
+    }
   });
 
   // Handle uncaught exceptions
@@ -285,7 +297,15 @@ export function setupGlobalErrorHandlers() {
     }
 
     processedErrors.add(event.error);
-    showErrorToast(event.error);
+
+    // Track JavaScript errors in Application Insights and show toast
+    if (event.error instanceof Error) {
+      showUnknownErrorToast(event.error);
+    } else {
+      // Create an Error object for non-Error exceptions
+      const error = new Error(String(event.error));
+      showUnknownErrorToast(error);
+    }
 
     return true; // Stop error propagation
   });
