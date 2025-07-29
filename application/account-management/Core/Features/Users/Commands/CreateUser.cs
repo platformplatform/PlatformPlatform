@@ -1,5 +1,4 @@
 using FluentValidation;
-using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
@@ -20,15 +19,9 @@ internal sealed record CreateUserCommand(TenantId TenantId, string Email, UserRo
 
 internal sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
-    public CreateUserValidator(IUserRepository userRepository, ITenantRepository tenantRepository)
+    public CreateUserValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-
-        RuleFor(x => x)
-            .MustAsync((x, cancellationToken) => userRepository.IsEmailFreeAsync(x.Email, cancellationToken))
-            .WithName("Email")
-            .WithMessage(x => $"The email '{x.Email}' is already in use by another user on this tenant.")
-            .When(x => !string.IsNullOrEmpty(x.Email));
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 
@@ -45,6 +38,11 @@ internal sealed class CreateUserHandler(
         if (executionContext.TenantId is not null && executionContext.TenantId != command.TenantId)
         {
             throw new UnreachableException("Only when signing up a new tenant, is the TenantID allowed to different than the current tenant.");
+        }
+
+        if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
+        {
+            return Result<UserId>.BadRequest($"The user with '{command.Email}' already exists.");
         }
 
         var locale = SinglePageAppConfiguration.SupportedLocalizations.Contains(command.PreferredLocale)

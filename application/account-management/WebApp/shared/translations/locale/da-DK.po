@@ -53,6 +53,9 @@ msgstr "Alle brugere"
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "An invitation email will be sent to the user with a link to log in."
+msgstr "En invitations-e-mail vil blive sendt til brugeren med et link til login."
+
 msgid "Any role"
 msgstr "Enhver rolle"
 
@@ -137,13 +140,13 @@ msgstr "Har du allerede en konto?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
-msgid "E.g., Alex"
+msgid "E.g. Alex"
 msgstr "F.eks. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "F.eks., Softwareingeniør"
+msgid "E.g. Software engineer"
+msgstr "F.eks. Softwareingeniør"
 
-msgid "E.g., Taylor"
+msgid "E.g. Taylor"
 msgstr "F.eks. Taylor"
 
 msgid "Edit"
@@ -199,9 +202,6 @@ msgstr "Inviter bruger"
 
 msgid "Invite users"
 msgstr "Inviter brugere"
-
-msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger ind."
 
 msgid "Invited users"
 msgstr "Inviterede brugere"
@@ -432,6 +432,12 @@ msgstr "Velkommen hjem, {0}"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
+
+msgid "Your verification code has expired"
+msgstr "Din bekræftelseskode er udløbet"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Din bekræftelseskode er gyldig i {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"

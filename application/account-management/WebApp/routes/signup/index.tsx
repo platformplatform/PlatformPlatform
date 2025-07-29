@@ -9,7 +9,6 @@ import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { Select, SelectItem } from "@repo/ui/components/Select";
@@ -98,7 +97,6 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <FormErrorMessage error={startSignupMutation.error} />
       <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Create your account</Trans>
       </Button>

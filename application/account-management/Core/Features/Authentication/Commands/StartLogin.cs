@@ -24,7 +24,7 @@ public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
 {
     public StartLoginValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 

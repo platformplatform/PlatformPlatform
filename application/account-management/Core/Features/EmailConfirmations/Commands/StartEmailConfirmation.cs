@@ -20,9 +20,9 @@ public sealed class StartEmailConfirmationValidator : AbstractValidator<StartEma
 {
     public StartEmailConfirmationValidator()
     {
-        RuleFor(x => x.Email).NotEmpty().SetValidator(new SharedValidations.Email());
-        RuleFor(x => x.EmailSubject).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.EmailBody.Contains("{oneTimePassword}")).Equal(true);
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
+        RuleFor(x => x.EmailSubject).Length(1, 100).WithMessage("Email subject must be between 1 and 100 characters.");
+        RuleFor(x => x.EmailBody.Contains("{oneTimePassword}")).Equal(true).WithMessage("Email body must contain {oneTimePassword} placeholder.");
     }
 }
 

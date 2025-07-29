@@ -53,6 +53,9 @@ msgstr "All users"
 msgid "An error occurred while processing your request. {0}"
 msgstr "An error occurred while processing your request. {0}"
 
+msgid "An invitation email will be sent to the user with a link to log in."
+msgstr "An invitation email will be sent to the user with a link to log in."
+
 msgid "Any role"
 msgstr "Any role"
 
@@ -137,14 +140,14 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
-msgid "E.g., Alex"
-msgstr "E.g., Alex"
+msgid "E.g. Alex"
+msgstr "E.g. Alex"
 
-msgid "E.g., Software engineer"
-msgstr "E.g., Software engineer"
+msgid "E.g. Software engineer"
+msgstr "E.g. Software engineer"
 
-msgid "E.g., Taylor"
-msgstr "E.g., Taylor"
+msgid "E.g. Taylor"
+msgstr "E.g. Taylor"
 
 msgid "Edit"
 msgstr "Edit"
@@ -199,9 +202,6 @@ msgstr "Invite user"
 
 msgid "Invite users"
 msgstr "Invite users"
-
-msgid "Invite users and assign them roles. They will appear once they log in."
-msgstr "Invite users and assign them roles. They will appear once they log in."
 
 msgid "Invited users"
 msgstr "Invited users"
@@ -432,6 +432,12 @@ msgstr "Welcome home, {0}"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
+
+msgid "Your verification code has expired"
+msgstr "Your verification code has expired"
+
+msgid "Your verification code is valid for {expiresInString}"
+msgstr "Your verification code is valid for {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "yourname@example.com"

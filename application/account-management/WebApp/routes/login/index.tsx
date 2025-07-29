@@ -9,7 +9,6 @@ import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
@@ -93,7 +92,6 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <FormErrorMessage error={startLoginMutation.error} />
       <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         <Trans>Continue</Trans>
       </Button>
