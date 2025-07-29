@@ -84,6 +84,10 @@ export declare global {
      * Tenant name
      **/
     tenantName?: string;
+    /**
+     * Is internal user (has access to BackOffice)
+     **/
+    isInternalUser?: boolean;
   }
 
   /**

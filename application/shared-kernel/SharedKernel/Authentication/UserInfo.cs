@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.Platform;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 
 namespace PlatformPlatform.SharedKernel.Authentication;
@@ -18,7 +19,8 @@ public class UserInfo
     public static readonly UserInfo System = new()
     {
         IsAuthenticated = false,
-        Locale = DefaultLocale
+        Locale = DefaultLocale,
+        IsInternalUser = false
     };
 
     public bool IsAuthenticated { get; init; }
@@ -43,6 +45,8 @@ public class UserInfo
 
     public string? TenantName { get; init; }
 
+    public bool IsInternalUser { get; init; }
+
     public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale)
     {
         if (user?.Identity?.IsAuthenticated != true)
@@ -50,25 +54,28 @@ public class UserInfo
             return new UserInfo
             {
                 IsAuthenticated = user?.Identity?.IsAuthenticated ?? false,
-                Locale = GetValidLocale(browserLocale)
+                Locale = GetValidLocale(browserLocale),
+                IsInternalUser = false
             };
         }
 
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         var tenantId = user.FindFirstValue("tenant_id");
+        var email = user.FindFirstValue(ClaimTypes.Email);
         return new UserInfo
         {
             IsAuthenticated = true,
             Id = userId == null ? null : new UserId(userId),
             TenantId = tenantId == null ? null : new TenantId(long.Parse(tenantId)),
             Role = user.FindFirstValue(ClaimTypes.Role),
-            Email = user.FindFirstValue(ClaimTypes.Email),
+            Email = email,
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),
             LastName = user.FindFirstValue(ClaimTypes.Surname),
             Title = user.FindFirstValue("title"),
             AvatarUrl = user.FindFirstValue("avatar_url"),
             TenantName = user.FindFirstValue("tenant_name"),
-            Locale = GetValidLocale(user.FindFirstValue("locale"))
+            Locale = GetValidLocale(user.FindFirstValue("locale")),
+            IsInternalUser = IsInternalUserEmail(email)
         };
     }
 
@@ -90,5 +97,10 @@ public class UserInfo
             .FirstOrDefault(sl => sl.StartsWith(baseLanguageCode, StringComparison.OrdinalIgnoreCase));
 
         return foundLocale ?? DefaultLocale;
+    }
+
+    private static bool IsInternalUserEmail(string? email)
+    {
+        return email is not null && email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
     }
 }

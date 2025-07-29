@@ -32,7 +32,8 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
             Title = user.Title,
             AvatarUrl = user.Avatar.Url,
             TenantName = tenant?.Name,
-            Locale = user.Locale
+            Locale = user.Locale,
+            IsInternalUser = user.IsInternalUser
         };
     }
 }

@@ -1,0 +1,27 @@
+{
+  // Platform-wide configuration settings
+  // This file is prepared for sharing between backend (.NET), frontend (TypeScript), and tests
+  // 
+  // IMPORTANT: This configuration is embedded in the backend and injected at build time in the frontend
+  // Not all values are currently used - some are placeholders for future functionality
+  // 
+  // Security Note: Only include non-sensitive configuration here
+  // Sensitive values (like API keys) should be stored in environment variables or key vaults
+  
+  "identity": {
+    // Email domain suffix that identifies internal users
+    // Users with this domain get access to BackOffice and other internal features
+    // Currently used by backend only - frontend relies on isInternalUser flag from backend
+    "internalEmailDomain": "@platformplatform.net"
+  },
+  
+  "branding": {
+    // Product/platform name used throughout the application
+    // Placeholder for future use - currently hardcoded in various places
+    "productName": "PlatformPlatform",
+    
+    // Support email address for user inquiries
+    // Placeholder for future use - not currently referenced in the codebase
+    "supportEmail": "support@platformplatform.net"
+  }
+}

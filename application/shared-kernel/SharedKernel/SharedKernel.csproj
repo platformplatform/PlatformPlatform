@@ -57,4 +57,8 @@
         <PackageReference Include="Scrutor" />
     </ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="Platform\platform-settings.jsonc" />
+    </ItemGroup>
+
 </Project>
