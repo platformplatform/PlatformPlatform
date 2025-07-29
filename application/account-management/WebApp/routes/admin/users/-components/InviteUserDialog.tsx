@@ -7,6 +7,7 @@ import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
 import { useEffect } from "react";
@@ -21,6 +22,11 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
 
   useEffect(() => {
     if (inviteUserMutation.isSuccess) {
+      toastQueue.add({
+        title: t`Success`,
+        description: t`User invited successfully`,
+        variant: "success"
+      });
       onOpenChange(false);
     }
   }, [inviteUserMutation.isSuccess, onOpenChange]);

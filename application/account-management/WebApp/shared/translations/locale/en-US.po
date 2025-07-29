@@ -25,6 +25,9 @@ msgstr "Account name"
 msgid "Account settings"
 msgstr "Account settings"
 
+msgid "Account updated successfully"
+msgstr "Account updated successfully"
+
 msgid "Actions"
 msgstr "Actions"
 
@@ -66,9 +69,8 @@ msgstr "Any status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Are you sure you want to delete <0>{0}?</0>"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
@@ -293,6 +295,9 @@ msgstr "Privacy policies"
 msgid "Profile picture"
 msgstr "Profile picture"
 
+msgid "Profile updated successfully"
+msgstr "Profile updated successfully"
+
 msgid "Region"
 msgstr "Region"
 
@@ -342,6 +347,9 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Success"
+msgstr "Success"
+
 msgid "Support"
 msgstr "Support"
 
@@ -384,6 +392,9 @@ msgstr "Update your profile picture and personal details here."
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
 
+msgid "User invited successfully"
+msgstr "User invited successfully"
+
 msgid "User profile"
 msgstr "User profile"
 
@@ -392,6 +403,9 @@ msgstr "User profile menu"
 
 msgid "User role"
 msgstr "User role"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "User role updated successfully for {userDisplayName}"
 
 msgid "User status"
 msgstr "User status"

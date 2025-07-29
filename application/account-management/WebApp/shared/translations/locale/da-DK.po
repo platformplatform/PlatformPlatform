@@ -25,6 +25,9 @@ msgstr "Kontonavn"
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Account updated successfully"
+msgstr "Konto opdateret succesfuldt"
+
 msgid "Actions"
 msgstr "Handlinger"
 
@@ -66,9 +69,8 @@ msgstr "Enhver status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Er du sikker på, at du vil slette <0>{0}?</0>"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
@@ -293,6 +295,9 @@ msgstr "Fortrolighedspolitikker"
 msgid "Profile picture"
 msgstr "Profilbillede"
 
+msgid "Profile updated successfully"
+msgstr "Profil opdateret succesfuldt"
+
 msgid "Region"
 msgstr "Region"
 
@@ -342,6 +347,9 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Success"
+msgstr "Succes"
+
 msgid "Support"
 msgstr "Support"
 
@@ -384,6 +392,9 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
+msgid "User invited successfully"
+msgstr "Bruger inviteret succesfuldt"
+
 msgid "User profile"
 msgstr "Brugerprofil"
 
@@ -392,6 +403,9 @@ msgstr "Brugerprofilmenu"
 
 msgid "User role"
 msgstr "Brugerrolle"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 
 msgid "User status"
 msgstr "Brugerstatus"

@@ -7,6 +7,7 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
@@ -90,10 +91,19 @@ function UserProfileDialog({ onOpenChange, onIsLoadingChange }: Readonly<Profile
       if (updatedUser) {
         updateUserInfo(updatedUser);
       }
-
-      closeDialog();
     }
   });
+
+  useEffect(() => {
+    if (saveMutation.isSuccess) {
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Profile updated successfully`,
+        variant: "success"
+      });
+      closeDialog();
+    }
+  }, [saveMutation.isSuccess, closeDialog]);
 
   // Handle file selection
   const onFileSelect = (files: FileList | null) => {

@@ -1,6 +1,6 @@
-import { toastQueue } from "../components/Toast";
+import { DEFAULT_TOAST_DURATIONS, toastQueue } from "../components/Toast";
 
-type ToastVariant = "default" | "destructive" | "success" | "warning";
+type ToastVariant = "info" | "success" | "warning" | "error";
 
 export type ToastOptions = {
   title?: string;
@@ -16,38 +16,21 @@ export type ToastOptions = {
  */
 export function useToast() {
   const toast = (options: ToastOptions) => {
-    const { variant = "default", duration = 5000, ...rest } = options;
+    const { variant = "info", duration, ...rest } = options;
 
-    // Map the variant to the appropriate Toast variant
-    const mappedVariant = mapVariant(variant);
+    // Determine the duration - use provided duration or default based on variant
+    const toastDuration = duration ?? DEFAULT_TOAST_DURATIONS[variant];
 
     // Add the toast to the queue
     toastQueue.add(
       {
         ...rest,
-        variant: mappedVariant
+        variant,
+        duration: toastDuration
       },
-      { timeout: duration }
+      { timeout: toastDuration }
     );
   };
 
   return { toast };
-}
-
-/**
- * Maps the variant from the public API to the internal Toast component variant
- */
-function mapVariant(variant: ToastVariant): "neutral" | "info" | "success" | "warning" | "danger" {
-  switch (variant) {
-    case "default":
-      return "neutral";
-    case "destructive":
-      return "danger";
-    case "success":
-      return "success";
-    case "warning":
-      return "warning";
-    default:
-      return "neutral";
-  }
 }

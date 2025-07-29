@@ -14,7 +14,15 @@ import { createPortal } from "react-dom";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
 
-type ToastVariant = "neutral" | "info" | "success" | "warning" | "danger";
+type ToastVariant = "info" | "success" | "warning" | "error";
+
+// Default duration for toasts in milliseconds
+export const DEFAULT_TOAST_DURATIONS = {
+  info: 4000,
+  success: 4000,
+  warning: 6000,
+  error: 10000
+} as const;
 
 type ToastOptions = {
   variant?: ToastVariant;
@@ -77,7 +85,7 @@ function ToastRegion<T extends ToastContents>({ state, ...props }: Readonly<Toas
     <div
       {...regionProps}
       ref={ref}
-      className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-1 p-4 sm:top-auto sm:right-0 sm:bottom-0 sm:flex-col md:max-w-[420px]"
+      className="pointer-events-none fixed top-4 right-4 z-[100] flex max-h-screen w-full max-w-[420px] flex-col gap-1"
     >
       {state.visibleToasts.map((toast) => (
         <Toast key={toast.key} toast={toast} state={state} />
@@ -90,15 +98,14 @@ const toastStyle = tv({
   base: "group data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=closed]:animate-out data-[state=open]:animate-in data-[swipe=end]:animate-out data-[swipe=move]:transition-none",
   variants: {
     variant: {
-      neutral: "bg-popover text-foreground",
       info: "bg-info text-info-foreground",
       success: "bg-success text-success-foreground",
       warning: "bg-warning text-warning-foreground",
-      danger: "bg-danger text-danger-foreground"
+      error: "bg-danger text-danger-foreground"
     }
   },
   defaultVariants: {
-    variant: "neutral"
+    variant: "info"
   }
 });
 
@@ -125,20 +132,32 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
   const remainingTimeRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
+  // Determine the duration for this toast
+  const getToastDuration = () => {
+    if (content && typeof content === "object" && !isValidElement(content)) {
+      const toastOptions = content as ToastOptions;
+      // If explicit duration is provided, use it
+      if (toastOptions.duration !== undefined) {
+        return toastOptions.duration;
+      }
+      // Otherwise use the default based on variant
+      if (toastOptions.variant && toastOptions.variant in DEFAULT_TOAST_DURATIONS) {
+        return DEFAULT_TOAST_DURATIONS[toastOptions.variant];
+      }
+    }
+    return undefined;
+  };
+
+  const toastDuration = getToastDuration();
+
   // Handle auto-dismiss functionality with pause on hover/focus
   useEffect(() => {
-    // Only set up auto-dismiss if content is a ToastOptions object with a duration
-    if (
-      content &&
-      typeof content === "object" &&
-      !isValidElement(content) &&
-      "duration" in content &&
-      typeof content.duration === "number"
-    ) {
+    // Only set up auto-dismiss if we have a duration
+    if (toastDuration !== undefined) {
       // If we're not paused, start/resume the timer
       if (!isPaused) {
         // If we have remaining time from a pause, use that, otherwise use the full duration
-        const duration = remainingTimeRef.current !== null ? remainingTimeRef.current : content.duration;
+        const duration = remainingTimeRef.current !== null ? remainingTimeRef.current : toastDuration;
         startTimeRef.current = Date.now();
 
         timerRef.current = setTimeout(() => {
@@ -151,7 +170,7 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
 
         // Calculate how much time is left
         const elapsedTime = Date.now() - startTimeRef.current;
-        remainingTimeRef.current = Math.max(0, content.duration - elapsedTime);
+        remainingTimeRef.current = Math.max(0, toastDuration - elapsedTime);
       }
 
       // Clean up timer if toast is dismissed manually
@@ -161,7 +180,7 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
         }
       };
     }
-  }, [content, props.toast.key, isPaused]);
+  }, [toastDuration, props.toast.key, isPaused]);
 
   // Event handlers for mouse and keyboard interactions
   const handleMouseEnter = () => setIsPaused(true);
@@ -178,7 +197,7 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
   // If the content is a ReactNode, render it directly
   if (isReactNode(content)) {
     return (
-      <toastContext.Provider value={{ variant: "neutral" }}>
+      <toastContext.Provider value={{ variant: "info" }}>
         <div
           {...toastProps}
           ref={ref}
@@ -238,18 +257,17 @@ const toastActionStyles = tv({
   ],
   variants: {
     variant: {
-      neutral: "pressed:bg-accent/90 hover:bg-accent hover:text-accent-foreground",
       info: "text-info-foreground hover:border-transparent",
       success: "text-success-foreground hover:border-transparent",
       warning: "text-warning-foreground hover:border-transparent",
-      danger: "text-danger-foreground hover:border-transparent"
+      error: "text-danger-foreground hover:border-transparent"
     },
     isDisabled: {
       true: "pointer-events-none opacity-50"
     }
   },
   defaultVariants: {
-    variant: "neutral"
+    variant: "info"
   }
 });
 

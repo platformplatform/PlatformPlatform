@@ -9,10 +9,11 @@ import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Separator } from "react-aria-components";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
@@ -24,6 +25,16 @@ export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data: tenant, isLoading } = api.useQuery("get", "/api/account-management/tenants/current");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
+
+  useEffect(() => {
+    if (updateCurrentTenantMutation.isSuccess) {
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Account updated successfully`,
+        variant: "success"
+      });
+    }
+  }, [updateCurrentTenantMutation.isSuccess]);
 
   if (isLoading) {
     return null;

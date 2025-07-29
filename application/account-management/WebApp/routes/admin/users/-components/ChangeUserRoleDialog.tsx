@@ -5,6 +5,7 @@ import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 import { Select, SelectItem } from "@repo/ui/components/Select";
+import { toastQueue } from "@repo/ui/components/Toast";
 import { useCallback } from "react";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -24,9 +25,18 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
         return null;
       }
 
-      await changeUserRoleMutation.mutateAsync({ params: { path: { id: user.id } }, body: { userRole: newUserRole } });
+      changeUserRoleMutation
+        .mutateAsync({ params: { path: { id: user.id } }, body: { userRole: newUserRole } })
+        .then(() => {
+          const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
+          toastQueue.add({
+            title: t`Success`,
+            description: t`User role updated successfully for ${userDisplayName}`,
+            variant: "success"
+          });
 
-      onOpenChange(false);
+          onOpenChange(false);
+        });
     },
     [user, changeUserRoleMutation, onOpenChange]
   );

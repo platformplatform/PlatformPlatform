@@ -25,6 +25,9 @@ msgstr "Accountnaam"
 msgid "Account settings"
 msgstr "Accountinstellingen"
 
+msgid "Account updated successfully"
+msgstr "Account succesvol bijgewerkt"
+
 msgid "Actions"
 msgstr "Acties"
 
@@ -66,9 +69,8 @@ msgstr "Elke status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 
-#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
-msgid "Are you sure you want to delete <0>{0}?</0>"
-msgstr "Weet je zeker dat je <0>{0}?</0> wilt verwijderen?"
+msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
+msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
 
 msgid "By continuing, you accept our policies"
 msgstr "Door verder te gaan, accepteer je onze voorwaarden"
@@ -293,6 +295,9 @@ msgstr "Privacybeleid"
 msgid "Profile picture"
 msgstr "Profielfoto"
 
+msgid "Profile updated successfully"
+msgstr "Profiel succesvol bijgewerkt"
+
 msgid "Region"
 msgstr "Regio"
 
@@ -342,6 +347,9 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "Success"
+msgstr "Succes"
+
 msgid "Support"
 msgstr "Ondersteuning"
 
@@ -384,6 +392,9 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
 
+msgid "User invited successfully"
+msgstr "Gebruiker succesvol uitgenodigd"
+
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
@@ -392,6 +403,9 @@ msgstr "Gebruikersprofielmenu"
 
 msgid "User role"
 msgstr "Gebruikersrol"
+
+msgid "User role updated successfully for {userDisplayName}"
+msgstr "Gebruikersrol succesvol bijgewerkt voor {userDisplayName}"
 
 msgid "User status"
 msgstr "Gebruikersstatus"
