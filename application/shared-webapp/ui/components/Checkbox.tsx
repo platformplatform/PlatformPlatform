@@ -29,7 +29,7 @@ export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "childr
 export function CheckboxGroup(props: Readonly<CheckboxGroupProps>) {
   return (
     <AriaCheckboxGroup {...props} className={composeTailwindRenderProps(props.className, "flex flex-col gap-2")}>
-      <Label>{props.label}</Label>
+      {props.label && <Label>{props.label}</Label>}
       {props.children}
       {props.description && <Description>{props.description}</Description>}
       <FieldError>{props.errorMessage}</FieldError>

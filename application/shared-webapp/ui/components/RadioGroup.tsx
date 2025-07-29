@@ -22,7 +22,7 @@ export interface RadioGroupProps extends Omit<AriaRadioGroupProps, "children"> {
 export function RadioGroup(props: Readonly<RadioGroupProps>) {
   return (
     <AriaRadioGroup {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-2")}>
-      <Label>{props.label}</Label>
+      {props.label && <Label>{props.label}</Label>}
       <div className="flex gap-2 group-orientation-vertical:flex-col group-orientation-horizontal:gap-4">
         {props.children}
       </div>

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFocusRing } from "react-aria";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
@@ -47,6 +47,7 @@ export function Digit({
   const inputPattern = useMemo(() => `${digitPattern}*`, [digitPattern]);
   const isCharValid = useMemo(() => new RegExp(`^${digitPattern}$`), [digitPattern]);
   const isStringValid = useMemo(() => new RegExp(`^${digitPattern}+$`), [digitPattern]);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <input
@@ -74,8 +75,10 @@ export function Digit({
           onChange(text);
         }
       }}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
       autoComplete={autoComplete}
-      className={digitStyles({ className, isFocused: isFocusVisible })}
+      className={digitStyles({ className, isFocused: isFocused || isFocusVisible })}
       // biome-ignore lint/a11y/noAutofocus: The autofocus attribute is used to focus the first digit input
       autoFocus={autoFocus}
       disabled={disabled}
