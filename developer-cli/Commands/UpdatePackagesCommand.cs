@@ -13,7 +13,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public sealed class UpdatePackagesCommand : Command
 {
-    private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions", "Microsoft.OpenApi", "Microsoft.OpenApi.Readers"];
+    private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions"];
     private static readonly Dictionary<string, string?> NuGetApiCache = new();
     private static readonly UpdateSummary BackendSummary = new();
     private static readonly UpdateSummary FrontendSummary = new();
@@ -23,13 +23,12 @@ public sealed class UpdatePackagesCommand : Command
         AddOption(new Option<bool>(["--backend", "-b"], "Update only backend packages (NuGet)"));
         AddOption(new Option<bool>(["--frontend", "-f"], "Update only frontend packages (npm)"));
         AddOption(new Option<bool>(["--dry-run", "-d"], "Show what would be updated without making changes"));
-        AddOption(new Option<bool>(["--validate"], "Run validation commands after successful package updates"));
         AddOption(new Option<string?>(["--exclude", "-e"], "Comma-separated list of packages to exclude from updates"));
         AddOption(new Option<bool>(["--skip-update-dotnet"], "Skip updating .NET SDK version in global.json"));
-        Handler = CommandHandler.Create<bool, bool, bool, bool, string?, bool>(Execute);
+        Handler = CommandHandler.Create<bool, bool, bool, string?, bool>(Execute);
     }
 
-    private static async Task Execute(bool backend, bool frontend, bool dryRun, bool validate, string? exclude, bool skipUpdateDotnet)
+    private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
@@ -43,12 +42,6 @@ public sealed class UpdatePackagesCommand : Command
         if (dryRun)
         {
             AnsiConsole.MarkupLine("[blue]Running in dry-run mode - no changes will be made[/]");
-
-            if (validate)
-            {
-                AnsiConsole.MarkupLine("[yellow]Warning: Validation will not be performed in dry-run mode[/]");
-            }
-
             AnsiConsole.WriteLine();
         }
 
@@ -68,23 +61,11 @@ public sealed class UpdatePackagesCommand : Command
             await UpdateNuGetPackagesAsync(dryRun, excludedPackages);
             UpdateAspireSdkVersion(dryRun);
             await UpdateDotnetToolsAsync(dryRun);
-
-            if (validate && !dryRun)
-            {
-                ValidateBackend();
-                await Task.CompletedTask;
-            }
         }
 
         if (updateFrontend)
         {
             UpdateNpmPackages(dryRun, excludedPackages);
-
-            if (validate && !dryRun)
-            {
-                ValidateFrontend();
-                await Task.CompletedTask;
-            }
         }
 
         // Display update summary
