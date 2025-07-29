@@ -18,7 +18,7 @@ import { composeTailwindRenderProps } from "./utils";
 
 const textAreaStyles = tv({
   extend: focusRing,
-  base: "h-auto resize-y rounded-md border bg-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
+  base: "h-auto resize-y rounded-md border bg-input-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
   variants: {
     isFocused: fieldBorderStyles.variants.isFocusWithin,
     isInvalid: {

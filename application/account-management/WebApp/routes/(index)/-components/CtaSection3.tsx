@@ -4,7 +4,7 @@ import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
 export function CtaSection3() {
   return (
     <div className="flex flex-col items-center gap-4 bg-background px-8 pt-12 pb-24 text-center md:px-24">
-      <div className="w-full rounded-xl bg-muted py-16 md:py-32">
+      <div className="w-full py-16 md:py-32">
         <div className="flex flex-col gap-8 text-center">
           <h2 className="font-semibold text-4xl text-foreground md:text-6xl">Start scaling your business today</h2>
           <p className="font-normal text-muted-foreground text-xl">

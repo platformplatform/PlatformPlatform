@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { type ThemeMode, sanitizeThemeMode } from "./utils";
 
-const STORAGE_KEY = "themeMode";
+const STORAGE_KEY = "preferred-theme";
 
 export function getStorageThemeMode(): ThemeMode {
   return sanitizeThemeMode(localStorage.getItem(STORAGE_KEY));

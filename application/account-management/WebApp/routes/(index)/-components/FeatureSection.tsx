@@ -13,7 +13,7 @@ import {
 // FeatureSection: A functional component that displays the feature section
 export function FeatureSection() {
   return (
-    <div className="flex flex-col gap-8 bg-background pb-12 text-center">
+    <div className="flex flex-col gap-8 bg-input-background pb-12 text-center">
       <div className="flex flex-col gap-8 self-center px-8 pt-24 md:w-1/2">
         <h1 className="font-semibold text-amber-600 text-base">FEATURES</h1>
         <h2 className="font-semibold text-2xl text-foreground md:text-6xl">

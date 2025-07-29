@@ -3,7 +3,7 @@ import { infrastructure } from "./cdnImages";
 // TechnologySection2: A functional component that displays the technology section
 export function TechnologySection2() {
   return (
-    <div className="flex w-full flex-col gap-8 bg-muted px-8 py-24 md:px-24">
+    <div className="flex w-full flex-col gap-8 bg-background px-8 py-24 md:px-24">
       <div className="flex w-full flex-col gap-8 pt-16 text-start lg:w-2/3">
         <div>
           {/* Display the section title */}

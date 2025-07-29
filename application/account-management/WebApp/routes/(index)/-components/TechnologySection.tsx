@@ -3,7 +3,7 @@ import { frame1, frame2, frame3, frame4, frame5, frame6 } from "./cdnImages";
 // TechnologySection: A functional component that displays the technology section
 export function TechnologySection() {
   return (
-    <div className="flex flex-col gap-16 bg-background px-8 py-24 text-center md:px-32">
+    <div className="flex flex-col gap-16 bg-input-background px-8 py-24 text-center md:px-32">
       <div className="flex w-2/3 flex-col gap-4 text-start font-semibold text-3xl text-foreground">
         <h1 className="text-start font-semibold text-amber-600 text-base">FEATURES</h1>
         <p className="text-start font-semibold text-4xl text-foreground">

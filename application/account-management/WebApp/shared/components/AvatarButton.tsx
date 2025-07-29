@@ -7,20 +7,41 @@ import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [hasAutoOpenedModal, setHasAutoOpenedModal] = useState(false);
   const userInfo = useUserInfo();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (userInfo?.isAuthenticated && (!userInfo.firstName || !userInfo.lastName)) {
+    // Only auto-open the modal once per session if user lacks firstName or lastName
+    if (
+      userInfo?.isAuthenticated &&
+      (!userInfo.firstName || !userInfo.lastName) &&
+      !hasAutoOpenedModal &&
+      !isProfileModalOpen
+    ) {
       setIsProfileModalOpen(true);
+      setHasAutoOpenedModal(true);
     }
-  }, [userInfo]);
+  }, [userInfo, hasAutoOpenedModal, isProfileModalOpen]);
+
+  const handleProfileModalClose = (isOpen: boolean) => {
+    setIsProfileModalOpen(isOpen);
+    // No need to check userInfo state here - once modal is closed by user, don't auto-open again
+  };
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
+    onMutate: async () => {
+      // Cancel all ongoing queries and remove them from cache to prevent 401 errors
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      setHasAutoOpenedModal(false); // Reset for clean state
+    },
     onSuccess: () => {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     },
@@ -44,8 +65,8 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
             <div className="flex flex-row items-center gap-2">
               <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
               <div className="my-1 flex flex-col">
-                <h2>{userInfo.fullName}</h2>
-                <p className="text-muted-foreground">{userInfo.title ?? userInfo.email}</p>
+                <h4>{userInfo.fullName}</h4>
+                <p className="subtitle">{userInfo.title || userInfo.email}</p>
               </div>
             </div>
           </MenuHeader>
@@ -61,7 +82,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
         </Menu>
       </MenuTrigger>
 
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={handleProfileModalClose} />
     </>
   );
 }

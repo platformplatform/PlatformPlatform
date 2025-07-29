@@ -30,8 +30,8 @@ export const itemStyles = tv({
   base: "group relative flex cursor-default select-none items-center gap-8 rounded-md px-2.5 py-1.5 text-sm will-change-transform forced-color-adjust-none",
   variants: {
     isSelected: {
-      false: "bg-background pressed:bg-muted/90 hover:bg-muted",
-      true: "bg-muted/50 pressed:bg-muted/80 hover:bg-muted/90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
+      false: "bg-background pressed:bg-active-background hover:bg-hover-background",
+      true: "bg-active-background pressed:bg-active-background hover:bg-selected-hover-background forced-colors:bg-[Highlight] forced-colors:text-[HighlightText] forced-colors:outline-[HighlightText]"
     },
     isDisabled: {
       true: "text-muted-foreground/50 forced-colors:text-[GrayText]"
