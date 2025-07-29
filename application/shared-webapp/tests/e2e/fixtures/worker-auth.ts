@@ -38,19 +38,9 @@ export async function getWorkerTenant(
   const ownerStorageStatePath = getStorageStatePath(workerIndex, "owner", selfContainedSystemPrefix);
   const hasValidAuth = await isAuthenticationStateValid(ownerStorageStatePath);
 
-  let tenant: Tenant;
+  // Always create the tenant object structure
+  const tenant = createTenantWithUsers(workerIndex, selfContainedSystemPrefix);
 
-  if (hasValidAuth) {
-    // Reuse existing tenant - reconstruct from storage path pattern
-    tenant = createTenantWithUsers(workerIndex, selfContainedSystemPrefix);
-  } else {
-    // Create new tenant with all users
-    tenant = createTenantWithUsers(workerIndex, selfContainedSystemPrefix);
-
-    // Actual tenant creation will be implemented when authentication is needed
-  }
-
-  // If we need to ensure users exist, do that now
   if (options?.ensureUsersExist) {
     await ensureTenantUsersExist(tenant);
   }
