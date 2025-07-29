@@ -168,6 +168,7 @@ export default function UsersPage() {
         onUsersDeleted={() => {
           setSelectedUsers([]);
           setProfileUser(null);
+          navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
         }}
       />
     </>
