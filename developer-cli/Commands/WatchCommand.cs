@@ -148,10 +148,15 @@ public class WatchCommand : Command
             ProcessHelper.StartProcess("pkill -9 -f dcp", redirectOutput: true, exitOnError: false);
 
             // Kill processes by project names in case they're running from different locations
-            ProcessHelper.StartProcess("pkill -9 -f AppHost", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("pkill -9 -f AccountManagement", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("pkill -9 -f BackOffice", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("pkill -9 -f AppGateway", redirectOutput: true, exitOnError: false);
+            // Find all subdirectories in the application folder and kill matching processes
+            var applicationProjects = Directory.GetDirectories(Configuration.ApplicationFolder)
+                .Select(Path.GetFileName)
+                .Where(name => !string.IsNullOrEmpty(name));
+
+            foreach (var projectName in applicationProjects)
+            {
+                ProcessHelper.StartProcess($"pkill -9 -f {projectName}", redirectOutput: true, exitOnError: false);
+            }
         }
 
         // Wait a moment for processes to terminate
