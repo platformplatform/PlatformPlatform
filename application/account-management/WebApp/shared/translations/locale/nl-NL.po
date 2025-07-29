@@ -31,9 +31,6 @@ msgstr "Accountinstellingen"
 msgid "Account updated successfully"
 msgstr "Account succesvol bijgewerkt"
 
-msgid "Actions"
-msgstr "Acties"
-
 msgid "Active"
 msgstr "Actief"
 
@@ -428,9 +425,6 @@ msgstr "Gebruiker niet in huidige weergave"
 
 msgid "User profile"
 msgstr "Gebruikersprofiel"
-
-msgid "User profile details"
-msgstr "Details van gebruikersprofiel"
 
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"

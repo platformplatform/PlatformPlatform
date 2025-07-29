@@ -135,7 +135,7 @@ function ToastRegion<T extends ToastContents>({ state, ...props }: Readonly<Toas
     <div
       {...regionProps}
       ref={ref}
-      className="pointer-events-none fixed top-4 right-4 z-[100] flex max-h-screen w-full max-w-[420px] flex-col gap-1"
+      className="pointer-events-none fixed top-0 right-0 left-0 z-[100] flex max-h-screen w-full flex-col gap-1 p-2 sm:top-4 sm:right-4 sm:left-auto sm:max-w-[420px] sm:p-0"
     >
       {state.visibleToasts.map((toast) => (
         <Toast key={toast.key} toast={toast} state={state} />

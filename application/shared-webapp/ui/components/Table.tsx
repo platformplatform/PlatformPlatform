@@ -23,18 +23,30 @@ import {
   useTableOptions
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
+import { useAxisLock } from "../hooks/useAxisLock";
+import { isTouchDevice } from "../utils/responsive";
 import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
 
 export { TableBody, useContextProps } from "react-aria-components";
 
-export function Table(props: Readonly<TableProps>) {
+interface ExtendedTableProps extends TableProps {
+  disableHorizontalScroll?: boolean;
+}
+
+export function Table({ disableHorizontalScroll, ...props }: Readonly<ExtendedTableProps>) {
+  const scrollRef = useAxisLock<HTMLDivElement>();
+  const isMobile = isTouchDevice();
+
   return (
     <div className="relative h-full w-full" aria-hidden={true}>
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden={true}>
         <ResizableTableContainer
-          className="relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md"
+          ref={scrollRef}
+          className={`relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md ${
+            disableHorizontalScroll && isMobile ? "overflow-x-hidden" : ""
+          }`}
           aria-hidden={true}
         >
           <AriaTable {...props} className="border-separate border-spacing-0" />

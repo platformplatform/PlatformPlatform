@@ -10,6 +10,10 @@ import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
+import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
+import { useKeyboardNavigation } from "@repo/ui/hooks/useKeyboardNavigation";
+import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
+import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -17,25 +21,29 @@ import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
+import { useInfiniteUsers } from "../-hooks/useInfiniteUsers";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
 interface UserTableProps {
   selectedUsers: UserDetails[];
   onSelectedUsersChange: (users: UserDetails[]) => void;
-  onViewProfile: (user: UserDetails | null) => void;
+  onViewProfile: (user: UserDetails | null, isKeyboardOpen?: boolean) => void;
   onDeleteUser: (user: UserDetails) => void;
   onChangeRole: (user: UserDetails) => void;
   onUsersLoaded?: (users: UserDetails[]) => void;
+  isProfileOpen?: boolean;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component handles complex table interactions including sorting, selection, pagination and infinite scroll
 export function UserTable({
   selectedUsers,
   onSelectedUsersChange,
   onViewProfile,
   onDeleteUser,
   onChangeRole,
-  onUsersLoaded
+  onUsersLoaded,
+  isProfileOpen
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
@@ -47,8 +55,11 @@ export function UserTable({
     column: orderBy ?? "email",
     direction: sortOrder === "Ascending" ? "ascending" : "descending"
   }));
+  const isKeyboardNavigation = useKeyboardNavigation();
+  const isMobile = useViewportResize();
 
-  const { data: users, isLoading } = api.useQuery("get", "/api/account-management/users", {
+  // Use regular query for desktop
+  const { data: desktopUsers, isLoading: isDesktopLoading } = api.useQuery("get", "/api/account-management/users", {
     params: {
       query: {
         Search: search,
@@ -60,8 +71,31 @@ export function UserTable({
         SortOrder: sortOrder,
         PageOffset: pageOffset
       }
-    }
+    },
+    enabled: !isMobile
   });
+
+  // Use infinite scroll for mobile
+  const {
+    users: mobileUsers,
+    isLoading: isMobileLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore
+  } = useInfiniteUsers({
+    search,
+    userRole,
+    userStatus,
+    startDate,
+    endDate,
+    orderBy,
+    sortOrder,
+    enabled: isMobile
+  });
+
+  // Select data based on device
+  const users = isMobile ? { users: mobileUsers, totalPages: 1, currentPageOffset: 0 } : desktopUsers;
+  const isLoading = isMobile ? isMobileLoading : isDesktopLoading;
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -98,8 +132,8 @@ export function UserTable({
   }, [onSelectedUsersChange, pageOffset]);
 
   useEffect(() => {
-    if (users?.users) {
-      onUsersLoaded?.(users.users);
+    if (users?.users && onUsersLoaded) {
+      onUsersLoaded(users.users);
     }
   }, [users?.users, onUsersLoaded]);
 
@@ -107,168 +141,233 @@ export function UserTable({
     (keys: Selection) => {
       if (keys === "all") {
         onSelectedUsersChange(users?.users ?? []);
-        // Close profile when selecting all users
         onViewProfile(null);
-      } else {
-        const selectedKeys = typeof keys === "string" ? new Set([keys]) : keys;
-        const selectedUsersList = users?.users.filter((user) => selectedKeys.has(user.id)) ?? [];
-        onSelectedUsersChange(selectedUsersList);
+        return;
+      }
 
-        // Handle profile viewing based on selection
-        if (selectedUsersList.length === 1) {
-          // Single user selected - show profile
-          onViewProfile(selectedUsersList[0]);
-        } else {
-          // Multiple users selected or no users selected - close profile
-          onViewProfile(null);
-        }
+      const selectedUsersList = users?.users.filter((user) => keys.has(user.id)) ?? [];
+      onSelectedUsersChange(selectedUsersList);
+
+      // Handle profile viewing
+      if (selectedUsersList.length !== 1) {
+        onViewProfile(null);
+        return;
+      }
+
+      // Single user selected - check if we should auto-open profile
+      if (isKeyboardNavigation) {
+        return; // Don't auto-open on keyboard navigation
+      }
+
+      // For touch devices in single selection mode, always open profile
+      if (isTouchDevice() || !isMediumViewportOrLarger()) {
+        onViewProfile(selectedUsersList[0], false);
+      } else if (isMediumViewportOrLarger()) {
+        // For desktop, also open profile
+        onViewProfile(selectedUsersList[0], false);
       }
     },
-    [users?.users, onSelectedUsersChange, onViewProfile]
+    [users?.users, onSelectedUsersChange, onViewProfile, isKeyboardNavigation]
   );
+
+  // Handle Enter key to open profile
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || selectedUsers.length !== 1) {
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      const tableContainer = document.querySelector(".min-h-0.flex-1");
+      if (!tableContainer?.contains(activeElement)) {
+        return;
+      }
+
+      const target = e.target as HTMLElement;
+      if (target.tagName === "BUTTON" || target.closest("button")) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      onViewProfile(selectedUsers[0], true);
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [selectedUsers, onViewProfile]);
+
+  // Use infinite scroll hook for mobile
+  const loadMoreRef = useInfiniteScroll({
+    enabled: isMobile,
+    hasMore,
+    isLoadingMore,
+    onLoadMore: loadMore
+  });
 
   if (isLoading) {
     return null;
   }
 
-  const currentPage = (users?.currentPageOffset ?? 0) + 1;
+  const currentPage = users ? users.currentPageOffset + 1 : 1;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="min-h-0 flex-1">
+    <>
+      <div className={isMobile ? "flex-1" : "min-h-0 flex-1"}>
         <Table
-          key={`${search}-${userRole}-${userStatus}-${startDate}-${endDate}-${orderBy}-${sortOrder}`}
-          selectionMode="multiple"
+          key={pageOffset}
+          selectionMode={isTouchDevice() || !isMediumViewportOrLarger() ? "single" : "multiple"}
           selectionBehavior="replace"
-          selectedKeys={selectedUsers.map((user) => user.id)}
+          selectedKeys={new Set(selectedUsers.map((user) => user.id))}
           onSelectionChange={handleSelectionChange}
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
           aria-label={t`Users`}
+          className={isMobile ? "[&>div>div>div]:-webkit-overflow-scrolling-touch" : ""}
+          disableHorizontalScroll={isProfileOpen}
         >
           <TableHeader>
-            <Column minWidth={180} allowsSorting={true} id={SortableUserProperties.Name} isRowHeader={true}>
+            <Column
+              allowsSorting={true}
+              id={SortableUserProperties.Name}
+              isRowHeader={true}
+              minWidth={isSmallViewportOrLarger() ? 250 : undefined}
+            >
               <Trans>Name</Trans>
             </Column>
-            <Column minWidth={120} allowsSorting={true} id={SortableUserProperties.Email}>
-              <Trans>Email</Trans>
-            </Column>
-            <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
-              <Trans>Created</Trans>
-            </Column>
-            <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
-              <Trans>Modified</Trans>
-            </Column>
-            <Column minWidth={100} defaultWidth={75} allowsSorting={true} id={SortableUserProperties.Role}>
-              <Trans>Role</Trans>
-            </Column>
-            <Column width={100}>
-              <Trans>Actions</Trans>
-            </Column>
+            {isSmallViewportOrLarger() && (
+              <Column minWidth={160} allowsSorting={true} id={SortableUserProperties.Email}>
+                <Trans>Email</Trans>
+              </Column>
+            )}
+            {isMediumViewportOrLarger() && (
+              <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
+                <Trans>Created</Trans>
+              </Column>
+            )}
+            {isMediumViewportOrLarger() && (
+              <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
+                <Trans>Modified</Trans>
+              </Column>
+            )}
+            {isSmallViewportOrLarger() && (
+              <Column width={135} allowsSorting={true} id={SortableUserProperties.Role}>
+                <Trans>Role</Trans>
+              </Column>
+            )}
           </TableHeader>
           <TableBody>
             {users?.users.map((user) => (
               <Row key={user.id} id={user.id}>
                 <Cell>
-                  <Text className="flex h-14 w-full items-center justify-start gap-2 p-0 text-left font-normal">
-                    <Avatar
-                      initials={getInitials(user.firstName, user.lastName, user.email)}
-                      avatarUrl={user.avatarUrl}
-                      size="sm"
-                      isRound={true}
-                    />
-                    <Text className="flex flex-col truncate">
-                      <Text className="truncate text-foreground">
-                        {user.firstName} {user.lastName}
-                        {user.emailConfirmed ? (
-                          ""
-                        ) : (
-                          <Badge variant="outline">
-                            <Trans>Pending</Trans>
-                          </Badge>
-                        )}
-                      </Text>
-                      <Text className="truncate">{user.title ?? ""}</Text>
+                  <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
+                    <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
+                      <Avatar
+                        initials={getInitials(user.firstName, user.lastName, user.email)}
+                        avatarUrl={user.avatarUrl}
+                        size="sm"
+                        isRound={true}
+                      />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex items-center gap-2 truncate text-foreground">
+                          <span className="truncate">
+                            {user.firstName || user.lastName
+                              ? `${user.firstName} ${user.lastName}`.trim()
+                              : !isSmallViewportOrLarger()
+                                ? user.email
+                                : ""}
+                          </span>
+                          {user.emailConfirmed ? null : (
+                            <Badge variant="outline" className="shrink-0">
+                              <Trans>Pending</Trans>
+                            </Badge>
+                          )}
+                        </div>
+                        <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
+                      </div>
+                    </div>
+                  </div>
+                </Cell>
+                {isSmallViewportOrLarger() && (
+                  <Cell>
+                    <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                  </Cell>
+                )}
+                {isMediumViewportOrLarger() && (
+                  <Cell>
+                    <Text className="h-full w-full justify-start p-0 text-left font-normal">
+                      {formatDate(user.createdAt)}
                     </Text>
-                  </Text>
-                </Cell>
-                <Cell>
-                  <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
-                </Cell>
-                <Cell>
-                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                    {formatDate(user.createdAt)}
-                  </Text>
-                </Cell>
-                <Cell>
-                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                    {formatDate(user.modifiedAt)}
-                  </Text>
-                </Cell>
-                <Cell>
-                  <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                    <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                  </Text>
-                </Cell>
-                <Cell>
-                  <Text className="flex w-full justify-end">
-                    <MenuTrigger
-                      onOpenChange={(isOpen) => {
-                        if (isOpen) {
-                          onSelectedUsersChange([user]);
-                        }
-                      }}
-                    >
-                      <Button variant="icon" aria-label={t`User actions`}>
-                        <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                      </Button>
-                      <Menu>
-                        <MenuItem id="viewProfile" onAction={() => onViewProfile(user)}>
-                          <UserIcon className="h-4 w-4" />
-                          <Trans>View profile</Trans>
-                        </MenuItem>
-                        {userInfo?.role === "Owner" && (
-                          <>
-                            <MenuItem
-                              id="changeRole"
-                              isDisabled={user.id === userInfo?.id}
-                              onAction={() => onChangeRole(user)}
-                            >
-                              <SettingsIcon className="h-4 w-4" />
-                              <Trans>Change role</Trans>
-                            </MenuItem>
-                            <MenuSeparator />
-                            <MenuItem
-                              id="deleteUser"
-                              isDisabled={user.id === userInfo?.id}
-                              onAction={() => onDeleteUser(user)}
-                            >
-                              <Trash2Icon className="h-4 w-4 text-destructive" />
-                              <span className="text-destructive">
-                                <Trans>Delete</Trans>
-                              </span>
-                            </MenuItem>
-                          </>
-                        )}
-                      </Menu>
-                    </MenuTrigger>
-                  </Text>
-                </Cell>
+                  </Cell>
+                )}
+                {isMediumViewportOrLarger() && (
+                  <Cell>
+                    <Text className="h-full w-full justify-start p-0 text-left font-normal">
+                      {formatDate(user.modifiedAt)}
+                    </Text>
+                  </Cell>
+                )}
+                {isSmallViewportOrLarger() && (
+                  <Cell>
+                    <div className="flex h-full w-full items-center justify-between p-0">
+                      <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                      <MenuTrigger
+                        onOpenChange={(isOpen) => {
+                          if (isOpen) {
+                            onSelectedUsersChange([user]);
+                          }
+                        }}
+                      >
+                        <Button variant="icon" aria-label={t`User actions`}>
+                          <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                        </Button>
+                        <Menu>
+                          <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
+                            <UserIcon className="h-4 w-4" />
+                            <Trans>View profile</Trans>
+                          </MenuItem>
+                          {userInfo?.role === "Owner" && (
+                            <>
+                              <MenuItem
+                                id="changeRole"
+                                isDisabled={user.id === userInfo?.id}
+                                onAction={() => onChangeRole(user)}
+                              >
+                                <SettingsIcon className="h-4 w-4" />
+                                <Trans>Change role</Trans>
+                              </MenuItem>
+                              <MenuSeparator />
+                              <MenuItem
+                                id="deleteUser"
+                                isDisabled={user.id === userInfo?.id}
+                                onAction={() => onDeleteUser(user)}
+                              >
+                                <Trash2Icon className="h-4 w-4 text-destructive" />
+                                <span className="text-destructive">
+                                  <Trans>Delete</Trans>
+                                </span>
+                              </MenuItem>
+                            </>
+                          )}
+                        </Menu>
+                      </MenuTrigger>
+                    </div>
+                  </Cell>
+                )}
               </Row>
             ))}
           </TableBody>
         </Table>
       </div>
 
-      {users && (
-        <div className="bg-background py-4">
-          <Pagination
-            paginationSize={5}
-            currentPage={currentPage}
-            totalPages={users.totalPages ?? 1}
-            onPageChange={handlePageChange}
-            className="w-full pr-12 sm:hidden"
-          />
+      {/* Mobile: Loading indicator for infinite scroll */}
+      {isMobile && <div ref={loadMoreRef} className="h-1" />}
+
+      {/* Desktop: Regular pagination */}
+      {!isMobile && users && (
+        <div className="flex-shrink-0 bg-background pt-4">
           <Pagination
             paginationSize={9}
             currentPage={currentPage}
@@ -276,10 +375,10 @@ export function UserTable({
             onPageChange={handlePageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}
-            className="hidden w-full sm:flex"
+            className="w-full"
           />
         </div>
       )}
-    </div>
+    </>
   );
 }

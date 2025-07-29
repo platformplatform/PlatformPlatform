@@ -4,6 +4,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Button } from "@repo/ui/components/Button";
+import { DialogContent, DialogFooter } from "@repo/ui/components/DialogFooter";
 import { Modal } from "@repo/ui/components/Modal";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { toastQueue } from "@repo/ui/components/Toast";
@@ -54,36 +55,40 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={true}>
       <AlertDialog title={t`Change user role`}>
-        <p className="text-muted-foreground text-sm">
-          <Trans>
-            Select a new role for{" "}
-            <b>{user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""}</b>
-          </Trans>
-        </p>
+        <div className="flex flex-col max-sm:h-full">
+          <DialogContent>
+            <p className="text-muted-foreground text-sm">
+              <Trans>
+                Select a new role for{" "}
+                <b>{user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""}</b>
+              </Trans>
+            </p>
 
-        <div className="mt-4 flex flex-col gap-4">
-          <Select
-            autoFocus={true}
-            aria-label={t`User role`}
-            selectedKey={selectedRole || user?.role}
-            onSelectionChange={(key) => setSelectedRole(key as UserRole)}
-            className="flex w-full flex-col"
-          >
-            {Object.values(UserRole).map((userRole) => (
-              <SelectItem id={userRole} key={userRole}>
-                {getUserRoleLabel(userRole)}
-              </SelectItem>
-            ))}
-          </Select>
+            <div className="mt-4">
+              <Select
+                autoFocus={true}
+                aria-label={t`User role`}
+                selectedKey={selectedRole || user?.role}
+                onSelectionChange={(key) => setSelectedRole(key as UserRole)}
+                className="flex w-full flex-col"
+              >
+                {Object.values(UserRole).map((userRole) => (
+                  <SelectItem id={userRole} key={userRole}>
+                    {getUserRoleLabel(userRole)}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+          </DialogContent>
 
-          <div className="mt-4 flex justify-end gap-4">
+          <DialogFooter>
             <Button variant="outline" onPress={handleCancel}>
               {t`Cancel`}
             </Button>
             <Button variant="primary" onPress={handleConfirm} isDisabled={!selectedRole || selectedRole === user?.role}>
               {t`OK`}
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </AlertDialog>
     </Modal>

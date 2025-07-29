@@ -49,14 +49,22 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
             <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
               <button
                 type="button"
-                onClick={() => {
-                  onEditProfile();
-                  if (overlayCtx?.isOpen) {
-                    overlayCtx.close();
-                  }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setTimeout(() => {
+                    onEditProfile();
+                    if (overlayCtx?.isOpen) {
+                      overlayCtx.close();
+                    }
+                  }, 10);
+                }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
                 }}
                 className="rounded border border-border bg-background px-2 py-1 text-sm hover:bg-hover-background"
-                style={{ pointerEvents: "auto", position: "relative" }}
+                style={{ pointerEvents: "auto", position: "relative", touchAction: "none" }}
               >
                 <UserIcon className="mr-1 inline h-4 w-4" />
                 <Trans>Edit</Trans>
@@ -70,14 +78,16 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
           <Button
             variant="ghost"
             onPress={() => {
-              // Close mobile menu if it's open
-              if (overlayCtx?.isOpen) {
-                overlayCtx.close();
-              }
-              logoutMutation.mutate({});
+              setTimeout(() => {
+                // Close mobile menu if it's open
+                if (overlayCtx?.isOpen) {
+                  overlayCtx.close();
+                }
+                logoutMutation.mutate({});
+              }, 10);
             }}
             className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto" }}
+            style={{ pointerEvents: "auto", touchAction: "none" }}
           >
             <div className="flex h-6 w-6 shrink-0 items-center justify-center">
               <LogOutIcon className="h-5 w-5 stroke-current" />
@@ -93,10 +103,13 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
           <ThemeModeSelector
             variant="mobile-menu"
             onAction={() => {
-              // Close mobile menu if it's open
-              if (overlayCtx?.isOpen) {
-                overlayCtx.close();
-              }
+              // Small delay to ensure touch events are fully processed
+              setTimeout(() => {
+                // Close mobile menu if it's open
+                if (overlayCtx?.isOpen) {
+                  overlayCtx.close();
+                }
+              }, 10);
             }}
           />
         </div>
@@ -106,10 +119,13 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
           <LocaleSwitcher
             variant="mobile-menu"
             onAction={() => {
-              // Close mobile menu if it's open
-              if (overlayCtx?.isOpen) {
-                overlayCtx.close();
-              }
+              // Small delay to ensure touch events are fully processed
+              setTimeout(() => {
+                // Close mobile menu if it's open
+                if (overlayCtx?.isOpen) {
+                  overlayCtx.close();
+                }
+              }, 10);
             }}
           />
         </div>
@@ -120,7 +136,7 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
             <Button
               variant="ghost"
               className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-              style={{ pointerEvents: "auto" }}
+              style={{ pointerEvents: "auto", touchAction: "none" }}
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center">
                 <MailQuestion className="h-5 w-5 stroke-current" />
@@ -142,22 +158,25 @@ export function MobileMenu({
   onEditProfile
 }: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"]; onEditProfile: () => void }>) {
   return (
-    <div className="flex h-full flex-col">
-      <MobileMenuHeader onEditProfile={onEditProfile} />
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      onTouchStart={(e) => e.stopPropagation()}
+      style={{ touchAction: "pan-y" }}
+    >
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <MobileMenuHeader onEditProfile={onEditProfile} />
 
-      {/* Divider */}
-      <div className="mx-3 my-5 border-border border-b" />
+        {/* Divider */}
+        <div className="mx-3 my-5 border-border border-b" />
 
-      {/* Navigation Section for Mobile */}
-      <div className="flex flex-col gap-3">
-        <SideMenuSeparator>
-          <Trans>Navigation</Trans>
-        </SideMenuSeparator>
-        <NavigationMenuItems currentSystem={currentSystem} />
+        {/* Navigation Section for Mobile */}
+        <div className="flex flex-col gap-3">
+          <SideMenuSeparator>
+            <Trans>Navigation</Trans>
+          </SideMenuSeparator>
+          <NavigationMenuItems currentSystem={currentSystem} />
+        </div>
       </div>
-
-      {/* Spacer to push content up */}
-      <div className="flex-1" />
     </div>
   );
 }

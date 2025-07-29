@@ -19,11 +19,11 @@ export default function Home() {
   return (
     <>
       <FederatedSideMenu currentSystem="account-management" />
-      <AppLayout topMenu={<TopMenu />}>
-        <h1>{userInfo?.firstName ? <Trans>Welcome home, {userInfo.firstName}</Trans> : <Trans>Welcome home</Trans>}</h1>
-        <p>
-          <Trans>Here's your overview of what's happening.</Trans>
-        </p>
+      <AppLayout
+        topMenu={<TopMenu />}
+        title={userInfo?.firstName ? t`Welcome home, ${userInfo.firstName}` : t`Welcome home`}
+        subtitle={t`Here's your overview of what's happening.`}
+      >
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             to="/admin/users"

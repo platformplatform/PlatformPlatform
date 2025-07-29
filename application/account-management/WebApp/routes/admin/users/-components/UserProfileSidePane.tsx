@@ -133,14 +133,29 @@ function useSidePaneAccessibility(
   isOpen: boolean,
   onClose: () => void,
   sidePaneRef: React.RefObject<HTMLDivElement | null>,
-  closeButtonRef: React.RefObject<SVGSVGElement | null>
+  _closeButtonRef: React.RefObject<SVGSVGElement | null>
 ) {
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
-    if (isOpen && closeButtonRef.current && isMobileScreen) {
-      closeButtonRef.current.focus();
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (isOpen && isSmallScreen) {
+      // Store the currently focused element before moving focus
+      previouslyFocusedElement.current = document.activeElement as HTMLElement;
     }
-  }, [isOpen, closeButtonRef]);
+  }, [isOpen]);
+
+  // Prevent body scroll on small screens when side pane is open
+  useEffect(() => {
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (isOpen && isSmallScreen) {
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -160,8 +175,8 @@ function useSidePaneAccessibility(
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    const isMobileScreen = !window.matchMedia(MEDIA_QUERIES.sm).matches;
-    if (!isOpen || !sidePaneRef.current || !isMobileScreen) {
+    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
+    if (!isOpen || !sidePaneRef.current || !isSmallScreen) {
       return;
     }
 
@@ -206,6 +221,18 @@ export function UserProfileSidePane({
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  // Check screen size for backdrop rendering
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(!window.matchMedia(MEDIA_QUERIES.md).matches);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   useSidePaneAccessibility(isOpen, onClose, sidePaneRef, closeButtonRef);
 
@@ -218,25 +245,22 @@ export function UserProfileSidePane({
 
   return (
     <>
+      {/* Backdrop for small screens */}
+      {isSmallScreen && <div className="fixed inset-0 z-[59] bg-black/50" aria-hidden="true" />}
+
       {/* Side pane */}
-      <aside
+      <div
         ref={sidePaneRef}
-        className="relative flex h-full w-full flex-col border-border border-l bg-background"
-        aria-label={t`User profile details`}
+        className="relative z-[60] flex h-full w-full flex-col border-border border-l bg-background"
+        aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
         <XIcon
           ref={closeButtonRef}
-          onClick={onClose}
+          onClick={() => onClose()}
           className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={t`Close user profile`}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onClose();
-            }
-          }}
+          tabIndex={-1}
         />
 
         <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
@@ -245,8 +269,8 @@ export function UserProfileSidePane({
           </Heading>
         </div>
 
-        {/* Notice when user is not in current filtered view */}
-        {!isUserInCurrentView && (
+        {/* Notice when user is not in current filtered view - only show on desktop with pagination */}
+        {!isUserInCurrentView && !isSmallScreen && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <InfoIcon className="h-4 w-4 flex-shrink-0" />
@@ -298,7 +322,7 @@ export function UserProfileSidePane({
 
         {/* Quick Actions */}
         {userInfo?.role === "Owner" && user && (
-          <div className="p-4">
+          <div className="relative mt-auto border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button
               variant="destructive"
               onPress={() => onDeleteUser(user)}
@@ -310,7 +334,7 @@ export function UserProfileSidePane({
             </Button>
           </div>
         )}
-      </aside>
+      </div>
 
       {/* Change User Role Dialog */}
       {user && (

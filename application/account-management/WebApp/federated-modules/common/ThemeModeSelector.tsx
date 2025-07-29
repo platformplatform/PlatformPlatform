@@ -15,6 +15,20 @@ enum ThemeMode {
   Dark = "dark"
 }
 
+function updateThemeColorMeta() {
+  requestAnimationFrame(() => {
+    const root = document.documentElement;
+    const computedStyle = window.getComputedStyle(root);
+    const backgroundHsl = computedStyle.getPropertyValue("--background").trim();
+    const backgroundColor = backgroundHsl ? `hsl(${backgroundHsl.replace(/\s+/g, ", ")})` : "#000000";
+
+    const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+    themeColorMetas.forEach((meta) => {
+      meta.setAttribute("content", backgroundColor);
+    });
+  });
+}
+
 export default function ThemeModeSelector({
   variant = "icon",
   onAction
@@ -51,6 +65,8 @@ export default function ThemeModeSelector({
         root.style.colorScheme = "light";
       }
     }
+
+    updateThemeColorMeta();
 
     // Listen for storage changes from other tabs/components
     const handleStorageChange = (e: StorageEvent) => {
@@ -109,6 +125,8 @@ export default function ThemeModeSelector({
       }
     }
 
+    updateThemeColorMeta();
+
     // Dispatch event to notify other components
     window.dispatchEvent(new CustomEvent("theme-mode-changed", { detail: newMode }));
 
@@ -157,7 +175,11 @@ export default function ThemeModeSelector({
           </div>
         </Button>
       )}
-      <Menu onAction={handleThemeChange} aria-label={t`Change theme`} placement="bottom">
+      <Menu
+        onAction={handleThemeChange}
+        aria-label={t`Change theme`}
+        placement={variant === "mobile-menu" ? "bottom end" : "bottom"}
+      >
         <MenuItem id={ThemeMode.System} textValue="System">
           <div className="flex items-center gap-2">
             {window.matchMedia("(prefers-color-scheme: dark)").matches ? (

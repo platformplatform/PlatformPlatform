@@ -7,6 +7,7 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { Dialog } from "@repo/ui/components/Dialog";
+import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
@@ -88,10 +89,14 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
+    // Normalize empty string and undefined to prevent unnecessary updates
+    const normalizedSearch = search || undefined;
+    const normalizedParamSearch = searchParams.search || undefined;
+
     // Only update if search value actually changed from URL params
-    if (search !== searchParams.search) {
+    if (normalizedSearch !== normalizedParamSearch) {
       const timeoutId = setTimeout(() => {
-        updateFilter({ search: (search as string) || undefined }, true);
+        updateFilter({ search: normalizedSearch }, true);
         setSearchTimeoutId(null);
       }, 500);
       setSearchTimeoutId(timeoutId);
@@ -262,13 +267,25 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   useEffect(() => {
     // On 2XL+ screens, keep full buttons even with filters
     const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    const shouldUseCompactButtons = !is2XlScreen && (showAllFilters || activeFilterCount > 0);
+    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches; // sm breakpoint
+    const shouldUseCompactButtons = (!is2XlScreen && (showAllFilters || activeFilterCount > 0)) || isMobileScreen;
 
     onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
-    updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
+    // Set search to empty string first to ensure UI updates immediately
+    setSearch("");
+
+    // Then update the filter which will set search to undefined in URL
+    updateFilter({
+      search: undefined,
+      userRole: undefined,
+      userStatus: undefined,
+      startDate: undefined,
+      endDate: undefined
+    });
+
     setShowAllFilters(false);
     setIsFilterPanelOpen(false);
   };
@@ -287,7 +304,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           updateFilter({ search: (search as string) || undefined }, true);
         }}
         label={t`Search`}
-        autoFocus={true}
         className="min-w-32"
       />
 
@@ -426,11 +442,28 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             onClick={() => setIsFilterPanelOpen(false)}
             className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted"
           />
-          <Heading slot="title" className="text-2xl">
-            <Trans>Filters</Trans>
-          </Heading>
+          <DialogHeader>
+            <Heading slot="title" className="text-2xl">
+              <Trans>Filters</Trans>
+            </Heading>
+          </DialogHeader>
 
-          <div className="mt-4 flex flex-col gap-4">
+          <DialogContent className="flex flex-col gap-4">
+            <SearchField
+              placeholder={t`Search`}
+              value={search}
+              onChange={setSearch}
+              onSubmit={() => {
+                if (searchTimeoutId) {
+                  clearTimeout(searchTimeoutId);
+                  setSearchTimeoutId(null);
+                }
+                updateFilter({ search: (search as string) || undefined }, true);
+              }}
+              label={t`Search`}
+              className="w-full"
+            />
+
             <Select
               selectedKey={searchParams.userRole}
               onSelectionChange={(userRole) => {
@@ -481,16 +514,20 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               placeholder={t`Select dates`}
               className="w-full"
             />
-          </div>
+          </DialogContent>
 
-          <div className="mt-6 flex justify-end gap-4">
-            <Button variant="secondary" onPress={clearAllFilters} isDisabled={activeFilterCount === 0}>
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onPress={clearAllFilters}
+              isDisabled={activeFilterCount === 0 && !searchParams.search}
+            >
               <Trans>Clear</Trans>
             </Button>
             <Button variant="primary" onPress={() => setIsFilterPanelOpen(false)}>
               <Trans>OK</Trans>
             </Button>
-          </div>
+          </DialogFooter>
         </Dialog>
       </Modal>
     </div>

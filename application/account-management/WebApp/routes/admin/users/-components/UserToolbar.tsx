@@ -35,7 +35,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
   };
 
   return (
-    <div className="mt-4 mb-4 flex items-center justify-between gap-2">
+    <div className="-mt-5 mb-4 flex items-center justify-between gap-2 bg-background/95 pt-5 backdrop-blur-sm">
       <UserQuerying onFilterStateChange={handleFilterStateChange} onFiltersUpdated={() => onSelectedUsersChange([])} />
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (

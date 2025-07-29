@@ -31,9 +31,6 @@ msgstr "Kontoindstillinger"
 msgid "Account updated successfully"
 msgstr "Konto opdateret succesfuldt"
 
-msgid "Actions"
-msgstr "Handlinger"
-
 msgid "Active"
 msgstr "Aktiv"
 
@@ -428,9 +425,6 @@ msgstr "Bruger ikke i nuværende visning"
 
 msgid "User profile"
 msgstr "Brugerprofil"
-
-msgid "User profile details"
-msgstr "Brugerprofiloplysninger"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"

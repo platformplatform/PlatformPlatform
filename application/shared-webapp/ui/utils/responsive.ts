@@ -24,3 +24,34 @@ export const SIDE_MENU_COLLAPSED_WIDTH = 72;
 export const SIDE_MENU_MIN_WIDTH = 150;
 export const SIDE_MENU_MAX_WIDTH = 300;
 export const SIDE_MENU_DEFAULT_WIDTH = 288;
+
+// Helper function to detect touch devices (including iPads)
+export function isTouchDevice(): boolean {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+}
+
+// Viewport detection helpers - based on Tailwind breakpoints
+// Mobile: below 640px (sm)
+export function isMobileViewport(): boolean {
+  return !window.matchMedia(MEDIA_QUERIES.sm).matches;
+}
+
+// Small viewport and up: 640px+ (sm)
+export function isSmallViewportOrLarger(): boolean {
+  return window.matchMedia(MEDIA_QUERIES.sm).matches;
+}
+
+// Medium viewport and up: 768px+ (md)
+export function isMediumViewportOrLarger(): boolean {
+  return window.matchMedia(MEDIA_QUERIES.md).matches;
+}
+
+// Large viewport and up: 1024px+ (lg)
+export function isLargeViewportOrLarger(): boolean {
+  return window.matchMedia(MEDIA_QUERIES.lg).matches;
+}
+
+// Extra large viewport and up: 1280px+ (xl)
+export function isExtraLargeViewportOrLarger(): boolean {
+  return window.matchMedia(MEDIA_QUERIES.xl).matches;
+}
