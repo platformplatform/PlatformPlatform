@@ -1,10 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Tests;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
@@ -107,5 +111,41 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
             Arg.Is<string>(s => s.Contains("You or someone else tried to login to PlatformPlatform")),
             Arg.Any<CancellationToken>()
         );
+    }
+
+    [Fact]
+    public async Task StartLogin_WhenTooManyAttempts_ShouldReturnTooManyRequests()
+    {
+        // Arrange
+        var email = DatabaseSeeder.Tenant1Owner.Email;
+
+        for (var i = 1; i <= 4; i++)
+        {
+            var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
+            Connection.Insert("EmailConfirmations", [
+                    ("Id", EmailConfirmationId.NewId().ToString()),
+                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
+                    ("ModifiedAt", null),
+                    ("Email", email.ToLower()),
+                    ("Type", EmailConfirmationType.Login.ToString()),
+                    ("OneTimePasswordHash", oneTimePasswordHash),
+                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
+                    ("RetryCount", 0),
+                    ("ResendCount", 0),
+                    ("Completed", false)
+                ]
+            );
+        }
+
+        var command = new StartLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
     }
 }

@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, useState } from "react";
+import { forwardRef, useCallback, useId, useImperativeHandle, useMemo, useState } from "react";
 import { Digit } from "./Digit";
 import type { DigitPattern } from "./Digit";
 
@@ -9,20 +9,25 @@ export interface OneTimeCodeInputProps {
   name?: string;
   autoFocus?: boolean;
   ariaLabel: string;
+  onValueChange?: (value: string, isComplete: boolean) => void;
 }
 
-export function OneTimeCodeInput({
-  digitPattern,
-  disabled,
-  length = 6,
-  name = "code",
-  autoFocus,
-  ariaLabel
-}: OneTimeCodeInputProps) {
+export interface OneTimeCodeInputRef {
+  reset: () => void;
+  focus: () => void;
+  getValue: () => string;
+  isComplete: () => boolean;
+}
+
+export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInputProps>(function OneTimeCodeInput(
+  { digitPattern, disabled, length = 6, name = "code", autoFocus, ariaLabel, onValueChange },
+  ref
+) {
   const [digits, setDigits] = useState<string[]>(new Array(length).fill(""));
   const id = useId();
   const digitRefs = useMemo(() => new Array(length).fill(id).map((id, i) => `${id}_${i}`), [id, length]);
   const inputValue = digits.join("");
+  const isComplete = inputValue.length === length;
 
   const setFocus = useCallback(
     (i: number) => {
@@ -42,19 +47,43 @@ export function OneTimeCodeInput({
     [digitRefs]
   );
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: () => {
+        setDigits(new Array(length).fill(""));
+        setFocus(0);
+      },
+      focus: () => {
+        setFocus(0);
+      },
+      getValue: () => inputValue,
+      isComplete: () => isComplete
+    }),
+    [inputValue, isComplete, length, setFocus]
+  );
+
   const onChangeHandler = (value: string, i: number): void => {
+    let newDigits: string[];
+
     if (value.length > 1) {
       // If the user pastes more than one digit
       const pastedDigits = value.substring(0, length).split("");
-      setDigits([...pastedDigits]);
+      newDigits = [...pastedDigits];
+      setDigits(newDigits);
       setFocus(pastedDigits.length);
-      return;
+    } else {
+      newDigits = [...digits];
+      newDigits[i] = value;
+      setDigits(newDigits);
+      const nextFocusIndex = value.length > 0 ? Math.min(digits.length, i + 1) : Math.max(0, i - 1);
+      setFocus(nextFocusIndex);
     }
-    const newDigits = [...digits];
-    newDigits[i] = value;
-    setDigits(newDigits);
-    const nextFocusIndex = value.length > 0 ? Math.min(digits.length, i + 1) : Math.max(0, i - 1);
-    setFocus(nextFocusIndex);
+
+    // Call onValueChange callback if provided
+    const newValue = newDigits.join("");
+    const newIsComplete = newValue.length === length;
+    onValueChange?.(newValue, newIsComplete);
   };
   return (
     <div className="flex flex-row gap-4" aria-label={ariaLabel}>
@@ -74,4 +103,4 @@ export function OneTimeCodeInput({
       <input type="hidden" name={name} value={inputValue} />
     </div>
   );
-}
+});

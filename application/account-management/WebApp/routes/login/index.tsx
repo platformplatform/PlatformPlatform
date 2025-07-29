@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -15,7 +15,8 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { setLoginState } from "./-shared/loginState";
+import { getSignupState } from "../signup/-shared/signupState";
+import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
@@ -46,7 +47,9 @@ export const Route = createFileRoute("/login/")({
 });
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
+  const { email: savedEmail } = getLoginState();
+  const { email: signupEmail } = getSignupState(); // Prefill from signup page if user navigated here
+  const [email, setEmail] = useState(savedEmail || signupEmail || "");
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
@@ -54,6 +57,7 @@ export function LoginForm() {
   if (startLoginMutation.isSuccess) {
     const { loginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
 
+    clearLoginState();
     setLoginState({
       loginId,
       emailConfirmationId,
@@ -71,7 +75,7 @@ export function LoginForm() {
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
-      <Link href="/">
+      <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
       <Heading className="text-2xl">
@@ -93,14 +97,21 @@ export function LoginForm() {
         className="flex w-full flex-col"
       />
       <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
-        <Trans>Continue</Trans>
+        {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Continue</Trans>}
       </Button>
-      <div className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground text-sm">
         <Trans>
           Don't have an account? <Link href={signUpPath}>Create one</Link>
         </Trans>
+      </p>
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-muted-foreground text-xs">
+          <Trans>Powered by</Trans>
+        </span>
+        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
+          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+        </Link>
       </div>
-      <img src={poweredByUrl} alt={t`Powered by`} />
     </Form>
   );
 }

@@ -65,14 +65,14 @@ export function Digit({
         if (e.key === "Backspace") {
           onChange("");
         } else if (isCharValid.test(e.key)) {
-          onChange(e.key);
+          onChange(e.key.toUpperCase());
         }
       }}
       onPaste={(e) => {
         e.preventDefault();
         const text = e.clipboardData.getData("text");
         if (isStringValid.test(text)) {
-          onChange(text);
+          onChange(text.toUpperCase());
         }
       }}
       onFocus={() => setIsFocused(true)}

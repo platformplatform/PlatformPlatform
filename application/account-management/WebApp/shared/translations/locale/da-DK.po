@@ -13,6 +13,9 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "A new verification code has been sent to your email."
+msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
+
 msgid "Account"
 msgstr "Konto"
 
@@ -72,11 +75,17 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
+msgid "Back to login"
+msgstr "Tilbage til login"
+
+msgid "Back to signup"
+msgstr "Tilbage til tilmelding"
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 
-msgid "Can't find your code? Check your spam folder."
-msgstr "Kan du ikke finde din kode? Tjek din spammappe."
+msgid "Can't find your code?"
+msgstr "Kan du ikke finde din kode?"
 
 msgid "Cancel"
 msgstr "Annuller"
@@ -92,6 +101,9 @@ msgstr "Skift rolle"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
+
+msgid "Check your spam folder."
+msgstr "Tjek din spammappe."
 
 msgid "Clear"
 msgstr "Ryd"
@@ -133,9 +145,6 @@ msgstr "Slet brugere"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
-msgid "Didn't receive the code? Resend"
-msgstr "Modtog du ikke koden? Send igen"
-
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
 
@@ -168,9 +177,6 @@ msgstr "Indtast din bekræftelseskode"
 
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
-
-msgid "Error: Verification code has expired"
-msgstr "Fejl: Bekræftelseskoden er udløbet"
 
 msgid "Europe"
 msgstr "Europa"
@@ -256,12 +262,6 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Næste"
 
-msgid "No active login."
-msgstr "Ingen aktiv login."
-
-msgid "No active signup session."
-msgstr "Ingen aktiv tilmeldingssession."
-
 msgid "OK"
 msgstr "OK"
 
@@ -274,6 +274,9 @@ msgstr "Ejer"
 msgid "Pending"
 msgstr "Afventer"
 
+msgid "PlatformPlatform"
+msgstr "PlatformPlatform"
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -281,7 +284,7 @@ msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Powered by"
-msgstr "Drevet af"
+msgstr "Powered by"
 
 msgid "Preview avatar"
 msgstr "Forhåndsvisning af avatar"
@@ -303,6 +306,9 @@ msgstr "Region"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
+
+msgid "Request a new code"
+msgstr "Anmod om en ny kode"
 
 msgid "Role"
 msgstr "Rolle"
@@ -335,6 +341,9 @@ msgstr "Vælg sprog"
 msgid "Send invite"
 msgstr "Send invitation"
 
+msgid "Sending verification code..."
+msgstr "Sender bekræftelseskode..."
+
 msgid "Settings"
 msgstr "Indstillinger"
 
@@ -342,7 +351,7 @@ msgid "Show filters"
 msgstr "Vis filtre"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatform – ligesom tusinder af andre."
+msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
@@ -358,12 +367,6 @@ msgstr "System"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"
-
-msgid "The verification code you are trying to use has expired for Email Confirmation ID: {emailConfirmationId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræftelses-ID: {emailConfirmationId}"
-
-msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
-msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
 
 msgid "Theme"
 msgstr "Tema"
@@ -418,6 +421,9 @@ msgstr "Brugere"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
+
+msgid "Verification code sent"
+msgstr "Bekræftelseskode sendt"
 
 msgid "Verify"
 msgstr "Bekræft"

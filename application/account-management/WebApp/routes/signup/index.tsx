@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import poweredByUrl from "@/shared/images/powered-by.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -17,7 +17,8 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useState } from "react";
-import { setSignupState } from "./-shared/signupState";
+import { getLoginState } from "../login/-shared/loginState";
+import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
   component: function SignupRoute() {
@@ -41,13 +42,16 @@ export const Route = createFileRoute("/signup/")({
 });
 
 export function StartSignupForm() {
-  const [email, setEmail] = useState("");
+  const { email: savedEmail } = getSignupState();
+  const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
+  const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
 
   if (startSignupMutation.isSuccess) {
     const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
 
+    clearSignupState();
     setSignupState({
       emailConfirmationId,
       email,
@@ -64,7 +68,7 @@ export function StartSignupForm() {
       validationBehavior="aria"
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
-      <Link href="/">
+      <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
       <Heading className="text-2xl">
@@ -98,9 +102,13 @@ export function StartSignupForm() {
         </SelectItem>
       </Select>
       <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
-        <Trans>Create your account</Trans>
+        {startSignupMutation.isPending ? (
+          <Trans>Sending verification code...</Trans>
+        ) : (
+          <Trans>Create your account</Trans>
+        )}
       </Button>
-      <p className="text-muted-foreground text-xs">
+      <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}
         <Link href={loginPath}>
           <Trans>Log in</Trans>
@@ -118,7 +126,14 @@ export function StartSignupForm() {
           </Link>
         </div>
       </div>
-      <img src={poweredByUrl} alt={t`Powered by`} />
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-muted-foreground text-xs">
+          <Trans>Powered by</Trans>
+        </span>
+        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
+          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+        </Link>
+      </div>
     </Form>
   );
 }

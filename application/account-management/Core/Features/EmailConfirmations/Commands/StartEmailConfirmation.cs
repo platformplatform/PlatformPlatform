@@ -36,12 +36,8 @@ public sealed class StartEmailConfirmationHandler(
     {
         var existingConfirmations = emailConfirmationRepository.GetByEmail(command.Email).ToArray();
 
-        if (existingConfirmations.Any(c => !c.HasExpired()))
-        {
-            return Result<StartEmailConfirmationResponse>.Conflict("Email confirmation for this email has already been started. Please check your spam folder.");
-        }
-
-        if (existingConfirmations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddDays(-1)) > 3)
+        var lockoutMinutes = command.Type == EmailConfirmationType.Signup ? -60 : -15;
+        if (existingConfirmations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddMinutes(lockoutMinutes)) >= 3)
         {
             return Result<StartEmailConfirmationResponse>.TooManyRequests("Too many attempts to confirm this email address. Please try again later.");
         }
