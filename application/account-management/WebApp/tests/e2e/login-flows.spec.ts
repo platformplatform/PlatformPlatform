@@ -31,9 +31,12 @@ test.describe("@smoke", () => {
       await blurActiveElement(page);
       await page.getByRole("button", { name: "Continue" }).click();
 
+      // Verify verification page state
       await expect(page).toHaveURL("/login/verify");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
+
+      // Verify help text is visible but resend button is not yet available
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
       await expect(page.getByText("Request a new code")).not.toBeVisible();
     })();
@@ -46,10 +49,12 @@ test.describe("@smoke", () => {
     })();
 
     await step("Complete successful login & verify navigation to admin")(async () => {
+      // Re-enter correct code (manual submit required after failed attempt)
       await page.locator('input[autocomplete="one-time-code"]').first().focus();
       await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
       await page.getByRole("button", { name: "Verify" }).click();
 
+      // Verify successful login
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -66,13 +71,13 @@ test.describe("@smoke", () => {
     })();
 
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
+      // Try accessing users page
       await page.goto("/admin/users");
-
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
       await expectNetworkErrors(context, [401]);
 
+      // Try accessing admin dashboard
       await page.goto("/admin");
-
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       await expectNetworkErrors(context, [401]);
     })();
@@ -81,6 +86,7 @@ test.describe("@smoke", () => {
     await step("Navigate with malicious redirect URL & verify prevention")(async () => {
       await page.goto("/login?returnPath=http://hacker.com");
 
+      // Verify malicious returnPath is stripped
       await expect(page).toHaveURL("/login");
     })();
 
@@ -103,7 +109,7 @@ test.describe("@comprehensive", () => {
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Create test user for rate limiting test & verify user created")(async () => {
+    await step("Create test user")(async () => {
       await completeSignupFlow(page, expect, user, context, false);
     })();
 
@@ -112,6 +118,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
+      // Verify initial verification page state
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
       await expect(page.getByText("Request a new code")).not.toBeVisible();
@@ -144,6 +151,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.type("WRONG4");
       await page.getByRole("button", { name: "Verify" }).click();
 
+      // Verify rate limiting is enforced
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
       await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
@@ -157,11 +165,12 @@ test.describe("@comprehensive", () => {
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Create test user for rate limiting test & verify user created")(async () => {
+    await step("Create test user")(async () => {
       await completeSignupFlow(page, expect, user, context, false);
     })();
 
     await step("Make 3 login attempts & verify each navigates to verify page")(async () => {
+      // Make 3 login attempts within rate limit threshold
       for (let attempt = 1; attempt <= 3; attempt++) {
         await page.goto("/login");
         await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -180,6 +189,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
+      // Verify rate limiting prevents navigation
       await expect(page).toHaveURL("/login");
       await expectToastMessage(
         context,
@@ -200,12 +210,14 @@ test.describe("@slow", () => {
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Create test user and navigate to verify page & verify initial state")(async () => {
+    await step("Create test user and navigate to verify page")(async () => {
+      // Create user and navigate to login verification
       await completeSignupFlow(page, expect, user, context, false);
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
 
+      // Verify initial state
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();
     })();
@@ -213,6 +225,7 @@ test.describe("@slow", () => {
     await step("Wait 30 seconds & verify request code button appears")(async () => {
       await page.waitForTimeout(requestNewCodeTimeout);
 
+      // Verify UI changes after timeout
       await expect(
         page.getByRole("textbox", { name: "Can't find your code? Check your spam folder." })
       ).not.toBeVisible();
@@ -230,6 +243,7 @@ test.describe("@slow", () => {
     await step("Wait for code expiration & verify expiration message displays")(async () => {
       await page.waitForTimeout(codeValidationTimeout);
 
+      // Verify expiration state
       await expect(page).toHaveURL("/login/verify");
       await expect(page.getByText("Your verification code has expired")).toBeVisible();
       await expect(page.getByRole("button", { name: "Request a new code" })).not.toBeVisible();

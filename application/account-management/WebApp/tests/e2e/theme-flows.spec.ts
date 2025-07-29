@@ -20,6 +20,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to admin dashboard & verify default light theme")(async () => {
       await ownerPage.goto("/admin");
 
+      // Verify dashboard loads with default light theme
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
@@ -42,6 +43,7 @@ test.describe("@comprehensive", () => {
     await step("Reload page & verify dark theme persists")(async () => {
       await ownerPage.reload();
 
+      // Verify theme persists after reload
       await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
@@ -49,6 +51,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to users page & verify dark theme remains active")(async () => {
       await ownerPage.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
 
+      // Verify theme persists across navigation
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
@@ -71,7 +74,7 @@ test.describe("@comprehensive", () => {
     await step("Resize to 4K viewport & verify theme handling at large resolution")(async () => {
       await ownerPage.setViewportSize({ width: 2560, height: 1440 });
 
-      // Wait for 4K layout - theme button should be visible
+      // Verify 4K layout and theme state
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
       await expect(themeButton).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
@@ -93,10 +96,8 @@ test.describe("@comprehensive", () => {
     await step("Resize to tablet viewport & verify theme persists with responsive layout")(async () => {
       await ownerPage.setViewportSize({ width: 768, height: 1024 });
 
-      // Wait for tablet layout - theme button should be visible
+      // Verify tablet layout and theme persistence
       await expect(ownerPage.getByRole("button", { name: "Change theme" })).toBeVisible();
-
-      // Verify page state
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
@@ -115,21 +116,17 @@ test.describe("@comprehensive", () => {
     await step("Resize to mobile viewport & verify theme menu in mobile navigation")(async () => {
       await ownerPage.setViewportSize({ width: 375, height: 667 });
 
-      // Wait for mobile layout to render - mobile menu button should appear
+      // Verify mobile layout
       await expect(ownerPage.getByRole("button", { name: "Open navigation menu" })).toBeVisible();
-
-      // Verify we're still on Users page with dark theme
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
 
       // Theme button should not be visible in top menu on mobile
       await expect(ownerPage.getByRole("button", { name: "Change theme" })).not.toBeVisible();
 
-      // Open mobile menu
+      // Open mobile menu and verify theme option
       await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
       await expect(ownerPage.getByRole("dialog", { name: "Mobile navigation menu" })).toBeVisible();
-
-      // Theme button should be accessible in mobile menu
       await expect(ownerPage.getByRole("button", { name: "Theme" })).toBeVisible();
     })();
 
@@ -153,17 +150,14 @@ test.describe("@comprehensive", () => {
     await step("Return to desktop viewport & verify theme persists")(async () => {
       await ownerPage.setViewportSize({ width: 1920, height: 1080 });
 
-      // Wait for desktop layout to render - theme button should be visible in top menu
+      // Verify desktop layout restoration
       await expect(ownerPage.getByRole("button", { name: "Change theme" })).toBeVisible();
-
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
-
-      // Toggle sidebar button should also be visible on desktop
       await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Set dark theme before logout & verify theme selection")(async () => {
+    await step("Set dark theme before logout & verify theme applies")(async () => {
       await ownerPage.getByRole("button", { name: "Change theme" }).click();
 
       // Wait for menu to open before clicking
@@ -196,7 +190,7 @@ test.describe("@comprehensive", () => {
     const existingUser = tenant.owner;
     const context = createTestContext(page);
 
-    await step("Log in as owner & navigate to admin dashboard")(async () => {
+    await step("Log in as owner & verify navigation to admin")(async () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
@@ -210,7 +204,7 @@ test.describe("@comprehensive", () => {
       await expect(verificationInput).toBeVisible();
       await verificationInput.focus();
 
-      // Type verification code - it auto-submits on first login
+      // Auto-submits on first login
       await page.keyboard.type(getVerificationCode());
 
       // Wait for auto-submit to complete
@@ -261,7 +255,7 @@ test.describe("@comprehensive", () => {
       await expect(verificationInput).toBeVisible();
       await verificationInput.focus();
 
-      // Type verification code - it auto-submits on first login
+      // Auto-submits on first login
       await page.keyboard.type(getVerificationCode());
 
       // Wait for auto-submit to complete

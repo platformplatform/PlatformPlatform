@@ -21,7 +21,7 @@ test.describe("@smoke", () => {
     const member = testUser();
 
     // Create owner and member users
-    await step("Create owner account and set up tenant")(async () => {
+    await step("Create owner account")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -43,6 +43,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Verify danger zone is visible for Owner")(async () => {
+      // Danger zone should be visible to Owners
       await expect(page.getByRole("heading", { name: "Danger zone" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete account" })).toBeVisible();
       await expect(
@@ -78,7 +79,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("menu")).not.toBeVisible();
     })();
 
-    await step("Invite member user and test non-Owner permissions after role switch")(async () => {
+    await step("Invite member user")(async () => {
       // Invite member user
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
@@ -90,7 +91,7 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first()).toContainText(member.email);
     })();
 
-    await step("Log out from owner and log in as member to test non-Owner UI restrictions")(async () => {
+    await step("Log out from owner and log in as member")(async () => {
       // Ensure the user table is stable and all users are loaded
       await expect(page.locator("tbody").first().locator("tr")).toHaveCount(2); // owner + member
 
@@ -113,10 +114,10 @@ test.describe("@smoke", () => {
       await page.getByRole("menuitem", { name: "Log out" }).click();
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL(/\/login/);
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
       // Accept whatever return path we get
-      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login as member
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
@@ -125,7 +126,7 @@ test.describe("@smoke", () => {
       await page.keyboard.type(getVerificationCode());
 
       // Wait for navigation to complete after verification
-      await page.waitForURL(/\/admin/);
+      await page.waitForURL("/admin");
     })();
 
     await step("Complete member profile setup")(async () => {
@@ -149,6 +150,7 @@ test.describe("@smoke", () => {
     await step("Navigate to account settings as Member & verify tenant name field is readonly")(async () => {
       await page.goto("/admin/account");
 
+      // Members should see readonly account name field
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Account name" })).toHaveAttribute("readonly");
       await expect(page.getByText("Only account owners can modify the account name")).toBeVisible();
@@ -156,6 +158,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Verify danger zone is hidden for Member")(async () => {
+      // Danger zone should be hidden from Members
       await expect(page.getByRole("heading", { name: "Danger zone" })).not.toBeVisible();
       await expect(page.getByRole("button", { name: "Delete account" })).not.toBeVisible();
       await expect(
@@ -199,7 +202,7 @@ test.describe("@smoke", () => {
     const user1 = testUser();
     const user2 = testUser();
 
-    await step("Create owner account & navigate to users page")(async () => {
+    await step("Create owner account")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await page.goto("/admin/users");
 
@@ -263,7 +266,7 @@ test.describe("@smoke", () => {
       await expect(thirdRow).toHaveAttribute("aria-selected", "true");
     })();
 
-    await step("Log out as owner and log in as member to test bulk delete restrictions")(async () => {
+    await step("Log out as owner and log in as member")(async () => {
       // Ensure the bulk delete button is still visible and selections are stable
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeEnabled();
@@ -286,10 +289,10 @@ test.describe("@smoke", () => {
       await page.getByRole("menuitem", { name: "Log out" }).click();
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL(/\/login/);
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
 
       // Accept whatever return path we get
-      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login as member
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
@@ -298,7 +301,7 @@ test.describe("@smoke", () => {
       await page.keyboard.type(getVerificationCode());
 
       // Wait for navigation to complete after verification
-      await page.waitForURL(/\/admin/);
+      await page.waitForURL("/admin");
     })();
 
     await step("Complete member profile setup")(async () => {

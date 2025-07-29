@@ -12,6 +12,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to signup page & verify default English interface")(async () => {
       await page.goto("/signup");
 
+      // Verify default English interface
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
     })();
 
@@ -19,6 +20,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Change language" }).click();
       await page.getByRole("menuitem", { name: "Dansk" }).click();
 
+      // Verify interface updates to Danish and preference is saved
       await expect(page.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
@@ -32,18 +34,21 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete verification with Danish interface & verify navigation to admin")(async () => {
-      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+      // Auto-submits on 6 characters
+      await page.keyboard.type(getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
     })();
 
     await step("Complete profile setup in Danish & verify profile form works")(async () => {
+      // Fill profile form in Danish
       await expect(page.getByRole("dialog", { name: "Brugerprofil" })).toBeVisible();
       await page.getByRole("textbox", { name: "Fornavn" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Efternavn" }).fill(user.lastName);
       await page.getByRole("textbox", { name: "Titel" }).fill("CEO");
       await page.getByRole("button", { name: "Gem ændringer" }).click();
 
+      // Verify Danish success message and navigation
       await expectToastMessage(context, "Profil opdateret succesfuldt");
       await expect(page.getByRole("dialog")).not.toBeVisible();
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
@@ -53,6 +58,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
       await page.getByRole("menuitem", { name: "Log ud" }).click();
 
+      // Verify Danish language persists after logout
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
@@ -62,6 +68,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Skift sprog" }).click();
       await page.getByRole("menuitem", { name: "English" }).click();
 
+      // Verify interface updates to English
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();
@@ -75,7 +82,8 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete login verification & verify language resets to user's saved preference")(async () => {
-      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+      // Auto-submits on 6 characters
+      await page.keyboard.type(getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
@@ -88,7 +96,8 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.reload(); // Fix bug where localStorage is not updated before page reload
+      // Fix bug where localStorage is not updated before page reload
+      await page.reload();
 
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();
@@ -104,18 +113,26 @@ test.describe("@comprehensive", () => {
     const user2 = testUser();
 
     await step("Complete signup for first user with Danish & verify preference saved")(async () => {
+      // Set up Danish interface
       await page1.goto("/signup");
       await page1.getByRole("button", { name: "Change language" }).click();
       await page1.getByRole("menuitem", { name: "Dansk" }).click();
       await expect(page1.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
+
+      // Complete signup flow
       await page1.getByRole("textbox", { name: "E-mail" }).fill(user1.email);
       await page1.getByRole("button", { name: "Opret din konto" }).click();
       await expect(page1).toHaveURL("/signup/verify");
-      await page1.keyboard.type(getVerificationCode()); // The verification code auto submits
+
+      // Auto-submits on 6 characters
+      await page1.keyboard.type(getVerificationCode());
+
+      // Complete profile in Danish
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
       await page1.getByRole("textbox", { name: "Efternavn" }).fill(user1.lastName);
       await page1.getByRole("button", { name: "Gem ændringer" }).click();
 
+      // Verify Danish preference saved
       await expectToastMessage(testContext1, 200, "Profil opdateret succesfuldt");
       await expect(page1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(page1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
@@ -134,12 +151,16 @@ test.describe("@comprehensive", () => {
       const newContext1 = await browser.newContext();
       const newPage1 = await newContext1.newPage();
 
+      // Login with English interface
       await newPage1.goto("/login");
       await newPage1.getByRole("textbox", { name: "Email" }).fill(user1.email);
       await newPage1.getByRole("button", { name: "Continue" }).click();
       await expect(newPage1).toHaveURL("/login/verify");
-      await newPage1.keyboard.type(getVerificationCode()); // The verification code auto submits
 
+      // Auto-submits on 6 characters
+      await newPage1.keyboard.type(getVerificationCode());
+
+      // Verify Danish preference is restored after login
       await expect(newPage1).toHaveURL("/admin");
       await expect(newPage1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(newPage1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
@@ -149,12 +170,16 @@ test.describe("@comprehensive", () => {
       const newContext2 = await browser.newContext();
       const newPage2 = await newContext2.newPage();
 
+      // Login with English interface
       await newPage2.goto("/login");
       await newPage2.getByRole("textbox", { name: "Email" }).fill(user2.email);
       await newPage2.getByRole("button", { name: "Continue" }).click();
       await expect(newPage2).toHaveURL("/login/verify");
-      await newPage2.keyboard.type(getVerificationCode()); // The verification code auto submits
 
+      // Auto-submits on 6 characters
+      await newPage2.keyboard.type(getVerificationCode());
+
+      // Verify English preference is maintained
       await expect(newPage2).toHaveURL("/admin");
       await expect(newPage2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(newPage2.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");

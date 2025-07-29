@@ -21,7 +21,7 @@ test.describe("@smoke", () => {
     const adminUser = testUser();
     const memberUser = testUser();
 
-    await step("Complete owner signup & verify owner account creation")(async () => {
+    await step("Complete owner signup")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -126,7 +126,7 @@ test.describe("@smoke", () => {
 
       const userTable = page.locator("tbody").first();
 
-      // Use searchbox by role instead of placeholder
+      // Search for admin user
       const searchInput = page.getByRole("searchbox", { name: "Search" });
       await searchInput.fill(adminUser.email);
       await page.keyboard.press("Enter"); // Trigger search immediately without debounce
@@ -136,10 +136,10 @@ test.describe("@smoke", () => {
       await expect(userTable).not.toContainText(owner.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
+      // Clear search and verify all users are shown again
       await searchInput.clear();
       await page.keyboard.press("Enter"); // Trigger search immediately to show all results
 
-      // Verify all users are shown again
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(userTable).toContainText(owner.email);
@@ -165,7 +165,7 @@ test.describe("@smoke", () => {
       await expect(userTable).toContainText(owner.email);
     })();
 
-    await step("Logout from owner account to test admin permissions")(async () => {
+    await step("Logout from owner account")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
@@ -188,7 +188,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/admin");
     })();
 
-    await step("Complete admin user profile setup & verify profile form completion")(async () => {
+    await step("Complete admin user profile setup")(async () => {
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(adminUser.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
@@ -242,7 +242,7 @@ test.describe("@comprehensive", () => {
     const user3 = testUser();
 
     // === USER SETUP SECTION ===
-    await step("Complete owner signup & navigate to users page")(async () => {
+    await step("Complete owner signup")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await page.goto("/admin/users");
 
@@ -268,6 +268,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to dashboard & verify user count metrics display correctly")(async () => {
       await page.goto("/admin");
 
+      // Verify dashboard shows correct user counts
       await expect(page.getByRole("link", { name: "View users" })).toContainText("4");
       await expect(page.getByRole("link", { name: "View active users" })).toContainText("1");
       await expect(page.getByRole("link", { name: "View invited users" })).toContainText("3");
@@ -277,6 +278,7 @@ test.describe("@comprehensive", () => {
     await step("Click invited users link & verify URL filtering works correctly")(async () => {
       await page.getByRole("link", { name: "View invited users" }).click();
 
+      // Verify filtering by URL parameter
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
       await expect(page.url()).toContain("userStatus=Pending");
@@ -393,16 +395,18 @@ test.describe("@comprehensive", () => {
 
     // === SINGLE USER DELETION SECTION ===
     await step("Delete single user via menu & verify removal")(async () => {
+      // Open actions menu and delete user1
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
       await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
       await page.getByRole("menuitem", { name: "Delete" }).click();
 
+      // Confirm deletion
       await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user1.email}?`)).toBeVisible();
-
       await page.getByRole("button", { name: "Delete" }).click();
 
+      // Verify user is removed from table
       await expectToastMessage(context, `User deleted successfully: ${user1.email}`);
       await expect(page.getByRole("alertdialog")).not.toBeVisible();
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + user2 + user3
@@ -422,6 +426,7 @@ test.describe("@comprehensive", () => {
       const user2Row = allRows.nth(1);
       await user2Row.evaluate((el: HTMLElement) => el.click());
       await expect(user2Row).toHaveAttribute("aria-selected", "true");
+
       // Verify the toolbar delete button is visible (single user selection)
       await expect(page.getByRole("button", { name: "Delete user" }).first()).toBeVisible();
 
@@ -445,18 +450,20 @@ test.describe("@comprehensive", () => {
       await ownerRow.evaluate((el: HTMLElement) => el.click());
       await page.keyboard.up("ControlOrMeta");
 
-      // Verify the toolbar bulk delete button is visible but disabled
+      // Verify the toolbar bulk delete button is visible but disabled (owner protection)
       await expect(page.getByRole("button", { name: "Delete 3 users" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete 3 users" })).toBeDisabled();
     })();
 
     await step("Deselect owner with Ctrl/Cmd modifier & verify delete button becomes enabled")(async () => {
       const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
+
+      // Deselect owner with Ctrl/Cmd modifier
       await page.keyboard.down("ControlOrMeta");
       await ownerRow.evaluate((el: HTMLElement) => el.click());
       await page.keyboard.up("ControlOrMeta");
 
-      // Verify the toolbar bulk delete button is visible and enabled
+      // Verify the toolbar bulk delete button is now enabled
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeEnabled();
     })();

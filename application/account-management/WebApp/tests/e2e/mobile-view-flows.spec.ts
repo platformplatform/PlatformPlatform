@@ -24,7 +24,7 @@ test.describe("@comprehensive", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await step("Complete owner signup & create new tenant")(async () => {
+    await step("Complete owner signup")(async () => {
       await completeSignupFlow(page, expect, owner, context);
     })();
 
@@ -61,7 +61,6 @@ test.describe("@comprehensive", () => {
       await expect(mobileDialog).toBeVisible();
 
       // Verify user profile section is visible
-      // The user profile section should show the user's name and edit button
       await expect(mobileDialog.getByRole("button", { name: "Edit" })).toBeVisible();
 
       // Verify all menu options are present
@@ -138,7 +137,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
     })();
 
-    await step("Change language back to English")(async () => {
+    await step("Change language back to English & verify language updates")(async () => {
       await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
 
       const mobileDialog = page.getByRole("dialog");
@@ -272,7 +271,7 @@ test.describe("@comprehensive", () => {
       await expect(closeButton).toBeVisible();
     })();
 
-    await step("Close side pane with Escape")(async () => {
+    await step("Close side pane with Escape & verify it closes")(async () => {
       const sidePane = page.locator('[aria-label="User profile"]');
 
       // Ensure side pane is fully open
@@ -406,7 +405,7 @@ test.describe("@comprehensive", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await step("Create a fresh tenant with a new owner")(async () => {
+    await step("Create a fresh tenant")(async () => {
       await completeSignupFlow(page, expect, user, context, true);
     })();
 
@@ -453,7 +452,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
     })();
 
-    await step("Close side pane using close button")(async () => {
+    await step("Close side pane using close button & verify it closes")(async () => {
       // Click close button to close side pane
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
@@ -463,7 +462,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).not.toBeVisible();
     })();
 
-    await step("Navigate with keyboard and verify side pane stays closed")(async () => {
+    await step("Navigate with keyboard & verify side pane stays closed")(async () => {
       // Re-select the first row since selection was cleared
       const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
@@ -491,7 +490,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).not.toBeVisible();
     })();
 
-    await step("Press Enter to open side pane for second user")(async () => {
+    await step("Press Enter to open side pane for second user & verify it opens")(async () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
@@ -509,7 +508,7 @@ test.describe("@comprehensive", () => {
     })();
 
     // === PREVIOUSLY FAILING SCENARIOS - should now work with single selection mode ===
-    await step("Simple click on second user after first is selected")(async () => {
+    await step("Simple click on second user after first is selected & verify single selection")(async () => {
       // Close side pane
       await page.keyboard.press("Escape");
 
@@ -532,51 +531,53 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
     })();
 
-    await step("Click third user after keyboard navigation and side pane interaction")(async () => {
-      // Reset state - ensure any side pane is closed first
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      await expect(sidePane).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(sidePane).not.toBeVisible();
+    await step("Click third user after keyboard navigation and side pane interaction & verify single selection")(
+      async () => {
+        // Reset state - ensure any side pane is closed first
+        const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+        await expect(sidePane).toBeVisible();
+        await page.keyboard.press("Escape");
+        await expect(sidePane).not.toBeVisible();
 
-      // Click first user
-      const firstRow = page.locator("tbody tr").first();
-      await firstRow.click();
-      await page.keyboard.press("Escape");
+        // Click first user
+        const firstRow = page.locator("tbody tr").first();
+        await firstRow.click();
+        await page.keyboard.press("Escape");
 
-      // Re-select first row since selection was cleared
-      await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
-      await page.keyboard.press("Escape");
+        // Re-select first row since selection was cleared
+        await firstRow.click();
+        await expect(firstRow).toHaveAttribute("aria-selected", "true");
+        await page.keyboard.press("Escape");
 
-      // Navigate to second with keyboard
-      const secondRow = page.locator("tbody tr").nth(1);
-      await page.keyboard.press("ArrowDown");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+        // Navigate to second with keyboard
+        const secondRow = page.locator("tbody tr").nth(1);
+        await page.keyboard.press("ArrowDown");
+        await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
-      // Open side pane with Enter
-      const thirdRow = page.locator("tbody tr").nth(2);
-      await page.keyboard.press("Enter");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+        // Open side pane with Enter
+        const thirdRow = page.locator("tbody tr").nth(2);
+        await page.keyboard.press("Enter");
+        await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
 
-      // Close with X button
-      const closeButton = page
-        .locator("aside")
-        .filter({ hasText: "User profile" })
-        .locator("svg[aria-label='Close user profile']");
-      await closeButton.click();
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+        // Close with X button
+        const closeButton = page
+          .locator("aside")
+          .filter({ hasText: "User profile" })
+          .locator("svg[aria-label='Close user profile']");
+        await closeButton.click();
+        await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
-      // Click third user - should single select with our fix
-      await thirdRow.click();
+        // Click third user - should single select with our fix
+        await thirdRow.click();
 
-      // With single selection mode, only third user should be selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "false");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
-    })();
+        // With single selection mode, only third user should be selected
+        await expect(firstRow).toHaveAttribute("aria-selected", "false");
+        await expect(secondRow).toHaveAttribute("aria-selected", "false");
+        await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      }
+    )();
 
-    await step("Rapid clicking between users")(async () => {
+    await step("Rapid clicking between users & verify single selection")(async () => {
       // Reset state - ensure any side pane is closed first
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
       await expect(sidePane).toBeVisible();
