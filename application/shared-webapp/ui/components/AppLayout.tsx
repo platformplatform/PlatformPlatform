@@ -1,7 +1,6 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
-import { MEDIA_QUERIES } from "../utils/responsive";
 
 type AppLayoutVariant = "full" | "center";
 
@@ -10,68 +9,34 @@ type AppLayoutProps = {
   topMenu: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
+  sidePane?: React.ReactNode;
 };
 
 /**
  * AppLayout provides the fixed layout structure for applications with a side menu.
- * - Fixed TopMenu that doesn't scroll with content
+ * - Fixed TopMenu that doesn't scroll with content (contains secondary navigation/functions)
  * - Scrollable content area that respects the side menu width
  * - Proper margin adjustments based on side menu state
+ * - SideMenu (rendered separately) contains the main navigation
+ *
+ * Accessibility landmarks:
+ * - SideMenu: <nav role="navigation"> (main navigation)
+ * - TopMenu: <div role="complementary"> (secondary navigation/functions)
+ * - Content: <main> (main content area)
+ * - SidePane: <aside> (complementary content)
  *
  * Variants:
  * - full: Content takes full width with standard padding
- * - center: Content is always centered with configurable max width (default: 640px). When SideMenu is expanded on large screens, content is shifted 50px left for better visual balance.
+ * - center: Content is always centered with configurable max width (default: 640px)
  */
-export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640px" }: Readonly<AppLayoutProps>) {
+export function AppLayout({
+  children,
+  topMenu,
+  variant = "full",
+  maxWidth = "640px",
+  sidePane
+}: Readonly<AppLayoutProps>) {
   const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
-
-  const [isLargeScreen, setIsLargeScreen] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(MEDIA_QUERIES.xl).matches : false
-  );
-  const [isSideMenuCollapsed, setIsSideMenuCollapsed] = useState(() => {
-    if (typeof window === "undefined") {
-      return true;
-    }
-    // Check if we're on large screen
-    const isLarge = window.matchMedia(MEDIA_QUERIES.xl).matches;
-    if (!isLarge) {
-      return true; // Always collapsed on smaller screens
-    }
-
-    const stored = localStorage.getItem("side-menu-collapsed");
-    return stored === "true";
-  });
-
-  // Listen for screen size changes
-  useEffect(() => {
-    const xlQuery = window.matchMedia(MEDIA_QUERIES.xl);
-    const handleXlChange = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches);
-
-    xlQuery.addEventListener("change", handleXlChange);
-    return () => xlQuery.removeEventListener("change", handleXlChange);
-  }, []);
-
-  // Listen for side menu toggle events
-  useEffect(() => {
-    const handleMenuToggle = (event: CustomEvent) => {
-      if (isLargeScreen) {
-        setIsSideMenuCollapsed(event.detail.isCollapsed);
-      }
-    };
-
-    window.addEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-    return () => window.removeEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-  }, [isLargeScreen]);
-
-  // Update side menu state when screen size changes
-  useEffect(() => {
-    if (!isLargeScreen) {
-      setIsSideMenuCollapsed(true);
-    } else {
-      const stored = localStorage.getItem("side-menu-collapsed");
-      setIsSideMenuCollapsed(stored === "true");
-    }
-  }, [isLargeScreen]);
 
   // Prevent body scroll when overlay is open
   useEffect(() => {
@@ -87,47 +52,59 @@ export function AppLayout({ children, topMenu, variant = "full", maxWidth = "640
   }, [isOverlayOpen]);
 
   return (
-    <div
-      className={`${className} flex h-screen flex-col`}
-      style={style}
-      // Prevent interaction with content when overlay is open, but not with the menu
-      {...(isOverlayOpen && ({ inert: "" } as unknown as React.HTMLAttributes<HTMLDivElement>))}
-    >
-      {/* Fixed TopMenu with blur effect */}
-      <div
-        className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-3 backdrop-blur-sm ${
-          isMobileMenuOpen ? "hidden" : ""
-        }`}
-        style={{ marginLeft: style.marginLeft }}
+    <>
+      {/* Skip navigation link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
       >
-        {topMenu}
-      </div>
-      {/* Soft gradient fade below TopMenu */}
+        Skip to main content
+      </a>
       <div
-        className={`pointer-events-none fixed inset-x-0 top-[60px] z-30 h-4 bg-gradient-to-b from-background/30 to-transparent ${
-          isMobileMenuOpen ? "hidden" : ""
-        }`}
-        style={{ marginLeft: style.marginLeft }}
-      />
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-screen`}
+        style={style}
+      >
+        {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
+        <div
+          role="complementary"
+          className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
+            isMobileMenuOpen ? "hidden" : ""
+          } hidden sm:block`}
+          aria-label="Secondary navigation"
+        >
+          <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
+        </div>
 
-      {/* Scrollable content area with bounce */}
-      <div className="flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 sm:pt-24">
-        {variant === "center" ? (
-          <div className="flex w-full flex-col items-center">
-            <div
-              className="w-full"
-              style={{
-                maxWidth,
-                transform: isLargeScreen && !isSideMenuCollapsed ? "translateX(-50px)" : "translateX(0)"
-              }}
-            >
-              {children}
+        {/* Main content area */}
+        <main
+          className={`flex h-full min-h-[600px] w-full flex-1 flex-col px-4 pt-4 transition-all duration-100 ease-in-out sm:pt-28 ${
+            sidePane ? "overflow-x-auto" : ""
+          }`}
+          id="main-content"
+          aria-label="Main content"
+          tabIndex={-1}
+        >
+          {variant === "center" ? (
+            <div className="flex w-full flex-col items-center">
+              <div className="w-full" style={{ maxWidth }}>
+                {children}
+              </div>
             </div>
-          </div>
-        ) : (
-          children
+          ) : (
+            children
+          )}
+        </main>
+
+        {/* Side pane area - responsive behavior */}
+        {sidePane && (
+          <aside
+            className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:h-[calc(100vh-72px)] md:w-96"
+            aria-label="Side panel"
+          >
+            {sidePane}
+          </aside>
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -55,12 +55,12 @@ msgstr "Admin"
 msgid "All users"
 msgstr "Alle brugere"
 
+msgid "An email with login instructions will be sent to the user."
+msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
+
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
-
-msgid "An invitation email will be sent to the user with a link to log in."
-msgstr "En invitations-e-mail vil blive sendt til brugeren med et link til login."
 
 msgid "Any role"
 msgstr "Enhver rolle"
@@ -102,6 +102,10 @@ msgstr "Skift rolle"
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
+msgid "Change user role for {0}"
+msgstr "Skift brugerrolle for {0}"
+
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
 
@@ -110,6 +114,9 @@ msgstr "Ryd"
 
 msgid "Clear filters"
 msgstr "Ryd filtre"
+
+msgid "Close user profile"
+msgstr "Luk brugerprofil"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -129,9 +136,9 @@ msgstr "Mørk"
 msgid "Delete"
 msgstr "Slet"
 
-#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
-msgid "Delete {0}"
-msgstr "Slet {0}"
+#. placeholder {0}: selectedUsers.length
+msgid "Delete {0} users"
+msgstr "Slet {0} brugere"
 
 msgid "Delete account"
 msgstr "Slet konto"
@@ -208,9 +215,6 @@ msgstr "Billedet skal være mindre end 1 MB."
 msgid "Invite user"
 msgstr "Inviter bruger"
 
-msgid "Invite users"
-msgstr "Inviter brugere"
-
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
@@ -244,9 +248,6 @@ msgstr "Administrer dine brugere og tilladelser her."
 msgid "Member"
 msgstr "Medlem"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Ændret"
 
@@ -264,6 +265,9 @@ msgstr "Næste"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Only account owners can modify the account name"
+msgstr "Kun kontoejere kan ændre kontonavnet"
 
 msgid "Organization"
 msgstr "Organisation"
@@ -395,11 +399,23 @@ msgstr "Opdater dit profilbillede og personlige oplysninger her."
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
+msgid "User actions"
+msgstr "Brugerhandlinger"
+
+msgid "User data updated"
+msgstr "Brugerdata opdateret"
+
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"
 
+msgid "User not in current view"
+msgstr "Bruger ikke i nuværende visning"
+
 msgid "User profile"
 msgstr "Brugerprofil"
+
+msgid "User profile details"
+msgstr "Brugerprofiloplysninger"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
@@ -424,6 +440,9 @@ msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
 msgid "Verification code sent"
 msgstr "Bekræftelseskode sendt"
+
+msgid "Verified"
+msgstr "Bekræftet"
 
 msgid "Verify"
 msgstr "Bekræft"

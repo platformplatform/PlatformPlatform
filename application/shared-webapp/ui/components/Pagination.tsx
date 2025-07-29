@@ -45,7 +45,13 @@ export function Pagination({
 
   return (
     <nav aria-label="Pagination" className={paginationStyles({ className })}>
-      <Button variant="secondary" className="" onPress={handlePrevious} isDisabled={currentPage === 1}>
+      <Button
+        variant="secondary"
+        className=""
+        onPress={handlePrevious}
+        isDisabled={currentPage === 1}
+        aria-label={previousLabel ? String(previousLabel) : "Previous page"}
+      >
         <ArrowLeftIcon className="h-4 w-4" />
         {previousLabel && <span className="hidden sm:block">{previousLabel}</span>}
       </Button>
@@ -59,7 +65,13 @@ export function Pagination({
         />
       </FocusScope>
 
-      <Button variant="secondary" className="" onPress={handleNext} isDisabled={currentPage === totalPages}>
+      <Button
+        variant="secondary"
+        className=""
+        onPress={handleNext}
+        isDisabled={currentPage === totalPages}
+        aria-label={nextLabel ? String(nextLabel) : "Next page"}
+      >
         {nextLabel && <span className="hidden sm:block">{nextLabel}</span>}
         <ArrowRightIcon className="h-4 w-4" />
       </Button>

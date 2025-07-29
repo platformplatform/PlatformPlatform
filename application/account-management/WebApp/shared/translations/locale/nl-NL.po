@@ -55,12 +55,12 @@ msgstr "Beheerder"
 msgid "All users"
 msgstr "Alle gebruikers"
 
+msgid "An email with login instructions will be sent to the user."
+msgstr "Een e-mail met inloginstructies zal naar de gebruiker worden gestuurd."
+
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
-
-msgid "An invitation email will be sent to the user with a link to log in."
-msgstr "Een uitnodigingsmail wordt naar de gebruiker gestuurd met een link om in te loggen."
 
 msgid "Any role"
 msgstr "Elke rol"
@@ -102,6 +102,10 @@ msgstr "Rol wijzigen"
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
+#. placeholder {0}: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email
+msgid "Change user role for {0}"
+msgstr "Gebruikersrol wijzigen voor {0}"
+
 msgid "Check your spam folder."
 msgstr "Controleer je spammap."
 
@@ -110,6 +114,9 @@ msgstr "Wissen"
 
 msgid "Clear filters"
 msgstr "Filters wissen"
+
+msgid "Close user profile"
+msgstr "Gebruikersprofiel sluiten"
 
 msgid "Continue"
 msgstr "Verder"
@@ -129,9 +136,9 @@ msgstr "Donker"
 msgid "Delete"
 msgstr "Verwijderen"
 
-#. placeholder {0}: selectedUsers.length === 1 ? "user" : `${selectedUsers.length} users`
-msgid "Delete {0}"
-msgstr "Verwijder {0}"
+#. placeholder {0}: selectedUsers.length
+msgid "Delete {0} users"
+msgstr "Verwijder {0} gebruikers"
 
 msgid "Delete account"
 msgstr "Account verwijderen"
@@ -208,9 +215,6 @@ msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
 
-msgid "Invite users"
-msgstr "Gebruikers uitnodigen"
-
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
@@ -244,9 +248,6 @@ msgstr "Beheer je gebruikers en rechten hier."
 msgid "Member"
 msgstr "Lid"
 
-msgid "Menu"
-msgstr "Menu"
-
 msgid "Modified"
 msgstr "Gewijzigd"
 
@@ -264,6 +265,9 @@ msgstr "Volgende"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Only account owners can modify the account name"
+msgstr "Alleen accounteigenaren kunnen de accountnaam wijzigen"
 
 msgid "Organization"
 msgstr "Organisatie"
@@ -395,11 +399,23 @@ msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
 
+msgid "User actions"
+msgstr "Gebruikersacties"
+
+msgid "User data updated"
+msgstr "Gebruikersgegevens bijgewerkt"
+
 msgid "User invited successfully"
 msgstr "Gebruiker succesvol uitgenodigd"
 
+msgid "User not in current view"
+msgstr "Gebruiker niet in huidige weergave"
+
 msgid "User profile"
 msgstr "Gebruikersprofiel"
+
+msgid "User profile details"
+msgstr "Details van gebruikersprofiel"
 
 msgid "User profile menu"
 msgstr "Gebruikersprofielmenu"
@@ -424,6 +440,9 @@ msgstr "Gebruikers die hun e-mail niet hebben bevestigd"
 
 msgid "Verification code sent"
 msgstr "Verificatiecode verzonden"
+
+msgid "Verified"
+msgstr "Geverifieerd"
 
 msgid "Verify"
 msgstr "Verifiëren"

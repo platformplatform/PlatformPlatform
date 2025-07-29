@@ -39,7 +39,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           <Trans>Invite user</Trans>
         </Heading>
         <p className="text-muted-foreground text-sm">
-          <Trans>An invitation email will be sent to the user with a link to log in.</Trans>
+          <Trans>An email with login instructions will be sent to the user.</Trans>
         </p>
 
         <Form

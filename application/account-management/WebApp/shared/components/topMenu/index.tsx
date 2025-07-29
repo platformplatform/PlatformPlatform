@@ -11,27 +11,32 @@ import AvatarButton from "../AvatarButton";
 
 interface TopMenuProps {
   children?: ReactNode;
+  sidePaneOpen?: boolean;
 }
 
-export function TopMenu({ children }: Readonly<TopMenuProps>) {
+export function TopMenu({ children, sidePaneOpen = false }: Readonly<TopMenuProps>) {
   return (
-    <nav className="hidden w-full items-center justify-between sm:flex">
+    <nav className="flex w-full items-center justify-between">
       <Breadcrumbs>
         <Breadcrumb href="/admin">
           <Trans>Home</Trans>
         </Breadcrumb>
         {children}
       </Breadcrumbs>
-      <div className="flex flex-row items-center gap-6">
+      <div
+        className={`flex flex-row items-center gap-6 transition-transform duration-100 ease-in-out ${
+          sidePaneOpen ? "sm:-translate-x-96 sm:transform" : ""
+        }`}
+      >
         <span className="flex gap-2">
           <ThemeModeSelector aria-label={t`Toggle theme`} />
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <Button variant="icon" aria-label={t`Help`}>
               <LifeBuoyIcon size={20} />
             </Button>
             <Tooltip>{t`Support`}</Tooltip>
           </TooltipTrigger>
-          <TooltipTrigger delay={200}>
+          <TooltipTrigger>
             <LocaleSwitcher aria-label={t`Select language`} />
             <Tooltip>{t`Change language`}</Tooltip>
           </TooltipTrigger>

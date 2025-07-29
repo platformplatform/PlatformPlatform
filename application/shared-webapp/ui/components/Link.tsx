@@ -7,7 +7,7 @@ import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
 
 interface LinkProps extends AriaLinkProps {
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "destructive" | "ghost";
   underline?: boolean | "hover";
   size?: "md" | "sm" | "lg";
 }
@@ -20,7 +20,7 @@ const styles = tv({
       primary: "text-primary hover:text-primary/90",
       secondary: "text-secondary-foreground hover:text-secondary-foreground/90",
       destructive: "text-destructive hover:text-destructive/90",
-      ghost: "text-muted-foreground hover:text-muted-foreground/90"
+      ghost: "text-accent-foreground hover:bg-hover-background hover:text-accent-foreground/90"
     },
     underline: {
       true: "underline disabled:no-underline",

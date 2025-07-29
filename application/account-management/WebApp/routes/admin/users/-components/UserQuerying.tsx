@@ -11,10 +11,11 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { FilterIcon, FilterXIcon, XIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
@@ -28,20 +29,33 @@ interface SearchParams {
   pageOffset: number | undefined;
 }
 
+interface UserQueryingProps {
+  onFilterStateChange?: (
+    isFilterBarExpanded: boolean,
+    hasActiveFilters: boolean,
+    shouldUseCompactButtons: boolean
+  ) => void;
+  onFiltersUpdated?: () => void;
+}
+
 /**
  * UserQuerying component handles the user list filtering.
  * Uses URL parameters as the single source of truth for all filters.
  * The only local state is for the search input, which is debounced
  * to prevent too many URL updates while typing.
  */
-export function UserQuerying() {
+export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
+  const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
+  const [searchTimeoutId, setSearchTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [, forceUpdate] = useState({});
 
   // Convert URL date strings to DateRange if they exist
   const dateRange =
@@ -54,27 +68,40 @@ export function UserQuerying() {
 
   // Updates URL parameters while preserving existing ones
   const updateFilter = useCallback(
-    (params: Partial<SearchParams>) => {
+    (params: Partial<SearchParams>, isSearchUpdate = false) => {
       navigate({
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
           ...params,
-          pageOffset: prev.pageOffset === 0 ? undefined : prev.pageOffset
+          pageOffset: undefined,
+          userId: undefined
         })
       });
+      // Only call onFiltersUpdated for actual filter changes, not search updates
+      if (!isSearchUpdate) {
+        onFiltersUpdated?.();
+      }
     },
-    [navigate]
+    [navigate, onFiltersUpdated]
   );
 
   // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      updateFilter({ search: (search as string) || undefined });
-    }, 500);
+    // Only update if search value actually changed from URL params
+    if (search !== searchParams.search) {
+      const timeoutId = setTimeout(() => {
+        updateFilter({ search: (search as string) || undefined }, true);
+        setSearchTimeoutId(null);
+      }, 500);
+      setSearchTimeoutId(timeoutId);
 
-    return () => clearTimeout(timeoutId);
-  }, [search, updateFilter]);
+      return () => {
+        clearTimeout(timeoutId);
+        setSearchTimeoutId(null);
+      };
+    }
+  }, [search, searchParams.search, updateFilter]);
 
   // Count active filters for badge
   const getActiveFilterCount = () => {
@@ -93,25 +120,152 @@ export function UserQuerying() {
 
   const activeFilterCount = getActiveFilterCount();
 
-  // Handle screen size changes to show/hide filters appropriately
+  // Detect if side pane is open by checking DOM
+  const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
+
   useEffect(() => {
-    const handleResize = () => {
-      const isLargeScreen = window.matchMedia(MEDIA_QUERIES.lg).matches;
-      if (isLargeScreen && activeFilterCount > 0 && !showAllFilters) {
-        // On large screens, show inline filters if there are active filters
+    const checkSidePaneState = () => {
+      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-[60]"]');
+      const isOpen = !!sidePane;
+      if (isOpen !== isSidePaneOpen) {
+        setIsSidePaneOpen(isOpen);
+      }
+    };
+
+    // Check immediately
+    checkSidePaneState();
+
+    // Use MutationObserver to detect when side pane is added/removed
+    const observer = new MutationObserver(checkSidePaneState);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [isSidePaneOpen]);
+
+  // Handle screen size and container space changes to show/hide filters appropriately
+  useEffect(() => {
+    let debounceTimeout: NodeJS.Timeout | null = null;
+    let lastStateChange = 0;
+
+    const shouldSkipSpaceCheck = (now: number) => {
+      return now - lastStateChange < 200;
+    };
+
+    const shouldHideFiltersForOverlays = () => {
+      return isOverlayOpen || isMobileMenuOpen;
+    };
+
+    const getToolbarContainer = () => {
+      if (!containerRef.current) {
+        return null;
+      }
+      return containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
+    };
+
+    const calculateAvailableSpace = (toolbarContainer: HTMLElement) => {
+      const toolbarWidth = toolbarContainer.offsetWidth;
+      const searchField = containerRef.current?.querySelector('input[type="text"]') as HTMLElement;
+      const filterButton = containerRef.current?.querySelector('[data-testid="filter-button"]') as HTMLElement;
+
+      const searchWidth = searchField?.offsetWidth || 300;
+      const filterButtonWidth = filterButton?.offsetWidth || 50;
+      const rightSideWidth = 130;
+      const gaps = 16;
+
+      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+      return toolbarWidth - usedSpace;
+    };
+
+    const updateFiltersVisibility = (hasSpace: boolean, now: number) => {
+      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
+        lastStateChange = now;
         setShowAllFilters(true);
-      } else if (!isLargeScreen && showAllFilters) {
-        // On small/medium screens, hide inline filters
+      } else if (!hasSpace && showAllFilters) {
+        lastStateChange = now;
         setShowAllFilters(false);
       }
     };
 
-    // Check on mount
-    handleResize();
+    const checkFilterSpace = () => {
+      const now = Date.now();
+
+      if (shouldSkipSpaceCheck(now)) {
+        return;
+      }
+
+      if (shouldHideFiltersForOverlays()) {
+        if (showAllFilters) {
+          lastStateChange = now;
+          setShowAllFilters(false);
+        }
+        return;
+      }
+
+      const toolbarContainer = getToolbarContainer();
+      if (!toolbarContainer) {
+        return;
+      }
+
+      const availableSpace = calculateAvailableSpace(toolbarContainer);
+      const minimumFilterSpace = 300;
+      const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+
+      updateFiltersVisibility(hasSpaceForInlineFilters, now);
+    };
+
+    const debouncedCheckFilterSpace = () => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+      debounceTimeout = setTimeout(checkFilterSpace, 100);
+    };
+
+    // Run check immediately
+    checkFilterSpace();
+
+    // Also listen for resize events to handle browser-specific timing issues
+    const handleResize = () => {
+      debouncedCheckFilterSpace();
+    };
+
+    // Listen for side menu events that affect layout
+    const handleSideMenuToggle = () => {
+      debouncedCheckFilterSpace();
+    };
+
+    const handleSideMenuResize = () => {
+      debouncedCheckFilterSpace();
+    };
+
+    // Force a recheck after mount to ensure correct initial state across browsers
+    const timeoutId = setTimeout(() => {
+      forceUpdate({});
+      checkFilterSpace();
+    }, 100);
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [activeFilterCount, showAllFilters]);
+    window.addEventListener("side-menu-toggle", handleSideMenuToggle);
+    window.addEventListener("side-menu-resize", handleSideMenuResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("side-menu-toggle", handleSideMenuToggle);
+      window.removeEventListener("side-menu-resize", handleSideMenuResize);
+      clearTimeout(timeoutId);
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen]);
+
+  // Notify parent component when filter state changes
+  useEffect(() => {
+    // On 2XL+ screens, keep full buttons even with filters
+    const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
+    const shouldUseCompactButtons = !is2XlScreen && (showAllFilters || activeFilterCount > 0);
+
+    onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
+  }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
     updateFilter({ userRole: undefined, userStatus: undefined, startDate: undefined, endDate: undefined });
@@ -120,8 +274,22 @@ export function UserQuerying() {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <SearchField placeholder={t`Search`} value={search} onChange={setSearch} label={t`Search`} autoFocus={true} />
+    <div ref={containerRef} className="flex items-center gap-2">
+      <SearchField
+        placeholder={t`Search`}
+        value={search}
+        onChange={setSearch}
+        onSubmit={() => {
+          if (searchTimeoutId) {
+            clearTimeout(searchTimeoutId);
+            setSearchTimeoutId(null);
+          }
+          updateFilter({ search: (search as string) || undefined }, true);
+        }}
+        label={t`Search`}
+        autoFocus={true}
+        className="min-w-32"
+      />
 
       {showAllFilters && (
         <>
@@ -176,38 +344,80 @@ export function UserQuerying() {
       )}
 
       {/* Filter button with responsive behavior */}
-      <Button
-        variant="secondary"
-        className="relative mt-6"
-        aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
-        data-testid="filter-button"
-        onPress={() => {
-          // On large screens, if filters are showing, clear them instead of opening dialog
-          const isLargeScreen = window.matchMedia(MEDIA_QUERIES.lg).matches;
-          if (isLargeScreen && showAllFilters) {
-            clearAllFilters();
-            return;
-          }
-          // On large screens, toggle inline filters
-          if (isLargeScreen) {
-            setShowAllFilters(!showAllFilters);
-            return;
-          }
-          // On small/medium screens, open dialog
-          setIsFilterPanelOpen(true);
-        }}
-      >
-        {showAllFilters ? (
-          <FilterXIcon size={16} aria-label={t`Clear filters`} />
-        ) : (
-          <FilterIcon size={16} aria-label={t`Show filters`} />
-        )}
-        {activeFilterCount > 0 && (
-          <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs lg:hidden">
-            {activeFilterCount}
-          </span>
-        )}
-      </Button>
+      <TooltipTrigger>
+        <Button
+          variant="secondary"
+          className="relative mt-6"
+          aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
+          data-testid="filter-button"
+          onPress={() => {
+            // If filters are currently showing and user clicks, always clear filters
+            // This ensures consistent behavior regardless of space calculations
+            if (showAllFilters) {
+              clearAllFilters();
+              return;
+            }
+
+            // Force modal when overlays are open (blocks interaction)
+            if (isOverlayOpen || isMobileMenuOpen) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
+
+            if (!containerRef.current) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
+
+            // Measure the actual available space by finding the parent toolbar container
+            const toolbarContainer = containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
+            if (!toolbarContainer) {
+              setIsFilterPanelOpen(true);
+              return;
+            }
+
+            const toolbarWidth = toolbarContainer.offsetWidth;
+            const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
+            const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
+
+            // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
+            const searchWidth = searchField?.offsetWidth || 300;
+            const filterButtonWidth = filterButton?.offsetWidth || 50;
+
+            // For space calculation, assume buttons will be compact (130px) when filters are shown
+            // This accounts for the fact that showing filters makes buttons compact, freeing up space
+            const rightSideWidth = 130;
+
+            const gaps = 16; // gap-2 between main sections
+            const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+
+            const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+            const availableSpace = toolbarWidth - usedSpace;
+
+            const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+
+            if (hasSpaceForInlineFilters) {
+              // If we have space but filters aren't showing, toggle them
+              setShowAllFilters(!showAllFilters);
+              return;
+            }
+            // If we don't have space, open dialog
+            setIsFilterPanelOpen(true);
+          }}
+        >
+          {showAllFilters ? (
+            <ListFilterPlus size={16} aria-label={t`Clear filters`} />
+          ) : (
+            <ListFilter size={16} aria-label={t`Show filters`} />
+          )}
+          {activeFilterCount > 0 && !showAllFilters && (
+            <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+              {activeFilterCount}
+            </span>
+          )}
+        </Button>
+        <Tooltip>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</Tooltip>
+      </TooltipTrigger>
 
       {/* Filter dialog for small/medium screens */}
       <Modal isOpen={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen} isDismissable={true}>

@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { MenuButton, SideMenu, SideMenuSpacer } from "@repo/ui/components/SideMenu";
 import { BoxIcon, HomeIcon } from "lucide-react";
 import type React from "react";
@@ -9,8 +10,10 @@ type SharedSideMenuProps = {
 };
 
 export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuProps>) {
+  const userInfo = useUserInfo();
+
   return (
-    <SideMenu ariaLabel={ariaLabel}>
+    <SideMenu ariaLabel={ariaLabel} tenantName={userInfo?.tenantName}>
       <MenuButton icon={HomeIcon} label={t`Home`} href="/back-office" />
       {children}
 

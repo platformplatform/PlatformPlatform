@@ -26,8 +26,8 @@ import {
   UserIcon,
   UsersIcon
 } from "lucide-react";
-import { use, useContext, useState } from "react";
 import type React from "react";
+import { use, useContext, useState } from "react";
 import UserProfileModal from "./userModals/UserProfileModal";
 
 type SharedSideMenuProps = {
@@ -223,7 +223,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
       </div>
 
       {/* Divider */}
-      <div className="mx-3 my-5 border-border/50 border-b" />
+      <div className="mx-3 my-5 border-border border-b" />
 
       {/* Navigation Section for Mobile */}
       <div className="flex flex-col gap-3">
@@ -246,7 +246,7 @@ export function SharedSideMenu({ children, ariaLabel }: Readonly<SharedSideMenuP
 
   return (
     <>
-      <SideMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent}>
+      <SideMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} tenantName={userInfo?.tenantName}>
         <MenuButton icon={HomeIcon} label={t`Home`} href="/admin" />
         <SideMenuSeparator>
           <Trans>Organization</Trans>

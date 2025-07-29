@@ -134,7 +134,7 @@ const rowStyles = tv({
       true: "text-muted-foreground/90"
     },
     isSelected: {
-      true: "bg-active-background hover:bg-selected-hover-background"
+      true: "rounded-md bg-active-background hover:bg-active-background"
     }
   }
 });
@@ -161,7 +161,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0 group-selected/row:border-accent [:has(+[data-selected])_&]:border-accent"
+  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0"
 });
 
 type CellProps = {

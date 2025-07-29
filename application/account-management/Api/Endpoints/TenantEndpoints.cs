@@ -19,7 +19,7 @@ public sealed class TenantEndpoints : IEndpoints
         ).Produces<TenantResponse>();
 
         group.MapPut("/current", async Task<ApiResult> (UpdateCurrentTenantCommand command, IMediator mediator)
-            => await mediator.Send(command)
+            => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
 
         routes.MapDelete("/internal-api/account-management/tenants/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
