@@ -9,6 +9,8 @@ alwaysApply: true
 * BrowserMCP: Use this to troubleshoot frontend issues. The base URL is https://localhost:9000. The website is already running, so never start it manually.
 * `[PRODUCT_MANAGEMENT_TOOL]`: Use this MCP tool to create and manage product backlog items. 
 
+If an MCP Server is not responding, instruct the user to activate it rather than using workarounds like calling `curl` when the browser MCP is unavailable.
+
 # Product Management Tools
 
 > **Update this value in ONE place:**
@@ -25,7 +27,7 @@ Use the `[CLI_ALIAS]` Developer CLI to build, test, and format backend and front
 
 Always use the Developer CLI to build, test, and format code correctly over using direct commands like `npm run format` or `dotnet test`.
 
-**IMPORTANT:** Never fall back to using direct commands like `npm run format` or `dotnet test`. Always use the Developer CLI with the appropriate alias.
+**IMPORTANT:** Never fall back to using direct commands like `npm run format`, `dotnet test`, `npx playwright test`, `npm test`, etc. Always use the Developer CLI with the appropriate alias.
 
 ## CLI Alias Configuration
 
@@ -66,6 +68,29 @@ After you have completed a backend task and want to ensure that it works as expe
 # Run tests for specific solution
 [CLI_ALIAS] test --solution-name <solution-name>
 ```
+
+## End-to-End Test Commands
+
+```bash
+# Run all end-to-end tests except slow tests
+[CLI_ALIAS] e2e
+
+# Run end-to-end tests for specific so  lution
+[CLI_ALIAS] e2e --self-contained-system <self-contained-system-name>
+
+# Run end-to-end tests for specific browser
+[CLI_ALIAS] e2e --browser <browser-name>
+
+# Run end-to-end tests for specific search term
+[CLI_ALIAS] e2e <search-term>
+
+# Run end-to-end tests for specific test tags
+[CLI_ALIAS] e2e "@smoke"
+[CLI_ALIAS] e2e "smoke"
+[CLI_ALIAS] e2e "@comprehensive"
+```
+
+Any combination of the above parameters is possible. There are other parameters available, but you should only use the ones mentioned above.
 
 ## Format Commands
 
