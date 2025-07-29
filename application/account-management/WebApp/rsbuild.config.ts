@@ -21,7 +21,11 @@ export default defineConfig({
     DevelopmentServerPlugin({ port: 9101 }),
     ModuleFederationPlugin({
       exposes: {
-        "./AvatarButton": "./shared/components/AvatarButton.tsx"
+        "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
+        "./FederatedTopMenu": "./federated-modules/topMenu/FederatedTopMenu.tsx",
+        "./translations/en-US": "./shared/translations/locale/en-US.ts",
+        "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
+        "./translations/nl-NL": "./shared/translations/locale/nl-NL.ts"
       }
     })
   ]

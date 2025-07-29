@@ -75,6 +75,9 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
 
+msgid "Back Office"
+msgstr "Backoffice"
+
 msgid "Back to login"
 msgstr "Terug naar inloggen"
 
@@ -99,6 +102,9 @@ msgstr "Profielfoto wijzigen"
 msgid "Change role"
 msgstr "Rol wijzigen"
 
+msgid "Change theme"
+msgstr "Thema wijzigen"
+
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
 
@@ -115,8 +121,14 @@ msgstr "Wissen"
 msgid "Clear filters"
 msgstr "Filters wissen"
 
+msgid "Close"
+msgstr "Sluiten"
+
 msgid "Close user profile"
 msgstr "Gebruikersprofiel sluiten"
+
+msgid "Contact support"
+msgstr "Ondersteuning contacteren"
 
 msgid "Continue"
 msgstr "Verder"
@@ -132,6 +144,9 @@ msgstr "Gevaarzone"
 
 msgid "Dark"
 msgstr "Donker"
+
+msgid "Dashboard"
+msgstr "Dashboard"
 
 msgid "Delete"
 msgstr "Verwijderen"
@@ -188,6 +203,9 @@ msgstr "Fout: Er is iets misgegaan!"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Voel je vrij om contact op te nemen met vragen of problemen die je hebt."
+
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
@@ -196,9 +214,6 @@ msgstr "Filters"
 
 msgid "First name"
 msgstr "Voornaam"
-
-msgid "Help"
-msgstr "Help"
 
 msgid "Here's your overview of what's happening."
 msgstr "Hier is je overzicht van wat er gebeurt."
@@ -260,6 +275,9 @@ msgstr "Naam"
 msgid "Navigation"
 msgstr "Navigatie"
 
+msgid "Need help? Our support team is here to assist you."
+msgstr "Hulp nodig? Ons ondersteuningsteam staat voor je klaar."
+
 msgid "Next"
 msgstr "Volgende"
 
@@ -269,8 +287,14 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Alleen accounteigenaren kunnen de accountnaam wijzigen"
 
+msgid "Open navigation menu"
+msgstr "Navigatiemenu openen"
+
 msgid "Organization"
 msgstr "Organisatie"
+
+msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+msgstr "Ons ondersteuningsteam helpt je met het verwijderen van je account en al je gegevens."
 
 msgid "Owner"
 msgstr "Eigenaar"
@@ -326,9 +350,6 @@ msgstr "Opslaan..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versies"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Schermafbeeldingen van het dashboardproject met mobiele versies"
-
 msgid "Search"
 msgstr "Zoeken"
 
@@ -338,9 +359,6 @@ msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
 msgid "Select dates"
 msgstr "Selecteer datums"
-
-msgid "Select language"
-msgstr "Selecteer taal"
 
 msgid "Send invite"
 msgstr "Uitnodiging verzenden"
@@ -363,9 +381,6 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Success"
 msgstr "Succes"
 
-msgid "Support"
-msgstr "Ondersteuning"
-
 msgid "System"
 msgstr "Systeem"
 
@@ -381,11 +396,11 @@ msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
 msgid "Title"
 msgstr "Titel"
 
-msgid "Toggle collapsed menu"
-msgstr "Ingeklapt menu wisselen"
+msgid "To delete your account, please contact our support team."
+msgstr "Neem contact op met ons ondersteuningsteam om je account te verwijderen."
 
-msgid "Toggle theme"
-msgstr "Thema wisselen"
+msgid "Toggle sidebar"
+msgstr "Zijbalk wisselen"
 
 msgid "Total users"
 msgstr "Totale gebruikers"
@@ -468,9 +483,6 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
-
-msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."
 
 msgid "Your verification code has expired"
 msgstr "Je verificatiecode is verlopen"

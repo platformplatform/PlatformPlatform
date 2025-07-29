@@ -75,6 +75,9 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
+msgid "Back Office"
+msgstr "Back Office"
+
 msgid "Back to login"
 msgstr "Tilbage til login"
 
@@ -99,6 +102,9 @@ msgstr "Skift profilbillede"
 msgid "Change role"
 msgstr "Skift rolle"
 
+msgid "Change theme"
+msgstr "Skift tema"
+
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
@@ -115,8 +121,14 @@ msgstr "Ryd"
 msgid "Clear filters"
 msgstr "Ryd filtre"
 
+msgid "Close"
+msgstr "Luk"
+
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
+
+msgid "Contact support"
+msgstr "Kontakt support"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -132,6 +144,9 @@ msgstr "Farezone"
 
 msgid "Dark"
 msgstr "Mørk"
+
+msgid "Dashboard"
+msgstr "Dashboard"
 
 msgid "Delete"
 msgstr "Slet"
@@ -188,6 +203,9 @@ msgstr "Fejl: Noget gik galt!"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
+
 msgid "Fetching data..."
 msgstr "Henter data..."
 
@@ -196,9 +214,6 @@ msgstr "Filtre"
 
 msgid "First name"
 msgstr "Fornavn"
-
-msgid "Help"
-msgstr "Hjælp"
 
 msgid "Here's your overview of what's happening."
 msgstr "Her er din oversigt over, hvad der sker."
@@ -260,6 +275,9 @@ msgstr "Navn"
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Need help? Our support team is here to assist you."
+msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
+
 msgid "Next"
 msgstr "Næste"
 
@@ -269,8 +287,14 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
 
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
 msgid "Organization"
 msgstr "Organisation"
+
+msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at alle dine data bliver fjernet."
 
 msgid "Owner"
 msgstr "Ejer"
@@ -326,9 +350,6 @@ msgstr "Gemmer..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Skærmbilleder af dashboard-projektet med mobilversioner"
-
 msgid "Search"
 msgstr "Søg"
 
@@ -338,9 +359,6 @@ msgstr "Vælg en ny rolle for <0>{0}</0>"
 
 msgid "Select dates"
 msgstr "Vælg datoer"
-
-msgid "Select language"
-msgstr "Vælg sprog"
 
 msgid "Send invite"
 msgstr "Send invitation"
@@ -363,9 +381,6 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "Success"
 msgstr "Succes"
 
-msgid "Support"
-msgstr "Support"
-
 msgid "System"
 msgstr "System"
 
@@ -381,11 +396,11 @@ msgstr "Dette er den region, hvor dine data er lagret"
 msgid "Title"
 msgstr "Titel"
 
-msgid "Toggle collapsed menu"
-msgstr "Skift kollapset menu"
+msgid "To delete your account, please contact our support team."
+msgstr "For at slette din konto bedes du kontakte vores supportteam."
 
-msgid "Toggle theme"
-msgstr "Skift tema"
+msgid "Toggle sidebar"
+msgstr "Skift sidepanel"
 
 msgid "Total users"
 msgstr "Totalt antal brugere"
@@ -468,9 +483,6 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
-
-msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."
 
 msgid "Your verification code has expired"
 msgstr "Din bekræftelseskode er udløbet"

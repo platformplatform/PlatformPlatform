@@ -75,6 +75,9 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Back Office"
+msgstr "Back Office"
+
 msgid "Back to login"
 msgstr "Back to login"
 
@@ -99,6 +102,9 @@ msgstr "Change profile picture"
 msgid "Change role"
 msgstr "Change role"
 
+msgid "Change theme"
+msgstr "Change theme"
+
 msgid "Change user role"
 msgstr "Change user role"
 
@@ -115,8 +121,14 @@ msgstr "Clear"
 msgid "Clear filters"
 msgstr "Clear filters"
 
+msgid "Close"
+msgstr "Close"
+
 msgid "Close user profile"
 msgstr "Close user profile"
+
+msgid "Contact support"
+msgstr "Contact support"
 
 msgid "Continue"
 msgstr "Continue"
@@ -132,6 +144,9 @@ msgstr "Danger zone"
 
 msgid "Dark"
 msgstr "Dark"
+
+msgid "Dashboard"
+msgstr "Dashboard"
 
 msgid "Delete"
 msgstr "Delete"
@@ -188,6 +203,9 @@ msgstr "Error: Something went wrong!"
 msgid "Europe"
 msgstr "Europe"
 
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Feel free to reach out with any questions or issues you may have."
+
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
@@ -196,9 +214,6 @@ msgstr "Filters"
 
 msgid "First name"
 msgstr "First name"
-
-msgid "Help"
-msgstr "Help"
 
 msgid "Here's your overview of what's happening."
 msgstr "Here's your overview of what's happening."
@@ -260,6 +275,9 @@ msgstr "Name"
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Need help? Our support team is here to assist you."
+msgstr "Need help? Our support team is here to assist you."
+
 msgid "Next"
 msgstr "Next"
 
@@ -269,8 +287,14 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
 
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
 msgid "Organization"
 msgstr "Organization"
+
+msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 
 msgid "Owner"
 msgstr "Owner"
@@ -326,9 +350,6 @@ msgstr "Saving..."
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
-msgid "Screenshots of the dashboard project with mobile versions"
-msgstr "Screenshots of the dashboard project with mobile versions"
-
 msgid "Search"
 msgstr "Search"
 
@@ -338,9 +359,6 @@ msgstr "Select a new role for <0>{0}</0>"
 
 msgid "Select dates"
 msgstr "Select dates"
-
-msgid "Select language"
-msgstr "Select language"
 
 msgid "Send invite"
 msgstr "Send invite"
@@ -363,9 +381,6 @@ msgstr "Signup verification code"
 msgid "Success"
 msgstr "Success"
 
-msgid "Support"
-msgstr "Support"
-
 msgid "System"
 msgstr "System"
 
@@ -381,11 +396,11 @@ msgstr "This is the region where your data is stored"
 msgid "Title"
 msgstr "Title"
 
-msgid "Toggle collapsed menu"
-msgstr "Toggle collapsed menu"
+msgid "To delete your account, please contact our support team."
+msgstr "To delete your account, please contact our support team."
 
-msgid "Toggle theme"
-msgstr "Toggle theme"
+msgid "Toggle sidebar"
+msgstr "Toggle sidebar"
 
 msgid "Total users"
 msgstr "Total users"
@@ -468,9 +483,6 @@ msgstr "Welcome home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welcome home, {0}"
-
-msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
-msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 
 msgid "Your verification code has expired"
 msgstr "Your verification code has expired"

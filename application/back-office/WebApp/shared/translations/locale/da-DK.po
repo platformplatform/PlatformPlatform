@@ -13,29 +13,11 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
-msgid "Account management"
-msgstr "Kontoadministration"
-
-msgid "Help"
-msgstr "Hjælp"
-
 msgid "Home"
 msgstr "Hjem"
 
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
-
-msgid "Select language"
-msgstr "Vælg sprog"
-
-msgid "Toggle collapsed menu"
-msgstr "Skift kollapset menu"
-
-msgid "Toggle theme"
-msgstr "Skift tema"
-
-msgid "User profile menu"
-msgstr "Brugerprofilmenu"
 
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"

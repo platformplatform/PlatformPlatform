@@ -1,4 +1,4 @@
-import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 import { UserRole, api } from "@/shared/lib/api/client";
@@ -45,7 +45,7 @@ export function AccountSettings() {
 
   return (
     <>
-      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
+      <FederatedSideMenu currentSystem="account-management" />
       <AppLayout
         variant="center"
         topMenu={

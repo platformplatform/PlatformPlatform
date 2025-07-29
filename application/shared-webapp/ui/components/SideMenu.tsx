@@ -88,6 +88,10 @@ type MenuButtonProps = {
       forceReload: true;
       href: string;
     }
+  | {
+      federatedNavigation: true;
+      href: string;
+    }
 );
 
 // Helper function to get target path from href
@@ -152,13 +156,9 @@ function ActiveIndicator({
   );
 }
 
-export function MenuButton({
-  icon: Icon,
-  label,
-  href: to,
-  isDisabled = false,
-  forceReload = false
-}: Readonly<MenuButtonProps>) {
+export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
+  const forceReload = "forceReload" in props ? props.forceReload : false;
+  const federatedNavigation = "federatedNavigation" in props ? props.federatedNavigation : false;
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const router = useRouter();
@@ -201,8 +201,25 @@ export function MenuButton({
       overlayCtx.close();
     }
 
-    // Handle navigation for React Aria Link
-    if (forceReload) {
+    // Smart navigation for federated modules
+    if (federatedNavigation) {
+      // Check if the target route exists in the current router
+      try {
+        const matchResult = router.matchRoute({ to });
+        if (matchResult !== false) {
+          // Route exists in current system - use SPA navigation
+          // Don't do anything, let React Aria handle the navigation
+          return;
+        }
+      } catch {
+        // Route doesn't exist in current system
+      }
+
+      // Route doesn't exist in current system - force reload
+      window.location.href = to;
+    }
+    // Legacy forceReload behavior
+    else if (forceReload) {
       window.location.href = to;
     }
   };
@@ -214,7 +231,7 @@ export function MenuButton({
         <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
         <TooltipTrigger>
           <Link
-            href={forceReload ? undefined : to}
+            href={forceReload || federatedNavigation ? undefined : to}
             className={linkClassName}
             variant="ghost"
             underline={false}
@@ -232,7 +249,28 @@ export function MenuButton({
     );
   }
 
-  // For expanded menu, use TanStack Router Link
+  // For expanded menu
+  if (federatedNavigation) {
+    // For federated navigation, use React Aria Link to handle smart navigation
+    return (
+      <div className="relative">
+        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <Link
+          href={undefined}
+          className={linkClassName}
+          variant="ghost"
+          underline={false}
+          isDisabled={isDisabled}
+          aria-current={isActive ? "page" : undefined}
+          onPress={handlePress}
+        >
+          <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+        </Link>
+      </div>
+    );
+  }
+
+  // For regular navigation, use TanStack Router Link
   return (
     <div className="relative">
       <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
@@ -245,6 +283,122 @@ export function MenuButton({
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
       </RouterLink>
+    </div>
+  );
+}
+
+// Federated menu button for module federation
+type FederatedMenuButtonProps = {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  isCurrentSystem: boolean;
+  isDisabled?: boolean;
+};
+
+export function FederatedMenuButton({
+  icon: Icon,
+  label,
+  href: to,
+  isCurrentSystem,
+  isDisabled = false
+}: Readonly<FederatedMenuButtonProps>) {
+  const isCollapsed = useContext(collapsedContext);
+  const overlayCtx = useContext(overlayContext);
+  const router = useRouter();
+
+  // Check if this menu item is active
+  const currentPath = router.state.location.pathname;
+  const targetPath = to;
+  const isActive = normalizePath(currentPath) === normalizePath(targetPath);
+
+  // Check if we're in the mobile menu context
+  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
+
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isDisabled) {
+      e.preventDefault();
+      return;
+    }
+
+    // Auto-close overlay after navigation
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+
+    // Always prevent default to handle navigation ourselves
+    e.preventDefault();
+
+    if (isCurrentSystem) {
+      // Same system - use programmatic navigation
+      window.history.pushState({}, "", to);
+      // Dispatch a popstate event using the standard Event constructor
+      window.dispatchEvent(new Event("popstate"));
+    } else {
+      // Different system - force reload
+      window.location.href = to;
+    }
+  };
+
+  // For collapsed menu, wrap in TooltipTrigger
+  if (isCollapsed) {
+    return (
+      <div className="relative">
+        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <TooltipTrigger>
+          <Link
+            href={undefined}
+            className={linkClassName}
+            variant="ghost"
+            underline={false}
+            isDisabled={isDisabled}
+            aria-current={isActive ? "page" : undefined}
+            onPress={() => {
+              if (isDisabled) {
+                return;
+              }
+
+              // Auto-close overlay after navigation
+              if (overlayCtx?.isOpen) {
+                overlayCtx.close();
+              }
+
+              if (isCurrentSystem) {
+                // Same system - use programmatic navigation
+                window.history.pushState({}, "", to);
+                // Dispatch a popstate event using the standard Event constructor
+                window.dispatchEvent(new Event("popstate"));
+              } else {
+                // Different system - force reload
+                window.location.href = to;
+              }
+            }}
+          >
+            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+          </Link>
+          <Tooltip placement="right" offset={4}>
+            {label}
+          </Tooltip>
+        </TooltipTrigger>
+      </div>
+    );
+  }
+
+  // For expanded menu, use a regular anchor tag with onClick handler
+  return (
+    <div className="relative">
+      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <a
+        href={to}
+        className={linkClassName}
+        onClick={handleClick}
+        aria-disabled={isDisabled}
+        aria-current={isActive ? "page" : undefined}
+      >
+        <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+      </a>
     </div>
   );
 }
@@ -290,7 +444,8 @@ const chevronStyles = tv({
 
 type SideMenuProps = {
   children: React.ReactNode;
-  ariaLabel: string;
+  sidebarToggleAriaLabel: string;
+  mobileMenuAriaLabel: string;
   topMenuContent?: React.ReactNode;
   tenantName?: string;
 };
@@ -479,7 +634,13 @@ const ResizableToggleButton = ({
   </button>
 );
 
-export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Readonly<SideMenuProps>) {
+export function SideMenu({
+  children,
+  sidebarToggleAriaLabel,
+  mobileMenuAriaLabel,
+  topMenuContent,
+  tenantName
+}: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
@@ -701,13 +862,13 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
                     toggleMenu={toggleMenu}
                     menuWidth={menuWidth}
                     setMenuWidth={setMenuWidth}
-                    ariaLabel={ariaLabel}
+                    ariaLabel={sidebarToggleAriaLabel}
                     actualIsCollapsed={actualIsCollapsed}
                   />
                 ) : (
                   <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
                     <ToggleButton
-                      aria-label={ariaLabel}
+                      aria-label={sidebarToggleAriaLabel}
                       className={
                         "toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
                       }
@@ -731,7 +892,7 @@ export function SideMenu({ children, ariaLabel, topMenuContent, tenantName }: Re
 
       {/* Mobile floating button */}
       <collapsedContext.Provider value={false}>
-        <MobileMenu ariaLabel={ariaLabel} topMenuContent={topMenuContent} />
+        <MobileMenu ariaLabel={mobileMenuAriaLabel} topMenuContent={topMenuContent} />
       </collapsedContext.Provider>
     </>
   );

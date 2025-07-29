@@ -82,7 +82,7 @@
         }
       }
     },
-    "ignore": ["*/environment.d.ts", "*/tailwind-preset.ts"]
+    "ignore": ["*/environment.d.ts", "*/tailwind-preset.ts", "*/module-federation-types/*.d.ts"]
   },
   "files": {
     "ignore": ["*.Api.json"]

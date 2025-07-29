@@ -1,5 +1,5 @@
-import UserProfileModal from "@/shared/components/userModals/UserProfileModal";
 import { api } from "@/shared/lib/api/client";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -10,8 +10,10 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import UserProfileModal from "../common/UserProfileModal";
+import "@repo/ui/tailwind.css";
 
-export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
+export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [hasAutoOpenedModal, setHasAutoOpenedModal] = useState(false);
   const userInfo = useUserInfo();
@@ -29,11 +31,6 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
       setHasAutoOpenedModal(true);
     }
   }, [userInfo, hasAutoOpenedModal, isProfileModalOpen]);
-
-  const handleProfileModalClose = (isOpen: boolean) => {
-    setIsProfileModalOpen(isOpen);
-    // No need to check userInfo state here - once modal is closed by user, don't auto-open again
-  };
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
@@ -57,7 +54,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
   return (
     <>
       <MenuTrigger>
-        <Button aria-label={ariaLabel} variant="icon" className="rounded-full">
+        <Button aria-label={t`User profile menu`} variant="icon" className="rounded-full">
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
         </Button>
         <Menu placement="bottom end">
@@ -82,7 +79,7 @@ export default function AvatarButton({ "aria-label": ariaLabel }: Readonly<{ "ar
         </Menu>
       </MenuTrigger>
 
-      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={handleProfileModalClose} />
+      <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
     </>
   );
 }

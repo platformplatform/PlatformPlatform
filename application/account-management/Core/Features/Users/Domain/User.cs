@@ -1,4 +1,5 @@
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.Platform;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Domain;
 
@@ -36,6 +37,8 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
     public Avatar Avatar { get; private set; }
 
     public string Locale { get; private set; }
+
+    public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
 
     public TenantId TenantId { get; }
 

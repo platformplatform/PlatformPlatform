@@ -15,6 +15,7 @@ using PlatformPlatform.SharedKernel.DomainEvents;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.PipelineBehaviors;
+using PlatformPlatform.SharedKernel.Platform;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.SharedKernel.Configuration;
@@ -39,6 +40,7 @@ public static class SharedDependencyConfiguration
         return services
             .AddServiceDiscovery()
             .AddSingleton(GetTokenSigningService())
+            .AddSingleton(Settings.Current)
             .AddAuthentication()
             .AddDefaultJsonSerializerOptions()
             .AddPersistenceHelpers<T>()

@@ -1,7 +1,6 @@
-import { SharedSideMenu } from "@/shared/components/SharedSideMenu";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
@@ -105,7 +104,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <SharedSideMenu ariaLabel={t`Toggle collapsed menu`} />
+      <FederatedSideMenu currentSystem="account-management" />
       <AppLayout
         sidePane={
           profileUser ? (
