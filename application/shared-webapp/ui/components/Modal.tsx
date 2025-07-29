@@ -6,7 +6,7 @@ import { Modal as AriaModal, ModalOverlay, type ModalOverlayProps } from "react-
 import { tv } from "tailwind-variants";
 
 const overlayStyles = tv({
-  base: "fixed top-0 left-0 isolate z-20 flex h-[--visual-viewport-height] w-full bg-black/[15%] text-center",
+  base: "fixed top-0 left-0 isolate flex h-[--visual-viewport-height] w-full bg-black/[15%] text-center",
   variants: {
     isEntering: {
       true: "fade-in animate-in duration-200 ease-out"
@@ -23,22 +23,27 @@ const overlayStyles = tv({
     },
     fullSize: {
       true: "",
-      false: "p-4"
+      false: "p-2 sm:p-4"
     },
     blur: {
       true: "backdrop-blur-lg",
       false: ""
+    },
+    zIndex: {
+      normal: "z-[100]",
+      high: "z-[300]"
     }
   },
   defaultVariants: {
     position: "center",
     fullSize: false,
-    blur: true
+    blur: true,
+    zIndex: "normal"
   }
 });
 
 const modalStyles = tv({
-  base: "w-full rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
+  base: "flex max-h-[calc(100vh-2rem)] w-full flex-col overflow-hidden rounded-lg border border-border bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl sm:w-fit dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
       true: "zoom-in-105 animate-in duration-200 ease-out"
@@ -53,11 +58,15 @@ type ModalProps = {
   position?: "center" | "top" | "left" | "right" | "bottom";
   fullSize?: boolean;
   blur?: boolean;
+  zIndex?: "normal" | "high";
 } & ModalOverlayProps;
 
-export function Modal({ position, fullSize, blur, ...props }: Readonly<ModalProps>) {
+export function Modal({ position, fullSize, blur, zIndex, ...props }: Readonly<ModalProps>) {
   return (
-    <ModalOverlay {...props} className={(renderProps) => overlayStyles({ position, fullSize, blur, ...renderProps })}>
+    <ModalOverlay
+      {...props}
+      className={(renderProps) => overlayStyles({ position, fullSize, blur, zIndex, ...renderProps })}
+    >
       <AriaModal {...props} className={modalStyles} />
     </ModalOverlay>
   );

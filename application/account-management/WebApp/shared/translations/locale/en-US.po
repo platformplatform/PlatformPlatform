@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Account"
 
+msgid "Account information"
+msgstr "Account information"
+
 msgid "Account name"
 msgstr "Account name"
 
@@ -73,6 +76,9 @@ msgstr "Can't find your code? Check your spam folder."
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Change language"
+msgstr "Change language"
+
 msgid "Change profile picture"
 msgstr "Change profile picture"
 
@@ -81,6 +87,12 @@ msgstr "Change role"
 
 msgid "Change user role"
 msgstr "Change user role"
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Clear filters"
+msgstr "Clear filters"
 
 msgid "Continue"
 msgstr "Continue"
@@ -93,6 +105,9 @@ msgstr "Created"
 
 msgid "Danger zone"
 msgstr "Danger zone"
+
+msgid "Dark"
+msgstr "Dark"
 
 msgid "Delete"
 msgstr "Delete"
@@ -110,8 +125,8 @@ msgstr "Delete user"
 msgid "Delete users"
 msgstr "Delete users"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Didn't receive the code? Resend"
@@ -130,6 +145,9 @@ msgstr "E.g., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "E.g., Taylor"
+
+msgid "Edit"
+msgstr "Edit"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -155,6 +173,9 @@ msgstr "Europe"
 msgid "Fetching data..."
 msgstr "Fetching data..."
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "First name"
 msgstr "First name"
 
@@ -166,9 +187,6 @@ msgstr "Here's your overview of what's happening."
 
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
-
-msgid "Hide filters"
-msgstr "Hide filters"
 
 msgid "Home"
 msgstr "Home"
@@ -188,8 +206,14 @@ msgstr "Invite users and assign them roles. They will appear once they log in."
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Language"
+msgstr "Language"
+
 msgid "Last name"
 msgstr "Last name"
+
+msgid "Light"
+msgstr "Light"
 
 msgid "Log in"
 msgstr "Log in"
@@ -224,6 +248,9 @@ msgstr "Modified date"
 msgid "Name"
 msgstr "Name"
 
+msgid "Navigation"
+msgstr "Navigation"
+
 msgid "Next"
 msgstr "Next"
 
@@ -232,6 +259,9 @@ msgstr "No active login."
 
 msgid "No active signup session."
 msgstr "No active signup session."
+
+msgid "OK"
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organization"
@@ -291,6 +321,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Select dates"
+
 msgid "Select language"
 msgstr "Select language"
 
@@ -309,6 +342,12 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Support"
+msgstr "Support"
+
+msgid "System"
+msgstr "System"
+
 msgid "Terms of use"
 msgstr "Terms of use"
 
@@ -317,6 +356,9 @@ msgstr "The verification code you are trying to use has expired for Email Confir
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "The verification code you are trying to use has expired for Login ID: {loginId}"
+
+msgid "Theme"
+msgstr "Theme"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
@@ -383,6 +425,10 @@ msgstr "View users"
 
 msgid "Welcome home"
 msgstr "Welcome home"
+
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Welcome home, {0}"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."

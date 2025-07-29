@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Account"
 
+msgid "Account information"
+msgstr "Accountinformatie"
+
 msgid "Account name"
 msgstr "Accountnaam"
 
@@ -73,6 +76,9 @@ msgstr "Kun je je code niet vinden? Controleer je spammap."
 msgid "Cancel"
 msgstr "Annuleren"
 
+msgid "Change language"
+msgstr "Taal wijzigen"
+
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
 
@@ -81,6 +87,12 @@ msgstr "Rol wijzigen"
 
 msgid "Change user role"
 msgstr "Gebruikersrol wijzigen"
+
+msgid "Clear"
+msgstr "Wissen"
+
+msgid "Clear filters"
+msgstr "Filters wissen"
 
 msgid "Continue"
 msgstr "Verder"
@@ -93,6 +105,9 @@ msgstr "Aangemaakt"
 
 msgid "Danger zone"
 msgstr "Gevaarzone"
+
+msgid "Dark"
+msgstr "Donker"
 
 msgid "Delete"
 msgstr "Verwijderen"
@@ -110,8 +125,8 @@ msgstr "Gebruiker verwijderen"
 msgid "Delete users"
 msgstr "Gebruikers verwijderen"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Het account en alle bijbehorende gegevens worden verwijderd. Deze actie kan niet ongedaan worden gemaakt, dus ga voorzichtig te werk."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Verwijder je account en alle gegevens. Deze actie is onomkeerbaar—ga zorgvuldig te werk."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Code niet ontvangen? Verstuur opnieuw"
@@ -130,6 +145,9 @@ msgstr "Bijv., Software engineer"
 
 msgid "E.g., Taylor"
 msgstr "Bijv., Taylor"
+
+msgid "Edit"
+msgstr "Bewerken"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -155,6 +173,9 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Gegevens ophalen..."
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "First name"
 msgstr "Voornaam"
 
@@ -166,9 +187,6 @@ msgstr "Hier is je overzicht van wat er gebeurt."
 
 msgid "Hi! Welcome back"
 msgstr "Hallo! Welkom terug"
-
-msgid "Hide filters"
-msgstr "Filters verbergen"
 
 msgid "Home"
 msgstr "Home"
@@ -188,8 +206,14 @@ msgstr "Nodig gebruikers uit en wijs hen rollen toe. Ze verschijnen zodra ze inl
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
 
+msgid "Language"
+msgstr "Taal"
+
 msgid "Last name"
 msgstr "Achternaam"
+
+msgid "Light"
+msgstr "Licht"
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -224,6 +248,9 @@ msgstr "Gewijzigde datum"
 msgid "Name"
 msgstr "Naam"
 
+msgid "Navigation"
+msgstr "Navigatie"
+
 msgid "Next"
 msgstr "Volgende"
 
@@ -232,6 +259,9 @@ msgstr "Geen actieve login."
 
 msgid "No active signup session."
 msgstr "Geen actieve registratiesessie."
+
+msgid "OK"
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organisatie"
@@ -291,6 +321,9 @@ msgstr "Zoeken"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Selecteer datums"
+
 msgid "Select language"
 msgstr "Selecteer taal"
 
@@ -309,6 +342,12 @@ msgstr "Meld je in enkele seconden aan om te beginnen met bouwen op PlatformPlat
 msgid "Signup verification code"
 msgstr "Verificatiecode voor aanmelding"
 
+msgid "Support"
+msgstr "Ondersteuning"
+
+msgid "System"
+msgstr "Systeem"
+
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
 
@@ -317,6 +356,9 @@ msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor E-mailb
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "De verificatiecode die je probeert te gebruiken is verlopen voor Login ID: {loginId}"
+
+msgid "Theme"
+msgstr "Thema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dit is de regio waar je gegevens zijn opgeslagen"
@@ -383,6 +425,10 @@ msgstr "Gebruikers bekijken"
 
 msgid "Welcome home"
 msgstr "Welkom home"
+
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Welkom home, {0}"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Je staat op het punt om het account en de volledige gegevensomgeving permanent te verwijderen via PlatformPlatform.<0/><1/>Deze actie is definitief en onomkeerbaar."

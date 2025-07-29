@@ -16,6 +16,9 @@ msgstr ""
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account information"
+msgstr "Kontoinformation"
+
 msgid "Account name"
 msgstr "Kontonavn"
 
@@ -73,6 +76,9 @@ msgstr "Kan du ikke finde din kode? Tjek din spammappe."
 msgid "Cancel"
 msgstr "Annuller"
 
+msgid "Change language"
+msgstr "Skift sprog"
+
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
 
@@ -81,6 +87,12 @@ msgstr "Skift rolle"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
+
+msgid "Clear"
+msgstr "Ryd"
+
+msgid "Clear filters"
+msgstr "Ryd filtre"
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -93,6 +105,9 @@ msgstr "Oprettet"
 
 msgid "Danger zone"
 msgstr "Farezone"
+
+msgid "Dark"
+msgstr "Mørk"
 
 msgid "Delete"
 msgstr "Slet"
@@ -110,8 +125,8 @@ msgstr "Slet bruger"
 msgid "Delete users"
 msgstr "Slet brugere"
 
-msgid "Deleting the account and all associated data. This action cannot be undone, so please proceed with caution."
-msgstr "Sletning af kontoen og alle tilknyttede data. Denne handling kan ikke fortrydes, så fortsæt med forsigtighed."
+msgid "Delete your account and all data. This action is irreversible—proceed with caution."
+msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
 msgid "Didn't receive the code? Resend"
 msgstr "Modtog du ikke koden? Send igen"
@@ -130,6 +145,9 @@ msgstr "F.eks., Softwareingeniør"
 
 msgid "E.g., Taylor"
 msgstr "F.eks. Taylor"
+
+msgid "Edit"
+msgstr "Rediger"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -155,6 +173,9 @@ msgstr "Europa"
 msgid "Fetching data..."
 msgstr "Henter data..."
 
+msgid "Filters"
+msgstr "Filtre"
+
 msgid "First name"
 msgstr "Fornavn"
 
@@ -166,9 +187,6 @@ msgstr "Her er din oversigt over, hvad der sker."
 
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
-
-msgid "Hide filters"
-msgstr "Skjul filtre"
 
 msgid "Home"
 msgstr "Hjem"
@@ -188,8 +206,14 @@ msgstr "Inviter brugere og tildel dem roller. De vil blive vist, når de logger 
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Language"
+msgstr "Sprog"
+
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Light"
+msgstr "Lys"
 
 msgid "Log in"
 msgstr "Log ind"
@@ -224,6 +248,9 @@ msgstr "Ændret dato"
 msgid "Name"
 msgstr "Navn"
 
+msgid "Navigation"
+msgstr "Navigation"
+
 msgid "Next"
 msgstr "Næste"
 
@@ -232,6 +259,9 @@ msgstr "Ingen aktiv login."
 
 msgid "No active signup session."
 msgstr "Ingen aktiv tilmeldingssession."
+
+msgid "OK"
+msgstr "OK"
 
 msgid "Organization"
 msgstr "Organisation"
@@ -291,6 +321,9 @@ msgstr "Søg"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
+msgid "Select dates"
+msgstr "Vælg datoer"
+
 msgid "Select language"
 msgstr "Vælg sprog"
 
@@ -309,6 +342,12 @@ msgstr "Tilmeld dig på få sekunder for at begynde at bygge på PlatformPlatfor
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Support"
+msgstr "Support"
+
+msgid "System"
+msgstr "System"
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
@@ -317,6 +356,9 @@ msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for e-mailbekræf
 
 msgid "The verification code you are trying to use has expired for Login ID: {loginId}"
 msgstr "Bekræftelseskoden, du forsøger at bruge, er udløbet for login-ID: {loginId}"
+
+msgid "Theme"
+msgstr "Tema"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -383,6 +425,10 @@ msgstr "Se brugere"
 
 msgid "Welcome home"
 msgstr "Velkommen hjem"
+
+#. placeholder {0}: userInfo.firstName
+msgid "Welcome home, {0}"
+msgstr "Velkommen hjem, {0}"
 
 msgid "You are about to permanently delete the account and the entire data environment via PlatformPlatform.<0/><1/>This action is permanent and irreversible."
 msgstr "Du er ved at slette kontoen og hele dataomgivelserne permanent via PlatformPlatform.<0/><1/>Denne handling er permanent og kan ikke fortrydes."

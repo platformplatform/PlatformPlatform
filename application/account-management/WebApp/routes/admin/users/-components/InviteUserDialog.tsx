@@ -53,7 +53,12 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           />
           <FormErrorMessage error={inviteUserMutation.error} />
           <div className="mt-6 flex justify-end gap-4">
-            <Button type="reset" onPress={() => onOpenChange(false)} variant="secondary">
+            <Button
+              type="reset"
+              onPress={() => onOpenChange(false)}
+              variant="secondary"
+              isDisabled={inviteUserMutation.isPending}
+            >
               <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={inviteUserMutation.isPending}>
