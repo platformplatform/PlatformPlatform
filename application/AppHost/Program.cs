@@ -1,7 +1,12 @@
+using System.Net;
+using System.Net.Sockets;
 using AppHost;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Projects;
+
+// Check for port conflicts before starting
+CheckPortAvailability();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -104,4 +109,33 @@ void CreateBlobContainer(string containerName)
             containerClient.CreateIfNotExists();
         }
     ).Start();
+}
+
+void CheckPortAvailability()
+{
+    Thread.Sleep(500); // Allow time for previous process to fully release ports
+
+    var ports = new[] { (9098, "Resource Service"), (9097, "Dashboard"), (9001, "Aspire") };
+    var blocked = ports.Where(p => !IsPortAvailable(p.Item1)).ToList();
+
+    if (blocked.Any())
+    {
+        Console.WriteLine($"⚠️  Port conflicts: {string.Join(", ", blocked.Select(b => $"{b.Item1} ({b.Item2})"))}");
+        Console.WriteLine("   Services already running. Please run 'pp watch --stop' first.");
+        Environment.Exit(1);
+    }
+
+    bool IsPortAvailable(int port)
+    {
+        try
+        {
+            using var listener = new TcpListener(IPAddress.Loopback, port);
+            listener.Start();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
