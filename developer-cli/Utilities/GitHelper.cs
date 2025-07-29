@@ -136,7 +136,9 @@ public static class GitHelper
             .Where(f => !f.EndsWith('/') && !f.EndsWith('\\'))
             .Select(line => line[3..].Trim());
 
-        return changedFiles.ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
+        return changedFiles
+            .Where(File.Exists)
+            .ToDictionary(file => file.Replace(Configuration.SourceCodeFolder, ""), GetFileHash);
 
         string GetFileHash(string file)
         {
@@ -246,11 +248,12 @@ public static class GitHelper
         if (result.Contains("error: "))
         {
             AnsiConsole.MarkupLine($"""
-                The following error occurred when cherry-picking commit:
+                                    The following error occurred when cherry-picking commit:
 
-                [red]{result}[/]
-                Please fix the problem using your git tool, and complete the cherry-pick before continuing.
-                """);
+                                    [red]{result}[/]
+                                    Please fix the problem using your git tool, and complete the cherry-pick before continuing.
+                                    """
+            );
         }
     }
 }
