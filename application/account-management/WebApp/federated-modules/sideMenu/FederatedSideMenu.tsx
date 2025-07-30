@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { useState } from "react";
+import TenantSelector from "../common/TenantSelector";
 import UserProfileModal from "../common/UserProfileModal";
 import { MobileMenu } from "./MobileMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
@@ -12,7 +12,6 @@ export type FederatedSideMenuProps = {
 };
 
 export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedSideMenuProps>) {
-  const userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   return (
@@ -21,8 +20,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
         sidebarToggleAriaLabel={t`Toggle sidebar`}
         mobileMenuAriaLabel={t`Open navigation menu`}
         topMenuContent={<MobileMenu currentSystem={currentSystem} onEditProfile={() => setIsProfileModalOpen(true)} />}
-        tenantName={userInfo?.tenantName}
-        tenantLogoUrl={userInfo?.tenantLogoUrl ?? undefined}
+        logoContent={<TenantSelector />}
       >
         <NavigationMenuItems currentSystem={currentSystem} />
       </SideMenu>

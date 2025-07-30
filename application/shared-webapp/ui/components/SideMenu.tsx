@@ -10,11 +10,10 @@ import logoMarkUrl from "../images/logo-mark.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
 import { Link } from "./Link";
-import { TenantLogo } from "./TenantLogo";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
 
-const collapsedContext = createContext(false);
+export const collapsedContext = createContext(false);
 export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
 
 // Helper function to handle focus trap tab navigation
@@ -455,8 +454,7 @@ type SideMenuProps = {
   sidebarToggleAriaLabel: string;
   mobileMenuAriaLabel: string;
   topMenuContent?: React.ReactNode;
-  tenantName?: string;
-  tenantLogoUrl?: string;
+  logoContent?: React.ReactNode;
 };
 
 // Helper function to get initial menu width from localStorage
@@ -757,12 +755,8 @@ const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
   />
 );
 
-// Logo and tenant name component
-const LogoSection = ({
-  actualIsCollapsed,
-  tenantName,
-  tenantLogoUrl
-}: { actualIsCollapsed: boolean; tenantName?: string; tenantLogoUrl?: string }) => (
+// Default logo component
+const DefaultLogoSection = ({ actualIsCollapsed }: { actualIsCollapsed: boolean }) => (
   <div
     className={actualIsCollapsed ? "flex w-full justify-center" : ""}
     style={
@@ -779,23 +773,13 @@ const LogoSection = ({
           }
     }
   >
-    {tenantLogoUrl ? (
-      <TenantLogo
-        logoUrl={tenantLogoUrl}
-        tenantName={tenantName ?? "P"}
-        size="xs"
-        isRound={false}
-        className="shrink-0"
-      />
-    ) : (
-      <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
-    )}
+    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
     {!actualIsCollapsed && (
       <span
         className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
         style={{ minWidth: 0 }}
       >
-        {tenantName || "PlatformPlatform"}
+        PlatformPlatform
       </span>
     )}
   </div>
@@ -880,8 +864,7 @@ const MenuNav = ({
   menuWidth,
   shouldShowResizeHandle,
   handleResizeStart,
-  tenantName,
-  tenantLogoUrl,
+  logoContent,
   toggleButtonRef,
   toggleMenu,
   hasDraggedRef,
@@ -901,8 +884,7 @@ const MenuNav = ({
   menuWidth: number;
   shouldShowResizeHandle: boolean;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
-  tenantName?: string;
-  tenantLogoUrl?: string;
+  logoContent?: React.ReactNode;
   toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
   toggleMenu: () => void;
   hasDraggedRef: React.RefObject<boolean>;
@@ -934,7 +916,7 @@ const MenuNav = ({
 
     {/* Fixed header section with logo */}
     <div className="relative flex h-[72px] w-full shrink-0 items-center">
-      <LogoSection actualIsCollapsed={actualIsCollapsed} tenantName={tenantName} tenantLogoUrl={tenantLogoUrl} />
+      {logoContent || <DefaultLogoSection actualIsCollapsed={actualIsCollapsed} />}
 
       {/* Toggle button centered on divider, at intersection with topbar border */}
       <div
@@ -1059,8 +1041,7 @@ export function SideMenu({
   sidebarToggleAriaLabel,
   mobileMenuAriaLabel,
   topMenuContent,
-  tenantName,
-  tenantLogoUrl
+  logoContent
 }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
@@ -1145,8 +1126,7 @@ export function SideMenu({
           menuWidth={menuWidth}
           shouldShowResizeHandle={shouldShowResizeHandle}
           handleResizeStart={handleResizeStart}
-          tenantName={tenantName}
-          tenantLogoUrl={tenantLogoUrl}
+          logoContent={logoContent}
           toggleButtonRef={toggleButtonRef}
           toggleMenu={toggleMenu}
           hasDraggedRef={hasDraggedRef}

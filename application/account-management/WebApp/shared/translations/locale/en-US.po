@@ -382,6 +382,9 @@ msgstr "Search"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Select a new role for <0>{0}</0>"
 
+msgid "Select Account"
+msgstr "Select Account"
+
 msgid "Select dates"
 msgstr "Select dates"
 
@@ -405,6 +408,9 @@ msgstr "Signup verification code"
 
 msgid "Success"
 msgstr "Success"
+
+msgid "Switching account..."
+msgstr "Switching account..."
 
 msgid "System"
 msgstr "System"
@@ -432,6 +438,9 @@ msgstr "Total users"
 
 msgid "Try again"
 msgstr "Try again"
+
+msgid "Unnamed Account"
+msgstr "Unnamed Account"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."

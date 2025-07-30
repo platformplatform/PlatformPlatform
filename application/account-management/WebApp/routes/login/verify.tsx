@@ -90,7 +90,7 @@ function useCountdown(expireAt: Date) {
 
 export function CompleteLoginForm() {
   const initialState = getLoginState();
-  const { email = "", emailConfirmationId = "" } = initialState;
+  const { email = "", emailConfirmationId = "", loginId } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -111,6 +111,16 @@ export function CompleteLoginForm() {
       return () => clearTimeout(timeoutId);
     }
   }, [isExpired, showRequestLink, hasRequestedNewCode]);
+
+  // Get preferred tenant from localStorage
+  const getPreferredTenantId = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(`preferred-tenant-${email}`);
+      return stored || null;
+    } catch {
+      return null;
+    }
+  }, [email]);
 
   const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
@@ -172,17 +182,30 @@ export function CompleteLoginForm() {
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
+  if (!loginId) {
+    return null;
+  }
+
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
         onSubmit={(event) => {
+          event.preventDefault();
           const formData = new FormData(event.currentTarget);
           const oneTimePassword = formData.get("oneTimePassword") as string;
           if (oneTimePassword.length === 6) {
             setLastSubmittedCode(oneTimePassword);
           }
-          const handler = mutationSubmitter(completeLoginMutation, { path: { id: getLoginState().loginId ?? "" } });
-          return handler(event);
+
+          completeLoginMutation.mutate({
+            params: {
+              path: { id: loginId }
+            },
+            body: {
+              oneTimePassword,
+              preferredTenantId: getPreferredTenantId() || null
+            }
+          });
         }}
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"
