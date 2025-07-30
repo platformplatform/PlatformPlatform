@@ -1,8 +1,9 @@
 {
   "recommendations": [
+    "biomejs.biome",
     "bradlc.vscode-tailwindcss",
     "ms-azuretools.vscode-bicep",
-    "github.vscode-github-actions",
-    "biomejs.biome",
+    "ms-playwright.playwright",
+    "github.vscode-github-actions"
   ]
 }

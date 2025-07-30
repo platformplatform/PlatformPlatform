@@ -27,7 +27,8 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "*.spec.ts": "typescript"
   },
   "githubIssues.issueBranchTitle": "${issueNumber}-${sanitizedLowercaseIssueTitle}",
   "githubPullRequests.assignCreated": "${user}",
@@ -35,4 +36,6 @@
   "biome.lspBin": "./application/node_modules/.bin/biome",
   "biome.searchInPath": false,
   "biome.enabled": true,
+  "playwright.projectDir": "application/End2EndTests",
+  "playwright.showTrace": true,
 }

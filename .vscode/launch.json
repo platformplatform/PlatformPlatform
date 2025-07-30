@@ -1,0 +1,64 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+        {
+      "name": "Run All Playwright Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
+      "args": ["test"],
+      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "env": {
+        "PUBLIC_URL": "https://localhost:9000"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Run Smoke Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
+      "args": ["test", "--grep", "@smoke"],
+      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "env": {
+        "PUBLIC_URL": "https://localhost:9000"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Debug Current Test (Chrome)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
+      "args": ["test", "${relativeFile}", "--headed", "--project=chromium", "--timeout=0"],
+      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "env": {
+        "PUBLIC_URL": "https://localhost:9000",
+        "PWDEBUG": "0"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "smartStep": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "name": "Debug with Playwright Inspector",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
+      "args": ["test", "${relativeFile}", "--debug", "--project=chromium"],
+      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "env": {
+        "PUBLIC_URL": "https://localhost:9000"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+} 

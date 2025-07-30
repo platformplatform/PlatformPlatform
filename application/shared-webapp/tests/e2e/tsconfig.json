@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "end-to-end-tests",
+  "extends": "@repo/config/typescript/node-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "target": "ES2022",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@shared/e2e/fixtures/*": ["./fixtures/*"],
+      "@shared/e2e/utils/*": ["./utils/*"],
+      "@shared/e2e/auth/*": ["./auth/*"],
+      "@shared/e2e/types/*": ["./types/*"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "test-results/**"]
+}

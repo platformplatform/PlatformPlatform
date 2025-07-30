@@ -3,7 +3,7 @@
   "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
-      "outputs": ["dist/**"],
+      "outputs": ["dist/**", "tests/test-results/**"],
       "dependsOn": ["^build"]
     },
     "check": {
@@ -26,6 +26,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "test": {
+      "cache": false,
+      "dependsOn": ["^build"]
     }
   },
   "remoteCache": {
