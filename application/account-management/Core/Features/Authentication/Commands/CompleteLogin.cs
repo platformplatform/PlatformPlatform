@@ -6,12 +6,13 @@ using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 
 [PublicAPI]
-public sealed record CompleteLoginCommand(string OneTimePassword) : ICommand, IRequest<Result>
+public sealed record CompleteLoginCommand(string OneTimePassword, TenantId? PreferredTenantId = null) : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
     public LoginId Id { get; init; } = null!;
@@ -32,7 +33,6 @@ public sealed class CompleteLoginHandler(
     public async Task<Result> Handle(CompleteLoginCommand command, CancellationToken cancellationToken)
     {
         var login = await loginRepository.GetByIdAsync(command.Id, cancellationToken);
-
         if (login is null)
         {
             // For security, avoid confirming the existence of login IDs
@@ -42,7 +42,7 @@ public sealed class CompleteLoginHandler(
         if (login.Completed)
         {
             logger.LogWarning("Login with id '{LoginId}' has already been completed", login.Id);
-            return Result.BadRequest($"The login process {login.Id} for user {login.UserId} has already been completed.");
+            return Result.BadRequest($"The login process '{login.Id}' for user '{login.UserId}' has already been completed.");
         }
 
         var completeEmailConfirmationResult = await mediator.Send(
@@ -53,6 +53,18 @@ public sealed class CompleteLoginHandler(
         if (!completeEmailConfirmationResult.IsSuccess) return Result.From(completeEmailConfirmationResult);
 
         var user = (await userRepository.GetByIdUnfilteredAsync(login.UserId, cancellationToken))!;
+
+        // Check if PreferredTenantId is provided and valid
+        if (command.PreferredTenantId is not null)
+        {
+            var usersWithSameEmail = await userRepository.GetUsersByEmailUnfilteredAsync(user.Email, cancellationToken);
+            var preferredTenantUser = usersWithSameEmail.SingleOrDefault(u => u.TenantId == command.PreferredTenantId);
+
+            if (preferredTenantUser is not null)
+            {
+                user = preferredTenantUser;
+            }
+        }
 
         if (!user.EmailConfirmed)
         {

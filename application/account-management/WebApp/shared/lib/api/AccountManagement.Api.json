@@ -182,6 +182,38 @@
         }
       }
     },
+    "/api/account-management/authentication/switch-tenant": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationSwitchTenant",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchTenantCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
@@ -1073,6 +1105,40 @@
         "properties": {
           "oneTimePassword": {
             "type": "string"
+          },
+          "preferredTenantId": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TenantId"
+              }
+            ]
+          }
+        }
+      },
+      "TenantId": {
+        "type": "string"
+      },
+      "StronglyTypedLongIdOfTenantId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfLongAndTenantId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfLongAndTenantId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -1118,32 +1184,6 @@
           }
         }
       },
-      "TenantId": {
-        "type": "string"
-      },
-      "StronglyTypedLongIdOfTenantId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfLongAndTenantId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfLongAndTenantId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
       "UserId": {
         "type": "string",
         "format": "usr_{string}"
@@ -1168,6 +1208,15 @@
           "value": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "SwitchTenantCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
           }
         }
       },

@@ -57,6 +57,9 @@ public sealed class TenantLogoRemoved
 public sealed class TenantLogoUpdated(string contentType, long size)
     : TelemetryEvent(("content_type", contentType), ("size", size));
 
+public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, UserId userId)
+    : TelemetryEvent(("from_tenant_id", fromTenantId), ("to_tenant_id", toTenantId), ("user_id", userId));
+
 public sealed class TenantUpdated
     : TelemetryEvent;
 

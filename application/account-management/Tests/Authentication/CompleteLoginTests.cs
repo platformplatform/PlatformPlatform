@@ -1,12 +1,16 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -103,7 +107,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         // Assert
         await response.ShouldHaveErrorStatusCode(
-            HttpStatusCode.BadRequest, $"The login process {loginId} for user {DatabaseSeeder.Tenant1Owner.Id} has already been completed."
+            HttpStatusCode.BadRequest, $"The login process '{loginId}' for user '{DatabaseSeeder.Tenant1Owner.Id}' has already been completed."
         );
     }
 
@@ -219,6 +223,112 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInviteAccepted");
         TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CompleteLogin_WithValidPreferredTenant_ShouldLoginToPreferredTenant()
+    {
+        // Arrange
+        var tenant2Id = TenantId.NewId();
+        var user2Id = UserId.NewId();
+
+        Connection.Insert("Tenants", [
+                ("Id", tenant2Id.Value),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Name", Faker.Company.CompanyName()),
+                ("State", TenantState.Active.ToString()),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        Connection.Insert("Users", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", user2Id.ToString()),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Email", DatabaseSeeder.Tenant1Owner.Email),
+                ("EmailConfirmed", true),
+                ("FirstName", Faker.Name.FirstName()),
+                ("LastName", Faker.Name.LastName()),
+                ("Title", null),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Role", UserRole.Owner.ToString()),
+                ("Locale", "en-US")
+            ]
+        );
+
+        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteLoginCommand(CorrectOneTimePassword, tenant2Id);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var response = await AnonymousHttpClient
+            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+        // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+        response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
+        response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(user2Id);
+    }
+
+    [Fact]
+    public async Task CompleteLogin_WithInvalidPreferredTenant_ShouldLoginToDefaultTenant()
+    {
+        // Arrange
+        var invalidTenantId = TenantId.NewId();
+        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteLoginCommand(CorrectOneTimePassword, invalidTenantId);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var response = await AnonymousHttpClient
+            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+        // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+        response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
+        response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
+    }
+
+    [Fact]
+    public async Task CompleteLogin_WithPreferredTenantUserDoesNotHaveAccess_ShouldLoginToDefaultTenant()
+    {
+        // Arrange
+        var tenant2Id = TenantId.NewId();
+
+        Connection.Insert("Tenants", [
+                ("Id", tenant2Id.Value),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Name", Faker.Company.CompanyName()),
+                ("State", TenantState.Active.ToString()),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteLoginCommand(CorrectOneTimePassword, tenant2Id);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var response = await AnonymousHttpClient
+            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+
+        // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
     }
 
     private async Task<(LoginId LoginId, EmailConfirmationId emailConfirmationId)> StartLogin(string email)

@@ -20,21 +20,25 @@ public sealed class AuthenticationEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<StartLoginResponse>().AllowAnonymous();
 
-        group.MapPost("login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
+        group.MapPost("/login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
 
-        group.MapPost("login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+        group.MapPost("/login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
             => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
         ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
 
-        group.MapPost("logout", async Task<ApiResult> (IMediator mediator)
+        group.MapPost("/logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())
         );
 
         group.MapGet("/tenants", async Task<ApiResult<GetTenantsForUserResponse>> (IMediator mediator)
             => await mediator.Send(new GetTenantsForUserQuery())
         ).Produces<GetTenantsForUserResponse>();
+
+        group.MapPost("/switch-tenant", async Task<ApiResult> (SwitchTenantCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
 
         // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
         routes.MapPost("/internal-api/account-management/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)
