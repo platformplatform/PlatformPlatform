@@ -49,33 +49,39 @@ export function Input({
   startIcon,
   ...props
 }: Readonly<InputProps>) {
-  return (
-    <div className={isEmbedded ? "relative flex-1" : "relative"}>
-      {startIcon && (
+  const inputElement = (
+    <AriaInput
+      {...props}
+      disabled={isDisabled}
+      readOnly={isReadOnly}
+      type={type}
+      className={composeRenderProps(
+        className,
+        (className, { isFocusVisible, isDisabled, ...renderProps }) =>
+          `${inputStyles({
+            ...renderProps,
+            isFile: type === "file",
+            isFocusVisible: isEmbedded ? false : isFocusVisible,
+            isEmbedded,
+            isDisabled,
+            isReadOnly,
+            hasStartIcon: !!startIcon,
+            className
+          })} ${isDisabled || isReadOnly ? "border-input" : ""}`
+      )}
+    />
+  );
+
+  if (startIcon) {
+    return (
+      <div className="relative">
         <div className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 flex items-center">
           {startIcon}
         </div>
-      )}
-      <AriaInput
-        {...props}
-        disabled={isDisabled}
-        readOnly={isReadOnly}
-        type={type}
-        className={composeRenderProps(
-          className,
-          (className, { isFocusVisible, isDisabled, ...renderProps }) =>
-            `${inputStyles({
-              ...renderProps,
-              isFile: type === "file",
-              isFocusVisible: isEmbedded ? false : isFocusVisible,
-              isEmbedded,
-              isDisabled,
-              isReadOnly,
-              hasStartIcon: !!startIcon,
-              className
-            })} ${isDisabled || isReadOnly ? "border-input" : ""}`
-        )}
-      />
-    </div>
-  );
+        {inputElement}
+      </div>
+    );
+  }
+
+  return inputElement;
 }
