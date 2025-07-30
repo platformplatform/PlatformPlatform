@@ -152,6 +152,36 @@
         }
       }
     },
+    "/api/account-management/authentication/tenants": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationTenants",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTenantsForUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
@@ -1056,6 +1086,38 @@
           }
         }
       },
+      "GetTenantsForUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantInfo"
+            }
+          }
+        }
+      },
+      "TenantInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "tenantName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "TenantId": {
         "type": "string"
       },
@@ -1079,6 +1141,33 @@
           "value": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1230,33 +1319,6 @@
             "type": "boolean"
           },
           "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserId": {
-        "type": "string",
-        "format": "usr_{string}"
-      },
-      "StronglyTypedUlidOfUserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndUserId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
             "type": "string",
             "nullable": true
           }

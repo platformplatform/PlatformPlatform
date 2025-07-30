@@ -36,6 +36,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     );
 
     Task<User[]> GetTenantUsers(CancellationToken cancellationToken);
+
+    Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
@@ -197,5 +199,13 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     public async Task<User[]> GetTenantUsers(CancellationToken cancellationToken)
     {
         return await DbSet.ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters()
+            .Where(u => u.Email == email.ToLowerInvariant())
+            .ToArrayAsync(cancellationToken);
     }
 }

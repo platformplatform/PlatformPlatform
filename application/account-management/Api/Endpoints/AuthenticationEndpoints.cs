@@ -1,5 +1,6 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Authentication.Queries;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
@@ -30,6 +31,10 @@ public sealed class AuthenticationEndpoints : IEndpoints
         group.MapPost("logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())
         );
+
+        group.MapGet("/tenants", async Task<ApiResult<GetTenantsForUserResponse>> (IMediator mediator)
+            => await mediator.Send(new GetTenantsForUserQuery())
+        ).Produces<GetTenantsForUserResponse>();
 
         // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
         routes.MapPost("/internal-api/account-management/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)

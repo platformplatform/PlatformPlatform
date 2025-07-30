@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -10,6 +11,8 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>
     Task<Tenant> GetCurrentTenantAsync(CancellationToken cancellationToken);
 
     Task<bool> ExistsAsync(TenantId id, CancellationToken cancellationToken);
+
+    Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
@@ -20,5 +23,10 @@ internal sealed class TenantRepository(AccountManagementDbContext accountManagem
         ArgumentNullException.ThrowIfNull(executionContext.TenantId!);
         return await GetByIdAsync(executionContext.TenantId, cancellationToken) ??
                throw new InvalidOperationException("Active tenant not found.");
+    }
+
+    public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(t => ids.Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 }
