@@ -202,8 +202,8 @@ test.describe("@comprehensive", () => {
 
 test.describe("@slow", () => {
   const requestNewCodeTimeout = 30000; // 30 seconds
-  const codeValidationTimeout = 60000; // 5 minutes
-  const sessionTimeout = codeValidationTimeout + 60000; // 6 minutes
+  const codeValidationTimeout = 300000; // 5 minutes (300 seconds)
+  const sessionTimeout = codeValidationTimeout + 60000; // 6 minutes total
 
   test("should allow resend code 30 seconds after login but then not after code has expired", async ({ page }) => {
     test.setTimeout(sessionTimeout);

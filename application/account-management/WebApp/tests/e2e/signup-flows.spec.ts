@@ -241,15 +241,15 @@ test.describe("@comprehensive", () => {
 
 test.describe("@slow", () => {
   const requestNewCodeTimeout = 30_000; // 30 seconds
-  const codeValidationTimeout = 60_000; // 5 minutes
-  const sessionTimeout = codeValidationTimeout + 60_000; // 6 minutes
+  const codeValidationTimeout = 300_000; // 5 minutes (300 seconds)
+  const sessionTimeout = codeValidationTimeout + 60_000; // 6 minutes total
 
   test("should allow resend code 30 seconds after signup but then not after code has expired", async ({ page }) => {
     test.setTimeout(sessionTimeout);
     const context = createTestContext(page);
     const user = testUser();
 
-    await step("Start signup and navigate to verify")(async () => {
+    await step("Start signup and navigate to verify & verify page displays")(async () => {
       await page.goto("/signup");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await blurActiveElement(page);
