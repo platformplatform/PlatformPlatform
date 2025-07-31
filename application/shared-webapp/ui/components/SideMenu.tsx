@@ -871,7 +871,8 @@ const MenuNav = ({
   setMenuWidth,
   sidebarToggleAriaLabel,
   forceCollapsed,
-  children
+  children,
+  isTenantMenuOpen
 }: {
   sideMenuRef: React.RefObject<HTMLDivElement | null>;
   actualIsCollapsed: boolean;
@@ -892,6 +893,7 @@ const MenuNav = ({
   sidebarToggleAriaLabel?: string;
   forceCollapsed: boolean;
   children: React.ReactNode;
+  isTenantMenuOpen: boolean;
 }) => (
   <nav
     ref={sideMenuRef}
@@ -922,7 +924,7 @@ const MenuNav = ({
       <div
         className={`-translate-y-1/2 absolute top-[72px] right-0 translate-x-1/2 ${
           !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
-        }`}
+        } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
       >
         {shouldShowResizeHandle ? (
           <ResizableToggleButton
@@ -1047,10 +1049,23 @@ export function SideMenu({
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const [isTenantMenuOpen, setIsTenantMenuOpen] = useState(false);
 
   // Use the custom hook for menu state management
   const { isOverlayOpen, setIsOverlayOpen, menuWidth, setMenuWidth, isCollapsed, setIsCollapsed, setUserPreference } =
     useMenuState(forceCollapsed);
+
+  // Listen for tenant menu toggle events
+  useEffect(() => {
+    const handleTenantMenuToggle = (event: CustomEvent<{ isOpen: boolean }>) => {
+      setIsTenantMenuOpen(event.detail.isOpen);
+    };
+
+    window.addEventListener("tenant-menu-toggle", handleTenantMenuToggle as EventListener);
+    return () => {
+      window.removeEventListener("tenant-menu-toggle", handleTenantMenuToggle as EventListener);
+    };
+  }, []);
 
   // Compute derived states
   const actualIsCollapsed = overlayMode ? !isOverlayOpen : forceCollapsed || isCollapsed;
@@ -1133,6 +1148,7 @@ export function SideMenu({
           setMenuWidth={setMenuWidth}
           sidebarToggleAriaLabel={sidebarToggleAriaLabel}
           forceCollapsed={forceCollapsed}
+          isTenantMenuOpen={isTenantMenuOpen}
         >
           {children}
         </MenuNav>

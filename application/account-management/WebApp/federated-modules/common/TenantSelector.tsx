@@ -1,4 +1,3 @@
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
@@ -9,8 +8,9 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { collapsedContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import "@repo/ui/tailwind.css";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
@@ -18,6 +18,53 @@ type TenantInfo = components["schemas"]["TenantInfo"];
 export default function TenantSelector() {
   const userInfo = useUserInfo();
   const isCollapsed = useContext(collapsedContext);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Track current sidebar width
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    if (isCollapsed) {
+      return SIDE_MENU_COLLAPSED_WIDTH;
+    }
+    const stored = localStorage.getItem("side-menu-size");
+    return stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH;
+  });
+
+  useEffect(() => {
+    const handleResize = (event: CustomEvent<{ width: number }>) => {
+      setSidebarWidth(event.detail.width);
+    };
+
+    const handleToggle = (event: CustomEvent<{ isCollapsed: boolean }>) => {
+      setSidebarWidth(
+        event.detail.isCollapsed
+          ? SIDE_MENU_COLLAPSED_WIDTH
+          : Number.parseInt(localStorage.getItem("side-menu-size") || String(SIDE_MENU_DEFAULT_WIDTH), 10)
+      );
+    };
+
+    window.addEventListener("side-menu-resize", handleResize as EventListener);
+    window.addEventListener("side-menu-toggle", handleToggle as EventListener);
+
+    return () => {
+      window.removeEventListener("side-menu-resize", handleResize as EventListener);
+      window.removeEventListener("side-menu-toggle", handleToggle as EventListener);
+    };
+  }, []);
+
+  // Update sidebar width when collapsed state changes
+  useEffect(() => {
+    if (isCollapsed) {
+      setSidebarWidth(SIDE_MENU_COLLAPSED_WIDTH);
+    } else {
+      const stored = localStorage.getItem("side-menu-size");
+      setSidebarWidth(stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH);
+    }
+  }, [isCollapsed]);
+
+  // Dispatch event when menu open state changes
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("tenant-menu-toggle", { detail: { isOpen: isMenuOpen } }));
+  }, [isMenuOpen]);
 
   // Fetch available tenants
   const { data: tenantsResponse, isLoading } = api.useQuery("get", "/api/account-management/authentication/tenants");
@@ -37,7 +84,7 @@ export default function TenantSelector() {
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
   const currentTenantName = userInfo.tenantName || "PlatformPlatform";
-  const currentTenant = tenants.find(t => t.tenantId === currentTenantId);
+  const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
 
   const handleTenantSwitch = (tenantId: string) => {
@@ -51,39 +98,14 @@ export default function TenantSelector() {
   // When there's only one tenant, just show logo and name
   if (tenants.length <= 1) {
     return (
-      <div className="w-full px-3">
-        <div className={isCollapsed ? "flex w-full justify-center" : "flex w-full items-center gap-3"}>
-          <TenantLogo
-            logoUrl={currentTenantLogoUrl}
-            tenantName={currentTenantName}
-            size="xs"
-            isRound={false}
-            className="shrink-0"
-          />
-          {!isCollapsed && (
-            <>
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground text-sm">
-                {currentTenantName}
-              </span>
-              <div className="w-3.5 shrink-0" /> {/* Spacer to match dropdown arrow width */}
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // When there are multiple tenants, show dropdown with styled content
-  const menuContent = (
-    <div className="relative w-full">
-      <div className="-mt-2 mx-2">
-        <MenuTrigger>
-          <Button
-            variant="ghost"
-            className="mt-2 h-auto w-full p-4 hover:bg-transparent focus-visible:ring-2 focus-visible:ring-inset"
-            isDisabled={switchTenantMutation.isPending}
+      <div className="relative w-full px-3">
+        <div className="">
+          <div
+            className={`flex h-11 w-full items-center rounded-md py-2 pr-2 pl-4 text-sm ${
+              isCollapsed ? "justify-center" : "gap-0"
+            }`}
           >
-            <div className={isCollapsed ? "flex w-full justify-center" : "flex w-full items-center gap-3"}>
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
               <TenantLogo
                 logoUrl={currentTenantLogoUrl}
                 tenantName={currentTenantName}
@@ -91,17 +113,51 @@ export default function TenantSelector() {
                 isRound={false}
                 className="shrink-0"
               />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground text-sm">
-                    {currentTenantName}
-                  </span>
-                  <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-70" />
-                </>
-              )}
             </div>
+            {!isCollapsed && (
+              <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+                {currentTenantName}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // When there are multiple tenants, show dropdown with styled content
+  const menuContent = (
+    <div className="relative w-full px-3">
+      <div className="">
+        <MenuTrigger onOpenChange={setIsMenuOpen}>
+          <Button
+            variant="ghost"
+            className="relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            isDisabled={switchTenantMutation.isPending}
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+              <TenantLogo
+                logoUrl={currentTenantLogoUrl}
+                tenantName={currentTenantName}
+                size="xs"
+                isRound={false}
+                className="shrink-0"
+              />
+            </div>
+            {!isCollapsed && (
+              <>
+                <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+                  {currentTenantName}
+                </div>
+                <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
+              </>
+            )}
           </Button>
-          <Menu placement={isCollapsed ? "right" : "bottom start"}>
+          <Menu
+            placement={isCollapsed ? "right" : "bottom start"}
+            popoverClassName="bg-input-background p-px -ml-1"
+            style={{ minWidth: `${sidebarWidth - 16}px` }}
+          >
             <MenuHeader>
               <div className="flex flex-col gap-1 font-semibold text-sm">
                 <Trans>Select Account</Trans>
@@ -121,7 +177,7 @@ export default function TenantSelector() {
                   size="xs"
                   isRound={false}
                   className="shrink-0"
-                  style={{ width: '24px', height: '24px' }}
+                  style={{ width: "24px", height: "24px" }}
                 />
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">
