@@ -3,6 +3,7 @@ import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { collapsedContext } from "@repo/ui/components/SideMenu";
@@ -84,6 +85,7 @@ export default function TenantSelector() {
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
   const currentTenantName = userInfo.tenantName || "PlatformPlatform";
+  const newTenantsCount = tenants.filter((t) => t.isNew && t.tenantId !== currentTenantId).length;
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
 
@@ -147,6 +149,7 @@ export default function TenantSelector() {
                 <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
                   {currentTenantName}
                 </div>
+                {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
                 <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
               </>
             )}
@@ -172,11 +175,18 @@ export default function TenantSelector() {
                   className="shrink-0"
                   style={{ width: "24px", height: "24px" }}
                 />
-                <div className="flex flex-1 items-center justify-between gap-4">
+                <div className="flex flex-1 items-center justify-between gap-2">
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {tenant.tenantName || t`Unnamed Account`}
                   </span>
-                  {tenant.tenantId === currentTenantId && <Check className="h-4 w-4 shrink-0" />}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {tenant.isNew && (
+                      <Badge variant="warning" className="text-xs">
+                        <Trans>Invitation pending</Trans>
+                      </Badge>
+                    )}
+                    {tenant.tenantId === currentTenantId && <Check className="h-4 w-4" />}
+                  </div>
                 </div>
               </MenuItem>
             ))}

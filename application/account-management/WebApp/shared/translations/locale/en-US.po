@@ -240,6 +240,9 @@ msgstr "Home"
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
 
+msgid "Invitation pending"
+msgstr "Invitation pending"
+
 msgid "Invite user"
 msgstr "Invite user"
 
