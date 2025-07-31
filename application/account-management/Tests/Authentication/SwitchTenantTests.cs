@@ -143,6 +143,58 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
     }
 
     [Fact]
+    public async Task SwitchTenant_WhenUserEmailNotConfirmed_ShouldConfirmEmail()
+    {
+        // Arrange
+        var tenant2Id = TenantId.NewId();
+        var tenant2Name = Faker.Company.CompanyName();
+        var user2Id = UserId.NewId();
+
+        Connection.Insert("Tenants", [
+                ("Id", tenant2Id.Value),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Name", tenant2Name),
+                ("State", TenantState.Active.ToString()),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        Connection.Insert("Users", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", user2Id.ToString()),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Email", DatabaseSeeder.Tenant1Member.Email),
+                ("EmailConfirmed", false), // User's email is not confirmed
+                ("FirstName", Faker.Name.FirstName()),
+                ("LastName", Faker.Name.LastName()),
+                ("Title", null),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Role", UserRole.Member.ToString()),
+                ("Locale", "en-US")
+            ]
+        );
+
+        var command = new SwitchTenantCommand(tenant2Id);
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
+            "/api/account-management/authentication/switch-tenant", command
+        );
+
+        // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+
+        // Verify that the user's email is now confirmed
+        var emailConfirmed = Connection.ExecuteScalar<long>(
+            "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+        emailConfirmed.Should().Be(1); // SQLite stores boolean as 0/1
+    }
+
+    [Fact]
     public async Task SwitchTenant_RapidSwitching_ShouldHandleCorrectly()
     {
         // Arrange

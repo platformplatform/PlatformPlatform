@@ -37,6 +37,14 @@ public sealed class SwitchTenantHandler(
             return Result.Forbidden($"User does not have access to tenant '{command.TenantId}'.");
         }
 
+        // If the user's email is not confirmed, confirm it now that they are accessing the tenant
+        if (!targetUser.EmailConfirmed)
+        {
+            targetUser.ConfirmEmail();
+            userRepository.Update(targetUser);
+            logger.LogInformation("Confirmed email for UserId '{UserId}' in TenantId '{TenantId}' during tenant switch", targetUser.Id, command.TenantId);
+        }
+
         var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, cancellationToken);
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo);
 
