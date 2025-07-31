@@ -1181,6 +1181,9 @@
           "logoUrl": {
             "type": "string",
             "nullable": true
+          },
+          "isNew": {
+            "type": "boolean"
           }
         }
       },

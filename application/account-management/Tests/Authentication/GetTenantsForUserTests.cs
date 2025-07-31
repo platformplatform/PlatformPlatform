@@ -176,4 +176,56 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         result.Tenants.Should().HaveCount(1);
         result.Tenants.Should().NotContain(t => t.TenantId == otherUserTenantId);
     }
+
+    [Fact]
+    public async Task GetTenants_UserWithUnconfirmedEmail_ShowsAsNewTenant()
+    {
+        // Arrange
+        var tenant2Id = TenantId.NewId();
+        var tenant2Name = Faker.Company.CompanyName();
+        var user2Id = UserId.NewId();
+
+        Connection.Insert("Tenants", [
+                ("Id", tenant2Id.Value),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Name", tenant2Name),
+                ("State", TenantState.Active.ToString()),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        Connection.Insert("Users", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", user2Id.ToString()),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Email", DatabaseSeeder.Tenant1Member.Email),
+                ("EmailConfirmed", false), // User has not confirmed email in this tenant
+                ("FirstName", Faker.Name.FirstName()),
+                ("LastName", Faker.Name.LastName()),
+                ("Title", null),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Role", UserRole.Member.ToString()),
+                ("Locale", "en-US")
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.Content.ReadFromJsonAsync<GetTenantsForUserResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().HaveCount(2);
+
+        // Current tenant should not be marked as new (user is already logged in)
+        var currentTenant = result.Tenants.Single(t => t.TenantId == DatabaseSeeder.Tenant1.Id);
+        currentTenant.IsNew.Should().BeFalse();
+
+        // New tenant with unconfirmed email should be marked as new
+        var newTenant = result.Tenants.Single(t => t.TenantId == tenant2Id);
+        newTenant.IsNew.Should().BeTrue();
+    }
 }
