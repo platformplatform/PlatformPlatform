@@ -195,6 +195,97 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
     }
 
     [Fact]
+    public async Task SwitchTenant_WhenAcceptingInvite_ShouldCopyProfileData()
+    {
+        // Arrange
+        var tenant2Id = TenantId.NewId();
+        var tenant2Name = Faker.Company.CompanyName();
+        var user2Id = UserId.NewId();
+
+        // Current user has profile data
+        var currentFirstName = Faker.Name.FirstName();
+        var currentLastName = Faker.Name.LastName();
+        var currentTitle = Faker.Name.JobTitle();
+        var currentLocale = "da-DK";
+
+        // Update current user with profile data
+        Connection.Update("Users", "Id", DatabaseSeeder.Tenant1Member.Id.ToString(), [
+                ("FirstName", currentFirstName),
+                ("LastName", currentLastName),
+                ("Title", currentTitle),
+                ("Locale", currentLocale)
+            ]
+        );
+
+        Connection.Insert("Tenants", [
+                ("Id", tenant2Id.Value),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Name", tenant2Name),
+                ("State", TenantState.Active.ToString()),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        // New user has no profile data and unconfirmed email
+        Connection.Insert("Users", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", user2Id.ToString()),
+                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Email", DatabaseSeeder.Tenant1Member.Email),
+                ("EmailConfirmed", false), // Unconfirmed - invitation pending
+                ("FirstName", null),
+                ("LastName", null),
+                ("Title", "Manager"), // Has a title that will be overwritten
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Role", UserRole.Member.ToString()),
+                ("Locale", "en-US")
+            ]
+        );
+
+        var command = new SwitchTenantCommand(tenant2Id);
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
+            "/api/account-management/authentication/switch-tenant", command
+        );
+
+        // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+
+        // Verify profile data was copied
+        var firstName = Connection.ExecuteScalar<string>(
+            "SELECT FirstName FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+        var lastName = Connection.ExecuteScalar<string>(
+            "SELECT LastName FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+        var title = Connection.ExecuteScalar<string>(
+            "SELECT Title FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+        var locale = Connection.ExecuteScalar<string>(
+            "SELECT Locale FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+        var emailConfirmed = Connection.ExecuteScalar<long>(
+            "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
+            new { Id = user2Id.ToString() }
+        );
+
+        firstName.Should().Be(currentFirstName);
+        lastName.Should().Be(currentLastName);
+        title.Should().Be(currentTitle);
+        locale.Should().Be(currentLocale);
+
+        // Email should be confirmed
+        emailConfirmed.Should().Be(1);
+    }
+
+    [Fact]
     public async Task SwitchTenant_RapidSwitching_ShouldHandleCorrectly()
     {
         // Arrange
