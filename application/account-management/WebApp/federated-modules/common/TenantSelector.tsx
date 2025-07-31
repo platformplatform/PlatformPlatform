@@ -6,22 +6,25 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { collapsedContext } from "@repo/ui/components/SideMenu";
+import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { AcceptInvitationDialog } from "./AcceptInvitationDialog";
 import "@repo/ui/tailwind.css";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
 
-export default function TenantSelector() {
+interface TenantSelectorProps {
+  onShowInvitationDialog?: (tenant: TenantInfo) => void;
+}
+
+export default function TenantSelector({ onShowInvitationDialog }: TenantSelectorProps = {}) {
   const userInfo = useUserInfo();
   const isCollapsed = useContext(collapsedContext);
+  const overlayCtx = useContext(overlayContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
 
   // Track current sidebar width
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -94,20 +97,20 @@ export default function TenantSelector() {
   const handleTenantSwitch = (tenant: TenantInfo) => {
     if (tenant.tenantId !== currentTenantId) {
       // If it's a new tenant (invitation pending), show the dialog
-      if (tenant.isNew) {
-        setInvitationDialogTenant(tenant);
-      } else {
-        // Otherwise, switch directly
+      if (tenant.isNew && onShowInvitationDialog) {
+        // Close mobile menu if it's open
+        if (overlayCtx?.isOpen) {
+          overlayCtx.close();
+        }
+        // Use small timeout to ensure menu closes before dialog opens
+        setTimeout(() => {
+          onShowInvitationDialog(tenant);
+        }, 100);
+      } else if (!tenant.isNew) {
+        // Switch directly for existing tenants
         localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenant.tenantId);
         switchTenantMutation.mutate({ body: { tenantId: tenant.tenantId } });
       }
-    }
-  };
-
-  const handleAcceptInvitation = () => {
-    if (invitationDialogTenant) {
-      localStorage.setItem(`preferred-tenant-${userInfo.email}`, invitationDialogTenant.tenantId);
-      switchTenantMutation.mutate({ body: { tenantId: invitationDialogTenant.tenantId } });
     }
   };
 
@@ -247,13 +250,6 @@ export default function TenantSelector() {
           </div>
         </div>
       )}
-      <AcceptInvitationDialog
-        isOpen={!!invitationDialogTenant}
-        onOpenChange={(open) => !open && setInvitationDialogTenant(null)}
-        tenant={invitationDialogTenant}
-        onAccept={handleAcceptInvitation}
-        isLoading={switchTenantMutation.isPending}
-      />
     </>
   );
 }
