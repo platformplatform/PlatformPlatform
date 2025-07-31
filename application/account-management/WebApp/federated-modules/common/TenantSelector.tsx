@@ -22,6 +22,38 @@ interface TenantSelectorProps {
   variant?: "default" | "mobile-menu";
 }
 
+// Helper component for single tenant display
+function SingleTenantDisplay({
+  currentTenantName,
+  currentTenantLogoUrl,
+  isCollapsed
+}: { currentTenantName: string; currentTenantLogoUrl: string | null | undefined; isCollapsed: boolean }) {
+  return (
+    <div className="relative w-full px-3">
+      <div className="">
+        <div
+          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+            <TenantLogo
+              logoUrl={currentTenantLogoUrl}
+              tenantName={currentTenantName}
+              size="xs"
+              isRound={false}
+              className="shrink-0"
+            />
+          </div>
+          {!isCollapsed && (
+            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+              {currentTenantName}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TenantSelector({ onShowInvitationDialog, variant = "default" }: TenantSelectorProps = {}) {
   const userInfo = useUserInfo();
   const isCollapsed = useContext(collapsedContext);
@@ -128,50 +160,34 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
   const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
 
   const handleTenantSwitch = (tenant: TenantInfo) => {
-    if (tenant.tenantId !== currentTenantId) {
-      // If it's a new tenant (invitation pending), show the dialog
-      if (tenant.isNew && onShowInvitationDialog) {
-        // Close mobile menu if it's open
-        if (overlayCtx?.isOpen) {
-          overlayCtx.close();
-        }
-        // Use small timeout to ensure menu closes before dialog opens
-        setTimeout(() => {
-          onShowInvitationDialog(tenant);
-        }, 100);
-      } else if (!tenant.isNew) {
-        // Switch directly for existing tenants
-        localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenant.tenantId);
-        switchTenantMutation.mutate({ body: { tenantId: tenant.tenantId } });
+    if (tenant.tenantId === currentTenantId) {
+      return;
+    }
+
+    if (tenant.isNew && onShowInvitationDialog) {
+      // Close mobile menu if it's open
+      if (overlayCtx?.isOpen) {
+        overlayCtx.close();
       }
+      // Use small timeout to ensure menu closes before dialog opens
+      setTimeout(() => {
+        onShowInvitationDialog(tenant);
+      }, 100);
+    } else if (!tenant.isNew) {
+      // Switch directly for existing tenants
+      localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenant.tenantId);
+      switchTenantMutation.mutate({ body: { tenantId: tenant.tenantId } });
     }
   };
 
   // When there's only one tenant, just show logo and name
   if (tenants.length <= 1) {
     return (
-      <div className="relative w-full px-3">
-        <div className="">
-          <div
-            className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-              <TenantLogo
-                logoUrl={currentTenantLogoUrl}
-                tenantName={currentTenantName}
-                size="xs"
-                isRound={false}
-                className="shrink-0"
-              />
-            </div>
-            {!isCollapsed && (
-              <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
-                {currentTenantName}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <SingleTenantDisplay
+        currentTenantName={currentTenantName}
+        currentTenantLogoUrl={currentTenantLogoUrl}
+        isCollapsed={isCollapsed}
+      />
     );
   }
 
