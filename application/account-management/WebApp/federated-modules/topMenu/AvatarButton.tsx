@@ -63,7 +63,7 @@ export default function AvatarButton() {
               <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
               <div className="my-1 flex flex-col">
                 <h4>{userInfo.fullName}</h4>
-                <p className="subtitle">{userInfo.title || userInfo.email}</p>
+                <p className="subtitle">{userInfo.email}</p>
               </div>
             </div>
           </MenuHeader>
