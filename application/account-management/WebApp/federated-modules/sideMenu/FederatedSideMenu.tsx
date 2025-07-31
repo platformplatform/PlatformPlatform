@@ -5,6 +5,7 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { useState } from "react";
 import { AcceptInvitationDialog } from "../common/AcceptInvitationDialog";
+import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import TenantSelector from "../common/TenantSelector";
 import UserProfileModal from "../common/UserProfileModal";
 import { MobileMenu } from "./MobileMenu";
@@ -21,11 +22,20 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
   const userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   const switchTenantMutation = api.useMutation("post", "/api/account-management/authentication/switch-tenant", {
+    onMutate: () => {
+      setIsSwitching(true);
+    },
     onSuccess: () => {
-      // Redirect to logged-in path after successful switch
-      window.location.href = "/";
+      // Keep the loader visible briefly before redirecting
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 250);
+    },
+    onError: () => {
+      setIsSwitching(false);
     }
   });
 
@@ -58,8 +68,9 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
         onOpenChange={(open) => !open && setInvitationDialogTenant(null)}
         tenant={invitationDialogTenant}
         onAccept={handleAcceptInvitation}
-        isLoading={switchTenantMutation.isPending}
+        isLoading={isSwitching}
       />
+      {isSwitching && <SwitchingAccountLoader />}
     </>
   );
 }

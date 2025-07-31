@@ -10,8 +10,9 @@ import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
-import { Check, ChevronDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import { SwitchingAccountLoader } from "./SwitchingAccountLoader";
 import "@repo/ui/tailwind.css";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
@@ -25,6 +26,7 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
 
   // Track current sidebar width
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -77,9 +79,20 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
 
   // Switch tenant mutation
   const switchTenantMutation = api.useMutation("post", "/api/account-management/authentication/switch-tenant", {
+    onMutate: () => {
+      // Show the loader immediately
+      setIsSwitching(true);
+    },
     onSuccess: () => {
-      // Redirect to logged-in path after successful switch
-      window.location.href = "/";
+      // Keep the loader visible briefly before redirecting
+      // Don't set isSwitching to false here - let the redirect handle it
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 250);
+    },
+    onError: () => {
+      // Hide the loader on error
+      setIsSwitching(false);
     }
   });
 
@@ -150,7 +163,7 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
           <Button
             variant="ghost"
             className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
-            isDisabled={switchTenantMutation.isPending}
+            isDisabled={isSwitching}
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
               <TenantLogo
@@ -223,16 +236,7 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
             {currentTenantName}
           </Tooltip>
         </TooltipTrigger>
-        {switchTenantMutation.isPending && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="flex flex-col items-center gap-4 rounded-lg bg-background p-6">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm">
-                <Trans>Switching account...</Trans>
-              </p>
-            </div>
-          </div>
-        )}
+        {isSwitching && <SwitchingAccountLoader />}
       </>
     );
   }
@@ -240,16 +244,7 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
   return (
     <>
       {menuContent}
-      {switchTenantMutation.isPending && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="flex flex-col items-center gap-4 rounded-lg bg-background p-6">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm">
-              <Trans>Switching account...</Trans>
-            </p>
-          </div>
-        </div>
-      )}
+      {isSwitching && <SwitchingAccountLoader />}
     </>
   );
 }
