@@ -153,6 +153,19 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
 
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
+  
+  // Sort tenants alphabetically by name, with unnamed accounts at the end
+  const sortedTenants = [...tenants].sort((a, b) => {
+    // Put unnamed accounts at the end
+    if (!a.tenantName && b.tenantName) return 1;
+    if (a.tenantName && !b.tenantName) return -1;
+    
+    // Both have names or both are unnamed, sort alphabetically
+    const nameA = a.tenantName || "";
+    const nameB = b.tenantName || "";
+    return nameA.localeCompare(nameB);
+  });
+  
   // Get tenant name from tenants list to ensure it's always up-to-date
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
@@ -231,7 +244,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
               </div>
             </MenuHeader>
             <MenuSeparator />
-            {tenants.map((tenant: TenantInfo) => (
+            {sortedTenants.map((tenant: TenantInfo) => (
               <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant)}>
                 <TenantLogo
                   logoUrl={tenant.logoUrl}
