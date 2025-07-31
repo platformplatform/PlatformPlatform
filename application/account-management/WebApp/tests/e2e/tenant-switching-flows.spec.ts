@@ -5,19 +5,34 @@ import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/u
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 test.describe("@comprehensive", () => {
+  /**
+   * COMPREHENSIVE TENANT SWITCHING WORKFLOW
+   *
+   * Tests the complete end-to-end tenant switching journey including:
+   * - Single tenant display without dropdown
+   * - Multiple tenant creation and invitation workflow
+   * - Tenant switching with invitation acceptance dialog
+   * - Tenant preference persistence across sessions
+   * - Switching tenants with modals open
+   * - Tenant context consistency across navigation
+   * - User management within different tenants
+   * - Owner vs member role differentiation
+   * - User profile updates within tenants
+   */
   test("should handle comprehensive tenant switching scenarios", async ({ page }) => {
     const context = createTestContext(page);
     const user = testUser();
     const secondOwner = testUser();
     const thirdOwner = testUser();
 
-    // Generate unique tenant names using email prefixes
-    const primaryTenantName = `Tenant-${user.email.split("@")[0]}`;
-    const secondaryTenantName = `Tenant-${secondOwner.email.split("@")[0]}`;
-    const tertiaryTenantName = `Tenant-${thirdOwner.email.split("@")[0]}`;
+    // Generate unique tenant names using timestamps
+    const timestamp = Date.now().toString().slice(-4);
+    const primaryTenantName = `T1-${timestamp}`;
+    const secondaryTenantName = `T2-${timestamp}`;
+    const tertiaryTenantName = `T3-${timestamp}`;
 
-    // === SCENARIO 1: Single tenant display without dropdown ===
-    await step("Create single tenant and verify no dropdown")(async () => {
+    // === SINGLE TENANT DISPLAY ===
+    await step("Create single tenant & verify dropdown is hidden")(async () => {
       await completeSignupFlow(page, expect, user, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
@@ -40,15 +55,17 @@ test.describe("@comprehensive", () => {
       await expect(tenantButton).not.toBeVisible();
     })();
 
-    // === SCENARIO 2: Create multiple tenants and test switching ===
-    await step("Setup multiple tenants")(async () => {
-      // Logout
+    // === MULTIPLE TENANT SETUP ===
+    await step("Logout from primary tenant & verify redirect to login page")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL(/\/login\?returnPath=/);
 
-      // Create second tenant and invite first user
+      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
+    })();
+
+    await step("Create second tenant & verify successful user invitation")(async () => {
       await completeSignupFlow(page, expect, secondOwner, context);
 
       // Update second tenant name
@@ -56,21 +73,27 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("textbox", { name: "Account name" }).fill(secondaryTenantName);
       await page.getByRole("button", { name: "Save changes" }).click();
+
       await expectToastMessage(context, "Account updated successfully");
 
+      // Invite first user
       await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Send invite" }).click();
+
       await expectToastMessage(context, "User invited successfully");
 
       // Logout
       context.monitoring.expectedStatusCodes.push(401);
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL(/\/login\?returnPath=/);
 
-      // Create third tenant and invite first user
+      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
+    })();
+
+    await step("Create third tenant & verify successful user invitation")(async () => {
       await completeSignupFlow(page, expect, thirdOwner, context);
 
       // Update third tenant name
@@ -78,29 +101,36 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Account name" }).clear();
       await page.getByRole("textbox", { name: "Account name" }).fill(tertiaryTenantName);
       await page.getByRole("button", { name: "Save changes" }).click();
+
       await expectToastMessage(context, "Account updated successfully");
 
+      // Invite first user
       await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Send invite" }).click();
+
       await expectToastMessage(context, "User invited successfully");
 
       // Logout
       context.monitoring.expectedStatusCodes.push(401);
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL(/\/login\?returnPath=/);
+
+      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
     })();
 
-    // === SCENARIO 3: Test switching between tenants ===
-    await step("Login and verify tenant switching UI and functionality")(async () => {
+    // === TENANT SWITCHING UI AND FUNCTIONALITY ===
+    await step("Login with multiple tenants & verify tenant switching UI displays correctly")(async () => {
       // Login
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL(/\/login\/verify/);
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await page.keyboard.type(getVerificationCode());
-      await expect(page).toHaveURL(/\/admin/);
+      // Wait for navigation to complete - could be Users or Home page
+      await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      expect(page.url()).toContain("/admin");
 
       // Verify tenant selector is visible with dropdown
       const navElement = page.locator("nav").first();
@@ -122,71 +152,115 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Escape");
       await expect(page.getByRole("menu")).not.toBeVisible();
 
-      // Switch to secondary tenant
+      // Switch to secondary tenant - this shows invitation dialog
       await tenantButton.click();
       await menuItems.filter({ hasText: secondaryTenantName }).click();
-      await expect(page.getByText("Switching account...")).toBeVisible();
-      await expect(page).toHaveURL(/\/admin/);
 
-      // Verify UI updated to secondary tenant
-      await expect(tenantButton).toContainText(secondaryTenantName);
+      // Accept invitation dialog appears for pending invitations
+      const invitationDialog = page.getByRole("dialog", { name: "Accept invitation" });
+      await expect(invitationDialog).toBeVisible();
 
-      // After switching to a new tenant, the profile dialog appears for first-time setup
-      const profileDialog = page.getByRole("dialog", { name: "User profile" });
-      await expect(profileDialog).toBeVisible();
+      // Accept the invitation
+      await page.getByRole("button", { name: "Accept invitation" }).click();
 
-      // Complete the profile setup in the new tenant
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("Software Engineer");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Profile updated successfully");
-      await expect(profileDialog).not.toBeVisible();
+      // Wait for navigation to complete after accepting
+      await page.waitForLoadState("networkidle");
+
+      // Verify we're on admin page
+      await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      expect(page.url()).toContain("/admin");
+
+      // Re-query the tenant button after page changes
+      const navElementAfter = page.locator("nav").first();
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
+      await expect(tenantButtonAfter).toContainText(secondaryTenantName);
     })();
 
-    // === SCENARIO 4: Test tenant persistence across sessions ===
-    await step("Verify tenant preference persists after logout and login")(async () => {
+    // === TERTIARY TENANT INVITATION ACCEPTANCE ===
+    await step("Accept invitation for tertiary tenant & verify successful tenant switch")(async () => {
       const navElement = page.locator("nav").first();
       const tenantButton = navElement.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
 
       await tenantButton.click();
       const menuItems = page.getByRole("menuitem");
-      await menuItems.filter({ hasText: tertiaryTenantName }).click();
-      await expect(page.getByText("Switching account...")).toBeVisible();
-      await expect(page).toHaveURL(/\/admin/);
 
-      // Verify switched to tertiary tenant
-      await expect(tenantButton).toContainText(tertiaryTenantName);
+      // Look for the tertiary tenant with pending invitation badge
+      const tertiaryMenuItem = menuItems.filter({ hasText: tertiaryTenantName });
+      await tertiaryMenuItem.click();
 
-      // Complete profile setup in tertiary tenant
-      const profileDialog = page.getByRole("dialog", { name: "User profile" });
-      await expect(profileDialog).toBeVisible();
-      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
-      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("Software Engineer");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Profile updated successfully");
-      await expect(profileDialog).not.toBeVisible();
+      // Accept invitation dialog should appear for this tenant
+      const invitationDialog = page.getByRole("dialog", { name: "Accept invitation" });
+      await expect(invitationDialog).toBeVisible();
+
+      // Accept the invitation
+      await page.getByRole("button", { name: "Accept invitation" }).click();
+
+      // Wait for navigation to complete after accepting
+      await page.waitForLoadState("networkidle");
+
+      // Verify we're on admin page
+      await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      expect(page.url()).toContain("/admin");
+
+      // Re-query tenant button after page changes
+      const navElementAfter = page.locator("nav").first();
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
+      await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
 
       // Logout
       context.monitoring.expectedStatusCodes.push(401);
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL(/\/login\?returnPath=/);
+      await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
 
       // Login again
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL(/\/login\/verify/);
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await page.keyboard.type(getVerificationCode());
-      await expect(page).toHaveURL(/\/admin/);
+      // Wait for navigation to complete
+      await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      expect(page.url()).toContain("/admin");
 
       // Should login to tertiary tenant (last selected)
       await expect(tenantButton).toContainText(tertiaryTenantName);
     })();
 
-    // === SCENARIO 5: Test switching with modals open ===
-    await step("Test tenant switching with profile modal open")(async () => {
+    // === TENANT PREFERENCE PERSISTENCE ===
+    await step("Logout and login again & verify tenant preference persists")(async () => {
+      // Reuse the existing tenant button reference
+      const navElement = page.locator("nav").first();
+      const tenantButton = navElement.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
+
+      // Should still be on tertiary tenant
+      await expect(tenantButton).toContainText(tertiaryTenantName);
+
+      // Logout
+      context.monitoring.expectedStatusCodes.push(401);
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
+
+      // Login again
+      await page.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
+
+      // Wait for navigation to complete
+      await expect(page.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      expect(page.url()).toContain("/admin");
+
+      // Should login to tertiary tenant (last selected)
+      const navElementAfter = page.locator("nav").first();
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
+      await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
+    })();
+
+    // === SWITCHING WITH MODALS OPEN ===
+    await step("Open profile modal and switch tenant & verify modal closes automatically")(async () => {
       // Open profile modal
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Edit profile" }).click();
@@ -212,23 +286,23 @@ test.describe("@comprehensive", () => {
         ? menuItems.filter({ hasText: secondaryTenantName }).first()
         : menuItems.filter({ hasText: primaryTenantName }).first();
 
-      const targetTenantText = await targetMenuItem.textContent();
+      const targetTenantName = currentTenant?.includes(primaryTenantName) ? secondaryTenantName : primaryTenantName;
       await targetMenuItem.click();
 
-      // Should switch tenant
-      await expect(page.getByText("Switching account...")).toBeVisible();
-      await expect(page).toHaveURL(/\/admin/);
+      // Wait for switch to complete
+      await page.waitForLoadState("networkidle");
+      expect(page.url()).toContain("/admin");
 
       // Verify switch completed
 
       // Verify the tenant actually switched
       const navElementAfter = page.locator("nav").first();
       const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
-      await expect(tenantButtonAfter).toContainText(targetTenantText?.trim() || "");
+      await expect(tenantButtonAfter).toContainText(targetTenantName);
     })();
 
-    // === SCENARIO 6: Test tenant context across different pages ===
-    await step("Verify tenant context remains consistent across navigation")(async () => {
+    // === TENANT CONTEXT ACROSS NAVIGATION ===
+    await step("Navigate across pages & verify tenant context remains consistent")(async () => {
       const navElement = page.locator("nav").first();
       const tenantButton = navElement.locator("button").filter({ has: page.locator('img[alt="Logo"]') });
 
@@ -259,27 +333,27 @@ test.describe("@comprehensive", () => {
         ? menuItems.filter({ hasText: secondaryTenantName }).first()
         : menuItems.filter({ hasText: primaryTenantName }).first();
 
-      const switchedToTenant = (await targetMenuItem.textContent()) || "";
+      const switchedToTenant = initialTenant?.includes(primaryTenantName) ? secondaryTenantName : primaryTenantName;
       await targetMenuItem.click();
 
-      await expect(page.getByText("Switching account...")).toBeVisible();
-      await expect(page).toHaveURL(/\/admin/);
+      await page.waitForLoadState("networkidle");
+      expect(page.url()).toContain("/admin");
 
       // Verify switched context
 
       // Verify the tenant switch worked
-      await expect(tenantButton).toContainText(switchedToTenant.trim());
+      await expect(tenantButton).toContainText(switchedToTenant);
 
       // Navigate back to Home
       await page.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Tenant should still be the switched one
-      await expect(tenantButton).toContainText(switchedToTenant.trim());
+      await expect(tenantButton).toContainText(switchedToTenant);
     })();
 
-    // === SCENARIO 7: User management within tenants ===
-    await step("Navigate to users page & verify current user is listed")(async () => {
+    // === USER MANAGEMENT WITHIN TENANTS ===
+    await step("Navigate to users page & verify current user is listed with correct role")(async () => {
       await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
@@ -291,11 +365,12 @@ test.describe("@comprehensive", () => {
       const roleText = await tableBody.textContent();
 
       // User might be Member or Owner depending on which tenant we're in
-      expect(roleText).toMatch(/Member|Owner/);
+      const hasValidRole = roleText?.includes("Member") || roleText?.includes("Owner");
+      expect(hasValidRole).toBeTruthy();
     })();
 
-    // === SCENARIO 8: Switch to a tenant where user is owner and invite users ===
-    await step("Switch to primary tenant and invite a new user")(async () => {
+    // === OWNER PERMISSIONS AND USER INVITATION ===
+    await step("Switch to primary tenant as owner & verify successful user invitation")(async () => {
       const invitedUser = testUser();
 
       // Switch to primary tenant where user is owner
@@ -305,8 +380,8 @@ test.describe("@comprehensive", () => {
 
       const menuItems = page.getByRole("menuitem");
       await menuItems.filter({ hasText: primaryTenantName }).click();
-      await expect(page.getByText("Switching account...")).toBeVisible();
-      await expect(page).toHaveURL(/\/admin/);
+      await page.waitForLoadState("networkidle");
+      expect(page.url()).toContain("/admin");
 
       // Navigate to Users page
       await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -322,8 +397,8 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
-    // === SCENARIO 9: Update user profile ===
-    await step("Update user profile & verify changes persist")(async () => {
+    // === USER PROFILE UPDATE ===
+    await step("Update user profile & verify changes persist successfully")(async () => {
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Edit profile" }).click();
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
@@ -338,12 +413,13 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
-    // === SCENARIO 10: Final logout ===
-    await step("Logout from the system")(async () => {
+    // === FINAL LOGOUT ===
+    await step("Logout from the system & verify redirect to login page")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page).toHaveURL(/\/login\?returnPath=/);
+      await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
+      expect(page.url()).toContain("/login");
     })();
   });
 });

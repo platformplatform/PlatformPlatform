@@ -319,16 +319,17 @@ test.describe("@comprehensive", () => {
     })();
 
     // === ADVANCED FILTERING SECTION ===
-    await step("Verify all filter options are available")(async () => {
-      // Filters should already be visible due to URL filtering from previous step
+    await step("Show filters & verify all filter options are available")(async () => {
+      // Show filters
+      await page.getByRole("button", { name: "Show filters" }).click();
+
       await expect(page.getByLabel("User role").first()).toBeVisible();
       await expect(page.getByLabel("User status").first()).toBeVisible();
       await expect(page.getByLabel("Modified date").first()).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
-      // First dismiss any open dropdown and clear status filter
-      await page.keyboard.press("Escape");
+      // Clear the existing status filter (currently set to "Pending")
       await page.getByLabel("User status").first().click();
       await page.getByRole("option", { name: "Any status" }).click();
 
@@ -415,11 +416,11 @@ test.describe("@comprehensive", () => {
     })();
 
     // === CLEAR FILTERS FOR CLEAN DELETION TESTS ===
-    await step("Clear all filters & verify all users shown again for clean deletion tests")(async () => {
-      // Reset any remaining filters to show all users
-      await page.getByRole("button", { name: "Clear filters" }).click();
+    await step("Navigate to users page & verify all users shown for clean deletion tests")(async () => {
+      // Navigate to users page without any filters
+      await page.goto("/admin/users");
 
-      // Verify all users are shown again
+      // Verify all users are shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(4);
       await expect(page.locator("tbody").first()).toContainText(owner.email);
       await expect(page.locator("tbody").first()).toContainText(user1.email);
