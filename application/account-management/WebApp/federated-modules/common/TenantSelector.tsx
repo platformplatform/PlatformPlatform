@@ -19,9 +19,10 @@ type TenantInfo = components["schemas"]["TenantInfo"];
 
 interface TenantSelectorProps {
   onShowInvitationDialog?: (tenant: TenantInfo) => void;
+  variant?: "default" | "mobile-menu";
 }
 
-export default function TenantSelector({ onShowInvitationDialog }: TenantSelectorProps = {}) {
+export default function TenantSelector({ onShowInvitationDialog, variant = "default" }: TenantSelectorProps = {}) {
   const userInfo = useUserInfo();
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
@@ -204,7 +205,7 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
             )}
           </Button>
           <Menu
-            placement={isCollapsed ? "right" : "bottom start"}
+            placement={variant === "mobile-menu" ? "bottom end" : isCollapsed ? "right" : "bottom start"}
             popoverClassName="bg-input-background p-px -ml-1"
             style={{ minWidth: `${sidebarWidth - 16}px` }}
           >

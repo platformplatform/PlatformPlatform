@@ -178,7 +178,7 @@ export function MobileMenu({
 
         {/* Tenant Selector */}
         <div className="-mx-3">
-          <TenantSelector onShowInvitationDialog={onShowInvitationDialog} />
+          <TenantSelector variant="mobile-menu" onShowInvitationDialog={onShowInvitationDialog} />
         </div>
 
         {/* Navigation Section for Mobile */}
