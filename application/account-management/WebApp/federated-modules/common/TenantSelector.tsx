@@ -75,7 +75,25 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
   }, [isMenuOpen]);
 
   // Fetch available tenants
-  const { data: tenantsResponse, isLoading } = api.useQuery("get", "/api/account-management/authentication/tenants");
+  const {
+    data: tenantsResponse,
+    isLoading,
+    refetch
+  } = api.useQuery("get", "/api/account-management/authentication/tenants");
+
+  // Listen for tenant updates and refetch
+  useEffect(() => {
+    const handleTenantUpdate = () => {
+      refetch().catch(() => {
+        // Handle refetch errors silently
+      });
+    };
+
+    window.addEventListener("tenant-updated", handleTenantUpdate);
+    return () => {
+      window.removeEventListener("tenant-updated", handleTenantUpdate);
+    };
+  }, [refetch]);
 
   // Switch tenant mutation
   const switchTenantMutation = api.useMutation("post", "/api/account-management/authentication/switch-tenant", {
@@ -102,9 +120,10 @@ export default function TenantSelector({ onShowInvitationDialog }: TenantSelecto
 
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
-  const currentTenantName = userInfo.tenantName || "PlatformPlatform";
-  const newTenantsCount = tenants.filter((t) => t.isNew && t.tenantId !== currentTenantId).length;
+  // Get tenant name from tenants list to ensure it's always up-to-date
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
+  const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
+  const newTenantsCount = tenants.filter((t) => t.isNew && t.tenantId !== currentTenantId).length;
   const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
 
   const handleTenantSwitch = (tenant: TenantInfo) => {

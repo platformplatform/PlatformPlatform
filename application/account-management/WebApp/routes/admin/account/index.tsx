@@ -273,6 +273,17 @@ export function AccountSettings() {
     }
   }, [updateCurrentTenantMutation.isSuccess, refetchTenant]);
 
+  // Dispatch event to notify components about tenant updates
+  useEffect(() => {
+    if (
+      updateCurrentTenantMutation.isSuccess ||
+      updateTenantLogoMutation.isSuccess ||
+      removeTenantLogoMutation.isSuccess
+    ) {
+      window.dispatchEvent(new CustomEvent("tenant-updated"));
+    }
+  }, [updateCurrentTenantMutation.isSuccess, updateTenantLogoMutation.isSuccess, removeTenantLogoMutation.isSuccess]);
+
   if (tenantLoading || userLoading) {
     return null;
   }
