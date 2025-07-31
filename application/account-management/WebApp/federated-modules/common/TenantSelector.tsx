@@ -12,6 +12,7 @@ import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import { AcceptInvitationDialog } from "./AcceptInvitationDialog";
 import "@repo/ui/tailwind.css";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
@@ -20,6 +21,7 @@ export default function TenantSelector() {
   const userInfo = useUserInfo();
   const isCollapsed = useContext(collapsedContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
 
   // Track current sidebar width
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -89,11 +91,23 @@ export default function TenantSelector() {
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
 
-  const handleTenantSwitch = (tenantId: string) => {
-    if (tenantId !== currentTenantId) {
-      localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenantId);
+  const handleTenantSwitch = (tenant: TenantInfo) => {
+    if (tenant.tenantId !== currentTenantId) {
+      // If it's a new tenant (invitation pending), show the dialog
+      if (tenant.isNew) {
+        setInvitationDialogTenant(tenant);
+      } else {
+        // Otherwise, switch directly
+        localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenant.tenantId);
+        switchTenantMutation.mutate({ body: { tenantId: tenant.tenantId } });
+      }
+    }
+  };
 
-      switchTenantMutation.mutate({ body: { tenantId } });
+  const handleAcceptInvitation = () => {
+    if (invitationDialogTenant) {
+      localStorage.setItem(`preferred-tenant-${userInfo.email}`, invitationDialogTenant.tenantId);
+      switchTenantMutation.mutate({ body: { tenantId: invitationDialogTenant.tenantId } });
     }
   };
 
@@ -166,7 +180,7 @@ export default function TenantSelector() {
             </MenuHeader>
             <MenuSeparator />
             {tenants.map((tenant: TenantInfo) => (
-              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant.tenantId)}>
+              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant)}>
                 <TenantLogo
                   logoUrl={tenant.logoUrl}
                   tenantName={tenant.tenantName || ""}
@@ -233,6 +247,13 @@ export default function TenantSelector() {
           </div>
         </div>
       )}
+      <AcceptInvitationDialog
+        isOpen={!!invitationDialogTenant}
+        onOpenChange={(open) => !open && setInvitationDialogTenant(null)}
+        tenant={invitationDialogTenant}
+        onAccept={handleAcceptInvitation}
+        isLoading={switchTenantMutation.isPending}
+      />
     </>
   );
 }

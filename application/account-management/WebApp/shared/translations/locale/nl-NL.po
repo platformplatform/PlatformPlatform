@@ -20,6 +20,12 @@ msgstr "{0} gebruikers succesvol verwijderd"
 msgid "A new verification code has been sent to your email."
 msgstr "Een nieuwe verificatiecode is naar je e-mail verzonden."
 
+msgid "Accept invitation"
+msgstr "Uitnodiging accepteren"
+
+msgid "Accepting..."
+msgstr "Accepteren..."
+
 msgid "Account"
 msgstr "Account"
 
@@ -523,6 +529,13 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
+
+msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
+msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam, titel en avatar) van je huidige account gekopieerd naar het nieuwe account."
+
+#. placeholder {0}: tenant.tenantName || "this account"
+msgid "You have been invited to join <0>{0}</0>."
+msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."

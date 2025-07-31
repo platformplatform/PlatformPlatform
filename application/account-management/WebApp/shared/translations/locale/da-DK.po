@@ -20,6 +20,12 @@ msgstr "{0} brugere slettet succesfuldt"
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
+msgid "Accept invitation"
+msgstr "Accepter invitation"
+
+msgid "Accepting..."
+msgstr "Accepterer..."
+
 msgid "Account"
 msgstr "Konto"
 
@@ -523,6 +529,13 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
+
+msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
+msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+#. placeholder {0}: tenant.tenantName || "this account"
+msgid "You have been invited to join <0>{0}</0>."
+msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."
