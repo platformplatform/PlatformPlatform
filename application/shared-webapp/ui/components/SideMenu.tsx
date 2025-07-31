@@ -44,7 +44,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 const menuButtonStyles = tv({
   extend: focusRing,
-  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1",
+  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
   variants: {
     isCollapsed: {
       true: "",
@@ -434,7 +434,7 @@ const sideMenuStyles = tv({
     {
       overlayMode: true,
       isOverlayOpen: true,
-      class: "w-[320px]" // Wider overlay for longer tenant names
+      class: "w-[300px]" // Match max width constant
     }
   ]
 });

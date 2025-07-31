@@ -132,7 +132,7 @@ export default function TenantSelector() {
         <MenuTrigger onOpenChange={setIsMenuOpen}>
           <Button
             variant="ghost"
-            className="relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+            className="relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             isDisabled={switchTenantMutation.isPending}
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
