@@ -153,19 +153,23 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
 
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
-  
+
   // Sort tenants alphabetically by name, with unnamed accounts at the end
   const sortedTenants = [...tenants].sort((a, b) => {
     // Put unnamed accounts at the end
-    if (!a.tenantName && b.tenantName) return 1;
-    if (a.tenantName && !b.tenantName) return -1;
-    
+    if (!a.tenantName && b.tenantName) {
+      return 1;
+    }
+    if (a.tenantName && !b.tenantName) {
+      return -1;
+    }
+
     // Both have names or both are unnamed, sort alphabetically
     const nameA = a.tenantName || "";
     const nameB = b.tenantName || "";
     return nameA.localeCompare(nameB);
   });
-  
+
   // Get tenant name from tenants list to ensure it's always up-to-date
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
@@ -255,9 +259,14 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
                   style={{ width: "24px", height: "24px" }}
                 />
                 <div className="flex flex-1 items-center justify-between gap-2">
-                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    {tenant.tenantName || t`Unnamed Account`}
-                  </span>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                      {tenant.tenantName || t`Unnamed account`}
+                    </span>
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
+                      {userInfo.email}
+                    </span>
+                  </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {tenant.isNew && (
                       <Badge variant="warning" className="text-xs">

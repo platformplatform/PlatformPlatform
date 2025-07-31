@@ -454,8 +454,8 @@ msgstr "Totalt antal brugere"
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Unnamed Account"
-msgstr "Unavngiven konto"
+msgid "Unnamed account"
+msgstr "Unavngivet konto"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."

@@ -454,7 +454,7 @@ msgstr "Totale gebruikers"
 msgid "Try again"
 msgstr "Probeer opnieuw"
 
-msgid "Unnamed Account"
+msgid "Unnamed account"
 msgstr "Naamloos account"
 
 msgid "Update your profile picture and personal details here."
