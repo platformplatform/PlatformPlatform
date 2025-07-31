@@ -101,9 +101,7 @@ export default function TenantSelector() {
       <div className="relative w-full px-3">
         <div className="">
           <div
-            className={`flex h-11 w-full items-center rounded-md py-2 pr-2 pl-4 text-sm ${
-              isCollapsed ? "justify-center" : "gap-0"
-            }`}
+            className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
               <TenantLogo
@@ -132,7 +130,7 @@ export default function TenantSelector() {
         <MenuTrigger onOpenChange={setIsMenuOpen}>
           <Button
             variant="ghost"
-            className="relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
             isDisabled={switchTenantMutation.isPending}
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center">
@@ -165,12 +163,7 @@ export default function TenantSelector() {
             </MenuHeader>
             <MenuSeparator />
             {tenants.map((tenant: TenantInfo) => (
-              <MenuItem
-                key={tenant.tenantId}
-                id={tenant.tenantId}
-                onAction={() => handleTenantSwitch(tenant.tenantId)}
-                className="gap-3"
-              >
+              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant.tenantId)}>
                 <TenantLogo
                   logoUrl={tenant.logoUrl}
                   tenantName={tenant.tenantName || ""}
@@ -179,11 +172,11 @@ export default function TenantSelector() {
                   className="shrink-0"
                   style={{ width: "24px", height: "24px" }}
                 />
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <div className="flex flex-1 items-center justify-between gap-4">
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {tenant.tenantName || t`Unnamed Account`}
                   </span>
-                  {tenant.tenantId === currentTenantId && <Check className="h-4 w-4 shrink-0 text-primary" />}
+                  {tenant.tenantId === currentTenantId && <Check className="h-4 w-4 shrink-0" />}
                 </div>
               </MenuItem>
             ))}

@@ -167,15 +167,16 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
       return containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
     };
 
-    const calculateAvailableSpace = (toolbarContainer: HTMLElement) => {
+    const calculateAvailableSpace = (toolbarContainer: HTMLElement, sidePaneOpen: boolean) => {
       const toolbarWidth = toolbarContainer.offsetWidth;
       const searchField = containerRef.current?.querySelector('input[type="text"]') as HTMLElement;
       const filterButton = containerRef.current?.querySelector('[data-testid="filter-button"]') as HTMLElement;
 
       const searchWidth = searchField?.offsetWidth || 300;
       const filterButtonWidth = filterButton?.offsetWidth || 50;
-      const rightSideWidth = 130;
-      const gaps = 16;
+      // Account for invite button and potential side panel
+      const rightSideWidth = sidePaneOpen ? 200 : 150;
+      const gaps = 24; // Increased gap allowance
 
       const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
       return toolbarWidth - usedSpace;
@@ -211,8 +212,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         return;
       }
 
-      const availableSpace = calculateAvailableSpace(toolbarContainer);
-      const minimumFilterSpace = 300;
+      const availableSpace = calculateAvailableSpace(toolbarContainer, isSidePaneOpen);
+      const minimumFilterSpace = 500;
       const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
       updateFiltersVisibility(hasSpaceForInlineFilters, now);
@@ -261,7 +262,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         clearTimeout(debounceTimeout);
       }
     };
-  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen]);
+  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen, isSidePaneOpen]);
 
   // Notify parent component when filter state changes
   useEffect(() => {
@@ -405,7 +406,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             const rightSideWidth = 130;
 
             const gaps = 16; // gap-2 between main sections
-            const minimumFilterSpace = 450; // Minimum space needed for all three filter controls
+            const minimumFilterSpace = 500;
 
             const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
             const availableSpace = toolbarWidth - usedSpace;
