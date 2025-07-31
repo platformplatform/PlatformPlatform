@@ -161,6 +161,12 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Decline"
+msgstr "Afslå"
+
+msgid "Declining..."
+msgstr "Afslår..."
+
 msgid "Delete"
 msgstr "Slet"
 
@@ -533,7 +539,7 @@ msgstr "Velkommen hjem, {0}"
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
-#. placeholder {0}: tenant.tenantName || "this account"
+#. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
 

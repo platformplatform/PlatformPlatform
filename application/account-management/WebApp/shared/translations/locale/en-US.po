@@ -161,6 +161,12 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Decline"
+msgstr "Decline"
+
+msgid "Declining..."
+msgstr "Declining..."
+
 msgid "Delete"
 msgstr "Delete"
 
@@ -533,7 +539,7 @@ msgstr "Welcome home, {0}"
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
-#. placeholder {0}: tenant.tenantName || "this account"
+#. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
 

@@ -84,6 +84,9 @@ public sealed class UsersBulkDeleted(int count)
 public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMinutes)
     : TelemetryEvent(("user_id", userId), ("invite_accepted_time_in_minutes", inviteAcceptedTimeInMinutes));
 
+public sealed class UserInviteDeclined(UserId userId, int inviteExistedTimeInMinutes)
+    : TelemetryEvent(("user_id", userId), ("invite_existed_time_in_minutes", inviteExistedTimeInMinutes));
+
 public sealed class UserInvited(UserId userId)
     : TelemetryEvent(("user_id", userId));
 

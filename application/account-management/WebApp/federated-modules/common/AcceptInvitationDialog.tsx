@@ -1,4 +1,5 @@
 import type { components } from "@/shared/lib/api/api.generated";
+import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
@@ -24,7 +25,20 @@ export function AcceptInvitationDialog({
   tenant,
   onAccept,
   isLoading = false
-}: AcceptInvitationDialogProps) {
+}: Readonly<AcceptInvitationDialogProps>) {
+  const declineInvitationMutation = api.useMutation("post", "/api/account-management/users/decline-invitation", {
+    onSuccess: () => {
+      onOpenChange(false);
+      window.location.reload();
+    }
+  });
+
+  const handleDeclineInvitation = () => {
+    if (tenant) {
+      declineInvitationMutation.mutate({ body: { tenantId: tenant.tenantId } });
+    }
+  };
+
   if (!tenant) {
     return null;
   }
@@ -44,7 +58,7 @@ export function AcceptInvitationDialog({
         <DialogContent className="flex flex-col gap-4">
           <Text>
             <Trans>
-              You have been invited to join <strong>{tenant.tenantName || "this account"}</strong>.
+              You have been invited to join <strong>{tenant.tenantName}</strong>.
             </Trans>
           </Text>
           <Text className="text-muted-foreground text-sm">
@@ -55,10 +69,14 @@ export function AcceptInvitationDialog({
           </Text>
         </DialogContent>
         <DialogFooter>
-          <Button variant="secondary" onPress={() => onOpenChange(false)} isDisabled={isLoading}>
-            <Trans>Cancel</Trans>
+          <Button
+            variant="destructive"
+            onPress={handleDeclineInvitation}
+            isDisabled={isLoading || declineInvitationMutation.isPending}
+          >
+            {declineInvitationMutation.isPending ? <Trans>Declining...</Trans> : <Trans>Decline</Trans>}
           </Button>
-          <Button variant="primary" onPress={onAccept} isDisabled={isLoading}>
+          <Button variant="primary" onPress={onAccept} isDisabled={isLoading || declineInvitationMutation.isPending}>
             {isLoading ? <Trans>Accepting...</Trans> : <Trans>Accept invitation</Trans>}
           </Button>
         </DialogFooter>

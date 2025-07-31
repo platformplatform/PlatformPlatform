@@ -161,6 +161,12 @@ msgstr "Donker"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Decline"
+msgstr "Weigeren"
+
+msgid "Declining..."
+msgstr "Weigeren..."
+
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -533,7 +539,7 @@ msgstr "Welkom home, {0}"
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam, titel en avatar) van je huidige account gekopieerd naar het nieuwe account."
 
-#. placeholder {0}: tenant.tenantName || "this account"
+#. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
 
