@@ -5,7 +5,6 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogFooter } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
-import { useEffect, useState } from "react";
 
 export type AuthSyncModalType = "tenant-switch" | "logged-in" | "logged-out";
 
@@ -18,7 +17,6 @@ export interface AuthSyncModalProps {
 }
 
 export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAction }: AuthSyncModalProps) {
-
   const getModalContent = () => {
     switch (type) {
       case "tenant-switch":
@@ -26,53 +24,53 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
           title: t`Account switched`,
           description: (
             <>
-              <Trans>
-                Your account was switched to <strong>{newTenantName}</strong> in another browser tab.
-              </Trans>
+              {newTenantName ? (
+                <Trans>
+                  Your account was switched to <strong>{newTenantName}</strong> in another browser tab.
+                </Trans>
+              ) : (
+                <Trans>Your account was switched in another browser tab.</Trans>
+              )}
               <div className="mt-2">
                 <Trans>
-                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers.
+                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use
+                  different browsers.
                 </Trans>
               </div>
             </>
           ),
-          primaryLabel: <Trans>Continue with {newTenantName}</Trans>
+          primaryLabel: t`Reload`
         };
 
       case "logged-in":
         return {
-          title: t`Different user signed in`,
+          title: t`Different user logged in`,
           description: (
             <>
-              <Trans>
-                A different user signed in from another browser tab.
-              </Trans>
+              <Trans>A different user logged in from another browser tab.</Trans>
               <div className="mt-2">
                 <Trans>
-                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers.
+                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use
+                  different browsers.
                 </Trans>
               </div>
             </>
           ),
-          primaryLabel: t`Reload now`
+          primaryLabel: t`Reload`
         };
 
       case "logged-out":
         return {
-          title: t`Signed out`,
+          title: t`Logged out`,
           description: (
             <>
-              <Trans>
-                You were signed out from another browser tab.
-              </Trans>
+              <Trans>You were logged out from another browser tab.</Trans>
               <div className="mt-2">
-                <Trans>
-                  Authentication is shared across all tabs.
-                </Trans>
+                <Trans>Authentication is shared across all tabs.</Trans>
               </div>
             </>
           ),
-          primaryLabel: t`Reload now`
+          primaryLabel: t`Reload`
         };
 
       default:

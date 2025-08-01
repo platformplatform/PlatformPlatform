@@ -31,57 +31,81 @@ export function useAuthSync() {
 
   const processSyncMessage = useCallback(
     (message: AuthSyncMessage) => {
+      if (!userInfo) {
+        return;
+      }
+
       let shouldShowModal = false;
+      let newModalState: ModalState | null = null;
 
       switch (message.type) {
         case "TENANT_SWITCHED":
-          // Show modal if:
-          // 1. Different user switched tenants, OR
-          // 2. Same user but different tenant
-          if (userInfo?.isAuthenticated && userInfo.tenantId !== message.newTenantId) {
+          // Only show if we're authenticated and on a different tenant
+          if (userInfo.isAuthenticated && userInfo.tenantId !== message.newTenantId) {
             shouldShowModal = true;
-            setModalState({
+            newModalState = {
               isOpen: true,
               type: "tenant-switch",
-              currentTenantName: userInfo.tenantName || "Current Account",
+              currentTenantName: userInfo.tenantName || "Current account",
               newTenantName: message.tenantName,
               newTenantId: message.newTenantId
-            });
+            };
+          } else if (userInfo.isAuthenticated && userInfo.tenantId === message.newTenantId) {
+            // Same tenant - close any existing modal
+            shouldShowModal = false;
+            newModalState = { isOpen: false, type: "tenant-switch" };
           }
           break;
 
         case "USER_LOGGED_IN":
-          // Show modal only if:
-          // 1. Currently logged out, OR
-          // 2. Different user logged in (userId is empty from login, so check email), OR  
-          // 3. Different tenant
-          if (!userInfo?.isAuthenticated || 
-              (message.email && userInfo.email !== message.email) ||
-              (message.tenantId && userInfo.tenantId !== message.tenantId)) {
+          if (!userInfo.isAuthenticated) {
+            // We were logged out, now someone logged in
             shouldShowModal = true;
-            setModalState({
+            newModalState = {
               isOpen: true,
               type: "logged-in"
-            });
+            };
+          } else if (message.email && userInfo.email !== message.email) {
+            // Different user logged in
+            shouldShowModal = true;
+            newModalState = {
+              isOpen: true,
+              type: "logged-in"
+            };
+          } else if (message.tenantId && userInfo.tenantId !== message.tenantId) {
+            // Same user, different tenant - show tenant switch
+            shouldShowModal = true;
+            newModalState = {
+              isOpen: true,
+              type: "tenant-switch",
+              currentTenantName: userInfo.tenantName || "Current account",
+              newTenantName: undefined, // We don't have tenant name in login message
+              newTenantId: message.tenantId
+            };
+          } else {
+            // Same user, same tenant - close any existing modal
+            shouldShowModal = false;
+            newModalState = { isOpen: false, type: "logged-in" };
           }
           break;
 
         case "USER_LOGGED_OUT":
-          // Show modal if currently logged in
-          // We check either the same user logged out, or we're still authenticated
-          // (in case the user info hasn't updated yet)
-          if (userInfo?.isAuthenticated) {
+          if (userInfo.isAuthenticated) {
             shouldShowModal = true;
-            setModalState({
+            newModalState = {
               isOpen: true,
               type: "logged-out"
-            });
+            };
           }
           break;
 
         default:
-          // Exhaustive check - should never reach here
           break;
+      }
+
+      // Update modal state if we have a new state
+      if (newModalState) {
+        setModalState(newModalState);
       }
 
       // Update the pending sync state
@@ -90,7 +114,7 @@ export function useAuthSync() {
     [userInfo]
   );
 
-  // Handle visibility changes - show modal when tab becomes visible
+  // Handle visibility changes - process the last pending message when tab becomes visible
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && pendingMessage) {
@@ -109,7 +133,7 @@ export function useAuthSync() {
       if (!document.hidden) {
         processSyncMessage(message);
       } else {
-        // Queue message for when tab becomes visible
+        // Store only the last message for when tab becomes visible
         setPendingMessage(message);
       }
     });

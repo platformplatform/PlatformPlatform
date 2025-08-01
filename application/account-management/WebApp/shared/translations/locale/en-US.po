@@ -17,6 +17,9 @@ msgstr ""
 msgid "{0} users deleted successfully"
 msgstr "{0} users deleted successfully"
 
+msgid "A different user logged in from another browser tab."
+msgstr "A different user logged in from another browser tab."
+
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
 
@@ -91,6 +94,12 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Authentication is shared across all tabs."
+msgstr "Authentication is shared across all tabs."
+
+msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+msgstr "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -152,9 +161,6 @@ msgstr "Contact support"
 msgid "Continue"
 msgstr "Continue"
 
-msgid "Continue with {newTenantName}"
-msgstr "Continue with {newTenantName}"
-
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -194,6 +200,9 @@ msgstr "Delete users"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
+
+msgid "Different user logged in"
+msgstr "Different user logged in"
 
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
@@ -284,9 +293,6 @@ msgstr "Log in"
 
 msgid "Log out"
 msgstr "Log out"
-
-msgid "Logged in"
-msgstr "Logged in"
 
 msgid "Logged out"
 msgstr "Logged out"
@@ -564,14 +570,14 @@ msgstr "When you accept this invitation, your profile information (name, title, 
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
 
-msgid "You've been logged in from another tab. This page will reload in {countdown} seconds."
-msgstr "You've been logged in from another tab. This page will reload in {countdown} seconds."
+msgid "You were logged out from another browser tab."
+msgstr "You were logged out from another browser tab."
 
-msgid "You've been logged out from another tab. This page will reload in {countdown} seconds."
-msgstr "You've been logged out from another tab. This page will reload in {countdown} seconds."
+msgid "Your account was switched in another browser tab."
+msgstr "Your account was switched in another browser tab."
 
-msgid "Your account has been switched to <0>{newTenantName}</0> in another tab."
-msgstr "Your account has been switched to <0>{newTenantName}</0> in another tab."
+msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+msgstr "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."

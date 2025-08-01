@@ -17,6 +17,9 @@ msgstr ""
 msgid "{0} users deleted successfully"
 msgstr "{0} gebruikers succesvol verwijderd"
 
+msgid "A different user logged in from another browser tab."
+msgstr "Een andere gebruiker heeft ingelogd vanuit een ander browsertabblad."
+
 msgid "A new verification code has been sent to your email."
 msgstr "Een nieuwe verificatiecode is naar je e-mail verzonden."
 
@@ -91,6 +94,12 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
 
+msgid "Authentication is shared across all tabs."
+msgstr "Authenticatie wordt gedeeld over alle tabbladen."
+
+msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+msgstr "Authenticatie wordt gedeeld over alle tabbladen. Gebruik verschillende browsers om meerdere accounts tegelijk te gebruiken."
+
 msgid "Back Office"
 msgstr "Backoffice"
 
@@ -152,9 +161,6 @@ msgstr "Ondersteuning contacteren"
 msgid "Continue"
 msgstr "Verder"
 
-msgid "Continue with {newTenantName}"
-msgstr "Doorgaan met {newTenantName}"
-
 msgid "Create your account"
 msgstr "Maak je account aan"
 
@@ -194,6 +200,9 @@ msgstr "Gebruikers verwijderen"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Verwijder je account en alle gegevens. Deze actie is onomkeerbaar—ga zorgvuldig te werk."
+
+msgid "Different user logged in"
+msgstr "Andere gebruiker ingelogd"
 
 msgid "Do you already have an account?"
 msgstr "Heb je al een account?"
@@ -284,9 +293,6 @@ msgstr "Inloggen"
 
 msgid "Log out"
 msgstr "Uitloggen"
-
-msgid "Logged in"
-msgstr "Ingelogd"
 
 msgid "Logged out"
 msgstr "Uitgelogd"
@@ -564,14 +570,14 @@ msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam,
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
 
-msgid "You've been logged in from another tab. This page will reload in {countdown} seconds."
-msgstr "Je bent ingelogd vanuit een ander tabblad. Deze pagina wordt over {countdown} seconden opnieuw geladen."
+msgid "You were logged out from another browser tab."
+msgstr "Je bent uitgelogd vanuit een ander browsertabblad."
 
-msgid "You've been logged out from another tab. This page will reload in {countdown} seconds."
-msgstr "Je bent uitgelogd vanuit een ander tabblad. Deze pagina wordt over {countdown} seconden opnieuw geladen."
+msgid "Your account was switched in another browser tab."
+msgstr "Je account is gewisseld in een ander browsertabblad."
 
-msgid "Your account has been switched to <0>{newTenantName}</0> in another tab."
-msgstr "Je account is in een ander tabblad gewisseld naar <0>{newTenantName}</0>."
+msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+msgstr "Je account is gewisseld naar <0>{newTenantName}</0> in een ander browsertabblad."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."
