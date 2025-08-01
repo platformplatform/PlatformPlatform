@@ -15,17 +15,9 @@ export interface AuthSyncModalProps {
   currentTenantName?: string;
   newTenantName?: string;
   onPrimaryAction: () => void;
-  onSecondaryAction?: () => void;
 }
 
-export default function AuthSyncModal({
-  isOpen,
-  type,
-  currentTenantName,
-  newTenantName,
-  onPrimaryAction,
-  onSecondaryAction
-}: AuthSyncModalProps) {
+export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAction }: AuthSyncModalProps) {
   const [countdown, setCountdown] = useState(3);
 
   // Handle countdown for auto-reload scenarios
@@ -59,24 +51,21 @@ export default function AuthSyncModal({
               Your account has been switched to <strong>{newTenantName}</strong> in another tab.
             </Trans>
           ),
-          primaryLabel: <Trans>Continue with {newTenantName}</Trans>,
-          secondaryLabel: currentTenantName ? <Trans>Switch back to {currentTenantName}</Trans> : undefined
+          primaryLabel: <Trans>Continue with {newTenantName}</Trans>
         };
 
       case "logged-in":
         return {
           title: t`Logged in`,
           description: t`You've been logged in from another tab. This page will reload in ${countdown} seconds.`,
-          primaryLabel: t`Reload now`,
-          secondaryLabel: undefined
+          primaryLabel: t`Reload now`
         };
 
       case "logged-out":
         return {
           title: t`Logged out`,
           description: t`You've been logged out from another tab. This page will reload in ${countdown} seconds.`,
-          primaryLabel: t`Reload now`,
-          secondaryLabel: undefined
+          primaryLabel: t`Reload now`
         };
 
       default:
@@ -84,8 +73,7 @@ export default function AuthSyncModal({
         return {
           title: t`Unknown state`,
           description: t`An unexpected state occurred. Please reload the page.`,
-          primaryLabel: t`Reload`,
-          secondaryLabel: undefined
+          primaryLabel: t`Reload`
         };
     }
   };
@@ -102,11 +90,6 @@ export default function AuthSyncModal({
             </Heading>
             <div className="mt-2 text-muted-foreground text-sm">{content.description}</div>
             <DialogFooter className="mt-6">
-              {content.secondaryLabel && onSecondaryAction && (
-                <Button variant="secondary" onPress={onSecondaryAction}>
-                  {content.secondaryLabel}
-                </Button>
-              )}
               <Button variant="primary" onPress={onPrimaryAction}>
                 {content.primaryLabel}
               </Button>

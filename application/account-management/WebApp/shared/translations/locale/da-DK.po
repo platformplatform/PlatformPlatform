@@ -442,9 +442,6 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "Success"
 msgstr "Succes"
 
-msgid "Switch back to {currentTenantName}"
-msgstr "Skift tilbage til {currentTenantName}"
-
 msgid "Switching account..."
 msgstr "Skifter konto..."
 

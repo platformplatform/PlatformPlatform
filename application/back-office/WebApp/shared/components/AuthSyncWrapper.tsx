@@ -5,7 +5,7 @@ import { Suspense, lazy } from "react";
 const AuthSyncModal = lazy(() => import("account-management/AuthSyncModal"));
 
 /**
- * Simple wrapper for back-office that shows auth sync modal without tenant switching
+ * Wrapper for back-office that lazy loads the AuthSyncModal from account-management
  */
 export function AuthSyncWrapper() {
   const { modalState, handlePrimaryAction } = useAuthSync();
@@ -22,7 +22,6 @@ export function AuthSyncWrapper() {
         currentTenantName={modalState.currentTenantName}
         newTenantName={modalState.newTenantName}
         onPrimaryAction={handlePrimaryAction}
-        onSecondaryAction={undefined}
       />
     </Suspense>
   );
