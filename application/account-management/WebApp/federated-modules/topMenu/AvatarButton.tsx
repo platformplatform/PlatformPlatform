@@ -43,7 +43,8 @@ export default function AvatarButton() {
     onSuccess: () => {
       // Broadcast logout event to other tabs
       authSyncService.broadcast({
-        type: "USER_LOGGED_OUT"
+        type: "USER_LOGGED_OUT",
+        userId: userInfo?.id || ""
       });
 
       window.location.href = createLoginUrlWithReturnPath(loginPath);

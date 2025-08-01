@@ -18,28 +18,6 @@ export interface AuthSyncModalProps {
 }
 
 export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAction }: AuthSyncModalProps) {
-  const [countdown, setCountdown] = useState(3);
-
-  // Handle countdown for auto-reload scenarios
-  useEffect(() => {
-    if (!isOpen || type === "tenant-switch") {
-      setCountdown(3);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          onPrimaryAction();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isOpen, type, onPrimaryAction]);
 
   const getModalContent = () => {
     switch (type) {
@@ -47,24 +25,53 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
         return {
           title: t`Account switched`,
           description: (
-            <Trans>
-              Your account has been switched to <strong>{newTenantName}</strong> in another tab.
-            </Trans>
+            <>
+              <Trans>
+                Your account was switched to <strong>{newTenantName}</strong> in another browser tab.
+              </Trans>
+              <div className="mt-2">
+                <Trans>
+                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers.
+                </Trans>
+              </div>
+            </>
           ),
           primaryLabel: <Trans>Continue with {newTenantName}</Trans>
         };
 
       case "logged-in":
         return {
-          title: t`Logged in`,
-          description: t`You've been logged in from another tab. This page will reload in ${countdown} seconds.`,
+          title: t`Different user signed in`,
+          description: (
+            <>
+              <Trans>
+                A different user signed in from another browser tab.
+              </Trans>
+              <div className="mt-2">
+                <Trans>
+                  Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers.
+                </Trans>
+              </div>
+            </>
+          ),
           primaryLabel: t`Reload now`
         };
 
       case "logged-out":
         return {
-          title: t`Logged out`,
-          description: t`You've been logged out from another tab. This page will reload in ${countdown} seconds.`,
+          title: t`Signed out`,
+          description: (
+            <>
+              <Trans>
+                You were signed out from another browser tab.
+              </Trans>
+              <div className="mt-2">
+                <Trans>
+                  Authentication is shared across all tabs.
+                </Trans>
+              </div>
+            </>
+          ),
           primaryLabel: t`Reload now`
         };
 
@@ -82,7 +89,7 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
 
   return (
     <Modal isOpen={isOpen} isDismissable={false} isKeyboardDismissDisabled={true}>
-      <Dialog>
+      <Dialog className="sm:max-w-lg">
         {() => (
           <>
             <Heading slot="title" className="font-semibold text-lg">

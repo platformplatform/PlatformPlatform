@@ -16,11 +16,13 @@ export interface TenantSwitchedMessage {
   newTenantId: string;
   previousTenantId: string;
   tenantName: string;
+  userId: string;
   timestamp: number;
 }
 
 export interface UserLoggedInMessage {
   type: "USER_LOGGED_IN";
+  userId: string;
   tenantId: string;
   email: string;
   timestamp: number;
@@ -28,6 +30,7 @@ export interface UserLoggedInMessage {
 
 export interface UserLoggedOutMessage {
   type: "USER_LOGGED_OUT";
+  userId: string;
   timestamp: number;
 }
 

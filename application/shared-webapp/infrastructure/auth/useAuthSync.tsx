@@ -35,7 +35,9 @@ export function useAuthSync() {
 
       switch (message.type) {
         case "TENANT_SWITCHED":
-          // Check if current tenant differs from the new tenant
+          // Show modal if:
+          // 1. Different user switched tenants, OR
+          // 2. Same user but different tenant
           if (userInfo?.isAuthenticated && userInfo.tenantId !== message.newTenantId) {
             shouldShowModal = true;
             setModalState({
@@ -49,8 +51,13 @@ export function useAuthSync() {
           break;
 
         case "USER_LOGGED_IN":
-          // Show modal if currently logged out
-          if (!userInfo?.isAuthenticated) {
+          // Show modal only if:
+          // 1. Currently logged out, OR
+          // 2. Different user logged in (userId is empty from login, so check email), OR  
+          // 3. Different tenant
+          if (!userInfo?.isAuthenticated || 
+              (message.email && userInfo.email !== message.email) ||
+              (message.tenantId && userInfo.tenantId !== message.tenantId)) {
             shouldShowModal = true;
             setModalState({
               isOpen: true,
@@ -61,6 +68,8 @@ export function useAuthSync() {
 
         case "USER_LOGGED_OUT":
           // Show modal if currently logged in
+          // We check either the same user logged out, or we're still authenticated
+          // (in case the user info hasn't updated yet)
           if (userInfo?.isAuthenticated) {
             shouldShowModal = true;
             setModalState({

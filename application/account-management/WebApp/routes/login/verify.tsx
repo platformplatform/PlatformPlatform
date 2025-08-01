@@ -133,9 +133,10 @@ export function CompleteLoginForm() {
   useEffect(() => {
     if (completeLoginMutation.isSuccess) {
       // Broadcast login event to other tabs
-      // Since the API returns 204 No Content, we use the preferred tenant ID from the request
+      // Since the API returns 204 No Content, we don't have the user ID yet
       const message: Omit<UserLoggedInMessage, "timestamp"> = {
         type: "USER_LOGGED_IN",
+        userId: "", // We don't have the user ID at this point
         tenantId: getPreferredTenantId() || "",
         email: email || ""
       };

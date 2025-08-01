@@ -138,12 +138,13 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
     onSuccess: (_, variables) => {
       // Broadcast the tenant switch to other tabs
       const tenant = tenants.find((t) => t.tenantId === variables.body.tenantId);
-      if (tenant && currentTenantId) {
+      if (tenant && currentTenantId && userInfo?.id) {
         const message: Omit<TenantSwitchedMessage, "timestamp"> = {
           type: "TENANT_SWITCHED",
           newTenantId: tenant.tenantId,
           previousTenantId: currentTenantId,
-          tenantName: tenant.tenantName || t`Unnamed account`
+          tenantName: tenant.tenantName || t`Unnamed account`,
+          userId: userInfo.id
         };
         authSyncService.broadcast(message);
       }
