@@ -31,6 +31,7 @@ export default defineConfig({
       exposes: {
         "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
         "./FederatedTopMenu": "./federated-modules/topMenu/FederatedTopMenu.tsx",
+        "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",
         "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
         "./translations/nl-NL": "./shared/translations/locale/nl-NL.ts"

@@ -2,6 +2,7 @@ import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { type TenantSwitchedMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -134,7 +135,19 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
       // Show the loader immediately
       setIsSwitching(true);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Broadcast the tenant switch to other tabs
+      const tenant = tenants.find((t) => t.tenantId === variables.body.tenantId);
+      if (tenant && currentTenantId) {
+        const message: Omit<TenantSwitchedMessage, "timestamp"> = {
+          type: "TENANT_SWITCHED",
+          newTenantId: tenant.tenantId,
+          previousTenantId: currentTenantId,
+          tenantName: tenant.tenantName || t`Unnamed account`
+        };
+        authSyncService.broadcast(message);
+      }
+
       // Keep the loader visible briefly before redirecting
       // Don't set isSwitching to false here - let the redirect handle it
       setTimeout(() => {

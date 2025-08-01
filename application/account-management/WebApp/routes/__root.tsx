@@ -1,3 +1,4 @@
+import { AuthSyncWrapper } from "@/shared/components/AuthSyncWrapper";
 import { queryClient } from "@/shared/lib/api/client";
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
@@ -25,6 +26,7 @@ function Root() {
       <ThemeModeProvider>
         <ReactAriaRouterProvider>
           <AuthenticationProvider navigate={(options) => navigate(options)}>
+            <AuthSyncWrapper />
             <AddToHomescreen />
             <PageTracker />
             <Outlet />

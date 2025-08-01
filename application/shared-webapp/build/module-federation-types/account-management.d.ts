@@ -6,6 +6,9 @@ declare module "account-management/FederatedSideMenu" {
 declare module "account-management/FederatedTopMenu" {
   export default ReactNode;
 }
+declare module "account-management/AuthSyncModal" {
+  export default ReactNode;
+}
 declare module "account-management/translations/en-US" {
   import type { Messages } from "@lingui/core";
   export const messages: Messages;

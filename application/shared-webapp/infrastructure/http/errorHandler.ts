@@ -115,6 +115,13 @@ function showServerErrorToast(error: ServerError) {
     return;
   }
 
+  // Check if this is an anti-forgery error
+  if (error.status === 400 && error.problemDetails?.title?.toLowerCase().includes("antiforgery")) {
+    // Don't show toast for anti-forgery errors - the auth sync modal will handle it
+    // The useAuthSync hook will detect the authentication state mismatch
+    return;
+  }
+
   let message: { title: string; detail: string };
 
   if (error.problemDetails) {

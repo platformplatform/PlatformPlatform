@@ -35,7 +35,6 @@ export function ModuleFederationPlugin({
           moduleFederation: {
             options: {
               name: snakeCase(SYSTEM_ID),
-
               exposes,
               remotes: getAllRemotes(SYSTEM_ID, remotes),
               filename: manifestFile,

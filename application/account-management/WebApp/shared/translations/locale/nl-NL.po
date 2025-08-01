@@ -41,6 +41,9 @@ msgstr "Accountnaam succesvol bijgewerkt"
 msgid "Account settings"
 msgstr "Accountinstellingen"
 
+msgid "Account switched"
+msgstr "Account gewisseld"
+
 msgid "Active"
 msgstr "Actief"
 
@@ -71,6 +74,9 @@ msgstr "Een e-mail met inloginstructies zal naar de gebruiker worden gestuurd."
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
+
+msgid "An unexpected state occurred. Please reload the page."
+msgstr "Er is een onverwachte fout opgetreden. Herlaad de pagina."
 
 msgid "Any role"
 msgstr "Elke rol"
@@ -145,6 +151,9 @@ msgstr "Ondersteuning contacteren"
 
 msgid "Continue"
 msgstr "Verder"
+
+msgid "Continue with {newTenantName}"
+msgstr "Doorgaan met {newTenantName}"
 
 msgid "Create your account"
 msgstr "Maak je account aan"
@@ -276,6 +285,12 @@ msgstr "Inloggen"
 msgid "Log out"
 msgstr "Uitloggen"
 
+msgid "Logged in"
+msgstr "Ingelogd"
+
+msgid "Logged out"
+msgstr "Uitgelogd"
+
 msgid "Login verification code"
 msgstr "Verificatiecode voor inloggen"
 
@@ -369,6 +384,9 @@ msgstr "Profiel succesvol bijgewerkt"
 msgid "Region"
 msgstr "Regio"
 
+msgid "Reload"
+msgstr "Herladen"
+
 msgid "Remove logo"
 msgstr "Logo verwijderen"
 
@@ -424,6 +442,9 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Success"
 msgstr "Succes"
 
+msgid "Switch back to {currentTenantName}"
+msgstr "Wissel terug naar {currentTenantName}"
+
 msgid "Switching account..."
 msgstr "Account wisselen..."
 
@@ -453,6 +474,9 @@ msgstr "Totale gebruikers"
 
 msgid "Try again"
 msgstr "Probeer opnieuw"
+
+msgid "Unknown state"
+msgstr "Onbekende status"
 
 msgid "Unnamed account"
 msgstr "Naamloos account"
@@ -542,6 +566,15 @@ msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam,
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
+
+msgid "You've been logged in from another tab. This page will reload in {countdown} seconds."
+msgstr "Je bent ingelogd vanuit een ander tabblad. Deze pagina wordt over {countdown} seconden opnieuw geladen."
+
+msgid "You've been logged out from another tab. This page will reload in {countdown} seconds."
+msgstr "Je bent uitgelogd vanuit een ander tabblad. Deze pagina wordt over {countdown} seconden opnieuw geladen."
+
+msgid "Your account has been switched to <0>{newTenantName}</0> in another tab."
+msgstr "Je account is in een ander tabblad gewisseld naar <0>{newTenantName}</0>."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."

@@ -41,6 +41,9 @@ msgstr "Kontonavn opdateret succesfuldt"
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Account switched"
+msgstr "Konto skiftet"
+
 msgid "Active"
 msgstr "Aktiv"
 
@@ -71,6 +74,9 @@ msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
 #. placeholder {0}: error.message
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
+
+msgid "An unexpected state occurred. Please reload the page."
+msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
 
 msgid "Any role"
 msgstr "Enhver rolle"
@@ -145,6 +151,9 @@ msgstr "Kontakt support"
 
 msgid "Continue"
 msgstr "Fortsæt"
+
+msgid "Continue with {newTenantName}"
+msgstr "Fortsæt med {newTenantName}"
 
 msgid "Create your account"
 msgstr "Opret din konto"
@@ -276,6 +285,12 @@ msgstr "Log ind"
 msgid "Log out"
 msgstr "Log ud"
 
+msgid "Logged in"
+msgstr "Logget ind"
+
+msgid "Logged out"
+msgstr "Logget ud"
+
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
 
@@ -369,6 +384,9 @@ msgstr "Profil opdateret succesfuldt"
 msgid "Region"
 msgstr "Region"
 
+msgid "Reload"
+msgstr "Genindlæs"
+
 msgid "Remove logo"
 msgstr "Fjern logo"
 
@@ -424,6 +442,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "Success"
 msgstr "Succes"
 
+msgid "Switch back to {currentTenantName}"
+msgstr "Skift tilbage til {currentTenantName}"
+
 msgid "Switching account..."
 msgstr "Skifter konto..."
 
@@ -453,6 +474,9 @@ msgstr "Totalt antal brugere"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Unknown state"
+msgstr "Ukendt tilstand"
 
 msgid "Unnamed account"
 msgstr "Unavngivet konto"
@@ -542,6 +566,15 @@ msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, t
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You've been logged in from another tab. This page will reload in {countdown} seconds."
+msgstr "Du er blevet logget ind fra en anden fane. Denne side vil genindlæses om {countdown} sekunder."
+
+msgid "You've been logged out from another tab. This page will reload in {countdown} seconds."
+msgstr "Du er blevet logget ud fra en anden fane. Denne side vil genindlæses om {countdown} sekunder."
+
+msgid "Your account has been switched to <0>{newTenantName}</0> in another tab."
+msgstr "Din konto er blevet skiftet til <0>{newTenantName}</0> i en anden fane."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."

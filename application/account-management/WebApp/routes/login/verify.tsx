@@ -5,6 +5,7 @@ import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { type UserLoggedInMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
@@ -131,10 +132,19 @@ export function CompleteLoginForm() {
 
   useEffect(() => {
     if (completeLoginMutation.isSuccess) {
+      // Broadcast login event to other tabs
+      // Since the API returns 204 No Content, we use the preferred tenant ID from the request
+      const message: Omit<UserLoggedInMessage, "timestamp"> = {
+        type: "USER_LOGGED_IN",
+        tenantId: getPreferredTenantId() || "",
+        email: email || ""
+      };
+      authSyncService.broadcast(message);
+
       clearLoginState();
       window.location.href = returnPath ?? loggedInPath;
     }
-  }, [completeLoginMutation.isSuccess, returnPath]);
+  }, [completeLoginMutation.isSuccess, returnPath, email, getPreferredTenantId]);
 
   useEffect(() => {
     if (completeLoginMutation.isError) {
