@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { AuthSyncMessage } from "./AuthSyncService";
+import type { AuthSyncMessage, TenantSwitchedMessage, UserLoggedInMessage } from "./AuthSyncService";
 import { authSyncService } from "./AuthSyncService";
 import { setHasPendingAuthSync } from "./authSyncState";
 import { useUserInfo } from "./hooks";
@@ -13,6 +13,90 @@ export interface ModalState {
   currentTenantName?: string;
   newTenantName?: string;
   newTenantId?: string;
+}
+
+interface ProcessResult {
+  shouldShowModal: boolean;
+  newModalState: ModalState | null;
+}
+
+function processTenantSwitch(
+  message: TenantSwitchedMessage,
+  userInfo: NonNullable<ReturnType<typeof useUserInfo>>
+): ProcessResult {
+  if (!userInfo.isAuthenticated) {
+    return { shouldShowModal: false, newModalState: null };
+  }
+
+  if (userInfo.tenantId !== message.newTenantId) {
+    return {
+      shouldShowModal: true,
+      newModalState: {
+        isOpen: true,
+        type: "tenant-switch",
+        currentTenantName: userInfo.tenantName || "Current account",
+        newTenantName: message.tenantName,
+        newTenantId: message.newTenantId
+      }
+    };
+  }
+
+  // Same tenant - close any existing modal
+  return {
+    shouldShowModal: false,
+    newModalState: { isOpen: false, type: "tenant-switch" }
+  };
+}
+
+function processUserLogin(
+  message: UserLoggedInMessage,
+  userInfo: NonNullable<ReturnType<typeof useUserInfo>>
+): ProcessResult {
+  if (!userInfo.isAuthenticated) {
+    // We were logged out, now someone logged in
+    return {
+      shouldShowModal: true,
+      newModalState: { isOpen: true, type: "logged-in" }
+    };
+  }
+
+  if (message.email && userInfo.email !== message.email) {
+    // Different user logged in
+    return {
+      shouldShowModal: true,
+      newModalState: { isOpen: true, type: "logged-in" }
+    };
+  }
+
+  if (message.tenantId && userInfo.tenantId !== message.tenantId) {
+    // Same user, different tenant - show tenant switch
+    return {
+      shouldShowModal: true,
+      newModalState: {
+        isOpen: true,
+        type: "tenant-switch",
+        currentTenantName: userInfo.tenantName || "Current account",
+        newTenantName: undefined,
+        newTenantId: message.tenantId
+      }
+    };
+  }
+
+  // Same user, same tenant - close any existing modal
+  return {
+    shouldShowModal: false,
+    newModalState: { isOpen: false, type: "logged-in" }
+  };
+}
+
+function processUserLogout(userInfo: NonNullable<ReturnType<typeof useUserInfo>>): ProcessResult {
+  if (userInfo.isAuthenticated) {
+    return {
+      shouldShowModal: true,
+      newModalState: { isOpen: true, type: "logged-out" }
+    };
+  }
+  return { shouldShowModal: false, newModalState: null };
 }
 
 /**
@@ -35,81 +119,33 @@ export function useAuthSync() {
         return;
       }
 
-      let shouldShowModal = false;
-      let newModalState: ModalState | null = null;
+      let result: ProcessResult;
 
       switch (message.type) {
         case "TENANT_SWITCHED":
-          // Only show if we're authenticated and on a different tenant
-          if (userInfo.isAuthenticated && userInfo.tenantId !== message.newTenantId) {
-            shouldShowModal = true;
-            newModalState = {
-              isOpen: true,
-              type: "tenant-switch",
-              currentTenantName: userInfo.tenantName || "Current account",
-              newTenantName: message.tenantName,
-              newTenantId: message.newTenantId
-            };
-          } else if (userInfo.isAuthenticated && userInfo.tenantId === message.newTenantId) {
-            // Same tenant - close any existing modal
-            shouldShowModal = false;
-            newModalState = { isOpen: false, type: "tenant-switch" };
-          }
+          result = processTenantSwitch(message, userInfo);
           break;
 
         case "USER_LOGGED_IN":
-          if (!userInfo.isAuthenticated) {
-            // We were logged out, now someone logged in
-            shouldShowModal = true;
-            newModalState = {
-              isOpen: true,
-              type: "logged-in"
-            };
-          } else if (message.email && userInfo.email !== message.email) {
-            // Different user logged in
-            shouldShowModal = true;
-            newModalState = {
-              isOpen: true,
-              type: "logged-in"
-            };
-          } else if (message.tenantId && userInfo.tenantId !== message.tenantId) {
-            // Same user, different tenant - show tenant switch
-            shouldShowModal = true;
-            newModalState = {
-              isOpen: true,
-              type: "tenant-switch",
-              currentTenantName: userInfo.tenantName || "Current account",
-              newTenantName: undefined, // We don't have tenant name in login message
-              newTenantId: message.tenantId
-            };
-          } else {
-            // Same user, same tenant - close any existing modal
-            shouldShowModal = false;
-            newModalState = { isOpen: false, type: "logged-in" };
-          }
+          result = processUserLogin(message, userInfo);
           break;
 
         case "USER_LOGGED_OUT":
-          if (userInfo.isAuthenticated) {
-            shouldShowModal = true;
-            newModalState = {
-              isOpen: true,
-              type: "logged-out"
-            };
-          }
+          result = processUserLogout(userInfo);
           break;
 
         default:
+          result = { shouldShowModal: false, newModalState: null };
           break;
       }
 
       // Update modal state if we have a new state
-      if (newModalState) {
-        setModalState(newModalState);
+      if (result.newModalState) {
+        setModalState(result.newModalState);
       }
 
       // Update the pending sync state
-      setHasPendingAuthSync(shouldShowModal);
+      setHasPendingAuthSync(result.shouldShowModal);
     },
     [userInfo]
   );
