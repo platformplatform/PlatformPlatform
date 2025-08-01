@@ -13,6 +13,7 @@ import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/Authen
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
+import { getHasPendingAuthSync } from "../auth/authSyncState";
 import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 
@@ -24,6 +25,13 @@ import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 function createHttpMiddleware() {
   return {
     onRequest: ({ request }: { request: Request }) => {
+      // Don't make API calls if there's a pending auth sync
+      if (getHasPendingAuthSync()) {
+        const abortController = new AbortController();
+        abortController.abort(new DOMException("Request blocked due to pending authentication sync", "AbortError"));
+        return new Request(request, { signal: abortController.signal });
+      }
+
       // Only add the token for non-GET requests
       if (request.method !== "GET") {
         request.headers.set("x-xsrf-token", getAntiforgeryToken());

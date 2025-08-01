@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AuthSyncMessage } from "./AuthSyncService";
 import { authSyncService } from "./AuthSyncService";
+import { setHasPendingAuthSync } from "./authSyncState";
 import { useUserInfo } from "./hooks";
 import { getCurrentSanitizedUrl } from "./urlSanitizer";
 
@@ -29,10 +30,13 @@ export function useAuthSync() {
   const [pendingMessage, setPendingMessage] = useState<AuthSyncMessage | null>(null);
 
   const processSyncMessage = useCallback((message: AuthSyncMessage) => {
+    let shouldShowModal = false;
+    
     switch (message.type) {
       case "TENANT_SWITCHED":
         // Check if current tenant differs from the new tenant
         if (userInfo?.isAuthenticated && userInfo.tenantId !== message.newTenantId) {
+          shouldShowModal = true;
           setModalState({
             isOpen: true,
             type: "tenant-switch",
@@ -46,6 +50,7 @@ export function useAuthSync() {
       case "USER_LOGGED_IN":
         // Show modal if currently logged out
         if (!userInfo?.isAuthenticated) {
+          shouldShowModal = true;
           setModalState({
             isOpen: true,
             type: "logged-in"
@@ -56,6 +61,7 @@ export function useAuthSync() {
       case "USER_LOGGED_OUT":
         // Show modal if currently logged in
         if (userInfo?.isAuthenticated) {
+          shouldShowModal = true;
           setModalState({
             isOpen: true,
             type: "logged-out"
@@ -63,6 +69,9 @@ export function useAuthSync() {
         }
         break;
     }
+    
+    // Update the pending sync state
+    setHasPendingAuthSync(shouldShowModal);
   }, [userInfo]);
 
   // Handle visibility changes - show modal when tab becomes visible
@@ -93,6 +102,9 @@ export function useAuthSync() {
   }, [processSyncMessage]);
 
   const handlePrimaryAction = () => {
+    // Clear pending state before reload
+    setHasPendingAuthSync(false);
+    
     // Reload to the sanitized URL
     const sanitizedUrl = getCurrentSanitizedUrl();
     window.location.href = sanitizedUrl;

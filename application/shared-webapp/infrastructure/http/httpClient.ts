@@ -8,6 +8,7 @@
  *
  * Use this module when working with endpoints that don't have OpenAPI/strongly-typed definitions
  */
+import { getHasPendingAuthSync } from "../auth/authSyncState";
 import { normalizeError } from "./errorHandler";
 
 // Default timeout for all fetch requests (in milliseconds)
@@ -26,6 +27,11 @@ export function getAntiforgeryToken(): string {
  * Adds antiforgery tokens, timeout handling, and error processing
  */
 export async function enhancedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  // Don't make API calls if there's a pending auth sync
+  if (getHasPendingAuthSync()) {
+    throw new DOMException("Request blocked due to pending authentication sync", "AbortError");
+  }
+
   const method = init?.method?.toUpperCase() ?? "GET";
 
   const enhancedInit: RequestInit = { ...init };
