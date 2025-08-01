@@ -500,71 +500,226 @@ test.describe("@comprehensive", () => {
       await page2.waitForLoadState("networkidle");
 
       // Both should be on the same tenant initially
-      const nav1 = page1.locator("nav").first();
-      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
-      const nav2 = page2.locator("nav").first();
-      const tenantButton2 = nav2.locator("button").filter({ has: page2.locator('img[alt="Logo"]') });
-
-      await expect(tenantButton1).toBeVisible();
-      await expect(tenantButton2).toBeVisible();
+      // Verify both pages show navigation (confirms authentication is shared)
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
     })();
 
-    // Skip tenant switch modal tests due to BroadcastChannel limitations in Playwright
-    // BroadcastChannel doesn't work reliably between pages in the same context
-
-    // === TEST: LOGOUT SYNCHRONIZATION ===
-    await step("Logout from tab 1 & verify logout")(async () => {
+    // === TEST 1: LOGOUT SYNCHRONIZATION ===
+    // NOTE: Due to Playwright's shared authentication context, both tabs will be logged out simultaneously
+    // We verify the synchronization by checking that both tabs lose authentication
+    await step("Logout from tab 1 & verify tab 2 loses authentication")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
+      testContext2.monitoring.expectedStatusCodes.push(401);
+      
+      // Logout in page1
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
-
+      
       // Verify tab 1 redirected to login
       await expect(page1.getByRole("heading", { name: "Welcome back" })).toBeVisible();
-
-      // NOTE: In production, tab 2 would show "Logged out" modal via BroadcastChannel
-      // Cannot test this in Playwright - instead verify session is terminated on reload
-    })();
-
-    await step("Reload tab 2 & verify session terminated")(async () => {
-      testContext2.monitoring.expectedStatusCodes.push(401);
-
-      // Reload page2 to verify logout propagation
-      await page2.reload();
-
-      // Should redirect to login page due to terminated session
+      
+      // Navigate page2 to trigger auth check
+      await page2.goto("/admin");
+      
+      // Verify tab 2 is redirected to login (authentication lost)
       await expect(page2.getByRole("heading", { name: "Welcome back" })).toBeVisible();
       expect(page2.url()).toContain("/login");
     })();
 
-    // === TEST: VERIFY AUTHENTICATION STATE SHARING ===
-    await step("Login as same user in both tabs & verify shared authentication state")(async () => {
-      // Login as user in tab 2
-      await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page2.getByRole("button", { name: "Continue" }).click();
-      await expect(page2.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page2.keyboard.type(getVerificationCode());
-      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-
-      // Navigate page1 to admin - should be authenticated already due to shared context
-      await page1.goto("/admin");
+    // === TEST 2: LOGIN AS SAME USER IN BOTH TABS ===
+    await step("Login as same user in both tabs")(async () => {
+      // Login in page1
+      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page1.getByRole("button", { name: "Continue" }).click();
+      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page1.keyboard.type(getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-
-      // Both tabs should show the same user
-      const nav1 = page1.locator("nav").first();
-      const nav2 = page2.locator("nav").first();
-      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
-      const tenantButton2 = nav2.locator("button").filter({ has: page2.locator('img[alt="Logo"]') });
-
-      // Both should be on primary tenant
-      await expect(tenantButton1).toContainText(primaryTenantName);
-      await expect(tenantButton2).toContainText(primaryTenantName);
+      
+      // Navigate page2 to admin (it shares authentication with page1)
+      await page2.goto("/admin");
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
     })();
 
-    // NOTE: Additional production behaviors that cannot be tested in Playwright:
-    // - Tenant switch detection across tabs (shows "Account switched" modal)
-    // - Hidden tab event queuing (uses document.visibilitychange)
-    // - URL sanitization on tenant switch (removes entity IDs)
-    // - Rapid switching handling with timestamp-based deduplication
-    // - Modal non-dismissibility (no X button, only Reload)
+    // === TEST 3: DIFFERENT USER LOGIN ===
+    // NOTE: In Playwright, pages in same context share auth, so logging in as different user
+    // will affect both tabs. We verify both tabs show the new user.
+    await step("Logout & login as different user in tab 1")(async () => {
+      testContext1.monitoring.expectedStatusCodes.push(401);
+      
+      // Logout from page1
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page1.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      
+      // Login as different user
+      await page1.getByRole("textbox", { name: "Email" }).fill(secondUser.email);
+      await page1.getByRole("button", { name: "Continue" }).click();
+      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page1.keyboard.type(getVerificationCode());
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+    })();
+
+    await step("Verify tab 2 also shows different user")(async () => {
+      // Navigate page2 to trigger auth check
+      await page2.goto("/admin");
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Verify both tabs now show the secondary tenant (different user's tenant)
+      // Note: For single tenant users, the tenant name is displayed as text, not in a button
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+    })();
+
+    // === TEST 4: TENANT SWITCH DETECTION ===
+    await step("Logout & login as original user with both tenants")(async () => {
+      testContext1.monitoring.expectedStatusCodes.push(401);
+      testContext2.monitoring.expectedStatusCodes.push(401);
+      
+      // Logout
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page1.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      
+      // Login as original user (who has access to both tenants)
+      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page1.getByRole("button", { name: "Continue" }).click();
+      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page1.keyboard.type(getVerificationCode());
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Navigate page2 to admin
+      await page2.goto("/admin");
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Verify both on primary tenant
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+    })();
+
+    await step("Switch to secondary tenant in tab 1 & verify URL updates")(async () => {
+      // Switch tenant in tab 1 - user has multiple tenants so should have dropdown
+      const nav1 = page1.locator("nav").first();
+      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      
+      await tenantButton1.click();
+      const menuItems = page1.getByRole("menuitem");
+      await menuItems.filter({ hasText: secondaryTenantName }).click();
+      
+      // Accept invitation dialog appears for pending invitations
+      const invitationDialog = page1.getByRole("dialog", { name: "Accept invitation" });
+      await expect(invitationDialog).toBeVisible();
+      await page1.getByRole("button", { name: "Accept invitation" }).click();
+      
+      await page1.waitForLoadState("networkidle");
+      
+      // Verify tenant switched in tab 1
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+    })();
+
+    await step("Reload tab 2 & verify it shows tenant switch")(async () => {
+      // Reload page2 to check if it detects the tenant switch
+      await page2.reload();
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Verify tab 2 is now on secondary tenant
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+    })();
+
+    // === TEST 5: SWITCH BACK TO ORIGINAL TENANT ===
+    await step("Switch back to primary tenant in tab 1 & verify synchronization")(async () => {
+      // Switch back to primary tenant
+      const nav1 = page1.locator("nav").first();
+      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      
+      await tenantButton1.click();
+      const menuItems = page1.getByRole("menuitem");
+      await menuItems.filter({ hasText: primaryTenantName }).click();
+      await page1.waitForLoadState("networkidle");
+      
+      // Verify tenant switched in tab 1
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+    })();
+
+    await step("Reload tab 2 & verify it syncs back to primary tenant")(async () => {
+      // Reload page2
+      await page2.reload();
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Verify tab 2 is back on primary tenant
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+    })();
+
+    // === TEST 6: COMPLEX FLOW - SWITCH + LOGOUT + LOGIN ===
+    await step("Switch tenant, logout & login again")(async () => {
+      // Switch to secondary tenant in tab 1
+      const nav1 = page1.locator("nav").first();
+      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      
+      await tenantButton1.click();
+      await page1.getByRole("menuitem").filter({ hasText: secondaryTenantName }).click();
+      await page1.waitForLoadState("networkidle");
+      
+      // Logout from tab 1
+      testContext1.monitoring.expectedStatusCodes.push(401);
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page1.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+      
+      // Login again in tab 1
+      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page1.getByRole("button", { name: "Continue" }).click();
+      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page1.keyboard.type(getVerificationCode());
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Tab 1 should login to secondary tenant (last selected)
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+    })();
+
+    await step("Reload tab 2 & verify it shows tenant switch from login")(async () => {
+      // Navigate page2 to admin to get latest auth state
+      await page2.goto("/admin");
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Verify tab 2 now shows secondary tenant (switched during login)
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+    })();
+
+    // === TEST 7: COMPLEX FLOW - SWITCH BACK AFTER LOGIN ===
+    await step("Switch back to primary tenant & logout")(async () => {
+      // Switch tab 1 back to primary tenant
+      const nav1 = page1.locator("nav").first();
+      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      
+      await tenantButton1.click();
+      await page1.getByRole("menuitem").filter({ hasText: primaryTenantName }).click();
+      await page1.waitForLoadState("networkidle");
+      await expect(tenantButton1).toContainText(primaryTenantName);
+      
+      // Logout again
+      testContext1.monitoring.expectedStatusCodes.push(401);
+      testContext2.monitoring.expectedStatusCodes.push(401);
+      await page1.getByRole("button", { name: "User profile menu" }).click();
+      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      await expect(page1.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    })();
+
+    await step("Login again & verify both tabs sync to primary tenant")(async () => {
+      // Login in tab 1
+      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
+      await page1.getByRole("button", { name: "Continue" }).click();
+      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page1.keyboard.type(getVerificationCode());
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      
+      // Tab 1 should be on primary tenant (last selected before logout)
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+      
+      // Navigate page2 to verify it's also on primary tenant
+      await page2.goto("/admin");
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+    })();
   });
 });
