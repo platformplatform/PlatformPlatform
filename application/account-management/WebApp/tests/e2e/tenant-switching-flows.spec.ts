@@ -24,6 +24,8 @@ test.describe("@comprehensive", () => {
    * - Logout synchronization
    */
   test("should handle comprehensive tenant switching and multi-tab synchronization", async ({ context }) => {
+    // Increase timeout for this comprehensive test
+    test.setTimeout(120000); // 2 minutes
     // Create two pages in the same context to share authentication
     const page1 = await context.newPage();
     const page2 = await context.newPage();
@@ -346,7 +348,7 @@ test.describe("@comprehensive", () => {
       // Reload page2 to check if it detects the tenant switch
       await page2.reload();
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Verify tab 2 is now on primary tenant
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
     })();
@@ -397,12 +399,12 @@ test.describe("@comprehensive", () => {
     // === TEST: DIFFERENT USER LOGIN ===
     await step("Logout & login as different user in tab 1")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
-      
+
       // Logout from page1
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      
+
       // Login as different user
       await page1.getByRole("textbox", { name: "Email" }).fill(secondUser.email);
       await page1.getByRole("button", { name: "Continue" }).click();
@@ -415,7 +417,7 @@ test.describe("@comprehensive", () => {
       // Navigate page2 to trigger auth check
       await page2.goto("/admin");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Verify both tabs now show the secondary tenant (different user's tenant)
       // Note: For single tenant users, the tenant name is displayed as text, not in a button
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
@@ -426,23 +428,23 @@ test.describe("@comprehensive", () => {
     await step("Logout & login as original user with both tenants")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
       testContext2.monitoring.expectedStatusCodes.push(401);
-      
+
       // Logout
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      
+
       // Login as original user (who has access to multiple tenants)
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await page1.keyboard.type(getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Navigate page2 to admin
       await page2.goto("/admin");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Verify both on primary tenant
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
@@ -453,32 +455,32 @@ test.describe("@comprehensive", () => {
       // Switch to secondary tenant in tab 1
       const nav1 = page1.locator("nav").first();
       const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
-      
+
       await tenantButton1.click();
       await page1.getByRole("menuitem").filter({ hasText: secondaryTenantName }).click();
-      
+
       // Logout from tab 1
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      
+
       // Login again in tab 1
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await page1.keyboard.type(getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Tab 1 should login to secondary tenant (last selected)
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
     })();
 
-    await step("Reload tab 2 & verify it shows tenant switch from login")(async () => {
+    await step("Navigate tab 2 to admin & verify it shows tenant switch from login")(async () => {
       // Navigate page2 to admin to get latest auth state
       await page2.goto("/admin");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Verify tab 2 now shows secondary tenant (switched during login)
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
     })();
@@ -488,11 +490,11 @@ test.describe("@comprehensive", () => {
       // Switch back to primary tenant
       const nav1 = page1.locator("nav").first();
       const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
-      
+
       await tenantButton1.click();
       const menuItems = page1.getByRole("menuitem");
       await menuItems.filter({ hasText: primaryTenantName }).click();
-      
+
       // Verify tenant switched in tab 1
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
     })();
@@ -501,7 +503,7 @@ test.describe("@comprehensive", () => {
       // Reload page2
       await page2.reload();
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
+
       // Verify tab 2 is back on primary tenant
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
     })();
@@ -514,7 +516,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await expect(page1).toHaveURL(/\/login/);
-      
+
       // Verify tab 2 also loses authentication
       await page2.goto("/admin");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
