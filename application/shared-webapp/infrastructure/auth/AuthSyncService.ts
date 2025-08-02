@@ -9,7 +9,7 @@
  * Uses BroadcastChannel API for real-time cross-tab messaging
  */
 
-export type AuthSyncEventType = "TENANT_SWITCHED" | "USER_LOGGED_IN" | "USER_LOGGED_OUT" | "TENANT_SWITCH_REQUESTED";
+export type AuthSyncEventType = "TENANT_SWITCHED" | "USER_LOGGED_IN" | "USER_LOGGED_OUT";
 
 export interface TenantSwitchedMessage {
   type: "TENANT_SWITCHED";
@@ -34,20 +34,21 @@ export interface UserLoggedOutMessage {
   timestamp: number;
 }
 
-export interface TenantSwitchRequestedMessage {
-  type: "TENANT_SWITCH_REQUESTED";
-  targetTenantId: string;
-  userId: string;
-  timestamp: number;
-}
-
-export type AuthSyncMessage =
-  | TenantSwitchedMessage
-  | UserLoggedInMessage
-  | UserLoggedOutMessage
-  | TenantSwitchRequestedMessage;
+export type AuthSyncMessage = TenantSwitchedMessage | UserLoggedInMessage | UserLoggedOutMessage;
 
 type AuthSyncListener = (message: AuthSyncMessage) => void;
+
+// Shared state for auth synchronization
+// Used to coordinate between auth sync detection and API calls
+let hasPendingAuthSync = false;
+
+export function setHasPendingAuthSync(value: boolean) {
+  hasPendingAuthSync = value;
+}
+
+export function getHasPendingAuthSync(): boolean {
+  return hasPendingAuthSync;
+}
 
 class AuthSyncService {
   private channel: BroadcastChannel | null = null;

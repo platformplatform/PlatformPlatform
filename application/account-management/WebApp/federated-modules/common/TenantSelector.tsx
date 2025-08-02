@@ -161,32 +161,11 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
     }
   });
 
-  const tenants = tenantsResponse?.tenants || [];
-
-  // Listen for tenant switch requests from auth sync
-  useEffect(() => {
-    if (!userInfo?.id) {
-      return;
-    }
-
-    const unsubscribe = authSyncService.subscribe((message) => {
-      if (message.type === "TENANT_SWITCH_REQUESTED" && message.userId === userInfo.id) {
-        // Check if the requested tenant exists in our list
-        const targetTenant = tenants.find((t) => t.tenantId === message.targetTenantId);
-        if (targetTenant && !targetTenant.isNew) {
-          // Trigger the switch
-          switchTenantMutation.mutate({ body: { tenantId: message.targetTenantId } });
-        }
-      }
-    });
-
-    return unsubscribe;
-  }, [tenants, userInfo?.id, switchTenantMutation]);
-
   if (!userInfo?.isAuthenticated || isLoading) {
     return null;
   }
 
+  const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
 
   // Sort tenants alphabetically by name, with unnamed accounts at the end

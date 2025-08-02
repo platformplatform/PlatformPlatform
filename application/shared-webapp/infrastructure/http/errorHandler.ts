@@ -231,7 +231,7 @@ export async function normalizeError(errorOrResponse: unknown): Promise<Error | 
 
   // Handle network timeout errors and AbortController errors
   if (
-    errorOrResponse instanceof DOMException &&
+    errorOrResponse instanceof Error &&
     (errorOrResponse.name === "TimeoutError" || errorOrResponse.name === "AbortError")
   ) {
     // Don't show timeout errors for auth sync blocks

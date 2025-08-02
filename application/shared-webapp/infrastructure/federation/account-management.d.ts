@@ -23,10 +23,8 @@ declare module "account-management/AuthSyncModal" {
   interface AuthSyncModalProps {
     isOpen: boolean;
     type: "tenant-switch" | "logged-in" | "logged-out";
-    currentTenantName?: string;
     newTenantName?: string;
     onPrimaryAction: () => void;
-    onSecondaryAction?: () => void;
   }
 
   const AuthSyncModal: FC<AuthSyncModalProps>;

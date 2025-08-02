@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type {
-  AuthSyncMessage,
-  TenantSwitchRequestedMessage,
-  TenantSwitchedMessage,
-  UserLoggedInMessage
-} from "./AuthSyncService";
-import { authSyncService } from "./AuthSyncService";
-import { setHasPendingAuthSync } from "./authSyncState";
+import type { AuthSyncMessage, TenantSwitchedMessage, UserLoggedInMessage } from "./AuthSyncService";
+import { authSyncService, setHasPendingAuthSync } from "./AuthSyncService";
 import { useUserInfo } from "./hooks";
 import { getCurrentSanitizedUrl } from "./urlSanitizer";
 
@@ -15,7 +9,6 @@ export type AuthSyncModalType = "tenant-switch" | "logged-in" | "logged-out";
 export interface ModalState {
   isOpen: boolean;
   type: AuthSyncModalType;
-  currentTenantName?: string;
   newTenantName?: string;
   newTenantId?: string;
 }
@@ -39,7 +32,6 @@ function processTenantSwitch(
       newModalState: {
         isOpen: true,
         type: "tenant-switch",
-        currentTenantName: userInfo.tenantName || "Current account",
         newTenantName: message.tenantName,
         newTenantId: message.newTenantId
       }
@@ -80,7 +72,6 @@ function processUserLogin(
       newModalState: {
         isOpen: true,
         type: "tenant-switch",
-        currentTenantName: userInfo.tenantName || "Current account",
         newTenantName: undefined,
         newTenantId: message.tenantId
       }
@@ -191,24 +182,8 @@ export function useAuthSync() {
     window.location.href = sanitizedUrl;
   };
 
-  const handleSecondaryAction = useCallback(() => {
-    // For tenant switch, broadcast a request to switch back
-    if (modalState.type === "tenant-switch" && modalState.currentTenantName && userInfo?.tenantId && userInfo?.id) {
-      const message: Omit<TenantSwitchRequestedMessage, "timestamp"> = {
-        type: "TENANT_SWITCH_REQUESTED",
-        targetTenantId: userInfo.tenantId,
-        userId: userInfo.id
-      };
-      authSyncService.broadcast(message);
-
-      // Close the modal
-      setModalState({ isOpen: false, type: "tenant-switch" });
-    }
-  }, [modalState, userInfo]);
-
   return {
     modalState,
-    handlePrimaryAction,
-    handleSecondaryAction
+    handlePrimaryAction
   };
 }

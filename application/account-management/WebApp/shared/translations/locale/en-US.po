@@ -448,9 +448,6 @@ msgstr "Signup verification code"
 msgid "Success"
 msgstr "Success"
 
-msgid "Switch back to {currentTenantName}"
-msgstr "Switch back to {currentTenantName}"
-
 msgid "Switching account..."
 msgstr "Switching account..."
 

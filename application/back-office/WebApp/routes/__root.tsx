@@ -1,6 +1,6 @@
 import { queryClient } from "@/shared/lib/api/client";
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
-import { AuthSyncWrapper } from "@repo/infrastructure/auth/AuthSyncWrapper";
+import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
@@ -12,9 +12,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
 import { lazy } from "react";
 
-// Lazy load the AuthSyncModal from the federated module
-// biome-ignore lint/suspicious/noExplicitAny: Federated module import
-const AuthSyncModal = lazy(() => import("account-management/AuthSyncModal" as any));
+// biome-ignore lint/suspicious/noExplicitAny: Federated module import from account-management where type is not known
+const FederatedAuthSyncModal = lazy(() => import("account-management/AuthSyncModal" as any));
 
 export const Route = createRootRoute({
   component: Root,
@@ -31,11 +30,10 @@ function Root() {
       <ThemeModeProvider>
         <ReactAriaRouterProvider>
           <AuthenticationProvider navigate={(options) => navigate(options)}>
-            <AuthSyncWrapper modalComponent={AuthSyncModal}>
-              <AddToHomescreen />
-              <PageTracker />
-              <Outlet />
-            </AuthSyncWrapper>
+            <AddToHomescreen />
+            <PageTracker />
+            <Outlet />
+            <AuthSyncModal modalComponent={FederatedAuthSyncModal} />
           </AuthenticationProvider>
         </ReactAriaRouterProvider>
       </ThemeModeProvider>

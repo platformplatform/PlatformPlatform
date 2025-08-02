@@ -1,7 +1,7 @@
-import AuthSyncModal from "@/federated-modules/common/AuthSyncModal";
+import AuthSyncModalComponent from "@/federated-modules/common/AuthSyncModal";
 import { queryClient } from "@/shared/lib/api/client";
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
-import { AuthSyncWrapper } from "@repo/infrastructure/auth/AuthSyncWrapper";
+import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
@@ -27,11 +27,10 @@ function Root() {
       <ThemeModeProvider>
         <ReactAriaRouterProvider>
           <AuthenticationProvider navigate={(options) => navigate(options)}>
-            <AuthSyncWrapper modalComponent={AuthSyncModal}>
-              <AddToHomescreen />
-              <PageTracker />
-              <Outlet />
-            </AuthSyncWrapper>
+            <AddToHomescreen />
+            <PageTracker />
+            <Outlet />
+            <AuthSyncModal modalComponent={AuthSyncModalComponent} />
           </AuthenticationProvider>
         </ReactAriaRouterProvider>
       </ThemeModeProvider>
