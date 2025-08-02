@@ -1,23 +1,20 @@
-import { Suspense, lazy } from "react";
-import type { ReactNode } from "react";
-import { AuthSyncProvider } from "./AuthSyncProvider";
+import { Suspense } from "react";
+import type { ComponentType, ReactNode } from "react";
+import { type AuthSyncModalProps, AuthSyncProvider } from "./AuthSyncProvider";
 
 interface AuthSyncWrapperProps {
   children: ReactNode;
+  modalComponent: ComponentType<AuthSyncModalProps>;
 }
 
 /**
  * Wrapper component that provides authentication synchronization across browser tabs.
  *
- * This wrapper lazy loads the AuthSyncModal from the account-management federated module.
- * For the host system (account-management), use AuthSyncWrapperHost instead.
+ * The modalComponent must be provided by the consuming application.
  */
-export function AuthSyncWrapper({ children }: AuthSyncWrapperProps) {
-  // Lazy load from account-management federated module
-  const AuthSyncModal = lazy(() => import("account-management/AuthSyncModal"));
-
+export function AuthSyncWrapper({ children, modalComponent }: AuthSyncWrapperProps) {
   return (
-    <AuthSyncProvider modalComponent={AuthSyncModal}>
+    <AuthSyncProvider modalComponent={modalComponent}>
       <Suspense fallback={null}>{children}</Suspense>
     </AuthSyncProvider>
   );

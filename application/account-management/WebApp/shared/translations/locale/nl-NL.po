@@ -448,6 +448,9 @@ msgstr "Verificatiecode voor aanmelding"
 msgid "Success"
 msgstr "Succes"
 
+msgid "Switch back to {currentTenantName}"
+msgstr "Schakel terug naar {currentTenantName}"
+
 msgid "Switching account..."
 msgstr "Account wisselen..."
 

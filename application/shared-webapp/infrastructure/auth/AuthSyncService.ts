@@ -9,7 +9,7 @@
  * Uses BroadcastChannel API for real-time cross-tab messaging
  */
 
-export type AuthSyncEventType = "TENANT_SWITCHED" | "USER_LOGGED_IN" | "USER_LOGGED_OUT";
+export type AuthSyncEventType = "TENANT_SWITCHED" | "USER_LOGGED_IN" | "USER_LOGGED_OUT" | "TENANT_SWITCH_REQUESTED";
 
 export interface TenantSwitchedMessage {
   type: "TENANT_SWITCHED";
@@ -34,7 +34,18 @@ export interface UserLoggedOutMessage {
   timestamp: number;
 }
 
-export type AuthSyncMessage = TenantSwitchedMessage | UserLoggedInMessage | UserLoggedOutMessage;
+export interface TenantSwitchRequestedMessage {
+  type: "TENANT_SWITCH_REQUESTED";
+  targetTenantId: string;
+  userId: string;
+  timestamp: number;
+}
+
+export type AuthSyncMessage =
+  | TenantSwitchedMessage
+  | UserLoggedInMessage
+  | UserLoggedOutMessage
+  | TenantSwitchRequestedMessage;
 
 type AuthSyncListener = (message: AuthSyncMessage) => void;
 

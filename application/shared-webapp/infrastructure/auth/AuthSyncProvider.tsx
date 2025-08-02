@@ -21,7 +21,7 @@ interface AuthSyncProviderProps {
  * The modal component is injected to avoid circular dependencies.
  */
 export function AuthSyncProvider({ children, modalComponent: ModalComponent }: AuthSyncProviderProps) {
-  const { modalState, handlePrimaryAction } = useAuthSync();
+  const { modalState, handlePrimaryAction, handleSecondaryAction } = useAuthSync();
 
   return (
     <>
@@ -33,6 +33,7 @@ export function AuthSyncProvider({ children, modalComponent: ModalComponent }: A
           currentTenantName={modalState.currentTenantName}
           newTenantName={modalState.newTenantName}
           onPrimaryAction={handlePrimaryAction}
+          onSecondaryAction={modalState.type === "tenant-switch" ? handleSecondaryAction : undefined}
         />
       )}
     </>

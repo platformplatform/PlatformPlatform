@@ -14,9 +14,17 @@ export interface AuthSyncModalProps {
   currentTenantName?: string;
   newTenantName?: string;
   onPrimaryAction: () => void;
+  onSecondaryAction?: () => void;
 }
 
-export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAction }: AuthSyncModalProps) {
+export default function AuthSyncModal({
+  isOpen,
+  type,
+  currentTenantName,
+  newTenantName,
+  onPrimaryAction,
+  onSecondaryAction
+}: AuthSyncModalProps) {
   const getModalContent = () => {
     switch (type) {
       case "tenant-switch":
@@ -95,6 +103,11 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
             </Heading>
             <div className="mt-2 text-muted-foreground text-sm">{content.description}</div>
             <DialogFooter className="mt-6">
+              {type === "tenant-switch" && onSecondaryAction && currentTenantName && (
+                <Button variant="secondary" onPress={onSecondaryAction}>
+                  {t`Switch back to ${currentTenantName}`}
+                </Button>
+              )}
               <Button variant="primary" onPress={onPrimaryAction}>
                 {content.primaryLabel}
               </Button>

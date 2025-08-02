@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import type { AuthSyncMessage, TenantSwitchedMessage, UserLoggedInMessage } from "./AuthSyncService";
+import type {
+  AuthSyncMessage,
+  TenantSwitchRequestedMessage,
+  TenantSwitchedMessage,
+  UserLoggedInMessage
+} from "./AuthSyncService";
 import { authSyncService } from "./AuthSyncService";
 import { setHasPendingAuthSync } from "./authSyncState";
 import { useUserInfo } from "./hooks";
@@ -186,8 +191,24 @@ export function useAuthSync() {
     window.location.href = sanitizedUrl;
   };
 
+  const handleSecondaryAction = useCallback(() => {
+    // For tenant switch, broadcast a request to switch back
+    if (modalState.type === "tenant-switch" && modalState.currentTenantName && userInfo?.tenantId && userInfo?.id) {
+      const message: Omit<TenantSwitchRequestedMessage, "timestamp"> = {
+        type: "TENANT_SWITCH_REQUESTED",
+        targetTenantId: userInfo.tenantId,
+        userId: userInfo.id
+      };
+      authSyncService.broadcast(message);
+
+      // Close the modal
+      setModalState({ isOpen: false, type: "tenant-switch" });
+    }
+  }, [modalState, userInfo]);
+
   return {
     modalState,
-    handlePrimaryAction
+    handlePrimaryAction,
+    handleSecondaryAction
   };
 }

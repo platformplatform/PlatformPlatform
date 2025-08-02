@@ -10,6 +10,11 @@ import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
+import { lazy } from "react";
+
+// Lazy load the AuthSyncModal from the federated module
+// biome-ignore lint/suspicious/noExplicitAny: Federated module import
+const AuthSyncModal = lazy(() => import("account-management/AuthSyncModal" as any));
 
 export const Route = createRootRoute({
   component: Root,
@@ -26,7 +31,7 @@ function Root() {
       <ThemeModeProvider>
         <ReactAriaRouterProvider>
           <AuthenticationProvider navigate={(options) => navigate(options)}>
-            <AuthSyncWrapper>
+            <AuthSyncWrapper modalComponent={AuthSyncModal}>
               <AddToHomescreen />
               <PageTracker />
               <Outlet />
