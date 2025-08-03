@@ -3,15 +3,15 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Authentication.Queries;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+using PlatformPlatform.AccountManagement.Features.Tenants.Queries;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Authentication;
+namespace PlatformPlatform.AccountManagement.Tests.Tenants;
 
 public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementDbContext>
 {
@@ -50,7 +50,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -65,7 +65,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
     public async Task GetTenants_UserWithSingleTenant_ReturnsSingleTenant()
     {
         // Act
-        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -81,7 +81,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
     public async Task GetTenants_Unauthenticated_ReturnsUnauthorized()
     {
         // Act
-        var response = await AnonymousHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AnonymousHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -123,7 +123,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -167,7 +167,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -212,7 +212,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         );
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/authentication/tenants");
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();

@@ -1,6 +1,5 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.Authentication.Queries;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
@@ -31,10 +30,6 @@ public sealed class AuthenticationEndpoints : IEndpoints
         group.MapPost("/logout", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new LogoutCommand())
         );
-
-        group.MapGet("/tenants", async Task<ApiResult<GetTenantsForUserResponse>> (IMediator mediator)
-            => await mediator.Send(new GetTenantsForUserQuery())
-        ).Produces<GetTenantsForUserResponse>();
 
         group.MapPost("/switch-tenant", async Task<ApiResult> (SwitchTenantCommand command, IMediator mediator)
             => await mediator.Send(command)

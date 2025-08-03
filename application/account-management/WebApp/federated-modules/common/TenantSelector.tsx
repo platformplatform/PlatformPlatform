@@ -109,11 +109,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
   }, [isMenuOpen]);
 
   // Fetch available tenants
-  const {
-    data: tenantsResponse,
-    isLoading,
-    refetch
-  } = api.useQuery("get", "/api/account-management/authentication/tenants");
+  const { data: tenantsResponse, isLoading, refetch } = api.useQuery("get", "/api/account-management/tenants");
 
   // Listen for tenant updates and refetch
   useEffect(() => {

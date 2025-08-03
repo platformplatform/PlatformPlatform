@@ -4,7 +4,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Queries;
+namespace PlatformPlatform.AccountManagement.Features.Tenants.Queries;
 
 public sealed record GetTenantsForUserQuery : IRequest<Result<GetTenantsForUserResponse>>;
 

@@ -152,36 +152,6 @@
         }
       }
     },
-    "/api/account-management/authentication/tenants": {
-      "get": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "GetApiAccountManagementAuthenticationTenants",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetTenantsForUserResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account-management/authentication/switch-tenant": {
       "post": {
         "tags": [
@@ -424,6 +394,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/tenants": {
+      "get": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "GetApiAccountManagementTenants",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTenantsForUserResponse"
                 }
               }
             }
@@ -1184,68 +1184,6 @@
           }
         }
       },
-      "GetTenantsForUserResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "tenants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TenantInfo"
-            }
-          }
-        }
-      },
-      "TenantInfo": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "tenantId": {
-            "$ref": "#/components/schemas/TenantId"
-          },
-          "tenantName": {
-            "type": "string",
-            "nullable": true
-          },
-          "userId": {
-            "$ref": "#/components/schemas/UserId"
-          },
-          "logoUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "isNew": {
-            "type": "boolean"
-          }
-        }
-      },
-      "UserId": {
-        "type": "string",
-        "format": "usr_{string}"
-      },
-      "StronglyTypedUlidOfUserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndUserId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "SwitchTenantCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1337,6 +1275,68 @@
         "properties": {
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "GetTenantsForUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantInfo"
+            }
+          }
+        }
+      },
+      "TenantInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "tenantName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isNew": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
