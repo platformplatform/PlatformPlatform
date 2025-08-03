@@ -1,8 +1,8 @@
+import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { type TenantSwitchedMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -125,26 +125,13 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
     };
   }, [refetch]);
 
-  // Switch tenant mutation
-  const switchTenantMutation = api.useMutation("post", "/api/account-management/authentication/switch-tenant", {
+  // Use the shared switch tenant hook
+  const { switchTenant } = useSwitchTenant({
     onMutate: () => {
       // Show the loader immediately
       setIsSwitching(true);
     },
-    onSuccess: (_, variables) => {
-      // Broadcast the tenant switch to other tabs
-      const tenant = tenants.find((t) => t.tenantId === variables.body.tenantId);
-      if (tenant && currentTenantId && userInfo?.id) {
-        const message: Omit<TenantSwitchedMessage, "timestamp"> = {
-          type: "TENANT_SWITCHED",
-          newTenantId: tenant.tenantId,
-          previousTenantId: currentTenantId,
-          tenantName: tenant.tenantName || t`Unnamed account`,
-          userId: userInfo.id
-        };
-        authSyncService.broadcast(message);
-      }
-
+    onSuccess: () => {
       // Keep the loader visible briefly before redirecting
       // Don't set isSwitching to false here - let the redirect handle it
       setTimeout(() => {
@@ -202,8 +189,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
       }, 100);
     } else if (!tenant.isNew) {
       // Switch directly for existing tenants
-      localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenant.tenantId);
-      switchTenantMutation.mutate({ body: { tenantId: tenant.tenantId } });
+      switchTenant(tenant);
     }
   };
 

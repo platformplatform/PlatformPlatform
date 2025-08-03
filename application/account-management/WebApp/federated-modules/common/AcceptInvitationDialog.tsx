@@ -30,6 +30,15 @@ export function AcceptInvitationDialog({
     onSuccess: () => {
       onOpenChange(false);
       window.location.reload();
+    },
+    onError: (error) => {
+      // Close dialog on error (e.g., when invitation is already revoked)
+      onOpenChange(false);
+      // Re-throw to trigger the global error handler which will show the toast
+      // Use setTimeout to ensure it's an unhandled rejection
+      setTimeout(() => {
+        Promise.reject(error);
+      }, 0);
     }
   });
 

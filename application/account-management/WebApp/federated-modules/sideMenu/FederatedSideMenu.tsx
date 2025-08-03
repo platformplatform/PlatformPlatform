@@ -1,5 +1,5 @@
+import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
 import type { components } from "@/shared/lib/api/api.generated";
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
@@ -19,12 +19,13 @@ export type FederatedSideMenuProps = {
 };
 
 export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedSideMenuProps>) {
-  const userInfo = useUserInfo();
+  const _userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
 
-  const switchTenantMutation = api.useMutation("post", "/api/account-management/authentication/switch-tenant", {
+  // Use the shared switch tenant hook
+  const { switchTenant } = useSwitchTenant({
     onMutate: () => {
       setIsSwitching(true);
     },
@@ -36,13 +37,13 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
     },
     onError: () => {
       setIsSwitching(false);
+      setInvitationDialogTenant(null); // Close dialog on error
     }
   });
 
   const handleAcceptInvitation = () => {
-    if (invitationDialogTenant && userInfo) {
-      localStorage.setItem(`preferred-tenant-${userInfo.email}`, invitationDialogTenant.tenantId);
-      switchTenantMutation.mutate({ body: { tenantId: invitationDialogTenant.tenantId } });
+    if (invitationDialogTenant) {
+      switchTenant(invitationDialogTenant);
     }
   };
 
