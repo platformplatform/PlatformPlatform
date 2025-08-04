@@ -16,7 +16,7 @@ public static class Configuration
         // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
         return builder
             .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
-            .AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
+            .AddNamedBlobStorages(("account-management-storage", "BLOB_STORAGE_URL"));
     }
 
     public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)

@@ -444,7 +444,7 @@ module appGateway '../modules/container-app.bicep' = {
         value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
       }
       {
-        name: 'AVATARS_STORAGE_URL'
+        name: 'ACCOUNT_MANAGEMENT_STORAGE_URL'
         value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
       }
       {

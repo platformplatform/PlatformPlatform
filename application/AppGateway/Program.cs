@@ -38,7 +38,7 @@ else
     );
 }
 
-builder.AddNamedBlobStorages(("avatars-storage", "AVATARS_STORAGE_URL"));
+builder.AddNamedBlobStorages(("account-management-storage", "ACCOUNT_MANAGEMENT_STORAGE_URL"));
 
 builder.WebHost.UseKestrel(option => option.AddServerHeader = false);
 
