@@ -369,6 +369,62 @@
         }
       }
     },
+    "/api/account-management/tenants/current/update-logo": {
+      "post": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "PostApiAccountManagementTenantsCurrentUpdateLogo",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/tenants/current/remove-logo": {
+      "delete": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "DeleteApiAccountManagementTenantsCurrentRemoveLogo",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/users": {
       "get": {
         "tags": [
@@ -1081,6 +1137,10 @@
           },
           "state": {
             "$ref": "#/components/schemas/TenantState"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
