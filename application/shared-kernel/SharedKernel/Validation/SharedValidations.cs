@@ -4,7 +4,7 @@ namespace PlatformPlatform.SharedKernel.Validation;
 
 public static class SharedValidations
 {
-    public sealed class Email : AbstractValidator<string>
+    public sealed class Email : AbstractValidator<string?>
     {
         // While emails can be longer, we will limit them to 100 characters which should be enough for most cases
         private const int EmailMaxLength = 100;
