@@ -175,6 +175,10 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
         name: 'avatars'
         publicAccess: 'None'
       }
+      {
+        name: 'logos'
+        publicAccess: 'None'
+      }
     ]
   }
   dependsOn: [accountManagementIdentity]

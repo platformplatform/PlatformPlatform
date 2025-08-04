@@ -13,6 +13,10 @@ public class SharedAccessSignatureRequestTransform([FromKeyedServices("account-m
         {
             containerName = "avatars";
         }
+        else if (context.Path.StartsWithSegments("/logos"))
+        {
+            containerName = "logos";
+        }
         else
         {
             return ValueTask.CompletedTask;

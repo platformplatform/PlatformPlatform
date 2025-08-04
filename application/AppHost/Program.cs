@@ -45,6 +45,7 @@ builder
     .WithUrlForEndpoint("http", u => u.DisplayText = "Read mail here");
 
 CreateBlobContainer("avatars");
+CreateBlobContainer("logos");
 
 var frontendBuild = builder
     .AddNpmApp("frontend-build", "../")
