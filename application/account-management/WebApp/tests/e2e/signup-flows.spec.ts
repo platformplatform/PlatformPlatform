@@ -176,7 +176,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Save changes" }).focus();
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await expectToastMessage(testContext, 200, "Account updated successfully");
+      await expectToastMessage(testContext, 200, "Account name updated successfully");
     })();
 
     await step("Update user profile title & verify successful profile update")(async () => {

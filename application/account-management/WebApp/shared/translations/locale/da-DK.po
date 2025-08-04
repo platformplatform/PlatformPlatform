@@ -29,11 +29,11 @@ msgstr "Kontoinformation"
 msgid "Account name"
 msgstr "Kontonavn"
 
+msgid "Account name updated successfully"
+msgstr "Kontonavn opdateret succesfuldt"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
-
-msgid "Account updated successfully"
-msgstr "Konto opdateret succesfuldt"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -96,6 +96,9 @@ msgstr "Annuller"
 
 msgid "Change language"
 msgstr "Skift sprog"
+
+msgid "Change logo"
+msgstr "Skift logo"
 
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
@@ -255,6 +258,12 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Logo removed successfully"
+msgstr "Logo fjernet succesfuldt"
+
+msgid "Logo uploaded successfully"
+msgstr "Logo uploadet succesfuldt"
+
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
@@ -312,6 +321,9 @@ msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
+msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -332,6 +344,9 @@ msgstr "Profil opdateret succesfuldt"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Remove logo"
+msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
@@ -411,6 +426,9 @@ msgstr "Prøv igen"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
+
+msgid "Upload logo"
+msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"

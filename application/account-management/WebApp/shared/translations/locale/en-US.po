@@ -29,11 +29,11 @@ msgstr "Account information"
 msgid "Account name"
 msgstr "Account name"
 
+msgid "Account name updated successfully"
+msgstr "Account name updated successfully"
+
 msgid "Account settings"
 msgstr "Account settings"
-
-msgid "Account updated successfully"
-msgstr "Account updated successfully"
 
 msgid "Active"
 msgstr "Active"
@@ -96,6 +96,9 @@ msgstr "Cancel"
 
 msgid "Change language"
 msgstr "Change language"
+
+msgid "Change logo"
+msgstr "Change logo"
 
 msgid "Change profile picture"
 msgstr "Change profile picture"
@@ -255,6 +258,12 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Logo removed successfully"
+msgstr "Logo removed successfully"
+
+msgid "Logo uploaded successfully"
+msgstr "Logo uploaded successfully"
+
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
@@ -312,6 +321,9 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
+msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -332,6 +344,9 @@ msgstr "Profile updated successfully"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Remove logo"
+msgstr "Remove logo"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
@@ -411,6 +426,9 @@ msgstr "Try again"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
+
+msgid "Upload logo"
+msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profile picture"

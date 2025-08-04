@@ -22,6 +22,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
         mobileMenuAriaLabel={t`Open navigation menu`}
         topMenuContent={<MobileMenu currentSystem={currentSystem} onEditProfile={() => setIsProfileModalOpen(true)} />}
         tenantName={userInfo?.tenantName}
+        tenantLogoUrl={userInfo?.tenantLogoUrl ?? undefined}
       >
         <NavigationMenuItems currentSystem={currentSystem} />
       </SideMenu>

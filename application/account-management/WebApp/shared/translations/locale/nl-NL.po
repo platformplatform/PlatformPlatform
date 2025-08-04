@@ -29,11 +29,11 @@ msgstr "Accountinformatie"
 msgid "Account name"
 msgstr "Accountnaam"
 
+msgid "Account name updated successfully"
+msgstr "Accountnaam succesvol bijgewerkt"
+
 msgid "Account settings"
 msgstr "Accountinstellingen"
-
-msgid "Account updated successfully"
-msgstr "Account succesvol bijgewerkt"
 
 msgid "Active"
 msgstr "Actief"
@@ -96,6 +96,9 @@ msgstr "Annuleren"
 
 msgid "Change language"
 msgstr "Taal wijzigen"
+
+msgid "Change logo"
+msgstr "Logo wijzigen"
 
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
@@ -255,6 +258,12 @@ msgstr "Verificatiecode voor inloggen"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Logo removed successfully"
+msgstr "Logo succesvol verwijderd"
+
+msgid "Logo uploaded successfully"
+msgstr "Logo succesvol geüpload"
+
 msgid "Manage your account here."
 msgstr "Beheer je account hier."
 
@@ -312,6 +321,9 @@ msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}<
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
+msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+msgstr "Selecteer een JPEG-, PNG-, GIF-, WebP- of SVG-afbeelding."
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -332,6 +344,9 @@ msgstr "Profiel succesvol bijgewerkt"
 
 msgid "Region"
 msgstr "Regio"
+
+msgid "Remove logo"
+msgstr "Logo verwijderen"
 
 msgid "Remove profile picture"
 msgstr "Profielfoto verwijderen"
@@ -411,6 +426,9 @@ msgstr "Probeer opnieuw"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
+
+msgid "Upload logo"
+msgstr "Logo uploaden"
 
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
