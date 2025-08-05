@@ -1,4 +1,4 @@
-using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
@@ -33,12 +33,28 @@ public static class IdGenerator
     /// </summary>
     private static int GetUniqueGeneratorIdFromIpAddress()
     {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
         const string noNetworkAdapters = "No network adapters with an IPv4 address in the system. IdGenerator is meant to create unique IDs across multiple machines, and requires an IP address to do so.";
-        var ipAddress = Array.Find(host.AddressList, ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                        ?? throw new InvalidOperationException(noNetworkAdapters);
 
-        var lastSegment = ipAddress.ToString().Split('.')[3];
-        return int.Parse(lastSegment);
+        var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
+            .Where(ni => ni.OperationalStatus == OperationalStatus.Up &&
+                         ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                         ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel
+            )
+            .ToArray();
+
+        foreach (var networkInterface in networkInterfaces)
+        {
+            var properties = networkInterface.GetIPProperties();
+            var ipv4Address = properties.UnicastAddresses
+                .FirstOrDefault(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork);
+
+            if (ipv4Address is not null)
+            {
+                var lastSegment = ipv4Address.Address.ToString().Split('.')[3];
+                return int.Parse(lastSegment);
+            }
+        }
+
+        throw new InvalidOperationException(noNetworkAdapters);
     }
 }
