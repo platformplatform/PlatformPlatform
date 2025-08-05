@@ -13,6 +13,10 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: users.length
+msgid "{0} users deleted successfully"
+msgstr "{0} brugere slettet succesfuldt"
+
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
@@ -416,6 +420,9 @@ msgstr "Brugerhandlinger"
 
 msgid "User data updated"
 msgstr "Brugerdata opdateret"
+
+msgid "User deleted successfully: {userDisplayName}"
+msgstr "Bruger slettet succesfuldt: {userDisplayName}"
 
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"
