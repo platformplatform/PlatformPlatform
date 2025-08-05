@@ -35,7 +35,6 @@ interface UserTableProps {
   isProfileOpen?: boolean;
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component handles complex table interactions including sorting, selection, pagination and infinite scroll
 export function UserTable({
   selectedUsers,
   onSelectedUsersChange,
@@ -215,7 +214,7 @@ export function UserTable({
 
   return (
     <>
-      <div className={isMobile ? "flex-1" : "min-h-0 flex-1"}>
+      <div className="min-h-48 flex-1">
         <Table
           key={pageOffset}
           selectionMode={isTouchDevice() || !isMediumViewportOrLarger() ? "single" : "multiple"}

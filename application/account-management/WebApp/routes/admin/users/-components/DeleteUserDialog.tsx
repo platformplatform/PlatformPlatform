@@ -28,7 +28,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
       deleteUserMutation.mutateAsync({ params: { path: { id: user.id } } }).then(() => {
         toastQueue.add({
           title: t`Success`,
-          description: `User deleted successfully: ${userDisplayName}`,
+          description: t`User deleted successfully: ${userDisplayName}`,
           variant: "success"
         });
 
@@ -40,7 +40,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
       await bulkDeleteUsersMutation.mutateAsync({ body: { userIds: userIds } }).then(() => {
         toastQueue.add({
           title: t`Success`,
-          description: `${users.length} users deleted successfully`,
+          description: t`${users.length} users deleted successfully`,
           variant: "success"
         });
 
