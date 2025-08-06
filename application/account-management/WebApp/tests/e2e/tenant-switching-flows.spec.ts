@@ -55,17 +55,24 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(primaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account updated successfully");
+      await expectToastMessage(testContext1, "Account name updated successfully");
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
 
       const navElement = page1.locator("nav").first();
 
       // With single tenant, there's just a logo - no tenant selector button
-      const logoElement = navElement.locator('img[alt="Logo"]');
-      await expect(logoElement).toBeVisible();
+      // The tenant has a name (primaryTenantName) so it will show the initial letter, not an img
+      const tenantLogoElement = navElement
+        .locator('[class*="TenantLogo"], [class*="tenant-logo"], div')
+        .filter({ hasText: primaryTenantName.charAt(0) });
+      await expect(tenantLogoElement.first()).toBeVisible();
 
       // there's no tenant button (it only appears with multiple tenants)
-      const tenantButton = navElement.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      // With single tenant, there's no dropdown button with ChevronDown icon
+      const tenantButton = navElement
+        .locator("button")
+        .filter({ has: page1.locator("svg") })
+        .filter({ hasText: primaryTenantName });
       await expect(tenantButton).not.toBeVisible();
     })();
 
@@ -76,7 +83,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("menuitem", { name: "Log out" }).click();
 
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL(/\/login/);
+      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin");
     })();
 
     await step("Create second tenant & verify user invitation")(async () => {
@@ -88,7 +95,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(secondaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account updated successfully");
+      await expectToastMessage(testContext1, "Account name updated successfully");
 
       // Invite first user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -112,7 +119,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(tertiaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account updated successfully");
+      await expectToastMessage(testContext1, "Account name updated successfully");
 
       // Invite first user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -137,11 +144,12 @@ test.describe("@comprehensive", () => {
       await page1.keyboard.type(getVerificationCode());
       // Wait for navigation to complete - could be Users or Home page
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL(/\/admin/);
+      await expect(page1).toHaveURL("/admin/users");
 
       // tenant selector is visible with dropdown
       const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      // The button contains the TenantLogo component and shows primary tenant (which was last selected before logout)
+      const tenantButton = navElement.locator("button").filter({ hasText: primaryTenantName });
       await expect(tenantButton).toBeVisible();
 
       // Should have dropdown arrow with multiple tenants
@@ -171,18 +179,19 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL(/\/admin/);
+      await expect(page1).toHaveURL("/admin");
 
       // Re-query the tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: secondaryTenantName });
       await expect(tenantButtonAfter).toContainText(secondaryTenantName);
     })();
 
     // === TERTIARY TENANT INVITATION ACCEPTANCE ===
     await step("Accept invitation for tertiary tenant & verify successful tenant switch")(async () => {
       const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      // Tenant button shows secondary tenant currently
+      const tenantButton = navElement.locator("button").filter({ hasText: secondaryTenantName });
 
       await tenantButton.click();
       const menuItems = page1.getByRole("menuitem");
@@ -199,11 +208,11 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL(/\/admin/);
+      await expect(page1).toHaveURL("/admin");
 
       // Re-query tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: tertiaryTenantName });
       await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
     })();
 
@@ -226,7 +235,7 @@ test.describe("@comprehensive", () => {
     await step("Logout and login again & verify tenant preference persists")(async () => {
       // Reuse the existing tenant button reference
       const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButton = navElement.locator("button").filter({ hasText: tertiaryTenantName });
 
       // Should still be on tertiary tenant
       await expect(tenantButton).toContainText(tertiaryTenantName);
@@ -237,12 +246,12 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL(/\/login/);
+      await expect(page1).toHaveURL("login?returnPath=%2Fadmin");
 
       // tab 2 also loses authentication
       await page2.goto("/admin");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL(/\/login/);
+      await expect(page2).toHaveURL("/login?returnPath=%2Fadmin");
 
       // Login again
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
@@ -252,11 +261,11 @@ test.describe("@comprehensive", () => {
 
       // Wait for navigation to complete
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL(/\/admin/);
+      await expect(page1).toHaveURL("/admin");
 
       // Should login to tertiary tenant (last selected)
       const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: tertiaryTenantName });
       await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
 
       // page2 also shows tertiary tenant when navigated
@@ -268,17 +277,17 @@ test.describe("@comprehensive", () => {
     // === TENANT CONTEXT ACROSS NAVIGATION ===
     await step("Navigate across pages & verify tenant context remains consistent")(async () => {
       const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButton = navElement.locator("button").filter({ hasText: tertiaryTenantName });
 
-      // Get the current tenant after stabilization
-      const initialTenant = await tenantButton.textContent();
+      // We're on tertiary tenant at this point
+      const currentTenantName = tertiaryTenantName;
 
       // Navigate to Users page
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
       await expect(page1.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Tenant should still be visible
-      await expect(tenantButton).toContainText(initialTenant || "");
+      await expect(tenantButton).toContainText(currentTenantName);
 
       // Navigate to Account page
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
@@ -286,7 +295,7 @@ test.describe("@comprehensive", () => {
 
       // Should show correct tenant name in account settings
       const accountNameInput = page1.getByRole("textbox", { name: "Account name" });
-      await expect(accountNameInput).toHaveValue(initialTenant?.trim() || "");
+      await expect(accountNameInput).toHaveValue(currentTenantName);
 
       // Switch to a different tenant
       await tenantButton.click();
@@ -296,17 +305,19 @@ test.describe("@comprehensive", () => {
       const targetMenuItem = menuItems.filter({ hasText: primaryTenantName }).first();
       await targetMenuItem.click();
 
-      await expect(page1).toHaveURL(/\/admin/);
+      await expect(page1).toHaveURL("/admin");
 
-      // switched context
-      await expect(tenantButton).toContainText(primaryTenantName);
+      // Re-query the tenant button with the new tenant name
+      const navElementAfterSwitch = page1.locator("nav").first();
+      const tenantButtonAfterSwitch = navElementAfterSwitch.locator("button").filter({ hasText: primaryTenantName });
+      await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
 
       // Navigate back to Home
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
       await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       // Tenant should still be primary tenant
-      await expect(tenantButton).toContainText(primaryTenantName);
+      await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
     })();
 
     // === TEST: TENANT SWITCH DETECTION ACROSS TABS ===
@@ -375,9 +386,9 @@ test.describe("@comprehensive", () => {
 
     // === TEST: COMPLEX FLOW - SWITCH + LOGOUT + LOGIN ===
     await step("Switch tenant, logout & login again")(async () => {
-      // Switch to secondary tenant in tab 1
+      // Switch to secondary tenant in tab 1 (currently on primary tenant)
       const nav1 = page1.locator("nav").first();
-      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButton1 = nav1.locator("button").filter({ hasText: primaryTenantName });
 
       await tenantButton1.click();
       await page1.getByRole("menuitem").filter({ hasText: secondaryTenantName }).click();
@@ -410,9 +421,9 @@ test.describe("@comprehensive", () => {
 
     // === TEST: SWITCH BACK TO ORIGINAL TENANT ===
     await step("Switch back to primary tenant in tab 1 & verify synchronization")(async () => {
-      // Switch back to primary tenant
+      // Switch back to primary tenant (currently on secondary tenant)
       const nav1 = page1.locator("nav").first();
-      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
+      const tenantButton1 = nav1.locator("button").filter({ hasText: secondaryTenantName });
 
       await tenantButton1.click();
       const menuItems = page1.getByRole("menuitem");
@@ -449,7 +460,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(fourthTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account updated successfully");
+      await expectToastMessage(testContext1, "Account name updated successfully");
 
       // Invite the original user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -478,9 +489,9 @@ test.describe("@comprehensive", () => {
       await page2.keyboard.type(getVerificationCode());
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Open tenant selector in page2
+      // Open tenant selector in page2 (should be on primary tenant after login)
       const nav2 = page2.locator("nav").first();
-      const tenantButton2 = nav2.locator("button").filter({ has: page2.locator('img[alt="Logo"]') });
+      const tenantButton2 = nav2.locator("button").filter({ hasText: primaryTenantName });
       await tenantButton2.click();
 
       // the new tenant with invitation is visible
@@ -500,9 +511,9 @@ test.describe("@comprehensive", () => {
       await page3.goto("/admin");
       await expect(page3.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Open tenant selector in page2
+      // Open tenant selector in page2 (still on primary tenant)
       const nav2 = page2.locator("nav").first();
-      const tenantButton2 = nav2.locator("button").filter({ has: page2.locator('img[alt="Logo"]') });
+      const tenantButton2 = nav2.locator("button").filter({ hasText: primaryTenantName });
       await tenantButton2.click();
       const menuItems2 = page2.getByRole("menuitem");
       const invitedTenant2 = menuItems2.filter({ hasText: "Revoke-Test" });
@@ -513,9 +524,9 @@ test.describe("@comprehensive", () => {
       await expect(invitationDialog2).toBeVisible();
       await expect(invitationDialog2).toContainText("You have been invited to join");
 
-      // Open tenant selector in page3
+      // Open tenant selector in page3 (should also be on primary tenant)
       const nav3 = page3.locator("nav").first();
-      const tenantButton3 = nav3.locator("button").filter({ has: page3.locator('img[alt="Logo"]') });
+      const tenantButton3 = nav3.locator("button").filter({ hasText: primaryTenantName });
       await tenantButton3.click();
       const menuItems3 = page3.getByRole("menuitem");
       const invitedTenant3 = menuItems3.filter({ hasText: "Revoke-Test" });
@@ -542,7 +553,7 @@ test.describe("@comprehensive", () => {
 
     await step("Check second tab & verify auth sync modal appears after first tab accepted")(async () => {
       // Find page3 which still has the dialog open
-      const pages = await context.pages();
+      const pages = context.pages();
       const page3 = pages[pages.length - 1]; // Get the last page which is page3
 
       // Should see auth sync modal because page2 already switched tenants
@@ -561,160 +572,6 @@ test.describe("@comprehensive", () => {
       await page3.close();
     })();
 
-    // === INVITATION REVOCATION WITH MULTIPLE TABS ===
-    // NOTE: Commenting out the revocation test due to persistent table interaction issues in the test environment
-    // The table row selection mechanism doesn't work reliably in Playwright tests
-    // This test would verify what happens when an owner revokes an invitation while the user has the
-    // acceptance dialog open in multiple tabs. Due to difficulties selecting table rows in the test
-    // environment, this scenario is not currently tested.
-    /*
-    // Keep page3 reference outside steps for reuse
-    let page3: Awaited<ReturnType<typeof context.newPage>>;
-
-    await step("Create new tenant with pending invitation for revocation test")(async () => {
-      // Create a new owner with new tenant
-      const fifthOwner = testUser();
-      const revocationTestTenantName = `Revocation-${timestamp}`;
-
-      // Logout from page2
-      testContext2.monitoring.expectedStatusCodes.push(401);
-      await page2.getByRole("button", { name: "User profile menu" }).click();
-      await page2.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Create new owner account
-      await completeSignupFlow(page2, expect, fifthOwner, testContext2);
-
-      // Update tenant name
-      await page2.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
-      await page2.getByRole("textbox", { name: "Account name" }).clear();
-      await page2.getByRole("textbox", { name: "Account name" }).fill(revocationTestTenantName);
-      await page2.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext2, "Account updated successfully");
-
-      // Invite the original user
-      await page2.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
-      await page2.getByRole("button", { name: "Invite user" }).click();
-      await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page2.getByRole("button", { name: "Send invite" }).click();
-      await expectToastMessage(testContext2, "User invited successfully");
-
-      // the pending invitation is shown in the users table
-      await expect(page2.locator("tbody").first()).toContainText(user.email);
-      await expect(page2.locator("tbody").first()).toContainText("Pending");
-    })();
-
-    await step("Open invitation dialog in multiple tabs for invited user")(async () => {
-      // Page1 is still logged in from the acceptance test, logout and login as invited user
-      // First navigate to /admin to ensure we're on a page with the user menu
-      await page1.goto("/admin");
-      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      
-      // Logout from page1
-      testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
-      await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-
-      // Login as invited user
-      await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
-      await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
-      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-
-      // Create a third page for the same user
-      page3 = await context.newPage();
-      await page3.goto("/admin");
-      await expect(page3.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-
-      // Open invitation dialog in page1
-      const nav1 = page1.locator("nav").first();
-      const tenantButton1 = nav1.locator("button").filter({ has: page1.locator('img[alt="Logo"]') });
-      await tenantButton1.click();
-      const menuItems1 = page1.getByRole("menuitem");
-      const invitedTenant1 = menuItems1.filter({ hasText: "Revocation" });
-      await invitedTenant1.click();
-
-      // invitation dialog appears in page1
-      const invitationDialog1 = page1.getByRole("dialog", { name: "Accept invitation" });
-      await expect(invitationDialog1).toBeVisible();
-
-      // Open invitation dialog in page3
-      const nav3 = page3.locator("nav").first();
-      const tenantButton3 = nav3.locator("button").filter({ has: page3.locator('img[alt="Logo"]') });
-      await tenantButton3.click();
-      const menuItems3 = page3.getByRole("menuitem");
-      const invitedTenant3 = menuItems3.filter({ hasText: "Revocation" });
-      await invitedTenant3.click();
-
-      // invitation dialog appears in page3
-      const invitationDialog3 = page3.getByRole("dialog", { name: "Accept invitation" });
-      await expect(invitationDialog3).toBeVisible();
-
-      // Both dialogs should be open
-      await expect(invitationDialog1).toBeVisible();
-      await expect(invitationDialog3).toBeVisible();
-    })();
-
-    await step("Owner deletes pending invitation while user has dialogs open")(async () => {
-      // In page2 (owner), navigate to Users page to manage invitations
-      // Page2 is still logged in as the fifthOwner
-      await page2.goto("/admin/users");
-      await expect(page2.getByRole("heading", { name: "Users" })).toBeVisible();
-      
-      // Find and delete the pending invitation
-      // Click on the user row to select it
-      const userRow = page2.locator("tbody tr").filter({ hasText: user.email });
-      const checkbox = userRow.locator('input[type="checkbox"]');
-      await checkbox.click();
-
-      // Click the delete button in the toolbar
-      await page2.getByRole("button", { name: "Delete user" }).first().click();
-
-      // Confirm deletion
-      const deleteDialog = page2.getByRole("alertdialog", { name: "Delete user" });
-      await expect(deleteDialog).toBeVisible();
-      await page2.getByRole("button", { name: "Delete" }).click();
-
-      // user is removed from the list
-      await expectToastMessage(testContext2, `User deleted successfully: ${user.email}`);
-      await expect(page2.locator("tbody").first()).not.toContainText(user.email);
-    })();
-
-    await step("Try to accept revoked invitation in first tab & verify error appears")(async () => {
-      // Try to accept the invitation in page1
-      testContext1.monitoring.expectedStatusCodes.push(404);
-      await page1.getByRole("button", { name: "Accept invitation" }).click();
-
-      // Should see an error toast
-      await expectToastMessage(testContext1, "Failed to accept invitation");
-
-      // Dialog should close and user should remain on current tenant
-      await expect(page1.getByRole("dialog", { name: "Accept invitation" })).not.toBeVisible();
-
-      // User should still be on their previous tenant
-      const nav1 = page1.locator("nav").first();
-      await expect(nav1).not.toContainText("Revocation");
-    })();
-
-    await step("Try to accept revoked invitation in second tab & verify error handling")(async () => {
-      // Try to accept in page3
-      testContext1.monitoring.expectedStatusCodes.push(404);
-      await page3.getByRole("button", { name: "Accept invitation" }).click();
-
-      // Should see an error toast
-      const testContext3 = createTestContext(page3);
-      await expectToastMessage(testContext3, "Failed to accept invitation");
-
-      // Dialog should close
-      await expect(page3.getByRole("dialog", { name: "Accept invitation" })).not.toBeVisible();
-
-      // Clean up
-      await page3.close();
-    })();
-    */
-
     // === FINAL LOGOUT ===
     await step("Logout from the system & verify redirect to login page")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
@@ -725,12 +582,12 @@ test.describe("@comprehensive", () => {
       await page2.getByRole("button", { name: "User profile menu" }).click();
       await page2.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL(/\/login/);
+      await expect(page2).toHaveURL("/login?returnPath=%2Fadmin");
 
       // tab 1 also loses authentication due to auth sync
       await page1.goto("/admin");
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL(/\/login/);
+      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin");
     })();
   });
 });
