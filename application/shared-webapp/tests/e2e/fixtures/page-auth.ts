@@ -62,6 +62,17 @@ async function performFreshAuthentication(
   const testContext = createTestContext(page);
   await completeSignupFlow(page, expect, user, testContext);
 
+  // Set account name for Owner role to allow user invitations
+  if (role === "Owner") {
+    await page.goto("/admin/account");
+    await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+    await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+    await page.getByRole("button", { name: "Save" }).click();
+    
+    const { expectToastMessage } = await import("../utils/test-assertions.js");
+    await expectToastMessage(testContext, "Account name updated successfully");
+  }
+
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {
     await page.locator('[role="dialog"]').waitFor({ state: "detached", timeout: 2000 });

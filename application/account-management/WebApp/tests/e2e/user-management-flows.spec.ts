@@ -21,7 +21,7 @@ test.describe("@smoke", () => {
     const adminUser = testUser();
     const memberUser = testUser();
 
-    await step("Complete owner signup")(async () => {
+    await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -33,6 +33,29 @@ test.describe("@smoke", () => {
       // Wait for table to load and verify content exists - use first() due to mobile rendering with duplicate tables
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
       await expect(page.locator("tbody").first().first()).toContainText("Owner");
+    })();
+
+    await step("Attempt invitation without account name & verify requirement dialog")(async () => {
+      await page.getByRole("button", { name: "Invite user" }).click();
+
+      // Verify account name required dialog appears
+      await expect(page.getByRole("dialog", { name: "Add your account name" })).toBeVisible();
+      await expect(page.getByText("Your team needs to know who's inviting them")).toBeVisible();
+
+      // Navigate to account settings via dialog
+      await page.getByRole("button", { name: "Go to account settings" }).click();
+      await expect(page).toHaveURL("/admin/account");
+    })();
+
+    await step("Set account name & verify successful save")(async () => {
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Company");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
+
+      // Return to users page
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     // Email validation is comprehensively tested in signup-flows.spec.ts
@@ -165,7 +188,7 @@ test.describe("@smoke", () => {
       await expect(userTable).toContainText(owner.email);
     })();
 
-    await step("Logout from owner account")(async () => {
+    await step("Logout from owner account & verify redirect to login")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
@@ -188,7 +211,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/admin");
     })();
 
-    await step("Complete admin user profile setup")(async () => {
+    await step("Complete admin user profile setup & verify profile saved")(async () => {
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(adminUser.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
@@ -242,10 +265,21 @@ test.describe("@comprehensive", () => {
     const user3 = testUser();
 
     // === USER SETUP SECTION ===
-    await step("Complete owner signup")(async () => {
+    await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await page.goto("/admin/users");
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+    })();
 
+    await step("Set account name for user invitations")(async () => {
+      await page.goto("/admin/account");
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Company");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
+    })();
+
+    await step("Navigate to users page & verify owner is listed")(async () => {
+      await page.goto("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 

@@ -21,9 +21,17 @@ test.describe("@smoke", () => {
     const member = testUser();
 
     // Create owner and member users
-    await step("Create owner account")(async () => {
+    await step("Create owner account with signup flow & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+    })();
+
+    await step("Set account name & verify save confirmation")(async () => {
+      await page.goto("/admin/account");
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
     })();
 
     await step("Navigate to users page as Owner & verify invite button is visible")(async () => {
@@ -79,7 +87,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("menu")).not.toBeVisible();
     })();
 
-    await step("Invite member user")(async () => {
+    await step("Invite member user & verify user appears in table")(async () => {
       // Invite member user
       await page.getByRole("button", { name: "Invite user" }).click();
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
@@ -91,7 +99,7 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first()).toContainText(member.email);
     })();
 
-    await step("Log out from owner and log in as member")(async () => {
+    await step("Log out from owner and log in as member & verify authentication")(async () => {
       // Ensure the user table is stable and all users are loaded
       await expect(page.locator("tbody").first().locator("tr")).toHaveCount(2); // owner + member
 
@@ -129,7 +137,7 @@ test.describe("@smoke", () => {
       await page.waitForURL("/admin");
     })();
 
-    await step("Complete member profile setup")(async () => {
+    await step("Complete member profile setup & verify profile saved")(async () => {
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
@@ -202,10 +210,21 @@ test.describe("@smoke", () => {
     const user1 = testUser();
     const user2 = testUser();
 
-    await step("Create owner account")(async () => {
+    await step("Create owner account with signup flow & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await page.goto("/admin/users");
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+    })();
 
+    await step("Set account name & verify save confirmation")(async () => {
+      await page.goto("/admin/account");
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
+    })();
+
+    await step("Navigate to users page & verify owner is listed")(async () => {
+      await page.goto("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
@@ -266,7 +285,7 @@ test.describe("@smoke", () => {
       await expect(thirdRow).toHaveAttribute("aria-selected", "true");
     })();
 
-    await step("Log out as owner and log in as member")(async () => {
+    await step("Log out as owner and log in as member & verify authentication")(async () => {
       // Ensure the bulk delete button is still visible and selections are stable
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeEnabled();
@@ -304,7 +323,7 @@ test.describe("@smoke", () => {
       await page.waitForURL("/admin");
     })();
 
-    await step("Complete member profile setup")(async () => {
+    await step("Complete member profile setup & verify profile saved")(async () => {
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
