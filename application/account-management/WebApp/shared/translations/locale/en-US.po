@@ -50,6 +50,9 @@ msgstr "Add more in the Users menu"
 msgid "Add profile picture"
 msgstr "Add profile picture"
 
+msgid "Add your account name"
+msgstr "Add your account name"
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -218,6 +221,12 @@ msgstr "Filters"
 
 msgid "First name"
 msgstr "First name"
+
+msgid "Go to account settings"
+msgstr "Go to account settings"
+
+msgid "Help your team recognize your invites"
+msgstr "Help your team recognize your invites"
 
 msgid "Here's your overview of what's happening."
 msgstr "Here's your overview of what's happening."
@@ -502,6 +511,9 @@ msgstr "Welcome home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welcome home, {0}"
+
+msgid "Your team needs to know who's inviting them. Add an account name to get started."
+msgstr "Your team needs to know who's inviting them. Add an account name to get started."
 
 msgid "Your verification code has expired"
 msgstr "Your verification code has expired"

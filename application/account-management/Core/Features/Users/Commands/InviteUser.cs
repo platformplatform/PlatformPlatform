@@ -1,5 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -26,6 +27,7 @@ public sealed class InviteUserValidator : AbstractValidator<InviteUserCommand>
 
 public sealed class InviteUserHandler(
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     IEmailClient emailClient,
     IExecutionContext executionContext,
     IMediator mediator,
@@ -37,6 +39,12 @@ public sealed class InviteUserHandler(
         if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
         {
             return Result.Forbidden("Only owners are allowed to invite other users.");
+        }
+
+        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(tenant.Name))
+        {
+            return Result.BadRequest("Account name must be set before inviting users.");
         }
 
         if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
@@ -53,7 +61,7 @@ public sealed class InviteUserHandler(
         var loginPath = $"{Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)}/login";
         var inviter = $"{executionContext.UserInfo.FirstName} {executionContext.UserInfo.LastName}".Trim();
         inviter = inviter.Length > 0 ? inviter : executionContext.UserInfo.Email;
-        await emailClient.SendAsync(command.Email.ToLower(), $"You have been invited to join {executionContext.TenantId} on PlatformPlatform",
+        await emailClient.SendAsync(command.Email.ToLower(), $"You have been invited to join {tenant.Name} on PlatformPlatform",
             $"""
              <h1 style="text-align:center;font-family:sans-serif;font-size:20px">
                <b>{inviter}</b> invited you to join PlatformPlatform.

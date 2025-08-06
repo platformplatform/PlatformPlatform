@@ -192,6 +192,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     public async Task CompleteLogin_WhenUserInviteCompleted_ShouldTrackUserInviteAcceptedEvent()
     {
         // Arrange
+        // Set tenant name first (required for inviting users)
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(),
+            [("Name", "Test Company")]
+        );
+
         var email = Faker.Internet.Email();
         var inviteUserCommand = new InviteUserCommand(email);
         await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);

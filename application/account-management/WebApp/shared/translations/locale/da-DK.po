@@ -50,6 +50,9 @@ msgstr "Tilføj flere i Brugere menuen"
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
 
+msgid "Add your account name"
+msgstr "Tilføj dit kontonavn"
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -218,6 +221,12 @@ msgstr "Filtre"
 
 msgid "First name"
 msgstr "Fornavn"
+
+msgid "Go to account settings"
+msgstr "Gå til kontoindstillinger"
+
+msgid "Help your team recognize your invites"
+msgstr "Hjælp dit team med at genkende dine invitationer"
 
 msgid "Here's your overview of what's happening."
 msgstr "Her er din oversigt over, hvad der sker."
@@ -502,6 +511,9 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
+
+msgid "Your team needs to know who's inviting them. Add an account name to get started."
+msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."
 
 msgid "Your verification code has expired"
 msgstr "Din bekræftelseskode er udløbet"

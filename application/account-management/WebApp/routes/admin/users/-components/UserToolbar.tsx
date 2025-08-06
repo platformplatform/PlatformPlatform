@@ -8,6 +8,7 @@ import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import InviteUserDialog from "./InviteUserDialog";
+import { TenantNameRequiredDialog } from "./TenantNameRequiredDialog";
 import { UserQuerying } from "./UserQuerying";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -19,19 +20,30 @@ interface UserToolbarProps {
 
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
   const { data: currentUser } = api.useQuery("get", "/api/account-management/users/me");
+  const { data: tenant } = api.useQuery("get", "/api/account-management/tenants/current");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [showTenantNameRequiredDialog, setShowTenantNameRequiredDialog] = useState(false);
   const [_isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
   const [_hasActiveFilters, setHasActiveFilters] = useState(false);
   const [shouldUseCompactButtons, setShouldUseCompactButtons] = useState(false);
 
   const isOwner = currentUser?.role === UserRole.Owner;
   const hasSelectedSelf = selectedUsers.some((user) => user.id === currentUser?.id);
+  const hasTenantName = tenant?.name && tenant.name.trim() !== "";
 
   const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean, useCompact: boolean) => {
     setIsFilterBarExpanded(isExpanded);
     setHasActiveFilters(hasFilters);
     setShouldUseCompactButtons(useCompact);
+  };
+
+  const handleInviteClick = () => {
+    if (!hasTenantName) {
+      setShowTenantNameRequiredDialog(true);
+      return;
+    }
+    setIsInviteModalOpen(true);
   };
 
   return (
@@ -40,7 +52,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (
           <TooltipTrigger>
-            <Button variant="primary" onPress={() => setIsInviteModalOpen(true)} aria-label={t`Invite user`}>
+            <Button variant="primary" onPress={handleInviteClick} aria-label={t`Invite user`}>
               <PlusIcon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
                 <Trans>Invite user</Trans>
@@ -75,6 +87,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
         )}
       </div>
       {isOwner && <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />}
+      <TenantNameRequiredDialog isOpen={showTenantNameRequiredDialog} onOpenChange={setShowTenantNameRequiredDialog} />
       <DeleteUserDialog
         users={selectedUsers}
         isOpen={isDeleteModalOpen}

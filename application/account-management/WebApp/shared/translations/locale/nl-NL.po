@@ -50,6 +50,9 @@ msgstr "Nieuwe toevoegen via het Gebruikers menu"
 msgid "Add profile picture"
 msgstr "Profielfoto toevoegen"
 
+msgid "Add your account name"
+msgstr "Voeg je accountnaam toe"
+
 msgid "Admin"
 msgstr "Beheerder"
 
@@ -218,6 +221,12 @@ msgstr "Filters"
 
 msgid "First name"
 msgstr "Voornaam"
+
+msgid "Go to account settings"
+msgstr "Ga naar accountinstellingen"
+
+msgid "Help your team recognize your invites"
+msgstr "Help je team je uitnodigingen te herkennen"
 
 msgid "Here's your overview of what's happening."
 msgstr "Hier is je overzicht van wat er gebeurt."
@@ -502,6 +511,9 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
+
+msgid "Your team needs to know who's inviting them. Add an account name to get started."
+msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."
 
 msgid "Your verification code has expired"
 msgstr "Je verificatiecode is verlopen"
