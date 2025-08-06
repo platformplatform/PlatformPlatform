@@ -3,6 +3,7 @@ import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -23,46 +24,26 @@ interface TenantSelectorProps {
   variant?: "default" | "mobile-menu";
 }
 
-// Helper component for single tenant display
-function SingleTenantDisplay({
-  currentTenantName,
-  currentTenantLogoUrl,
-  isCollapsed
-}: { currentTenantName: string; currentTenantLogoUrl: string | null | undefined; isCollapsed: boolean }) {
-  return (
-    <div className="relative w-full px-3">
-      <div className="">
-        <div
-          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
-        >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-            <TenantLogo
-              logoUrl={currentTenantLogoUrl}
-              tenantName={currentTenantName}
-              size="xs"
-              isRound={false}
-              className="shrink-0"
-            />
-          </div>
-          {!isCollapsed && (
-            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
-              {currentTenantName}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+// Helper function to sort tenants
+function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
+  return [...tenants].sort((a, b) => {
+    // Put unnamed accounts at the end
+    if (!a.tenantName && b.tenantName) {
+      return 1;
+    }
+    if (a.tenantName && !b.tenantName) {
+      return -1;
+    }
+
+    // Both have names or both are unnamed, sort alphabetically
+    const nameA = a.tenantName || "";
+    const nameB = b.tenantName || "";
+    return nameA.localeCompare(nameB);
+  });
 }
 
-export default function TenantSelector({ onShowInvitationDialog, variant = "default" }: TenantSelectorProps = {}) {
-  const userInfo = useUserInfo();
-  const isCollapsed = useContext(collapsedContext);
-  const overlayCtx = useContext(overlayContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSwitching, setIsSwitching] = useState(false);
-
-  // Track current sidebar width
+// Custom hook for sidebar width management
+function useSidebarWidth(isCollapsed: boolean) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     if (isCollapsed) {
       return SIDE_MENU_COLLAPSED_WIDTH;
@@ -102,6 +83,163 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
       setSidebarWidth(stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH);
     }
   }, [isCollapsed]);
+
+  return sidebarWidth;
+}
+
+// Helper component for the tenant menu dropdown
+function TenantMenuDropdown({
+  currentTenantName,
+  currentTenantNameForLogo,
+  currentTenantLogoUrl,
+  newTenantsCount,
+  isCollapsed,
+  isSwitching,
+  variant,
+  sidebarWidth,
+  sortedTenants,
+  currentTenantId,
+  userInfo,
+  handleTenantSwitch,
+  setIsMenuOpen
+}: {
+  currentTenantName: string;
+  currentTenantNameForLogo: string;
+  currentTenantLogoUrl: string | null | undefined;
+  newTenantsCount: number;
+  isCollapsed: boolean;
+  isSwitching: boolean;
+  variant: "default" | "mobile-menu";
+  sidebarWidth: number;
+  sortedTenants: TenantInfo[];
+  currentTenantId: string | undefined;
+  userInfo: UserInfo | null;
+  handleTenantSwitch: (tenant: TenantInfo) => void;
+  setIsMenuOpen: (open: boolean) => void;
+}) {
+  return (
+    <div className="relative w-full px-3">
+      <div className="">
+        <MenuTrigger onOpenChange={setIsMenuOpen}>
+          <Button
+            variant="ghost"
+            className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
+            isDisabled={isSwitching}
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+              <TenantLogo
+                logoUrl={currentTenantLogoUrl}
+                tenantName={currentTenantNameForLogo}
+                size="xs"
+                isRound={false}
+                className="shrink-0"
+              />
+            </div>
+            {!isCollapsed && (
+              <>
+                <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+                  {currentTenantName}
+                </div>
+                {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
+                <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
+              </>
+            )}
+          </Button>
+          <Menu
+            placement={variant === "mobile-menu" ? "bottom end" : isCollapsed ? "right" : "bottom start"}
+            popoverClassName="bg-input-background p-px -ml-1"
+            style={{ minWidth: `${sidebarWidth - 16}px` }}
+          >
+            <MenuHeader>
+              <div className="flex flex-col gap-1 font-semibold text-sm">
+                <Trans>Select Account</Trans>
+              </div>
+            </MenuHeader>
+            <MenuSeparator />
+            {sortedTenants.map((tenant: TenantInfo) => (
+              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant)}>
+                <TenantLogo
+                  logoUrl={tenant.logoUrl}
+                  tenantName={tenant.tenantName || ""}
+                  size="xs"
+                  isRound={false}
+                  className="shrink-0"
+                  style={{ width: "24px", height: "24px" }}
+                />
+                <div className="flex flex-1 items-center justify-between gap-2">
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                      {tenant.tenantName || t`Unnamed account`}
+                    </span>
+                    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
+                      {userInfo?.email}
+                    </span>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {tenant.isNew && (
+                      <Badge variant="warning" className="text-xs">
+                        <Trans>Invitation pending</Trans>
+                      </Badge>
+                    )}
+                    {tenant.tenantId === currentTenantId && <Check className="h-4 w-4" />}
+                  </div>
+                </div>
+              </MenuItem>
+            ))}
+          </Menu>
+        </MenuTrigger>
+      </div>
+    </div>
+  );
+}
+
+// Helper component for single tenant display
+function SingleTenantDisplay({
+  currentTenantName,
+  currentTenantNameForLogo,
+  currentTenantLogoUrl,
+  isCollapsed
+}: {
+  currentTenantName: string;
+  currentTenantNameForLogo: string;
+  currentTenantLogoUrl: string | null | undefined;
+  isCollapsed: boolean;
+}) {
+  return (
+    <div className="relative w-full px-3">
+      <div className="">
+        <div
+          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+            <TenantLogo
+              logoUrl={currentTenantLogoUrl}
+              tenantName={currentTenantNameForLogo}
+              size="xs"
+              isRound={false}
+              className="shrink-0"
+            />
+          </div>
+          {!isCollapsed && (
+            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+              {currentTenantName}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function TenantSelector({ onShowInvitationDialog, variant = "default" }: TenantSelectorProps = {}) {
+  const userInfo = useUserInfo();
+  const isCollapsed = useContext(collapsedContext);
+  const overlayCtx = useContext(overlayContext);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  // Use custom hook for sidebar width management
+  const sidebarWidth = useSidebarWidth(isCollapsed);
 
   // Dispatch event when menu open state changes
   useEffect(() => {
@@ -151,27 +289,16 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
   const tenants = tenantsResponse?.tenants || [];
   const currentTenantId = userInfo.tenantId;
 
-  // Sort tenants alphabetically by name, with unnamed accounts at the end
-  const sortedTenants = [...tenants].sort((a, b) => {
-    // Put unnamed accounts at the end
-    if (!a.tenantName && b.tenantName) {
-      return 1;
-    }
-    if (a.tenantName && !b.tenantName) {
-      return -1;
-    }
-
-    // Both have names or both are unnamed, sort alphabetically
-    const nameA = a.tenantName || "";
-    const nameB = b.tenantName || "";
-    return nameA.localeCompare(nameB);
-  });
+  // Sort tenants using helper function
+  const sortedTenants = sortTenants(tenants);
 
   // Get tenant name from tenants list to ensure it's always up-to-date
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
+  const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
   const newTenantsCount = tenants.filter((t) => t.isNew && t.tenantId !== currentTenantId).length;
-  const currentTenantLogoUrl = userInfo.tenantLogoUrl || currentTenant?.logoUrl;
+  // Always use fresh data from API when available, only fall back to userInfo if tenant not found in API response
+  const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
 
   const handleTenantSwitch = (tenant: TenantInfo) => {
     if (tenant.tenantId === currentTenantId) {
@@ -198,6 +325,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
     return (
       <SingleTenantDisplay
         currentTenantName={currentTenantName}
+        currentTenantNameForLogo={currentTenantNameForLogo}
         currentTenantLogoUrl={currentTenantLogoUrl}
         isCollapsed={isCollapsed}
       />
@@ -206,78 +334,21 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
 
   // When there are multiple tenants, show dropdown with styled content
   const menuContent = (
-    <div className="relative w-full px-3">
-      <div className="">
-        <MenuTrigger onOpenChange={setIsMenuOpen}>
-          <Button
-            variant="ghost"
-            className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
-            isDisabled={isSwitching}
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-              <TenantLogo
-                logoUrl={currentTenantLogoUrl}
-                tenantName={currentTenantName}
-                size="xs"
-                isRound={false}
-                className="shrink-0"
-              />
-            </div>
-            {!isCollapsed && (
-              <>
-                <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
-                  {currentTenantName}
-                </div>
-                {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
-                <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
-              </>
-            )}
-          </Button>
-          <Menu
-            placement={variant === "mobile-menu" ? "bottom end" : isCollapsed ? "right" : "bottom start"}
-            popoverClassName="bg-input-background p-px -ml-1"
-            style={{ minWidth: `${sidebarWidth - 16}px` }}
-          >
-            <MenuHeader>
-              <div className="flex flex-col gap-1 font-semibold text-sm">
-                <Trans>Select Account</Trans>
-              </div>
-            </MenuHeader>
-            <MenuSeparator />
-            {sortedTenants.map((tenant: TenantInfo) => (
-              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant)}>
-                <TenantLogo
-                  logoUrl={tenant.logoUrl}
-                  tenantName={tenant.tenantName || ""}
-                  size="xs"
-                  isRound={false}
-                  className="shrink-0"
-                  style={{ width: "24px", height: "24px" }}
-                />
-                <div className="flex flex-1 items-center justify-between gap-2">
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                      {tenant.tenantName || t`Unnamed account`}
-                    </span>
-                    <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
-                      {userInfo.email}
-                    </span>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    {tenant.isNew && (
-                      <Badge variant="warning" className="text-xs">
-                        <Trans>Invitation pending</Trans>
-                      </Badge>
-                    )}
-                    {tenant.tenantId === currentTenantId && <Check className="h-4 w-4" />}
-                  </div>
-                </div>
-              </MenuItem>
-            ))}
-          </Menu>
-        </MenuTrigger>
-      </div>
-    </div>
+    <TenantMenuDropdown
+      currentTenantName={currentTenantName}
+      currentTenantNameForLogo={currentTenantNameForLogo}
+      currentTenantLogoUrl={currentTenantLogoUrl}
+      newTenantsCount={newTenantsCount}
+      isCollapsed={isCollapsed}
+      isSwitching={isSwitching}
+      variant={variant}
+      sidebarWidth={sidebarWidth}
+      sortedTenants={sortedTenants}
+      currentTenantId={currentTenantId}
+      userInfo={userInfo}
+      handleTenantSwitch={handleTenantSwitch}
+      setIsMenuOpen={setIsMenuOpen}
+    />
   );
 
   // Wrap in tooltip for collapsed state
