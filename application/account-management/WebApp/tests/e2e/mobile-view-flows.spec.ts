@@ -24,8 +24,16 @@ test.describe("@comprehensive", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await step("Complete owner signup")(async () => {
+    await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
+    })();
+
+    await step("Set account name & verify save confirmation")(async () => {
+      await page.goto("/admin/account");
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Nav Test");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
     })();
 
     await step("Navigate to admin dashboard & verify mobile layout")(async () => {
@@ -357,10 +365,20 @@ test.describe("@comprehensive", () => {
    * - Modal behavior on mobile viewport
    */
   test("should handle mobile form interactions and validation correctly", async ({ ownerPage }) => {
-    createTestContext(ownerPage);
+    const context = createTestContext(ownerPage);
 
     // Set mobile viewport
     await ownerPage.setViewportSize({ width: 375, height: 667 });
+
+    await step("Set account name & verify save confirmation")(async () => {
+      await ownerPage.goto("/admin/account");
+      await expect(ownerPage.getByRole("heading", { name: "Account settings" })).toBeVisible();
+
+      await ownerPage.getByRole("textbox", { name: "Account name" }).clear();
+      await ownerPage.getByRole("textbox", { name: "Account name" }).fill("Mobile Test Org");
+      await ownerPage.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
+    })();
 
     await step("Navigate to users page & open invite user dialog")(async () => {
       await ownerPage.goto("/admin/users");
@@ -405,8 +423,16 @@ test.describe("@comprehensive", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await step("Create a fresh tenant")(async () => {
+    await step("Create a fresh tenant & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, user, context, true);
+    })();
+
+    await step("Set account name & verify save confirmation")(async () => {
+      await page.goto("/admin/account");
+      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Selection Test");
+      await page.getByRole("button", { name: "Save changes" }).click();
+      await expectToastMessage(context, "Account name updated successfully");
     })();
 
     // === SETUP ===

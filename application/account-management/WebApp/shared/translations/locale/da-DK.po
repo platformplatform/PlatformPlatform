@@ -29,11 +29,11 @@ msgstr "Kontoinformation"
 msgid "Account name"
 msgstr "Kontonavn"
 
+msgid "Account name updated successfully"
+msgstr "Kontonavn opdateret succesfuldt"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
-
-msgid "Account updated successfully"
-msgstr "Konto opdateret succesfuldt"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -49,6 +49,9 @@ msgstr "Tilføj flere i Brugere menuen"
 
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
+
+msgid "Add your account name"
+msgstr "Tilføj dit kontonavn"
 
 msgid "Admin"
 msgstr "Admin"
@@ -96,6 +99,9 @@ msgstr "Annuller"
 
 msgid "Change language"
 msgstr "Skift sprog"
+
+msgid "Change logo"
+msgstr "Skift logo"
 
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
@@ -216,6 +222,12 @@ msgstr "Filtre"
 msgid "First name"
 msgstr "Fornavn"
 
+msgid "Go to account settings"
+msgstr "Gå til kontoindstillinger"
+
+msgid "Help your team recognize your invites"
+msgstr "Hjælp dit team med at genkende dine invitationer"
+
 msgid "Here's your overview of what's happening."
 msgstr "Her er din oversigt over, hvad der sker."
 
@@ -254,6 +266,12 @@ msgstr "Login-bekræftelseskode"
 
 msgid "Logo"
 msgstr "Logo"
+
+msgid "Logo removed successfully"
+msgstr "Logo fjernet succesfuldt"
+
+msgid "Logo uploaded successfully"
+msgstr "Logo uploadet succesfuldt"
 
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
@@ -312,6 +330,9 @@ msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
+msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -332,6 +353,9 @@ msgstr "Profil opdateret succesfuldt"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Remove logo"
+msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
@@ -412,6 +436,9 @@ msgstr "Prøv igen"
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
 
+msgid "Upload logo"
+msgstr "Upload logo"
+
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
@@ -484,6 +511,9 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
+
+msgid "Your team needs to know who's inviting them. Add an account name to get started."
+msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."
 
 msgid "Your verification code has expired"
 msgstr "Din bekræftelseskode er udløbet"

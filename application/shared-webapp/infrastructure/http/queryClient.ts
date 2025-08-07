@@ -70,7 +70,9 @@ export const queryClient = new QueryClient({
       onError: (error: unknown) => {
         // Validation errors in mutations should be handled by UI
         const httpError = error as HttpError;
-        if (httpError.kind === "validation") {
+
+        // Only skip global error handling for validation errors that have kind: "validation"
+        if (httpError?.kind === "validation") {
           return;
         }
 

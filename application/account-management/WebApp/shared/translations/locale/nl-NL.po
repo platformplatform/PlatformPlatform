@@ -29,11 +29,11 @@ msgstr "Accountinformatie"
 msgid "Account name"
 msgstr "Accountnaam"
 
+msgid "Account name updated successfully"
+msgstr "Accountnaam succesvol bijgewerkt"
+
 msgid "Account settings"
 msgstr "Accountinstellingen"
-
-msgid "Account updated successfully"
-msgstr "Account succesvol bijgewerkt"
 
 msgid "Active"
 msgstr "Actief"
@@ -49,6 +49,9 @@ msgstr "Nieuwe toevoegen via het Gebruikers menu"
 
 msgid "Add profile picture"
 msgstr "Profielfoto toevoegen"
+
+msgid "Add your account name"
+msgstr "Voeg je accountnaam toe"
 
 msgid "Admin"
 msgstr "Beheerder"
@@ -96,6 +99,9 @@ msgstr "Annuleren"
 
 msgid "Change language"
 msgstr "Taal wijzigen"
+
+msgid "Change logo"
+msgstr "Logo wijzigen"
 
 msgid "Change profile picture"
 msgstr "Profielfoto wijzigen"
@@ -216,6 +222,12 @@ msgstr "Filters"
 msgid "First name"
 msgstr "Voornaam"
 
+msgid "Go to account settings"
+msgstr "Ga naar accountinstellingen"
+
+msgid "Help your team recognize your invites"
+msgstr "Help je team je uitnodigingen te herkennen"
+
 msgid "Here's your overview of what's happening."
 msgstr "Hier is je overzicht van wat er gebeurt."
 
@@ -254,6 +266,12 @@ msgstr "Verificatiecode voor inloggen"
 
 msgid "Logo"
 msgstr "Logo"
+
+msgid "Logo removed successfully"
+msgstr "Logo succesvol verwijderd"
+
+msgid "Logo uploaded successfully"
+msgstr "Logo succesvol geüpload"
 
 msgid "Manage your account here."
 msgstr "Beheer je account hier."
@@ -312,6 +330,9 @@ msgstr "Controleer je e-mail voor een verificatiecode verzonden naar <0>{email}<
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Selecteer een JPEG-, PNG-, GIF- of WebP-afbeelding."
 
+msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+msgstr "Selecteer een JPEG-, PNG-, GIF-, WebP- of SVG-afbeelding."
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -332,6 +353,9 @@ msgstr "Profiel succesvol bijgewerkt"
 
 msgid "Region"
 msgstr "Regio"
+
+msgid "Remove logo"
+msgstr "Logo verwijderen"
 
 msgid "Remove profile picture"
 msgstr "Profielfoto verwijderen"
@@ -412,6 +436,9 @@ msgstr "Probeer opnieuw"
 msgid "Update your profile picture and personal details here."
 msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
 
+msgid "Upload logo"
+msgstr "Logo uploaden"
+
 msgid "Upload profile picture"
 msgstr "Profielfoto uploaden"
 
@@ -484,6 +511,9 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
+
+msgid "Your team needs to know who's inviting them. Add an account name to get started."
+msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."
 
 msgid "Your verification code has expired"
 msgstr "Je verificatiecode is verlopen"

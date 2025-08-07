@@ -175,6 +175,10 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
         name: 'avatars'
         publicAccess: 'None'
       }
+      {
+        name: 'logos'
+        publicAccess: 'None'
+      }
     ]
   }
   dependsOn: [accountManagementIdentity]
@@ -444,7 +448,7 @@ module appGateway '../modules/container-app.bicep' = {
         value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
       }
       {
-        name: 'AVATARS_STORAGE_URL'
+        name: 'ACCOUNT_MANAGEMENT_STORAGE_URL'
         value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
       }
       {

@@ -10,6 +10,7 @@ import logoMarkUrl from "../images/logo-mark.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
 import { Link } from "./Link";
+import { TenantLogo } from "./TenantLogo";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
 import { focusRing } from "./focusRing";
 
@@ -455,6 +456,7 @@ type SideMenuProps = {
   mobileMenuAriaLabel: string;
   topMenuContent?: React.ReactNode;
   tenantName?: string;
+  tenantLogoUrl?: string;
 };
 
 // Helper function to get initial menu width from localStorage
@@ -756,7 +758,11 @@ const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
 );
 
 // Logo and tenant name component
-const LogoSection = ({ actualIsCollapsed, tenantName }: { actualIsCollapsed: boolean; tenantName?: string }) => (
+const LogoSection = ({
+  actualIsCollapsed,
+  tenantName,
+  tenantLogoUrl
+}: { actualIsCollapsed: boolean; tenantName?: string; tenantLogoUrl?: string }) => (
   <div
     className={actualIsCollapsed ? "flex w-full justify-center" : ""}
     style={
@@ -773,7 +779,17 @@ const LogoSection = ({ actualIsCollapsed, tenantName }: { actualIsCollapsed: boo
           }
     }
   >
-    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
+    {tenantLogoUrl ? (
+      <TenantLogo
+        logoUrl={tenantLogoUrl}
+        tenantName={tenantName ?? "P"}
+        size="xs"
+        isRound={false}
+        className="shrink-0"
+      />
+    ) : (
+      <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
+    )}
     {!actualIsCollapsed && (
       <span
         className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
@@ -865,6 +881,7 @@ const MenuNav = ({
   shouldShowResizeHandle,
   handleResizeStart,
   tenantName,
+  tenantLogoUrl,
   toggleButtonRef,
   toggleMenu,
   hasDraggedRef,
@@ -885,6 +902,7 @@ const MenuNav = ({
   shouldShowResizeHandle: boolean;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   tenantName?: string;
+  tenantLogoUrl?: string;
   toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
   toggleMenu: () => void;
   hasDraggedRef: React.RefObject<boolean>;
@@ -916,7 +934,7 @@ const MenuNav = ({
 
     {/* Fixed header section with logo */}
     <div className="relative flex h-[72px] w-full shrink-0 items-center">
-      <LogoSection actualIsCollapsed={actualIsCollapsed} tenantName={tenantName} />
+      <LogoSection actualIsCollapsed={actualIsCollapsed} tenantName={tenantName} tenantLogoUrl={tenantLogoUrl} />
 
       {/* Toggle button centered on divider, at intersection with topbar border */}
       <div
@@ -1041,7 +1059,8 @@ export function SideMenu({
   sidebarToggleAriaLabel,
   mobileMenuAriaLabel,
   topMenuContent,
-  tenantName
+  tenantName,
+  tenantLogoUrl
 }: Readonly<SideMenuProps>) {
   const { className, forceCollapsed, overlayMode, isHidden } = useResponsiveMenu();
   const sideMenuRef = useRef<HTMLDivElement>(null);
@@ -1127,6 +1146,7 @@ export function SideMenu({
           shouldShowResizeHandle={shouldShowResizeHandle}
           handleResizeStart={handleResizeStart}
           tenantName={tenantName}
+          tenantLogoUrl={tenantLogoUrl}
           toggleButtonRef={toggleButtonRef}
           toggleMenu={toggleMenu}
           hasDraggedRef={hasDraggedRef}

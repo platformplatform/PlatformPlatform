@@ -11,6 +11,7 @@ import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -66,17 +67,20 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     { body: Schemas["UpdateCurrentUserCommand"] }
   >({
     mutationFn: async (data) => {
+      // Handle avatar changes first
       if (selectedAvatarFile) {
         const formData = new FormData();
         formData.append("file", selectedAvatarFile);
-        // biome-ignore lint/suspicious/noExplicitAny: The client does not support typed file uploads, see https://github.com/openapi-ts/openapi-typescript/issues/1214
-        await updateAvatarMutation.mutateAsync({ body: formData as any });
+        await (updateAvatarMutation as unknown as FileUploadMutation).mutateAsync({ body: formData });
       } else if (removeAvatarFlag) {
         await removeAvatarMutation.mutateAsync({});
         setRemoveAvatarFlag(false);
       }
 
+      // Update user profile data
       await updateCurrentUserMutation.mutateAsync(data);
+
+      // Refetch to get the updated user data including new avatar URL
       const { data: updatedUser } = await refetch();
       if (updatedUser) {
         updateUserInfo(updatedUser);

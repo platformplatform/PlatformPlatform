@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.Tenants;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Configuration;
@@ -16,7 +17,7 @@ public static class Configuration
         // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
         return builder
             .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
-            .AddNamedBlobStorages(("avatars-storage", "BLOB_STORAGE_URL"));
+            .AddNamedBlobStorages(("account-management-storage", "BLOB_STORAGE_URL"));
     }
 
     public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
@@ -27,6 +28,8 @@ public static class Configuration
                 client.Timeout = TimeSpan.FromSeconds(5);
             }
         );
+
+        TenantMapsterConfig.Configure();
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)

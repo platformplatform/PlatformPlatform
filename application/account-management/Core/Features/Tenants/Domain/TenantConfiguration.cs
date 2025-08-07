@@ -10,5 +10,7 @@ public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
     public void Configure(EntityTypeBuilder<Tenant> builder)
     {
         builder.MapStronglyTypedLongId<Tenant, TenantId>(t => t.Id);
+
+        builder.OwnsOne(t => t.Logo, b => b.ToJson());
     }
 }

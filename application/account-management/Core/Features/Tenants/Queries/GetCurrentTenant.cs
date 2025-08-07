@@ -10,7 +10,14 @@ namespace PlatformPlatform.AccountManagement.Features.Tenants.Queries;
 public sealed record GetCurrentTenantQuery : IRequest<Result<TenantResponse>>;
 
 [PublicAPI]
-public sealed record TenantResponse(TenantId Id, DateTimeOffset CreatedAt, DateTimeOffset? ModifiedAt, string Name, TenantState State);
+public sealed record TenantResponse(
+    TenantId Id,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt,
+    string Name,
+    TenantState State,
+    string? LogoUrl
+);
 
 public sealed class GetTenantHandler(ITenantRepository tenantRepository)
     : IRequestHandler<GetCurrentTenantQuery, Result<TenantResponse>>

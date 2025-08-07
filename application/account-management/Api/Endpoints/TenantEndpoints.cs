@@ -22,6 +22,14 @@ public sealed class TenantEndpoints : IEndpoints
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
 
+        group.MapPost("/current/update-logo", async Task<ApiResult> (IFormFile file, IMediator mediator)
+            => await mediator.Send(new UpdateTenantLogoCommand(file.OpenReadStream(), file.ContentType))
+        ).DisableAntiforgery();
+
+        group.MapDelete("/current/remove-logo", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new RemoveTenantLogoCommand())
+        );
+
         routes.MapDelete("/internal-api/account-management/tenants/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new DeleteTenantCommand(id))
         );
